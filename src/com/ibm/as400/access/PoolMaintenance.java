@@ -31,7 +31,7 @@ class PoolMaintenance extends Thread
   **/
   public PoolMaintenance(ConnectionPool pool)
   {
-    super();
+    super("AS400ConnectionPoolMaintenanceThread");
     setDaemon(true);
     pool_ = pool;
     lastRun_ = System.currentTimeMillis();     // Set start time.
