@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: Product.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2001 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
- 
+
 /**
- * Represents an OS/400 licensed product. The {@link #isInstalled isInstalled()}
+ * Represents a licensed product on the server. The {@link #isInstalled isInstalled()}
  * method should be called to verify the
  * product is installed on the system. If it is not, other information returned by getters in this
  * class may not be valid.
@@ -42,10 +42,10 @@ public class Product
   private boolean error500_ = false; // Did we get an error retrieving the PRDR0500 format values?
   private boolean error800_ = false; // Did we get an error retrieving the PRDR0800 format values?
 
-  private AS400 system_;  
-  private String productID_;
-  private String productOption_;
-  private String releaseLevel_;
+  private AS400 system_;            // never null
+  private String productID_;        // never null
+  private String productOption_;    // never null
+  private String releaseLevel_;     // never null
   private String descriptionID_;
   private String descriptionText_;
   private String messageFile_;
@@ -65,7 +65,7 @@ public class Product
   private int requirementsMet_;
   private String level_;
 
-  // PRDR0500 format  
+  // PRDR0500 format
   private boolean allowsMultipleReleases_;
   private Date releaseDate_;
   private String firstCopyright_;
@@ -82,7 +82,7 @@ public class Product
   private Product[] options_;
   private int chunkSize_ = 8192;
 
-                                                         
+
 
   /**
    * Constant indicating that the product load is defined but
@@ -91,7 +91,7 @@ public class Product
    * each product option, and language loads can be defined.
   **/
   public static final String LOAD_STATE_DEFINED_NO_OBJECT = "10";
-  
+
   /**
    * Constant indicating that the product load object exists, but
    * before it can be saved using the Save Licensed Program (SAVLICPGM)
@@ -100,28 +100,28 @@ public class Product
    * (QSZPKGPO) API.
   **/
   public static final String LOAD_STATE_DEFINED_OBJECT_EXISTS = "20";
-  
+
   /**
    * Constant indicating that a Restore Licensed Program (RSTLICPGM)
    * command did not complete successfully. A preoperation exit program
    * failed. The product being replaced had been packaged, but not installed.
   **/
   public static final String LOAD_STATE_PACKAGED_RESTORE_FAILED_EXIT_PROGRAM_FAILED = "3E";
-  
+
   /**
    * Constant indicating that a Restore Licensed Program (RSTLICPGM)
    * command failed. A preoperation exit program did not fail. The product
    * being replaced had been packaged, but not installed.
   **/
   public static final String LOAD_STATE_PACKAGED_RESTORE_FAILED = "3F";
-  
+
   /**
    * Constant indicating that the product load object for this load has
    * been packaged with the Package Product Option (PKGPRDOPT) command
    * or the Package Product Option (QSZPKGPO) API.
   **/
   public static final String LOAD_STATE_PACKAGED = "30";
-  
+
   /**
    * Constant indicating that the product load object for this load has
    * been packaged with the Package Product Option (PKGPRDOPT) command
@@ -131,8 +131,8 @@ public class Product
    * for a packaged load was renamed or moved to another library.
   **/
   public static final String LOAD_STATE_PACKAGED_RENAMED = "32";
-  
-  /** 
+
+  /**
    * Constant indicating that the product load object for this load has
    * been packaged with the Package Product Option (PKGPRDOPT) command
    * or the Package Product Option (QSZPKGPO) API, but an object was
@@ -141,7 +141,7 @@ public class Product
    * was used for this load.
   **/
   public static final String LOAD_STATE_PACKAGED_DAMAGED = "33";
-  
+
   /**
    * Constant indicating that the product load object for this load has
    * been packaged with the Package Product Option (PKGPRDOPT) command
@@ -153,82 +153,82 @@ public class Product
    * used for this load.
   **/
   public static final String LOAD_STATE_PACKAGED_DELETED = "34";
-  
+
   /**
    * Constant indicating that a Restore Licensed Program (RSTLICPGM) command
    * is in progress. The product being replaced had been packaged, but
    * not installed.
   **/
   public static final String LOAD_STATE_PACKAGED_RESTORE_IN_PROGRESS = "35";
-  
+
   /**
    * Constant indicating that a Delete Licensed Program (DLTLICPGM) command
    * is in progress. The product being deleted had been packaged, but
    * not installed.
   **/
   public static final String LOAD_STATE_PACKAGED_DELETE_IN_PROGRESS = "38";
-  
+
   /**
    * Constant indicating that a Restore Licensed Program (RSTLICPGM) command
    * is in progress. The product being replaced had been installed.
   **/
   public static final String LOAD_STATE_INSTALLED_RESTORE_IN_PROGRESS = "50";
-  
+
   /**
    * Constant indicating that a Delete Licensed Program (DLTLICPGM) command
    * is in progress. The product being deleted had been installed.
   **/
   public static final String LOAD_STATE_INSTALLED_DELETE_IN_PROGRESS = "53";
-  
+
   /**
    * Constant indicating that this product is an IBM-supplied product and
-   * it is not compatible with the currently installed release level of OS/400.
-   * An error occurred when the product was restored or when OS/400 was installed.
+   * it is not compatible with the currently installed release level of i5/OS.
+   * An error occurred when the product was restored or when i5/OS was installed.
    * The IBM-supplied product is at a release level earlier than V2R2M0, which
    * is not supported by the Save Licensed Program (SAVLICPGM) command.
   **/
   public static final String LOAD_STATE_IBM_SUPPLIED_NOT_COMPATIBLE = "59";
-  
+
   /**
    * Constant indicating that a Restore Licensed Program (RSTLICPGM) command
    * did not complete successfully. A preoperation exit program failed. The
    * product being replaced had been installed.
   **/
   public static final String LOAD_STATE_INSTALLED_RESTORE_FAILED_EXIT_PROGRAM_FAILED = "6E";
-  
+
   /**
    * Constant indicating that a Restore Licensed Program (RSTLICPGM) command
    * failed. The failure was not a preoperation exit program or postoperation
    * exit program. The product being replaced had been installed.
   **/
   public static final String LOAD_STATE_INSTALLED_RESTORE_FAILED = "6F";
-  
+
   /**
    * Constant indicating that the product load object for this load was loaded
    * on to the system by the Restore Licensed Program (RSTLICPGM) command.
   **/
   public static final String LOAD_STATE_RESTORED = "60";
-  
+
   /**
    * Constant indicating that the product load object for this load was loaded
-   * on to the system by the Restore Licensed Program (RSTLICPGM) command but 
+   * on to the system by the Restore Licensed Program (RSTLICPGM) command but
    * a postoperation exit program failed.
   **/
   public static final String LOAD_STATE_RESTORED_EXIT_PROGRAM_FAILED = "61";
-  
+
   /**
    * Constant indicating that an installed library or folder was renamed, but
    * the product does not allow dynamic naming.
   **/
   public static final String LOAD_STATE_RESTORED_RENAMED = "62";
-  
+
   /**
    * Constant indicating that the product load object for this load was installed
    * by the Restore Licensed Program (RSTLICPGM) command, but an object is
    * damaged.
   **/
   public static final String LOAD_STATE_RESTORED_DAMAGED = "63";
-  
+
   /**
    * Constant indicating that the product load object for this load was installed
    * by the Restore Licensed Program (RSTLICPGM) command, but either an object
@@ -238,65 +238,65 @@ public class Product
    * used.
   **/
   public static final String LOAD_STATE_RESTORED_DELETED = "64";
-  
+
   /**
    * Constant indicating that the Check Product Option (CHKPRDOPT) command was
    * used for this product load, but the postoperation exit program failed or
    * indicated that an error was found.
   **/
   public static final String LOAD_STATE_CHECK_ERROR = "67";
-  
+
   /**
    * Constant indicating that the product load was installed successfully. If an
    * object was missing or was damaged, but the problem was corrected, using
    * the Check Product Option (CHKPRDOPT) command sets the state back to this.
   **/
   public static final String LOAD_STATE_INSTALLED = "90";
-  
-                                                         
-                                                         
-  /** 
+
+
+
+  /**
    * Constant indicating a product load type of *CODE.
   **/
   public static final String LOAD_TYPE_CODE = "*CODE";
-  
+
   /**
    * Constant indicating a product load type of *LNG.
   **/
   public static final String LOAD_TYPE_LANGUAGE = "*LNG";
-  
-  
-  
+
+
+
   /**
    * Constant indicating a product option of *BASE.
   **/
-  public static final String PRODUCT_OPTION_BASE = "*BASE";  
-  
+  public static final String PRODUCT_OPTION_BASE = "*BASE";
+
   /**
    * Constant indicating a feature ID of *CODE.
   **/
   public static final String PRODUCT_FEATURE_CODE = "*CODE";
-  
+
   /**
    * Constant indicating a product ID of *OPSYS.
   **/
   public static final String PRODUCT_ID_OPERATING_SYSTEM = "*OPSYS";
-  
+
   /**
    * Constant indicating a release level of *CUR.
   **/
   public static final String PRODUCT_RELEASE_CURRENT = "*CUR";
-  
+
   /**
    * Constant indicating a release level of *ONLY.
   **/
   public static final String PRODUCT_RELEASE_ONLY = "*ONLY";
-  
+
   /**
    * Constant indicating a release level of *PRV.
   **/
   public static final String PRODUCT_RELEASE_PREVIOUS = "*PRV";
-  
+
   /**
    * Constant indicating that the release level of the product
    * should be determined at runtime by the system.
@@ -311,69 +311,69 @@ public class Product
    * created.
   **/
   public static final String REGISTRATION_TYPE_PHONE = "02";
-  
+
   /**
    * Constant indicating that the registration type is the
-   * same as the registration type for OS/400.
+   * same as the registration type for i5/OS.
   **/
   public static final String REGISTRATION_TYPE_SYSTEM = "04";
-  
+
   /**
    * Constant indicating that the registration type *CUSTOMER was
    * specified when the product load or product definition was
    * created.
   **/
   public static final String REGISTRATION_TYPE_CUSTOMER = "08";
-  
+
 
 
   /**
    * Constant indicating that there is not enough information
    * available to determine if the release requirements have
-   * been met. This will be the value if the load type is 
+   * been met. This will be the value if the load type is
    * LOAD_TYPE_LANGUAGE.
   **/
   public static final int REQUIREMENTS_UNKNOWN = 0;
-  
+
   /**
    * Constant indicating that the releases of the *BASE and option
    * meet all requirements.
   **/
   public static final int REQUIREMENTS_MET = 1;
-  
+
   /**
    * Constant indicating that the release of the option is too
    * old compared to the *BASE.
   **/
   public static final int REQUIREMENTS_OPTION_TOO_OLD = 2;
-  
+
   /**
    * Constant indicating that the release of the *BASE is too
    * old compared to the option.
   **/
   public static final int REQUIREMENTS_BASE_TOO_OLD = 3;
-  
-  
+
+
 
   /**
    * Constant indicating that the load is defined but the product load
    * object for this load does not exist.
   **/
   public static final String SYMBOLIC_LOAD_STATE_DEFINED = "*DEFINED";
-  
+
   /**
    * Constant indicating that the product load object for this load
    * exists. It must be packaged with the Package Product Option (PKGPRDOPT)
    * command before it can be saved using the Save Licensed Program (SAVLICPGM) command.
   **/
   public static final String SYMBOLIC_LOAD_STATE_CREATED = "*CREATED";
-  
+
   /**
    * Constant indicating that the product load object for this load has
    * been packaged with the Package Product Option (PKGPRDOPT) command.
   **/
   public static final String SYMBOLIC_LOAD_STATE_PACKAGED = "*PACKAGED";
-  
+
   /**
    * Constant indicating that either the product load object has been damaged
    * (if this option is something other than the base option or the load type
@@ -382,7 +382,7 @@ public class Product
    * (if this option is for the base option and code load type).
   **/
   public static final String SYMBOLIC_LOAD_STATE_DAMAGED = "*DAMAGED";
-  
+
   /**
    * Constant indicating that either a Restore Licensed Program (RSTLICPGM)
    * function is in progress, a Delete Licensed Program (DLTLICPGM) function
@@ -390,15 +390,15 @@ public class Product
    * was an error during the process of converting product information.
   **/
   public static final String SYMBOLIC_LOAD_STATE_LOADED = "*LOADED";
-  
+
   /**
    * Constant indicating that the product load object for this load was loaded
    * on to the system by the Restore Licensed Program (RSTLICPGM) command.
   **/
   public static final String SYMBOLIC_LOAD_STATE_INSTALLED = "*INSTALLED";
-  
-   
-   
+
+
+
   /**
    * Constructs a Product object. The following default values are used:
    * <UL>
@@ -414,7 +414,24 @@ public class Product
     this(system, productID, PRODUCT_OPTION_BASE, PRODUCT_RELEASE_ANY, PRODUCT_FEATURE_CODE);
   }
 
-                       
+
+
+  /**
+   * Constructs a Product object. The following default values are used:
+   * <UL>
+   * <LI>releaseLevel  -  PRODUCT_RELEASE_ANY
+   * <LI>featureID  -  PRODUCT_FEATURE_CODE
+   * </UL>
+   * @param system The system.
+   * @param productID The product identifier.
+   * @param productOption The product option.
+  **/
+  public Product(AS400 system, String productID, String productOption)
+  {
+    this(system, productID, productOption, PRODUCT_RELEASE_ANY, PRODUCT_FEATURE_CODE);
+  }
+
+
   /**
    * Constructs a Product object.
    * @param system The system.
@@ -422,7 +439,7 @@ public class Product
    * @param productOption The product option.
    * @param releaseLevel The release level of the product.
    * @param featureID The product feature identifier.
-  **/   
+  **/
   public Product(AS400 system, String productID, String productOption, String releaseLevel, String featureID)
   {
     if (system == null) throw new NullPointerException("system");
@@ -449,7 +466,7 @@ public class Product
     {
       option = "0"+option;
     }
-    
+
     String level = releaseLevel.toUpperCase().trim();
     if (level.length() != 6 && level.length() != 0 && !level.equals(PRODUCT_RELEASE_CURRENT) &&
         !level.equals(PRODUCT_RELEASE_ONLY) && !level.equals(PRODUCT_RELEASE_PREVIOUS) &&
@@ -467,6 +484,27 @@ public class Product
     productOption_ = option;
     releaseLevel_ = level;
     loadID_ = load;
+  }
+
+
+  /**
+   * Constructs a Product object.  Sets featureID to PRODUCT_FEATURE_CODE.
+   * @param system The system.
+   * @param productID The product identifier.
+   * @param productOption The product option.
+   * @param releaseLevel The release level of the product.
+   * @param loadType The type of product load.
+   * @param languageID The language feature ID for the product.
+  **/
+  public Product(AS400 system, String productID, String productOption, String releaseLevel, String loadType, String languageID)
+  {
+    this(system, productID, productOption, releaseLevel, PRODUCT_FEATURE_CODE);
+
+    if (loadType == null) throw new NullPointerException("loadType");
+    if (languageID == null) throw new NullPointerException("languageID");
+
+    loadType_ = loadType;
+    primaryLanguageLoadID_ = languageID;
   }
 
 
@@ -512,7 +550,7 @@ public class Product
     registrationValue_ = regValue;
     partiallyLoaded_ = true;
   }
-  
+
 
   /**
    * Indicates if the names of product libraries and root folders
@@ -531,15 +569,15 @@ public class Product
     if (!loadedOptions_) fillInOptionInformation();
     return allowsDynamicNaming_;
   }
-  
-  
+
+
   /**
    * Indicates if this product allows mixed releases between its *BASE
    * and options.
    * @return true if the *BASE option and other options of this product
    * can be at different release levels, false if they must all be at
    * the same release level.
-  **/  
+  **/
   public boolean allowsMixedReleases()
   throws AS400Exception,
          AS400SecurityException,
@@ -637,7 +675,7 @@ public class Product
     return descriptionID_;
   }
 
-  
+
   /**
    * Returns the full pathname of the message file that contains the
    * messages describing the product and its options.
@@ -688,7 +726,7 @@ public class Product
       {
         // Couldn't find the message file, or some other error.
         if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to retrieve product description text for "+fileName+" and "+id+": ", e);
-      }      
+      }
       loadedDescriptionText_ = true;
     }
     return descriptionText_;
@@ -728,7 +766,7 @@ public class Product
     return loadID_;
   }
 
-  
+
   /**
    * Returns the value specified for the copyright first year when
    * the product definition for this product load was created. If no
@@ -748,7 +786,7 @@ public class Product
     return firstCopyright_;
   }
 
-  
+
   /**
    * Returns the release level of this product.
    * @return The release level.
@@ -765,7 +803,7 @@ public class Product
     return level_;
   }
 
-  
+
   /**
    * Returns a ProductLicense object representing license information
    * for this product.
@@ -828,7 +866,7 @@ public class Product
     return loadState_;
   }
 
-  
+
   /**
    * Returns the type of product load for which information was retrieved.
    * Possible values are:
@@ -850,7 +888,7 @@ public class Product
     return loadType_;
   }
 
-  
+
   /**
    * Returns the minimum release level that is allowed for the option
    * that will run with the current level of the *BASE option for the product.
@@ -873,7 +911,7 @@ public class Product
     return minimumVRM_;
   }
 
-  
+
   /**
    * Returns the minimum release level that is allowed for the *BASE option
    * that will run with the current level of the option for the product. This
@@ -899,7 +937,7 @@ public class Product
 
 
   /**
-   * Returns the minimum OS/400 release to which the Save Licensed Program
+   * Returns the minimum i5/OS release to which the Save Licensed Program
    * (SAVLICPGM) command will allow the product to be saved.
    * @return The minimum target release (e.g. "V5R1M0").
   **/
@@ -915,7 +953,7 @@ public class Product
     return minimumTargetRelease_;
   }
 
-  
+
   /**
    * Returns the primary language feature ID for this product.
    * <P>
@@ -941,7 +979,7 @@ public class Product
     return primaryLanguageLoadID_;
   }
 
-  
+
   /**
    * Returns the product ID for this product.
    * @return The product ID (e.g. "5722JC1").
@@ -951,7 +989,7 @@ public class Product
     return productID_;
   }
 
-  
+
   /**
    * Returns the product option for this product.
    * @return The product option (e.g. "*BASE" or "0012").
@@ -960,7 +998,7 @@ public class Product
   {
     return productOption_;
   }
-  
+
 
   /**
    * Returns the list of product options for this product ID.
@@ -1104,7 +1142,7 @@ public class Product
     }
     return ptfs;
   }
-  
+
 
   /**
    * Returns the registration type associated with this product. The
@@ -1130,7 +1168,7 @@ public class Product
     return registrationType_;
   }
 
-  
+
   /**
    * Returns the registration value associated with this product. The
    * registration type and registration value together make up the
@@ -1169,7 +1207,7 @@ public class Product
     return releaseDate_;
   }
 
-  
+
   /**
    * Returns the release level for this product (e.g. "V5R1M0").
    * If any of the special values were specified when this object was constructed,
@@ -1192,7 +1230,7 @@ public class Product
     return releaseLevel_;
   }
 
-  
+
   /**
    * Returns the reason why the release requirements between the base and
    * option may or may not be in error. (When a product allows mixed releases
@@ -1220,7 +1258,7 @@ public class Product
     return requirementsMet_;
   }
 
-  
+
   /**
    * Returns the symbolic load state for which information was retrieved.
    * This value, in conjunction with the load error, can be used to determine
@@ -1249,7 +1287,7 @@ public class Product
     return symbolicLoadState_;
   }
 
-  
+
   /**
    * Returns the system.
    * @return The system.
@@ -1259,7 +1297,7 @@ public class Product
     return system_;
   }
 
-  
+
   /**
    * Indicates whether or not this product is installed on the system.
    * @return true if the product is installed, false if it is not.
@@ -1400,7 +1438,7 @@ public class Product
         }
       }
     }
-    
+
     String format = null;
     int len = 0;
     switch(whichFormat)
