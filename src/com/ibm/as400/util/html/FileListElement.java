@@ -117,193 +117,193 @@ import com.ibm.as400.util.servlet.RowDataException;
 *  <td><a href="/servlet/myListServlet/QIBM/ProdData/HTTP/Public/jt400/com">com</a></td>
 *  <td align="right"></td>
 *  <td>Directory</td>
-*  <td>06/09/2000 11:00:46</td>
+*  <td>06/09/2000 11:00:46 AM</td>
 *  </tr>
 *  <tr>
 *  <td><a href="/servlet/myListServlet/QIBM/ProdData/HTTP/Public/jt400/lib">lib</a></td>
 *  <td align="right"></td>
 *  <td>Directory</td>
-*  <td>09/11/2000 10:32:24</td>
+*  <td>09/11/2000 10:32:24 AM</td>
 *  </tr>
 *  <tr>
 *  <td><a href="/servlet/myListServlet/QIBM/ProdData/HTTP/Public/jt400/MRI2924">MRI2924</a></td>
 *  <td align="right"></td>
 *  <td>Directory</td>
-*  <td>06/09/2000 11:03:12</td>
+*  <td>06/09/2000 11:03:12 PM</td>
 *  </tr>
 *  <tr>
 *  <td><a href="/servlet/myListServlet/QIBM/ProdData/HTTP/Public/jt400/SSL128">SSL128</a></td>
 *  <td align="right"></td>
 *  <td>Directory</td>
-*  <td>09/22/2000 10:46:29</td>
+*  <td>09/22/2000 10:46:29 AM</td>
 *  </tr>
 *  <tr>
 *  <td><a href="/servlet/myListServlet/QIBM/ProdData/HTTP/Public/jt400/SSL56">SSL56</a></td>
 *  <td align="right"></td>
 *  <td>Directory</td>
-*  <td>09/22/2000 10:43:52</td>
+*  <td>09/22/2000 10:43:52 PM</td>
 *  </tr>
 *  <tr>
 *  <td><a href="/servlet/myListServlet/QIBM/ProdData/HTTP/Public/jt400/utilities">utilities</a></td>
 *  <td align="right"></td>
 *  <td>Directory</td>
-*  <td>06/09/2000 11:01:58</td>
+*  <td>06/09/2000 11:01:58 AM</td>
 *  </tr>
 *  <tr>
 *  <td>ACCESS.LST</td>
 *  <td align="right">15950</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:25</td>
+*  <td>06/29/2000 06:26:25 PM</td>
 *  </tr>
 *  <tr>
 *  <td>ACCESS.LVL</td>
 *  <td align="right">23</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:09</td>
+*  <td>06/29/2000 06:26:09 PM</td>
 *  </tr>
 *  <tr>
 *  <td>CKSETUP.INI</td>
 *  <td align="right">88</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:21</td>
+*  <td>06/29/2000 06:26:21 PM</td>
 *  </tr>
 *  <tr>
 *  <td>GTXSETUP.ini</td>
 *  <td align="right">102</td>
 *  <td>File</td>
-*  <td>05/16/2000 05:51:46</td>
+*  <td>05/16/2000 05:51:46 PM</td>
 *  </tr>
 *  <tr>
 *  <td>JT400.PKG</td>
 *  <td align="right">19</td>
 *  <td>File</td>
-*  <td>09/08/1999 04:25:51</td>
+*  <td>09/08/1999 04:25:51 PM</td>
 *  </tr>
 *  <tr>
 *  <td>OPNAV.LST</td>
 *  <td align="right">16827</td>
 *  <td>File</td>
-*  <td>09/08/1999 04:26:08</td>
+*  <td>09/08/1999 04:26:08 PM</td>
 *  </tr>
 *  <tr>
 *  <td>OPNAV.LVL</td>
 *  <td align="right">19</td>
 *  <td>File</td>
-*  <td>05/16/2000 05:51:31</td>
+*  <td>05/16/2000 05:51:31 AM</td>
 *  </tr>
 *  <tr>
 *  <td>OPV4R5M0.LST</td>
 *  <td align="right">24121</td>
 *  <td>File</td>
-*  <td>09/08/1999 04:26:14</td>
+*  <td>09/08/1999 04:26:14 PM</td>
 *  </tr>
 *  <tr>
 *  <td>OPV4R5M01.LST</td>
 *  <td align="right">104</td>
 *  <td>File</td>
-*  <td>05/16/2000 05:51:46</td>
+*  <td>05/16/2000 05:51:46 AM</td>
 *  </tr>
 *  <tr>
 *  <td>PROXY.LST</td>
 *  <td align="right">4636</td>
 *  <td>File</td>
-*  <td>09/08/1999 04:26:00</td>
+*  <td>09/08/1999 04:26:00 AM</td>
 *  </tr>
 *  <tr>
 *  <td>PROXY.LVL</td>
 *  <td align="right">29</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:26</td>
+*  <td>06/29/2000 06:26:26 AM</td>
 *  </tr>
 *  <tr>
 *  <td>PXV4R5M0.LST</td>
 *  <td align="right">7101</td>
 *  <td>File</td>
-*  <td>09/08/1999 04:25:58</td>
+*  <td>09/08/1999 04:25:58 PM</td>
 *  </tr>
 *  <tr>
 *  <td>PXV4R5M01.LST</td>
 *  <td align="right">38</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:27:46</td>
+*  <td>06/29/2000 06:27:46 PM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000005</td>
 *  <td align="right">4518</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:10</td>
+*  <td>05/10/2000 10:35:10 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000006</td>
 *  <td align="right">20</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:00</td>
+*  <td>05/10/2000 10:35:00 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000007</td>
 *  <td align="right">15</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:19</td>
+*  <td>05/10/2000 10:35:19 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000008</td>
 *  <td align="right">15950</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:34:57</td>
+*  <td>05/10/2000 10:34:57 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000009</td>
 *  <td align="right">38</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:13</td>
+*  <td>05/10/2000 10:35:13 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000010</td>
 *  <td align="right">38586</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:06</td>
+*  <td>05/10/2000 10:35:06 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000011</td>
 *  <td align="right">33</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:09</td>
+*  <td>05/10/2000 10:35:09 AM</td>
 *  </tr>
 *  <tr>
 *  <td>QSF631215769JC10004R05M00505000000013</td>
 *  <td align="right">88</td>
 *  <td>File</td>
-*  <td>05/10/2000 10:35:03</td>
+*  <td>05/10/2000 10:35:03 AM</td>
 *  </tr>
 *  <tr>
 *  <td>READMEGT.TXT</td>
 *  <td align="right">3480</td>
 *  <td>File</td>
-*  <td>05/16/2000 05:52:27</td>
+*  <td>05/16/2000 05:52:27 AM</td>
 *  </tr>
 *  <tr>
 *  <td>READMESP.TXT</td>
 *  <td align="right">5161</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:14</td>
+*  <td>06/29/2000 06:26:14 PM</td>
 *  </tr>
 *  <tr>
 *  <td>V4R5M0.LST</td>
 *  <td align="right">38586</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:19</td>
+*  <td>06/29/2000 06:26:19 PM</td>
 *  </tr>
 *  <tr>
 *  <td>V4R5M01.LST</td>
 *  <td align="right">33</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:33</td>
+*  <td>06/29/2000 06:26:33 PM</td>
 *  </tr>
 *  <tr>
 *  <td>V4R5M02.LST</td>
 *  <td align="right">33</td>
 *  <td>File</td>
-*  <td>06/29/2000 06:26:26</td>
+*  <td>06/29/2000 06:26:26 PM</td>
 *  </tr>
 *  </table>
 *  <P>
@@ -321,7 +321,7 @@ public class FileListElement implements java.io.Serializable
     private AS400     system_;
     private HTMLTable table_;
     private HttpServletRequest request_;
-    private SimpleDateFormat   formatter_ = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+    private SimpleDateFormat   formatter_ = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a");  // @B2C
     private FileListRenderer   renderer_;                   // @A4A
     private StringBuffer       sharePath_;                           // @B1A
     private StringBuffer       shareName_;                           // @B1A
