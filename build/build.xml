@@ -335,7 +335,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
-           debuglevel="lines"
+           debuglevel="lines,source"
            fork="true">
       <classpath refid="jtopen.includes"/>
     </javac>
@@ -353,7 +353,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
-           debuglevel="lines"
+           debuglevel="lines,source"
            fork="true">
       <classpath refid="jtopen.includes-xerces-4.0"/>
     </javac>
@@ -371,7 +371,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
-           debuglevel="lines"
+           debuglevel="lines,source"
            fork="true">
       <classpath>
         <pathelement path="${include}"/>
@@ -394,7 +394,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
-           debuglevel="lines"
+           debuglevel="lines,source"
            fork="true">
       <classpath>
         <pathelement path="${include}"/>
@@ -416,7 +416,7 @@
            destdir="${output-micro}"
            failonerror="true"
            debug="on"
-           debuglevel="lines"
+           debuglevel="lines,source"
            fork="true">
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
