@@ -96,7 +96,20 @@ public class Permission
     private String owner_;
     private boolean ownerChanged_;                        // @B2a
     private boolean revokeOldAuthority_;                  // @B2a
+
+    // @B6 The name supplied by the application for QSYS objects on IASPs is
+    //     "/aspName/QSYS.LIB/...".  For QSYS objects the asp name will 
+    //     be stripped.  path_ will start with /QSYS.LIB, asp_ will hold
+    //     the asp name.  Most pemission APIs dealing with QSYS objects 
+    //     need a traditional QSYS name so path_ will be used as before.
+    //     One API and a couple commands, however, needs an IFS-style name.  
+    //     For them the name will be put back together.  Note the extra     
+    //     processing is done only for QSYS objects.  The extra
+    //     processing is not needed for QDLS objects since they cannot be on  
+    //     ASPs.  path_ will contain the entire path for root file system objects. 
+    //     
     private String path_;
+    private String asp_ = null;                           // @B6a
 
     private String primaryGroup_;
     private boolean sensitivityChanged_;
@@ -133,8 +146,51 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {
-        this(file.getSystem(),file.getPath());
+        this(file.getSystem(),file.getPath(), false);                  // @B6c
     }
+
+    
+    
+    // @B6a new method                                                                                 
+    /**
+     * Constructs a Permission object.  
+     * <P>
+     *    Use the independent auxiliary storage pool (IASP) parameter to indicate 
+     *    if the path name can contain an IASP name.
+     *    If true, the name will be parsed as if the name starts with an IASP name.
+     *    If false, the name is treated as an ordinary path.  For example, suppose
+     *    the path is "/myIASP/QSYS.LIB/MYLIB.LIB".  If the IASP parameter is true
+     *    the object is treated as library "MYLIB" on IASP "myIASP".  If the IASP
+     *    parameter is false the object is treated as object "MYLIB.LIB" in
+     *    directory "/myIASP/QSYS.LIB" in the root file system.  Note the IASP
+     *    parameter is used only if the second component of the path is QSYS.LIB.
+     *    If the second component of the path is not QSYS.LIB, the parameter is ignored.
+     *        
+     * @param file The IFSFile object. For example, The IFSFile object which represents the object "QSYS.LIB/FRED.LIB".
+     * @param pathMayStartWithIASP True if the path may start with an  
+     *                independent auxiliary storage pool (IASP) name; false otherwise.
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception ObjectDoesNotExistException If the server object does not exist.
+     *
+    **/
+    public Permission(IFSFile file, boolean pathMayStartWithIASP)
+            throws AS400Exception,
+                   AS400SecurityException,
+                   ConnectionDroppedException,
+                   ErrorCompletingRequestException,
+                   InterruptedException,
+                   IOException,
+                   ObjectDoesNotExistException,
+                   UnsupportedEncodingException
+    {
+        this(file.getSystem(),file.getPath(), pathMayStartWithIASP);               
+    }
+                                                                                 
 
     /**
      * Constructs a Permission object.
@@ -159,6 +215,48 @@ public class Permission
                    ObjectDoesNotExistException,
                    UnsupportedEncodingException
     {   
+        this(as400, fileName, false);                    // @B6c logic moved to next c'tor
+    }
+
+
+    /**                                                                     
+     * Constructs a Permission object.     
+     * <P>
+     *    Use the independent auxiliary storage pool (IASP) parameter to indicate 
+     *    if the path name can contain an IASP name.
+     *    If true, the name will be parsed as if the name starts with an IASP name.
+     *    If false, the name is treated as an ordinary path.  For example, suppose
+     *    the path is "/myIASP/QSYS.LIB/MYLIB.LIB".  If the IASP parameter is true
+     *    the object is treated as library "MYLIB" on IASP "myIASP".  If the IASP
+     *    parameter is false the object is treated as object "MYLIB.LIB" in
+     *    directory "/myIASP/QSYS.LIB" in the root file system.  Note the IASP
+     *    parameter is used only if the second component of the path is QSYS.LIB.
+     *    If the second component of the path is not QSYS.LIB, the parameter is ignored.
+     *        
+     * 
+     * @param system The server.
+     * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
+     * @param pathMayStartWithIASP True if the path may start with an  
+     *                independent auxiliary storage pool (IASP) name; false otherwise.
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception ObjectDoesNotExistException If the server object does not exist.
+     *
+    **/
+    public Permission(AS400 as400, String fileName, boolean pathMayStartWithIASP)
+            throws AS400Exception,
+                   AS400SecurityException,
+                   ConnectionDroppedException,
+                   ErrorCompletingRequestException,
+                   InterruptedException,
+                   IOException,
+                   ObjectDoesNotExistException,
+                   UnsupportedEncodingException
+    {   
         if (as400 == null)
         {
             throw new NullPointerException("system");
@@ -172,7 +270,7 @@ public class Permission
         path_ = fileName.trim(); //@A2C
         separator = path_.lastIndexOf('/');
         name_ = path_.substring(separator+1);
-        type_ = parseType(path_);
+        type_ = parseType(path_, pathMayStartWithIASP);              // @B6c
 
         switch(type_)
         {
@@ -189,8 +287,15 @@ public class Permission
         }
 
         Vector vector = null; 
-        try {
-           vector = access_.getAuthority(path_);
+        try 
+        {  
+           // @B6 If the QSYS object is on an ASP, prepend the ASP name
+           //     to correctly fully qualify the path.
+           String path = path_;                          // @B6a
+           if (asp_ != null)                             // @B6a
+              path = asp_ + path;                        // @B6a
+           
+           vector = access_.getAuthority(path);          // @B6c
         }
         catch (PropertyVetoException e)
         {
@@ -381,7 +486,11 @@ public class Permission
            }
            if (ownerChanged_)               // @B2a
            {
-              access_.setOwner(path_, owner_, revokeOldAuthority_);
+              String path = path_;                          // @B6a
+              if (asp_ != null)                             // @B6a
+                 path = asp_ + path;                        // @B6a
+           
+              access_.setOwner(path, owner_, revokeOldAuthority_); // @B6c
               ownerChanged_ = false;
            }
            
@@ -405,7 +514,10 @@ public class Permission
                     userPermission.setCommitted(UserPermission.COMMIT_NONE);
                     break;
                  case UserPermission.COMMIT_REMOVE :
-                    access_.removeUser(path_,userPermission.getUserID());
+                    String path = path_;                                     // @B6a
+                    if (asp_ != null)                                        // @B6a
+                       path = asp_ + path;                                   // @B6a
+                    access_.removeUser(path,userPermission.getUserID());     // @B6c
                     userPermission.setCommitted(UserPermission.COMMIT_NONE);
                     userPermissionsBuffer_.removeElement(userPermission);
                     break;
@@ -628,8 +740,61 @@ public class Permission
     /*
      Parses object's type by full path name.
     */
-    private int parseType(String objectName)
-    {
+    private int parseType(String objectName, boolean pathMayStartWithIASP)      // @B6c
+    {         
+       Trace.log(Trace.INFORMATION, "IASP flag is: " + pathMayStartWithIASP + ", object name: " + objectName); 
+
+       if (pathMayStartWithIASP)                                                // @B6a
+       {                                                                        // @B6a
+          String name = objectName.toUpperCase();                               // @B6a
+                                                                                // @B6a
+          // make sure local copy of name ends with "/".  That way we           // @B6a
+          // can easily tell the difference between /QDLS and                   // @B6a
+          // /QDLS_for_me.                                                      // @B6a                                                                             
+          if (! name.endsWith("/"))                                             // @B6a
+             name = name + "/";                                                 // @B6a
+                                                                                // @B6a
+          int locationOfQSYS = name.indexOf("/QSYS.LIB/");                      // @B6a
+                                                                                // @B6a
+          if (locationOfQSYS >= 0)  // if QSYS.LIB is someplace in the name     // @B6a
+          {                                                                     // @B6a
+              if (locationOfQSYS > 0)  // if the name starts with QSYS.LIB      // @B6a
+              {                                                                 // @B6a
+                 // QSYS.LIB is not the first component of the path.  First,    // @B6a
+                 // set "asp" to everything before /QSYS.LIB" except the        // @B6a
+                 // first and last slash.                                       // @B6a
+                 String asp = name.substring(1, locationOfQSYS);                // @B6a
+                                                                                // @B6a
+                 // does 'asp' contain a slash?  If yes then it is not an ASP   // @B6a
+                 // name, just the name of an object in the root file system.   // @B6a
+                 // If asp does not contain a slash then it is an ASP name.     // @B6a
+                 // Set class variable asp_ to "/aspName".  Set class variable  // @B6a
+                 // path_ to "/QSYS.LIB/...".                                   // @B6a
+                 if (asp.indexOf('/') < 0)                                      // @B6a
+                 {                                                              // @B6a
+                    asp_  = objectName.substring(0, locationOfQSYS);            // @B6a
+                    path_ = objectName.substring(locationOfQSYS);               // @B6a
+                    return TYPE_QSYS;                                           // @B6a
+                 }                                                              // @B6a
+                 else                                                           // @B6a
+                    ;  // Don't do anything.  QSYS.LIB is not the second        // @B6a
+                       // component of the name so this object is not a QSYS    // @B6a
+                       // object on an ASP, it is a normal root file            // @B6a
+                       // system object.                                        // @B6a
+              }                                                                 // @B6a
+              else     // The name starts with QSYS                             // @B6a
+                 return TYPE_QSYS;                                              // @B6a
+          }                                                                     // @B6a
+                                                                                // @B6a
+          if (name.startsWith("/QDLS/"))                                        // @B6a
+          {                                                                     // @B6a
+             return TYPE_DLO;                                                   // @B6a
+          }                                                                     // @B6a
+                                                                                // @B6a
+          return  TYPE_ROOT;                                                    // @B6a
+       }                                                                        // @B6a
+       else                                                                     // @B6a
+       {                                                                        // @B6a
         if(objectName.toUpperCase().startsWith("/QSYS.LIB/"))
         {
             return TYPE_QSYS;
@@ -639,6 +804,7 @@ public class Permission
             return TYPE_DLO;
         }
         return  TYPE_ROOT;
+       }                                                                        // @B6a   
     }
 
 

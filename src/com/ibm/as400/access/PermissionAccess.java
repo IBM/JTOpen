@@ -121,6 +121,12 @@ abstract class PermissionAccess
                    UnsupportedEncodingException,
                    PropertyVetoException
     {
+        // @B6 Note -- objName is an IFS-style name which is what
+        //     the QSYRTVUS pgm requires.  For objects in QSYS, the name
+        //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
+        //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
+        //     caller must correctly build the name. 
+
         // The vector store the information retrieved from system.
         Vector vector=new Vector();
 
@@ -516,6 +522,12 @@ abstract class PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
+      // @B6 Note -- objName is an IFS-style name which is what
+      //     the CHGOWN command requires.  For objects in QSYS, the name
+      //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
+      //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
+      //     caller must correctly build the name. 
+
       objName = objName.toUpperCase();
       CommandCall cmd = new CommandCall(as400_);
       String revokeOldAut;

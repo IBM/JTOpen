@@ -225,6 +225,17 @@ class PermissionAccessQSYS extends PermissionAccess
     **/
     private static CommandCall getRmvCommand(AS400 sys, String objName,String userName)
     {
+        String name = objName.toUpperCase();                              // @B6a
+        String asp  = null;                                               // @B6a
+                                                                          // @B6a
+        int locationOfQSYS = name.indexOf("/QSYS.LIB");                   // @B6a
+                                                                          // @B6a
+        if (locationOfQSYS > 0)  // if the name starts with an ASP        // @B6a
+        {                                                                 // @B6a
+           asp = objName.substring(0, locationOfQSYS);                    // @B6a
+           objName = objName.substring(locationOfQSYS);                   // @B6a
+        }                                                                 // @B6a
+                                            
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String objectType = objectPathName.getObjectType();
         boolean threadSafe;      //@A2A
@@ -236,9 +247,14 @@ class PermissionAccessQSYS extends PermissionAccess
                       +" AUTL("+object+")"
                       +" USER("+userName+")";
             threadSafe = false; // RMVAUTLE isn't threadsafe.  @A2A @A3C
-        } else if (objectType.equals("MBR"))
+        } 
+        else if (objectType.equals("MBR"))
         {
+            if (asp != null)                                                  // @B6a
+               object = asp + "/QSYS.LIB/";                                   // @B6a
+            else                                                              // @B6a
             object = "QSYS.LIB/";
+
             if (!objectPathName.getLibraryName().equals(""))
                 object += objectPathName.getLibraryName()+".LIB/";
             object += objectPathName.getObjectName()+".FILE";
@@ -249,15 +265,22 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
             threadSafe = true; //@A2A
-        } else
-        {
+        } 
+        else
+        {   
+            String localName = objName;                      // @B6a
+            
+            if (asp != null)                                 // @B6a
+               localName = asp + localName;                  // @B6a
+
             command="CHGAUT"
-                    +" OBJ("+expandQuotes0(objName)+")"      // @B4c
+                    +" OBJ(" + expandQuotes0(localName) + ")"      // @B4c @B6c
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
             threadSafe = true; //@A2A
         }
+
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(threadSafe);  //@A2A
         return cmd;                     //@A2C
