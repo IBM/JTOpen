@@ -32,7 +32,6 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.ibm.eim.token.IdentityToken;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
@@ -285,40 +284,6 @@ public class AS400 implements Serializable
         construct();
         systemName_ = resolveSystem(systemName);
         userId_ = userId.toUpperCase();
-        proxyServer_ = resolveProxyServer(proxyServer_);
-    }
-
-    /**
-     Constructs an AS400 object.  It uses the specified system name and identity token.
-     <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for OS/400 V5R2 and V5R1.</i>
-     @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  identityToken  The identity token to use to authenticate to the server.  Must be an instance of <tt>com.ibm.eim.token.IdentityToken</tt>
-     **/
-    public AS400(String systemName, Object identityToken)
-    {
-        super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with identity token, system name: '" + systemName + "'");
-        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "identity token: " + identityToken);
-        if (systemName == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
-            throw new NullPointerException("systemName");
-        }
-        if (identityToken == null)
-        {
-            Trace.log(Trace.ERROR, "Parameter 'identityToken' is null.");
-            throw new NullPointerException("identityToken");
-        }
-        construct();
-        systemName_ = resolveSystem(systemName);
-        try {
-          bytes_ = store(((IdentityToken)identityToken).toBytes());
-        }
-        catch (ClassCastException e) {
-          Trace.log(Trace.ERROR, "Argument must be of type IdentityToken.", e);
-          throw new ExtendedIllegalArgumentException("identityToken", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        byteType_ = AUTHENTICATION_SCHEME_IDENTITY_TOKEN;
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -2641,9 +2606,9 @@ public class AS400 implements Serializable
     /**
      Sets or resets the identity token for this object.  Using this method will clear any set password.
      <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for OS/400 V5R2 and V5R1.</i>
-     @param  identityToken  The identity token.  Must be an instance of <tt>com.ibm.eim.token.IdentityToken</tt>
+     @param  identityToken  The identity token.
      **/
-    public void setIdentityToken(Object identityToken)
+    public void setIdentityToken(byte[] identityToken)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting identity token.");
 
@@ -2655,13 +2620,7 @@ public class AS400 implements Serializable
 
         synchronized (this)
         {
-            try {
-              bytes_ = store(((IdentityToken)identityToken).toBytes());
-            }
-            catch (ClassCastException e) {
-              Trace.log(Trace.ERROR, "Argument must be of type IdentityToken.", e);
-              throw new ExtendedIllegalArgumentException("identityToken", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-            }
+            bytes_ = store(identityToken);
             byteType_ = AUTHENTICATION_SCHEME_IDENTITY_TOKEN;
             signonInfo_ = null;
         }
