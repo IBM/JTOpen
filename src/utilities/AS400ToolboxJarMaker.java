@@ -1986,7 +1986,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    Examples of files that may be excluded from the output:
    <ul>
    <li>JDBC classes, if component {@link #JDBC JDBC} has not been specified
-   <li>class {@link com.ibm.as400.resource.RJob RJob}, if neither component {@link #Job Job} nor package <tt>com.ibm.as400.resource</tt> has been specified
+   <li>class {@link com.ibm.as400.resource.RJob RJob}, if neither component {@link #com.ibm.as400.access.Job Job} nor package <tt>com.ibm.as400.resource</tt> has been specified
    </ul>
    <em>Note: Dependency exclusion is not recommended for pre-V5R2 Toolbox JAR files.</em>
 
