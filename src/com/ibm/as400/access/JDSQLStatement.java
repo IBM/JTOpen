@@ -511,18 +511,34 @@ class JDSQLStatement
                 }                                                                         //@H2A
                 //@H2A
                 int lastParen = upperCaseSql.lastIndexOf(")");                            //@H2A
-                if(lastParen < l)
-                {
-                    JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);
-                }
+                //@J1 - According to the DB2 SQL Reference, paranthesis are optional around a single value
+                //@J1D if(lastParen < l)
+                //@J1D {
+                //@J1D      JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);
+                //@J1D }
 
-                String valuesString = upperCaseSql.substring(l+1, lastParen);             //@H2A
-                StringTokenizer tokenizer = new StringTokenizer (valuesString, ", ?");    //@H2A
-                if(!tokenizer.hasMoreTokens())                                           //@H2A
-                {
-                    //@H2A
-                    canBeBatched_ = true;                                                 //@H2A
-                }                                                                         //@H2A
+                if(lastParen >= 1 && lastParen > l)             //@J1A make sure last parenthesis is after the VALUES keyword
+                {                                               //@J1A
+                    String valuesString = upperCaseSql.substring(l+1, lastParen);             //@H2A
+                    StringTokenizer tokenizer = new StringTokenizer (valuesString, ", ?");    //@H2A
+                    if(!tokenizer.hasMoreTokens())                                           //@H2A
+                    {
+                        //@H2A
+                        canBeBatched_ = true;                                                 //@H2A
+                    }                                                                         //@H2A
+                }                                               //@J1A
+                else                                            //@J1A  Check to see if only one value or one parameter marker exists, if more than one value, than it is a syntax error
+                {                                               //@J1A
+                    String valuesString = upperCaseSql.substring(l);        //@J1A - get everything after the VALUES clause
+                    if(valuesString.trim().equals("?"))                     //@J1A - there is only one parameter marker, therefore, we can batch
+                        canBeBatched_ = true;                               //@J1A
+                    else                                                    //@J1A - make sure there is only one literal, otherwise a syntax error occured.
+                    {                                                       //@J1A
+                        StringTokenizer tokenizer = new StringTokenizer(valuesString, ",");     //@J1A
+                        if(tokenizer.countTokens() > 1)                                         //@J1A
+                            JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);          //@J1A
+                    }                                           //@J1A
+                }                                               //@J1A
             }
         }
         else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
