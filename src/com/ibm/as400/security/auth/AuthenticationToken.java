@@ -3,6 +3,7 @@ package com.ibm.as400.security.auth;
 import com.ibm.eim.*;
 import com.ibm.as400.access.BinaryConverter;
 import com.ibm.as400.access.Trace;
+import com.ibm.as400.access.InternalErrorException;
 import java.io.Serializable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -127,21 +128,25 @@ public final class AuthenticationToken implements Serializable {
    @return The authentication token in the form of a byte array.
    **/
   public byte[] toBytes()
-    throws IOException
+///    throws IOException
   {
     ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
 
-    signatureHeader_.writeTo(outStream);
-    tokenManifest_.writeTo(outStream);
-    if (priorManifests_ != null) {
-      outStream.write(priorManifests_, 0, priorManifests_.length);
+    try
+    {
+      signatureHeader_.writeTo(outStream);
+      tokenManifest_.writeTo(outStream);
+      if (priorManifests_ != null) {
+        outStream.write(priorManifests_, 0, priorManifests_.length);
+      }
+      userToken_.writeTo(outStream);
+      ///outStream.flush();                // TBD: Is this redundant?
+      return outStream.toByteArray();
     }
-///    for (int i=0; i<manifestList_.length; i++) {
-///      manifestList_[i].writeTo(outStream);
-///    }
-    userToken_.writeTo(outStream);
-///    outStream.flush();                // TBD: Is this redundant?
-    return outStream.toByteArray();
+    catch (IOException e) {
+      Trace.log(Trace.ERROR, e);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
   }
 
 
