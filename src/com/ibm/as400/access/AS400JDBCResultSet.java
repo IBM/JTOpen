@@ -5158,7 +5158,9 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         beforeUpdate ();
-
+        DBExtendedColumnDescriptors extendedDescriptors = null;                     //@K1A
+        ConvTable convTable = null;                                                 //@K1A             
+        
         if((positionInsert_ == true) || (positionValid_ == false))
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
@@ -5180,7 +5182,24 @@ public class AS400JDBCResultSet implements ResultSet
                 if(columnsSet++ > 0)
                     buffer.append (",");
                 buffer.append ("\"");                       // @D6a
-                buffer.append (row_.getFieldName (i+1));
+                // @K1A If we have column descriptors, use them to get the column label.                   //@K1A
+                if(statement_ != null)                                                                     //@K1A
+                {
+                    // @K1A
+                    extendedDescriptors = statement_.getExtendedColumnDescriptors();                       // @K1A 
+                    // If we have extendedDescriptors, send a ConvTable to convert them, else pass null    // @K1A
+                    if(extendedDescriptors != null)                                                        // @K1A
+                    {
+                        // @K1A
+                        convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
+                        buffer.append(extendedDescriptors.getColumnDescriptors(i+1).getColumnLabel(convTable));  //@K1A
+                    }                                                                                      // @K1A
+                    else                                                                                   // @K1A
+                        buffer.append (row_.getFieldName (i+1));                                           // @K1A
+                                                                                                           // @K1A
+                }
+                else
+                    buffer.append(row_.getFieldName(i+1));
                 buffer.append ("\"=?");                     // @D6c
             }
         }
