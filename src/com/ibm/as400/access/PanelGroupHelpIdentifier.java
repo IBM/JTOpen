@@ -59,8 +59,21 @@ public class PanelGroupHelpIdentifier
                            String found, String anchor)
   {
     helpID_ = helpID;
-//    System.out.println(":"+object+","+library+","+type);
-    path_ = QSYSObjectPathName.toPath(object, library, type);
+    if (!type.equalsIgnoreCase("PNLGRP"))
+    {
+      if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Panel group help identifier constructed with wrong object type: '"+type+"'");
+      throw new ExtendedIllegalArgumentException("type("+type+")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+
+    if (object.length() == 0 || library.length() == 0)
+    {
+      path_ = "";
+      if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Panel group help identifier not fully specified: object = '"+object+"' and library = '"+library+"'");
+    }
+    else
+    {
+      path_ = QSYSObjectPathName.toPath(library, object, type);
+    }
     found_ = found;
     anchor_ = anchor;
   }
