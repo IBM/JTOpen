@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DLOPermission.java
 //                                                                             
@@ -48,9 +48,6 @@ public class DLOPermission extends UserPermission
         dataAuthority_ = "*EXCLUDE";
         return;
     }
-
-    
-    // Deleted getCopyright().
 
 
     /** 

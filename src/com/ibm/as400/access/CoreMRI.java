@@ -18,7 +18,7 @@ import java.util.ListResourceBundle;
 
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for IBM Toolbox for Java.
 **/
 //
 // @B0A - Implementation note:
@@ -30,12 +30,7 @@ public class CoreMRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   // It is a build/translation requirement that this NOT refer
-   // to the Copyright class.  (The requirement is that the MRI builds
-   // do not depend on the code builds.)
-   private String x = "(C)Copyright IBM Corp. 1997, 1999";
-
-   public Object[][] getContents()
+      public Object[][] getContents()
    {
        return resources;
    }
