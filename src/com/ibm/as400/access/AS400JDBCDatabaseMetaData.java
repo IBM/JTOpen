@@ -1753,6 +1753,8 @@ primary keys imported by a table.
                 // Set the Foreign key Information to Return Bitmap
                 request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
+                // This is not documented in the LIPI, but it happens to work!           @E2A
+                request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
 
                 //--------------------------------------------------------
                 //  Send the request and cache all results from the server
@@ -2450,6 +2452,8 @@ Returns a description of the primary key columns.
                 // Set the primary key Information to Return Bitmap
                 request.setPrimaryKeyReturnInfoBitmap(0xB8000000);
 
+                // This is not documented in the LIPI, but it happens to work!           @E2A
+                request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
 
                 //--------------------------------------------------------
                 //  Send the request and cache all results from the server
