@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RPrinter.java
 //                                                                             
@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RPrinter class represents an AS/400 printer.
+The RPrinter class represents a printer connected to the server.
 
 <a name="attributeIDs <p>The following attribute IDs are supported:
 <ul>
@@ -1405,7 +1405,7 @@ Computes a resource key.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -1559,9 +1559,9 @@ ResourceEvent.
 
 /**
 Sets the printer device name.  This does not change the printer on
-the AS/400.  Instead, it changes the printer to which
+the server.  Instead, it changes the printer to which
 this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param name    The printer device name.
 

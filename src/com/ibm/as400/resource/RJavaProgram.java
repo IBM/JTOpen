@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RJavaProgram.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,10 +26,10 @@ import java.util.Date;
 
 
 /**
-The RJavaProgram class represents an OS/400 Java program.   This is supported
+The RJavaProgram class represents a Java program on the server.   This is supported
 only when connecting to servers running OS/400 V5R1 or later.
 
-In the context of this discussion, a "Java program" is the OS/400 executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
+In the context of this discussion, a "Java program" is the i5/OS executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
@@ -77,7 +77,7 @@ javaProgram.commitAttributeChanges();
 public class RJavaProgram
 extends ChangeableResource
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -435,7 +435,7 @@ the Java program was created.
 
 /**
 Attribute ID for optimization.  This identifies an Integer attribute,
-which represents the optimization level of the AS/400 Java program.  Possible
+which represents the optimization level of the Java program.  Possible
 values are:
 <ul>
 <li>{@link #OPTIMIZATION_INTERPRET OPTIMIZATION_INTERPRET}
@@ -809,7 +809,7 @@ Deletes the Java program.  This does not delete the class, jar, or zip file.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -957,7 +957,7 @@ ResourceEvent.
 
 /**
 Sets the path.  This does not change the Java program
-on the AS/400.  Instead, it changes the Java program
+on the server.  Instead, it changes the Java program
 that this object references.
 
 @param path         The path.  This can be any class, jar, or zip file.

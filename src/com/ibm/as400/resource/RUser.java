@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ import java.util.Date;
 
 
 /**
-The RUser class represents an OS/400 user profile and directory entry.
+The RUser class represents a user profile and directory entry on the server.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
@@ -152,7 +152,7 @@ user.commitAttributeChanges();
 public class RUser
 extends ChangeableResource
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -2179,7 +2179,7 @@ Possible values are:
     - The system value QSPCENV is used to determine the user's special
     environment.
 <li>{@link #NONE NONE}
-    - The user operates in the OS/400 environment.
+    - The user operates in the i5/OS environment.
 <li>{@link #SPECIAL_ENVIRONMENT_SYSTEM_36 SPECIAL_ENVIRONMENT_SYSTEM_36}
     - The user operates in the System/36 environment.
 </ul>
@@ -2911,7 +2911,7 @@ Deletes the user.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -3196,9 +3196,9 @@ ResourceEvent.
 
 /**
 Sets the user profile name.  This does not change the user profile on
-the AS/400.  Instead, it changes the user profile to which
+the server.  Instead, it changes the user profile to which
 this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param name    The user profile name.
 
