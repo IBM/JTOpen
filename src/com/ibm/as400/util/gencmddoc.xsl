@@ -331,32 +331,25 @@
     <xsl:value-of select="$_NONE"/> <br /><xsl:text>&#xa;</xsl:text>
   </xsl:if>
  
- <!-- Width percentages were removed because they goof up importing the HTML into
-      a WordPro document.  Now that white space is under control, the browsers
-      seem to do a good job of proportional spacing of the four columns.  -->
+ <!-- Generate parameter syntax summary table with relative column widths -->
   <xsl:if test="$HasParameters">     
     <xsl:text>&#xa;</xsl:text>
     <table cellspacing="0" cellpadding="4" border="1"> 
  
- <!-- Generate a comment that will be used in later HTML->PDF conversion to control table column widths.    -->   
-<xsl:text disable-output-escaping="yes">
-&#x3c;</xsl:text><xsl:text>&#x21;</xsl:text>-- col1="10" col2="15" col3="30" col4="10" --<xsl:text disable-output-escaping="yes">&#x3e;
-</xsl:text>
-    
     <tr><xsl:text>&#xa;</xsl:text>
-      <th align="left" valign="bottom" bgcolor="aqua">
+      <th width="10%" align="left" valign="bottom" bgcolor="aqua">
         <xsl:value-of select="$_KEYWORD"/>
       </th>
       <xsl:text>&#xa;</xsl:text>
-      <th align="left" valign="bottom" bgcolor="aqua">
+      <th width="15%" align="left" valign="bottom" bgcolor="aqua">
         <xsl:value-of select="$_DESCRIPTION"/>
       </th>
       <xsl:text>&#xa;</xsl:text>
-      <th align="left" valign="bottom" bgcolor="aqua">
+      <th width="30%" align="left" valign="bottom" bgcolor="aqua">
         <xsl:value-of select="$_CHOICES"/>
       </th>
       <xsl:text>&#xa;</xsl:text>
-      <th align="left" valign="bottom" bgcolor="aqua">
+      <th width="10%" align="left" valign="bottom" bgcolor="aqua">
         <xsl:value-of select="$_NOTES"/>
       </th>
     <xsl:text>&#xa;</xsl:text>
