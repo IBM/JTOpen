@@ -560,7 +560,6 @@ Returns the list of users in the user list.
     
     // List information returned
     byte[] listInformation = parms[2].getOutputData();
-    ListUtilities.checkListStatus(listInformation[30]);  // check the list status indicator
     handle_ = new byte[4];
     System.arraycopy(listInformation, 8, handle_, 0, 4);
 
