@@ -235,8 +235,8 @@ need replies.
   private boolean listDirection_ = true;
   private String selectionCriteria_ = ALL;
   private int severity_;
-  private int maxMessageLength_ = 511;
-  private int maxMessageHelpLength_ = 3000;
+  private int maxMessageLength_ = -1; //@G0C - Was hardcoded as 511.
+  private int maxMessageHelpLength_ = -1; //@G0C - Was hardcoded as 3000.
 
 
 
