@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLClobLocator.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ import java.util.Calendar;
 class SQLClobLocator
 implements SQLLocator                                       // @B3C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -48,6 +48,7 @@ implements SQLLocator                                       // @B3C
     private int                     maxLength_;
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    private int                     columnIndex_;   //@F2A
 
 
 
@@ -56,7 +57,8 @@ implements SQLLocator                                       // @B3C
                     int maxLength, 
                     boolean graphic, 
                     SQLConversionSettings settings,
-                    ConverterImplRemote converter)                                  // @E1A
+                    ConverterImplRemote converter,                                  // @E1A
+                    int columnIndex)                //@F2A
     {
         connection_     = connection;
         graphic_        = graphic;
@@ -75,6 +77,7 @@ implements SQLLocator                                       // @B3C
         // @E1D }
         
         converter_      = converter;                                                // @E1A
+        columnIndex_    = columnIndex;     //@F2A
     }
 
 
@@ -91,7 +94,7 @@ implements SQLLocator                                       // @B3C
 
     public Object clone ()
     {
-        return new SQLClobLocator (connection_, id_, maxLength_, graphic_, settings_, converter_);                // @E1C
+        return new SQLClobLocator (connection_, id_, maxLength_, graphic_, settings_, converter_, columnIndex_);                // @E1C @F2C
     }
 
 
@@ -116,6 +119,7 @@ implements SQLLocator                                       // @B3C
     {
         int locatorHandle = ((Integer) typeConverter_.toObject (rawBytes, offset)).intValue ();        
         locator_.setHandle (locatorHandle);
+	locator_.setColumnIndex (columnIndex_);  //@D1A
     }
 
 

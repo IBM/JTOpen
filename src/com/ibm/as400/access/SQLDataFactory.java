@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLDataFactory.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ various conditions.
 **/
 class SQLDataFactory
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -436,7 +436,8 @@ specific AS/400 native type identifier.
                             int ccsid,
                             boolean translateBinary,
                             SQLConversionSettings settings,
-                            int lobMaxSize)                                 // @C3A
+                            int lobMaxSize,                                 // @C3A
+                            int columnIndex)     //@F2A
         throws SQLException
     {
         switch (nativeType) {
@@ -520,16 +521,16 @@ specific AS/400 native type identifier.
             return new SQLSmallint (scale);              // @A0C
 
         case 960:                           // Blob locator.
-            return new SQLBlobLocator (connection, id, lobMaxSize, settings);
+            return new SQLBlobLocator (connection, id, lobMaxSize, settings, columnIndex);  //@F2C
 
         case 964:                           // Clob locator.
             if ((ccsid == 65535) && (translateBinary == false))               //@E4C
-                return new SQLBlobLocator (connection, id, lobMaxSize, settings); 
+                return new SQLBlobLocator (connection, id, lobMaxSize, settings, columnIndex); //@F2C
             else
-                return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid)); // @E1C
+                return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
         
         case 968:                           // Dbclob locator.
-            return new SQLClobLocator (connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid)); // @E1C
+            return new SQLClobLocator (connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
 
         default:
             JDError.throwSQLException (JDError.EXC_INTERNAL, new IllegalArgumentException(Integer.toString(nativeType))); // @E3C

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLBlobLocator.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ import java.util.Calendar;
 class SQLBlobLocator
 implements SQLLocator           // @A2C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -44,13 +44,15 @@ implements SQLLocator           // @A2C
     private int                     maxLength_;
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    private int                     columnIndex_;  //@D2A
 
 
 
     SQLBlobLocator (AS400JDBCConnection connection,
                     int id,
                     int maxLength, 
-                    SQLConversionSettings settings)
+                    SQLConversionSettings settings,
+		          int columnIndex)	  //@D2A
     {
         connection_     = connection;
         id_             = id;
@@ -58,13 +60,14 @@ implements SQLLocator           // @A2C
         maxLength_      = maxLength;
         settings_       = settings;
         truncated_      = 0;
+	   columnIndex_    = columnIndex;    //@D2A
     }
 
 
 
     public Object clone ()
     {
-        return new SQLBlobLocator (connection_, id_, maxLength_, settings_);
+        return new SQLBlobLocator (connection_, id_, maxLength_, settings_, columnIndex_);  //@D2C
     }
 
 
@@ -89,6 +92,7 @@ implements SQLLocator           // @A2C
     {
         int locatorHandle = ((Integer) typeConverter_.toObject (rawBytes, offset)).intValue ();        
         locator_.setHandle (locatorHandle);
+	   locator_.setColumnIndex(columnIndex_);   //@D2A
     }
 
 

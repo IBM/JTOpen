@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDServerRow.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ directly from a datastream to or from the server.
 class JDServerRow
 implements JDRow
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -190,7 +190,7 @@ Initializes the state of the object.
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
                         sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
                         scales_[i], ccsids_[i], translateBinary, settings,
-                        maxLobSize);                                                    // @C2C
+                        maxLobSize, (i+1));     //@F1C                                               // @C2C
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBSQLRequestDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ to the SQL server.
 class DBSQLRequestDS
 extends DBBaseRequestDS
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -107,6 +107,18 @@ extends DBBaseRequestDS
 		addParameter (0x380C, value);
 	}
 
+
+//@F2A
+/**
+   Sets the Column Index parameter in the data stream.
+   @param value	the column index to be used on a Retrieve LOB Data.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+	void setColumnIndex(int value)
+		throws DBDataStreamException
+	{
+		addParameter (0x3828, value);
+	}
 
 
 /**

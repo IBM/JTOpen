@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDLobLocator.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ The JDLobLocator class provides access to large objects via a locator.
 //
 class JDLobLocator
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -44,6 +44,7 @@ class JDLobLocator
     private int                     handle_;
     private long                    length_             = -1;           // @C1A
     private int                     maxLength_;                         // @A1A
+    private int                     columnIndex_;                       // @D1A
 
 
 
@@ -62,7 +63,7 @@ Constructs an JDLobLocator object.
         id_              = id;
         handle_          = -1;
         maxLength_       = maxLength;                                   // @A1A
-        dataCompression_ = connection_.getDataCompression() == AS400JDBCConnection.DATA_COMPRESSION_OLD_; // @B0A @C2C
+    	   columnIndex_     = -1;                                          // @D1A
     }
 
 
@@ -175,6 +176,7 @@ Retrieves part of the contents of the lob.
 	    	request.setStartOffset (start);
 	    	request.setCompressionIndicator (dataCompression_ ? 0xF1 : 0xF0);   // @B0C
             request.setReturnCurrentLengthIndicator(0xF1);                      // @C1A
+            request.setColumnIndex(columnIndex_);  //@D1A
 
             if (JDTrace.isTraceOn ())
                 JDTrace.logInformation (connection_, "Retrieving lob data");
@@ -193,6 +195,18 @@ Retrieves part of the contents of the lob.
     	  	JDError.throwSQLException (JDError.EXC_INTERNAL, e);
             return null;
    	    }
+    }
+
+
+//@D1A
+/**
+Sets the column index.
+
+@param handle The column index.
+**/
+    public void setColumnIndex (int columnIndex)
+    {
+        columnIndex_ = columnIndex;
     }
 
 
