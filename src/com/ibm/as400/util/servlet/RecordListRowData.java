@@ -301,6 +301,8 @@ public class RecordListRowData extends RowData implements Serializable
   **/
   public void removeRowDataListener(RowDataListener listener)
   {
+    if(listener == null)
+        throw new NullPointerException("listener");
     if (rowdataSupport_ != null) rowdataSupport_.removeRowDataListener(listener); //@CRS
   }
 
