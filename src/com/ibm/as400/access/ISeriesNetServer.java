@@ -99,14 +99,20 @@ implements Serializable
   static final long serialVersionUID = 1L;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with encrypted passwords.
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with encrypted passwords only.
    **/
   public final static int ENCRYPTED_PASSWORDS = 0;
 
   /**
-   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Kerberos v5 tokens.
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Kerberos v5 tokens only.
    **/
   public final static int KERBEROS_V5_TOKENS = 1;
+
+  /**
+   Value of the NetServer "authentication method" attribute, indicating that the server authenticates with Kerberos v5 tokens when possible, but it allows clients to use encrypted passwords when needed.
+   <br>Note: This value is valid only for OS/400 releases after (not including) V5R2.
+   **/
+  public final static int KERBEROS_OR_PASSWORDS = 2;
 
   /**
    Value of the "idle timeout" attribute, indicating "no autodisconnect".
@@ -1142,7 +1148,7 @@ implements Serializable
    This attribute indicates the method used to authenticate users.
    <i>Note: This attribute is available only if the iSeries server has OS/400 release <b>V5R2</b> or later.</i>
    @return  The value of the "authentication method" attribute.
-   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS} and {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}.
+   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}, and {@link #KERBEROS_OR_PASSWORDS KERBEROS_OR_PASSWORDS}.
    **/
   public int getAuthenticationMethod()
   {
@@ -1150,7 +1156,12 @@ implements Serializable
     if (DEBUG) {
       System.out.println("DEBUG getAuthenticationMethod(): effectiveValueStr_[AUTHENTICATION_METHOD] == |" + effectiveValueStr_[AUTHENTICATION_METHOD] + "|");
     }
-    return (effectiveValueStr_[AUTHENTICATION_METHOD].charAt(0) == '0' ? ENCRYPTED_PASSWORDS : KERBEROS_V5_TOKENS);
+    switch (effectiveValueStr_[AUTHENTICATION_METHOD].charAt(0))
+    {
+      case '0': return ENCRYPTED_PASSWORDS;
+      case '1': return KERBEROS_V5_TOKENS;
+      default:  return KERBEROS_OR_PASSWORDS;
+    }
   }
 
   /**
@@ -1158,15 +1169,19 @@ implements Serializable
    This attribute indicates the authentication method used to authenticate users.
    <i>Note: This attribute is available only if the iSeries server has OS/400 release <b>V5R2</b> or later.</i>
    @param  The value of the "authentication method" attribute.
-   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS} and {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}.
+   Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}, and {@link #KERBEROS_OR_PASSWORDS KERBEROS_OR_PASSWORDS}.
    **/
   public void setAuthenticationMethod(int value)
   {
-    if (value != ENCRYPTED_PASSWORDS && value != KERBEROS_V5_TOKENS) {
-      throw new ExtendedIllegalArgumentException(Integer.toString(value), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
     char[] charArray = new char[1];
-    charArray[0] = (value == ENCRYPTED_PASSWORDS ? '0' : '1');
+    switch (value)
+    {
+      case ENCRYPTED_PASSWORDS:    charArray[0] = '0'; break;
+      case KERBEROS_V5_TOKENS:     charArray[0] = '1'; break;
+      case KERBEROS_OR_PASSWORDS:  charArray[0] = '2'; break;
+      default:
+        throw new ExtendedIllegalArgumentException(Integer.toString(value), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
     pendingValueStr_[AUTHENTICATION_METHOD] = new String(charArray);
     userChangedAttribute_[AUTHENTICATION_METHOD] = true;
     userCommittedChange_[AUTHENTICATION_METHOD] = false;
