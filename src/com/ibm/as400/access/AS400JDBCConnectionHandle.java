@@ -385,7 +385,7 @@ implements Connection //@A5A
                 <li>1.  The holdability specified using the method setHoldability(int)
                 if this method was called.
                 <li>2.  The value of the <code> cursor hold </code> 
-                <a href="../../../../JDBCProperties.html">driver property</a>. </ul>  
+                <a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">driver property</a>. </ul>  
                 Full functionality of #1 requires support in OS/400 
                 V5R2 or later.  If connecting to a V5R1 or earlier version of OS/400, 
                 the value specified on this method will be ignored and the default holdability

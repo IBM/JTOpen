@@ -56,8 +56,9 @@ for the connection.  If SQL naming is being used, and no default schema
 is set, then the driver resolves unqualified names using the schema with 
 the same name as the user.  If system naming is being used, and no
 default schema is set, then the driver resolves unqualified names using
-the server job's library list.  See <a href="../../../../JDBCProperties.html">JDBC
-properties</a> for more details on how to set the naming convention
+the server job's library list.  See
+<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+for more details on how to set the naming convention
 and library list.
 
 <p>Several properties can optionally be set within the URL.  They are 
@@ -65,8 +66,9 @@ separated by semicolons and are in the form:
 <pre>
 <em>name1</em>=<em>value1</em>;<em>name2</em>=<em>value2</em>;<em>...</em>
 </pre>
-See <a href="../../../../JDBCProperties.html">JDBC properties</a> for a
-complete list of properties supported by this driver.
+See
+<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+for a complete list of properties supported by this driver.
 
 <p>The following example URL specifies a connection to the
 database on server <em>mysystem.helloworld.com</em> with
@@ -184,8 +186,9 @@ implements java.sql.Driver
 	Connects to the database named by the specified URL.
 	There are many optional properties that can be specified.
 	Properties can be specified either as part of the URL or in
-	a java.util.Properties object.  See <a href="../../../../JDBCProperties.html">
-	JDBC properties</a> for a complete list of properties
+	a java.util.Properties object.  See
+<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+	for a complete list of properties
 	supported by this driver.
 	
 	@param  url     The URL for the database.
@@ -279,8 +282,9 @@ implements java.sql.Driver
 	Connects to the database on the specified system.
 	There are many optional properties that can be specified.
 	Properties can be specified in
-	a java.util.Properties object.  See <a href="../../../../JDBCProperties.html">
-	JDBC properties</a> for a complete list of properties
+	a java.util.Properties object.  See
+<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+	for a complete list of properties
 	supported by this driver.  
 	
 	<p>Note: Since this method is not defined in the JDBC Driver interface,
