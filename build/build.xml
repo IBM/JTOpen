@@ -446,6 +446,7 @@
             <include name="com/ibm/as400/access/ExtendedIllegalArgumentException.class"/>
             <include name="com/ibm/as400/access/ExtendedIllegalStateException.class"/>
             <include name="com/ibm/as400/access/PasswordDialog.class"/>
+            <include name="com/ibm/as400/access/SystemProperties.class"/>
             <include name="com/ibm/as400/access/Trace.class"/>
         </patternset>
       </fileset>
