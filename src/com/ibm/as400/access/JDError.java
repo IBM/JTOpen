@@ -154,10 +154,16 @@ Returns the message text for the last operation on the server.
             if ((absReturnCode == 438) || (absReturnCode == 443)) {                                         // @E2A @E4C @E5C @E6C
                 if (sqlca.getErrd4() == 0) {                                                                // @E6A
                     if (absReturnCode == 438)                                                               // @E2A @E4C @E5C
+		    {
                         errorDescription.append(sqlca.getErrmc(connection.getConverter()));                 // @E2A
+			textAppended = true;								    // @E8A
+		    }
                     else if (absReturnCode == 443)                                                          // @E5A
+		    {
                         errorDescription.append(sqlca.getErrmc(6, connection.getConverter()));              // @E5A
-                    textAppended = true;                                                                    // @E6A
+			textAppended = true;								    // @E8A
+		    }
+                    //@E8D textAppended = true;                                                             // @E6A
                 }                                                                                           // @E6A
             }                                                                                               // @E6A
 
