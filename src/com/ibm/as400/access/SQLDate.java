@@ -683,7 +683,14 @@ implements SQLData
 //@G0D	    Calendar calendar = Calendar.getInstance ();
 //@G0D	    calendar.set (year_, month_, day_, 0, 0, 0);
 //@G0D	    return new Date (calendar.getTime ().getTime ());
-          return toDate(null); //@G0A
+          try //@G0A
+          {
+            return toDate(null); //@G0A
+          }
+          catch(SQLException e) //@G0A - Won't ever get thrown.
+          {
+            return null; //@G0A - Won't ever happen.
+          }
 	}
 
 
