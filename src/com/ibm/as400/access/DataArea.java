@@ -204,8 +204,8 @@ public abstract class DataArea implements Serializable
 
 
    /**
-   Removes the data area from the system. Note this method is NOT public.
-   It is overridden as a public method in the subclasses that use it.
+   Removes the data area from the system.
+   This is a common implementation for the delete() methods of the subclasses.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -215,7 +215,7 @@ public abstract class DataArea implements Serializable
      @exception ServerStartupException          If the AS/400 server cannot be started.
      @exception UnknownHostException            If the AS/400 system cannot be located.
    **/
-   void delete()
+   void delete0()
        throws AS400SecurityException,
               ConnectionDroppedException,
               ErrorCompletingRequestException,

@@ -244,7 +244,7 @@ public class LogicalDataArea extends DataArea implements Serializable
               ServerStartupException,
               UnknownHostException
    {
-     super.delete();
+     super.delete0();
    }
 
 

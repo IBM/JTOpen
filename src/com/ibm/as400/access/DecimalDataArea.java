@@ -291,7 +291,7 @@ public class DecimalDataArea extends DataArea implements Serializable
               ServerStartupException,
               UnknownHostException
    {
-     super.delete();
+     super.delete0();
    }
 
 
