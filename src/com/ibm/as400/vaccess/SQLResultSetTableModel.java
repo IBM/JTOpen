@@ -607,7 +607,11 @@ public class SQLResultSetTableModel
       // Use getString() so that dates and times get converted to strings
       // by the JDBC driver so that their formats reflect the settings
       // in the data source.
-      return resultSet_.getString(columnIndex);
+      //@KKB return resultSet_.getString(columnIndex);
+      String s = resultSet_.getString(columnIndex);     //@KKB
+      if(checkDataMappingWarning(resultSet_))           //@KKB
+          s="++++++++++++++";                           //@KKB
+      return s;                                         //@KKB
     }
   }
 
@@ -1195,6 +1199,21 @@ public class SQLResultSetTableModel
     }
   }
 
+  //@KKB - Checks if a Data Mapping Warning was issued
+  private boolean checkDataMappingWarning(ResultSet rs) throws SQLException{
+      boolean dataMapping = false;
+      SQLWarning w = rs.getWarnings();
+      if(w!=null){
+          do{
+              if(w.getSQLState().equals("01004") && ((java.sql.DataTruncation)w).getDataSize() == -1 && ((java.sql.DataTruncation)w).getTransferSize() == -1)
+                  dataMapping = true;
+
+              w=w.getNextWarning();
+          }while(w!=null);
+      }
+
+      return dataMapping;
+  }
 
 }
 
