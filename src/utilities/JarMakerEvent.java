@@ -19,6 +19,7 @@ package utilities;
 public class JarMakerEvent extends java.util.EventObject
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -8608410039955840303L;
 
     String jarEntryName_;
 
