@@ -537,6 +537,8 @@ abstract public class PrintObject implements java.io.Serializable
     /**  **/
            static final int ATTR_SPLFSENDCMD  = 0x0092;  // spooled file send command
     /** <A HREF="doc-files/PrintAttributes.html#HDRKEY106">Source drawer</A>. **/
+    public static final int ATTR_SRC_CODEPAGE = 0x0107;  // Source code page conversion   @AAA
+    /** <A HREF="doc-files/PrintAttributes.html#HDRKEY213">Source code page conversion</A>. **/
     public static final int ATTR_SRCDRWR      = 0x0066;  // source drawer
     /** <A HREF="doc-files/PrintAttributes.html#HDRKEY107">Spool the data</A>. **/
     public static final int ATTR_SPOOL        = 0x0067;  // spool the data
