@@ -32,74 +32,74 @@ public class AS400JDBCConnectionPoolDataSourceBeanInfo extends SimpleBeanInfo
 
 
   // Class this bean info represents.
-  private static final Class beanClass_ = AS400JDBCConnectionPoolDataSource.class;
+    private static final Class beanClass = AS400JDBCConnectionPoolDataSource.class;
 
-  private static PropertyDescriptor[] propertyDescriptors_; //@B0A
-  private static final BeanDescriptor beanDescriptor_; //@B0A
-  private static final BeanInfo[] additionalBeanInfo_; //@B0A
+    //@B1D private static PropertyDescriptor[] propertyDescriptors_; //@B0A
+    //@B1D private static final BeanDescriptor beanDescriptor_; //@B0A
+    //@B1D private static final BeanInfo[] additionalBeanInfo_; //@B0A
 
 
   //@B0A
-  static
-  {
-    try
-    {
-      beanDescriptor_ = new BeanDescriptor(beanClass_);
-      additionalBeanInfo_ = new BeanInfo[] { new AS400JDBCDataSourceBeanInfo()};
+    //@B1D static
+    //@B1D {
+    //@B1D   try
+    //@B1D   {
+    //@B1D     beanDescriptor_ = new BeanDescriptor(beanClass_);
+    //@B1D     additionalBeanInfo_ = new BeanInfo[] { new AS400JDBCDataSourceBeanInfo()};
 
-      PropertyDescriptor initialPoolSize = new PropertyDescriptor("initialPoolSize", beanClass_);
-      initialPoolSize.setBound(true);
-      initialPoolSize.setConstrained(false);
-      initialPoolSize.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_INIT_POOL_SIZE"));
-      initialPoolSize.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_INIT_POOL_SIZE"));
+    //@B1D PropertyDescriptor initialPoolSize = new PropertyDescriptor("initialPoolSize", beanClass_);
+    //@B1D initialPoolSize.setBound(true);
+    //@B1D initialPoolSize.setConstrained(false);
+    //@B1D initialPoolSize.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_INIT_POOL_SIZE"));
+    //@B1D initialPoolSize.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_INIT_POOL_SIZE"));
 
-      PropertyDescriptor maxIdleTime = new PropertyDescriptor("maxIdleTime", beanClass_);
-      maxIdleTime.setBound(true); 
-      maxIdleTime.setConstrained(false);
-      maxIdleTime.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MAX_IDLE_TIME"));
-      maxIdleTime.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MAX_IDLE_TIME"));
+    //@B1D PropertyDescriptor maxIdleTime = new PropertyDescriptor("maxIdleTime", beanClass_);
+    //@B1D maxIdleTime.setBound(true); 
+    //@B1D maxIdleTime.setConstrained(false);
+    //@B1D maxIdleTime.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MAX_IDLE_TIME"));
+    //@B1D maxIdleTime.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MAX_IDLE_TIME"));
 
-      PropertyDescriptor maxPoolSize = new PropertyDescriptor("maxPoolSize", beanClass_);
-      maxPoolSize.setBound(true);
-      maxPoolSize.setConstrained(false);
-      maxPoolSize.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MAX_POOL_SIZE"));
-      maxPoolSize.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MAX_POOL_SIZE"));
+    //@B1D PropertyDescriptor maxPoolSize = new PropertyDescriptor("maxPoolSize", beanClass_);
+    //@B1D maxPoolSize.setBound(true);
+    //@B1D maxPoolSize.setConstrained(false);
+    //@B1D maxPoolSize.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MAX_POOL_SIZE"));
+    //@B1D maxPoolSize.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MAX_POOL_SIZE"));
 
-// Note: We are currently not implementing statement pooling this way,
-//       since we already have package caching.
-//      PropertyDescriptor maxStatements = new PropertyDescriptor("maxStatements", beanClass_);
-//      maxStatements.setBound(true);
-//      maxStatements.setConstrained(false);
-//      maxStatements.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MAX_STATEMENTS"));
-//      maxStatements.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MAX_STATEMENTS"));
+//@B1D // Note: We are currently not implementing statement pooling this way,
+//@B1D //       since we already have package caching.
+//@B1D //      PropertyDescriptor maxStatements = new PropertyDescriptor("maxStatements", beanClass_);
+//@B1D //      maxStatements.setBound(true);
+//@B1D //      maxStatements.setConstrained(false);
+//@B1D //      maxStatements.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MAX_STATEMENTS"));
+//@B1D //      maxStatements.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MAX_STATEMENTS"));
 
-      PropertyDescriptor minPoolSize = new PropertyDescriptor("minPoolSize", beanClass_);
-      minPoolSize.setBound(true);
-      minPoolSize.setConstrained(false);
-      minPoolSize.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MIN_POOL_SIZE"));
-      minPoolSize.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MIN_POOL_SIZE"));
+    //@B1D PropertyDescriptor minPoolSize = new PropertyDescriptor("minPoolSize", beanClass_);
+    //@B1D minPoolSize.setBound(true);
+    //@B1D minPoolSize.setConstrained(false);
+    //@B1D minPoolSize.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_MIN_POOL_SIZE"));
+    //@B1D minPoolSize.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_MIN_POOL_SIZE"));
 
-      PropertyDescriptor propertyCycle = new PropertyDescriptor("propertyCycle", beanClass_);
-      propertyCycle.setBound(true);
-      propertyCycle.setConstrained(false);
-      propertyCycle.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_PROP_CYCLE"));
-      propertyCycle.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_PROP_CYCLE"));
+    //@B1D PropertyDescriptor propertyCycle = new PropertyDescriptor("propertyCycle", beanClass_);
+    //@B1D propertyCycle.setBound(true);
+    //@B1D propertyCycle.setConstrained(false);
+    //@B1D propertyCycle.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CPDS_PROP_CYCLE"));
+    //@B1D propertyCycle.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CPDS_PROP_CYCLE"));
 
-      propertyDescriptors_ = new PropertyDescriptor[]
-      {
-        initialPoolSize, maxIdleTime, maxPoolSize, // maxStatements,
-        minPoolSize, propertyCycle
-      };
-    }
-    catch(Exception e)
-    {
-      if(Trace.isTraceOn())
-      {
-        Trace.log(Trace.ERROR, "Error while loading bean info", e);
-      }
-      throw new Error(e.toString());
-    }
-  }
+    //@B1D propertyDescriptors_ = new PropertyDescriptor[]
+    //@B1D {
+    //@B1D   initialPoolSize, maxIdleTime, maxPoolSize, // maxStatements,
+    //@B1D   minPoolSize, propertyCycle
+    //@B1D };
+    //@B1D   }
+    //@B1D   catch(Exception e)
+    //@B1D   {
+    //@B1D     if(Trace.isTraceOn())
+    //@B1D     {
+    //@B1D       Trace.log(Trace.ERROR, "Error while loading bean info", e);
+    //@B1D     }
+    //@B1D     throw new Error(e.toString());
+    //@B1D   }
+    //@B1D }
 
 
   /**
@@ -108,22 +108,22 @@ public class AS400JDBCConnectionPoolDataSourceBeanInfo extends SimpleBeanInfo
   **/
   public BeanInfo[] getAdditionalBeanInfo()
   {
-    //@B0D return new BeanInfo[] { new AS400JDBCDataSourceBeanInfo() };
-    return additionalBeanInfo_; //@B0A
-  }
+        return new BeanInfo[] { new AS400JDBCDataSourceBeanInfo()};
+        //@B1D return additionalBeanInfo_; //@B0A
+    }
 
-   
+
   /**
    * Returns the bean descriptor.
    * @return The bean descriptor.
   **/
   public BeanDescriptor getBeanDescriptor()
   {
-    //@B0D return new BeanDescriptor(beanClass);
-    return beanDescriptor_; //@B0A
-  }
+        return new BeanDescriptor(beanClass);
+        //@B1D return beanDescriptor_; //@B0A
+    }
 
-  
+
   /**
    * Returns an image for the icon.
    * @param icon The icon size and color.
@@ -147,12 +147,12 @@ public class AS400JDBCConnectionPoolDataSourceBeanInfo extends SimpleBeanInfo
   }
 
 
-  /**
-   * Returns the property descriptors.
-   * @return The property descriptors.
-   **/
-  public PropertyDescriptor[] getPropertyDescriptors()
-  {
-    return propertyDescriptors_;
-  }
+    //@B1D /**
+    //@B1D  * Returns the property descriptors.
+    //@B1D  * @return The property descriptors.
+    //@B1D  **/
+    //@B1D public PropertyDescriptor[] getPropertyDescriptors()
+    //@B1D {
+    //@B1D   return propertyDescriptors_;
+    //@B1D }
 }

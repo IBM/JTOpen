@@ -585,9 +585,10 @@ implements Statement
                     //@P0A
                     request = DBDSPool.getDBSQLRequestDS(functionId, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA, 0); //@P0C @F3C @F5C
 
+                    openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);  //@F7M
                     if (openNeeded)
                     {
-                        openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);
+                        //@F7D openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);
                         request.setOpenAttributes (openAttributes);
                     }
 

@@ -1367,6 +1367,13 @@ implements java.sql.DatabaseMetaData
     }
 
 
+    public boolean supportsStatementPooling()
+    throws SQLException
+    {
+        return callMethodRtnBool ("supportsStatementPooling");
+    }
+
+
     public boolean supportsStoredProcedures ()
     throws SQLException
     {

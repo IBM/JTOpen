@@ -992,12 +992,12 @@ implements CallableStatement
 
 
 // JDBC 3.0
-    public void setNull (int parameterIndex, int sqlType, String typeName)
+    public void setNull (String parameterName, int sqlType, String typeName)
     throws SQLException
     {
         callMethod ("setNull",
-                    new Class[] { Integer.TYPE, Integer.TYPE, String.class},
-                    new Object[] { new Integer(parameterIndex),
+                    new Class[] { String.class, Integer.TYPE, String.class},
+                    new Object[] { parameterName,
                         new Integer(sqlType), typeName});
     }
 

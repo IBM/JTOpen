@@ -71,6 +71,7 @@ implements CallableStatement
     private boolean             wasNull_;
 
     private Hashtable   parameterNames_ = null;     //@G4A
+    private int         maxToLog_ = 10000;        // Log value of parameter markers up to this length // @G7A
 
 
 
@@ -1821,6 +1822,13 @@ value.
     public void setAsciiStream(String parameterName, InputStream parameterValue, int length) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setAsciiStream()");             // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " length: " + length); // @G7A
+        }                                                                  // @G7A
+
         setAsciiStream(findParameterIndex(parameterName), parameterValue, length);
     }
 
@@ -1843,6 +1851,13 @@ this to an SQL NUMERIC value.
     public void setBigDecimal(String parameterName, BigDecimal parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setBigDecimal()");              // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");  // @G7A
+              else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString());  // @G7A
+        }                                                                  // @G7A
+
         setBigDecimal(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -1871,6 +1886,13 @@ value.
     public void setBinaryStream(String parameterName, InputStream parameterValue, int length) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setBinaryStream()");            // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");  // @G7A
+              else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " length: " + length);  // @G7A
+        }                                                                  // @G7A
+
         setBinaryStream(findParameterIndex(parameterName), parameterValue, length);
     }
 
@@ -1895,6 +1917,11 @@ converts this to an SQL SMALLINT value.
     public void setBoolean(String parameterName, boolean parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setBoolean()");                 // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setBoolean(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -1922,6 +1949,11 @@ converts this to an SQL SMALLINT value.
     public void setByte(String parameterName, byte parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setByte()");                    // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setByte(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -1944,6 +1976,13 @@ converts this to an SQL VARBINARY value.
     public void setBytes(String parameterName, byte[] parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setBytes()");                   // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setBytes(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -1972,6 +2011,13 @@ VARCHAR value.
     public void setCharacterStream(String parameterName, Reader parameterValue, int length) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setCharacterStream()");         // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " length: " + length); // @G7A
+        }                                                                  // @G7A
+
         setCharacterStream(findParameterIndex(parameterName), parameterValue, length);
     }
 
@@ -1996,6 +2042,13 @@ value.
     public void setDate(String parameterName, Date parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setDate()");                    // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setDate(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2022,6 +2075,13 @@ to an SQL DATE value.
     public void setDate(String parameterName, Date parameterValue, Calendar cal) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setDate()");                    // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setDate(findParameterIndex(parameterName), parameterValue, cal);
     }
 
@@ -2043,6 +2103,11 @@ converts this to an SQL DOUBLE value.
     public void setDouble(String parameterName, double parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setDouble()");                  // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setDouble(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2071,6 +2136,11 @@ converts this to an SQL REAL value.
     public void setFloat(String parameterName, float parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setFloat()");                   // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setFloat(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2092,6 +2162,11 @@ converts this to an SQL INTEGER value.
     public void setInt(String parameterName, int parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setInt()");                     // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setInt(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2122,6 +2197,11 @@ supported on V4R5 and later.
     public void setLong(String parameterName, long parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setLong()");                    // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setLong(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2143,6 +2223,11 @@ Sets an input parameter to SQL NULL.
     public void setNull(String parameterName, int sqlType) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setNull()");                    // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");  // @G7A
+        }                                                                  // @G7A
+
         setNull(findParameterIndex(parameterName), sqlType);
     }
 
@@ -2165,6 +2250,11 @@ Sets an input parameter to SQL NULL.
     public void setNull(String parameterName, int sqlType, String typeName) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setNull()");                    // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");  // @G7A
+        }                                                                  // @G7A
+
         setNull(findParameterIndex(parameterName), sqlType, typeName);
     }
 
@@ -2196,6 +2286,13 @@ is used.
     public void setObject(String parameterName, Object parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setObject()");                  // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " type: " + parameterValue.getClass().getName()); // @G7A
+        }                                                                  // @G7A
+
         setObject(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2224,6 +2321,13 @@ this to a value with the specified SQL type.
     public void setObject(String parameterName, Object parameterValue, int targetSqlType) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setObject()");                  // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " type: " + parameterValue.getClass().getName()); // @G7A
+        }                                                                  // @G7A
+
         setObject(findParameterIndex(parameterName), parameterValue, targetSqlType);
     }
 
@@ -2254,6 +2358,13 @@ this to a value with the specified SQL type.
     public void setObject(String parameterName, Object parameterValue, int targetSqlType, int scale) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setObject()");                  // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " type: " + parameterValue.getClass().getName()); // @G7A
+        }                                                                  // @G7A
+
         setObject(findParameterIndex(parameterName), parameterValue, targetSqlType, scale);
     }
 
@@ -2275,6 +2386,11 @@ converts this to an SQL SMALLINT value.
     public void setShort(String parameterName, short parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setShort()");                   // @G7A
+            JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setShort(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2297,6 +2413,15 @@ converts this to an SQL VARCHAR value.
     public void setString(String parameterName, String parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setString()");                  // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else if ( parameterValue.length() > maxToLog_ )                // @G7A
+                JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " length: " + parameterValue.length());  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue);  // @G7A
+        }                                                                  // @G7A
+
         setString(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2319,6 +2444,13 @@ default calendar.  The driver converts this to an SQL TIME value.
     public void setTime(String parameterName, Time parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setTime()");                    // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setTime(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2344,6 +2476,13 @@ value.
     public void setTime(String parameterName, Time parameterValue, Calendar cal) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setTime()");                    // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setTime(findParameterIndex(parameterName), parameterValue, cal);
     }
 
@@ -2367,6 +2506,13 @@ value.
     public void setTimestamp(String parameterName, Timestamp parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setTimeStamp()");               // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setTimestamp(findParameterIndex(parameterName), parameterValue);
     }
 
@@ -2392,6 +2538,13 @@ an SQL TIMESTAMP value.
     public void setTimestamp(String parameterName, Timestamp parameterValue, Calendar cal) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setTimeStamp()");               // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setTimestamp(findParameterIndex(parameterName), parameterValue, cal);
     }
 
@@ -2414,6 +2567,13 @@ SQL DATALINK value.
     public void setURL(String parameterName, URL parameterValue) 
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @G7A
+            JDTrace.logInformation (this, "setURL()");                     // @G7A
+            if ( parameterValue == null )                                  // @G7A
+              JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName)  + " value: NULL");  // @G7A
+            else JDTrace.logInformation (this, "parameter index: " + findParameterIndex(parameterName) + " value: " + parameterValue.toString()); // @G7A
+        }                                                                  // @G7A
+
         setURL(findParameterIndex(parameterName), parameterValue);
     }
 

@@ -363,7 +363,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
 
        properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C
-          decimalSeparator, description, driver, errors, extendedDynamic, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,                                //@W1c
+          decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
           packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
           sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user };                                                            //@j1c
      }

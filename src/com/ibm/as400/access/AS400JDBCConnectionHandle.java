@@ -18,6 +18,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;        //@A5A
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.Savepoint;         //@A6A
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
@@ -207,6 +208,52 @@ implements Connection //@A5A
     return connection_.createStatement(resultSetType, resultSetConcurrency);
   }
 
+
+    //@A6A
+    /**
+    Creates a Statement object for executing SQL statements without
+    parameters.  If the same SQL statement is executed many times, it
+    is more efficient to use prepareStatement().
+    
+    <p>Full functionality of this method requires support in OS/400 V5R2  
+    or later.  If connecting to a V5R1 or earlier version of OS/400, the value for 
+    resultSetHoldability will be ignored.
+        
+    @param resultSetType            The result set type.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.TYPE_FORWARD_ONLY
+                                      <li>ResultSet.TYPE_SCROLL_INSENSITIVE
+                                      <li>ResultSet.TYPE_SCROLL_SENSITIVE
+                                    </ul>
+    @param resultSetConcurrency     The result set concurrency.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.CONCUR_READ_ONLY
+                                      <li>ResultSet.CONCUR_UPDATABLE
+                                    </ul>
+    @param resultSetHoldability     The result set holdability.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT 
+                                      <li>ResultSet.CLOSE_CURSORS_AT_COMMIT
+                                    </ul>
+    @return                         The statement object.
+    
+    @exception      SQLException    If the connection is not open,
+                               the maximum number of statements
+                                for this connection has been reached, the
+                                    result type, currency, or holdability is not supported,
+                                    or an error occurs.
+    @since Modification 5
+    **/
+    public Statement createStatement (int resultSetType,
+                                      int resultSetConcurrency,
+                                      int resultSetHoldability)
+    throws SQLException
+    {
+        validateConnection();
+        return connection_.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+
   /**
   *  Closes the connection if not explicitly closed by the caller.
   *
@@ -220,8 +267,8 @@ implements Connection //@A5A
         //@A5D we don't want to be throwing exceptions.
         //@A5D validateConnection();
         //@A5D connection_.finalize();
-        try                                 //@A5A
-        {                                   //@A5A
+        try
+        {                                 //@A5A                                   //@A5A
             close();                        //@A5A
         }                                   //@A5A
         catch (SQLException e)              //@A5A
@@ -325,6 +372,34 @@ implements Connection //@A5A
   // @A1D    validateConnection();
   // @A1D    return connection_.getGraphicConverter();
   // @A1D }
+
+
+    //@A6A
+    /**
+    Returns the holdability of ResultSets created from this connection.
+    
+    @return     The cursor holdability.  Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT and 
+                ResultSet.CLOSE_CURSORS_AT_COMMIT.  The holdability is derived in this order
+                of precedence:
+                <ul>
+                <li>1.  The holdability specified using the method setHoldability(int)
+                if this method was called.
+                <li>2.  The value of the <code> cursor hold </code> 
+                <a href="../../../../JDBCProperties.html">driver property</a>. </ul>  
+                Full functionality of #1 requires support in OS/400 
+                V5R2 or later.  If connecting to a V5R1 or earlier version of OS/400, 
+                the value specified on this method will be ignored and the default holdability
+                will be the value of #2.
+    
+    @exception  SQLException    If the connection is not open.
+    @since Modification 5
+    **/
+    public int getHoldability ()
+    throws SQLException
+    {
+        validateConnection();
+        return connection_.getHoldability();
+    }
 
 
   //@A4A
@@ -592,6 +667,53 @@ implements Connection //@A5A
   }
 
 
+    //@G4A JDBC 3.0
+    /**
+    Precompiles an SQL stored procedure call with optional input
+    and output parameters and stores it in a CallableStatement
+    object.  This object can be used to efficiently call the SQL
+    stored procedure multiple times.
+    
+    <p>Full functionality of this method requires support in OS/400 V5R2  
+    or later.  If connecting to a V5R1 or earlier version of OS/400, the value for 
+    resultSetHoldability will be ignored.
+    
+    @param sql                      The SQL statement.
+    @param resultSetType            The result set type.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.TYPE_FORWARD_ONLY
+                                      <li>ResultSet.TYPE_SCROLL_INSENSITIVE
+                                      <li>ResultSet.TYPE_SCROLL_SENSITIVE
+                                    </ul>
+    @param resultSetConcurrency     The result set concurrency.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.CONCUR_READ_ONLY
+                                      <li>ResultSet.CONCUR_UPDATABLE
+                                    </ul>
+    @return                         The prepared statement object.
+    @param resultSetHoldability     The result set holdability.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT 
+                                      <li>ResultSet.CLOSE_CURSORS_AT_COMMIT
+                                    </ul>
+    @exception      SQLException    If the connection is not open,
+                                    the maximum number of statements
+                                    for this connection has been reached, the
+                                    result type, currency, or holdability is not valid,
+                                    or an error occurs.
+    @since Modification 5
+    **/
+    public CallableStatement prepareCall (String sql,
+                                          int resultSetType,
+                                          int resultSetConcurrency,
+                                          int resultSetHoldability)
+    throws SQLException
+    {
+        validateConnection();
+        return connection_.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+
   /**
   *  Precompiles an SQL statement with optional input parameters
   *  and stores it in a PreparedStatement object.  This object can
@@ -614,6 +736,68 @@ implements Connection //@A5A
     validateConnection();
     return connection_.prepareStatement(sql);
   }
+
+
+
+    //@A6A
+    /**
+Precompiles an SQL statement with optional input parameters
+and stores it in a PreparedStatement object.  This object can
+be used to efficiently execute this SQL statement
+multiple times.
+
+<p>This method requires OS/400 V5R2 or later.  If connecting to a V5R1 or earlier version of OS/400, an exception will be 
+thrown. 
+
+<p>Result sets created using the statement will be type
+ResultSet.TYPE_FORWARD_ONLY and concurrency
+ResultSet.CONCUR_READ_ONLY.
+
+@param  sql                 The SQL statement.
+@param  autoGeneratedKeys   Whether to return auto generated keys.  Valid values are:
+                            <ul>
+                              <li>Statement.RETURN_GENERATED_KEYS
+                              <li>Statement.NO_GENERATED_KEYS
+                            </ul>
+@return         The prepared statement object.
+
+@exception      SQLException    If the connection is not open,
+                           the maximum number of statements
+                           for this connection has been reached,  
+                           if connecting to a V5R1 or earlier version of OS/400,
+                           or an error occurs.
+@since Modification 5
+**/
+    public PreparedStatement prepareStatement (String sql, int autoGeneratedKeys)
+    throws SQLException
+    {
+        validateConnection();
+        return connection_.prepareStatement(sql, autoGeneratedKeys);
+    }
+
+
+    // @A6A
+    /**
+     * Precompiles an SQL statement with optional input parameters
+     * and stores it in a PreparedStatement object.  This object can
+     * be used to efficiently execute this SQL statement
+     * multiple times.
+     *
+     * <p><B>This method is not supported.  An SQLException is always thrown. </B>
+     *
+     * @param  sql     The SQL statement.                                  
+     * @parm   columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
+     * @return         An SQLException is always thrown. This method is not supported.
+     * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
+     * @since Modification 5
+    **/
+    public PreparedStatement prepareStatement (String sql, int[] columnIndexes)
+    throws SQLException
+    {
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
+    }
+
 
   /**
   *  Precompiles an SQL statement with optional input parameters
@@ -648,6 +832,94 @@ implements Connection //@A5A
     return connection_.prepareStatement(sql, resultSetType, resultSetConcurrency);
   }
 
+
+    //@A6A
+    /**
+    Precompiles an SQL statement with optional input parameters
+    and stores it in a PreparedStatement object.  This object can
+    be used to efficiently execute this SQL statement
+    multiple times.
+    
+    @param sql                      The SQL statement.
+    @param resultSetType            The result set type.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.TYPE_FORWARD_ONLY
+                                      <li>ResultSet.TYPE_SCROLL_INSENSITIVE
+                                      <li>ResultSet.TYPE_SCROLL_SENSITIVE
+                                    </ul>
+    @param resultSetConcurrency     The result set concurrency.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.CONCUR_READ_ONLY
+                                      <li>ResultSet.CONCUR_UPDATABLE
+                                    </ul>
+    @param resultSetHoldability     The result set holdability.  Valid values are:
+                                    <ul>
+                                      <li>ResultSet.HOLD_CURSORS_OVER_COMMIT 
+                                      <li>ResultSet.CLOSE_CURSORS_AT_COMMIT
+                                    </ul>
+    @return                         The prepared statement object.
+    
+    @exception      SQLException    If the connection is not open,
+                                    the maximum number of statements
+                                    for this connection has been reached, the
+                                    result type, currency, or holdability is not valid,
+                                    or an error occurs.
+    **/
+    public PreparedStatement prepareStatement (String sql,
+                                               int resultSetType,
+                                               int resultSetConcurrency, 
+                                               int resultSetHoldability)
+    throws SQLException
+    {
+        validateConnection();
+        return connection_.prepareStatement (sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+    }
+
+
+    // @A6A 
+    /**
+     * Precompiles an SQL statement with optional input parameters
+     * and stores it in a PreparedStatement object.  This object can
+     * be used to efficiently execute this SQL statement
+     * multiple times.
+     *
+     * <p><B>This method is not supported.  An SQLException is always thrown. </B>
+     *
+     * @param  sql     The SQL statement.                                  
+     * @parm   columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
+     * @return         An SQLException is always thrown. This method is not supported.
+     * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
+     * @since Modification 5
+    **/
+    public PreparedStatement prepareStatement (String sql, String[] columnNames)
+    throws SQLException
+    {
+        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        return null;
+    }
+
+
+    // @A6A
+    /**
+     * Removes the given Savepoint object from the current transaction. 
+     * Any reference to the savepoint after it has been removed will 
+     * cause an SQLException to be thrown.
+     *
+     * @param savepoint the savepoint to be removed.
+     *
+     * @exception SQLException if a database access error occurs or the given Savepoint 
+     *                         is not a valid savepoint in the current transaction.
+     *
+     * @since Modification 5
+    **/
+    public void releaseSavepoint(Savepoint savepoint)
+    throws SQLException
+    {
+        validateConnection();
+        connection_.releaseSavepoint(savepoint);
+    }
+
+
   /**
   *  Drops all changes made since the previous commit or
   *  rollback and releases any database locks currently held by
@@ -663,6 +935,24 @@ implements Connection //@A5A
     connection_.rollback();
   }
 
+
+    // @A6A
+    /**
+     * Undoes all changes made after the specified Savepoint was set. 
+     *
+     * @param savepoint the savepoint to be rolled back to.
+     *
+     * @exception SQLException if a database access error occurs, the Savepoint 
+     *                         is no longer valid, or this Connection 
+     *                         is currently in auto-commit mode.
+     * @since Modification 5
+    **/
+    public void rollback(Savepoint savepoint)
+    throws SQLException
+    {
+        validateConnection();
+        connection_.rollback(savepoint);
+    }
 
 
   /**
@@ -815,6 +1105,31 @@ implements Connection //@A5A
   }
 
 
+    //@A6A
+    /**
+    Sets the holdability of ResultSets created from this connection.
+    
+    <p>Full functionality of this method requires OS/400 V5R2
+    or later.  If connecting to a V5R1 or earlier version of OS/400, all
+    cursors for the connection will be changed to the value of the variable
+    <i>holdability</i>.
+    
+    @param  holdability   The cursor holdability.
+                          Valid values are ResultSet.HOLD_CURSORS_OVER_COMMIT or
+                          ResultSet.CLOSE_CURSORS_AT_COMMIT.
+    
+    @exception          SQLException    If the connection is not open
+                                        or the value passed in is not valid.
+    @since Modification 5
+    **/
+    public void setHoldability (int holdability)
+    throws SQLException                                      
+    {
+        validateConnection();
+        connection_.setHoldability(holdability);
+    }
+
+
   /**
   *  Sets the connection properties.
   **/
@@ -858,6 +1173,52 @@ implements Connection //@A5A
     validateConnection();
     connection_.setReadOnly(readOnly);
   }
+
+
+    // @A6A
+    /**
+     * Creates an unnamed savepoint in the current transaction and returns the new Savepoint object that represents it.
+     * <UL>
+     * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
+     * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.                                                                              
+     * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
+     * <LI>Savepoints require OS/400 V5R2 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
+     * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
+     * </UL>
+     *
+     * @return     The new Savepoint object.
+     * @exception  SQLException if a database access error occurs or this Connection object is currently in auto-commit mode.
+     * @since Modification 5
+    **/
+    public Savepoint setSavepoint()
+    throws SQLException
+    {
+        validateConnection();
+        return connection_.setSavepoint();
+    }
+
+
+    // @A6
+    /**
+     * Creates a named savepoint in the current transaction and returns the new Savepoint object that represents it.
+     * <UL>
+     * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
+     * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.   
+     * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
+     * <LI>Savepoints require OS/400 V5R2 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
+     * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
+     * </UL>
+     * @param      name A String containing the name of the savepoint
+     * @return     The new Savepoint object.
+     * @exception  SQLException if a database access error occurs or this Connection object is currently in auto-commit mode.
+     * @since Modification 5
+    **/
+    public Savepoint setSavepoint(String name)
+    throws SQLException
+    {   
+        validateConnection();
+        return connection_.setSavepoint(name);
+    }  
 
   /**
   *

@@ -36,6 +36,7 @@ import java.sql.Types;
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;             //@G4A
+//import java.util.ArrayList;             //@G9A Use array list when JDK 1.2 is the minimum supported release
 import java.util.Vector;
 
 
@@ -105,6 +106,7 @@ implements PreparedStatement
     SQLInteger          returnValueParameter_;  // private protected            @F2A
     JDSQLStatement      sqlStatement_;            // @G4c (used by callable statement)
     boolean             useReturnValueParameter_; // private protected          @F2A
+    private int         maxToLog_ = 10000;        // Log value of parameter markers up to this length // @H1A
 
 
     /**
@@ -512,12 +514,12 @@ implements PreparedStatement
                         else
                             parameterMarkerData = new DBOriginalData (rowCount_,                    // @G9C
                                                                       parameterCount_, 2, parameterTotalSize_);
-                        request.setParameterMarkerData (parameterMarkerData);
+                        //@G9D request.setParameterMarkerData (parameterMarkerData);                       
 
                         boolean descriptorChangeNeeded = false;                                 // @BAA
                         rebuildNeeded = false;                                                  // @BAA
 
-                        parameterMarkerData.setConsistencyToken (1);
+                        //@G9D parameterMarkerData.setConsistencyToken (1);                                
 
                         for ( int rowLoop = 1; rowLoop <= rowCount_; ++rowLoop )                    // @G9a
                         {                                                                           // @G9A
@@ -892,8 +894,8 @@ implements PreparedStatement
                         // the execute.
                         Object[] parameters = (Object[]) nextElement;
                         //@P0C Calendar calendar = Calendar.getInstance ();
-//                        for (int j = 0; j < parameterCount_; ++j)                     // @G9D
-//                            setValue (j+1, parameters[j], calendar, -1);              // @B8C @G9D
+                        //@G9D  for (int j = 0; j < parameterCount_; ++j)              
+                        //@G9D  setValue (j+1, parameters[j], calendar, -1);            // @B8C
                         batchParameterRows_.add(parameters);                            // @G9A
 
                         // Set up the multiple sets of parameters if needed.               @G9A
@@ -914,8 +916,7 @@ implements PreparedStatement
                             rowCount_++;                                                // @G9A
                             parameters = (Object[]) nextElement;                        // @G9A
                             batchParameterRows_.add(parameters);                        // @G9A
-                            }
-                            else {                                                      // @G9A
+                          } else {                                                      // @G9A
                             nextElementSet = true;                                      // @G9A
                             done = true;                                                // @G9A
                           }                                                             // @G9A
@@ -938,8 +939,7 @@ implements PreparedStatement
                     //   for the batch insert                                              @G9A
                     if ( rowCount_ == 1 ) {                                             // @G9A
                       updateCounts[i-1] = rowsInserted_;                                // @G9A
-                    }
-                    else {                                                            // @G9A
+                    } else {                                                            // @G9A
                       for ( int retvalLoop = 0; retvalLoop < batchSize; retvalLoop++ ) {  // @G9A
                         updateCounts[retvalLoop] = 1;                                   // @G9C
                       }                                                                 // @G9A
@@ -953,7 +953,7 @@ implements PreparedStatement
                 // then the size of the update counts array should
                 // reflect the number of statements that were
                 // executed without error.
-//              System.arraycopy (updateCounts, 0, updateCounts2, 0, rowsInserted_);       @G9D
+                //@G9D System.arraycopy (updateCounts, 0, updateCounts2, 0, rowsInserted_); 
                 int[] updateCounts2;                                                    // @G9A
                 if ( rowCount_ == 1 )  {                                                // @G9A
                   if ( notInsert )                                                      // @G9A
@@ -962,8 +962,7 @@ implements PreparedStatement
                     updateCounts2 = new int[1];                                         // @G9A
                     updateCounts[0] = rowsInserted_;                                    // @G9A
                   }                                                                     // @G9A
-                }
-                else {                                                                // @G9A
+                } else {                                                                // @G9A
                   updateCounts2 = new int[rowsInserted_];                               // @G9C
                   for ( int retvalLoop = 0; retvalLoop < rowsInserted_; retvalLoop++ )  // @G9A
                     updateCounts2[retvalLoop] = 1;                                      // @G9C
@@ -1127,6 +1126,7 @@ implements PreparedStatement
         JDError.throwSQLException (JDError.EXC_FUNCTION_SEQUENCE);  // @B1A
         return 0;                                                   // @B1A
     }
+
 
 
     //@GAA
@@ -1501,6 +1501,13 @@ implements PreparedStatement
                                 int length)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setAsciiStream()");             // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length); // @H1A
+        }                                                                  // @H1A
+
         if (length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
@@ -1531,6 +1538,13 @@ implements PreparedStatement
         // @B2D if (parameterValue == null)
         // @B2D    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setBigDecimal()");              // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL");  // @H1A
+              else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString());  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, parameterValue, null, -1);
     }
 
@@ -1559,6 +1573,13 @@ implements PreparedStatement
                                  int length)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setBinaryStream()");            // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL");  // @H1A
+              else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length);  // @H1A
+        }                                                                  // @H1A
+
         if (length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
@@ -1593,6 +1614,13 @@ implements PreparedStatement
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setBlob()");                    // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + parameterValue.length());   // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, parameterValue, null, -1);
     }
 
@@ -1618,6 +1646,11 @@ implements PreparedStatement
     public void setBoolean (int parameterIndex, boolean parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setBoolean()");                 // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex,
                   new Short ((short) (parameterValue ? 1 : 0)), null, -1);
     }
@@ -1644,6 +1677,11 @@ implements PreparedStatement
     public void setByte (int parameterIndex, byte parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setByte()");                    // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, new Short (parameterValue), null, -1);
     }
 
@@ -1666,6 +1704,15 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setBytes()");                   // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else if ( parameterValue.length > maxToLog_ )
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " length: " + parameterValue.length);  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1);
     }
@@ -1696,6 +1743,13 @@ implements PreparedStatement
                                     int length)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setCharacterStream()");         // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length); // @H1A
+        }                                                                  // @H1A
+
         if (length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
@@ -1730,6 +1784,15 @@ implements PreparedStatement
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setClob()");                    // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else if ( parameterValue.length() > maxToLog_ )                   // @H1A
+              JDTrace.logInformation (this, "parameter index: "  + parameterIndex + " value: "  + parameterValue.getSubString(1, (int)parameterValue.length())); // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + parameterValue.length()); // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, parameterValue, null, -1);
     }
 
@@ -1753,6 +1816,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setDate()");                    // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1); //@P0C
     }
@@ -1782,6 +1852,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setDate()");                    // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
+
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
@@ -1804,6 +1881,11 @@ implements PreparedStatement
     public void setDouble (int parameterIndex, double parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setDouble()");                  // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, new Double (parameterValue), null, -1);
     }
 
@@ -1830,6 +1912,11 @@ implements PreparedStatement
     public void setFloat (int parameterIndex, float parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setFloat()");                   // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, new Float (parameterValue), null, -1);
     }
 
@@ -1849,6 +1936,11 @@ implements PreparedStatement
     public void setInt (int parameterIndex, int parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setInt()");                     // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, new Integer (parameterValue), null, -1);
     }
 
@@ -1878,6 +1970,11 @@ implements PreparedStatement
     public void setLong (int parameterIndex, long parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setLong()");                    // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, new Long(parameterValue), null, -1); // @D0C
     }
 
@@ -1906,6 +2003,11 @@ implements PreparedStatement
         //
         // @D8d testSQLType(sqlType, parameterIndex);                                               // @BBA
 
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setNull()");                    // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL");  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, null, null, -1);
     }
 
@@ -1926,6 +2028,11 @@ implements PreparedStatement
     public void setNull (int parameterIndex, int sqlType, String typeName)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setNull()");                    // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: NULL");  // @H1A
+        }                                                                  // @H1A
+
         setNull (parameterIndex, sqlType);
     }
 
@@ -1955,6 +2062,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setObject()");                  // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " type: " + parameterValue.getClass().getName()); // @H1A
+        }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1); //@P0C
     }
@@ -1994,6 +2108,13 @@ implements PreparedStatement
         // will make us a friendlier driver.
         //
         // @D8d testSQLType(sqlType, parameterIndex);                                               // @BBA
+
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setObject()");                  // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " type: " + parameterValue.getClass().getName()); // @H1A
+        }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1); //@P0C
     }
@@ -2038,6 +2159,13 @@ implements PreparedStatement
         //
         // @D8d testSQLType(sqlType, parameterIndex);                                               // @BBA
 
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setObject()");                  // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " type: " + parameterValue.getClass().getName()); // @H1A
+        }                                                                  // @H1A
+
         if (scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
@@ -2079,6 +2207,11 @@ implements PreparedStatement
     public void setShort (int parameterIndex, short parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setShort()");                   // @H1A
+            JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, new Short (parameterValue), null, -1);
     }
 
@@ -2102,6 +2235,15 @@ implements PreparedStatement
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setString()");                  // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else if ( parameterValue.length() > maxToLog_ )                // @H1A
+                JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + parameterValue.length());  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue);  // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, parameterValue, null, -1); // @B7C @P0C
     }
 
@@ -2124,6 +2266,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setTime()");                    // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1); //@P0C
     }
@@ -2153,6 +2302,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setTime()");                    // @H1
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
+
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
@@ -2179,6 +2335,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setTimeStamp()");               // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
 
         setValue (parameterIndex, parameterValue, null, -1); //@P0C
     }
@@ -2208,6 +2371,13 @@ implements PreparedStatement
     {
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setTimeStamp()");               // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
+
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
@@ -2247,13 +2417,20 @@ implements PreparedStatement
                                   int length)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setUnicodeStream()");           // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " length: " + length); // @H1A
+        }                                                                  // @H1A
+
         if (length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B2D if (parameterValue == null)
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
         setValue (parameterIndex,
-                  (parameterValue == null) ? null : JDUtilities.streamToString (parameterValue, length, "UnicodeBig"), // @B2C @B3C
+                  (parameterValue == null) ? null : JDUtilities.streamToString (parameterValue, length, "Unicode"), // @B2C @B3C @H2C
                   null, -1); //@P0C
     }
 
@@ -2276,6 +2453,13 @@ implements PreparedStatement
     public void setURL (int parameterIndex, URL parameterValue)
     throws SQLException
     {
+        if (JDTrace.isTraceOn()) {                                         // @H1A
+            JDTrace.logInformation (this, "setURL()");                     // @H1A
+            if ( parameterValue == null )                                  // @H1A
+              JDTrace.logInformation (this, "parameter index: " + parameterIndex  + " value: NULL");  // @H1A
+            else JDTrace.logInformation (this, "parameter index: " + parameterIndex + " value: " + parameterValue.toString()); // @H1A
+        }                                                                  // @H1A
+
         setValue (parameterIndex, parameterValue, null, -1);    
     }
 
@@ -2303,6 +2487,7 @@ and performs all appropriate validation.
                    int scale) // private protected
     throws SQLException
     {
+
         synchronized(internalLock_) {                                            // @F1A
             checkOpen ();
 

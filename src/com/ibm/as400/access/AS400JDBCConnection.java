@@ -617,7 +617,7 @@ implements Connection
     parameters.  If the same SQL statement is executed many times, it
     is more efficient to use prepareStatement().
     
-    <p>Full functionality of this method requires support in the release of OS/400 after V5R1,  
+    <p>Full functionality of this method requires support in OS/400 V5R2  
     or later.  If connecting to a V5R1 or earlier version of OS/400, the value for 
     resultSetHoldability will be ignored.
         
@@ -887,8 +887,8 @@ implements Connection
                 if this method was called.
                 <li>2.  The value of the <code> cursor hold </code> 
                 <a href="../../../../JDBCProperties.html">driver property</a>. </ul>  
-                Full functionality of #1 requires support in the release of OS/400 
-                after V5R1, or later.  If connecting to a V5R1 or earlier version of OS/400, 
+                Full functionality of #1 requires support in OS/400 
+                V5R2 or later.  If connecting to a V5R1 or earlier version of OS/400, 
                 the value specified on this method will be ignored and the default holdability
                 will be the value of #2.
     
@@ -1497,7 +1497,7 @@ implements Connection
     object.  This object can be used to efficiently call the SQL
     stored procedure multiple times.
     
-    <p>Full functionality of this method requires support in the release of OS/400 after V5R1,  
+    <p>Full functionality of this method requires support in OS/400 V5R2  
     or later.  If connecting to a V5R1 or earlier version of OS/400, the value for 
     resultSetHoldability will be ignored.
     
@@ -1808,7 +1808,6 @@ implements Connection
 
 
     // @G4 new method
-    // @G4 new method
     /**
      * Precompiles an SQL statement with optional input parameters
      * and stores it in a PreparedStatement object.  This object can
@@ -1818,12 +1817,12 @@ implements Connection
      * <p><B>This method is not supported.  An SQLException is always thrown. </B>
      *
      * @param  sql     The SQL statement.                                  
-     * @parm   columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
+     * @parm   columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
      * @return         An SQLException is always thrown. This method is not supported.
      * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
      * @since Modification 5
     **/
-    public PreparedStatement prepareStatement (String sql, String[] data)
+    public PreparedStatement prepareStatement (String sql, String[] columnNames)
     throws SQLException
     {
         JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
@@ -1836,7 +1835,7 @@ implements Connection
     void processSavepointRequest(String savepointStatement)
     throws SQLException
     {                                                                       
-        // must be a release of OS/400 after v5r1, or later
+        // must be OS/400 v5r2 or later
         if (vrm_ < JDUtilities.vrm520)
             JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);
 
@@ -2221,15 +2220,16 @@ implements Connection
                 else                                                                        // @E5A
                     actualRequest = request;                                                // @E5A
                 heldRequests_ = null;                                                       // @E5A
+                                                                      
+                server_.send(actualRequest);                // @E5A @F7M
+                requestPending_[id] = leavePending; //@P0A @F7M
             }                                                                               // @E5A
 
             // @E5D if (DEBUG_REQUEST_CHAINING_ == true) {
-            server_.send(actualRequest);                                                // @E5C
             //@P0D                if (leavePending)                                                           // @DAA
             //@P0D                    requestPending_.set(id);                                                // @DAC
             //@P0D                else                                                                        // @DAA
             //@P0D                    requestPending_.clear(id);                                              // @DAA
-            requestPending_[id] = leavePending; //@P0A
 
             // @E5D }
             // @E5D else {
@@ -2459,12 +2459,14 @@ implements Connection
                 else                                                                        // @E5A
                     actualRequest = request;                                                // @E5A
                 heldRequests_ = null;                                                       // @E5A
+                                                                      
+                reply = (DBReplyRequestedDS)server_.sendAndReceive(actualRequest);          // @E5C @F7M
+                //@P0D requestPending_.clear(id);
+                requestPending_[id] = false; //@P0A @F7M
             }                                                                               // @E5A
 
-            reply = (DBReplyRequestedDS)server_.sendAndReceive(actualRequest);              // @E5C
             reply.parse(dataCompression_);                                                  // @E5A
-            //@P0D requestPending_.clear(id);                                                      // @DAC
-            requestPending_[id] = false; //@P0A
+                                                       // @DAC
 
             if (DEBUG_COMM_TRACE_ > 0)
             {
@@ -2897,7 +2899,7 @@ implements Connection
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.                                                                              
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require the release of OS/400 after V5R1 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
+     * <LI>Savepoints require OS/400 V5R2 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      *
@@ -2918,7 +2920,7 @@ implements Connection
      * <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
      * <LI>Savepoints are valid only if autocommit is off.  An exception is thrown if autocommit is enabled.   
      * <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-     * <LI>Savepoints require the release after OS/400 V5R1 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
+     * <LI>Savepoints require OS/400 V5R2 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
      * <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors will remain open after a rollback to a savepoint.
      * </UL>
      * @param      name A String containing the name of the savepoint
@@ -3157,7 +3159,7 @@ implements Connection
                 }
 
                 // Send an RDB name to the server only if connecting to 
-                // post-v5r1 and newer versions of OS/400
+                // v5r2 and newer versions of OS/400
                 if (vrm_ >= JDUtilities.vrm520)                                                                   // @J2a
                 {
                     // @J2a

@@ -27,7 +27,7 @@ import javax.sql.ConnectionEvent;                     // JDBC std-ext
 import javax.sql.ConnectionEventListener;             // JDBC std-ext
 
 /**
-*  The AS400JDBCConnectionPool class represents a pool of AS/400 JDBC connections
+*  The AS400JDBCConnectionPool class represents a pool of AS/400 or iSeries JDBC connections
 *  that are available for use by a Java program.
 *  <p>
 *  Note: AS400JDBCConnectionPool objects are threadsafe.
@@ -74,9 +74,6 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   transient private Vector activePool_;                          // Active connections.
   transient private Vector availablePool_;                       // Available connections.
   transient private PoolConnectionEventListener eventListener_;  // Listener for events on pooled connections.
-
-  private int minimumPoolSize_ = 0; //@B0A
-//  private int maxStatements_ = 0; //@B0A - currently ignored.
 
   /**
   *  Constructs a default AS400JDBCConnectionPool object.
@@ -167,22 +164,6 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
               ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(poolConnection, ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
               poolListeners_.fireConnectionExpiredEvent(poolEvent);
             }
-          }
-        }
-      }
-
-      int numAvail = availablePool_.size(); //@B0A
-      if (numAvail < minimumPoolSize_) //@B0A
-      {
-        try
-        {
-          fill(minimumPoolSize_ - numAvail); //@B0A
-        }
-        catch(ConnectionPoolException cpe) //@B0A
-        {
-          if (Trace.isTraceOn()) //@B0A
-          {
-            Trace.log(Trace.ERROR, "Unable to fill connection pool to minimum size.", cpe); //@B0A
           }
         }
       }
@@ -465,12 +446,6 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     return dataSource_;
   }
 
-  //@B0A
-  int getMinimumPoolSize()
-  {
-    return minimumPoolSize_;
-  }
-
 
   //@A3A
   /**
@@ -610,20 +585,6 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
 
     dataSource_ = dataSource;
     changes_.firePropertyChange(property, old, dataSource);
-  }
-
-  //@B0A - maxStatements is currently ignored.
-  // Use package caching instead.
-//  void setMaxStatements(int num)
-//  {
-//    maxStatements_ = num;
-//  }
-
-  //@B0A - Called by AS400JDBCConnectionPoolDataSource
-  // to pass us its setting for the min pool size.
-  void setMinimumPoolSize(int minSize)
-  {
-    minimumPoolSize_ = minSize;
   }
 
 
