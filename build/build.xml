@@ -211,7 +211,6 @@
   <property name="output-xerces-4.0" value="${build}/output-xerces-4.0"/>
   <property name="output-micro" value="${build}/output-micro"/>
   <property name="output-micro-verified" value="${build}/output-micro-verified"/>
-  <property name="include-micro" value="${build}/include-micro"/>
 
   <property name="build.sysclasspath" value="ignore"/>
   
@@ -749,7 +748,7 @@
   
   <target name="micro-preverify" depends="init,compile-micro" unless="compileIncludesExist-1.4">
     <exec dir="${bin}" executable="preverify" failonerror="true" vmlauncher="false">
-      <arg line="-d ${output-micro-verified} -classpath ${include-micro} ${output-micro}"/>
+      <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi.zip ${output-micro}"/>
     </exec>
   </target>
   
