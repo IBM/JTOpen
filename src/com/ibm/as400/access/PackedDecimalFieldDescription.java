@@ -24,7 +24,7 @@ import java.util.Vector;
  *<li>The user to describe a packed decimal field to the RecordFormat object.
  *<li>The RecordFormat object to describe a packed decimal field to the user.
  *</ul>
- *Click <a href="../../../../recordxmp.html">here</a>to see an example.
+ *Click <a href="doc_files/recordxmp.html">here</a>to see an example.
 **/
 public class PackedDecimalFieldDescription extends FieldDescription implements Serializable
 {

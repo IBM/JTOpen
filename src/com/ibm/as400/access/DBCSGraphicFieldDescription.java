@@ -23,7 +23,7 @@ import java.util.Vector;
  *<li>The user to describe a DBCS-graphic field to the RecordFormat object.
  *<li>The RecordFormat object to describe a DBCS-graphic field to the user.
  *</ul>
- *Click <a href="../../../../recordxmp.html">here</a>to see an example.
+ *Click <a href="doc-files/recordxmp.html">here</a>to see an example.
 **/
 public class DBCSGraphicFieldDescription extends FieldDescription implements VariableLengthFieldDescription, Serializable
 {

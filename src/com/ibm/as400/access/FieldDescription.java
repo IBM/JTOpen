@@ -28,8 +28,8 @@ import java.util.Vector;
  *<p> 
  *<b>Examples</b>
  *<ul>
- *<li><a href="../../../../recordxmp.html">Using the FieldDescription classes with the Data queue classes</a>
- *<li><a href="../../../../RLReadFileExample.html">Using the FieldDescription classes with the record-level database access classes</a>
+ *<li><a href="doc-files/recordxmp.html">Using the FieldDescription classes with the Data queue classes</a>
+ *<li><a href="doc-files/RLReadFileExample.html">Using the FieldDescription classes with the record-level database access classes</a>
  *<li><a href="doc-files/LDRWExample.html">Using the FieldDescription classes with the LineDataRecordWriter class</a>
  *</ul>
 **/

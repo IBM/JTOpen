@@ -23,7 +23,7 @@ import java.util.Vector;
  *<li>The user to describe a binary field to the <a href="RecordFormat.html">RecordFormat</a> object.
  *<li>The RecordFormat object to describe a binary field to the user.
  *</ul>
- *Click <a href="../../../../recordxmp.html">here</a>to see an example.
+ *Click <a href="doc-files/recordxmp.html">here</a>to see an example.
  *<p>
  *As of OS/400 V4R5, DDS supports up to 8-byte (18-digit) binary field descriptions.
  *Using any of the data types that result in a byte length greater than 4 or a number of

@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat;
  *<li>The user to describe a time field to the RecordFormat object.
  *<li>The RecordFormat object to describe a time field to the user.
  *</ul>
- *click <a href="../../../../recordxmp.html">here</a> to see an example.
+ *click <a href="doc-files/recordxmp.html">here</a> to see an example.
 **/
 public class TimeFieldDescription extends FieldDescription implements Serializable
 {

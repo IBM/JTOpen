@@ -50,8 +50,8 @@ import java.util.Vector;
  *</ul>
  *<b>Examples</b>
  *<ul>
- *<li><a href="../../../../recordxmp.html">Using the Record class with the Data queue classes</a>
- *<li><a href="../../../../RLReadFileExample.html">Using the Record class with the record-level database access classes</a>
+ *<li><a href="doc-files/recordxmp.html">Using the Record class with the Data queue classes</a>
+ *<li><a href="doc-files/RLReadFileExample.html">Using the Record class with the record-level database access classes</a>
  *</ul>
 **/
 public class Record implements Serializable
