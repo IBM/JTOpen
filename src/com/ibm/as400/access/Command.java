@@ -816,12 +816,51 @@ public class Command implements Serializable
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
-//    boolean added = false;
     xmlHelpText_ = null;
-//    String prdLib = getXMLProductLibrary();
     String pGroup = getXMLPanelGroup();
+    String prdLib = getXMLProductLibrary();
+    boolean added = false;
     if (pGroup != null)
     {
+      if (prdLib != null)
+      {
+        prdLib = prdLib.trim().toUpperCase();
+        // Add the product library to the library list
+        // otherwise the API used by PanelGroup won't find the help text.
+        // First, check to see if it's there.
+        Job job = new Job(system_); // Current job
+        String[] userLibraries = job.getUserLibraryList();
+        String[] sysLibraries = job.getSystemLibraryList();
+        String curLibrary = job.getCurrentLibrary();
+        boolean exists = false;
+        if (curLibrary.trim().equalsIgnoreCase(prdLib))
+        {
+          exists = true;
+        }
+        for (int i=0; i<userLibraries.length && !exists; ++i)
+        {
+          if (userLibraries[i].trim().equalsIgnoreCase(prdLib))
+          {
+            exists = true;
+          }
+        }
+        for (int i=0; i<sysLibraries.length && !exists; ++i)
+        {
+          if (sysLibraries[i].trim().equalsIgnoreCase(prdLib))
+          {
+            exists = true;
+          }
+        }
+        if (!exists)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpText: Adding "+prdLib+" to library list.");
+          // We have to try to add it.
+          String addlible = "ADDLIBLE LIB("+prdLib+")";
+          CommandCall cc = new CommandCall(system_, addlible);
+          added = cc.run();
+        }
+      }
+
       PanelGroupHelpIdentifier[] ids = getXMLHelpIdentifiers();
       String[] helpIDs = new String[ids.length];
       for (int i=0; i<ids.length; ++i) helpIDs[i] = ids[i].getName();
@@ -829,6 +868,15 @@ public class Command implements Serializable
       String helpResults = panelGroup.getHelpText(helpIDs);
 
       xmlHelpText_ = helpResults;
+      
+      // Remove the product library from the library list if we added it.
+      if (added)
+      {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+prdLib+" from library list.");
+        String rmvlible = "RMVLIBLE LIB("+prdLib+")";
+        CommandCall cc = new CommandCall(system_, rmvlible);
+        cc.run();
+      }
     }
 
     refreshedHelpText_ = true;
@@ -888,7 +936,7 @@ public class Command implements Serializable
         }
         if (!exists)
         {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpText: Adding "+xmlProductLibrary_+" to library list.");
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs: Adding "+xmlProductLibrary_+" to library list.");
           // We have to try to add it.
           String addlible = "ADDLIBLE LIB("+xmlProductLibrary_+")";
           CommandCall cc = new CommandCall(system_, addlible);
@@ -912,7 +960,7 @@ public class Command implements Serializable
       // Remove the product library from the library list if we added it.
       if (added)
       {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+xmlProductLibrary_+" from library list.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+xmlProductLibrary_+" from library list.");
         String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";
         CommandCall cc = new CommandCall(system_, rmvlible);
         cc.run();
@@ -1112,7 +1160,7 @@ public class Command implements Serializable
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException
   {
-    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Refreshing command information for "+path_+".");
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Refreshing command information for "+path_+".");
     if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     if (path_ == null) throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
@@ -1160,7 +1208,7 @@ public class Command implements Serializable
     }
     catch(ExtendedIllegalArgumentException eiae)
     {
-      if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Unable to process source file: '"+srcName+","+srcLib+","+srcMbr+"'.", eiae);
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to process source file: '"+srcName+","+srcLib+","+srcMbr+"'.", eiae);
       sourceFile_ = null;
     }
 
@@ -1259,7 +1307,7 @@ public class Command implements Serializable
 
     refreshed_ = true;
 
-    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed command information for "+path_+".");
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed command information for "+path_+".");
   }
 
 
