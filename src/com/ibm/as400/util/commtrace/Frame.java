@@ -21,11 +21,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 /**
- * Encapsulates all the data for one record of the trace.<br>
- * Parses the record data and creates a printable representation of this 
- * record.<br>
+ * Encapsulates all the data for one Frame of the trace.<br>
+ * Parses the Frame data and creates a printable representation of this 
+ * Frame.<br>
  * The data in any packet is mainted in a linked list like structure. The 
- * format of any record will be one of the following:<br>
+ * format of any Frame will be one of the following:<br>
  *	    <ul>
  *          <li>arp/rarp</li>                                               
  *          <li>ip4,tcp</li>
@@ -70,12 +70,12 @@ public class Frame {
 					IFSRTLN, 	/* LAN routing length         */
 					IFSTCP; 	/* Frame is TCP Y/N           */
 	private Time tod_; // The time of this trace
-	private boolean tcp= true; // If this record isn't TCP this field is set
+	private boolean tcp= true; // If this Frame isn't TCP this field is set
 
 	private LanHeader lnHdr; // The 22 byte LAN header 
 
 	/**
-	 * Creates a record which parses the raw data contained in this packet. 
+	 * Creates a Frame which parses the raw data contained in this packet. 
 	 * @param pro       Prolog to this trace. 
 	 * @param data      BitBuf with the raw data.
 	 */
@@ -99,7 +99,7 @@ public class Frame {
 				CLASS + ".Frame() " + "Creating Frame " + IFSRECN.toString() + "... tcp:" + IFSTCP.toString());
 		}
 
-		if ((IFSTCP.toString()).equals("Y")) { // If the record is TCP parse it
+		if ((IFSTCP.toString()).equals("Y")) { // If the Frame is TCP parse it
 			tcp= true;
 			lnHdr= new LanHeader(data, IFSLLC, pro.getProtocol());
 			frmhdrl= lnHdr.getDataStart() + ifshdr;
@@ -110,13 +110,13 @@ public class Frame {
 	}
 
 	/**
-	 * Parses the IP data of this record.
-	 * @param hdr       BitBuf with this records IP data.
+	 * Parses the IP data of this Frame.
+	 * @param hdr       BitBuf with this Frame's IP data.
 	 */
 	private void parseIPdata(BitBuf hdr) {
 		frmtype= lnHdr.getFrameType();
 
-		// Create the correct packet based on the frame type
+		// Create the correct packet based on the Frame type
 		if (frmtype == 0x86DD) {
 			packet= new IP6Packet(hdr.getBytes());
 			packet.setType(IPPacket.IP6);
@@ -139,9 +139,9 @@ public class Frame {
 	}
 
     /**
-     * Returns a printable representation of this record.
-     * @param filter	    FormatProperties object for filtering this record.
-     * @return Returns a string representation of this record.
+     * Returns a printable representation of this Frame.
+     * @param filter	    FormatProperties object for filtering this Frame.
+     * @return Returns a string representation of this Frame.
      */
 	public String toString(FormatProperties filter) {
 		StringBuffer ret= new StringBuffer(); // The return string
@@ -169,12 +169,12 @@ public class Frame {
 					print= true;
 				} else if (
 					starttime != null && endtime == null) { // A start time but no end time
-					// Timestamp is greater then the start time we print the record
+					// Timestamp is greater then the start time we print the Frame
 					if (timestamp >= Long.parseLong(starttime)) {
 						print= true;
 					}
 				} else { // Start and end time both specified
-					// Timestamp is less then the end time but greater then the start time we print the record
+					// Timestamp is less then the end time but greater then the start time we print the Frame
 					if (Long.parseLong(endtime) >= timestamp
 						&& timestamp >= Long.parseLong(starttime)) {
 						print= true;
@@ -203,7 +203,7 @@ public class Frame {
 				// Calculate the data length
 				time };
 
-			// Add the record data
+			// Add the Frame data
 			ret.append(
 				(Formatter
 					.jsprintf(
@@ -216,14 +216,14 @@ public class Frame {
 			String returnpacket= packet.toString(filter);
 
 			if (returnpacket.equals("")) {
-				// The packet wasn't printed so return an empty record
+				// The packet wasn't printed so return an empty Frame
 				return "";
 			} else { // Append the packet
 				ret.append(returnpacket);
 			}
 
 			// If there is data that wasn't traced append the amount to the 
-			// end of the record
+			// end of the Frame
 			int notTraced= Integer.parseInt(IFSPDULN.toString()) - data.getByteSize() + 22;
 			if (notTraced > 0) {
 				ret.append(
@@ -239,7 +239,7 @@ public class Frame {
 	}
 
 	/**
-	 * Returns the packet contained by this record.
+	 * Returns the packet contained by this Frame.
 	 * @return	    IPPacket this packet. 
 	 */
 	public IPPacket getPacket() {
@@ -247,8 +247,8 @@ public class Frame {
 	}
 
 	/**
-	 * Returns the record number. 
-	 * @return	    String containing the record number. 
+	 * Returns the Frame number. 
+	 * @return	    String containing the Frame number. 
 	 */
 	public String getRecNum() {
 		return IFSRECN.toString();
@@ -275,8 +275,8 @@ public class Frame {
 	}
 
 	/**
-	 * Returns the record type. 
-	 * @return	    String containing the record type. 
+	 * Returns the Frame type. 
+	 * @return	    String containing the Frame type. 
 	 */
 	public String getRecType() {
 		return IFSRECTP.toString();
@@ -291,8 +291,8 @@ public class Frame {
 	}
 
 	/**
-	 * Returns the record status. 
-	 * @return	    String containing the record status.
+	 * Returns the Frame status. 
+	 * @return	    String containing the Frame status.
 	 */
 	public String getRecStatus() {
 		return IFSRECST.toString();
@@ -332,7 +332,7 @@ public class Frame {
 	}
 
 	/**
-	 * Returns if the frame is TCP Y/N. 
+	 * Returns if the Frame is TCP Y/N. 
 	 * @return	    String containing Y or N. 
 	 */
 	public String getTCP() {
@@ -340,8 +340,8 @@ public class Frame {
 	}
 
 	/**
-	 * Returns a boolean indicating if the frame is TCP 
-	 * @return true if record is TCP. 
+	 * Returns a boolean indicating if the Frame is TCP 
+	 * @return true if Frame is TCP. 
 	 */
 	public boolean isTCP() {
 		return tcp;
