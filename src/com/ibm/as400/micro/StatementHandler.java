@@ -41,7 +41,7 @@ needed by the JDBC-ME driver with the JDBC Statement interface.
 **/
 class StatementHandler
 {
-    private JDBCMEService service_;
+    private JdbcMeService service_;
     private MicroDataInputStream in_;
     private MicroDataOutputStream out_;
 
@@ -50,7 +50,7 @@ class StatementHandler
     Constructor.  Creates a new JDBC-ME handler for Statement
     objects.
     **/
-    public StatementHandler(JDBCMEService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
+    public StatementHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
         service_ = jdbcme;
         in_ = in;
