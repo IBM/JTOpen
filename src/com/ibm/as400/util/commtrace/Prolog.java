@@ -185,47 +185,47 @@ public class Prolog {
      */
     private void parseData() {
 		// Get the MRI for the prolog
-		PTITLE=ResourceBundleLoader.getText("PTITLE");           
-		PTRACDES=ResourceBundleLoader.getText("PTRACDES");
-		PCFGOBJ=ResourceBundleLoader.getText("PCFGOBJ"); 
-		POTYPE=ResourceBundleLoader.getText("POTYPE"); 
-		POTYPEH=ResourceBundleLoader.getText("POTYPEH");
-		POBJPROT=ResourceBundleLoader.getText("POBJPROT");
-		PSTRTIME=ResourceBundleLoader.getText("PSTRTIME");
-		PENDTIME=ResourceBundleLoader.getText("PENDTIME");
-		PBYTECOL=ResourceBundleLoader.getText("PBYTECOL");
-		PBUFSIZ=ResourceBundleLoader.getText("PBUFSIZ"); 
-		PBUFSIZH=ResourceBundleLoader.getText("PBUFSIZH");                       
-		PDATDIR=ResourceBundleLoader.getText("PDATDIR"); 
-		PDATDIRH=ResourceBundleLoader.getText("PDATDIRH");    
-		PBUFWRP=ResourceBundleLoader.getText("PBUFWRP");
-		PBUFWRPH=ResourceBundleLoader.getText("PBUFWRPH");                 
-		PBYTES=ResourceBundleLoader.getText("PBYTES");      
-		PBYTESB=ResourceBundleLoader.getText("PBYTESB");  
-		PBYTESBH=ResourceBundleLoader.getText("PBYTESBH");                 
-		PBYTESE=ResourceBundleLoader.getText("PBYTESE");  
-		PBYTESEH=ResourceBundleLoader.getText("PBYTESEH");                 
-		PFORMAT=ResourceBundleLoader.getText("PFORMAT");               
-		PCDNAME=ResourceBundleLoader.getText("PCDNAME");
-		PCDNAMEH=ResourceBundleLoader.getText("PCDNAMEH");                   
-		PDATTYP=ResourceBundleLoader.getText("PDATTYP");
-		PDATTYPH=ResourceBundleLoader.getText("PDATTYPH");   
-		PFMTTCP=ResourceBundleLoader.getText("PFMTTCP");
-		PIPADDR=ResourceBundleLoader.getText("PIPADDR");  
-		PIPADDRH=ResourceBundleLoader.getText("PIPADDRH");              
-		PIPPORT=ResourceBundleLoader.getText("PIPPORT"); 
-		PIPPORTH=ResourceBundleLoader.getText("PIPPORTH");              
-		PETHDAT=ResourceBundleLoader.getText("PETHDAT");
-		PETHDATH=ResourceBundleLoader.getText("PETHDATH");     
-		PBDCAST=ResourceBundleLoader.getText("PBDCAST");
-		PFMTOH=ResourceBundleLoader.getText("PFMTOH");                  
-		PRMTCD=ResourceBundleLoader.getText("PRMTCD"); 
-		PRMTMAC=ResourceBundleLoader.getText("PRMTMAC");
-		PRMTSAP=ResourceBundleLoader.getText("PRMTSAP");
-		PLCLSAP=ResourceBundleLoader.getText("PLCLSAP");
-		PPIPID=ResourceBundleLoader.getText("PPIPID"); 
-		PRMTIP=ResourceBundleLoader.getText("PRMTIP"); 
-		PRMTALLH=ResourceBundleLoader.getText("PRMTALLH"); 
+		PTITLE=ResourceBundleLoader_ct.getText("PTITLE");           
+		PTRACDES=ResourceBundleLoader_ct.getText("PTRACDES");
+		PCFGOBJ=ResourceBundleLoader_ct.getText("PCFGOBJ"); 
+		POTYPE=ResourceBundleLoader_ct.getText("POTYPE"); 
+		POTYPEH=ResourceBundleLoader_ct.getText("POTYPEH");
+		POBJPROT=ResourceBundleLoader_ct.getText("POBJPROT");
+		PSTRTIME=ResourceBundleLoader_ct.getText("PSTRTIME");
+		PENDTIME=ResourceBundleLoader_ct.getText("PENDTIME");
+		PBYTECOL=ResourceBundleLoader_ct.getText("PBYTECOL");
+		PBUFSIZ=ResourceBundleLoader_ct.getText("PBUFSIZ"); 
+		PBUFSIZH=ResourceBundleLoader_ct.getText("PBUFSIZH");                       
+		PDATDIR=ResourceBundleLoader_ct.getText("PDATDIR"); 
+		PDATDIRH=ResourceBundleLoader_ct.getText("PDATDIRH");    
+		PBUFWRP=ResourceBundleLoader_ct.getText("PBUFWRP");
+		PBUFWRPH=ResourceBundleLoader_ct.getText("PBUFWRPH");                 
+		PBYTES=ResourceBundleLoader_ct.getText("PBYTES");      
+		PBYTESB=ResourceBundleLoader_ct.getText("PBYTESB");  
+		PBYTESBH=ResourceBundleLoader_ct.getText("PBYTESBH");                 
+		PBYTESE=ResourceBundleLoader_ct.getText("PBYTESE");  
+		PBYTESEH=ResourceBundleLoader_ct.getText("PBYTESEH");                 
+		PFORMAT=ResourceBundleLoader_ct.getText("PFORMAT");               
+		PCDNAME=ResourceBundleLoader_ct.getText("PCDNAME");
+		PCDNAMEH=ResourceBundleLoader_ct.getText("PCDNAMEH");                   
+		PDATTYP=ResourceBundleLoader_ct.getText("PDATTYP");
+		PDATTYPH=ResourceBundleLoader_ct.getText("PDATTYPH");   
+		PFMTTCP=ResourceBundleLoader_ct.getText("PFMTTCP");
+		PIPADDR=ResourceBundleLoader_ct.getText("PIPADDR");  
+		PIPADDRH=ResourceBundleLoader_ct.getText("PIPADDRH");              
+		PIPPORT=ResourceBundleLoader_ct.getText("PIPPORT"); 
+		PIPPORTH=ResourceBundleLoader_ct.getText("PIPPORTH");              
+		PETHDAT=ResourceBundleLoader_ct.getText("PETHDAT");
+		PETHDATH=ResourceBundleLoader_ct.getText("PETHDATH");     
+		PBDCAST=ResourceBundleLoader_ct.getText("PBDCAST");
+		PFMTOH=ResourceBundleLoader_ct.getText("PFMTOH");                  
+		PRMTCD=ResourceBundleLoader_ct.getText("PRMTCD"); 
+		PRMTMAC=ResourceBundleLoader_ct.getText("PRMTMAC");
+		PRMTSAP=ResourceBundleLoader_ct.getText("PRMTSAP");
+		PLCLSAP=ResourceBundleLoader_ct.getText("PLCLSAP");
+		PPIPID=ResourceBundleLoader_ct.getText("PPIPID"); 
+		PRMTIP=ResourceBundleLoader_ct.getText("PRMTIP"); 
+		PRMTALLH=ResourceBundleLoader_ct.getText("PRMTALLH"); 
 		// Parse 256 bytes of header data.
 		ctsftrcd = new Char(data.slice(0,160));
 		ctsfndob = new Char(data.slice(160,80));
@@ -388,7 +388,7 @@ public class Prolog {
 				PIPPORT + "    {10,13,L}" + PIPADDRH + "\n" +
 				PBDCAST + "    {11,13,L}" + PFMTOH + "\n",args2));
 		} else {
-		    formatedData.append(ResourceBundleLoader.getText("NotSupported"));
+		    formatedData.append(ResourceBundleLoader_ct.getText("NotSupported"));
 		    invalidData = true;
 		}
 		return formatedData.toString();

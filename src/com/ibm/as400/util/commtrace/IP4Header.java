@@ -137,7 +137,7 @@ public class IP4Header extends Header {
 			}
 			if (!print) { // Don't print the packet
 				if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
-					Trace.log(Trace.INFORMATION,CLASS + ".toString() " + "Record doesn't pass IP filter");
+					Trace.log(Trace.INFORMATION,CLASS + ".toString() " + "Frame doesn't pass IP filter");
 				}
 				return ""; // Return empty record because it didn't pass the filter
 			}

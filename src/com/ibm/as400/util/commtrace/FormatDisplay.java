@@ -120,7 +120,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		FileDialog fd;
 		if(oper==FMT) {
 			// Ask the user for the file to format
-			fd = new FileDialog(CommTrace.getMainFrame(),ResourceBundleLoader.getText("FormatDialog"),FileDialog.LOAD);
+			fd = new FileDialog(CommTrace.getMainFrame(),ResourceBundleLoader_ct.getText("FormatDialog"),FileDialog.LOAD);
 			fd.show(); // Show the dialog
 			String path = fd.getDirectory();
 			filename = fd.getFile();
@@ -166,7 +166,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 					}
 								
 					// Display file dialog so user can specify a place to save the trace
-					FileDialog fd = new FileDialog(CommTrace.getMainFrame(),ResourceBundleLoader.getText("SaveAs"),FileDialog.SAVE);
+					FileDialog fd = new FileDialog(CommTrace.getMainFrame(),ResourceBundleLoader_ct.getText("SaveAs"),FileDialog.SAVE);
 					fd.setFile(filename + SAVEEXT);
 					fd.show();
 					String outpath = fd.getDirectory();
@@ -245,8 +245,8 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		l = new JFrame("Comm Trace");
 		formattrace = new JTextArea("",10,80);
 		JMenuBar formatmb = new JMenuBar();
-		JMenu ffile = new JMenu(ResourceBundleLoader.getText("File"));
-		JMenu fedit = new JMenu(ResourceBundleLoader.getText("Edit"));
+		JMenu ffile = new JMenu(ResourceBundleLoader_ct.getText("File"));
+		JMenu fedit = new JMenu(ResourceBundleLoader_ct.getText("Edit"));
 		JScrollPane p = new JScrollPane(formattrace);
 
 		// Navigation
@@ -262,7 +262,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		c.gridheight=3;
 
 		// Create the Show Label
-		JLabel lshow = new JLabel(ResourceBundleLoader.getText("Show"));
+		JLabel lshow = new JLabel(ResourceBundleLoader_ct.getText("Show"));
 		gridbag.setConstraints(lshow,c);
 		nav.add(lshow);
 
@@ -281,7 +281,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		// Create the frames label
 		c.anchor=GridBagConstraints.CENTER;
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		JLabel lframes = new JLabel(ResourceBundleLoader.getText("ShowDescription"));
+		JLabel lframes = new JLabel(ResourceBundleLoader_ct.getText("ShowDescription"));
 		gridbag.setConstraints(lframes,c);
 		nav.add(lframes);
 		
@@ -289,13 +289,13 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		c.anchor=GridBagConstraints.WEST;
 		c.gridwidth=GridBagConstraints.RELATIVE;
 		c.gridheight=GridBagConstraints.RELATIVE;
-		JLabel msgdesc = new JLabel(ResourceBundleLoader.getText("DisplayDescription"));
+		JLabel msgdesc = new JLabel(ResourceBundleLoader_ct.getText("DisplayDescription"));
 		gridbag.setConstraints(msgdesc,c);
 		nav.add(msgdesc);
 
 		// Create the message label
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		msg = new JLabel(ResourceBundleLoader.getText("Prolog"));
+		msg = new JLabel(ResourceBundleLoader_ct.getText("Prolog"));
 		gridbag.setConstraints(msg,c);
 		nav.add(msg);
 
@@ -303,7 +303,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		c.anchor=GridBagConstraints.CENTER;
 		c.gridwidth=GridBagConstraints.RELATIVE;
 		c.gridheight=GridBagConstraints.REMAINDER;
-		prev = new JButton(ResourceBundleLoader.getText("Prev"));
+		prev = new JButton(ResourceBundleLoader_ct.getText("Prev"));
 		prev.addActionListener(new CommTraceDisplayListener(this));
 		gridbag.setConstraints(prev,c);
 		nav.add(prev);
@@ -311,41 +311,41 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		// Create the Next button
 		c.anchor=GridBagConstraints.WEST;
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		next = new JButton(ResourceBundleLoader.getText("Next"));	
+		next = new JButton(ResourceBundleLoader_ct.getText("Next"));	
 		next.addActionListener(new CommTraceDisplayListener(this));
 		gridbag.setConstraints(next,c);
 		nav.add(next);
 		north.add(nav);
 
-    	String record = ResourceBundleLoader.getText("Record");
-		String mac = ResourceBundleLoader.getText("MACAddress");
+    	String record = ResourceBundleLoader_ct.getText("Record");
+		String mac = ResourceBundleLoader_ct.getText("MACAddress");
 		
 		StringBuffer Banner1 = new StringBuffer();
 		Banner1.append(record);
 		Banner1.append("       ");
-		Banner1.append(ResourceBundleLoader.getText("Data"));
+		Banner1.append(ResourceBundleLoader_ct.getText("Data"));
 		Banner1.append("      ");
 		Banner1.append(record);
 		Banner1.append("                     ");
-		Banner1.append(ResourceBundleLoader.getText("Destination"));
+		Banner1.append(ResourceBundleLoader_ct.getText("Destination"));
 		Banner1.append("     ");
-		Banner1.append(ResourceBundleLoader.getText("Source"));
+		Banner1.append(ResourceBundleLoader_ct.getText("Source"));
 		Banner1.append("           ");
-		Banner1.append(ResourceBundleLoader.getText("Frame"));
+		Banner1.append(ResourceBundleLoader_ct.getText("Frame"));
 		StringBuffer Banner2 = new StringBuffer();
-		Banner2.append(ResourceBundleLoader.getText("Number"));
+		Banner2.append(ResourceBundleLoader_ct.getText("Number"));
 		Banner2.append("  ");
-		Banner2.append(ResourceBundleLoader.getText("S/R"));
+		Banner2.append(ResourceBundleLoader_ct.getText("S/R"));
 		Banner2.append("  ");
-		Banner2.append(ResourceBundleLoader.getText("Length"));
+		Banner2.append(ResourceBundleLoader_ct.getText("Length"));
 		Banner2.append("    ");
-		Banner2.append(ResourceBundleLoader.getText("Timer"));
+		Banner2.append(ResourceBundleLoader_ct.getText("Timer"));
 		Banner2.append("                      ");
 		Banner2.append(mac);
 		Banner2.append("     ");
 		Banner2.append(mac);
 		Banner2.append("      ");
-		Banner2.append(ResourceBundleLoader.getText("Format"));
+		Banner2.append(ResourceBundleLoader_ct.getText("Format"));
 		String Banner3 = "------  ---  ------    ------------               --------------  --------------   ------";
 
 		// Banner
@@ -363,26 +363,26 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 
 	    // Format Menu Bar
 	    // File Menu
-	    fsave = new JMenuItem(ResourceBundleLoader.getText("Save"),KeyEvent.VK_S); // Create the menu and its key binding
+	    fsave = new JMenuItem(ResourceBundleLoader_ct.getText("Save"),KeyEvent.VK_S); // Create the menu and its key binding
 	    fsave.setAccelerator(KeyStroke.getKeyStroke( // Bind the key binding to the menu item
 						KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 
-	    fclose = new JMenuItem(ResourceBundleLoader.getText("Close"),KeyEvent.VK_W);
+	    fclose = new JMenuItem(ResourceBundleLoader_ct.getText("Close"),KeyEvent.VK_W);
 	    fclose.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_W, ActionEvent.CTRL_MASK));
 
 	    // Edit Menu
-	    ffind = new JMenuItem(ResourceBundleLoader.getText("Find"),KeyEvent.VK_F);
+	    ffind = new JMenuItem(ResourceBundleLoader_ct.getText("Find"),KeyEvent.VK_F);
 	    ffind.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_F, ActionEvent.CTRL_MASK));
-	    fcopy = new JMenuItem(ResourceBundleLoader.getText("Copy"),KeyEvent.VK_C);
+	    fcopy = new JMenuItem(ResourceBundleLoader_ct.getText("Copy"),KeyEvent.VK_C);
 	    fcopy.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_C, ActionEvent.CTRL_MASK));
-	    fclear = new JMenuItem(ResourceBundleLoader.getText("Clear"));
-	    fcut = new JMenuItem(ResourceBundleLoader.getText("Cut"),KeyEvent.VK_X);
+	    fclear = new JMenuItem(ResourceBundleLoader_ct.getText("Clear"));
+	    fcut = new JMenuItem(ResourceBundleLoader_ct.getText("Cut"),KeyEvent.VK_X);
 	    fcut.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-	    fpaste = new JMenuItem(ResourceBundleLoader.getText("Paste"),KeyEvent.VK_V);
+	    fpaste = new JMenuItem(ResourceBundleLoader_ct.getText("Paste"),KeyEvent.VK_V);
 	    fpaste.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_V, ActionEvent.CTRL_MASK));
 
@@ -453,9 +453,9 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 			if(oper==OPEN || oper==OPENRMT) { // We are reading the data in from a stream 
 				int end = recsdisp+numrecs;
 				if(end>ifsrecs) {
-					msg.setText(recsdisp + "-" + ifsrecs + " " + ResourceBundleLoader.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader.getText("possible"));  
+					msg.setText(recsdisp + "-" + ifsrecs + " " + ResourceBundleLoader_ct.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader_ct.getText("possible"));  
 				} else {
-					msg.setText(recsdisp + "-" + (recsdisp+numrecs) + " " + ResourceBundleLoader.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader.getText("possible"));
+					msg.setText(recsdisp + "-" + (recsdisp+numrecs) + " " + ResourceBundleLoader_ct.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader_ct.getText("possible"));
 				}
 				recsdisp = end;
 
@@ -486,9 +486,9 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 				// If the user requested to view records past the end of what 
 				// we have set the limit to the last record
 				if(end>tcprecs) { 
-				    msg.setText(recsdisp + "-" + (tcprecs) + " " + ResourceBundleLoader.getText("of") + " " + tcprecs);  
+				    msg.setText(recsdisp + "-" + (tcprecs) + " " + ResourceBundleLoader_ct.getText("of") + " " + tcprecs);  
 				} else {
-				    msg.setText(recsdisp + "-" + (end) + " " + ResourceBundleLoader.getText("of") + " " + tcprecs);  
+				    msg.setText(recsdisp + "-" + (end) + " " + ResourceBundleLoader_ct.getText("of") + " " + tcprecs);  
 				}
 				recsdisp = end; 
 				if(lastPage.equals("")) { 
@@ -518,9 +518,9 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 			if(tcprecs==0) { 
 				// User is reading past the end of the available records 
 				if(recsdisp>ifsrecs) { 
-					msg.setText(recsdisp + "-" + ifsrecs + " " + ResourceBundleLoader.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader.getText("possible"));  
+					msg.setText(recsdisp + "-" + ifsrecs + " " + ResourceBundleLoader_ct.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader_ct.getText("possible"));  
 				} else {
-					msg.setText(recsdisp-numrecs + "-" + (recsdisp) + " " + ResourceBundleLoader.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader.getText("possible"));  
+					msg.setText(recsdisp-numrecs + "-" + (recsdisp) + " " + ResourceBundleLoader_ct.getText("of") + " " + ifsrecs + " " + ResourceBundleLoader_ct.getText("possible"));  
 				}
 				if(recsdisp>=ifsrecs) {
 					// Display the default cursor
@@ -531,9 +531,9 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 				// User is attempting to view past the end of the available 
 				// number of records
 				if(recsdisp>tcprecs) { 
-					msg.setText(recsdisp + "-" + (tcprecs) + " " + ResourceBundleLoader.getText("of") + " " + tcprecs);  
+					msg.setText(recsdisp + "-" + (tcprecs) + " " + ResourceBundleLoader_ct.getText("of") + " " + tcprecs);  
 				} else {
-					msg.setText(recsdisp-numrecs + "-" + (recsdisp) + " " + ResourceBundleLoader.getText("of") + " " + tcprecs);  
+					msg.setText(recsdisp-numrecs + "-" + (recsdisp) + " " + ResourceBundleLoader_ct.getText("of") + " " + tcprecs);  
 				}
 				if(recsdisp>=tcprecs) {
 					// Display the default cursor
@@ -544,7 +544,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		    page=0; // User is viewing current page
 		} else if(page==2) { // The user wants to view the 2nd to last page
 		    formattrace.setText(lastPage);
-		    msg.setText(ResourceBundleLoader.getText("PreviousPage"));
+		    msg.setText(ResourceBundleLoader_ct.getText("PreviousPage"));
 		    page=1; // User is viewing 2nd to last page
 		}
 		
@@ -559,11 +559,11 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		if(page==0) {
 		    currPage = formattrace.getText();
 		    formattrace.setText(lastPage);
-		    msg.setText(ResourceBundleLoader.getText("PreviousPage"));
+		    msg.setText(ResourceBundleLoader_ct.getText("PreviousPage"));
 		    page=1;
 		} else if(page==1) {
 		    formattrace.setText(slastPage);
-		    msg.setText(ResourceBundleLoader.getText("PreviousPage") + " 2");
+		    msg.setText(ResourceBundleLoader_ct.getText("PreviousPage") + " 2");
 		    page=2; 
 		} else if(page==2) {
 		    CommTrace.error(l,"Not Found","Only the two previous pages are stored");
@@ -577,7 +577,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 	public void open() {
 		if(oper==OPEN) {
 			// Display file dialog so user can specify a file to open
-			FileDialog fd = new FileDialog(CommTrace.getMainFrame(),ResourceBundleLoader.getText("OpenDialog"),FileDialog.LOAD);
+			FileDialog fd = new FileDialog(CommTrace.getMainFrame(),ResourceBundleLoader_ct.getText("OpenDialog"),FileDialog.LOAD);
 			fd.show();
 			String path = fd.getDirectory();
 			String file = fd.getFile();
@@ -594,10 +594,10 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 				fmt = new Format(sys);
 				fmt.openIFSFile(path+"/" + file + FormatRemote.EXT);
 			} else {
-				IFSFileDialog fd = new IFSFileDialog((new JFrame()), ResourceBundleLoader.getText("FiletoView"), sys);
+				IFSFileDialog fd = new IFSFileDialog((new JFrame()), ResourceBundleLoader_ct.getText("FiletoView"), sys);
 
-				FileFilter [] filterList = {new FileFilter(ResourceBundleLoader.getText("AllFiles"), "*.*"),      	
-											new FileFilter(ResourceBundleLoader.getText("CommTraceFiles"), "*.bin")};
+				FileFilter [] filterList = {new FileFilter(ResourceBundleLoader_ct.getText("AllFiles"), "*.*"),      	
+											new FileFilter(ResourceBundleLoader_ct.getText("CommTraceFiles"), "*.bin")};
 				fd.setFileFilter(filterList, 0);
 			
 				fd.setDirectory(path);
@@ -618,7 +618,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
      */
     public boolean save() {
 		// Display file dialog so user can specify a place to save the trace
-		FileDialog fd = new FileDialog(l,ResourceBundleLoader.getText("SaveAs"),FileDialog.SAVE);
+		FileDialog fd = new FileDialog(l,ResourceBundleLoader_ct.getText("SaveAs"),FileDialog.SAVE);
 		if(filename==null) {
 			int index;
 			String file = outfile;
@@ -686,7 +686,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
     /** Add the end banner. */
     private String addEndBanner() {
 		return("\n* * * * * * * * * * * * *    " +
-				ResourceBundleLoader.getText("EOCP") +
+				ResourceBundleLoader_ct.getText("EOCP") +
 				"    * * * * * * * * * * * * *\n");
     }
 

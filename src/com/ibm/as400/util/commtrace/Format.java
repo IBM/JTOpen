@@ -52,13 +52,13 @@ import com.ibm.as400.access.Trace;
  * Prolog pro = f.getProlog();	
  * System.out.println(pro.toString());
  * if(!pro.invalidData()) { // The is not a valid trace
- *	 Record rec; 
+ *	 Frame rec; 
  *	 while((rec=f.getNextRecord())!=null) { // Get the records
- *	 	System.out.print(rec.getRecNum()); // Print out the Record Number
+ *	 	System.out.print(rec.getRecNum()); // Print out the Frame Number
  *	 	System.out.println(rec.getTime()); // Print out the time
- *	 	Packet p = rec.getPacket(); // Get this records packet
+ *	 	IPPacket p = rec.getPacket(); // Get this records packet
  *	 	Header h = p.getHeader(); // Get the first header
- *	 	if(p.getType()==Packet.IP6) { // If IP6 Packet
+ *	 	if(p.getType()==IPPacket.IP6) { // If IP6 IPPacket
  *	 		if(h.getType()==Header.IP6) { // If IP6 Header
  *				IP6Header ip6 = (IP6Header) h; // Cast to IP6 so we can access methods
  *				System.out.println(h.getName()); // Print the name
@@ -557,7 +557,7 @@ public class Format {
 			return 1;
 		}
 		int recPrinted=0;
-		Record rec;
+		Frame rec;
 		try {
 			out.write(pro_.toString());
 			while ((rec= getNextRecord()) != null) {
@@ -602,7 +602,7 @@ public class Format {
 		}
 		
 		int recPrinted=0;
-		Record rec;
+		Frame rec;
 		try {
 			out.write(pro_.toString());
 			while ((rec= getNextRecord()) != null) {
@@ -638,7 +638,7 @@ public class Format {
 	 */
 	public int toIFSBinFile() {
 		ObjectOutputStream out;
-		Record rec;
+		Frame rec;
 
 		if(pro_==null) { // Constructed incorrectly
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
@@ -707,7 +707,7 @@ public class Format {
 	 */
 	public int toLclBinFile() {
 		ObjectOutputStream out;
-		Record rec;
+		Frame rec;
 
 		if(pro_==null) { // Constructed incorrectly
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
@@ -791,7 +791,7 @@ public class Format {
 	 * @return An error code if any.
 	 */
 	private int toBinFile(ObjectOutputStream out) {
-		Record rec;
+		Frame rec;
 		try {
 			out.writeUTF(pro_.toString());
 			out.writeInt(ifsrecs);
@@ -932,7 +932,7 @@ public class Format {
 	}
 
 	/**
-	 * Reads a Record from the input stream. Records are stored as Strings.
+	 * Reads a Frame from the input stream. Records are stored as Strings.
 	 * @return String
 	 */
 	public String getRecFromFile() {
@@ -1000,9 +1000,9 @@ public class Format {
 	/**
 	 * Retrieves the next record from the given trace.<br>
 	 * This method discards all non TCP records.
-	 * @return Record
+	 * @return Frame
 	 */
-	public Record getNextRecord() {
+	public Frame getNextRecord() {
 		if(pro_==null) { // Not initialized correctly
 			if (Trace.isTraceOn() && Trace.isTraceErrorOn()) {
 				Trace.log(Trace.ERROR,CLASS + ".getNextRecord() " + "Prolog not formatted.");
@@ -1011,7 +1011,7 @@ public class Format {
 		}
 		
 		if (!pro_.invalidData()) {
-			Record rec= getNext();
+			Frame rec= getNext();
 			while (rec != null) {
 				if (!rec.isTCP()) {
 					rec= getNext();
@@ -1028,9 +1028,9 @@ public class Format {
 
 	/**
 	 * Subroutine which allows us to get the next record 
-	 * @return Record 
+	 * @return Frame 
 	 */
-	private Record getNext() {
+	private Frame getNext() {
 		BitBuf bb;
 		int recLen= 0;
 		if (progress != null) { // Progress is being displayed
@@ -1050,7 +1050,7 @@ public class Format {
 				recLen= (nxtRecLen.toInt() * 8) - 16;
 				nxtRecLen= new BitBuf(bb, recLen, 16);
 			}
-			return (new Record(pro_, bb.slice(0, recLen)));
+			return (new Frame(pro_, bb.slice(0, recLen)));
 		} else {
 			return null;
 		}
@@ -1078,36 +1078,36 @@ public class Format {
 	 */
 	public String addBanner() {
 	    StringBuffer banner = new StringBuffer();
-		String record= ResourceBundleLoader.getText("Record");
-		String mac= ResourceBundleLoader.getText("MACAddress");
+		String record= ResourceBundleLoader_ct.getText("Frame");
+		String mac= ResourceBundleLoader_ct.getText("MACAddress");
 
 		banner.append(pro_.getTitle());
 		banner.append(pro_.getDate());
 		banner.append(record);
 		banner.append("       ");
-		banner.append(ResourceBundleLoader.getText("Data"));
+		banner.append(ResourceBundleLoader_ct.getText("Data"));
 		banner.append("      ");
 		banner.append(record);
 		banner.append("                     ");
-		banner.append(ResourceBundleLoader.getText("Destination"));
+		banner.append(ResourceBundleLoader_ct.getText("Destination"));
 		banner.append("     ");
-		banner.append(ResourceBundleLoader.getText("Source"));
+		banner.append(ResourceBundleLoader_ct.getText("Source"));
 		banner.append("           ");
-		banner.append(ResourceBundleLoader.getText("Frame"));
+		banner.append(ResourceBundleLoader_ct.getText("Frame"));
 		banner.append("\n");
-		banner.append(ResourceBundleLoader.getText("Number"));
+		banner.append(ResourceBundleLoader_ct.getText("Number"));
 		banner.append("  ");
-		banner.append(ResourceBundleLoader.getText("S/R"));
+		banner.append(ResourceBundleLoader_ct.getText("S/R"));
 		banner.append("  ");
-		banner.append(ResourceBundleLoader.getText("Length"));
+		banner.append(ResourceBundleLoader_ct.getText("Length"));
 		banner.append("    ");
-		banner.append(ResourceBundleLoader.getText("Timer"));
+		banner.append(ResourceBundleLoader_ct.getText("Timer"));
 		banner.append("                      ");
 		banner.append(mac);
 		banner.append("     ");
 		banner.append(mac);
 		banner.append("      ");
-		banner.append(ResourceBundleLoader.getText("Format"));
+		banner.append(ResourceBundleLoader_ct.getText("Format"));
 		banner.append("\n");
 		banner.append("------  ---  ------    ------------               --------------  --------------   ------");
 		banner.append("\n");
@@ -1118,7 +1118,7 @@ public class Format {
 	private String addEndBanner() {
 		return (
 			"\n* * * * * * * * * * * * *    "
-				+ ResourceBundleLoader.getText("EOCP")
+				+ ResourceBundleLoader_ct.getText("EOCP")
 				+ "    * * * * * * * * * * * * *\n");
 	}
 

@@ -16,11 +16,11 @@ package com.ibm.as400.util.commtrace;
 import java.util.Properties;
 
 /**
- * A Internet Protocolv4 Packet.<br>
- * Extends Packets' methods to parse, print, and allow easy access to the IPv4 Packet<br>
+ * A Internet Protocolv4 IPPacket.<br>
+ * Extends Packets' methods to parse, print, and allow easy access to the IPv4 IPPacket<br>
  * It has one constructor which takes a byte array of packet data as its only argument.
  */
-public class IP4Packet extends Packet {
+public class IP4Packet extends IPPacket {
 	/**
 	 * Creates and parses the data of this header.  
 	 * @param data  The raw data of this header. 

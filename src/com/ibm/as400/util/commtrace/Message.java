@@ -52,7 +52,7 @@ public abstract class Message extends ICMP6Header {
 	/** A Multicast Listener Done Message */
 	public final static int MLTLSTDNE= 0x84;
 
-	final static String OFFPKT= "Offending Packet";
+	final static String OFFPKT= "Offending IPPacket";
 	final static String PTR= "Pointer";
 	final static String ID= "Identifier";
 	final static String SEQNUM= "SequenceNumber";

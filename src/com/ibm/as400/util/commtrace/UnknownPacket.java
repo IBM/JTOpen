@@ -17,10 +17,10 @@ import java.util.Properties;
 import com.ibm.as400.access.Trace;
 
 /**
- * A Unknown Packet.<br>
- * Extends Packets's methods to parse, print, and allow easy access to the Unknown Packet.
+ * A Unknown IPPacket.<br>
+ * Extends Packets's methods to parse, print, and allow easy access to the Unknown IPPacket.
  */
-public class UnknownPacket extends Packet {
+public class UnknownPacket extends IPPacket {
 	/**
 	 * Creates and parses the data of this packet. 
 	 * @param data  The raw data of this packet. 

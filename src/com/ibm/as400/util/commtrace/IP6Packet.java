@@ -16,11 +16,11 @@ package com.ibm.as400.util.commtrace;
 import java.util.Properties;
 
 /**
- * An Internet Protocol v6 Packet.<br>
- * Extends Packets' methods to parse, print, and allow easy access to the IPv6 Packet<br>
+ * An Internet Protocol v6 IPPacket.<br>
+ * Extends Packets' methods to parse, print, and allow easy access to the IPv6 IPPacket<br>
  * It has one constructor which takes a byte array of packet data as its only argument.
  */
-public class IP6Packet extends Packet {
+public class IP6Packet extends IPPacket {
 
 	/**
 	 * Creates and parses the data of this header.  

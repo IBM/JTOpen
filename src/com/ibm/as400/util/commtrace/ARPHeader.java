@@ -103,7 +103,7 @@ public class ARPHeader extends Header {
 			}
 			if(!print) { // Don't print the packet
 				if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
-					Trace.log(Trace.INFORMATION,CLASS + ".toString() " + "Record doesn't pass ARP IP Filter"); 
+					Trace.log(Trace.INFORMATION,CLASS + ".toString() " + "Frame doesn't pass ARP IP Filter"); 
 			    }
 				return ""; // Return empty record because it didn't pass the filter
 			}

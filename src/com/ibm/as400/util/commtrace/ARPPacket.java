@@ -16,10 +16,10 @@ package com.ibm.as400.util.commtrace;
 import java.util.Properties;
 
 /**
- * An Address Resolution Protocol(ARP)/Reverse Address Resolution Protocol(RARP) Packet.<br>
- * Extends Packet's methods to parse, print, and allow easy access to the ARP Packet.
+ * An Address Resolution Protocol(ARP)/Reverse Address Resolution Protocol(RARP) IPPacket.<br>
+ * Extends IPPacket's methods to parse, print, and allow easy access to the ARP IPPacket.
  */
-public class ARPPacket extends Packet {
+public class ARPPacket extends IPPacket {
     private int frmtype;
 
     /**

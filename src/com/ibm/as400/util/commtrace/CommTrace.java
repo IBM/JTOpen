@@ -254,9 +254,9 @@ public class CommTrace extends WindowAdapter {
 	
 		// Create and add the RadioButtons
 		ButtonGroup bg = new ButtonGroup();
-		remote = new JRadioButton(ResourceBundleLoader.getText("Remote"));
+		remote = new JRadioButton(ResourceBundleLoader_ct.getText("Remote"));
 		remote.addActionListener(new CommTraceListener(this));
-		local = new JRadioButton(ResourceBundleLoader.getText("Local"));
+		local = new JRadioButton(ResourceBundleLoader_ct.getText("Local"));
 		local.addActionListener(new CommTraceListener(this));
 		local.setSelected(true);
 		bg.add(local);
@@ -267,40 +267,40 @@ public class CommTrace extends WindowAdapter {
 		
 		c.gridwidth=GridBagConstraints.RELATIVE;
 		c.fill=GridBagConstraints.HORIZONTAL;
-		addbutton(TRANSFER,ResourceBundleLoader.getText("Transfer"),c,pnl);
+		addbutton(TRANSFER,ResourceBundleLoader_ct.getText("Transfer"),c,pnl);
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		JLabel trandesc = new JLabel(ResourceBundleLoader.getText("TransferDescription"));
+		JLabel trandesc = new JLabel(ResourceBundleLoader_ct.getText("TransferDescription"));
 		gridbag.setConstraints(trandesc,c);
 		pnl.add(trandesc);
 		
 		c.gridwidth=GridBagConstraints.RELATIVE;
-		addbutton(OPEN,ResourceBundleLoader.getText("Display"),c,pnl);
+		addbutton(OPEN,ResourceBundleLoader_ct.getText("Display"),c,pnl);
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		JLabel opendesc = new JLabel(ResourceBundleLoader.getText("DisplayButtonDescription"));
+		JLabel opendesc = new JLabel(ResourceBundleLoader_ct.getText("DisplayButtonDescription"));
 		gridbag.setConstraints(opendesc,c);
 		pnl.add(opendesc);
 		
 		c.gridwidth=GridBagConstraints.RELATIVE;
-		addbutton(FORMAT,ResourceBundleLoader.getText("Format"),c,pnl);
+		addbutton(FORMAT,ResourceBundleLoader_ct.getText("Format"),c,pnl);
 
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		JLabel formatdesc = new JLabel(ResourceBundleLoader.getText("FormatDescription"));
+		JLabel formatdesc = new JLabel(ResourceBundleLoader_ct.getText("FormatDescription"));
 		gridbag.setConstraints(formatdesc,c);
 		pnl.add(formatdesc);
 
 		gridbag.setConstraints(remote,c);		
 		pnl.add(remote);
 		c.gridwidth=GridBagConstraints.RELATIVE;
-		addbutton(OPENRMT,ResourceBundleLoader.getText("Display"),c,pnl);
+		addbutton(OPENRMT,ResourceBundleLoader_ct.getText("Display"),c,pnl);
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		JLabel dispdsc = new JLabel(ResourceBundleLoader.getText("DisplayRemoteDescription"));
+		JLabel dispdsc = new JLabel(ResourceBundleLoader_ct.getText("DisplayRemoteDescription"));
 		gridbag.setConstraints(dispdsc,c);
 		pnl.add(dispdsc);
 		
 		c.gridwidth=GridBagConstraints.RELATIVE;
-		addbutton(FMTRMT,ResourceBundleLoader.getText("Format"),c,pnl);
+		addbutton(FMTRMT,ResourceBundleLoader_ct.getText("Format"),c,pnl);
 		c.gridwidth=GridBagConstraints.REMAINDER;
-		JLabel fmtdsc = new JLabel(ResourceBundleLoader.getText("FormatRemoteDescription"));
+		JLabel fmtdsc = new JLabel(ResourceBundleLoader_ct.getText("FormatRemoteDescription"));
 		gridbag.setConstraints(fmtdsc,c);
 		pnl.add(fmtdsc);
 
@@ -314,32 +314,32 @@ public class CommTrace extends WindowAdapter {
      */
     private void createMenu() {
 	    JMenuBar mb = new JMenuBar();
-	    JMenu file = new JMenu(ResourceBundleLoader.getText("File"));
-	    JMenu commtrace = new JMenu(ResourceBundleLoader.getText("Commtrace"));
-	    JMenu help = new JMenu(ResourceBundleLoader.getText("Help"));
+	    JMenu file = new JMenu(ResourceBundleLoader_ct.getText("File"));
+	    JMenu commtrace = new JMenu(ResourceBundleLoader_ct.getText("Commtrace"));
+	    JMenu help = new JMenu(ResourceBundleLoader_ct.getText("Help"));
 
 
 	    file.setMnemonic(KeyEvent.VK_F);
 	    
 	    // File menu
-	    disconnect = new JMenuItem(ResourceBundleLoader.getText("Disconnect"),KeyEvent.VK_D);
+	    disconnect = new JMenuItem(ResourceBundleLoader_ct.getText("Disconnect"),KeyEvent.VK_D);
 	    disconnect.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_D, ActionEvent.CTRL_MASK));
-	    exit = new JMenuItem(ResourceBundleLoader.getText("Exit"),KeyEvent.VK_Q);
+	    exit = new JMenuItem(ResourceBundleLoader_ct.getText("Exit"),KeyEvent.VK_Q);
 	    exit.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
 	    // Commtrace Menu
-	    display = new JMenuItem(ResourceBundleLoader.getText("Display"),KeyEvent.VK_M);
+	    display = new JMenuItem(ResourceBundleLoader_ct.getText("Display"),KeyEvent.VK_M);
 	    display.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-	    transfer = new JMenuItem(ResourceBundleLoader.getText("Transfer"),KeyEvent.VK_T);
+	    transfer = new JMenuItem(ResourceBundleLoader_ct.getText("Transfer"),KeyEvent.VK_T);
 	    transfer.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_T, ActionEvent.CTRL_MASK));
-	    mformat = new JMenuItem(ResourceBundleLoader.getText("Format"),KeyEvent.VK_R);
+	    mformat = new JMenuItem(ResourceBundleLoader_ct.getText("Format"),KeyEvent.VK_R);
 	    mformat.setAccelerator(KeyStroke.getKeyStroke(
 						KeyEvent.VK_R, ActionEvent.CTRL_MASK));
 	    // Help menu
-	    about = new JMenuItem(ResourceBundleLoader.getText("AboutCommtrace"));
+	    about = new JMenuItem(ResourceBundleLoader_ct.getText("AboutCommtrace"));
 	  
 	    // Add the menu items to the correct menu.
 	    file.add(disconnect);
@@ -383,18 +383,18 @@ public class CommTrace extends WindowAdapter {
      * Displays the about box for the program.
      */
     void about() {
-		fabout = new JFrame(ResourceBundleLoader.getText("About"));
+		fabout = new JFrame(ResourceBundleLoader_ct.getText("About"));
 		JPanel pnl = new JPanel();
-		JLabel title = new JLabel(ResourceBundleLoader.getText("Commtrace"));
+		JLabel title = new JLabel(ResourceBundleLoader_ct.getText("Commtrace"));
 		title.setFont((new Font("Helvetica", Font.BOLD, 18)));
-		JLabel version = new JLabel(ResourceBundleLoader.getText("Version") + " " + VERSION);
+		JLabel version = new JLabel(ResourceBundleLoader_ct.getText("Version") + " " + VERSION);
 		version.setFont((new Font("Helvetica", Font.PLAIN, 12)));
-		JLabel copyright = new JLabel(ResourceBundleLoader.getText("Copyright"));
+		JLabel copyright = new JLabel(ResourceBundleLoader_ct.getText("Copyright"));
 		copyright.setFont((new Font("Helvetica", Font.PLAIN, 12)));
 		pnl.setLayout((gridbag = new GridBagLayout()));
 		c = new GridBagConstraints();
 
-		aokay = new JButton(ResourceBundleLoader.getText("OK"));
+		aokay = new JButton(ResourceBundleLoader_ct.getText("OK"));
 
 		c.gridwidth=GridBagConstraints.REMAINDER;
 		c.gridheight=GridBagConstraints.RELATIVE;
@@ -457,7 +457,7 @@ public class CommTrace extends WindowAdapter {
 
 		IFSFileDialog fd = new IFSFileDialog((new JFrame()), "File Open", sys_);
 
-		FileFilter [] filterList = {new FileFilter(ResourceBundleLoader.getText("AllFiles"), "*.*")};
+		FileFilter [] filterList = {new FileFilter(ResourceBundleLoader_ct.getText("AllFiles"), "*.*")};
 		fd.setFileFilter(filterList, 0);
 		if(path!=null) {
 			fd.setDirectory(path);
@@ -468,7 +468,7 @@ public class CommTrace extends WindowAdapter {
 			path=fd.getDirectory();
 			fullpath = fd.getAbsolutePath();    // get fully qualified file
 
-			FileDialog localfd = new FileDialog(MainFrame_,ResourceBundleLoader.getText("SaveAs"),FileDialog.SAVE);
+			FileDialog localfd = new FileDialog(MainFrame_,ResourceBundleLoader_ct.getText("SaveAs"),FileDialog.SAVE);
 			localfd.setFile(fd.getFileName()); 
 			localfd.show();
 			String path = localfd.getDirectory();
@@ -519,14 +519,14 @@ public class CommTrace extends WindowAdapter {
 		args[0] = new JTextField(ALL);
 		args[1] = new JTextField(ALL);
 		args[2] = new JTextField(ALL);
-		fmtbox_ = new JCheckBox(ResourceBundleLoader.getText("FmtBdcst"));
+		fmtbox_ = new JCheckBox(ResourceBundleLoader_ct.getText("FmtBdcst"));
 		fmtbox_.setSelected(true);
 		
-		btnString1 = ResourceBundleLoader.getText("Format");
-		btnString2 = ResourceBundleLoader.getText("Cancel");
-		Object[] array = {ResourceBundleLoader.getText("Src/DestIPAddr"),args[0],
-				ResourceBundleLoader.getText("Src/DestIPAddr"),args[1],
-				ResourceBundleLoader.getText("IPPortnum"),args[2],
+		btnString1 = ResourceBundleLoader_ct.getText("Format");
+		btnString2 = ResourceBundleLoader_ct.getText("Cancel");
+		Object[] array = {ResourceBundleLoader_ct.getText("Src/DestIPAddr"),args[0],
+				ResourceBundleLoader_ct.getText("Src/DestIPAddr"),args[1],
+				ResourceBundleLoader_ct.getText("IPPortnum"),args[2],
 				fmtbox_};
 		String msg = "";
 		Object[] options = {btnString1,btnString2};
@@ -536,7 +536,7 @@ public class CommTrace extends WindowAdapter {
 										null,
 										options,
 										options[0]);
-		dialog = new JDialog(MainFrame_,ResourceBundleLoader.getText("FormatOpt"),true);
+		dialog = new JDialog(MainFrame_,ResourceBundleLoader_ct.getText("FormatOpt"),true);
 		dialog.setContentPane(optionPane);
 		dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		dialog.addWindowListener(new WindowAdapter() {

@@ -131,7 +131,7 @@ class FormatRemote implements Runnable {
 			IFSFileDialog fd =
 				new IFSFileDialog((new JFrame()), "Pick file to Format", sys);
 
-			FileFilter[] filterList = { new FileFilter(ResourceBundleLoader.getText("AllFiles"), "*.*")};
+			FileFilter[] filterList = { new FileFilter(ResourceBundleLoader_ct.getText("AllFiles"), "*.*")};
 			fd.setFileFilter(filterList, 0);
 
 			String fullpath = "";

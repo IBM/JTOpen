@@ -71,19 +71,19 @@ class Find extends WindowAdapter implements KeyListener {
 		    find.toFront();
 		    return;
 		}
-		find = new JFrame(ResourceBundleLoader.getText("Find"));
+		find = new JFrame(ResourceBundleLoader_ct.getText("Find"));
 		JPanel pnl = new JPanel();
 		GridBagLayout gridbag = new GridBagLayout();
 		pnl.setLayout((gridbag));
 		GridBagConstraints c = new GridBagConstraints();
 
 		input = new JTextField(20);
-		fnext = new JButton(ResourceBundleLoader.getText("FindNext"));
+		fnext = new JButton(ResourceBundleLoader_ct.getText("FindNext"));
 		fnext.addKeyListener(this); 
-		cancel = new JButton(ResourceBundleLoader.getText("Cancel"));
+		cancel = new JButton(ResourceBundleLoader_ct.getText("Cancel"));
 		cancel.addKeyListener(this);
-		casebox = new JCheckBox(ResourceBundleLoader.getText("MatchCase"),true);
-		wrapbox = new JCheckBox(ResourceBundleLoader.getText("WrapSearch"),true);
+		casebox = new JCheckBox(ResourceBundleLoader_ct.getText("MatchCase"),true);
+		wrapbox = new JCheckBox(ResourceBundleLoader_ct.getText("WrapSearch"),true);
 
 		c.weightx = 0.0;
 		c.weighty = 0.0;
