@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FileTreeElement.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,10 +131,11 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 **/
 public class FileTreeElement extends HTMLTreeElement implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   private File    file_;
   private boolean populated_ = false;
+  private String parameter_; //@CRS
 
   private StringBuffer shareName_;             // @B1A
   private StringBuffer sharePath_;             // @B1A
@@ -160,6 +161,20 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
   }
 
 
+  //@CRS
+  /**
+   *  Constructs a FileTreeElement with the specified <i>file</i>.
+   *
+   *  @param file The file.
+   **/
+  public FileTreeElement(File file, String parameter)
+  {
+    setFile(file);
+    setText(file.getName());
+    parameter_ = parameter;
+  }
+
+
   /**
    *  Constructs a FileTreeElement with the specified <i>file</i>, 
    *  NetServer <i>shareName</i> and <i>sharePath</i>.
@@ -173,6 +188,23 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     setFile(file);                                                       // @B1A
     setShareName(shareName);                                             // @B1A
     setSharePath(sharePath);                                             // @B1A
+  }                                                                        // @B1A
+
+  //@CRS
+  /**
+   *  Constructs a FileTreeElement with the specified <i>file</i>, 
+   *  NetServer <i>shareName</i> and <i>sharePath</i>.
+   *
+   *  @param file The file.
+   *  @param shareName The name of the NetServer share.
+   *  @param sharePath The path of the NetServer share.
+   **/
+  public FileTreeElement(File file, String shareName, String sharePath, String parameter)    // @B1A
+  {                                                                        // @B1A
+    setFile(file);                                                       // @B1A
+    setShareName(shareName);                                             // @B1A
+    setSharePath(sharePath);                                             // @B1A
+    parameter_ = parameter;
   }                                                                        // @B1A
 
 
@@ -211,13 +243,38 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
         pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));            // @B1A
 
-        sl.setPathInfo(pathInfo.toString());                                                  // @B1A
+        if (parameter_ != null) //@CRS
+        {
+          Properties parms = sl.getProperties(); //@CRS
+          if (parms == null) parms = new Properties(); //@CRS
+          parms.put(parameter_, pathInfo.toString()); //@CRS
+          try { sl.setProperties(parms); } catch(PropertyVetoException pve) {} //@CRS
+        }
+        else //@CRS
+        {
+          sl.setPathInfo(pathInfo.toString());                                                  // @B1A
+        }
       }                                                                                         // @B1A
-      else                                                                                      // @B1A
-        sl.setPathInfo(file_.getAbsolutePath().replace('\\', '/'));                // @A3C
+      else
+      {
+        String pathInfo = file_.getAbsolutePath().replace('\\', '/'); //@CRS
+        if (parameter_ != null) //@CRS
+        {
+          Properties parms = sl.getProperties(); //@CRS
+          if (parms == null) parms = new Properties(); //@CRS
+          parms.put(parameter_, pathInfo); //@CRS
+          try { sl.setProperties(parms); } catch(PropertyVetoException pve) {} //@CRS
+        }
+        else //@CRS
+        {
+          sl.setPathInfo(pathInfo);                // @A3C @CRS
+        }
+      }
 
       if (Trace.isTraceOn())                                                                    // @B1A
+      {
         Trace.log(Trace.INFORMATION, "FileTree path Info:    " + sl.getPathInfo());           // @B1A
+      }
 
       try
       {
@@ -384,9 +441,10 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
           if (shareName_ != null)
             node = new FileTreeElement(files[i],                            // @B1C
                                        shareName_.toString(),               // @B1C
-                                       sharePath_.toString());              // @B1C
+                                       sharePath_.toString(),
+                                       parameter_);              // @B1C @CRS
           else
-            node = new FileTreeElement(files[i]);
+            node = new FileTreeElement(files[i], parameter_); //@CRS
 
           if (getTextUrl() != null)
           {
@@ -409,10 +467,33 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
               pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));                  // @B1A
 
-              sl.setPathInfo(pathInfo.toString()); // @B1A
+              if (parameter_ != null) //@CRS
+              {
+                Properties parms = sl.getProperties(); //@CRS
+                if (parms == null) parms = new Properties(); //@CRS
+                parms.put(parameter_, pathInfo.toString()); //@CRS
+                try { sl.setProperties(parms); } catch(PropertyVetoException pve) {} //@CRS
+              }
+              else //@CRS
+              {
+                sl.setPathInfo(pathInfo.toString()); // @B1A
+              }
             }                                                                                               // @B1A
-            else                                                                                            // @B1A
-              sl.setPathInfo(files[i].getAbsolutePath().replace('\\','/'));      // @A2C @A3C
+            else
+            {                                                                                            // @B1A
+              String pathInfo = files[i].getAbsolutePath().replace('\\', '/'); //@CRS
+              if (parameter_ != null) //@CRS
+              {
+                Properties parms = sl.getProperties(); //@CRS
+                if (parms == null) parms = new Properties(); //@CRS
+                parms.put(parameter_, pathInfo); //@CRS
+                try { sl.setProperties(parms); } catch(PropertyVetoException pve) {} //@CRS
+              }
+              else //@CRS
+              {
+                sl.setPathInfo(pathInfo);      // @A2C @A3C @CRS
+              }
+            }
 
             try
             {

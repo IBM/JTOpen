@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ import com.ibm.as400.util.servlet.RowDataException;
 **/
 public class FileListElement implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
     private AS400     system_;
     private HTMLTable table_;
@@ -322,6 +322,7 @@ public class FileListElement implements java.io.Serializable
     private FileListRenderer   renderer_;                   // @A4A
     private StringBuffer       sharePath_;                           // @B1A
     private StringBuffer       shareName_;                           // @B1A
+    private String parameterPathInfo_; //@CRS
 
     private boolean   sort_   = true;                       // @A2A                   
     transient private Collator  collator_ = null;                            // @A2A        @B3C
@@ -395,6 +396,28 @@ public class FileListElement implements java.io.Serializable
     }
 
 
+    //@CRS
+    /**
+     *  Constructs an FileListElement for an iSeries file system
+     *  using the pathInfo from the specified <i>request</i>, and 
+     *  the designated <i>system</i>.
+     *
+     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+     *  used to retrieve the contents of the file system.  
+     *
+     *  @param system  The AS/400 system.
+     *  @param request The Http servlet request. 
+     **/
+    public FileListElement(AS400 system, HttpServletRequest request, String parameterPathInfo)
+    {
+        this();                                                                                    // @B3A
+        setSystem(system);
+        setHttpServletRequest(request); 
+        setRenderer(new FileListRenderer(request));                              // @A4A
+        parameterPathInfo_ = parameterPathInfo;
+    }
+
+
     /**
      *  Constructs an FileListElement with the specified <i>system</i>, <i>request</i>, and <i>table</i>.
      *
@@ -436,6 +459,32 @@ public class FileListElement implements java.io.Serializable
         setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
         setShareName(shareName);                                                                  // @B1A
         setSharePath(sharePath);                                                                     // @B1A
+    }
+
+
+    //@CRS
+    /**
+     *  Constructs a FileListElement with the specified <i>system</i>, <i>requst</i>, NetServer <i>sharePath</i>, and
+     *  NetServer <i>shareName</i>.
+     *
+     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+     *  used to retrieve the contents of the file system at the network share point.  
+     *
+     *  @param system    The iSeries system.
+     *  @param request   The Http servlet request.
+     *  @param shareName The NetServer share name.
+     *  @param sharePath The NetServer share path.
+     *
+     **/
+    public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath, String parameterPathInfo) // @B1A
+    {
+        this();                                                                                                  // @B3A
+        setSystem(system);                                                                               // @B1A
+        setHttpServletRequest(request);                                                            // @B1A
+        setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
+        setShareName(shareName);                                                                  // @B1A
+        setSharePath(sharePath);                                                                     // @B1A
+        parameterPathInfo_ = parameterPathInfo;
     }
 
 
@@ -569,7 +618,15 @@ public class FileListElement implements java.io.Serializable
 
         StringBuffer buffer = new StringBuffer();
 
-        String path = request_.getPathInfo();                                               // @A3C
+        String path = null; //@CRS
+        if (parameterPathInfo_ == null) //@CRS
+        {
+          path = request_.getPathInfo();                                               // @A3C @CRS
+        }
+        else //@CRS
+        {
+          path = parameterPathInfo_; //@CRS
+        }
 
         if (path == null)
             path = "/";
