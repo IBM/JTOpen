@@ -332,8 +332,9 @@ abstract class PermissionAccess
           {
             Trace.log(Trace.DIAGNOSTIC, "PermissionAccess creating QSYRTVUA parameters using job CCSID.");
           }
-          int objnameLength = objName.length();
-          AS400Text text = new AS400Text(objnameLength, getCcsid(), as400_); //@A2C
+          // #bytes == ((length*5)+3)/2 == worst case mixed-byte array size +1 for extra shift byte, just in case.
+          int objnameBytesLength = ((objName.length()*5) + 3) / 2;
+          AS400Text text = new AS400Text(objnameBytesLength, getCcsid(), as400_); //@A2C
 
           //@A3A: Need to use uppercase name if it is a DLO object because
           // ccsid 5026 currently doesn't convert a lowercase name to an
@@ -353,7 +354,7 @@ abstract class PermissionAccess
           }
           parmList[5]=new ProgramParameter(text.toBytes(objName));
 
-          parmList[6]=new ProgramParameter(bin4.toBytes(objnameLength));
+          parmList[6]=new ProgramParameter(bin4.toBytes(objnameBytesLength));
         }
         else
         {
@@ -390,7 +391,7 @@ abstract class PermissionAccess
               Trace.log(Trace.WARNING, "PermissionAccess could not load converter table for CCSID 1200. Manually converting path name.");
             }
             int pathLen = objName.length();
-            pathNameBytes = new byte[pathLen*2];
+            pathNameBytes = new byte[pathLen*2]; // CCSID 1200: 2 bytes per char
             for (int bc=0; bc<pathLen; ++bc)
             {
               char pathChar = objName.charAt(bc);
