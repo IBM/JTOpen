@@ -1231,7 +1231,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the Locale used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Returns the Locale associated with this system object.  The Locale may have been set with the setLocale() method, or it may be the default Locale for the client environment.  Unless specifically overridden, this Locale is used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
      @return  The Locale object.
      **/
     public Locale getLocale()
@@ -2834,7 +2834,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the Locale used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Sets the Locale used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.  This method will set the NLV based on a mapping from the Locale object to the NLV.
      @param  locale  The Locale object.
      **/
     public void setLocale(Locale locale)
@@ -2868,7 +2868,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the Locale and the National Language Version (NLV) to send to the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Sets the Locale and a specific National Language Version (NLV) to send to the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
      @param  locale  The Locale object.
      @param  nlv  The NLV.
      **/
