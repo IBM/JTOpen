@@ -198,11 +198,14 @@
 <LI><a HREF="#HDRKEY100"    NAME="ToC_105">Replacement Character</A></LI>
 <LI><a HREF="#HDRKEY0x00F9" NAME="ToC_0x00F9">Resource library list</A></LI>
 <LI><a HREF="#HDRKEY101"    NAME="ToC_109">Restart Printing</A></LI>
-
-
-
+<LI><a HREF="#HDRKEY0x0142" NAME="ToC_0x0142">Save Command</A></LI>
+<LI><a HREF="#HDRKEY0x0143" NAME="ToC_0x0143">Save Device</A></LI>
+<LI><a HREF="#HDRKEYIFS_14" NAME="ToC_IFS14">Save File</A></LI>
 <LI><a HREF="#HDRKEY0x0064" NAME="ToC_0x0064">Save Spooled File After Written</A></LI>
-
+<LI><a HREF="#HDRKEY0x0146" NAME="ToC_0x0146">Save Label</A></LI>
+<LI><a HREF="#HDRKEY0x0147" NAME="ToC_0x0147">Save Sequence Number</A></LI>
+<LI><a HREF="#HDRKEY0x0148" NAME="ToC_0x0148">Save Volume Format</A></LI>
+<LI><a HREF="#HDRKEY0x0149" NAME="ToC_0x0149">Save Volume ID</A></LI>
 <LI><a HREF="#HDRKEY197"    NAME="ToC_197">Saddle Stitch Number of Staples</A></LI>
 <LI><a HREF="#HDRKEY196"    NAME="ToC_198">Saddle Stitch Reference</A></LI>
 <LI><a HREF="#HDRKEY103"    NAME="ToC_111">Seek Offset</A></LI>
@@ -1722,7 +1725,7 @@ are *WTR, *FIRST, *ALL. </DD>
 <DT><strong>ID</strong></DT>
 <DD>ATTR_IPP_ATTR_CCSID</DD>
 <DT><strong>Type</strong></DT>
-<DD>String </DD>
+<DD>Integer</DD>
 <DT><strong>Description</strong></DT>
 <DD>Indicates the CCSID of the IPP specified spooled file attributes.</DD>
 </DL>
@@ -3068,6 +3071,24 @@ encoded as -2, and the value *NEXT is encoded as -3. </DD>
 
 <P>
 <HR><p></P>
+<H2><a HREF="#ToC_IFS14" NAME="HDRKEYIFS_14">Save File</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_FILE</DD>
+<DT><strong>Type</strong></DT>
+<DD>String</DD>
+<DT><strong>Description</strong></DT>
+<DD>The Integrated File System path of the save file that contains the
+    saved spooled file.  The format of the Integrated File System path is
+    "/QSYS.LIB/library.LIB/savefile.SAVF" where <I>library</I> is the library
+    that contains the save file and <I>savefile</I> is the name of
+    the save file.  The value is blank if the spooled file was not saved
+    to a save file.
+</DD>
+</DL>
+
+<P>
+<HR><p></P>
 <H2><a HREF="#ToC_0x0064" NAME="HDRKEY0x0064">Save Spooled File After Written</A></H2>
 <DL>
 <DT><strong>ID</strong></DT>
@@ -3077,6 +3098,98 @@ encoded as -2, and the value *NEXT is encoded as -3. </DD>
 <DT><strong>Description</strong></DT>
 <DD>Whether the spooled file is kept on the output queue after it is written.
 Valid values are *YES, *NO, or *IMMED. </DD>
+</DL>
+
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_0x0142" NAME="HDRKEY0x0142">Save Command</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_COMMAND</DD>
+<DT><strong>Type</strong></DT>
+<DD>String</DD>
+<DT><strong>Description</strong></DT>
+<DD>The command used to save the spooled file.  The value is blank if the
+spooled file was not saved.
+</DD>
+</DL>
+
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_0x0143" NAME="HDRKEY0x0143">Save Device</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_DEVICE</DD>
+<DT><strong>Type</strong></DT>
+<DD>String</DD>
+<DT><strong>Description</strong></DT>
+<DD>The type of device to which the spooled file was last saved.  The
+value is *SAVF if the last save operation was to a save file.  The 
+value is *TAP if the last save operation was to tape.  The value is
+*OPT if the last save operation was to optical.  The value is blank 
+if the spooled file was not saved.
+</DD>
+</DL>
+
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_0x0146" NAME="HDRKEY0x0146">Save Label</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_LABEL</DD>
+<DT><strong>Type</strong></DT>
+<DD>String</DD>
+<DT><strong>Description</strong></DT>
+<DD>The file label used when the spooled file was saved.  The
+value corresponds to the value specified for the LABEL or OPTFILE
+parameter on the system command used to save the spooled file.
+The value is blank if the object was not saved to tape or optical.</DD>
+</DL>
+
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_0x0147" NAME="HDRKEY0x0147">Save Sequence Number</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_SEQUENCE_NUMBER</DD>
+<DT><strong>Type</strong></DT>
+<DD>Integer</DD>
+<DT><strong>Description</strong></DT>
+<DD>The tape sequence number assigned when the spooled file was 
+saved on tape.  If the spooled file was not saved to tape, the 
+field contains zeros.</DD>
+</DL>
+
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_0x0148" NAME="HDRKEY0x0148">Save Volume Format</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_VOLUME_FORMAT</DD>
+<DT><strong>Type</strong></DT>
+<DD>String</DD>
+<DT><strong>Description</strong></DT>
+<DD>The format of the saved spooled file.  This format is used when
+spooled files are saved to tape or optical media.  The possible values
+are SERIAL or PARALLEL. For SERIAL, the spooled file was saved serially
+in a single media file.  For PARALLEL, the spooled file was saved
+in a parallel save/restore file with more than one media file.  All of
+the media files are needed to restore this data.
+</DD>
+</DL>
+
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_0x0149" NAME="HDRKEY0x0149">Save Volume ID</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_SAVE_VOLUME_ID</DD>
+<DT><strong>Type</strong></DT>
+<DD>String</DD>
+<DT><strong>Description</strong></DT>
+<DD>The tape or optical volumes that are used for saving the spooled file.
+This string contains a maximum of ten (10) six character volume names.
+The volume names are separated by blanks.</DD>
 </DL>
 
 <P>
