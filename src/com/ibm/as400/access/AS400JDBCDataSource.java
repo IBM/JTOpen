@@ -3133,8 +3133,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         sockProps_.setTcpNoDelay(noDelay);
     }
+    // @F1A End of new socket option methods
 
-    // added support for sending statements in UTF-16 and storing them in a UTF-16 package
+    // @M0A - added support for sending statements in UTF-16 and storing them in a UTF-16 package
     /**
     * Gets the package CCSID property, which indicates the
     * CCSID in which statements are sent to the server and
@@ -3146,6 +3147,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getInt(JDProperties.PACKAGE_CCSID);
     }
 
+    // @M0A
     /**
     * Sets the package CCSID property, which indicates the
     * CCSID in which statements are sent to the server and
@@ -3169,7 +3171,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + ccsid);
     }
 
-    // added support for 63 digit decimal precision
+    // @M0A - added support for 63 digit decimal precision
     /**
     * Gets the minimum divide scale property.  This property ensures the scale
     * of the result of decimal division is never less than its specified value.
@@ -3180,6 +3182,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
     }
 
+    // @M0A
     /**
     * Gets the maximum precision property. This property indicates the 
     * maximum decimal precision the server should use.
@@ -3190,6 +3193,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getInt(JDProperties.MAXIMUM_PRECISION);
     }
 
+    // @M0A
     /**
     * Gets the maximum scale property.  This property indicates the
     * maximum decimal scale the server should use.
@@ -3200,6 +3204,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getInt(JDProperties.MAXIMUM_SCALE);
     }
 
+    // @M0A
     /**
     * Sets the minimum divide scale property.  This property ensures the scale
     * of the result of decimal division is never less than its specified value.
@@ -3222,6 +3227,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + scale);
     }
 
+    // @M0A
     /**
     * Sets the maximum precision property. This property indicates the 
     * maximum decimal precision the server should use.
@@ -3244,6 +3250,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + precision);
     }
 
+    // @M0A
     /**
     * Sets the maximum scale property.  This property indicates the
     * maximum decimal scale the server should use.
@@ -3268,7 +3275,51 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + scale);
     }
 
-    // @F1A End of new socket option methods
+    // @M0A - added support for hex constant parser option
+    /**
+    * Gets the translate hex property, which indicates how
+    * the parser will treat hexidecimal literals.
+    * @return The value of the translate hex property.
+    * <p>Valid values include:
+    * <ul>
+    *   <li>"character" (Interpret hexadecimal constants as character data)
+    *   <li>"binary" (Interpret hexadecimal constants as binary data)
+    * </ul>
+    * The default value is "character".
+    **/
+    public String getTranslateHex()
+    {
+        return properties_.getString(JDProperties.TRANSLATE_HEX);
+    }
+
+    // @M0A
+    /**
+    * Sets the translate hex property, which indicates how
+    * the parser will treat hexidecimal literals.
+    * @param parseOption The hex constant parser option.
+    * <p>Valid values include:
+    * <ul>
+    *   <li>"character" (Interpret hexadecimal constants as character data)
+    *   <li>"binary" (Interpret hexadecimal constants as binary data)
+    * </ul>
+    * The default value is "character".
+    **/
+    public void setTranslateHex(String parseOption)
+    {
+        String property = "translateHex";
+
+        String oldOption = getTranslateHex();
+        String newOption = parseOption;
+
+        validateProperty(property, newOption, JDProperties.TRANSLATE_HEX);
+
+        properties_.setString(JDProperties.TRANSLATE_HEX, newOption);
+
+        changes_.firePropertyChange(property, oldOption, newOption);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + parseOption);
+    }
 
     /**
     *  Validates the property value.

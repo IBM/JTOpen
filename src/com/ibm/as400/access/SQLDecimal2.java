@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -24,15 +27,10 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-
-
 class SQLDecimal2
 implements SQLData
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;
@@ -40,31 +38,28 @@ implements SQLData
     private int                     scale_;
     private AS400PackedDecimal      typeConverter_;
     private double                  value_;
-    private JDProperties            properties_;
+    private JDProperties            properties_;  // @M0A - added JDProperties so we can get the scale & precision
+    private int                     vrm_;         // @M0A
 
-
-
-    SQLDecimal2 (int precision,
-                 int scale,
-                 SQLConversionSettings settings,
-                 JDProperties properties)
+    SQLDecimal2(int precision,
+                int scale,
+                SQLConversionSettings settings,
+                int vrm,                  // @M0C
+                JDProperties properties)  // @M0C
     {
         settings_       = settings;
         precision_      = precision;
         scale_          = scale;
-        typeConverter_  = new AS400PackedDecimal (precision_, scale_);
+        typeConverter_  = new AS400PackedDecimal(precision_, scale_);
         value_          = 0;
-        properties_     = properties;
+        vrm_            = vrm;         // @M0A
+        properties_     = properties;  // @M0A
     }
 
-
-
-    public Object clone ()
+    public Object clone()
     {
-        return new SQLDecimal2 (precision_, scale_, settings_, properties_);
+        return new SQLDecimal2(precision_, scale_, settings_, vrm_, properties_);  // @M0C
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -72,23 +67,17 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccisdConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccisdConverter) //@P0C
     throws SQLException
     {
         value_ = typeConverter_.toDouble(rawBytes, offset);
     }
 
-
-
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        typeConverter_.toBytes (value_, rawBytes, offset);
+        typeConverter_.toBytes(value_, rawBytes, offset);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -96,9 +85,7 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void set (Object object, Calendar calendar, int scale)
+    public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
         if(object instanceof String)
@@ -109,7 +96,7 @@ implements SQLData
             }
             catch(NumberFormatException nfe)
             {                                // @E4A
-                JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, nfe); // @E4A
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe); // @E4A
             }
         }
 
@@ -120,10 +107,8 @@ implements SQLData
             value_ = ((Boolean)object).booleanValue() ? 1 : 0;
 
         else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -131,19 +116,16 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public String getCreateParameters ()
+    public String getCreateParameters()
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append (AS400JDBCDriver.getResource ("PRECISION"));
-        buffer.append (",");
-        buffer.append (AS400JDBCDriver.getResource ("SCALE"));
-        return buffer.toString ();
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(AS400JDBCDriver.getResource("PRECISION"));
+        buffer.append(",");
+        buffer.append(AS400JDBCDriver.getResource("SCALE"));
+        return buffer.toString();
     }
 
-
-    public int getDisplaySize ()
+    public int getDisplaySize()
     {
         return precision_ + 2;
     }
@@ -154,103 +136,93 @@ implements SQLData
         return "java.math.BigDecimal";   
     }
 
-
-    public String getLiteralPrefix ()
+    public String getLiteralPrefix()
     {
         return null;
     }
 
-
-    public String getLiteralSuffix ()
+    public String getLiteralSuffix()
     {
         return null;
     }
 
-
-    public String getLocalName ()
+    public String getLocalName()
     {
         return "DECIMAL";
     }
 
-
-
-    public int getMaximumPrecision ()
+    public int getMaximumPrecision()
     {
-        return properties_.getInt(JDProperties.MAXIMUM_PRECISION);
+        // @M0C - change to check vrm and JDProperties
+        if(vrm_ >= JDUtilities.vrm530)
+            return properties_.getInt(JDProperties.MAXIMUM_PRECISION);
+        else
+            return 31;
     }
 
-
-    public int getMaximumScale ()
+    public int getMaximumScale()
     {
-        return properties_.getInt(JDProperties.MAXIMUM_SCALE);
+        // @M0C - change to check vrm and JDProperties
+        if(vrm_ >= JDUtilities.vrm530)
+            return properties_.getInt(JDProperties.MAXIMUM_SCALE);
+        else
+            return 31;
     }
 
-
-    public int getMinimumScale ()
+    public int getMinimumScale()
     {
         return 0;
     }
 
-
-    public int getNativeType ()
+    public int getNativeType()
     {
         return 484;
     }
 
-
-
-    public int getPrecision ()
+    public int getPrecision()
     {
         return precision_;
     }
 
-
-    public int getRadix ()
+    public int getRadix()
     {
         return 10;
     }
 
-
-
-    public int getScale ()
+    public int getScale()
     {
         return scale_;
     }
 
-
-    public int getType ()
+    public int getType()
     {
         return java.sql.Types.DECIMAL;
     }
 
-
-
-    public String getTypeName ()
+    public String getTypeName()
     {
         return "DECIMAL";
     }
 
-
-    // @A1D public boolean isGraphic ()
-    // @A1D {
-    // @A1D    return false;
-    // @A1D }
-
-
-
-    public boolean isSigned ()
+    public boolean isSigned()
     {
         return true;
     }
 
-
-
-    public boolean isText ()
+    public boolean isText()
     {
         return false;
     }
 
+    public int getActualSize()
+    {
+        return precision_;
+    }
 
+    public int getTruncated()
+    {
+        return 0;
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -258,188 +230,151 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public int getActualSize ()
-    {
-        return precision_;
-    }
-
-
-
-    public int getTruncated ()
-    {
-        return 0;
-    }
-
-
-
-    public InputStream toAsciiStream ()
+    public InputStream toAsciiStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(toString()));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
 
-
-
-    public BigDecimal toBigDecimal (int scale)
+    public BigDecimal toBigDecimal(int scale)
     throws SQLException
     {
         return new BigDecimal(value_);
     }
 
-
-
-    public InputStream toBinaryStream ()
+    public InputStream toBinaryStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Blob toBlob ()
+    public Blob toBlob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public boolean toBoolean ()
+    public boolean toBoolean()
     throws SQLException
     {
         return(value_ != 0);
     }
 
-
-
-    public byte toByte ()
+    public byte toByte()
     throws SQLException
     {
-        return(byte) value_;
+        return(byte)value_;
     }
 
-
-
-    public byte[] toBytes ()
+    public byte[] toBytes()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Reader toCharacterStream ()
+    public Reader toCharacterStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return new StringReader(toString());
+    }
+
+    public Clob toClob()
+    throws SQLException
+    {
+        String string = toString();
+        return new AS400JDBCClob(string, string.length());
+    }
+
+    public Date toDate(Calendar calendar)
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Clob toClob ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public Date toDate (Calendar calendar)
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public double toDouble ()
+    public double toDouble()
     throws SQLException
     {
         return value_;
     }
 
-
-
-    public float toFloat ()
+    public float toFloat()
     throws SQLException
     {
         return(float)value_;
     }
 
-
-
-    public int toInt ()
+    public int toInt()
     throws SQLException
     {
         return(int)value_;
     }
 
-
-
-    public long toLong ()
+    public long toLong()
     throws SQLException
     {
         return(long)value_;
     }
 
-
-
-    public Object toObject ()
+    public Object toObject()
     {
         return new Double(value_);
     }
 
-
-
-    public short toShort ()
+    public short toShort()
     throws SQLException
     {
-        return(short) value_;
+        return(short)value_;
     }
 
-
-
-    public String toString ()
+    public String toString()
     {
-        return Double.toString(value_);
+        String stringRep = Double.toString(value_);
+        int decimal = stringRep.indexOf('.');
+        if(decimal == -1)
+            return stringRep;
+        else
+            return stringRep.substring(0, decimal)
+            + settings_.getDecimalSeparator()
+            + stringRep.substring(decimal+1);
     }
 
-
-
-    public Time toTime (Calendar calendar)
+    public Time toTime(Calendar calendar)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Timestamp toTimestamp (Calendar calendar)
+    public Timestamp toTimestamp(Calendar calendar)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream  toUnicodeStream ()
+    public InputStream  toUnicodeStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(toString()));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
-
-
-
 }

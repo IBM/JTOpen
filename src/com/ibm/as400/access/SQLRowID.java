@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLDataFactory.java
+// Filename: SQLRowID.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -28,204 +29,215 @@ import java.util.Calendar;
 
 class SQLRowID implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
     // Private data.
-    private static final int        ROWID_SIZE  = 40; // This is the maxLength_ for this type of column.
+    private static final byte[] default_ = new byte[0];
 
-    private SQLConversionSettings   settings;
-    private int                     length;
-    private int                     truncated;
-    private byte[]                  value;
+    private SQLConversionSettings   settings_;
+    private int                     length_;
+    private int                     truncated_;
+    private byte[]                  value_;
 
-
-    SQLRowID(SQLConversionSettings settings) {
-        this.settings   = settings;
-        length          = 0;
-        truncated       = 0;
-        value           = new byte[0];
+    SQLRowID(SQLConversionSettings settings)
+    {
+        settings_       = settings;
+        length_         = 0;
+        truncated_      = 0;
+        value_          = default_;
     }
 
-
-
-    public Object clone() {
-        return new SQLRowID(settings);
+    public Object clone()
+    {
+        return new SQLRowID(settings_);
     }
 
-
-
-//---------------------------------------------------------//
-//                                                         //
-// CONVERSION TO AND FROM RAW BYTES                        //
-//                                                         //
-//---------------------------------------------------------//
+    //---------------------------------------------------------//
+    //                                                         //
+    // CONVERSION TO AND FROM RAW BYTES                        //
+    //                                                         //
+    //---------------------------------------------------------//
 
     public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) 
-        throws SQLException {
+    throws SQLException {
 
-        length = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);
-        value = new byte[length];
-        System.arraycopy(rawBytes, offset+2, value, 0, length);
+        length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);
+        value_ = new byte[length_];
+        System.arraycopy(rawBytes, offset+2, value_, 0, length_);
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) 
-        throws SQLException {
+    throws SQLException {
 
-        BinaryConverter.unsignedShortToByteArray(length, rawBytes, offset);
-        int len = (value.length < rawBytes.length) ? value.length : rawBytes.length;
-        System.arraycopy(value, 0, rawBytes, offset + 2, len);
+        BinaryConverter.unsignedShortToByteArray(length_, rawBytes, offset);
+        int len = (value_.length < rawBytes.length) ? value_.length : rawBytes.length;
+        System.arraycopy(value_, 0, rawBytes, offset + 2, len);
         // pad rawBytes with zeros if it has room
-        for (int i=value.length; i<rawBytes.length; ++i) rawBytes[i] = 0;
+        for(int i=value_.length; i<rawBytes.length; ++i) rawBytes[i] = 0;
     }
 
-//---------------------------------------------------------//
-//                                                         //
-// SET METHODS                                             //
-//                                                         //
-//---------------------------------------------------------//
+    //---------------------------------------------------------//
+    //                                                         //
+    // SET METHODS                                             //
+    //                                                         //
+    //---------------------------------------------------------//
 
     public void set(Object object, Calendar calendar, int scale)
-        throws SQLException {
+    throws SQLException {
 
-        byte[] value = null;                                                        
+        if(object instanceof String)
+            value_ = SQLBinary.stringToBytes((String)object);
 
-        if (object instanceof String)
-            value = SQLBinary.stringToBytes((String)object); 
+        else if(object instanceof byte[])
+            value_ = (byte[])object;
 
-        else if (object instanceof byte[])
-            value = (byte[]) object;                                                
+        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
+            value_ = ((Blob)object).getBytes(1, (int)((Blob)object).length());
 
-        else {                                                                      
-            try {                                                                   
-                if (object instanceof Blob) {                                       
-                    Blob blob = (Blob) object;                                      
-                    value = blob.getBytes(1, (int) blob.length());                
-                } else if (object instanceof Clob) {                                  
-                    Clob clob = (Clob) object;                                      
-                    value = SQLBinary.stringToBytes(clob.getSubString(1, (int)clob.length())); 
-                }                                                                   
-            } catch (NoClassDefFoundError e) {                                        
-                // Ignore.  It just means we are running under JDK 1.1.             
-            }                                                                       
-        }
+        else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
+            value_ = SQLBinary.stringToBytes(((Clob)object).getSubString(1, (int)((Clob)object).length()));
 
-        if (value == null)                                                          
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-        value = value;                                                             
+        else
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
 
         // Truncate if necessary.
-        int valueLength = value.length;
-        if (valueLength > ROWID_SIZE) {
-            byte[] newValue = new byte[ROWID_SIZE];
-            System.arraycopy(value, 0, newValue, 0, ROWID_SIZE);
-            value = newValue;
-            truncated = valueLength - ROWID_SIZE;
+        int valueLength = value_.length;
+        if(valueLength > 40)
+        {
+            byte[] newValue = new byte[40];
+            System.arraycopy(value_, 0, newValue, 0, 40);
+            value_ = newValue;
+            truncated_ = valueLength - 40;
         }
         else
-            truncated = 0;
+            truncated_ = 0;
 
-        length = value.length;
+        length_ = value_.length;
     }
 
-//---------------------------------------------------------//
-//                                                         //
-// DESCRIPTION OF SQL TYPE                                 //
-//                                                         //
-//---------------------------------------------------------//
+    //---------------------------------------------------------//
+    //                                                         //
+    // DESCRIPTION OF SQL TYPE                                 //
+    //                                                         //
+    //---------------------------------------------------------//
 
-    public String getCreateParameters() {
+    public String getCreateParameters()
+    {
         return null;
     }
 
-    public int getDisplaySize() {
-        return ROWID_SIZE ;
+    public int getDisplaySize()
+    {
+        return 40;
     }
 
-    public String getJavaClassName() {
+    public String getJavaClassName()
+    {
         return "[B";
     }
 
-    public String getLiteralPrefix() {
+    public String getLiteralPrefix()
+    {
         return null;
     }
 
-    public String getLiteralSuffix() {
+    public String getLiteralSuffix()
+    {
         return null;
     }
 
-    public String getLocalName() {
+    public String getLocalName()
+    {
         return "ROWID";
     }
 
-    public int getMaximumPrecision() {
-        return ROWID_SIZE;
+    public int getMaximumPrecision()
+    {
+        return 40;
     }
 
-    public int getMaximumScale() {
+    public int getMaximumScale()
+    {
         return 0;
     }
 
-    public int getMinimumScale() {
+    public int getMinimumScale()
+    {
         return 0;
     }
 
-    public int getNativeType() {
+    public int getNativeType()
+    {
         return 904;
     }
 
-    public int getPrecision() {
-        return ROWID_SIZE;
+    public int getPrecision()
+    {
+        return 40;
     }
 
-    public int getRadix() {
+    public int getRadix()
+    {
         return 0;
     }
 
-    public int getScale() {
+    public int getScale()
+    {
         return 0;
     }
-    
-    public int getType() {
-        return java.sql.Types.VARBINARY;
+
+    public int getType()
+    {
+        return java.sql.Types.BINARY;
     }
 
-    public String getTypeName() {
+    public String getTypeName()
+    {
         return "ROWID";
     }
 
-    public boolean isSigned() {
+    public boolean isSigned()
+    {
         return false;
     }
 
-    public boolean isText() {
+    public boolean isText()
+    {
         return true;
     }
 
-//---------------------------------------------------------//
-//                                                         //
-// CONVERSIONS TO JAVA TYPES                               //
-//                                                         //
-//---------------------------------------------------------//
-
-    public int getActualSize() {
-        return value.length;
+    public int getActualSize()
+    {
+        return value_.length;
     }
 
-    public int getTruncated() {
-        return truncated;
+    public int getTruncated()
+    {
+        return truncated_;
     }
+
+    //---------------------------------------------------------//
+    //                                                         //
+    // CONVERSIONS TO JAVA TYPES                               //
+    //                                                         //
+    //---------------------------------------------------------//
 
     public InputStream toAsciiStream() throws SQLException {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new ByteArrayInputStream(toBytes());
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(SQLBinary.bytesToString(toBytes())));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
 
     public BigDecimal toBigDecimal(int scale) throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
@@ -238,29 +250,32 @@ class SQLRowID implements SQLData
     public Blob toBlob() throws SQLException {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCBlob(toBytes(), ROWID_SIZE);
+        return new AS400JDBCBlob(toBytes(), 40);
     }
 
     public boolean toBoolean() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
     public byte toByte() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public byte[] toBytes() {
+    public byte[] toBytes()
+    {
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. 
-        int maxFieldSize = settings.getMaxFieldSize();
-        if ((value.length > maxFieldSize) && (maxFieldSize > 0)) {
+        int maxFieldSize = settings_.getMaxFieldSize();
+        if((value_.length > maxFieldSize) && (maxFieldSize > 0))
+        {
             byte[] truncatedValue = new byte[maxFieldSize];
-            System.arraycopy(value, 0, truncatedValue, 0, maxFieldSize);
+            System.arraycopy(value_, 0, truncatedValue, 0, maxFieldSize);
             return truncatedValue;
-        } else
-            return value;
+        }
+        else
+            return value_;
     }
 
     public Reader toCharacterStream() throws SQLException {
@@ -272,65 +287,75 @@ class SQLRowID implements SQLData
     public Clob toClob() throws SQLException {
         // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes()), ROWID_SIZE);
+        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes()), 40);
     }
 
     public Date toDate(Calendar calendar) throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
     public double toDouble() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
     public float toFloat() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
     public int toInt() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
     public long toLong() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public Object toObject() {
+    public Object toObject()
+    {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
         return toBytes();
     }
 
     public short toShort() throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public String toString() {
+    public String toString()
+    {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
         return SQLBinary.bytesToString(toBytes());
     }
 
     public Time toTime(Calendar calendar) throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
     public Timestamp toTimestamp(Calendar calendar) throws SQLException {
-        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
     public InputStream toUnicodeStream() throws SQLException {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new ByteArrayInputStream(toBytes());
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(SQLBinary.bytesToString(toBytes())));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
 }
 

@@ -410,37 +410,46 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             tcpNoDelay.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TCP_NO_DELAY"));
             tcpNoDelay.setShortDescription(AS400JDBCDriver.getResource("TCP_NO_DELAY_DESC"));
 
-            // added for UTF-16 support in the database
+            // @M0A - added for UTF-16 support in the database
             PropertyDescriptor packageCCSID = new PropertyDescriptor("packageCCSID", beanClass, "getPackageCCSID", "setPackageCCSID");
             packageCCSID.setBound(true);
             packageCCSID.setConstrained(false);
             packageCCSID.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PACKAGE_CCSID"));
             packageCCSID.setShortDescription(AS400JDBCDriver.getResource("PACKAGE_CCSID_DESC"));
 
-            // added for 63 digit decimal precision support
+            // @M0A - added for 63 digit decimal precision support
             PropertyDescriptor minimumDivideScale = new PropertyDescriptor("minimumDivideScale", beanClass, "getMinimumDivideScale", "setMinimumDivideScale");
             minimumDivideScale.setBound(true);
             minimumDivideScale.setConstrained(false);
             minimumDivideScale.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_MINIMUM_DIVIDE_SCALE"));
             minimumDivideScale.setShortDescription(AS400JDBCDriver.getResource("MINIMUM_DIVIDE_SCALE_DESC"));
 
+            // @M0A
             PropertyDescriptor maximumPrecision = new PropertyDescriptor("maximumPrecision", beanClass, "getMaximumPrecision", "setMaximumPrecision");
             maximumPrecision.setBound(true);
             maximumPrecision.setConstrained(false);
             maximumPrecision.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_MAXIMUM_PRECISION"));
             maximumPrecision.setShortDescription(AS400JDBCDriver.getResource("MAXIMUM_PRECISION_DESC"));
 
+            // @M0A
             PropertyDescriptor maximumScale = new PropertyDescriptor("maximumScale", beanClass, "getMaximumScale", "setMaximumScale");
             maximumScale.setBound(true);
             maximumScale.setConstrained(false);
             maximumScale.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_MAXIMUM_SCALE"));
             maximumScale.setShortDescription(AS400JDBCDriver.getResource("MAXIMUM_SCALE_DESC"));
 
+            // @M0A - added support for hex constant parser option
+            PropertyDescriptor translateHex = new PropertyDescriptor("translateHex", beanClass, "getTranslateHex", "setTranslateHex");
+            maximumScale.setBound(true);
+            maximumScale.setConstrained(false);
+            maximumScale.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_HEX"));
+            maximumScale.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale};                                                            //@j1c
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c
         }
         catch(Exception e)
         {

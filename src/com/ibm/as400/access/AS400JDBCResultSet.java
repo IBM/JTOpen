@@ -2390,6 +2390,9 @@ public class AS400JDBCResultSet implements ResultSet
                 && (!(data instanceof SQLVarbinary))
                 && (!(data instanceof SQLBlob))                                         // @D4A
                 && (!(data instanceof SQLBlobLocator))                                  // @D4A
+                && (!(data instanceof SQLCharForBitData))                               // @M0A
+                && (!(data instanceof SQLVarcharForBitData))                            // @M0A
+                && (!(data instanceof SQLRowID))                                        // @M0A
                 && (data != null)
                 && (row_ instanceof JDServerRow))                                       // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,53 +20,39 @@ import java.sql.SQLException;
 class JDTypeInfoFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private int lengthIndex_;
     private int precisionIndex_;
     private int scaleIndex_;
     private int typeIndex_;
-    private JDProperties properties_;
+    private JDProperties properties_; // @M0A - added JDProperties so we can get the decimal scale & precision
+    private int vrm_;                 // @M0A - added vrm so we can pass it to the newData method 
 
-
-    JDTypeInfoFieldMap (int typeIndex, int lengthIndex, int precisionIndex, 
-                    int scaleIndex, JDProperties properties)
+    JDTypeInfoFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
+                       int scaleIndex, int vrm, JDProperties properties) // @M0C - added vrm and properties
     {
         typeIndex_          = typeIndex;
         lengthIndex_        = lengthIndex;
         precisionIndex_     = precisionIndex;
         scaleIndex_         = scaleIndex;
-        properties_         = properties;
+        properties_         = properties; // @M0A
+        vrm_                = vrm;        // @M0A
     }
 
-
-
-    static private String getCopyright ()
+    public Object getValue(JDRow row)
+    throws SQLException
     {
-        return Copyright.copyright;
+        String typeName = row.getSQLData(typeIndex_).toString().trim();
+        int length = row.getSQLData(lengthIndex_).toInt();
+        int precision = row.getSQLData(precisionIndex_).toInt();
+        int scale = row.getSQLData(scaleIndex_).toInt();
+        return SQLDataFactory.newData(typeName, length, precision, scale, null, vrm_, properties_); // @M0C - added vrm and properties
     }
 
-
-    public Object getValue (JDRow row)
-        throws SQLException
-    {
-        String typeName = row.getSQLData (typeIndex_).toString ().trim ();
-        int length = row.getSQLData (lengthIndex_).toInt ();
-        int precision = row.getSQLData (precisionIndex_).toInt ();
-        int scale = row.getSQLData (scaleIndex_).toInt ();
-        return SQLDataFactory.newData (typeName, length, 
-            precision, scale, null, properties_);
-    }
-
-
-    public boolean isNull (JDRow row)
-        throws SQLException
+    public boolean isNull(JDRow row)
+    throws SQLException
     {
         return false;
     }
-
-
 }

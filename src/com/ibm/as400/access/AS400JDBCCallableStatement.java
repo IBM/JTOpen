@@ -1653,8 +1653,8 @@ it was set.
             // @D8d    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
 
             // Register the parameter.
-            registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (expectedType,   // @D8c
-                0, scale+1, scale, settings_, connection_.getVRM(), connection_.getProperties());                // @D0C
+            registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (expectedType,            // @D8c  // @M0C - added JDProperties parm
+                0, scale+1, scale, settings_, connection_.getVRM(), connection_.getProperties()); // @D0C  // @M0C - to newData signature
         }
     }
 

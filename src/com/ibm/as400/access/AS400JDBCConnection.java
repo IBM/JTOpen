@@ -3018,7 +3018,8 @@ implements Connection
                 // @E2D // should always use the server job's CCSID.
 
                 // Set the client CCSID to Unicode.                             // @E2A
-                // as of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
+                
+                // @M0C - As of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
                 // will cause our statement to flow in 1200 and our package to be 1200
                 if(vrm_ >= JDUtilities.vrm530 && properties_.getInt(JDProperties.PACKAGE_CCSID) == 1200)
                 {
@@ -3176,15 +3177,14 @@ implements Connection
                 {                                                            // @J3a
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
-                }                                                            // @J3a
+                
+                    // @M0A - Client support information - indicate our support for ROWID data type
+                    request.setClientSupportInformation(0x80000000);
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "ROWID supported = true");
+                }
 
-
-                // Client support information - indicate our support for ROWID data type
-                request.setClientSupportInformation(0x80000000);  // @K0A 
-                if(JDTrace.isTraceOn())
-                    JDTrace.logInformation(this, "ROWID supported = true");
-
-                // added support for 63 digit decimal precision
+                // @M0A - added support for 63 digit decimal precision
                 if(vrm_ >= JDUtilities.vrm530)
                 {
                     int maximumPrecision = properties_.getInt(JDProperties.MAXIMUM_PRECISION);
@@ -3199,9 +3199,21 @@ implements Connection
 
                     if(JDTrace.isTraceOn())
                     {
-                        JDTrace.logInformation (this, "Maximum decimal precision = " + maximumPrecision);
-                        JDTrace.logInformation (this, "Maximum decimal scale = " + maximumScale);
-                        JDTrace.logInformation (this, "Minimum divide scale = " + minimumDivideScale);
+                        JDTrace.logInformation(this, "Maximum decimal precision = " + maximumPrecision);
+                        JDTrace.logInformation(this, "Maximum decimal scale = " + maximumScale);
+                        JDTrace.logInformation(this, "Minimum divide scale = " + minimumDivideScale);
+                    }
+
+                    // @M0A - added support of hex constant parser option
+                    int parserOption = properties_.getIndex(JDProperties.TRANSLATE_HEX);
+                    if(parserOption != -1)
+                    {
+                        request.setHexConstantParserOption(parserOption);
+                        if(JDTrace.isTraceOn())
+                        {
+                            String msg = (parserOption == 0) ? "Translate hex = character" : "Translate hex = binary";
+                            JDTrace.logInformation(this, msg);
+                        }
                     }
                 }
 

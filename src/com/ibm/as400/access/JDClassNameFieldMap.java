@@ -15,8 +15,6 @@ package com.ibm.as400.access;
 
 import java.sql.SQLException;
 
-
-
 /**
 The JDClassNameFieldMap class converts an 8 character
 description of the data type name to the Java class name.
@@ -25,51 +23,35 @@ class JDClassNameFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
     private SQLConversionSettings   settings_;                                  // @A1A
-    private JDProperties            properties_;
+    private JDProperties            properties_; // @M0A - added JDProperties so we can get the decimal scale & precision
+    private int                     vrm_;        // @M0A - added vrm so we can pass it to the newData method
 
 
-
-
-    JDClassNameFieldMap (int fromIndex, SQLConversionSettings settings, JDProperties properties)         // @A1C
+    JDClassNameFieldMap (int fromIndex, SQLConversionSettings settings, int vrm, JDProperties properties)         // @A1C // @M0C
     {
         super (fromIndex);
         settings_ = settings;                                                   // @A1A
-        properties_ = properties;
+        properties_ = properties;  // @M0A
+        vrm_ = vrm;                // @M0A
     }
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
 
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         String sourceType = super.getValue (row).toString ();
-        if (sourceType != null)
-            return SQLDataFactory.newData (sourceType, 2, 1, 1, settings_, properties_).toObject ().getClass ().getName (); // @A1C
+        if(sourceType != null)
+            return SQLDataFactory.newData(sourceType, 2, 1, 1, settings_, vrm_, properties_).toObject ().getClass ().getName (); // @A1C  // @M0C - pass more parms
         else
             return "";
     }
 
-
-
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }
-
-
 }
