@@ -65,9 +65,7 @@ import java.beans.PropertyVetoException;
 **/
 class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescriptionImpl, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-    static final long serialVersionUID = 4L;
+  static final long serialVersionUID = 4L;
 
   // File name
   private String file_ = "";
@@ -918,14 +916,14 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       sourceFile.println(" copyright, trade secret, or intellectual property rights of any kind.");
       sourceFile.println();
       sourceFile.println();
-      sourceFile.println("                            COPYRIGHT");
-      sourceFile.println("                            ---------");
-      sourceFile.println("           5769-JC1 (C) Copyright IBM CORP. 1997, 1999");
-      sourceFile.println("           All rights reserved.");
-      sourceFile.println("           US Government Users Restricted Rights -");
-      sourceFile.println("           Use, duplication or disclosure restricted");
-      sourceFile.println("           by GSA ADP Schedule Contract with IBM Corp.");
-      sourceFile.println("           Licensed Material - Property of IBM");
+      sourceFile.println("             COPYRIGHT");
+      sourceFile.println("             ---------");
+      sourceFile.println("Copyright (C) 1997-1999 International Business Machines Corporation and others.");
+      sourceFile.println("All rights reserved.");
+      sourceFile.println("US Government Users Restricted Rights -");
+      sourceFile.println("Use, duplication or disclosure restricted");
+      sourceFile.println("by GSA ADP Schedule Contract with IBM Corp.");
+      sourceFile.println("Licensed Material - Property of IBM");
       sourceFile.println("********************************************************************************/");
       sourceFile.println();
       sourceFile.println("// Created by AS400FileRecordDescription on " + new Date());
