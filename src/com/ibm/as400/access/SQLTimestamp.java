@@ -75,15 +75,15 @@ implements SQLData
         throws SQLException
     {
         try {
-            // If the string has a year 1, then it is likely a NULL, so
-            // just set this to a default date.
+            // @E3D // If the string has a year 1, then it is likely a NULL, so
+            // @E3D // just set this to a default date.
             int year = Integer.parseInt (s.substring (0, 4));
-            if (year == 1) {
-                return new Timestamp (0);
-            }
+            // @E3D if (year == 1) {
+            // @E3D     return new Timestamp (0);
+            // @E3D }
 
             // Parse the string .
-            else {
+            // @E3D else {
                 calendar.set (Calendar.YEAR, year);
                 calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (5, 7)) - 1);
                 calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (8, 10)));
@@ -95,7 +95,7 @@ implements SQLData
                 Timestamp ts = new Timestamp (calendar.getTime ().getTime ());
                 ts.setNanos (Integer.parseInt (nanos.substring (0, 6)) * 1000);
                 return ts;
-            }
+            // @E3D }
         }
         catch (NumberFormatException e) {
             JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
@@ -159,9 +159,9 @@ implements SQLData
             + (rawBytes[offset+2] & 0x0f) * 10
             + (rawBytes[offset+3] & 0x0f);
 
-        // If the string has a year 1, then it is likely a NULL, so
-        // just set this to a default date.
-        if (year_ != 1) {
+        // @E3D // If the string has a year 1, then it is likely a NULL, so
+        // @E3D // just set this to a default date.
+        // @E3D if (year_ != 1) {
             month_ = (rawBytes[offset+5] & 0x0f) * 10
                 + (rawBytes[offset+6] & 0x0f) - 1;
             day_ = (rawBytes[offset+8] & 0x0f) * 10
@@ -179,7 +179,7 @@ implements SQLData
                 + (rawBytes[offset+23] & 0x0f) * 100
                 + (rawBytes[offset+24] & 0x0f) * 10
                 + (rawBytes[offset+25] & 0x0f) ) * 1000;
-        }
+        // @E3D }
     }
 
 
