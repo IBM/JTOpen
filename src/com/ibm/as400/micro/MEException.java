@@ -1,15 +1,31 @@
-///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: AS400.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+//
+// IBM Confidential
+// OCO Source Materials
+// 5722-JC1
+// (C) Copyright IBM Corp. 2001
+//
+// The source code for this program is not published or otherwise
+// divested of its trade secrets, irrespective of what has been
+// deposited with the U.S. Copyright Office.
+//
+////////////////////////////////////////////////////////////////////////
+//
+// File Name:  MEException.java
+//
+// Class Name:  MEException
+//
+////////////////////////////////////////////////////////////////////////
+//
+// CHANGE ACTIVITY:
+//
+//  Flg=PTR/DCR     Release     Date       Userid   Comments
+//        D98585     v5r2m0.jacl  22/02/01   wrightj   Created.
+//                      v5r2m0.jacl  03/05/01   wiedrich Modified.
+//
+// END CHANGE ACTIVITY
+//
+////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.micro;
 
@@ -71,6 +87,11 @@ public final class MEException extends Exception
      *  The return code indicating that the parameter value is not valid.
      **/
     public static final int PARAMETER_VALUE_NOT_VALID = 0x0010;
+
+    /**
+     *  The return code indicating that one or more properties have not been set.
+     **/
+    public static final int PROPERTY_NOT_SET= 0x0011;
 
     
     // THE COMMUNICTION/SERVER RETURN CODES (range 20 - 39).
