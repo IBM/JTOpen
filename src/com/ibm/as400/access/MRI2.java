@@ -1002,7 +1002,7 @@ public class MRI2 extends ListResourceBundle
       { "GENCMDDOC_VALUE_DECIMAL_NUMBER",    "decimal-number" },       
       { "GENCMDDOC_VALUE_GENERIC_NAME",      "generic-name" },         
       { "GENCMDDOC_VALUE_HEX",               "hexadecimal-value" },            
-      { "GENCMDDOC_VALUE_INTEGER",           "integer-number" },              
+      { "GENCMDDOC_VALUE_INTEGER",           "integer" },              
       { "GENCMDDOC_VALUE_LOGICAL",           "logical-value" },        
       { "GENCMDDOC_VALUE_NAME",              "name" },         
       { "GENCMDDOC_VALUE_NOT_RESTRICTED",    "unrestricted-value" },       
