@@ -69,7 +69,7 @@ class SystemResourceFinder
   // B4A -- new method for XPCML to find XSL files
   public static final InputStream getXPCMLTransformFile(String fileName)
   {
-    return getXPCMLTransformFile(getLoader(), fileName);
+    return getXPCMLTransformFile(getLoader(), "com/ibm/as400/data/"+fileName);
   }
 
   public static final InputStream getRFMLHeader()     // @B2A
