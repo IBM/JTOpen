@@ -284,7 +284,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   /**
   *  Fills the connection pool with the specified number of database connections.
   *  @param numberOfConnections The number of connections to add to the pool.
-  *  @exception ConnectionPoolException If a database error occurs creating a connection for the pool.
+  *  @exception ConnectionPoolException If a database error occurs creating a connection for the pool, or the maximum number of connections has been reached for the pool.
+  *  @exception ExtendedIllegalArgumentException if the number of connections to fill the pool with is less than one.
   **/
   public void fill(int numberOfConnections) throws ConnectionPoolException
   {
@@ -299,7 +300,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     if (maxConnections != -1)
     {
       if (numberOfConnections + getActiveConnectionCount() + getAvailableConnectionCount() > maxConnections)
-        throw new ExtendedIllegalArgumentException("numberOfConnections", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+          throw new ConnectionPoolException(ConnectionPoolException.MAX_CONNECTIONS_REACHED); //@KBA    fix for JTOpen Bug 3655
+        //@KBD throw new ExtendedIllegalArgumentException("numberOfConnections", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
     // Add connections to the pool.
