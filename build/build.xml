@@ -463,15 +463,7 @@
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="javadoc" depends="init,checkJavadocIncludes">
     <condition property="jdk141Exists"> <!-- Need this for javadoc to work on Windows. -->
-      <or>
-        <and>
-          <os family="windows"/>
-          <contains string="${java.version}" substring="1.4.1"/>
-        </and>
-        <not>
-          <os family="windows"/>
-        </not>
-      </or>
+      <contains string="${java.version}" substring="1.4.1"/>
     </condition>
     <fail message="Not using JDK 1.4.1 or higher." unless="jdk141Exists"/>
     <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/> <!-- Sanity. -->
@@ -529,7 +521,7 @@
       </or>
     </condition>
     <fail message="Can't find ${include}/midpapi.zip." unless="midpapiZipExists"/>
-    <fail message="Can't find ${include}/preverify executable." unless="preverifyExeExists"/>
+    <fail message="Can't find ${bin}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
     <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
       <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi.zip ${output-micro}"/>
