@@ -283,7 +283,7 @@ public class Record implements Serializable
       }
       isConvertedToJava_[i] = false;
     }
-    // Allocate the space for as400Data_ now that we know teh record length
+    // Allocate the space for as400Data_ now that we know the record length
     as400Data_ = new byte[recordLength_];
     if (!hasDependentFields_)
     { // Go ahead and copy the contents to as400Data_
@@ -554,8 +554,7 @@ public class Record implements Serializable
       }
       return toBytes;
     }
-    // No dependent fields;
-    // return as400Data_.
+    // No dependent fields.
     return as400Data_;
   }
 
@@ -593,7 +592,7 @@ public class Record implements Serializable
    *The record format for the record must be set prior to invoking this method.
    *@see Record#Record(com.ibm.as400.access.RecordFormat)
    *@see Record#setRecordFormat
-   *@param index The position of the field in the record.  This value must
+   *@param index The ordinal position of the field in the record.  This value must
    *             be between 0 and getNumberOfFields() - 1 inclusive.
    *@return The contents of the requested field.
    *@exception UnsupportedEncodingException If an error occurs when converting
@@ -621,7 +620,6 @@ public class Record implements Serializable
     FieldDescription f = fieldDescriptions_[index];
     AS400DataType dType = f.getDataType();
     int variableFieldLength;
-    int length = dType.getByteLength();
     int offset = fieldOffsets_[index];
     // Check for possible variable length field
     if (f instanceof VariableLengthFieldDescription)
@@ -680,6 +678,111 @@ public class Record implements Serializable
     }
 
     return getField(recordFormat_.getIndexOfFieldName(name));
+  }
+
+  /**
+   *Returns the value of the field by index, as an unconverted byte array.
+   *<br>
+   *The record format for the record must be set prior to invoking this method.
+   *@see Record#Record(com.ibm.as400.access.RecordFormat)
+   *@see Record#setRecordFormat
+   *@param index The ordinal position of the field in the record.  This value must
+   *             be between 0 and getNumberOfFields() - 1 inclusive.
+   *@return The unconverted contents of the requested field.
+  **/
+  public byte[] getFieldAsBytes(int index)
+  {
+    if (recordFormat_ == null)
+    {
+      throw new ExtendedIllegalStateException("recordFormat", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
+    if (index < 0 || index > fields_.length - 1)
+    {
+      throw new ExtendedIllegalArgumentException("index", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    }
+
+    byte[] fieldAsBytes = null;
+    int fieldOffset = 0;   // offset to start of field in as400Data_
+    int fieldByteLength = 0;  // length of field, including length bytes if any
+
+    if (hasDependentFields_) // The record has dependent fields, so fieldOffsets_ is unreliable.
+    {
+      // For each field description in the recordFormat_ object, until we reach the field of interest, determine the field offset and length.
+      // If a field is a variable length field, we must account for the two bytes worth of length data which precede the actual data for the field.
+      int offsetToNextField = 0;
+      for (int i = 0; i <= index; ++i)
+      {
+        fieldOffset = offsetToNextField;
+        FieldDescription f = fieldDescriptions_[i];
+        AS400DataType dType = f.getDataType();
+        fieldByteLength = dType.getByteLength();
+        int lengthDependField = recordFormat_.getLengthDependency(i);
+        int offsetDependField = recordFormat_.getOffsetDependency(i);
+
+        // Check for offset dependent field
+        if (offsetDependField != -1)
+        { // Set offset to value specified in the field this field depends on
+          fieldOffset = ((Number)fields_[offsetDependField]).intValue();
+        }
+        if (lengthDependField != -1)
+        {
+          // The length of this field is contained in the field that this field depends on.
+          // Because the field depended on must exist prior to this field in the byte array,
+          // its value has already been determined.
+          fieldByteLength = ((Number)fields_[lengthDependField]).intValue();
+        }
+
+        // Check for possible variable length field
+        if (f instanceof VariableLengthFieldDescription &&
+            ((VariableLengthFieldDescription)f).isVariableLength())
+        {
+          fieldByteLength += 2;  // allow for the 2 leading "length bytes"
+        }
+
+        // Prepare to examine the next field.
+        offsetToNextField = fieldOffset + fieldByteLength;
+      }  // for ...
+    }  // if ...
+
+    else  // no dependent fields, so fieldOffsets_ is reliable
+    {
+      fieldOffset = fieldOffsets_[index];
+      FieldDescription f = fieldDescriptions_[index];
+      AS400DataType dType = f.getDataType();
+      fieldByteLength = dType.getByteLength();
+      // Check for possible variable length field.
+      if (f instanceof VariableLengthFieldDescription &&
+          ((VariableLengthFieldDescription)f).isVariableLength())
+      { // Get the number of bytes returned for the field.
+        // Whether the field is variable length or not we still write out the maximum number
+        // of bytes for the field.  This is the required format for variable length data for record level access.
+        fieldByteLength += 2;  // allow for the 2 leading "length bytes"
+      }
+    }
+
+    fieldAsBytes = new byte[fieldByteLength];
+    System.arraycopy(as400Data_, fieldOffset, fieldAsBytes, 0, fieldAsBytes.length);
+
+    return fieldAsBytes;
+  }
+
+  /**
+   *Returns the value of the field by name, as an unconverted byte array.
+   *<br>
+   *The record format for the record must be set prior to invoking this method.
+   *@see Record#Record(com.ibm.as400.access.RecordFormat)
+   *@see Record#setRecordFormat
+   *@param name The name of the field.
+   *@return The unconverted contents of the requested field.
+  **/
+  public byte[] getFieldAsBytes(String name)
+  {
+    if (recordFormat_ == null)
+    {
+      throw new ExtendedIllegalStateException("recordFormat", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
+
+    return getFieldAsBytes(recordFormat_.getIndexOfFieldName(name));
   }
 
   /**
