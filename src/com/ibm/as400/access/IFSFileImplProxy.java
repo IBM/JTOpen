@@ -420,6 +420,18 @@ implements IFSFileImpl
     }
   }
 
+  public void setPatternMatching(int patternMatching)
+  {
+    try {
+      connection_.callMethod (pxId_, "setPatternMatching",
+                              new Class[] { Integer.class },
+                              new Object[] { new Integer(patternMatching) });
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow (e);
+    }
+  }
+
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setReadOnly(boolean attribute)
     throws IOException

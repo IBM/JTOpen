@@ -28,8 +28,9 @@ implements IFSFileImpl
 
   private IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote(); // @B2A
 
-  private boolean isSymbolicLink_ = false;
-  private boolean determinedIsSymbolicLink_ = false;
+  private boolean isSymbolicLink_;
+  private boolean determinedIsSymbolicLink_;
+  private int patternMatching_ = IFSFile.PATTERN_DEFAULT;  // pattern-matching semantics
 
 
   // Used for debugging only.  This should always be false for production.
@@ -490,6 +491,7 @@ implements IFSFileImpl
     IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                               IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
                               null, false, extendedAttrName, false);  // @C3c
+    if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
     Vector replys = listAttributes(req);
 
     // Verify that we got at least one reply.
@@ -855,6 +857,7 @@ implements IFSFileImpl
       IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                                                 IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
                                                 null, true, null, true);  // @C3c
+      if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
       Vector replys = listAttributes(req);
 
       if (replys == null) {
@@ -892,6 +895,7 @@ implements IFSFileImpl
 
     // Process attribute replies.
     IFSListAttrsReq req = new IFSListAttrsReq(fileHandle, (short)0x44);  // Object Attribute 2 
+    if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
 
     return listAttributes(req);
   }
@@ -908,8 +912,10 @@ implements IFSFileImpl
 
     // Process attribute replies.
     IFSListAttrsReq req;                                                                            // @D4C
-    if (maxGetCount < 0)    // a Get Count of -1 means "return all entries"              // @D4A
-        req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_);                             // @D4C
+    if (maxGetCount < 0) {   // a Get Count of -1 means "return all entries"              // @D4A
+      req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_);                             // @D4C
+      if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
+    }
     else {                                                                                          // @D4A
 //@C3d  byte[] restartNameAsBytes = null;                                                           // @D4A
 //@C3d  if (restartName != null)                                                                    // @D4A
@@ -920,6 +926,7 @@ implements IFSFileImpl
                                   restartNameOrID,                                       // @D4A @C3c
                                   isRestartName, // @C3a
                                   null, false);  // @B5a @C3c
+        if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
     }
     return listAttributes(req);  // Note: This does setFD() on each returned IFSListAttrsRep..
   }
@@ -1147,7 +1154,6 @@ implements IFSFileImpl
     {
       names = new String[replys.size()];
       int j = 0;
-      ///int dsl = fd_.serverDatastreamLevel_;
       for (int i = 0; i < replys.size(); i++)
       {
         IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(i);
@@ -1669,6 +1675,16 @@ implements IFSFileImpl
           success = true;
     }
     return success;
+  }
+
+
+  /**
+   Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
+   @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
+   **/
+  public void setPatternMatching(int patternMatching)
+  {
+    patternMatching_ = patternMatching;
   }
 
 

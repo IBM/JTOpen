@@ -94,7 +94,7 @@ Construct a list file attributes request.
     else {
       set16bit(0x0001, FILE_ATTR_LIST_LEVEL_OFFSET);                                    // @C1c
     }
-    set16bit(0, PATTERN_MATCHING_OFFSET);
+    set16bit(0, PATTERN_MATCHING_OFFSET);  // default is POSIX
 
     // Set the LL.
     set32bit(name.length + LLCP_LENGTH, FILE_NAME_LL_OFFSET);
@@ -145,29 +145,6 @@ Construct a list file attributes request.
 
   }
 
-//@C3d
-// @D2A
-// /**
-//Construct a list file attributes request.
-//@param name the file name
-//@param fileNameCCSID file name CCSID
-//@param authority bit 0: on = client must have read authority,
-//                 bit 1: on = client must have write authority,
-//                 bit 2: on = client must have execute authority
-//@param maximumGetCount The maximum get count, or -1 to return all entries.
-//@param restartName The restart name, or null to return all entries.
-//@param extendedAttrName The extended attribute name, or null to return
-//                        no extended attributes.
-//**/
-//  IFSListAttrsReq(byte[] name,
-//                  int    fileNameCCSID,
-//                  int    authority,
-//                  int    maximumGetCount,                                      // @D2A
-//                  byte[] restartName,                                          // @D2A
-//                  byte[] extendedAttrName)                                     // @A1a
-//  {
-//    this(name, fileNameCCSID, authority, maximumGetCount, restartName, extendedAttrName, false); // @C1c
-//  }
 
 /**
 Construct a list file attributes request.
@@ -220,7 +197,23 @@ Construct a list file attributes request.
     set16bit(NO_AUTHORITY_REQUIRED, CHECK_AUTHORITY_OFFSET);
     set16bit(0xffff, MAX_GET_COUNT_OFFSET);
     set16bit(attributeListLevel, FILE_ATTR_LIST_LEVEL_OFFSET);
-    set16bit(0, PATTERN_MATCHING_OFFSET);
+    set16bit(0, PATTERN_MATCHING_OFFSET);  // default is POSIX
+  }
+
+
+  /**
+   Sets the value of the "pattern matching" field.
+   Valid values are "POSIX" (0), "POSIX-all" (1), and "OS/2" (2).
+   **/
+  void setPatternMatching(int patternMatching)
+  {
+    // "POSIX" pattern matching: Using POSIX semantics, return all files that match the pattern and do not begin with a period unless the pattern begins with a period.  In that case, names beginning with a period will be returned.
+
+    // "POSIX-all" pattern matching: Using POSIX semantics, return all files that match the pattern, including those that begin with a period.
+
+    // "OS/2" pattern matching: Using "DOS" semantics, return all files that match the pattern.
+
+    set16bit(patternMatching, PATTERN_MATCHING_OFFSET);
   }
 
 }

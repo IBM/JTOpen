@@ -782,6 +782,17 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return pathString;
   }
 
+
+  /**
+   Returns the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
+   @return Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
+   **/
+  public int getPatternMatching()
+    throws IOException
+  {
+    return ifsFile_.getPatternMatching();
+  }
+
 /**
  * Returns the system that this object references.
  *
@@ -1716,6 +1727,23 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (PropertyVetoException e) {}  // will never happen
     return true;
+  }
+
+
+  /**
+   Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
+   @param patternMatching Either {@link IFSFile#PATTERN_POSIX PATTERN_POSIX}, {@link IFSFile#PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link IFSFile#PATTERN_OS2 PATTERN_OS2}
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+   **/
+  public void setPatternMatching(int patternMatching)
+    throws IOException
+  {
+    ifsFile_.setPatternMatching(patternMatching);
   }
 
 

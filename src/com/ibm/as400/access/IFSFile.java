@@ -109,6 +109,24 @@ public class IFSFile
    directory/file components in a path.
    **/
   public final static char separatorChar = '/';
+  /**
+   Value for indicating that "POSIX" pattern-matching is used by the various <tt>list()</tt> and <tt>listFiles()</tt> methods.
+   <br>Using POSIX semantics, all files are listed that match the pattern and do not begin with a period (unless the pattern begins with a period).  In that case, names beginning with a period are also listed.  Note that when no pattern is specified, the default pattern is "*".
+   <br>Note: In OS/400 V5R1 and earlier, all files that match the pattern are listed, including those that begin with a period.
+   **/
+  public final static int PATTERN_POSIX = 0;
+  final static int PATTERN_DEFAULT = PATTERN_POSIX;  // for use within package
+  /**
+   Value for indicating that "POSIX-all" pattern-matching is used by the various <tt>list()</tt> and <tt>listFiles()</tt> methods.
+   <p>Using POSIX semantics, all files are listed that match the pattern, including those that begin with a period.
+   **/
+  public final static int PATTERN_POSIX_ALL = 1;
+  /**
+   Value for indicating that "OS/2" pattern-matching is used by the various <tt>list()</tt> and <tt>listFiles()</tt> methods.
+   Using DOS semantics, all files are listed that match the pattern.
+   **/
+  public final static int PATTERN_OS2 = 2;
+
   private final static String SECURITY_EXCEPTION = "Security exception.";
 
   transient private PropertyChangeSupport changes_;
@@ -125,6 +143,7 @@ public class IFSFile
   private boolean isDirectory_; //@A7A
   private boolean isFile_; //@A7A
   private boolean isSymbolicLink_;
+  private int patternMatching_;  // type of pattern matching to use when listing files
 
   /**
    Constructs an IFSFile object.
@@ -1198,6 +1217,17 @@ public class IFSFile
   public String getPath()
   {
     return path_;
+  }
+
+
+  /**
+   Returns the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
+   @return Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
+   **/
+  public int getPatternMatching()
+    throws IOException
+  {
+    return patternMatching_;
   }
 
 
@@ -2465,6 +2495,7 @@ public class IFSFile
     return success;
   }
 
+
   /**
    Changes the last modified time of the integrated file system object
    represented by this object to <i>time</i>.
@@ -2621,6 +2652,39 @@ public class IFSFile
     // Fire the property change event having null as the name to
     // indicate that the path, parent, etc. have changed.
     changes_.firePropertyChange("path", oldPath, newPath);
+  }
+
+
+  /**
+   Sets the pattern-matching behavior used when files are listed by any of the <tt>list()</tt> or <tt>listFiles()</tt> methods.  The default is PATTERN_POSIX.
+   @param patternMatching Either {@link #PATTERN_POSIX PATTERN_POSIX}, {@link #PATTERN_POSIX_ALL PATTERN_POSIX_ALL}, or {@link #PATTERN_OS2 PATTERN_OS2}
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+   **/
+  public void setPatternMatching(int patternMatching)
+    throws IOException
+  {
+    if (patternMatching < PATTERN_POSIX || patternMatching > PATTERN_OS2) {
+      throw new ExtendedIllegalArgumentException("patternMatching",
+                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (impl_ == null)
+    try
+    {
+      chooseImpl();
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+
+    impl_.setPatternMatching(patternMatching);
+    patternMatching_ = patternMatching;
   }
 
 
