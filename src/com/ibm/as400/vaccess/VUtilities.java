@@ -236,6 +236,7 @@ gives you the same effect as a JLabel.
 
 
 // @A1A
+// @B0C - rewrote.
 /**
 Formats help text from an AS/400 Message.  This text may have
 imbed \n's in it at word breaks only.
@@ -245,22 +246,65 @@ these as expected.  Instead, use a JTextArea, setEditable (false),
 and set its background color to the same as the panel.  This
 gives you the same effect as a JLabel.
 **/
-    public static String formatHelp2 (String input, int width)
+    public static String formatHelp2(String input, int width)
     {
-        StringBuffer output = new StringBuffer (input);
+        StringBuffer output = new StringBuffer(input);
 
-        int current = width;
+        // Insert newlines so that each line is no longer than the specified width.
+        int lowEnd = 0;
+        int highEnd = width;
+        while (highEnd < output.length())
+        {
+          int i = highEnd;
+          while (i > lowEnd)
+          {
+            // This only checks for single-byte space characters.
+            // For DBCS, it may look a little ugly since we'll break 
+            // in the middle of a word.
+            // Also, we assume the string is read from left-to-right,
+            // so BiDi strings may end up with weird breaks. This shouldn't happen
+            // since all the BiDi languages we support are single-byte so we
+            // should usually find a single-byte space, assuming the specified width
+            // is large enough.
+            if (output.charAt(i) == ' ')
+            {
+              output.setCharAt(i, '\n'); // Wrap to new line.
+              break;
+            }
+            --i;
+          }
+          if (i == lowEnd) // We hit the bottom, so just break the line.
+          {
+            output = output.insert(highEnd, '\n');
+            lowEnd = highEnd;
+            highEnd += width;
+          }
+          else
+          {
+            // Set new "window"
+            highEnd = i+width;
+            lowEnd = i;
+          }
+        }
+        return output.toString();
+
+
+/*@B0D        int current = width;
         int i = width;
 
-        while (i < output.length ()) {
-            if (current >= width) {
-                while (output.charAt (i) != ' ')
+        while (i < output.length())
+        {
+            if (current >= width)
+            {
+                while (output.charAt(i) != ' ' && )
+                {
                     --i;
-                output.setCharAt (i, '\n');
+                }
+                output.setCharAt(i, '\n');
                 current = 0;
             }
-
-            else if (output.charAt (i) == '\n') {
+            else if (output.charAt(i) == '\n')
+            {
                 current = 0;
             }
 
@@ -268,7 +312,9 @@ gives you the same effect as a JLabel.
             ++i;
         }
 
-        return output.toString ();
+        return output.toString();
+*/  //@B0D
+
     }
 
 
