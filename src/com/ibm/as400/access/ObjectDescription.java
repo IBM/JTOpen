@@ -1187,17 +1187,63 @@ public class ObjectDescription
         // pppppppVvvRrrMmm
         String lpp = (String)o;
         if (lpp.length() == 0) return null;
-        String prodID = lpp.substring(0,7);
-        StringBuffer release = new StringBuffer(6);
-        release.append('V');
-        release.append(Integer.parseInt(lpp.substring(8,2)));
-        release.append('R');
-        release.append(Integer.parseInt(lpp.substring(11,2)));
-        release.append('M');
-        release.append(Integer.parseInt(lpp.substring(14,2)));
-        return new Product(system_, lpp.substring(0,7), Product.PRODUCT_OPTION_BASE, release.toString(), Product.PRODUCT_FEATURE_CODE);
+        else if (lpp.length() < 16)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Disregarding COMPILER attribute value in nonstandard format: " + lpp);
+          return null;
+        }
+        else
+        {
+          String prodID = lpp.substring(0,7);
+          StringBuffer release = new StringBuffer(6);
+          release.append('V');
+          release.append(Integer.parseInt(lpp.substring(8,2)));
+          release.append('R');
+          release.append(Integer.parseInt(lpp.substring(11,2)));
+          release.append('M');
+          release.append(Integer.parseInt(lpp.substring(14,2)));
+          return new Product(system_, prodID, Product.PRODUCT_OPTION_BASE, release.toString(), Product.PRODUCT_FEATURE_CODE);
+        }
     }
     return o;
+  }
+
+
+  /**
+   * Returns the value of the given attribute of this ObjectDescription, as a String. If the value is not found,
+   * it is retrieved from the system. The values are cached. Call
+   * {@link #refresh refresh()} to retrieve all of the known attributes of this object from the system.
+   * @param attribute One of the attribute constants.
+   * @return The value for the attribute, or null if one was not found.
+  **/
+  public String getValueAsString(int attribute) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    if (attribute == COMPILER)
+    {
+      // Either "", "pppppppVvvRrrMmm", or a 6- or 7-digit number in the format "wwmmdd" or "wwwmmdd", where ww = the week number (www = week# *10), mm = month and dd = day.
+      Object o = values_.get(attribute);
+      if (o == null)
+      {
+        // Can only retrieve this via ObjectList
+        if (attribute == ORDER_IN_LIBRARY_LIST)
+        {
+          return "-1";
+        }
+
+        retrieve(attribute);
+        o = values_.get(attribute);
+      }
+      String lpp = (String)o;
+      if (lpp.length() == 0) return null;
+      else return lpp;
+    }
+    else
+    {
+      Object value = getValue(attribute);
+      if (value == null) return null;
+      else if (value instanceof String) return (String)value;
+      else return value.toString();
+    }
   }
 
 
