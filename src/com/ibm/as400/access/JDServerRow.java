@@ -275,14 +275,20 @@ implements JDRow
     public int findField (String name)
     throws SQLException
     {       
-        if (name.indexOf("\"") >= 0)                              //@D6a
+        if(name.indexOf("\"") >= 0)                                //@D6a
+        {
             name = name.replace('"', ' ').trim();                  //@D6a
-        else                                                      //@D6a
-            name = name.toUpperCase();                             //@D6a
-
-        for (int i = 1; i <= sqlData_.length; ++i)
-            if (name.equals (getFieldName (i)))                    //@D6c (used to be equalsIgnoreCase)
-                return i;
+            for(int i=1; i<=sqlData_.length; ++i)
+                if (name.equals(getFieldName(i)))                  //@D6c (used to be equalsIgnoreCase)
+                    return i;
+        }
+        else                                                       //@D6a
+        {
+            // name = name.toUpperCase();                          //@D6a
+            for(int i = 1; i <= sqlData_.length; ++i)
+                if(name.equalsIgnoreCase(getFieldName(i)))
+                    return i;
+        }
 
         JDError.throwSQLException (JDError.EXC_COLUMN_NOT_FOUND);
         return -1;
