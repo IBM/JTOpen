@@ -49,11 +49,18 @@ import java.util.Vector;
  * <P>
  * Sockets are used to send Standard input, output and error between
  * client and server.  The port used can be set via setPort().  The
- * default port is 2850, 2851 and 2852.  If the port is in use,
+ * default port sequence is 2850, 2851 and 2852.  If the port is in use,
  * this class searches for available ports if findPort is true.
  * Standard input, output and error are <B>not</B> transported
  * across a secure connection even when the rest of the Toolbox
  * is using SSL.
+ *
+ * <P>
+ * The presence of a firewall may prevent JavaApplicationCall from
+ * opening the necessary additional ports (for stdin, stdout, and stderr).
+ * The administrator may need to authenticate the application through
+ * the firewall in both directions:
+ * From client to server, and from server to client.
  *
  * <P>
  * For example, supposed Java class HelloWorld resides in directory
@@ -119,7 +126,7 @@ import java.util.Vector;
  *    // call returns immediately even if there is no data.
  *    public void run()
  *    {
- *        while(true)
+ *        while (true)
  *        {
  *           String s = jaCall.getStandardOutString();
  *           if (s != null)
@@ -201,7 +208,7 @@ public class JavaApplicationCall implements Serializable
      *
      * @param system The server on which contains the Java program.
     **/
-    public JavaApplicationCall( AS400 system)
+    public JavaApplicationCall(AS400 system)
     {
         if (system == null)
             throw new NullPointerException("system");
@@ -218,7 +225,7 @@ public class JavaApplicationCall implements Serializable
      * @param system The server on which contains the Java program.
      * @param application  The name of Java program.
     **/
-    public JavaApplicationCall( AS400 system,  String application)
+    public JavaApplicationCall(AS400 system,  String application)
     {
         this(system);
 
@@ -240,7 +247,7 @@ public class JavaApplicationCall implements Serializable
      * @param application  The name of Java program.
      * @param classPath The value of the environment variable CLASSPATH.
     **/
-    public JavaApplicationCall( AS400 system,  String application,  String classPath)
+    public JavaApplicationCall(AS400 system,  String application,  String classPath)
     {
         this(system, application);
 
@@ -277,7 +284,7 @@ public class JavaApplicationCall implements Serializable
      * @see #removePropertyChangeListener
      * @param  listener  The listener.
     **/
-    public void addPropertyChangeListener( PropertyChangeListener listener )
+    public void addPropertyChangeListener(PropertyChangeListener listener )
     {
         if (listener != null)
             propertyChange_.addPropertyChangeListener(listener);
@@ -294,7 +301,7 @@ public class JavaApplicationCall implements Serializable
      * @see #removeVetoableChangeListener
      * @param  listener  The listener.
     **/
-    public void addVetoableChangeListener( VetoableChangeListener listener )
+    public void addVetoableChangeListener(VetoableChangeListener listener )
     {
         if (listener != null)
             vetoableChange_.addVetoableChangeListener(listener);
@@ -326,7 +333,7 @@ public class JavaApplicationCall implements Serializable
 
 
     /**
-     Returns the CommandCall object that was used in the most recent invocation of {@link #run(String) run()}.
+     Returns the CommandCall object that was used in the most recent invocation of {@link #run() run()}.
      @return The CommandCall object; null if run() has not been called.
      **/
     public CommandCall getCommandCall()
@@ -364,7 +371,7 @@ public class JavaApplicationCall implements Serializable
         write_ = null;
         error_ = null;
 
-        if(!isFindPort())
+        if (!isFindPort())
         {
             standardInPort_ = defaultPort_;
             standardOutPort_ = defaultPort_ + 1;
@@ -832,7 +839,7 @@ public class JavaApplicationCall implements Serializable
      * @see #addPropertyChangeListener
      * @param listener The listener.
     **/
-    public void removePropertyChangeListener( PropertyChangeListener listener )
+    public void removePropertyChangeListener(PropertyChangeListener listener )
     {
         if (listener != null)
             propertyChange_.removePropertyChangeListener(listener);
@@ -846,7 +853,7 @@ public class JavaApplicationCall implements Serializable
      * @see #addVetoableChangeListener
      * @param listener The listener.
     **/
-    public void removeVetoableChangeListener( VetoableChangeListener listener )
+    public void removeVetoableChangeListener(VetoableChangeListener listener )
     {
         if (listener != null)
             vetoableChange_.removeVetoableChangeListener(listener );
@@ -1054,7 +1061,7 @@ public class JavaApplicationCall implements Serializable
         boolean found = false;
         int times = 0;
 
-        while(times <= PORT_SEARCH_TIMES)
+        while (times <= PORT_SEARCH_TIMES)
         {
             try
             {
@@ -1071,7 +1078,7 @@ public class JavaApplicationCall implements Serializable
         }
         if (found)
         {
-            if(whichPort == DEFAULT_STANDARD_IN_PORT)
+            if (whichPort == DEFAULT_STANDARD_IN_PORT)
                 read_ = test;
             else if (whichPort == DEFAULT_STANDARD_OUT_PORT)
                 write_ = test;
@@ -1109,7 +1116,7 @@ public class JavaApplicationCall implements Serializable
      * @param  classPath  The value of the classpath.
      * @exception PropertyVetoException If the change is vetoed.
     **/
-    public void setClassPath( String classPath) throws PropertyVetoException
+    public void setClassPath(String classPath) throws PropertyVetoException
     {
         if (classPath != null)
         {
@@ -1359,7 +1366,7 @@ public class JavaApplicationCall implements Serializable
        @param  application The Java application to  be run.
        @exception PropertyVetoException If the change is vetoed.
     **/
-    public void setJavaApplication( String application) throws PropertyVetoException
+    public void setJavaApplication(String application) throws PropertyVetoException
     {
         if ((application != null) && (application.length() > 0))
         {
@@ -1550,7 +1557,7 @@ public class JavaApplicationCall implements Serializable
        @param  parameters The parameters for the Java application.
        @exception PropertyVetoException If the change is vetoed.
     **/
-    public void setParameters( String[] parameters) throws PropertyVetoException
+    public void setParameters(String[] parameters) throws PropertyVetoException
     {
         if (parameters != null)
         {
@@ -1642,7 +1649,7 @@ public class JavaApplicationCall implements Serializable
        @param system     The server.
        @exception PropertyVetoException If the change is vetoed.
     **/
-    public void setSystem( AS400 system) throws PropertyVetoException
+    public void setSystem(AS400 system) throws PropertyVetoException
     {
         if (system != null)
         {
