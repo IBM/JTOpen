@@ -374,10 +374,47 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        user.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USER"));
        user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
 
+       PropertyDescriptor keepAlive = new PropertyDescriptor("keepAlive", beanClass, "getKeepAlive", "setKeepAlive");
+       keepAlive.setBound(true);
+       keepAlive.setConstrained(false);
+       keepAlive.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_KEEP_ALIVE"));
+       keepAlive.setShortDescription(AS400JDBCDriver.getResource("KEEP_ALIVE_DESC"));
+
+       PropertyDescriptor receiveBufferSize = new PropertyDescriptor("receiveBufferSize", beanClass, "getReceiveBufferSize", "setReceiveBufferSize");
+       receiveBufferSize.setBound(true);
+       receiveBufferSize.setConstrained(false);
+       receiveBufferSize.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_RECEIVE_BUFFER_SIZE"));
+       receiveBufferSize.setShortDescription(AS400JDBCDriver.getResource("RECEIVE_BUFFER_SIZE_DESC"));
+
+       PropertyDescriptor sendBufferSize = new PropertyDescriptor("sendBufferSize", beanClass, "getSendBufferSize", "setSendBufferSize");
+       sendBufferSize.setBound(true);
+       sendBufferSize.setConstrained(false);
+       sendBufferSize.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SEND_BUFFER_SIZE"));
+       sendBufferSize.setShortDescription(AS400JDBCDriver.getResource("SEND_BUFFER_SIZE_DESC"));
+
+       PropertyDescriptor soLinger = new PropertyDescriptor("soLinger", beanClass, "getSoLinger", "setSoLinger");
+       soLinger.setBound(true);
+       soLinger.setConstrained(false);
+       soLinger.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SO_LINGER"));
+       soLinger.setShortDescription(AS400JDBCDriver.getResource("SO_LINGER_DESC"));
+
+       PropertyDescriptor soTimeout = new PropertyDescriptor("soTimeout", beanClass, "getSoTimeout", "setSoTimeout");
+       soTimeout.setBound(true);
+       soTimeout.setConstrained(false);
+       soTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SO_TIMEOUT"));
+       soTimeout.setShortDescription(AS400JDBCDriver.getResource("SO_TIMEOUT_DESC"));
+
+       PropertyDescriptor tcpNoDelay = new PropertyDescriptor("tcpNoDelay", beanClass, "getTcpNoDelay", "setTcpNoDelay");
+       tcpNoDelay.setBound(true);
+       tcpNoDelay.setConstrained(false);
+       tcpNoDelay.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TCP_NO_DELAY"));
+       tcpNoDelay.setShortDescription(AS400JDBCDriver.getResource("TCP_NO_DELAY_DESC"));
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
           decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
           packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
-          sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user };                                                            //@j1c
+          sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
+          keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay };                                                            //@j1c
      }
      catch (Exception e)
      {
