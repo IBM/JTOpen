@@ -458,7 +458,7 @@ Returns the handle to this CLOB locator in the database.
       int numChars = newSize - clobOffset;
       int realLength = (numChars < lengthOfWrite ? numChars : lengthOfWrite);
       char[] charsToWrite = new char[realLength];
-      string.getChars(offset, numChars, charsToWrite, 0);
+      string.getChars(offset, offset + numChars, charsToWrite, 0);          //@K2C
 
       // We don't really know if all of these chars can be written until we go to
       // the server, so we just return the char[] length as the number written.
