@@ -53,17 +53,30 @@ public class QSYSObjectTypeTable
     private static String[] types_ = null;
     private static Vector userDefinedAttributesAllowed_ = new Vector();             // @A1A
 
+    // Note: The following types occur only in IFS, not in QSYS:
+    /*
+     BLKSF
+     CHRSF
+     DDIR
+     DIR
+     DSTMF
+     FIFO
+     NWSSTG
+     SOCKET
+     STMF
+     SYMLNK
+     */
 
 
     static
     {
         add("ALRTBL");
         add("AUTL");
-        add("BLKSF");
+        add("BLKSF");  // this type does not occur in QSYS
         add("BNDDIR");
         add("CFGL", new String[] { "", "APPNDIR", "APPNLCL", "APPNRMT", "APPNSSN", "ASYNCADR", "ASYNCLOC", "SNAPASTHR" });
         add("CHTFMT");
-        add("CHRSF");
+        add("CHRSF");  // this type does not occur in QSYS
         add("CLD");
         add("CLS");
         add("CMD");
@@ -75,18 +88,18 @@ public class QSYSObjectTypeTable
         add("CSPMAP");
         add("CSPTBL");
         add("CTLD", new String[] { "", "APPC", "ASC", "BSC", "FNC", "HOST", "LWS", "NET", "RTL", "RWS", "TAP", "VWS" });
-        add("DDIR");
+        add("DDIR");  // this type does not occur in QSYS
         add("DEVD", new String[] { "", "APPC", "ASC", "ASP", "BSC", "CRP", "DKT", "DSPLCL", "DSPRMT", "DSPSNP", "DSPVRT", "FNC", "HOST", "INTR", "MLB", "NET", "OPT", "PRTLCL", "PRTLAN", "PRTRMT", "PRTSNP", "PRTVRT", "RTL", "SNPTUP", "SNPTDN", "TAP" });
-        add("DIR");
+        add("DIR");  // this type does not occur in QSYS
         add("DOC");
-        add("DSTMF");
+        add("DSTMF");  // this type does not occur in QSYS
         add("DTAARA");
         add("DTADCT");
         add("DTAQ", new String[] { "", "DDMDTAQUE" });
         add("EDTD");
         add("EXITRG");
         add("FCT");
-        add("FIFO");
+        add("FIFO");  // this type does not occur in QSYS
         add("FILE", new String[] { "", "PF", "LF", "BSCF38", "CMNF38", "CRDF38", "DFU", "DFUEXC", "DFUNOTEXC", "DSPF", "DSPF36", "DSPF38", "DDMF", "DKTF", "ICFF", "LF38", "MXDF38", "PF38", "PRTF", "PRTF38", "SAVF", "TAPF" });
         add("FLR");
         add("FNTRSC", new String[] { "CDEFNT", "FNTCHRSET", "CDEPAG" });
@@ -120,6 +133,7 @@ public class QSYSObjectTypeTable
         add("NODL");
         add("NTBD");
         add("NWID", new String[] { "", "ATM", "FR", "ISDN" });
+        add("NWSCFG");   // TBD: Also update MRI2.java
         add("NWSD", new String[] { "", "WINDOWSNT" });
         add("OUTQ");
         add("OVL");
@@ -142,7 +156,7 @@ public class QSYSObjectTypeTable
         add("RCT");
         add("SBSD");    // @D1c (was originally commended out under @A1d)
         add("SCHIDX");
-        add("SOCKET");
+        add("SOCKET");  // this type does not occur in QSYS
         add("SPADCT", new String[] { "", "AFRIKAAN", "AKTUEEL", "BRASIL", "CATALA", "DANSK",
                                      "DEUTSCH", "DEUTSCH2", "DSCHWEIZ", "ESPANA", "FRANCAIS",
                                      "FRA2", "GREEK", "ISLENSK", "ITALIANO", "LEGAL", "MEDICAL",
@@ -152,9 +166,9 @@ public class QSYSObjectTypeTable
         add("SQLUDT");
         add("SRVPGM", new String[] { "", "CLE", "CLLE", "RPGLE", "CBLLE", "CPPLE" });
         add("SSND");
-        add("STMF");
+        add("STMF");    // this type does not occur in QSYS
         add("SVRSTG");
-        add("SYMLNK");
+        add("SYMLNK");  // this type does not occur in QSYS
         add("S36");
         add("TBL");
         add("TIMZON");  //@K1A
