@@ -731,7 +731,8 @@ Sets the fetch size.
           lastBlock_ = endBlock;
         }
 
-        if ((rowNumber > 0) && (cursorPositionOfFirstRowInCache_ > 0)) // @G1a
+        //if ((rowNumber > 0) && (cursorPositionOfFirstRowInCache_ > 0)) // @G1a
+        if(cursorPositionOfFirstRowInCache_ >0)
           cursorPositionOfFirstRowInCache_ =                         // @G1a
                                                                      cursorPositionOfFirstRowInCache_ + rowNumber;           // @G1a
         else                                                           // @G1a
