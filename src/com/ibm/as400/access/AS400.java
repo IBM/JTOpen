@@ -32,7 +32,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import com.ibm.as400.security.auth.IdentityToken;
+import com.ibm.eim.token.IdentityToken;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
