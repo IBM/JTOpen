@@ -511,13 +511,19 @@ class ConnectionList
 	 **/
 	void removeElement(AS400 systemToFind)
 	{
+	    synchronized(connectionList_)   //@A3A
+	    {
 		int size = connectionList_.size();        
 		for (int i=0; i<size; i++)
 		{
 			PoolItem item = (PoolItem)connectionList_.elementAt(i);
-			if (item.getAS400Object().equals(systemToFind))
+			if (item.getAS400Object()==systemToFind)   //@A3C
+			{
 				connectionList_.removeElement(item);
-		}   
+				return;		//@A3A
+			}
+		}  
+	    }				    
 	}
 
 	/**

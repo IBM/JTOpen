@@ -198,7 +198,13 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       if (numberOfConnections < 1)
          throw new ExtendedIllegalArgumentException("numberOfConnections", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
       Vector newAS400Connections = new Vector();
+      if (Trace.isTraceOn()) //@A5A
+	Trace.log(Trace.INFORMATION, "fill() key before resolving= " + systemName + "/" + userID); //@A5A
+      systemName = AS400.resolveSystem(systemName);  //@A5A
+      userID = AS400.resolveUserId(userID);          //@A5A
       String key = createKey(systemName, userID);
+      if (Trace.isTraceOn()) //@A5A
+	Trace.log(Trace.INFORMATION, "fill() key after resolving= " + key); //@A5A
       try 
       {  
          ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
@@ -274,10 +280,18 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
           throw new NullPointerException("systemName");
        if (userID == null) 
           throw new NullPointerException("userID");
+       systemName = AS400.resolveSystem(systemName);  //@A5A
+       userID = AS400.resolveUserId(userID);          //@A5A
        String key = createKey(systemName, userID);
+       if (Trace.isTraceOn()) //@A5A
+	  Trace.log(Trace.INFORMATION, "getActiveConnectionCount key= " + key); //@A5A
        ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-       if (connections == null) 
+       if (connections == null)
+       {
+	  if (Trace.isTraceOn()) //@A5A
+	    Trace.log(Trace.WARNING, "getActiveConnectionCount found no " + key + " list in the pool"); //@A5A
           return 0;
+       }
        return (connections.getActiveConnectionCount());
    }
 
@@ -295,10 +309,18 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
          throw new NullPointerException("systemName");
       if (userID == null) 
          throw new NullPointerException("userID");
+      systemName = AS400.resolveSystem(systemName);  //@A5A
+      userID = AS400.resolveUserId(userID);          //@A5A
       String key = createKey(systemName, userID);
+      if (Trace.isTraceOn()) //@A5A
+	  Trace.log(Trace.INFORMATION, "getAvailableConnectionCount key= " + key); //@A5A
       ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-      if (connections == null) 
+      if (connections == null)
+      {
+	 if (Trace.isTraceOn()) //@A5A
+	    Trace.log(Trace.WARNING, "getAvailableConnectionCount found no " + key + "list in the pool"); //@A5A
          return 0;
+      }
       return connections.getAvailableConnectionCount();
   }
 
@@ -461,7 +483,14 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       if (userID.length() == 0)
          throw new ExtendedIllegalArgumentException("userID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
             
+      if (Trace.isTraceOn()) //@A5A
+	Trace.log(Trace.INFORMATION, "getConnection() key before resolving= " + systemName + "/" + userID); //@A5A
+      systemName = AS400.resolveSystem(systemName);  					//@A5A
+      userID = AS400.resolveUserId(userID);          					//@A5A
+
       String key = createKey(systemName, userID);
+      if (Trace.isTraceOn())                                                            //@A5A
+	Trace.log(Trace.INFORMATION, "getConnection() key after resolving= " + key); //@A5A
 
       if (!isInUse()) 	            						 //@A3A     				
       {			       	                                      		 //@A3A
@@ -732,6 +761,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    {		
       if (system == null)
          throw new NullPointerException("system");
+      if (Trace.isTraceOn()) //@A5A
+	Trace.log(Trace.INFORMATION, "returnConnectionToPool key= " + system.getSystemName() + "/" + system.getUserId()); //@A5A
       String key = createKey(system.getSystemName(), system.getUserId());
       ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
       PoolItem p = null;
