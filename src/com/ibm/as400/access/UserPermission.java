@@ -21,6 +21,7 @@ import java.io.Serializable;
 /**
  * The UserPermission class represents the authority
  * of a specific user.
+ * Instances of UserPermission are returned by {@link Permission.getUserPermission(String) getUserPermission()}
 **/
 public class UserPermission 
        implements  Cloneable,
