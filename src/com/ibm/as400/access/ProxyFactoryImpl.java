@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProxyFactoryImpl.java
 //                                                                             
@@ -17,7 +17,7 @@ package com.ibm.as400.access;
 
 /**
 The ProxyFactoryImpl interface represents proxy implementation of
-AS/400 Toolbox for Java classes that gets created on the server.
+IBM Toolbox for Java classes that gets created on the server.
 **/
 interface ProxyFactoryImpl 
 {

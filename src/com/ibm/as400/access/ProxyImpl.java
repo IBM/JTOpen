@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProxyImpl.java
 //                                                                             
@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
 The ProxyImpl interface represents proxy implementation of
-AS/400 Toolbox for Java classes.
+IBM Toolbox for Java classes.
 **/
 interface ProxyImpl 
 {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxConnectReqCV.java
 //                                                                             
@@ -31,7 +31,7 @@ extends PxReqCV
 Constructs a PxConnectReqCV object.
 
 @param modification     The modification level of the
-                        AS/400 Toolbox for Java.
+                        IBM Toolbox for Java.
 @param rejections       The number of rejections.  This is the
                         number of times the client has tried
                         to connect to a proxy server and been
