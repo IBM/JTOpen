@@ -142,7 +142,7 @@ public class JdbcMeDriver
 
     /**
      *  The JdbcMe driver supports URLs of the following
-     *  form:  "jdbc:<subprotocol>:<target-db-specification>;meserver=<server>[:port]"
+     *  form:  "jdbc:&lt;subprotocol&gt;:&lt;target-db-specification&gt;;meserver=&lt;server&gt;[:port]"
      *  The subprotocol and target-db-specification is specified
      *  as required by the target JDBC driver being used on the
      *  JdbcMe host server.
