@@ -57,7 +57,7 @@ is set, then the driver resolves unqualified names using the schema with
 the same name as the user.  If system naming is being used, and no
 default schema is set, then the driver resolves unqualified names using
 the server job's library list.  See
-<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+<a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
 for more details on how to set the naming convention
 and library list.
 
@@ -67,7 +67,7 @@ separated by semicolons and are in the form:
 <em>name1</em>=<em>value1</em>;<em>name2</em>=<em>value2</em>;<em>...</em>
 </pre>
 See
-<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+<a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
 for a complete list of properties supported by this driver.
 
 <p>The following example URL specifies a connection to the
@@ -187,7 +187,7 @@ implements java.sql.Driver
 	There are many optional properties that can be specified.
 	Properties can be specified either as part of the URL or in
 	a java.util.Properties object.  See
-<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+<a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
 	for a complete list of properties
 	supported by this driver.
 	
@@ -403,7 +403,7 @@ implements java.sql.Driver
 	There are many optional properties that can be specified.
 	Properties can be specified in
 	a java.util.Properties object.  See
-<a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">JDBC properties</a>
+<a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
 	for a complete list of properties
 	supported by this driver.  
 	

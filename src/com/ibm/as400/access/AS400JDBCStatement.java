@@ -2409,7 +2409,7 @@ public class AS400JDBCStatement implements Statement
                 if this method was called on the Connection object.
                 <li>3.  If neither of above methods were called, the value of the 
                 <code> cursor hold </code> 
-                <a href="http://publib.boulder.ibm.com/iseries/v5r2/ic2924/info/rzahh/javadoc/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
+                <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
                 Full functionality of #1 and #2 requires OS/400 v5r2
                 or later.  If connecting to a V5R1 or earlier version of OS/400, 
                 the value specified on these two methods will be ignored and the default holdability
