@@ -92,7 +92,12 @@ implements SQLData
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        typeConverter_.toBytes(value_, rawBytes, offset);
+        try{
+            typeConverter_.toBytes(value_, rawBytes, offset);
+        }
+        catch(ExtendedIllegalArgumentException e){
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+        }
     }
 
     //---------------------------------------------------------//
