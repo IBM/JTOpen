@@ -168,6 +168,13 @@ public class AS400JDBCPooledConnection implements PooledConnection
       return handle_;
    }
 
+
+    AS400JDBCConnection getInternalConnection()        //@G1A
+    {                                                  //@G1A
+        return(AS400JDBCConnection)connection_;        //@G1A
+    }                                                  //@G1A
+
+
    /**
    *  Returns the elapsed time the connection has been idle waiting in the pool.
    *  @return The idle time.

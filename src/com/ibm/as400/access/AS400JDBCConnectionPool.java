@@ -331,8 +331,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
         if (!maintenance_.isRunning())                                         //@A2C
         {
           //@A2A
-          try                                                                //@A2A
-          {
+                    try
+                    {                                                                //@A2A
             //@A2A
             Thread.sleep(10);                                              //@A2A
           }                                                                  //@A2A
@@ -345,8 +345,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
         for (int i = 1; !maintenance_.isRunning() && i<6000; i++)              //@A2A
         {
           //@A2A
-          try                  //@A2A
-          {
+                    try
+                    {                  //@A2A
             //@A2A
             Thread.sleep(50);                                              //@A2A
           }                  //@A2A
@@ -643,6 +643,12 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
         if (Trace.isTraceOn())
           Trace.log(Trace.INFORMATION, "Returning active connection to the pool.");
 
+                // Add a check to see if the connection is still good
+                AS400JDBCConnection jdbcConnection = connection.getInternalConnection();  //@B4A
+                try
+                {                                                                         //@B4A 
+                    if (!jdbcConnection.isClosed())                                       //@B4A
+                    {
         synchronized (availablePool_)
         {
           availablePool_.addElement(connection);                // connection still good, reuse.
@@ -652,6 +658,18 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
         ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(connection, ConnectionPoolEvent.CONNECTION_RETURNED); //@A5C
         poolListeners_.fireConnectionReturnedEvent(poolEvent);
       }         
+                    else
+                    {            //@B4A
+                        if (Trace.isTraceOn())         //@B4A
+                            Trace.log(Trace.INFORMATION, "Removing closed connection from pool.");   //@B4A
+                    }
+                }
+                catch (SQLException sqe)
+                {
+                    // Should not be thrown.  isClosed() reports that it throws SQLExceptions,
+                    // but it doesn't really.
+                }
+            }         
 
       // periodic cleanup for single-threaded mode.
       if (!isThreadUsed() && isRunMaintenance() && System.currentTimeMillis() - lastSingleThreadRun_ > getCleanupInterval())
