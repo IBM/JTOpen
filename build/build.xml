@@ -512,6 +512,7 @@
                excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
+    <checksum file="${dist}/jt400.jar"/>
   </target>
   
   <!-- Preverify doesn't work under JDK 1.4. Skip this jar in that case. -->
@@ -521,6 +522,7 @@
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
+    <checksum file="${dist}/jt400Micro.jar"/>
   </target>
 
   <target name="jar-jt400Native" depends="init,compile,pcml,pdml">
@@ -537,6 +539,7 @@
                excludes="com/ibm/as400/vaccess/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
+    <checksum file="${dist}/jt400Native.jar"/>
   </target>
   
   <target name="jar-jt400Proxy" depends="init,compile">
@@ -546,6 +549,7 @@
       <fileset dir="${source}" includesfile="${build}/build/proxy.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
+    <checksum file="${dist}/jt400Proxy.jar"/>
   </target>
 
   <target name="jar-jt400Servlet" depends="init,compile">
@@ -569,6 +573,7 @@
       </fileset>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
+    <checksum file="${dist}/jt400Servlet.jar"/>
   </target>
   
 
@@ -688,6 +693,7 @@
       <zipfileset dir="${javadoc}"/>
       <zipfileset dir="${build}" includes="license.html"/>
     </zip>
+    <checksum file="${dist}/doc.zip"/>
   </target>
   
   <target name="zip-source">
@@ -698,6 +704,7 @@
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
     </zip>
+    <checksum file="${dist}/src.zip"/>
   </target>  
 
 </project>
