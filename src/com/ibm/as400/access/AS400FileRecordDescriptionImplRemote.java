@@ -189,7 +189,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             }
           }
         }
-        else
+        else if (digits < 10) //@F0C
         {
           fd = new BinaryFieldDescription(new AS400Bin4(),
                                           fieldName,
@@ -214,6 +214,34 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             else
             {
               ((BinaryFieldDescription)fd).setDFT(new Integer(dft));
+            }
+          }
+        }
+        else //@F0A
+        {
+          fd = new BinaryFieldDescription(new AS400Bin8(),
+                                          fieldName,
+                                          fieldName,
+                                          digits);
+          // Set the DFT keyword value if specified
+          if(((BigDecimal)record.getField("WHDFTL")).intValue() > 0)
+          {
+            String dft = ((String)record.getField("WHDFT")).trim();
+            if(dft.charAt(0) == '+')
+            {
+              dft = dft.substring(1);
+            }
+            // @B0C
+            // Check for any special values that could be specified as the default.
+            // Handle *NULL
+            if(dft.indexOf("*NULL") != -1)
+            {
+              ((BinaryFieldDescription)fd).setDFTNull();
+            }
+            // Handle value
+            else
+            {
+              ((BinaryFieldDescription)fd).setDFT(new Long(dft));
             }
           }
         }
@@ -1309,7 +1337,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             }
           }
         }
-        else
+        else if (digits < 10) //@F0C
         {
           sourceFile.println("    addFieldDescription(new BinaryFieldDescription(new AS400Bin4(), \"" +
                              fieldName + "\", \"" +
@@ -1335,6 +1363,35 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             {
               sourceFile.println("    ((BinaryFieldDescription)getFieldDescription(\"" +
                                  fieldName + "\")).setDFT(new Integer(\"" + dft + "\"));");
+            }
+          }
+        }
+        else //@F0A
+        {
+          sourceFile.println("    addFieldDescription(new BinaryFieldDescription(new AS400Bin8(), \"" +
+                             fieldName + "\", \"" +
+                             fieldName + "\", " + String.valueOf(digits) + "));");
+          // Set the DFT keyword value if specified
+          if(((BigDecimal)record.getField("WHDFTL")).intValue() > 0)
+          {
+            String dft = ((String)record.getField("WHDFT")).trim();
+            if(dft.charAt(0) == '+')
+            {
+              dft = dft.substring(1);
+            }
+            // @B0C
+            // Check for any special values that could be specified as the default.
+            // Handle *NULL
+            if(dft.indexOf("*NULL") != -1)
+            {
+              sourceFile.println("    ((BinaryFieldDescription)getFieldDescription(\"" +
+                                 fieldName + "\")).setDFTNull();");
+            }
+            // Handle value
+            else
+            {
+              sourceFile.println("    ((BinaryFieldDescription)getFieldDescription(\"" +
+                                 fieldName + "\")).setDFT(new Long(\"" + dft + "\"));");
             }
           }
         }
