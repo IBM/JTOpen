@@ -91,6 +91,15 @@ public class AS400PackedDecimal implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_PACKED TYPE_PACKED}.
+     * @return Returns AS400DataType.TYPE_PACKED.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_PACKED;
+    }
+
+    /**
      * Returns the total number of digits in the packed decimal number.
      * @return The number of digits.
      **/

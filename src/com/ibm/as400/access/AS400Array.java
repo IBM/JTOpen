@@ -111,6 +111,15 @@ public class AS400Array implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_ARRAY TYPE_ARRAY}.
+     * @return Returns AS400DataType.TYPE_ARRAY.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_ARRAY;
+    }
+
+    /**
      * Returns the number of elements in the data type.
      * @return The number of elements in the array data type.  If the number of elements has not been set, negative one (-1) is returned.
      **/

@@ -26,6 +26,71 @@ public interface AS400DataType extends Cloneable, Serializable
     static final long serialVersionUID = 4L;
 
 
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Array AS400Array} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_ARRAY = 0;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Bin2 AS400Bin2} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_BIN2 = 1;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Bin4 AS400Bin4} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_BIN4 = 2;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Bin8 AS400Bin8} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_BIN8 = 3;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400ByteArray AS400ByteArray} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_BYTE_ARRAY = 4;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Float4 AS400Float4} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_FLOAT4 = 5;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Float8 AS400Float8} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_FLOAT8 = 6;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400PackedDecimal AS400PackedDecimal} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_PACKED = 7;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Structure AS400Structure} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_STRUCTURE = 8;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400Text AS400Text} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_TEXT = 9;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400UnsignedBin2 AS400UnsignedBin2} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_UBIN2 = 10;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400UnsignedBin4 AS400UnsignedBin4} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_UBIN4 = 11;
+    /**
+     * Constant representing the instance of this class is an {@link com.ibm.as400.access.AS400ZonedDecimal AS400ZonedDecimal} object.
+     * @see #getInstanceType
+    **/
+    public static final int TYPE_ZONED = 12;
 
     /**
      * Creates a new AS400DataType object that is identical to the current instance.
@@ -44,6 +109,19 @@ public interface AS400DataType extends Cloneable, Serializable
      * @return The Object of the corresponding data type.
      **/
     public abstract Object getDefaultValue();
+
+    
+    /**
+     * Returns an integer constant representing the type of class that implements
+     * this interface. This is typically faster than using the instanceof operator, and may prove useful
+     * where code needs a primitive type for ease of calculation.
+     * Possible values for standard com.ibm.as400.access classes that implement this
+     * interface are provided as constants in this class. Note that any implementing class provided
+     * by a third party is not guaranteed to correctly return one of the pre-defined constants.
+     * @return The type of object implementing this interface.
+    **/
+    public abstract int getInstanceType();
+
 
     /**
      * Converts the specified Java object to AS/400 format.

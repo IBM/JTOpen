@@ -39,7 +39,6 @@ public class AS400Text implements AS400DataType
   private int ccsid_ = 65535;
   transient private String encoding_ = null; //@D2A
   private AS400 system_;
-  //@F0D transient Converter table_;
   transient ConverterImpl tableImpl_;
   private static final String defaultValue = "";
   private byte[] padding_ = null; //@E3A
@@ -56,7 +55,6 @@ public class AS400Text implements AS400DataType
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     length_ = length;
-//@D2D      setTable();
   }
 
 
@@ -78,7 +76,6 @@ public class AS400Text implements AS400DataType
     } //@D2A
     length_ = length;
     ccsid_ = ccsid;
-//@D2D      setTable();
   }
 
 
@@ -99,17 +96,6 @@ public class AS400Text implements AS400DataType
     }
     length_ = length;
     encoding_ = encoding; //@D2A
-
-//@D2M      try
-//@D2M      {
-//@D2M        table_ = new Converter(encoding); //@B5C
-//@D2M        ccsid_ = table_.getCcsid();
-//@D2M        tableImpl_ = table_.impl; //@D0A
-//@D2M      }
-//@D2M      catch (UnsupportedEncodingException e)
-//@D2M      {
-//@D2M        throw new ExtendedIllegalArgumentException("encoding (" + encoding + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-//@D2M      }
 
   }
 
@@ -154,7 +140,6 @@ public class AS400Text implements AS400DataType
     length_ = length;
     ccsid_ = ccsid;
     system_ = system;
-//@D2D      setTable();
   }
 
 
@@ -265,12 +250,18 @@ public class AS400Text implements AS400DataType
   public String getEncoding()
   {
     if (encoding_ == null) setTable(); //@D2A
-//@D2D      setTable(); // Make sure the table is set
-//@D2D      if (tableImpl_ != null) return tableImpl_.getEncoding();
-//@D2D      return table_.getEncoding();
     return encoding_; //@D2A
   }
 
+
+  /**
+   * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_TEXT TYPE_TEXT}.
+   * @return Returns AS400DataType.TYPE_TEXT.
+  **/
+  public int getInstanceType()
+  {
+    return AS400DataType.TYPE_TEXT;
+  }
 
   //@B5A
   /**
@@ -434,7 +425,6 @@ public class AS400Text implements AS400DataType
       throw new NullPointerException("javaValue");
     }
 
-//@G0D    byte[] eValue = null;
     setTable(); // Make sure the table is set
 
     //@G0C - We need to pad the String before the conversion in the case of 

@@ -79,6 +79,15 @@ public class AS400ByteArray implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_BYTE_ARRAY TYPE_BYTE_ARRAY}.
+     * @return Returns AS400DataType.TYPE_BYTE_ARRAY.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_BYTE_ARRAY;
+    }
+
+    /**
      * Converts the specified Java object to AS/400 format.
      * @param javaValue The object corresponding to the data type. It must be a byte array.  If the provided byte array is not long enough to fill the return array, the remaining bytes will be zero filled.  Any extra bytes in the provided array will not be used.
      * @return The AS/400 representation of the data type.

@@ -117,6 +117,15 @@ public class AS400Structure implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_STRUCTURE TYPE_STRUCTURE}.
+     * @return Returns AS400DataType.TYPE_STRUCTURE.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_STRUCTURE;
+    }
+
+    /**
      * Returns the number of members in the data type.
      * @return The number of members in the structure data type.  If the members have not been set, negative one (-1) is returned.
      **/

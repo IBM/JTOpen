@@ -89,6 +89,15 @@ public class AS400ZonedDecimal implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_ZONED TYPE_ZONED}.
+     * @return Returns AS400DataType.TYPE_ZONED.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_ZONED;
+    }
+
+    /**
      * Returns the total number of digits in the zoned decimal number.
      * @return The number of digits.
      **/

@@ -73,6 +73,15 @@ public class AS400Bin2 implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_BIN2 TYPE_BIN2}.
+     * @return Returns AS400DataType.TYPE_BIN2.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_BIN2;
+    }
+
+    /**
      * Converts the specified Java object to AS/400 format.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Short.
      * @return The AS/400 representation of the data type.

@@ -73,6 +73,15 @@ public class AS400Bin8 implements AS400DataType
     }
 
     /**
+     * Returns {@link com.ibm.as400.access.AS400DataType#TYPE_BIN8 TYPE_BIN8}.
+     * @return Returns AS400DataType.TYPE_BIN8.
+    **/
+    public int getInstanceType()
+    {
+      return AS400DataType.TYPE_BIN8;
+    }
+
+    /**
       Converts the specified Java object to AS/400 format.
       @param  javaValue  The object corresponding to the data type.  It must be an instance of Long.
       @return  The AS/400 representation of the data type.
