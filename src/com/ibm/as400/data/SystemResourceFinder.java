@@ -91,18 +91,37 @@ class SystemResourceFinder
         { 
             c = Class.forName("com.ibm.as400.data.SystemResourceFinder");    
         }
-        catch (ClassNotFoundException e) 
+        catch (Throwable t) 
         { 
-            Trace.log(Trace.PCML, format("java.lang.ClassNotFound")); 
+            if (Trace.isTraceOn()) Trace.log(Trace.PCML, format("Couldn't get SystemResourceFinder class.")); 
         }
 
         ClassLoader cl = null;
         if (c != null)
         {
-            cl = c.getClassLoader();
-            if (cl == null) {
-                cl = new SystemClassLoader();
+          //3/5/2003 OYG: This doesn't work if this class is in a parent
+          //classloader and the resource being loaded is in the child.
+          //Fixed by using the current thread's class loader.
+          try
+          {
+            cl = Thread.currentThread().getContextClassLoader(); // Fix for WAS.
+          }
+          catch(Throwable t)
+          {
+            if (Trace.isTraceOn()) Trace.log(Trace.PCML, format("Couldn't get current thread's context class loader."));
+            try
+            {
+              cl = c.getClassLoader();
             }
+            catch(Throwable t2)
+            {
+              if (Trace.isTraceOn()) Trace.log(Trace.PCML, format("Couldn't get SystemResourceFinder class loader."));
+            }
+          }
+          if (cl == null)
+          {
+            cl = new SystemClassLoader();
+          }
         }
         else {
             cl = new SystemClassLoader();
