@@ -317,6 +317,19 @@ attribute, which represents the name of the file.
 
 
 
+// @A1a
+/**
+Attribute ID for owner ID.  This identifies a read-only Integer
+attribute, which represents the owner ID number of the file.
+**/
+    public static final String OWNERID                       = "OWNERID";
+
+    static {
+        attributes_.add(OWNERID, Integer.class, true);
+    }
+
+
+
 /**
 Attribute ID for parent.  This identifies a read-only String
 attribute, which represents the name of the parent directory.
@@ -642,6 +655,8 @@ returns the same value as <b>getAttributeValue()</b>.
                   return new Long(file_.length());
               else if (attributeID.equals(RIFSFile.NAME))
                   return file_.getName();
+              else if (attributeID.equals(RIFSFile.OWNERID))  // @A1a
+                  return new Integer(file_.getOwnerId());
               else if (attributeID.equals(RIFSFile.PARENT))
                   return file_.getParent();
               else if (attributeID.equals(RIFSFile.PATH))
