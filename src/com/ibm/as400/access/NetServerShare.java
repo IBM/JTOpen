@@ -365,7 +365,7 @@ extends ChangeableResource
       ProgramCallDocument document = (ProgramCallDocument)staticDocument_.clone();
       document.setSystem(system);
       String programName = OLST0100_;
-      document.setValue(programName+".informationQualifier", "*ALL");
+      document.setValue(programName+".informationQualifier", qualifier);  // @A1c
 
       int expectedInfoLength = 10*ZLSL0100_MAX_RECORD_LENGTH_; // Expect about 10 records.
       document.setIntValue(programName+".lengthOfReceiverVariable", expectedInfoLength);

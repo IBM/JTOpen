@@ -357,7 +357,15 @@ extends NetServerShare
   static ResourceList list(AS400 sys)
     throws ResourceException
   {
-    return NetServerShare.list(sys, NetServerShare.FILE_SHARE, "*ALL", openListAttributeMap_);
+    return list(sys, "*ALL");
+  }
+
+
+  // Returns a list of NetServerShare objects.
+  static ResourceList list(AS400 sys, String shareName)
+    throws ResourceException
+  {
+    return NetServerShare.list(sys, NetServerShare.FILE_SHARE, shareName, openListAttributeMap_);
   }
 
 }

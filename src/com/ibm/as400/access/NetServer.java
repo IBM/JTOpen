@@ -877,6 +877,25 @@ extends ChangeableResource
   }
 
   /**
+   Lists file server shares currently associated with the NetServer.
+   The returned ResourceList contains NetServerFileShare objects.
+   @param shareName Name of shares to list.  Can include wildcard ("*").
+   @return  Information about the specified file shares.
+
+   @exception ResourceException  If an error occurs.
+   @see NetServerFileShare
+   **/
+  public ResourceList listFileShares(String shareName)
+    throws ResourceException
+  {
+    if (! isConnectionEstablished()) {
+      establishConnection();
+    }
+
+    return NetServerFileShare.list(getSystem(), shareName);
+  }
+
+  /**
    Lists all print server shares currently associated with the NetServer.
    The returned ResourceList contains NetServerPrintShare objects.
    @return  Information about all current print shares.
