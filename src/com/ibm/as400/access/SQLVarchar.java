@@ -151,13 +151,13 @@ implements SQLData
         throws SQLException
     {
         // @BAD BinaryConverter.unsignedShortToByteArray (length_, rawBytes, offset);
-        try {
+        try 
+        {
             // @BAD ccsidConverter.stringToByteArray (value_, rawBytes, offset + 2, maxLength_); // @C2C
-
 	    int bidiStringType = settings_.getBidiStringType(); //@E4A
-	    // if bidiStringType is not set by user, use ccsid to get value
-	    if (bidiStringType == -1)			        //@E4A
-		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+           // if bidiStringType is not set by user, use ccsid to get value
+           if (bidiStringType == -1)			        //@E4A
+              bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
 
             // The length in the first 2 bytes is actually the length in characters.            // @BAA @E2C
             byte[] temp = ccsidConverter.stringToByteArray(value_, bidiStringType);             // @BAA	@E4C
@@ -165,11 +165,28 @@ implements SQLData
                 BinaryConverter.unsignedShortToByteArray (temp.length/2, rawBytes, offset);     // @E2A
             else                                                                                // @E2A
                 BinaryConverter.unsignedShortToByteArray (temp.length, rawBytes, offset);       // @BAA
-            if (temp.length > maxLength_) {                                                     // @BAA
+           if (temp.length > maxLength_)                                                       // @BAA
+           {
                 maxLength_ = temp.length;                                                       // @BAA
                 JDError.throwSQLException (JDError.EXC_INTERNAL);                               // @BAA
             }                                                                                   // @BAA
             System.arraycopy(temp, 0, rawBytes, offset+2, temp.length);                         // @BAA
+           
+           // @G1a The buffer we are filling with data is big enough to hold the entire field.
+           //      For varchar fields the actual data is often smaller than the field width.
+           //      That means whatever is in the buffer from the previous send is sent to the
+           //      server.  The data stream includes actual data length so the old bytes are not 
+           //      written to the database, but the junk left over may decrease the affectiveness 
+           //      of compression.  The following code will write hex 0s to the buffer when
+           //      actual length is less that field length.  Note the 0s are written only if 
+           //      the field length is pretty big.  The data stream code (DBBaseRequestDS)
+           //      does not compress anything smaller than 1K.
+           if ((maxLength_ > 256) && (maxLength_ - temp.length > 16))                 // @G1a
+           {                                                                          // @G1a
+              int stopHere = offset + 2 + maxLength_;                                 // @G1a
+              for (int i=offset + 2 + temp.length; i<stopHere; i++)                   // @G1a
+                 rawBytes[i] = 0x00;                                                  // @G1a
+           }                                                                          // @G1a
         }
         catch (Exception e) {
           JDError.throwSQLException (JDError.EXC_INTERNAL, e);
