@@ -16,6 +16,7 @@ package com.ibm.as400.util.html;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.beans.PropertyVetoException;
+import javax.servlet.http.*;
 
 import com.ibm.as400.util.servlet.ServletHyperlink;
 
