@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: Trace.java
 //                                                                             
@@ -21,6 +21,7 @@ import java.io.PrintStream;                                         // @D5A
 import java.util.Date;
 import java.util.StringTokenizer;                                   // $D0A
 import java.util.Hashtable;                                         // $W1A
+//@P0D import com.ibm.sslight.SSLException;                                //$B1A
 
 /**
   The Trace class logs trace points and diagnostic messages.  Each trace
@@ -299,7 +300,7 @@ public class Trace
      **/
     public static String getFileName()
     {
-     return fileName_;
+        return fileName_;
     }
 
 
@@ -311,10 +312,10 @@ public class Trace
      **/
     public static String getFileName(Object component)
     {
-      if (component == null)
-         throw new NullPointerException("component");
+        if (component == null)
+            throw new NullPointerException("component");
 
-      return (String) fileNameHash.get(component);
+        return(String) fileNameHash.get(component);
     }
 
 
@@ -324,7 +325,7 @@ public class Trace
      **/
     public static PrintWriter getPrintWriter()
     {
-     return destination_;
+        return destination_;
     }
 
 
@@ -338,13 +339,13 @@ public class Trace
      **/
     public static PrintWriter getPrintWriter(Object component)
     {
-      if (component == null)
-         throw new NullPointerException("component");
+        if (component == null)
+            throw new NullPointerException("component");
 
-      return (PrintWriter) printWriterHash.get(component);
+        return(PrintWriter) printWriterHash.get(component);
     }
 
-    
+
 
     //@D2A
     /**
@@ -354,8 +355,8 @@ public class Trace
     public static final boolean isTraceAllOn()
     {
         return traceConversion_ && traceDatastream_ && traceDiagnostic_ &&
-             traceError_ && traceInfo_ && traceProxy_ &&
-             traceWarning_ && traceThread_ && traceJDBC_ && tracePCML_;                 //@D3C @D5C
+        traceError_ && traceInfo_ && traceProxy_ &&
+        traceWarning_ && traceThread_ && traceJDBC_ && tracePCML_;                 //@D3C @D5C
     }
 
 
@@ -365,7 +366,7 @@ public class Trace
      **/
     public static final boolean isTraceConversionOn()
     {
-     return traceConversion_;
+        return traceConversion_;
     }
 
     /**
@@ -374,7 +375,7 @@ public class Trace
      **/
     public static final boolean isTraceDatastreamOn()
     {
-     return traceDatastream_;
+        return traceDatastream_;
     }
 
     /**
@@ -383,7 +384,7 @@ public class Trace
      **/
     public static final boolean isTraceDiagnosticOn()
     {
-     return traceDiagnostic_;
+        return traceDiagnostic_;
     }
 
     /**
@@ -392,7 +393,7 @@ public class Trace
      **/
     public static final boolean isTraceErrorOn()
     {
-     return traceError_;
+        return traceError_;
     }
 
     /**
@@ -401,7 +402,7 @@ public class Trace
      **/
     public static final boolean isTraceInformationOn()
     {
-     return traceInfo_;
+        return traceInfo_;
     }
 
 
@@ -411,7 +412,7 @@ public class Trace
      **/
     public static final boolean isTraceJDBCOn()             // @D5A
     {
-       return traceJDBC_;
+        return traceJDBC_;
     }
 
     /**
@@ -420,7 +421,7 @@ public class Trace
      **/
     public static final boolean isTraceOn()
     {
-     return traceOn_;
+        return traceOn_;
     }
 
 
@@ -430,7 +431,7 @@ public class Trace
      **/
     public static final boolean isTracePCMLOn()             // @D5A
     {
-       return tracePCML_;
+        return tracePCML_;
     }
 
     // @D0A
@@ -440,7 +441,7 @@ public class Trace
      **/
     public static final boolean isTraceProxyOn()
     {
-     return traceProxy_;
+        return traceProxy_;
     }
 
     // @D3A
@@ -450,7 +451,7 @@ public class Trace
      **/
     public static final boolean isTraceThreadOn()
     {
-     return traceThread_;
+        return traceThread_;
     }
 
 
@@ -460,7 +461,7 @@ public class Trace
      **/
     public static final boolean isTraceWarningOn()
     {
-     return traceWarning_;
+        return traceWarning_;
     }
 
 
@@ -468,7 +469,7 @@ public class Trace
     // @D0A
     static void loadTraceProperties ()
     {
-            // Load and apply the trace categories system property.
+        // Load and apply the trace categories system property.
         String categories = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORY);
         if (categories != null)
         {
@@ -526,19 +527,19 @@ public class Trace
     // Log time stamp information in the trace.
     private static void logTimeStamp(Object component, PrintWriter pw) //@W1C
     {
-      if (component != null)                                   //@W1A
-         if (component.toString() != null)                     //@W1A
-            pw.print("[" + component.toString() + "]  ");      //@W1A
+        if (component != null)                                   //@W1A
+            if (component.toString() != null)                     //@W1A
+                pw.print("[" + component.toString() + "]  ");      //@W1A
 
-      if (traceThread_)                                        //@D3A @W1C
+        if (traceThread_)                                        //@D3A @W1C
         {
             //@D3A @W1C
-        pw.print(Thread.currentThread().toString());           //@D3A @W1C
-        pw.print("  ");                                        //@D3A @W1C
-      }                                                        //@D3A @W1C
+            pw.print(Thread.currentThread().toString());           //@D3A @W1C
+            pw.print("  ");                                        //@D3A @W1C
+        }                                                        //@D3A @W1C
 
-      pw.print((new Date()).toString());                       // @W1C
-      pw.print("  ");                                          // @W1C
+        pw.print((new Date()).toString());                       // @W1C
+        pw.print("  ");                                          // @W1C
     }
 
 
@@ -548,65 +549,68 @@ public class Trace
                                       String    message,
                                       Throwable e)
     {
-       if (traceOn_ && traceCategory(category))
-       {
-          // Validate parameters.
-          //@D2 - note: It doesn't make sense to log something to Trace.ALL,
-          // so we count it as an illegal argument.
-       // if (category < FIRST_ONE || category > LAST_ONE) // @D0C @D3C
-       // {
-       //    throw new ExtendedIllegalArgumentException("category ("
-       //          + Integer.toString(category)
-       //          + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       // }
+        if (traceOn_ && traceCategory(category))
+        {
+            // Validate parameters.
+            //@D2 - note: It doesn't make sense to log something to Trace.ALL,
+            // so we count it as an illegal argument.
+            // if (category < FIRST_ONE || category > LAST_ONE) // @D0C @D3C
+            // {
+            //    throw new ExtendedIllegalArgumentException("category ("
+            //          + Integer.toString(category)
+            //          + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            // }
 
-          // First, write to the default log
-          synchronized(destination_)
-          {
-             // If component tracing is being used, log the component name to
-             // the default log as well as the specific component log.
-             if ( component != null && getFileName(component) != null )        //$W2A
-             {                                                                 //$W2A
-                logTimeStamp(component, destination_);                         //$W2A
-                destination_.println(message);                                 //$W2A
-             }                                                                 //$W2A
-             else                                                              //$W2A
-             {                                                                 //$W2A
-                // Only trace to the default log if we are not doing component
-                // tracing.  This will avoid duplicate messages in the default
-                // log.
-                if ( component == null )                                       //$W2A
-                {                                                              //$W2A
-                   logTimeStamp(null, destination_);                           //$W2A
-                   destination_.println(message);                              //$W2A
-                }                                                              //$W2A
-             }                                                                 //$W2A
+            // First, write to the default log
+            synchronized(destination_)
+            {
+                // If component tracing is being used, log the component name to
+                // the default log as well as the specific component log.
+                if ( component != null && getFileName(component) != null )        //$W2A
+                {
+                    //$W2A
+                    logTimeStamp(component, destination_);                         //$W2A
+                    destination_.println(message);                                 //$W2A
+                }                                                                 //$W2A
+                else                                                              //$W2A
+                {
+                    //$W2A
+                    // Only trace to the default log if we are not doing component
+                    // tracing.  This will avoid duplicate messages in the default
+                    // log.
+                    if ( component == null )                                       //$W2A
+                    {
+                        //$W2A
+                        logTimeStamp(null, destination_);                           //$W2A
+                        destination_.println(message);                              //$W2A
+                    }                                                              //$W2A
+                }                                                                 //$W2A
 
-             if (e != null)
-                 e.printStackTrace(destination_);
-             else if (category == ERROR)
-                new Throwable().printStackTrace(destination_);
-          }
-
-          if (component != null)
-          {
-             PrintWriter pw = (PrintWriter) printWriterHash.get(component);
-             if (pw == null)
-             {
-                pw = new PrintWriter(System.out, true);
-                printWriterHash.put(component, pw);
-             }
-             synchronized(pw)
-             {
-                logTimeStamp(component, pw);
-                pw.println(message);
                 if (e != null)
-                   e.printStackTrace(pw);
+                    e.printStackTrace(destination_);
                 else if (category == ERROR)
-                   new Throwable().printStackTrace(pw);
-             }
-          }
-       }
+                    new Throwable().printStackTrace(destination_);
+            }
+
+            if (component != null)
+            {
+                PrintWriter pw = (PrintWriter) printWriterHash.get(component);
+                if (pw == null)
+                {
+                    pw = new PrintWriter(System.out, true);
+                    printWriterHash.put(component, pw);
+                }
+                synchronized(pw)
+                {
+                    logTimeStamp(component, pw);
+                    pw.println(message);
+                    if (e != null)
+                        e.printStackTrace(pw);
+                    else if (category == ERROR)
+                        new Throwable().printStackTrace(pw);
+                }
+            }
+        }
     }
 
     /**
@@ -618,14 +622,14 @@ public class Trace
      **/
     public static final void log(int category, String message)
     {
-       //@W1 - validating the category was moved to the common routine
+        //@W1 - validating the category was moved to the common routine
 
-       if (message == null)
-       {
-           throw new NullPointerException("message");
-       }
+        if (message == null)
+        {
+            throw new NullPointerException("message");
+        }
 
-       logData(null, category, message, null);
+        logData(null, category, message, null);
     }
 
 
@@ -640,18 +644,18 @@ public class Trace
      **/
     public static final void log(Object component, int category, String message)
     {
-       //@W1 - validating the category was moved to the common routine
+        //@W1 - validating the category was moved to the common routine
 
-       if (message == null)
-       {
-           throw new NullPointerException("message");
-       }
-       if (component == null)
-       {
-           throw new NullPointerException("component");
-       }
+        if (message == null)
+        {
+            throw new NullPointerException("message");
+        }
+        if (component == null)
+        {
+            throw new NullPointerException("component");
+        }
 
-       logData(component, category, message, null);
+        logData(component, category, message, null);
     }
 
 
@@ -664,18 +668,18 @@ public class Trace
      **/
     public static final void log(int category, String message, Throwable e)
     {
-       //@W1 - validating the category was moved to the common routine
+        //@W1 - validating the category was moved to the common routine
 
-       if (message == null)
-       {
-          throw new NullPointerException("message");
-       }
-       if (e == null)
-       {
-          throw new NullPointerException("e");
-       }
+        if (message == null)
+        {
+            throw new NullPointerException("message");
+        }
+        if (e == null)
+        {
+            throw new NullPointerException("e");
+        }
 
-       logData(null, category, message, e);
+        logData(null, category, message, e);
     }
 
 
@@ -690,21 +694,21 @@ public class Trace
      **/
     public static final void log(Object component, int category, String message, Throwable e)
     {
-       //@W1 - validating the category was moved to the common routine
-       if (message == null)
-       {
-          throw new NullPointerException("message");
-       }
-       if (e == null)
-       {
-          throw new NullPointerException("e");
-       }
-       if (component == null)
-       {
-          throw new NullPointerException("component");
-       }
+        //@W1 - validating the category was moved to the common routine
+        if (message == null)
+        {
+            throw new NullPointerException("message");
+        }
+        if (e == null)
+        {
+            throw new NullPointerException("e");
+        }
+        if (component == null)
+        {
+            throw new NullPointerException("component");
+        }
 
-       logData(component, category, message, e);
+        logData(component, category, message, e);
     }
 
     /**
@@ -715,10 +719,10 @@ public class Trace
      **/
     public static final void log(int category, Throwable e)
     {
-       if (e.getLocalizedMessage() == null)                           //$B2A
-          log(category, "Exception does not contain a message.", e);  //$B2A
-       else                                                           //$B2A
-          log (category, e.getLocalizedMessage (), e);                //$B2C
+        if (e.getLocalizedMessage() == null)                           //$B2A
+            log(category, "Exception does not contain a message.", e);  //$B2A
+        else                                                           //$B2A
+            log (category, e.getLocalizedMessage (), e);                //$B2C
     }
 
 
@@ -732,10 +736,10 @@ public class Trace
      **/
     public static final void log(Object component, int category, Throwable e)
     {
-       if (e.getLocalizedMessage() == null)                                       //$B2A
-          log(component, category, "Exception does not contain a message.", e);   //$B2A
-       else                                                                       //$B2A
-          log (component, category, e.getLocalizedMessage (), e);                 //$B2C
+        if (e.getLocalizedMessage() == null)                                       //$B2A
+            log(component, category, "Exception does not contain a message.", e);   //$B2A
+        else                                                                       //$B2A
+            log (component, category, e.getLocalizedMessage (), e);                 //$B2C
     }
 
 
@@ -751,10 +755,10 @@ public class Trace
      **/
     public static final void log(int category, String message, int value)
     {
-       if (message == null)
-          throw new NullPointerException("message");
-       else
-          log(category, message + "  " + value);
+        if (message == null)
+            throw new NullPointerException("message");
+        else
+            log(category, message + "  " + value);
     }
 
 
@@ -773,9 +777,9 @@ public class Trace
     public static final void log(Object component, int category, String message, int value)
     {
         if (message == null)
-           throw new NullPointerException("message");
+            throw new NullPointerException("message");
         else
-           log(component, category, message + "  " + value);
+            log(component, category, message + "  " + value);
     }
 
 
@@ -789,7 +793,7 @@ public class Trace
      **/
     static final void logSSL(int category, int sslCategory, int sslError, int sslInt1)            //$B1A
     {
-        log(Trace.ERROR, "An SSLException occurred, turn on DIAGNOSTIC tracing to see the details.");
+        log(Trace.ERROR, "An SSLException occurred, turn on DIAGNOSITC tracing to see the details.");
         log(category, "SSL Category: " + sslCategory);
         log(category, "SSL Error: " + sslError);
         log(category, "SSL Int1: " + sslInt1);
@@ -808,10 +812,10 @@ public class Trace
      **/
     public static final void log(int category, String message, boolean value)
     {
-       if (message == null)
-         throw new NullPointerException("message");
-       else
-          log(category, message + "  " + value);
+        if (message == null)
+            throw new NullPointerException("message");
+        else
+            log(category, message + "  " + value);
     }
 
     /**
@@ -828,10 +832,10 @@ public class Trace
      **/
     public static final void log(Object component, int category, String message, boolean value)
     {
-       if (message == null)
-          throw new NullPointerException("message");
-       else
-          log(component, category, message + "  " + value);
+        if (message == null)
+            throw new NullPointerException("message");
+        else
+            log(component, category, message + "  " + value);
     }
 
 
@@ -847,10 +851,10 @@ public class Trace
     {
         if (data == null)
         {
-           if (message == null)                             //@D2a
-              throw new NullPointerException("message");    //@D2a
+            if (message == null)                             //@D2a
+                throw new NullPointerException("message");    //@D2a
 
-           log(category, message + "  " + data);
+            log(category, message + "  " + data);
         }
         else
         {
@@ -876,7 +880,7 @@ public class Trace
         if (data == null)
         {
             if (message == null)                             //@D2a
-               throw new NullPointerException("message");    //@D2a
+                throw new NullPointerException("message");    //@D2a
 
             log(component, category, message + "  " + data);
         }
@@ -902,37 +906,37 @@ public class Trace
 
     public static final void log(int category, String message, byte[] data, int offset, int length)
     {
-     // Validate parameters.
-     //@D2 - note: It doesn't make sense to log something to Trace.ALL,
-     //  so we count it as an illegal argument.
-     //if (category < FIRST_ONE || category > LAST_ONE)                  // @D0C @D3C
-     //{
-     //    throw new ExtendedIllegalArgumentException("category ("
-     //                  + Integer.toString(category)
-     //                  + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-     //}
-     if (message == null)
-     {
-         throw new NullPointerException("message");
-     }
-     if (data == null)
-     {
-         throw new NullPointerException("data");
-     }
+        // Validate parameters.
+        //@D2 - note: It doesn't make sense to log something to Trace.ALL,
+        //  so we count it as an illegal argument.
+        //if (category < FIRST_ONE || category > LAST_ONE)                  // @D0C @D3C
+        //{
+        //    throw new ExtendedIllegalArgumentException("category ("
+        //                  + Integer.toString(category)
+        //                  + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        //}
+        if (message == null)
+        {
+            throw new NullPointerException("message");
+        }
+        if (data == null)
+        {
+            throw new NullPointerException("data");
+        }
 
-     if (traceOn_ && traceCategory(category))
-     {
-         synchronized(destination_)
-         {
-          logTimeStamp(null, destination_);
-          destination_.println(message);
-          printByteArray(destination_, data, offset, length);
-          if (category == ERROR)
-          {
-              new Throwable().printStackTrace(destination_);
-          }
-         }
-     }
+        if (traceOn_ && traceCategory(category))
+        {
+            synchronized(destination_)
+            {
+                logTimeStamp(null, destination_);
+                destination_.println(message);
+                printByteArray(destination_, data, offset, length);
+                if (category == ERROR)
+                {
+                    new Throwable().printStackTrace(destination_);
+                }
+            }
+        }
     }
 
 
@@ -955,46 +959,46 @@ public class Trace
         // Validate parameters.
         //@D2 - note: It doesn't make sense to log something to Trace.ALL,
         // so we count it as an illegal argument.
-     //if (category < DATASTREAM || category > LAST_ONE)                  // @D0C @D3C
-     //{
-     //    throw new ExtendedIllegalArgumentException("category ("
-     //                  + Integer.toString(category)
-     //                  + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-     //}
-     if (message == null)
-     {
-         throw new NullPointerException("message");
-     }
-     if (data == null)
-     {
-         throw new NullPointerException("data");
-     }
-     if (component == null)
-     {
-         throw new NullPointerException("category");
-     }
-
-     if (traceOn_ && traceCategory(category))
-     {
-        PrintWriter pw = (PrintWriter) printWriterHash.get(component);
-        if (pw == null)
+        //if (category < DATASTREAM || category > LAST_ONE)                  // @D0C @D3C
+        //{
+        //    throw new ExtendedIllegalArgumentException("category ("
+        //                  + Integer.toString(category)
+        //                  + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        //}
+        if (message == null)
         {
-           pw = new PrintWriter(System.out, true);
-           printWriterHash.put(component, pw);
+            throw new NullPointerException("message");
+        }
+        if (data == null)
+        {
+            throw new NullPointerException("data");
+        }
+        if (component == null)
+        {
+            throw new NullPointerException("category");
         }
 
-        synchronized(pw)
+        if (traceOn_ && traceCategory(category))
         {
-           logTimeStamp(component, pw);
-           pw.println(message);
-           printByteArray(pw, data, offset, length);
-           if (category == ERROR)
-           {
-               new Throwable().printStackTrace(pw);
-           }
+            PrintWriter pw = (PrintWriter) printWriterHash.get(component);
+            if (pw == null)
+            {
+                pw = new PrintWriter(System.out, true);
+                printWriterHash.put(component, pw);
+            }
+
+            synchronized(pw)
+            {
+                logTimeStamp(component, pw);
+                pw.println(message);
+                printByteArray(pw, data, offset, length);
+                if (category == ERROR)
+                {
+                    new Throwable().printStackTrace(pw);
+                }
+            }
+            log(category, message, data, offset, length);
         }
-        log(category, message, data, offset, length);
-     }
     }
 
 
@@ -1003,27 +1007,27 @@ public class Trace
     // space between bytes.
     private static void printByteArray(PrintWriter pw_, byte[] data, int offset, int length)
     {
-     for (int i = 0; i < length; i++, offset++)
-     {
-         int leftDigitValue = (data[offset] >>> 4) & 0x0F;
-         int rightDigitValue = data[offset] & 0x0F;
-         // 0x30 = '0', 0x41 = 'A'
-         char leftDigit = leftDigitValue < 0x0A ? (char)(0x30 + leftDigitValue) : (char)(leftDigitValue - 0x0A + 0x41);
-         char rightDigit = rightDigitValue < 0x0A ? (char)(0x30 + rightDigitValue) : (char)(rightDigitValue - 0x0A + 0x41);
-         pw_.print(leftDigit);
-         pw_.print(rightDigit);
-         pw_.print(" ");
+        for (int i = 0; i < length; i++, offset++)
+        {
+            int leftDigitValue = (data[offset] >>> 4) & 0x0F;
+            int rightDigitValue = data[offset] & 0x0F;
+            // 0x30 = '0', 0x41 = 'A'
+            char leftDigit = leftDigitValue < 0x0A ? (char)(0x30 + leftDigitValue) : (char)(leftDigitValue - 0x0A + 0x41);
+            char rightDigit = rightDigitValue < 0x0A ? (char)(0x30 + rightDigitValue) : (char)(rightDigitValue - 0x0A + 0x41);
+            pw_.print(leftDigit);
+            pw_.print(rightDigit);
+            pw_.print(" ");
 
-         if ((i & 0x0F ) == 0x0F)
-         {
-          pw_.println();
-         }
-     }
-     if (((length - 1) & 0x0F) != 0x0F)
-     {
-         // Finish the line of data.
-         pw_.println();
-     }
+            if ((i & 0x0F ) == 0x0F)
+            {
+                pw_.println();
+            }
+        }
+        if (((length - 1) & 0x0F) != 0x0F)
+        {
+            // Finish the line of data.
+            pw_.println();
+        }
     }
 
 
@@ -1037,16 +1041,16 @@ public class Trace
      **/
     public static void setTraceAllOn(boolean traceAll)
     {
-      traceConversion_ = traceAll;
-      traceDatastream_ = traceAll;
-      traceDiagnostic_ = traceAll;
-      traceError_      = traceAll;
-      traceInfo_       = traceAll;
-      setTraceJDBCOn(traceAll);    // @D6C
+        traceConversion_ = traceAll;
+        traceDatastream_ = traceAll;
+        traceDiagnostic_ = traceAll;
+        traceError_      = traceAll;
+        traceInfo_       = traceAll;
+        setTraceJDBCOn(traceAll);    // @D6C
         tracePCML_       = traceAll; // @D6C @D8C
-      traceProxy_      = traceAll;
-      traceThread_     = traceAll; //@D3A
-      traceWarning_    = traceAll;
+        traceProxy_      = traceAll;
+        traceThread_     = traceAll; //@D3A
+        traceWarning_    = traceAll;
     }
 
 
@@ -1059,7 +1063,7 @@ public class Trace
      **/
     public static void setTraceConversionOn(boolean traceConversion)
     {
-     traceConversion_ = traceConversion;
+        traceConversion_ = traceConversion;
     }
 
     /**
@@ -1071,7 +1075,7 @@ public class Trace
      **/
     public static void setTraceDatastreamOn(boolean traceDatastream)
     {
-     traceDatastream_ = traceDatastream;
+        traceDatastream_ = traceDatastream;
     }
 
     /**
@@ -1083,7 +1087,7 @@ public class Trace
      **/
     public static void setTraceDiagnosticOn(boolean traceDiagnostic)
     {
-     traceDiagnostic_ = traceDiagnostic;
+        traceDiagnostic_ = traceDiagnostic;
     }
 
     /**
@@ -1095,7 +1099,7 @@ public class Trace
      **/
     public static void setTraceErrorOn(boolean traceError)
     {
-     traceError_ = traceError;
+        traceError_ = traceError;
     }
 
     /**
@@ -1107,33 +1111,33 @@ public class Trace
     public static synchronized void setFileName(String fileName) throws IOException
     {
         // Flush the current destination stream.
-     destination_.flush();
+        destination_.flush();
 
-     if (fileName != null)
-     {
+        if (fileName != null)
+        {
             // Create a FileOutputStream and PrintWriter to handle the trace data.  If the file exists we want to append to it.
-         File file = new File(fileName);
-         FileOutputStream os = new FileOutputStream(fileName, file.exists());
-         destination_ = new PrintWriter(os, true);
+            File file = new File(fileName);
+            FileOutputStream os = new FileOutputStream(fileName, file.exists());
+            destination_ = new PrintWriter(os, true);
 
-         PrintStream ps = new PrintStream(os, true);         // @D5A
-         java.sql.DriverManager.setLogStream(ps);            // @D5A
+            PrintStream ps = new PrintStream(os, true);         // @D5A
+            java.sql.DriverManager.setLogStream(ps);            // @D5A
             // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
 
-         fileName_ = fileName;
-     }
-     else
-     {
-         if (fileName_ != null)
-            destination_.close();
+            fileName_ = fileName;
+        }
+        else
+        {
+            if (fileName_ != null)
+                destination_.close();
 
-         PrintStream ps = new PrintStream(System.out, true); // @D5A
-         java.sql.DriverManager.setLogStream(ps);            // @D5A
+            PrintStream ps = new PrintStream(System.out, true); // @D5A
+            java.sql.DriverManager.setLogStream(ps);            // @D5A
             // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
 
-         fileName_ = null;
-         destination_ = new PrintWriter(System.out, true);
-     }
+            fileName_ = null;
+            destination_ = new PrintWriter(System.out, true);
+        }
     }
 
 
@@ -1146,33 +1150,33 @@ public class Trace
       @exception  IOException  If an error occurs while accessing the file.
      **/
     public static synchronized void setFileName(Object component, String fileName)
-                               throws IOException
+    throws IOException
     {
-       if (component == null)
-          throw new NullPointerException("component");
+        if (component == null)
+            throw new NullPointerException("component");
 
-       PrintWriter pw = (PrintWriter) printWriterHash.remove(component);
-       if (pw != null)
-          pw.flush();
+        PrintWriter pw = (PrintWriter) printWriterHash.remove(component);
+        if (pw != null)
+            pw.flush();
 
-       String oldName = (String) fileNameHash.remove(component);
-       if (oldName != null)
-          pw.close();
+        String oldName = (String) fileNameHash.remove(component);
+        if (oldName != null)
+            pw.close();
 
-       if (fileName != null)
-       {
-          // Create a FileOutputStream and PrintWriter to handle the trace data.  If the file exists we want to append to it.
-          File file = new File(fileName);
-          FileOutputStream os = new FileOutputStream(fileName, file.exists());
-          fileNameHash.put(component, fileName);
-          pw = new PrintWriter(os, true);
-          printWriterHash.put(component, pw); 
-       }
-       else
-       {
-          pw = new PrintWriter(System.out, true);
-          printWriterHash.put(component, pw);
-       }
+        if (fileName != null)
+        {
+            // Create a FileOutputStream and PrintWriter to handle the trace data.  If the file exists we want to append to it.
+            File file = new File(fileName);
+            FileOutputStream os = new FileOutputStream(fileName, file.exists());
+            fileNameHash.put(component, fileName);
+            pw = new PrintWriter(os, true);
+            printWriterHash.put(component, pw); 
+        }
+        else
+        {
+            pw = new PrintWriter(System.out, true);
+            printWriterHash.put(component, pw);
+        }
     }
 
 
@@ -1184,19 +1188,19 @@ public class Trace
      **/
     public static synchronized void setPrintWriter(PrintWriter obj) throws IOException
     {
-     // Flush the current destination stream.
-     destination_.flush();
+        // Flush the current destination stream.
+        destination_.flush();
 
-     if (fileName_ != null)
-     {
-         destination_.close();
-         fileName_ = null;
-     }
+        if (fileName_ != null)
+        {
+            destination_.close();
+            fileName_ = null;
+        }
 
-     if (obj != null)
-         destination_ = obj;
-     else
-         destination_ = new PrintWriter(System.out, true);
+        if (obj != null)
+            destination_ = obj;
+        else
+            destination_ = new PrintWriter(System.out, true);
     }
 
     /**
@@ -1207,25 +1211,25 @@ public class Trace
       @exception  IOException  If an error occurs while accessing the file.
      **/
     public static synchronized void setPrintWriter(Object component, PrintWriter obj)
-                               throws IOException
+    throws IOException
     {
-       if (component == null)
-          throw new NullPointerException("component");
+        if (component == null)
+            throw new NullPointerException("component");
 
-       PrintWriter pw = (PrintWriter) printWriterHash.remove(component);
-       if (pw != null)
-          pw.flush();
+        PrintWriter pw = (PrintWriter) printWriterHash.remove(component);
+        if (pw != null)
+            pw.flush();
 
-       String fileName = (String) fileNameHash.remove(component);
-       if (fileName != null)
-          pw.close();
+        String fileName = (String) fileNameHash.remove(component);
+        if (fileName != null)
+            pw.close();
 
-       if (obj != null)
-           pw = obj;
-       else
-           pw = new PrintWriter(System.out, true);
+        if (obj != null)
+            pw = obj;
+        else
+            pw = new PrintWriter(System.out, true);
 
-       printWriterHash.put(component, pw);
+        printWriterHash.put(component, pw);
     }
 
 
@@ -1238,7 +1242,7 @@ public class Trace
      **/
     public static void setTraceInformationOn(boolean traceInformation)
     {
-     traceInfo_ = traceInformation;
+        traceInfo_ = traceInformation;
     }
 
 
@@ -1250,15 +1254,15 @@ public class Trace
      **/
     public static void setTraceJDBCOn(boolean traceJDBC)           // @D5A
     {
-       traceJDBC_ = traceJDBC;
-       
-       if (traceJDBC)
-       {  
-          if (fileName_ == null)
-             java.sql.DriverManager.setLogStream(new PrintStream(System.out, true));
-       }
-       else
-          java.sql.DriverManager.setLogStream(null);
+        traceJDBC_ = traceJDBC;
+
+        if (traceJDBC)
+        {
+            if (fileName_ == null)
+                java.sql.DriverManager.setLogStream(new PrintStream(System.out, true));
+        }
+        else
+            java.sql.DriverManager.setLogStream(null);
     }
 
 
@@ -1271,8 +1275,8 @@ public class Trace
     public static void setTraceOn(boolean traceOn)
     {
         traceOn_ = traceOn;
-       if (traceOn_)                                    //$D1A
-          destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
+        if (traceOn_)                                    //$D1A
+            destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
     }
 
 
@@ -1307,7 +1311,7 @@ public class Trace
      **/
     public static void setTraceProxyOn(boolean traceProxy)
     {
-     traceProxy_ = traceProxy;
+        traceProxy_ = traceProxy;
     }
 
     // @D3A
@@ -1320,7 +1324,7 @@ public class Trace
      **/
     public static void setTraceThreadOn(boolean traceThread)
     {
-     traceThread_ = traceThread;
+        traceThread_ = traceThread;
     }
 
 
@@ -1333,45 +1337,45 @@ public class Trace
      **/
     public static void setTraceWarningOn(boolean traceWarning)
     {
-     traceWarning_ = traceWarning;
+        traceWarning_ = traceWarning;
     }
 
     // Indicates if this category is being traced or not.
     private static boolean traceCategory(int category)        // @D5C
     {
-     boolean trace = false;
-     switch (category)
-     {
-         case INFORMATION:
-          trace = traceInfo_;
-          break;
-         case WARNING:
-          trace = traceWarning_;
-          break;
-         case ERROR:
-          trace = traceError_;
-          break;
-         case DIAGNOSTIC:
-          trace = traceDiagnostic_;
-          break;
-         case DATASTREAM:
-          trace = traceDatastream_;
-          break;
-         case CONVERSION:
-          trace = traceConversion_;
-          break;
-         case PROXY:                   
-          trace = traceProxy_;         
-          break;                       
+        boolean trace = false;
+        switch (category)
+        {
+        case INFORMATION:
+            trace = traceInfo_;
+            break;
+        case WARNING:
+            trace = traceWarning_;
+            break;
+        case ERROR:
+            trace = traceError_;
+            break;
+        case DIAGNOSTIC:
+            trace = traceDiagnostic_;
+            break;
+        case DATASTREAM:
+            trace = traceDatastream_;
+            break;
+        case CONVERSION:
+            trace = traceConversion_;
+            break;
+        case PROXY:                   
+            trace = traceProxy_;         
+            break;                       
         case PCML:                                          // @D8A
             trace = tracePCML_;                             // @D8A
             break;                                          // @D8A
-         default:
-          throw new ExtendedIllegalArgumentException("category ("
-                   + Integer.toString(category)
-                   + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-     }
+        default:
+            throw new ExtendedIllegalArgumentException("category ("
+                                                       + Integer.toString(category)
+                                                       + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
 
-     return trace;
+        return trace;
     }
 }

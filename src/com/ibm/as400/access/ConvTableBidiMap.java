@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: ConvTableBidiMap.java
 //                                                                             
@@ -44,7 +44,7 @@ abstract class ConvTableBidiMap extends ConvTable
     fromUnicode_ = decompressSB(fromUnicode, (byte)0x3F); //@E4C
 
     abt = new AS400BidiTransform(ccsid);
-
+    
     bidiStringType_ = AS400BidiTransform.getStringType(ccsid); //@P0A
 
     if (Trace.traceOn_) //@E2C @P0C

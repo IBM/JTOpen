@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SignonEndServerReq.java
+// Filename: CADSPool.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -13,29 +13,40 @@
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-class SignonEndServerReq extends ClientAccessDataStream
+// This class is used to pool ClientAccessDataStream objects.
+final class CADSPool
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    SignonEndServerReq()
-    {
-        super(new byte[20]);
+  private ClientAccessDataStream[] streams_ = new ClientAccessDataStream[4];
 
-        setLength(20);
-        // setHeaderID(0x0000);
-        setServerID(0xE009);
-        // setCSInstance(0x00000000);
-        // setCorrelation(0x00000000);
-        // setTemplateLen(0x0000);
-        setReqRepID(0x7006);
-    }
-
-    void write(OutputStream out) throws IOException
+  final ClientAccessDataStream getUnusedStream()
+  {
+    synchronized(streams_)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending end signon server request..."); //@P0C
-        super.write(out);
+      int max = streams_.length;
+      for (int i=0; i<max; ++i)
+      {
+        if (streams_[i] == null)
+        {
+          streams_[i] = new ClientAccessDataStream();
+          streams_[i].inUse_ = true;
+          return streams_[i];
+        }
+        if (!streams_[i].inUse_)
+        {
+          streams_[i].inUse_ = true;
+          return streams_[i];
+        }
+      }
+      // Need more streams
+      ClientAccessDataStream[] newStreams = new ClientAccessDataStream[max*2];
+      newStreams[max] = new ClientAccessDataStream();
+      newStreams[max].inUse_ = true;
+      streams_ = newStreams;
+      return newStreams[max];
     }
+  }
 }
+
+

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: DataStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ import java.io.OutputStream;
 // Base class for data streams.  Provides methods to access common data stream parts.
 abstract class DataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     protected static ConverterImplRemote converter_;  // Character set conversion object.
     static ConverterImplRemote getDefaultConverter()
@@ -39,7 +39,7 @@ abstract class DataStream
     // @param  length  How many bytes to read.
     // @exception  IOException  from Inputstream.read() operation.
     // @returns  Number of bytes read.
-    static int  readFromStream(InputStream in, byte[] buf, int offset, int length) throws IOException
+    static final int readFromStream(InputStream in, byte[] buf, int offset, int length) throws IOException //@P0C
     {
         boolean endOfFile = false;
         int bytesRead = 0;
@@ -56,7 +56,7 @@ abstract class DataStream
             }
         }
 
-        if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream data received...", buf, offset, bytesRead);
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream data received...", buf, offset, bytesRead); //@P0C
 
         return bytesRead;
     }
@@ -126,21 +126,23 @@ abstract class DataStream
 
     // Retrieve data from the data stream as a 16-bit number from the specified offset.
     // @param  offset  Offset in the data stream from which to retrieve.
-    protected int get16bit(int offset)
+    protected final int get16bit(final int offset) //@P0C
     {
-        return BinaryConverter.byteArrayToUnsignedShort(data_, offset);
+        //@P0D return BinaryConverter.byteArrayToUnsignedShort(data_, offset);
+        return ((data_[offset] & 0xFF) << 8) + (data_[offset+1] & 0xFF); //@P0A
     }
 
     // Retrieve data from the data stream as an int from the specified offset.
     // @param  offset  Offset in the data stream from which to retrieve.
-    protected int get32bit(int offset)
+    protected final int get32bit(final int offset) //@P0C
     {
-        return BinaryConverter.byteArrayToInt(data_, offset);
+        //@P0D return BinaryConverter.byteArrayToInt(data_, offset);
+        return ((data_[offset] & 0xFF) << 24) + ((data_[offset+1] & 0xFF) << 16) + ((data_[offset+2] & 0xFF) << 8) + (data_[offset+3] & 0xFF); //@P0A
     }
 
     // Retrieve data from the data stream as a long from the specified offset.
     // @param  offset  Offset in the data stream from which to retrieve.
-    protected long get64bit(int offset)
+    protected final long get64bit(final int offset) //@P0C
     {
         return BinaryConverter.byteArrayToLong(data_, offset);
     }
@@ -161,7 +163,7 @@ abstract class DataStream
         int bytesRead = readFromStream(in, data_, headerLength_, data_.length - headerLength_);
         if (bytesRead < data_.length - headerLength_)
         {
-            Trace.log(Trace.ERROR, "Failed to read all of the data stream.");
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the data stream."); //@P0C
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
         }
 
@@ -186,17 +188,23 @@ abstract class DataStream
     // Set the 2 bytes at the specified offset to the specified value.
     // @param  i  Value to be set.
     // @param  offset  Offset in the data stream at which to place the value.
-    protected void set16bit(int i, int offset)
+    protected final void set16bit(int i, int offset) //@P0C
     {
-        BinaryConverter.unsignedShortToByteArray(i, data_, offset);
+        //@P0D BinaryConverter.unsignedShortToByteArray(i, data_, offset);
+      data_[offset]   = (byte)(i >>> 8); //@P0A
+      data_[offset+1] = (byte) i;        //@P0A
     }
 
     // Set the 4 bytes at the specified offset to the specified value.
     // @param  i  Value to be set.
     // @param  offset  Offset in the data stream at which to place the value.
-    protected void set32bit(int i, int offset)
+    protected final void set32bit(int i, int offset) //@P0C
     {
-        BinaryConverter.intToByteArray(i, data_, offset);
+        //@P0D BinaryConverter.intToByteArray(i, data_, offset);
+      data_[offset]   = (byte)(i >>> 24); //@P0A
+      data_[offset+1] = (byte)(i >>> 16); //@P0A
+      data_[offset+2] = (byte)(i >>>  8); //@P0A
+      data_[offset+3] = (byte) i;         //@P0A
     }
 
     // Write the data in this data stream out to the specified OutputStream.
@@ -211,6 +219,6 @@ abstract class DataStream
             out.flush();
         }
 
-        if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_);
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_); //@P0C
     }
 }

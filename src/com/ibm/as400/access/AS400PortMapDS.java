@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400PortMapDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ import java.io.OutputStream;
 // A class representing a "port map" request data stream.  This is a special request class that does not derive from the DataStream class.  The DataStream class defines data streams that originate from or are destined to a server job.
 class AS400PortMapDS
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     byte[] data_;
 
@@ -39,12 +39,12 @@ class AS400PortMapDS
     // Send request to the port mapper.
     void write(OutputStream out) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Sending port mapper request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending port mapper request..."); //@P0C
         synchronized(out)
         {
             out.write(data_);
             out.flush();
         }
-        if (Trace.isTraceOn()) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_);
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_); //@P0C
     }
 }

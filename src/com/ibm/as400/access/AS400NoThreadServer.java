@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400NoThreadServer.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,11 @@ import java.util.Vector;
 
 class AS400NoThreadServer extends AS400Server
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private AS400ImplRemote system_;
     private int service_;
+    private String jobString_;
 
     private SocketContainer socket_;
     private InputStream inStream_;
@@ -41,10 +42,11 @@ class AS400NoThreadServer extends AS400Server
 
     private boolean closed_ = false;
 
-    AS400NoThreadServer(AS400ImplRemote system, int service, SocketContainer socket) throws IOException
+    AS400NoThreadServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString) throws IOException
     {
         system_ = system;
         service_ = service;
+        jobString_ = jobString;
 
         socket_ = socket;
         inStream_  = socket.getInputStream();
@@ -56,6 +58,11 @@ class AS400NoThreadServer extends AS400Server
     int getService()
     {
         return service_;
+    }
+
+    String getJobString()
+    {
+        return jobString_;
     }
 
     boolean isConnected()
@@ -114,7 +121,8 @@ class AS400NoThreadServer extends AS400Server
     {
         synchronized (correlationIdLock_)
         {
-            return ++lastCorrelationId_;
+          if (++lastCorrelationId_ == 0) lastCorrelationId_ = 1; //@P0C
+          return lastCorrelationId_; //@P0C
         }
     }
 
@@ -211,7 +219,7 @@ class AS400NoThreadServer extends AS400Server
         {
             socket_.close();
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             Trace.log(Trace.ERROR, "Socket close failed.", e);
         }

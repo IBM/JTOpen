@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400XChgRandSeedDS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ import java.io.OutputStream;
 // A class representing an "exchange random seed" request data stream.
 class AS400XChgRandSeedDS extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     AS400XChgRandSeedDS(int serverId)
     {
@@ -62,7 +62,7 @@ class AS400XChgRandSeedDS extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Sending exchange random seeds request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending exchange random seeds request..."); //@P0C
         super.write(out);
     }
 }

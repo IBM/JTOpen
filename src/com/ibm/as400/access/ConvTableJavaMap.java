@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: ConvTableJavaMap.java
 //                                                                             
@@ -53,7 +53,7 @@ class ConvTableJavaMap extends ConvTable
     {
       if (Trace.traceOn_) //@P0A
       {
-      Trace.log(Trace.CONVERSION, "No associated CCSID for encoding '"+encoding+"'. Lookup returned "+ccsid+".");
+        Trace.log(Trace.CONVERSION, "No associated CCSID for encoding '"+encoding+"'. Lookup returned "+ccsid+".");
       }
       ccsid_ = 0;
     }

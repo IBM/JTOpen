@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SignonInfoRep.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ import java.util.GregorianCalendar;
 
 class SignonInfoRep extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     int getRC()
     {
@@ -43,18 +43,18 @@ class SignonInfoRep extends ClientAccessDataStream
 
     GregorianCalendar getDate(int cp)
     {
-        int index = 24;
+        int offset = 24;
         GregorianCalendar date = null;
 
-        while (index < (data_.length - 1))
+        while (offset < (data_.length - 1))
         {
-            if (get16bit(index + 4) != cp)
+            if (get16bit(offset + 4) != cp)
             {
-                index += get32bit(index);
+                offset += get32bit(offset);
             }
             else
             {
-                date = new GregorianCalendar((int)(get16bit(index+6))/*year*/, (int)(data_[index+8] - 1)/*month convert to zero based*/, (int)(data_[index+9])/*day*/, (int)(data_[index+10])/*hour*/, (int)(data_[index+11])/*minute*/, (int)(data_[index+12])/*second*/);
+                date = new GregorianCalendar((int)(get16bit(offset+6))/*year*/, (int)(data_[offset+8] - 1)/*month convert to zero based*/, (int)(data_[offset+9])/*day*/, (int)(data_[offset+10])/*hour*/, (int)(data_[offset+11])/*minute*/, (int)(data_[offset+12])/*second*/);
                 break;
             }
         }
@@ -64,18 +64,18 @@ class SignonInfoRep extends ClientAccessDataStream
 
     int getServerCCSID()
     {
-        int index = 24;
+        int offset = 24;
         int ccsid = 0;
 
-        while (index < (data_.length - 1))
+        while (offset < (data_.length - 1))
         {
-            if (get16bit(index + 4) != 0x1114)
+            if (get16bit(offset + 4) != 0x1114)
             {
-                index = index + get32bit(index);
+                offset = offset + get32bit(offset);
             }
             else
             {
-                ccsid = get32bit(index + 6);
+                ccsid = get32bit(offset + 6);
                 break;
             }
         }
@@ -83,15 +83,35 @@ class SignonInfoRep extends ClientAccessDataStream
         return ccsid;
     }
 
+    byte[] getUserIdBytes()
+    {
+        int offset = 24;
+        while (offset < (data_.length - 1))
+        {
+            if (get16bit(offset + 4) != 0x1104)
+            {
+                offset += get32bit(offset);
+            }
+            else
+            {
+                byte[] userIdBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
+                System.arraycopy(data_, offset + 10, userIdBytes, 0, get32bit(offset) - 10);
+                return userIdBytes;
+            }
+        }
+
+        return null;
+    }
+
     void read(InputStream in) throws IOException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Receiving retrieve signon information reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving retrieve signon information reply..."); //@P0C
 
         // Receive the header.
         byte[] header = new byte[20];
         if (DataStream.readFromStream(in, header, 0, 20) < 20)
         {
-            Trace.log(Trace.ERROR, "Failed to read all of the retrieve signon information reply header.");
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the retrieve signon information reply header."); //@P0C
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
         }
 
