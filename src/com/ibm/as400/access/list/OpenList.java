@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ import java.beans.PropertyVetoException;
 **/
 public abstract class OpenList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   /**
    * Constant that can be used for APIs that have an error code parameter. An empty error code parameter
@@ -321,13 +321,13 @@ public abstract class OpenList implements Serializable
    * Enumerations until they are at an end, will result in a memory leak.
    * @return An Enumeration of objects. The types of objects in the Enumeration are dependent on which
    * particular OpenList subclass is being used.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the object does not exist on the server.
    * @exception OpenListException               If the system is unable to correctly generate the list of items.
    * @see #close
    * @see #open
