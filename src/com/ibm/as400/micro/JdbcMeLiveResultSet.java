@@ -44,7 +44,7 @@ import java.io.*;
  *  a JdbcMeException is thrown.
  *
  *  <p>If the result set is updatable, the update methods modify
- *  column values for the current row, but not in the underlying
+ *  column values for the current row in the result set, but not in the underlying
  *  database.  updateRow() causes all updates to the current row
  *  to be written to the database.  Use deleteRow() to delete the
  *  current row in the database.
@@ -60,7 +60,8 @@ import java.io.*;
  *  <ul>
  *    <li>Stored procedure calls
  *    <li>DatabaseMetaData catalog methods
- *    <li>SELECT statements which do not specify FOR UPDATE
+ *    <li>SELECT statements which do not specify FOR UPDATE.  This
+ *        is only applicable when running to V4R5 or earlier.        
  *  </ul>
  *
  *  <p>In the following cases, result sets are always forward only
@@ -72,7 +73,8 @@ import java.io.*;
  *  <p>A result set is automatically closed by the statement that
  *  generated it when the statement is closed, run again, or used
  *  to retrieve the next result set from a sequence of multiple
- *  result sets.
+ *  result sets.  To close the result set explicitly, call the
+ *  close() method.
  *
  *  <p><b>Note:</b> Since Java 2 Micro-Edition does not include java.sql,
  *  JdbcMeLiveResultSet implements the java.sql package that is also part 
@@ -121,8 +123,7 @@ public class JdbcMeLiveResultSet implements ResultSet
     }
 
     /**
-     *  Releases the result set's resources immediately instead of
-     *  waiting for them to be automatically released.
+     *  Releases the result set's resources.
      *
      *  @exception JdbcMeException If an error occurs.
      **/

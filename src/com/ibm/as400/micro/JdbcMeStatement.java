@@ -61,8 +61,7 @@ public class JdbcMeStatement implements Statement
     }
 
     /**
-     *  Releases the statement's resources immediately instead of waiting
-     *  for them to be automatically released.  This closes the current
+     *  Releases the statement's resources.  This closes the current
      *  result set.
      *
      *  @exception JdbcMeException If an error occurs.

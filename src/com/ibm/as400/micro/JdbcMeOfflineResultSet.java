@@ -63,7 +63,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  JdbcMeStatement.executeToPalmDB()).
      *
      *  No Connection or Statement is required when
-     *  accesing a JdbcMeOfflineResultSet.
+     *  accessing a JdbcMeOfflineResultSet.
      *
      *  If the RecordStore was not created with
      *  JdbcMeStatement.executeToMIDPDB(), the
@@ -203,7 +203,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
 
     /**
-     *  Close the ResultSet and the Offline database.
+     *  Close the ResultSet and the offline database.
      *
      *  @exception JdbcMeException If an error occurs.
      **/
@@ -337,10 +337,8 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  <b>Note:</b> This method is currently not implemented and
      *  will throw a JdbcMeException.
      *
-     *  @exception  JdbcMeException    If the result set is not open,
-     *                       the result set is not scrollable,
-     *                       the result set is not updatable,
-     *                       or an error occurs.
+     *  @exception  JdbcMeException    Always thrown.  This method is
+     *               not implemented in an offline result set.
      **/
     public void moveToInsertRow() throws JdbcMeException 
     {
@@ -665,13 +663,9 @@ public class JdbcMeOfflineResultSet implements ResultSet
     /**
      *  Updates the database with the new contents of the current row.
      *
-     *  <b>Note:</b> This methos is currently not implemented.
+     *  <b>Note:</b> This method is currently not implemented.
      *
-     *  @exception JdbcMeException If the result set is not open,
-     *                   the result set is not updatable,
-     *                   the cursor is not positioned on a row,
-     *                   the cursor is positioned on the insert row,
-     *                   or an error occurs.
+     *  @exception JdbcMeException This exception is never thrown.
      **/
     public void updateRow() throws JdbcMeException 
     {
@@ -701,7 +695,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *          result set was returned by a DatabaseMetaData
      *          catalog method.
      *
-     *  @exception JdbcMeException If an error occurs.
+     *  @exception JdbcMeException This exception is never thrown.
      **/
     public Statement getStatement() throws JdbcMeException
     {
@@ -712,8 +706,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  Dump out the current database (Using System.out.println).
      *  Optionally, convert the hex values to Strings so they
      *  are easier to view.
-     *  This is most useful in the emulator.
-     *
+     *  
      *  @param dumpAsStrings true to convert the database hex values to strings; false otherwise.
      *
      *  @exception JdbcMeException If an error occurs.
@@ -727,7 +720,6 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  Dump out the specified database.
      *  Optionally, convert the values of each record
      *  to Strings so they are easier to view.
-     *  This is most useful in the emulator.
      *
      *  @param db The database.
      *  @param dumpAsStrings true to convert the database hex values to strings; false otherwise.
@@ -776,7 +768,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Return the number of the current row in the offline DB.
-     *  The first row is 1, negative values BEFORE_FIRST_ROW
+     *  The first row is 1, BEFORE_FIRST_ROW
      *  or AFTER_LAST_ROW may also be returned.
      *
      *  @return The current row index.
@@ -816,7 +808,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *
      *  All offline database result sets are TYPE_SCROLL_SENSITIVE.
      *
-     *  @return The result set type.
+     *  @return The result set type, which is always TYPE_SCROLL_SENSITIVE.
      *
      *  @exception JdbcMeException If the result set is not open.
      **/
@@ -830,7 +822,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *
      *  All offline database result sets are CONCUR_UPDATABLE.
      *
-     *  @return The result set concurrency.
+     *  @return The result set concurrency, which is always CONCUR_UPDATABLE.
      *
      *  @exception JdbcMeException If the result set is not open.
      **/

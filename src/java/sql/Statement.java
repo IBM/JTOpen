@@ -21,7 +21,7 @@ package java.sql;
  *  Statement objects. All statement execute methods implicitly close a statment's current ResultSet object if an
  *  open one exists. 
  *  <p>
- *  This class contains the smallest useful set of methods and data from java.sql.Statement
+ *  This class contains the smallest useful set of methods and data from java.sql.Statement.
  **/
 public interface Statement
 {

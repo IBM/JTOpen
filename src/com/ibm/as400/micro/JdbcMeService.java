@@ -287,7 +287,7 @@ class JdbcMeService implements Service
      */
     public void addResultSet(Statement s, ResultSet rs) throws SQLException 
     {     // DOMINO
-        // The Stupid DOMINO Jdbc driver doesn't implement
+        // The DOMINO Jdbc driver doesn't implement
         // the getStatement() method. We can't use it
         // here. 'lotus.jdbc.domino.DominoDriver'
         //// Statement s = rs.getStatement();
@@ -393,7 +393,7 @@ class JdbcMeService implements Service
     public int getNextObjectId()
     {
         // TODO:  at some point, it should be changed to reuse opened
-        // object ids from wholes that get created in its map.
+        // object ids from holes that get created in its map.
         int returnValue = NextObjectId_;
         NextObjectId_++;
         
@@ -484,7 +484,7 @@ class JdbcMeService implements Service
         //        a value value passed in and stuff like
         //        that.  Also, the function should be broken
         //        out so that appropriate JavaDoc can be
-        //        created for it.  This is just lazy...
+        //        created for it.  
         int type = in_.readInt();
         if ((type == MEConstants.DATA_FLOW_ALL) ||
             (type == MEConstants.DATA_FLOW_LIMITED) ||

@@ -24,7 +24,7 @@ package java.sql;
  *  <b>Note:</b> By default the Connection automatically commits changes after executing each statement. If auto commit
  *  has been disabled, the method commit must be called explicitly; otherwise, database changes will not be saved.
  *  <p>
- *  This class contains the smallest useful set of methods and data from java.sql.Connectio for a wireless device.
+ *  This class contains the smallest useful set of methods and data from java.sql.Connection for a wireless device.
  **/
 public interface Connection
 {

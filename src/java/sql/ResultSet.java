@@ -23,14 +23,12 @@ package java.sql;
  *  <p>
  *  A default ResultSet object is not updatable and has a cursor that moves forward only. Thus, it is possible to
  *  iterate through it only once and only from the first row to the last row. New methods in the JDBC 2.0 API make
- *  it possible to produce ResultSet objects that are scrollable and/or updatable. The following code fragment, in
- *  which con is a valid Connection object, illustrates how to make a result set that is scrollable and insensitive to
- *  updates by others, and that is updatable. See ResultSet fields for other options. 
+ *  it possible to produce ResultSet objects that are scrollable and/or updatable. 
  *  <p>
  *  A <code>ResultSet</code> object is automatically closed when the Statement object that generated it is closed,
  *  re-executed, or used to retrieve the next result from a sequence of multiple results. 
  *  <p>
- *  The number, types and properties of a ResultSet object's columns are provided by the ResulSetMetaData
+ *  The number, types and properties of a ResultSet object's columns are provided by the ResultSetMetaData
  *  object returned by the ResultSet.getMetaData method. 
  *  <p>
  *  <b>Note:</b>This class contains the smallest useful set of methods and data from java.sql.ResultSet
@@ -107,7 +105,7 @@ public interface ResultSet
     int getInt(int column) throws SQLException;
 
     /**
-     *  Inserts the contents of the insert row into this ResultSet objaect and into the database. The cursor must
+     *  Inserts the contents of the insert row into this ResultSet object and into the database. The cursor must
      *  be on the insert row when this method is called.
      *
      * @exception SQLException  if a database access error occurs, if this method is called when the cursor is not
@@ -149,7 +147,7 @@ public interface ResultSet
      *  Moves the cursor to the previous row in this ResultSet object. 
      *
      *  <b>Note:</b> Calling the method <code>previous()</code> is not the same as calling the method <code>relative(-1)</code> because it
-     *  makes sense to callprevious() when there is no current row. 
+     *  makes sense to call previous() when there is no current row. 
      *
      *  @return true if the cursor is on a valid row; false if it is off the result set.
      *

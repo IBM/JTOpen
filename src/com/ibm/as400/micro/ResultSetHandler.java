@@ -703,7 +703,7 @@ class ResultSetHandler
         {
             // Just in case we are sitting around on the insert row...
             // I am not sure if I can get away with such 'skimpy' logic
-            // here... there might be wholes where we return the wrong thing.
+            // here... there might be holes where we return the wrong thing.
             rs.moveToCurrentRow();
             rsmd = rs.getMetaData();
             count = rsmd.getColumnCount();
@@ -783,7 +783,7 @@ class ResultSetHandler
                 System.out.println("DATA_FLOW_ALL: This isn't implemented yet.");
                 break;
             default:
-                System.out.println("getDataFlowType(): Just what the heck did you ask for here? " + service_.getDataFlowType());
+                System.out.println("getDataFlowType(): Unknown data flow type - " + service_.getDataFlowType());
                 break;
             }
             out_.flush();

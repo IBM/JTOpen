@@ -69,7 +69,7 @@ class StatementHandler
     of closing any ResultSets that are open under it as well.
     Unlike most of the methods of this class, if an exception occurs
     while closing the Statement, this method will not report it back
-    to the caller in any way.  It is simply swollowed and a message
+    to the caller in any way.  It is simply swallowed and a message
     is logged concerning the failure.
     <P>
     The data flow is as follows:
