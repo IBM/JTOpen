@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RemoteCommandImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ import java.io.IOException;
 // The RemoteCommandImplRemote class is the remote implementation of CommandCall and ProgramCall.
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     AS400ImplRemote system_;
     ConverterImplRemote converter_;
@@ -199,7 +199,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             {
                 try
                 {
-                    baseReply = server_.sendExchangeAttrRequest(new RCExchangeAttributesRequestDataStream());
+                    baseReply = server_.sendExchangeAttrRequest(new RCExchangeAttributesRequestDataStream(ExecutionEnvironment.getNlv(system_.getLocale())));
                 }
                 catch (IOException e)
                 {

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RCExchangeAttributesRequestDataStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,11 +16,12 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.OutputStream;
 
+// Datastream object for remote command server exchange client/server attributes request.
 class RCExchangeAttributesRequestDataStream extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    RCExchangeAttributesRequestDataStream()
+    RCExchangeAttributesRequestDataStream(String nlvString)
     {
         super(new byte[34]);
         setLength(34);
@@ -33,7 +34,7 @@ class RCExchangeAttributesRequestDataStream extends ClientAccessDataStream
 
         set32bit(ExecutionEnvironment.getCcsid(), 20); // Set CCSID.
 
-        char[] nlv = ExecutionEnvironment.getNlv().toCharArray();  // Set NLV.
+        char[] nlv = nlvString.toCharArray();  // Set NLV.
         data_[24] = (byte)(nlv[0] | 0x00F0);  // Make 0x00C. -> 0xF.
         data_[25] = (byte)(nlv[1] | 0x00F0);
         data_[26] = (byte)(nlv[2] | 0x00F0);

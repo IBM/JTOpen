@@ -1,129 +1,103 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ExecutionEnvironment.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.io.IOException;
 import java.util.Locale;
 
-abstract class ExecutionEnvironment
+class ExecutionEnvironment
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-  //@B0 - deleted a bunch of static initialization stuff here
-
-// @B1D  /**
-// @B1D   * Get the associated DBCS CCSID.
-// @B1D   * @return The CCSID.  Negative one is returned if there is no associated DBCS CCSID.
-// @B1D   **/
-/* @B1D
-  static int getAssociatedDbcsCcsid(int ccsid)
-  {
-    //@B0D String prop = associatedDbcsCcsid.getProperty(String.valueOf(ccsid));
-    String prop = (String)ConversionMaps.associatedDbcsCcsidMap_.get(String.valueOf(ccsid)); //@B0A
-    if(prop == null)
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    
+    // No need for instances of this class.
+    private ExecutionEnvironment()
     {
-      return -1;
     }
-    return Integer.parseInt(prop);
-  }
-@B1D */  
 
-  
-  /**
-   * Get the "best guess" CCSID for the AS/400 based on the default locale.
-   * @return The CCSID.
-   **/
-  static int getBestGuessAS400Ccsid()
-  {
-    try
+    // Get the "best guess" CCSID for the server based on the default locale.
+    // @return  The CCSID.
+    static int getBestGuessAS400Ccsid()
     {
-      String lstr = Locale.getDefault().toString();
-      // Search from most specific to most general
-      while(true)
-      {
-        //@B0D String cstr = localeToCcsid.getProperty(lstr);
-        String cstr = (String)ConversionMaps.localeCcsidMap_.get(lstr); //@B0A
-        if(cstr != null)
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting best guess CCSID.");
+        try
         {
-          return Integer.parseInt(cstr);
+            String localeString = Locale.getDefault().toString();
+            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Default Locale: " + localeString);
+            // Search from most specific to most general.
+            while (true)
+            {
+                String ccsidString = (String)ConversionMaps.localeCcsidMap_.get(localeString);
+                if (ccsidString != null)
+                {
+                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Best guess for Locale: " + localeString + ", CCSID: " + ccsidString);
+                    return Integer.parseInt(ccsidString);
+                }
+                localeString = localeString.substring(0, localeString.lastIndexOf('_'));
+            }
         }
-        lstr = lstr.substring(0, lstr.lastIndexOf('_'));
-      }
-    }
-    catch(Exception e)
-    {
-      // If all else fails return 37
-      return 37;
-    }
-  }
-
-  
-  /**
-   * Get the CCSID for this execution environment.
-   * @return The CCSID.
-   **/
-  static int getCcsid()
-  {
-    return 13488;  // Unicode
-  }
-
-
-  //@B0A
-  /**
-   * Get the corresponding ccsid number as a String.
-  **/
-  static int getCcsid(String encoding)
-  {
-    return Integer.parseInt((String)ConversionMaps.encodingCcsid_.get(encoding));
-  }
-  
-  
-  //@B0A
-  /**
-   * Get the corresponding encoding from a ccsid.
-  **/
-  static String getEncoding(int ccsid)
-  {
-    return (String)ConversionMaps.ccsidEncoding_.get(String.valueOf(ccsid));
-  }
-   
-  
-  /**
-   * Get the NLV for this execution environment
-   * @return String that represents the national language version
-   **/
-  static String getNlv()
-  {
-    try
-    {
-      String lstr = Locale.getDefault().toString();
-      // Search from most specific to most general
-      while(true)
-      {
-        //@B0D String cstr = localeToNlv.getProperty(lstr);
-        String cstr = (String)ConversionMaps.localeNlvMap_.get(lstr); //@B0A
-        if(cstr != null)
+        catch (Exception e)
         {
-          return cstr;
+            // If all else fails return 37.
+            Trace.log(Trace.DIAGNOSTIC, "Exception taking best guess CCSID, default to 37:", e);
+            return 37;
         }
-        lstr = lstr.substring(0, lstr.lastIndexOf('_'));
-      }
     }
-    catch(Exception e)
+
+    // Get the CCSID for this execution environment.
+    // @return  The CCSID.
+    static int getCcsid()
     {
-      // If all else fails return 2924
-      return "2924";
+        return 13488;  // Unicode.
     }
-  }  
+
+    // Get the corresponding CCSID number as a String.
+    static int getCcsid(String encoding)
+    {
+        return Integer.parseInt((String)ConversionMaps.encodingCcsid_.get(encoding));
+    }
+
+    // Get the corresponding encoding from a CCSID.
+    static String getEncoding(int ccsid)
+    {
+        return (String)ConversionMaps.ccsidEncoding_.get(String.valueOf(ccsid));
+    }
+
+    // Get the NLV for the given Locale.
+    // @return  String that represents the national language version.
+    static String getNlv(Locale locale)
+    {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting NLV.");
+        try
+        {
+            String localeString = locale.toString();
+            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "NLV Locale: " + localeString);
+            // Search from most specific to most general.
+            while(true)
+            {
+                String nlvString = (String)ConversionMaps.localeNlvMap_.get(localeString);
+                if (nlvString != null)
+                {
+                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "NLV for Locale: " + localeString + ", NLV: " + nlvString);
+                    return nlvString;
+                }
+                localeString = localeString.substring(0, localeString.lastIndexOf('_'));
+            }
+        }
+        catch (Exception e)
+        {
+            // If all else fails return 2924.
+            Trace.log(Trace.DIAGNOSTIC, "Exception getting NLV, default to 2924:", e);
+            return "2924";
+        }
+    }
 }

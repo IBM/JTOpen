@@ -2183,7 +2183,7 @@ Sets the server attributes.
             // we get messages back in the default language that
             // was installed on the server.
             //
-            String nlv = ExecutionEnvironment.getNlv ();
+            String nlv = ExecutionEnvironment.getNlv(as400_.getLocale());  // @F1C
                request.setLanguageFeatureCode(nlv);                            // @EDC
 
                if (JDTrace.isTraceOn ())
