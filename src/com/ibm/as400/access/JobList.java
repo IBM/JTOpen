@@ -27,111 +27,179 @@ import java.util.NoSuchElementException;
 
 
 /**
-The JobList class represents a list of OS/400 jobs.
+The JobList class represents a list of OS/400 jobs. By default, all jobs are selected. To filter the list,
+use the {@link #addJobSelectionCriteria addJobSelectionCriteria()} method.
+<P>
+
 **/
 public class JobList implements Serializable
 {
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   static final long serialVersionUID = 5L;
 
-  /**
-   * Constant representing the value *ALL.
-  **/
-  public static final String ALL = "*ALL";
-
-  /**
-   * Constant representing the value *BLANK.
-  **/
-  public static final String BLANK = "*BLANK";
-
-  /**
-   * Constant representing the value *CURRENT.
-  **/
-  public static final String CURRENT = "*CURRENT";
-
-  /**
-   * Constant representing the value false.
-  **/
-  public static final Boolean FALSE = new Boolean(false);
-
-  /**
-   * Constant representing the value true.
-  **/
-  public static final Boolean TRUE = new Boolean(true);
-
-
-  // Selection criteria
-
+  
   /**
    * Selection type used for job selection based on job name.
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
-   * The default is *ALL.
+   * Possible values are:
+   * <UL>
+   * <LI>A specific job name.
+   * <LI>A generic name.
+   * <LI>{@link #SELECTION_JOB_NAME_ALL SELECTION_JOB_NAME_ALL}
+   * <LI>{@link #SELECTION_JOB_NAME_CURRENT SELECTION_JOB_NAME_CURRENT}
+   * <LI>{@link #SELECTION_JOB_NAME_ONLY SELECTION_JOB_NAME_ONLY}
+   * </UL>
+   * The default is {@link #SELECTION_JOB_NAME_ALL SELECTION_JOB_NAME_ALL}.
    * @see #setName
+   * @see com.ibm.as400.access.Job#JOB_NAME
   **/
-  public static final int JOB_NAME =                      1;
+  public static final int SELECTION_JOB_NAME =                      1;
+
+  /**
+   * Selection value indicating all jobs will be selected regardless of the job name.
+   * The user name and job type fields must be specified.
+   * @see #SELECTION_JOB_NAME
+  **/
+  public static final String SELECTION_JOB_NAME_ALL = "*ALL";
+
+  /**
+   * Selection value indicating all jobs with the current job's name will be selected.
+   * @see #SELECTION_JOB_NAME
+  **/
+  public static final String SELECTION_JOB_NAME_CURRENT = "*CURRENT";
+
+  /**
+   * Selection value indicating only the job in which this program is running will
+   * be selected. The user name and job type fields must be blank.
+   * @see #SELECTION_JOB_NAME
+  **/
+  public static final String SELECTION_JOB_NAME_ONLY = "*";
 
   /**
    * Selection type used for job selection based on user name.
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
-   * The default is *ALL.
+   * Possible values are:
+   * <UL>
+   * <LI>A specific user profile name.
+   * <LI>A generic name.
+   * <LI>{@link #SELECTION_USER_NAME_ALL SELECTION_USER_NAME_ALL}
+   * <LI>{@link #SELECTION_USER_NAME_CURRENT SELECTION_USER_NAME_CURRENT}
+   * </UL>
+   * The default is {@link #SELECTION_USER_NAME_ALL SELECTION_USER_NAME_ALL}.
    * @see #setUser
+   * @see com.ibm.as400.access.Job#USER_NAME
   **/
-  public static final int USER_NAME =                     2;
+  public static final int SELECTION_USER_NAME =                     2;
   
+  /**
+   * Selection value indicating all jobs that use the specified job name will
+   * be selected, regardless of the user name. The job name and job number
+   * fields must be specified.
+   * @see #SELECTION_USER_NAME
+  **/
+  public static final String SELECTION_USER_NAME_ALL = "*ALL";
+
+  /**
+   * Selection value indicating all jobs that use the current job's user profile
+   * will be selected.
+   * @see #SELECTION_USER_NAME
+  **/
+  public static final String SELECTION_USER_NAME_CURRENT = "*CURRENT";
+
   /**
    * Selection type used for job selection based on job number.
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
-   * The default is *ALL.
+   * Possible values are:
+   * <UL>
+   * <LI>A specific job number.
+   * <LI>{@link #SELECTION_JOB_NUMBER_ALL SELECTION_JOB_NUMBER_ALL}
+   * </UL>
+   * The default is {@link #SELECTION_JOB_NUMBER_ALL SELECTION_JOB_NUMBER_ALL}.
    * @see #setNumber
+   * @see com.ibm.as400.access.Job#JOB_NUMBER
   **/
-  public static final int JOB_NUMBER =                    3;
+  public static final int SELECTION_JOB_NUMBER =                    3;
   
+  /**
+   * Selection value indicating all jobs with the specified job name and user name
+   * will be selected, regardless of the job number. The job name and user name
+   * fields must be specified.
+   * @see #SELECTION_JOB_NUMBER
+  **/
+  public static final String SELECTION_JOB_NUMBER_ALL = "*ALL";
+
   /**
    * Selection type used for job selection based on job type.
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
-   * The default is *.
-   * @see #setNumber
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #SELECTION_JOB_TYPE_ALL SELECTION_JOB_TYPE_ALL}
+   * <LI>One of the following job types:
+   *   <UL>
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_AUTOSTART Job.JOB_TYPE_AUTOSTART}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_BATCH Job.JOB_TYPE_BATCH}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_INTERACTIVE Job.JOB_TYPE_INTERACTIVE}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_SUBSYSTEM_MONITOR Job.JOB_TYPE_SUBSYSTEM_MONITOR}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_SPOOLED_READER Job.JOB_TYPE_SPOOLED_READER}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_SYSTEM Job.JOB_TYPE_SYSTEM}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_SPOOLED_WRITER Job.JOB_TYPE_SPOOLED_WRITER}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_SCPF_SYSTEM Job.JOB_TYPE_SCPF_SYSTEM}
+   *   </UL>
+   * </UL>
+   * The default is {@link #SELECTION_JOB_TYPE_ALL SELECTION_JOB_TYPE_ALL}.
+   * @see com.ibm.as400.access.Job#JOB_TYPE
   **/
-  public static final int JOB_TYPE =                      4;
+  public static final int SELECTION_JOB_TYPE =                      4;
+  
+  /**
+   * Selection value indicating all job types will be selected.
+   * @see #SELECTION_JOB_TYPE
+  **/
+  public static final String SELECTION_JOB_TYPE_ALL = "*";
+
+  /**
+   * Selection type used for job selection based on primary job status.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+   * @see com.ibm.as400.access.Job#JOB_STATUS
+  **/
+  public static final int SELECTION_PRIMARY_JOB_STATUS_ACTIVE =     5;
   
   /**
    * Selection type used for job selection based on primary job status.
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a Boolean.
    * The default is true.
+   * @see com.ibm.as400.access.Job#JOB_STATUS
   **/
-  public static final int PRIMARY_JOB_STATUS_ACTIVE =     5;
+  public static final int SELECTION_PRIMARY_JOB_STATUS_JOBQ =  6;
   
   /**
    * Selection type used for job selection based on primary job status.
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a Boolean.
    * The default is true.
+    * @see com.ibm.as400.access.Job#JOB_STATUS
   **/
-  public static final int PRIMARY_JOB_STATUS_JOB_QUEUE =  6;
-  
-  /**
-   * Selection type used for job selection based on primary job status.
-   * Only one selection value is allowed for this selection type.
-   * The selection value corresponding to this selection type is a Boolean.
-   * The default is true.
-  **/
-  public static final int PRIMARY_JOB_STATUS_OUT_QUEUE =  7;
+  public static final int SELECTION_PRIMARY_JOB_STATUS_OUTQ =  7;
   
   /**
    * Selection type used for job selection based on active job status.
    * Multiple selection values are allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
-   * See the QUSRJOBI API for allowed values.
+   * See {@link com.ibm.a400.access.Job#ACTIVE_JOB_STATUS Job.ACTIVE_JOB_STATUS} for allowed values.
    * By default no selection values are specified for this selection type.
    * This value is only used when the value for PRIMARY_JOB_STATUS_ACTIVE is true.
    * @see #PRIMARY_JOB_STATUS_ACTIVE
+   * @see com.ibm.as400.access.Job#ACTIVE_JOB_STATUS
   **/
-  public static final int ACTIVE_JOB_STATUS =             8;
+  public static final int SELECTION_ACTIVE_JOB_STATUS =             8;
   
   /**
    * Selection type used for job selection based on a job's status on the job queue.
@@ -140,8 +208,9 @@ public class JobList implements Serializable
    * The default is true.
    * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
    * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * @see com.ibm.as400.access.Job#JOB_QUEUE_STATUS
   **/
-  public static final int JOB_QUEUE_STATUS_SCHEDULED =    9;
+  public static final int SELECTION_JOB_QUEUE_STATUS_SCHEDULE =    9;
   
   /**
    * Selection type used for job selection based on a job's status on the job queue.
@@ -150,8 +219,9 @@ public class JobList implements Serializable
    * The default is true.
    * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
    * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * @see com.ibm.as400.access.Job#JOB_QUEUE_STATUS
   **/
-  public static final int JOB_QUEUE_STATUS_HELD =        10;
+  public static final int SELECTION_JOB_QUEUE_STATUS_HELD =        10;
   
   /**
    * Selection type used for job selection based on a job's status on the job queue.
@@ -160,20 +230,22 @@ public class JobList implements Serializable
    * The default is true.
    * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
    * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * @see com.ibm.as400.access.Job#JOB_QUEUE_STATUS
   **/
-  public static final int JOB_QUEUE_STATUS_READY =       11;
+  public static final int SELECTION_JOB_QUEUE_STATUS_READY =       11;
 
   /**
    * Selection type used for job selection based on job queue.
-   * Only one selection value is allowed for this selection type.
+   * Multiple selection values are allowed for this selection type.
    * The selection value corresponding to this selection type is a String
    * representing the fully-qualified integrated file system name for an OS/400 job queue.
    * By default no selection values are specified for this selection type.
    * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
    * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
    * @see com.ibm.as400.access.QSYSObjectPathName
+   * @see com.ibm.as400.access.Job#JOB_QUEUE
   **/
-  public static final int JOB_QUEUE =                    12;
+  public static final int SELECTION_JOB_QUEUE =                    12;
   
   /**
    * Selection type used for job selection based on the user name for a job's initial thread.
@@ -181,17 +253,36 @@ public class JobList implements Serializable
    * The selection value corresponding to this selection type is a String.
    * By default no selection values are specified for this selection type.
   **/
-  public static final int INITIAL_THREAD_USER_PROFILE =  13;
+  public static final int SELECTION_INITIAL_USER =  13;
   
   /**
    * Selection type used for job selection based on the server type.
    * Multiple selection values are allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
    * By default no selection values are specified for this selection type.
-   * Allowed values are any server type, generic value, ALL, or BLANK.
+   * Possible values are:
+   * <UL>
+   * <LI>A server type. See {@link com.ibm.as400.access.Job#SERVER_TYPE Job.SERVER_TYPE}.
+   * <LI>A generic value.
+   * <LI>{@link #SELECTION_SERVER_TYPE_ALL SELECTION_SERVER_TYPE_ALL}
+   * <LI>{@link #SELECTION_SERVER_TYPE_BLANK SELECTION_SERVER_TYPE_BLANK}
+   * </UL>
+   * @see com.ibm.as400.access.Job#SERVER_TYPE
   **/
-  public static final int SERVER_TYPE =                  14;
+  public static final int SELECTION_SERVER_TYPE =                  14;
   
+  /** 
+   * Selection value indicating all jobs with a server type will be selected.
+   * @see #SELECTION_SERVER_TYPE
+  **/
+  public static final String SELECTION_SERVER_TYPE_ALL = "*ALL";
+
+  /**
+   * Selection value indicating all jobs without a server type will be selected.
+   * @see #SELECTION_SERVER_TYPE
+  **/
+  public static final String SELECTION_SERVER_TYPE_BLANK = "*BLANK";
+
   //public static final int ACTIVE_SUBSYSTEM =             15;
   //public static final int MEMORY_POOL =                  16;
   
@@ -200,8 +291,35 @@ public class JobList implements Serializable
    * Multiple selection values are allowed for this selection type.
    * The selection value corresponding to this selection type is an Integer.
    * By default no selection values are specified for this selection type.
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH}
+   * <LI>{@link #SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE}
+   * <LI>{@link #SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART}
+   * <LI>Any of the enhanced job types:
+   *   <UL>
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_AUTOSTART Job.JOB_TYPE_ENHANCED_AUTOSTART}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH Job.JOB_TYPE_ENHANCED_BATCH}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_IMMEDIATE Job.JOB_TYPE_ENHANCED_BATCH_IMMEDIATE}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_MRT Job.JOB_TYPE_ENHANCED_BATCH_MRT}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER Job.JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_COMM_PROCEDURE_START_REQUEST Job.JOB_TYPE_ENHANCED_COMM_PROCEDURE_START_REQUEST}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE Job.JOB_TYPE_ENHANCED_INTERACTIVE}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_GROUP Job.JOB_TYPE_ENHANCED_INTERACTIVE_GROUP}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ Job.JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP Job.JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART Job.JOB_TYPE_ENHANCED_PRESTART}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_BATCH Job.JOB_TYPE_ENHANCED_PRESTART_BATCH}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_COMM Job.JOB_TYPE_ENHANCED_PRESTART_COMM}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_READER Job.JOB_TYPE_ENHANCED_READER}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_SUBSYSTEM Job.JOB_TYPE_ENHANCED_SUBSYSTEM}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_SYSTEM Job.JOB_TYPE_ENHANCED_SYSTEM}
+   *   <LI>{@link com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_WRITER Job.JOB_TYPE_ENHANCED_WRITER}
+   *   </UL>
+   * </UL>   
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED
   **/
-  public static final int JOB_TYPE_ENHANCED =            17;
+  public static final int SELECTION_JOB_TYPE_ENHANCED =            17;
 
 
 
@@ -210,10 +328,10 @@ public class JobList implements Serializable
   private transient VetoableChangeSupport vetoableChangeSupport_;
 
   // Selection variables  
-  private String selectionJobName_ = ALL;
-  private String selectionUserName_ = ALL;
-  private String selectionJobNumber_ = ALL;
-  private String selectionJobType_ = "*";
+  private String selectionJobName_ = SELECTION_JOB_NAME_ALL;
+  private String selectionUserName_ = SELECTION_USER_NAME_ALL;
+  private String selectionJobNumber_ = SELECTION_JOB_NUMBER_ALL;
+  private String selectionJobType_ = SELECTION_JOB_TYPE_ALL;
   private boolean selectActiveJobs_ = true;
   private boolean selectJobQueueJobs_ = true;
   private boolean selectOutQueueJobs_ = true;
@@ -258,8 +376,10 @@ public class JobList implements Serializable
   private boolean[] sortOrders_ = new boolean[1];
   
   
+
   /**
-   * Constructs a JobList object.
+   * Constructs a JobList object. The system must be set before retrieving the list of jobs.
+   * @see #setSystem
   **/
   public JobList()
   {
@@ -268,8 +388,8 @@ public class JobList implements Serializable
 
 
 /**
-Constructs a JobList object.
-@param system The system.
+   * Constructs a JobList object.
+   * @param system The system.
 **/
   public JobList(AS400 system)
   {
@@ -286,19 +406,61 @@ Constructs a JobList object.
    * Adds a job attribute that will be retrieved for each job in this job list.
    * This method allows the Job objects that are retrieved from this JobList
    * to have some of their attributes already filled in, so that a call to
-   * one of the Job getter methods does not result in an API call back to the server.
+   * {@link com.ibm.as400.access.Job#getValue Job.getValue()} does not result in another API call back to the server
+   * for each job in the list.
    * <P>
    * The list of job attributes is maintained internally even when this JobList is closed and re-used.
-   * To start over with a new set of job attributes to retrieve, construct a new JobList object.
+   * To start over with a new set of job attributes to retrieve, call {@link #clearJobAttributesToRetrieve clearJobAttributesToRetrieve()}.
    * <P>
-   * The Job class contains the list of attributes to use.
+   * @param attribute The job attribute to retrieve.
+   * Possible values are all job attributes contained in the {@link com.ibm.as400.access.Job Job} class,
+   * excluding the following:
+   * <UL>
+   * <LI>Job.CURRENT_LIBRARY
+   * <LI>Job.CURRENT_LIBRARY_EXISTENCE
+   * <LI>Job.INTERNAL_JOB_ID
+   * <LI>Job.PRODUCT_LIBRARIES
+   * <LI>Job.SUBMITTED_BY_JOB_NUMBER
+   * <LI>Job.SUBMITTED_BY_USER
+   * <LI>Job.SYSTEM_LIBRARY_LIST
+   * <LI>Job.USER_LIBRARY_LIST
+   * </UL>
+   * @see #clearJobAttributesToRetrieve
    * @see com.ibm.as400.access.Job
   **/
   public void addJobAttributeToRetrieve(int attribute)
   {
-    if (attribute < 0)
+    if (attribute < 101)
     {
       throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    switch(attribute)
+    {
+      // These are always loaded, so the user was crazy to try and preload them.
+      case Job.JOB_NAME:
+      case Job.USER_NAME:
+      case Job.JOB_NUMBER:
+      case Job.JOB_TYPE:
+      case Job.JOB_SUBTYPE:
+      case Job.JOB_STATUS:
+        return;
+      // These cannot be retrieved this way. You have to make another call to the QUSRJOBI API to get them.
+      case Job.CURRENT_LIBRARY:
+      case Job.CURRENT_LIBRARY_EXISTENCE:
+      case Job.PRODUCT_LIBRARIES:
+      case Job.SUBMITTED_BY_JOB_NUMBER:
+      case Job.SUBMITTED_BY_USER:
+      case Job.SYSTEM_LIBRARY_LIST:
+      case Job.USER_LIBRARY_LIST:
+      case Job.INTERNAL_JOB_ID:
+        throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      // The date and time have different key values for getting and setting.
+      case Job.SCHEDULE_DATE:
+      case Job.SCHEDULE_TIME:
+        attribute = Job.SCHEDULE_DATE_GETTER;
+        break;
+      default:
+        break;
     }
 
     if (currentKey_ >= keys_.length)
@@ -310,43 +472,74 @@ Constructs a JobList object.
     }
 
     keys_[currentKey_++] = attribute;
+    resetHandle();
   }
 
   
   /**
-   * Adds a selection type and value to be used to filter the list of jobs.
+   * Adds a selection type and value to be used to filter the list of jobs. If a selection type
+   * supports only one value, then the selection value used will be the one that was passed on
+   * the most recent call to this method for that selection type.
+   * <P>
+   * The list of job selection criteria is maintained internally even when this JobList is closed and re-used.
+   * To start over with a new set of job selection criteria, call {@link #clearJobSelectionCriteria clearJobSelectionCriteria()}.
    * @param selectionType The constant indicating which selection type used to filter the list.
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #SELECTION_JOB_NAME SELECTION_JOB_NAME}
+   * <LI>{@link #SELECTION_USER_NAME SELECTION_USER_NAME}
+   * <LI>{@link #SELECTION_JOB_NUMBER SELECTION_JOB_NUMBER}
+   * <LI>{@link #SELECTION_JOB_TYPE SELECTION_JOB_TYPE}
+   * <LI>{@link #SELECTION_PRIMARY_JOB_STATUS_ACTIVE SELECTION_PRIMARY_JOB_STATUS_ACTIVE}
+   * <LI>{@link #SELECTION_PRIMARY_JOB_STATUS_JOBQ SELECTION_PRIMARY_JOB_STATUS_JOBQ}
+   * <LI>{@link #SELECTION_PRIMARY_JOB_STATUS_OUTQ SELECTION_PRIMARY_JOB_STATUS_OUTQ}
+   * <LI>{@link #SELECTION_ACTIVE_JOB_STATUS SELECTION_ACTIVE_JOB_STATUS}
+   * <LI>{@link #SELECTION_JOB_QUEUE_STATUS_SCHEDULE SELECTION_JOB_QUEUE_STATUS_SCHEDULE}
+   * <LI>{@link #SELECTION_JOB_QUEUE_STATUS_READY SELECTION_JOB_QUEUE_STATUS_READY}
+   * <LI>{@link #SELECTION_JOB_QUEUE_STATUS_HELD SELECTION_JOB_QUEUE_STATUS_HELD}
+   * <LI>{@link #SELECTION_JOB_QUEUE SELECTION_JOB_QUEUE}
+   * <LI>{@link #SELECTION_INITIAL_USER SELECTION_INITIAL_USER}
+   * <LI>{@link #SELECTION_SERVER_TYPE SELECTION_SERVER_TYPE}
+   * <LI>{@link #SELECTION_JOB_TYPE_ENHANCED SELECTION_JOB_TYPE_ENHANCED}
+   * </UL>
    * @param selectionValue The value for the selection type. See the individual selection type
-   * constants for the appropriate object to use. Some types support multiple selection values.
+   * constants for the appropriate object or constant to use. Some selection types allow multiple
+   * selection values to be added.
+   * @see #clearJobSelectionCriteria
+   * @see com.ibm.as400.access.Job
   **/
   public void addJobSelectionCriteria(int selectionType, Object selectionValue) throws PropertyVetoException
   {
+    if (selectionType < 0 || selectionType > SELECTION_JOB_TYPE_ENHANCED)
+    {
+      throw new ExtendedIllegalArgumentException("selectionType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
     if (selectionValue == null) throw new NullPointerException("selectionValue");
 
     switch(selectionType)
     {
-      case JOB_NAME:
+      case SELECTION_JOB_NAME:
         setName((String)selectionValue);
         break;
-      case USER_NAME:
+      case SELECTION_USER_NAME:
         setUser((String)selectionValue);
         break;
-      case JOB_NUMBER:
+      case SELECTION_JOB_NUMBER:
         setNumber((String)selectionValue);
         break;
-      case JOB_TYPE:
+      case SELECTION_JOB_TYPE:
         selectionJobType_ = ((String)selectionValue).toUpperCase();
         break;
-      case PRIMARY_JOB_STATUS_ACTIVE:
+      case SELECTION_PRIMARY_JOB_STATUS_ACTIVE:
         selectActiveJobs_ = ((Boolean)selectionValue).booleanValue();
         break;
-      case PRIMARY_JOB_STATUS_JOB_QUEUE:
+      case SELECTION_PRIMARY_JOB_STATUS_JOBQ:
         selectJobQueueJobs_ = ((Boolean)selectionValue).booleanValue();
         break;
-      case PRIMARY_JOB_STATUS_OUT_QUEUE:
+      case SELECTION_PRIMARY_JOB_STATUS_OUTQ:
         selectOutQueueJobs_ = ((Boolean)selectionValue).booleanValue();
         break;
-      case ACTIVE_JOB_STATUS:
+      case SELECTION_ACTIVE_JOB_STATUS:
         String status = ((String)selectionValue).toUpperCase();
         if (currentActiveStatus_ > activeStatuses_.length)
         {
@@ -356,16 +549,16 @@ Constructs a JobList object.
         }
         activeStatuses_[currentActiveStatus_++] = status;
         break;
-      case JOB_QUEUE_STATUS_SCHEDULED:
+      case SELECTION_JOB_QUEUE_STATUS_SCHEDULE:
         selectScheduledJobs_ = ((Boolean)selectionValue).booleanValue();
         break;
-      case JOB_QUEUE_STATUS_HELD:
+      case SELECTION_JOB_QUEUE_STATUS_HELD:
         selectHeldJobs_ = ((Boolean)selectionValue).booleanValue();
         break;
-      case JOB_QUEUE_STATUS_READY:
+      case SELECTION_JOB_QUEUE_STATUS_READY:
         selectReadyJobs_ = ((Boolean)selectionValue).booleanValue();
         break;
-      case JOB_QUEUE:
+      case SELECTION_JOB_QUEUE:
         String queue = (String)selectionValue;
         QSYSObjectPathName path = new QSYSObjectPathName(queue);
         StringBuffer buf = new StringBuffer();
@@ -386,7 +579,7 @@ Constructs a JobList object.
         }
         jobQueues_[currentJobQueue_++] = buf.toString();
         break;
-      case INITIAL_THREAD_USER_PROFILE:
+      case SELECTION_INITIAL_USER:
         String profile = ((String)selectionValue).toUpperCase();
         if (currentInitialUser_ > initialUsers_.length)
         {
@@ -396,7 +589,7 @@ Constructs a JobList object.
         }
         initialUsers_[currentInitialUser_++] = profile;
         break;
-      case SERVER_TYPE:
+      case SELECTION_SERVER_TYPE:
         String type = ((String)selectionValue).toUpperCase();
         if (currentServerType_ > serverTypes_.length)
         {
@@ -406,7 +599,7 @@ Constructs a JobList object.
         }
         serverTypes_[currentServerType_++] = type;
         break;
-      case JOB_TYPE_ENHANCED:
+      case SELECTION_JOB_TYPE_ENHANCED:
         int val = ((Integer)selectionValue).intValue();
         if (currentEnhancedJobType_ > enhancedJobTypes_.length)
         {
@@ -424,18 +617,54 @@ Constructs a JobList object.
 
 
   /**
-   * Adds a job attribute to be used to sort the list. The Job class contains the list
-   * of attributes used.
-   * @param attribute The job attribute.
-   * @param sortAscending The sort order. true to sort ascending; false to sort descending.
+   * Adds a job attribute used to sort the list.
+   * <P>
+   * The list of job attributes to sort on is maintained internally even when this JobList is closed and re-used.
+   * To start over with a new set of job attributes to sort on, call {@link #clearJobAttributesToSortOn clearJobAttributesToSortOn()}.
+   * @param attribute The job attribute on which to sort.
+   * Possible values are all job attributes contained in the {@link com.ibm.as400.access.Job Job} class,
+   * excluding the following:
+   * <UL>
+   * <LI>Job.CURRENT_LIBRARY
+   * <LI>Job.CURRENT_LIBRARY_EXISTENCE
+   * <LI>Job.INTERNAL_JOB_ID
+   * <LI>Job.PRODUCT_LIBRARIES
+   * <LI>Job.SUBMITTED_BY_JOB_NUMBER
+   * <LI>Job.SUBMITTED_BY_USER
+   * <LI>Job.SYSTEM_LIBRARY_LIST
+   * <LI>Job.USER_LIBRARY_LIST
+   * </UL>
+   * @param sortOrder true to sort ascending; false to sort descending.
+   * @see #clearJobAttributesToSortOn
    * @see com.ibm.as400.access.Job
   **/
   public void addJobAttributeToSortOn(int attribute, boolean sortOrder)
   {
-    if (attribute < 0)
+    if (attribute < 101)
     {
       throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
+    switch(attribute)
+    {
+      // These cannot be retrieved this way. You have to make another call to the QUSRJOBI API to get them.
+      case Job.CURRENT_LIBRARY:
+      case Job.CURRENT_LIBRARY_EXISTENCE:
+      case Job.PRODUCT_LIBRARIES:
+      case Job.SUBMITTED_BY_JOB_NUMBER:
+      case Job.SUBMITTED_BY_USER:
+      case Job.SYSTEM_LIBRARY_LIST:
+      case Job.USER_LIBRARY_LIST:
+      case Job.INTERNAL_JOB_ID:
+        throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      // The date and time have different key values for getting and setting.
+      case Job.SCHEDULE_DATE:
+      case Job.SCHEDULE_TIME:
+        attribute = Job.SCHEDULE_DATE_GETTER;
+        break;
+      default:
+        break;
+    }
+
     if (currentSortKey_ >= sortKeys_.length)
     {
       int[] temp = sortKeys_;
@@ -468,7 +697,7 @@ Constructs a JobList object.
   /**
    * Clears the job attributes to be retrieved. This removes all of the job
    * attributes that would be retrieved. Some attributes are always
-   * retrieved, regardless if they are in this list or not.
+   * retrieved, regardless if they are in this list or not, such as job name, job number, and user name.
    * @see #addJobAttributeToRetrieve
   **/
   public void clearJobAttributesToRetrieve()
@@ -486,10 +715,12 @@ Constructs a JobList object.
   **/
   public void clearJobSelectionCriteria() throws PropertyVetoException
   {
-    setName(ALL);
-    setUser(ALL);
-    setNumber(ALL);
-    selectionJobType_ = "*";
+    // In case someone wants to veto us.
+    setName(SELECTION_JOB_NAME_ALL);
+    setUser(SELECTION_USER_NAME_ALL);
+    setNumber(SELECTION_JOB_NUMBER_ALL);
+
+    selectionJobType_ = SELECTION_JOB_TYPE_ALL;
     selectActiveJobs_ = true;
     selectJobQueueJobs_ = true;
     selectOutQueueJobs_ = true;
@@ -511,11 +742,12 @@ Constructs a JobList object.
    
 
 /**
-Adds a PropertyChangeListener.  The specified PropertyChangeListener's
-<b>propertyChange()</b> method will be called each time the value of
-any bound property is changed.
-@param listener The listener.
-*/
+   * Adds a PropertyChangeListener.  The specified PropertyChangeListener's
+   * <b>propertyChange()</b> method will be called each time the value of
+   * any bound property is changed.
+   * @param listener The listener.
+   * @see #removePropertyChangeListener
+  **/
   public void addPropertyChangeListener(PropertyChangeListener listener)
   {
     if (listener == null) throw new NullPointerException("listener");
@@ -526,11 +758,12 @@ any bound property is changed.
 
 
 /**
-Adds a VetoableChangeListener.  The specified VetoableChangeListener's
-<b>vetoableChange()</b> method will be called each time the value of
-any constrained property is changed.
-@param listener The listener.
-*/
+   * Adds a VetoableChangeListener.  The specified VetoableChangeListener's
+   * <b>vetoableChange()</b> method will be called each time the value of
+   * any constrained property is changed.
+   * @param listener The listener.
+   * @see #removeVetoableChangeListener
+  **/
   public void addVetoableChangeListener(VetoableChangeListener listener)
   {
     if (listener == null) throw new NullPointerException("listener");
@@ -540,10 +773,15 @@ any constrained property is changed.
 
 
 
-//@E0A  
   /**
    * Closes the job list on the system.
    * This releases any system resources previously in use by this job list.
+   * @exception AS400Exception                  If the system returns an error message.
+   * @exception AS400SecurityException          If a security or authority error occurs.
+   * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+   * @exception InterruptedException            If this thread is interrupted.
+   * @exception IOException                     If an error occurs while communicating with the system.
+   * @exception ObjectDoesNotExistException     If the object does not exist on the system.
   **/
   public synchronized void close() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
@@ -612,6 +850,7 @@ This is the same as calling getJobs(-1, getLength()).
 @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
 @exception ServerStartupException          If the AS/400 server cannot be started.
 @exception UnknownHostException            If the AS/400 system cannot be located.
+@see com.ibm.as400.access.Job
 **/
   public Enumeration getJobs() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
@@ -644,6 +883,13 @@ This is the same as calling getJobs(-1, getLength()).
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
    * to the list length.
    * @return The array of retrieved {@link com.ibm.as400.access.Job Job} objects.
+   * @exception AS400Exception                  If the system returns an error message.
+   * @exception AS400SecurityException          If a security or authority error occurs.
+   * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+   * @exception InterruptedException            If this thread is interrupted.
+   * @exception IOException                     If an error occurs while communicating with the system.
+   * @exception ObjectDoesNotExistException     If the object does not exist on the system.
+   * @see com.ibm.as400.access.Job
   **/
   public Job[] getJobs(int listOffset, int number) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
@@ -662,7 +908,7 @@ This is the same as calling getJobs(-1, getLength()).
       throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
-    if (number == 0)
+    if (number == 0 && listOffset != -1)
     {
       return new Job[0];
     }
@@ -737,6 +983,9 @@ This is the same as calling getJobs(-1, getLength()).
   }
 
 
+  /**
+   * Helper class. Used to wrap the Job[] with an Enumeration.
+  **/
   static class JobEnumeration implements Enumeration
   {
     private Job[] jobs_;
@@ -763,9 +1012,10 @@ This is the same as calling getJobs(-1, getLength()).
 
 
 /**
-Returns the number of jobs in the list.
-
-@return The number of jobs, or 0 if no list has been retrieved.
+Returns the number of jobs in the list. This method implicitly calls {@link #load load()} 
+if it has not already been called.
+@return The number of jobs, or 0 if no list was retrieved.
+@see #load
 **/
   public int getLength()
   {
@@ -780,7 +1030,7 @@ Returns the number of jobs in the list.
     {
       if (Trace.traceOn_)
       {
-        Trace.log(Trace.ERROR, "Exception caught on JobList load():", e);
+        Trace.log(Trace.ERROR, "Exception caught on JobList getLength():", e);
       }
     }
 
@@ -790,8 +1040,9 @@ Returns the number of jobs in the list.
 
 
 /**
-Returns the job name that describes which jobs are returned.
-@return The job name.
+   * Returns the job name that describes which jobs are returned.
+   * @return The job name.
+   * @see #setName
 **/
   public String getName()
   {
@@ -801,8 +1052,9 @@ Returns the job name that describes which jobs are returned.
 
 
 /**
-Returns the job number that describes which jobs are returned.
-@return The job number.
+   * Returns the job number that describes which jobs are returned.
+   * @return The job number.
+   * @see #setNumber
 **/
   public String getNumber()
   {
@@ -812,8 +1064,9 @@ Returns the job number that describes which jobs are returned.
 
 
 /**
-Returns the system.
-@return The system.
+   * Returns the system.
+   * @return The system.
+   * @see #setSystem
 **/
   public AS400 getSystem()
   {
@@ -823,8 +1076,9 @@ Returns the system.
 
 
 /**
-Returns the user name that describes which jobs are returned.
-@return The user name.
+   * Returns the user name that describes which jobs are returned.
+   * @return The user name.
+   * @see #setUser
 **/
   public String getUser()
   {
@@ -833,16 +1087,14 @@ Returns the user name that describes which jobs are returned.
 
 
 
-//@E0A
   /**
    * Loads the list of jobs on the system. This method informs the
    * system to build a list of jobs given the previously added job
-   * attribute keys. This method blocks until the system returns
+   * attributes to select, retrieve, and sort. This method blocks until the system returns
    * the total number of jobs it has compiled. A subsequent call to
    * {@link #getJobs getJobs()} will retrieve the actual job information
-   * and attributes from the system, for each job in the list.
-   * <p>After this method is called, the elapsed time and list length
-   * are updated.
+   * and attributes for each job in the list from the system.
+   * <p>This method updates the list length.
    *
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
@@ -853,6 +1105,7 @@ Returns the user name that describes which jobs are returned.
    * @exception ObjectDoesNotExistException     If the object does not exist on the system.
    * @exception ServerStartupException          If the server cannot be started.
    * @exception UnknownHostException            If the system cannot be located.
+   * @see #getLength
   **/
   public synchronized void load() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
@@ -1130,7 +1383,6 @@ Returns the user name that describes which jobs are returned.
           case Job.MAX_CPU_TIME:
           case Job.MAX_TEMP_STORAGE:
           //case Job.MAX_THREADS:
-          //case Job.MAX_TEMP_STORAGE_LARGE:
           case Job.AUXILIARY_IO_REQUESTS:
           case Job.INTERACTIVE_TRANSACTIONS:
           //case Job.NUM_DATABASE_LOCK_WAITS:
@@ -1146,7 +1398,12 @@ Returns the user name that describes which jobs are returned.
           case Job.TIME_SLICE:
           case Job.TEMP_STORAGE_USED:
           case Job.USER_RETURN_CODE:
-            dataType = (short)0;
+            dataType = (short)0; // signed binary
+            fieldLength = 4;
+            break;
+          case Job.TEMP_STORAGE_USED_LARGE:
+          case Job.MAX_TEMP_STORAGE_LARGE:
+            dataType = (short)9; // unsigned binary
             fieldLength = 4;
             break;
           case Job.CPU_TIME_USED_LARGE:
@@ -1289,6 +1546,7 @@ Returns the user name that describes which jobs are returned.
 /**
 Removes a PropertyChangeListener.
 @param listener The listener.
+@see #addPropertyChangeListener
 **/
   public void removePropertyChangeListener(PropertyChangeListener listener)
   {
@@ -1302,6 +1560,7 @@ Removes a PropertyChangeListener.
 /**
 Removes a VetoableChangeListener.
 @param listener The listener.
+@see #addVetoableChangeListener
 **/
   public void removeVetoableChangeListener(VetoableChangeListener listener)
   {
@@ -1327,6 +1586,7 @@ The default is ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
 @param name The job name, or {@link #ALL ALL} for all job names.
 @exception PropertyVetoException If the change is vetoed.
+@see #getName
 **/
   public void setName(String name) throws PropertyVetoException
   {
@@ -1358,6 +1618,7 @@ The default is ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
 @param number The job number, or {@link #ALL ALL} for all job numbers.
 @exception PropertyVetoException If the change is vetoed.
+@see #getNumber
 **/
   public void setNumber(String number) throws PropertyVetoException
   {
@@ -1389,6 +1650,7 @@ Sets the system.  This cannot be changed if the object
 has established a connection to the server.
 @param system The system.
 @exception PropertyVetoException    If the property change is vetoed.
+@see #getSystem
 **/
   public void setSystem(AS400 system) throws PropertyVetoException
   {
@@ -1420,6 +1682,7 @@ The default is ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
 @param user The user name, or {@link #ALL ALL} for all user names.
 @exception PropertyVetoException If the change is vetoed.
+@see #getUser
 **/
   public void setUser(String user) throws PropertyVetoException
   {
