@@ -24,6 +24,8 @@ public class BidiConversionProperties implements Serializable
 
     // String type.
     private int bidiStringType_ = BidiStringType.DEFAULT;
+    // Only remove marks on the J2A transform.
+    boolean removeMarksOnImplicitToVisual_ = false;
     // All of the options to affect BIDI transforms.
     BidiTransform transformOptions_ = new BidiTransform();
 
@@ -46,36 +48,6 @@ public class BidiConversionProperties implements Serializable
         copyOptionsTo(transform, transformOptions_);
     }
 
-    // Internal method to copy all the options from one object to another.
-    void copyValues(BidiConversionProperties properties)
-    {
-        bidiStringType_ = properties.bidiStringType_;
-        transformOptions_ = properties.transformOptions_;
-    }
-
-    // Internal method to copy all the options from one object to another.
-    void copyOptionsTo(BidiTransform destination)
-    {
-        copyOptionsTo(transformOptions_, destination);
-    }
-
-    // Internal method to copy all the options from one object to another.
-    static void copyOptionsTo(BidiTransform sourceTransform, BidiTransform destTransform)
-    {
-        destTransform.continuation = sourceTransform.continuation;
-        destTransform.destinationRequired = sourceTransform.destinationRequired;
-        destTransform.dstToSrcMapRequired = sourceTransform.dstToSrcMapRequired;
-        destTransform.impToImp = sourceTransform.impToImp;
-        destTransform.insertMarkers = sourceTransform.insertMarkers;
-        destTransform.options = sourceTransform.options;
-        destTransform.propertyMapRequired = sourceTransform.propertyMapRequired;
-        destTransform.removeMarkers = sourceTransform.removeMarkers;
-        destTransform.roundTrip = sourceTransform.roundTrip;
-        destTransform.srcToDstMapRequired = sourceTransform.srcToDstMapRequired;
-        destTransform.winCompatible = sourceTransform.winCompatible;
-        destTransform.wordBreak = sourceTransform.wordBreak;
-    }
-
     /**
      Sets the bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.  This option is set to BidiStringType.DEFAULT by default.
      @param  bidiStringType  The bidi string type.
@@ -91,11 +63,6 @@ public class BidiConversionProperties implements Serializable
         bidiStringType_ = bidiStringType;
     }
 
-    BidiTransform getTransformOptions()
-    {
-        return transformOptions_;
-    }
-
     /**
      Gets the bidi string type.
      @return  The bidi string type.
@@ -104,6 +71,54 @@ public class BidiConversionProperties implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting bidi string type:", bidiStringType_);
         return bidiStringType_;
+    }
+
+    /**
+     Remove the directional marks only when transforming from logical to visual.
+     @param  removeMarks  true to remove the directional marks only when transforming from logical to visual; false otherwise.
+     **/
+    public void setBidiRemoveMarksOnImplicitToVisual(boolean removeMarks)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi remove the directional marks only when transforming from logical to visual property:", removeMarks);
+        removeMarksOnImplicitToVisual_ = removeMarks;
+    }
+
+    /**
+     Indicates the value of the bidi remove the directional marks only when transforming from logical to visual property.
+     @@return  true if the remove the directional marks only when transforming from logical to visual property is enabled; false otherwise.
+     **/
+    public boolean isBidiRemoveMarksOnImplicitToVisual()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if remove the directional marks only when transforming from logical to visual property is set:", removeMarksOnImplicitToVisual_);
+        return removeMarksOnImplicitToVisual_;
+    }
+
+    BidiTransform getTransformOptions()
+    {
+        return transformOptions_;
+    }
+
+    // Internal method to copy all the options from one object to another.
+    void copyOptionsTo(BidiTransform destination)
+    {
+        copyOptionsTo(transformOptions_, destination);
+    }
+
+    // Internal method to copy all the options from one object to another.
+    static void copyOptionsTo(BidiTransform sourceTransform, BidiTransform destTransform)
+    {
+        destTransform.impToImp = sourceTransform.impToImp;
+        destTransform.roundTrip = sourceTransform.roundTrip;
+        destTransform.winCompatible = sourceTransform.winCompatible;
+        destTransform.insertMarkers = sourceTransform.insertMarkers;
+        destTransform.removeMarkers = sourceTransform.removeMarkers;
+        destTransform.options = sourceTransform.options;
+        destTransform.wordBreak = sourceTransform.wordBreak;
+        destTransform.destinationRequired = sourceTransform.destinationRequired;
+        destTransform.srcToDstMapRequired = sourceTransform.srcToDstMapRequired;
+        destTransform.dstToSrcMapRequired = sourceTransform.dstToSrcMapRequired;
+        destTransform.propertyMapRequired = sourceTransform.propertyMapRequired;
+        destTransform.continuation = sourceTransform.continuation;
     }
 
     /**
@@ -147,6 +162,27 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
+     Sets the bidi window compatibility  property.  This property is false by default.
+     <p>If this option is true, the reordering algorithm is modified to perform more closely like Windows.  In particular, logical string "12ABC" in LTR orientation (where ABC represent Arabic or Hebrew letters) is reordered as "CBA12" instead of "12CBA".  Also, logical string "abc 123 45" (where all digits represent Hindi numbers) is reordered as "abc 123 45" instead of "abc 45 123".
+     @param  bidiWindowCompatibility  true to use the window compatibility property; false otherwise.
+     **/
+    public void setBidiWindowCompatibility(boolean bidiWindowCompatibility)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi window compatibility:", bidiWindowCompatibility);
+        transformOptions_.winCompatible = bidiWindowCompatibility;
+    }
+
+    /**
+     Indicates the value of the bidi window compatibility property.
+     @return  true if the bidi window compatibility  property is enabled; false otherwise.
+     **/
+    public boolean isBidiWindowCompatibility()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility:", transformOptions_.winCompatible);
+        return transformOptions_.winCompatible;
+    }
+
+    /**
      Sets the bidi insert directional marks property.  This property is false by default.  Insert directional marks when going from visual to implicit to guarantee correct roundtrip back to visual.
      @param  bidiInsertDirectionalMarks  true to use the insert directional marks property; false otherwise.
      **/
@@ -187,24 +223,119 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Sets the bidi window compatibility  property.  This property is false by default.
-     <p>If this option is true, the reordering algorithm is modified to perform more closely like Windows.  In particular, logical string "12ABC" in LTR orientation (where ABC represent Arabic or Hebrew letters) is reordered as "CBA12" instead of "12CBA".  Also, logical string "abc 123 45" (where all digits represent Hindi numbers) is reordered as "abc 123 45" instead of "abc 45 123".
-     @param  bidiWindowCompatibility  true to use the window compatibility property; false otherwise.
+     Sets the bidi consider white space to always follow base orientation property.  This property is false by default.
+     @param  bidiRemoveDirectionalMarks  true to consider white space to always follow base orientation; false otherwise.
      **/
-    public void setBidiWindowCompatibility(boolean bidiWindowCompatibility)
+    public void setBidiWordBreak(boolean wordBreak)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi window compatibility marks:", bidiWindowCompatibility);
-        transformOptions_.winCompatible = bidiWindowCompatibility;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi word break:", wordBreak);
+        transformOptions_.wordBreak = wordBreak;
     }
 
     /**
-     Indicates the value of the bidi window compatibility property.
-     @return  true if the bidi window compatibility  property is enabled; false otherwise.
+     Indicates the value of the bidi consider white space to always follow base orientation property.
+     @return  true if the bidi consider white space to always follow base orientation property is enabled; false otherwise.
      **/
-    public boolean isBidiWindowCompatibility()
+    public boolean isBidiWordBreak()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility marks:", transformOptions_.winCompatible);
-        return transformOptions_.winCompatible;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi consider white space to always follow base orientation:", transformOptions_.wordBreak);
+        return transformOptions_.wordBreak;
+    }
+
+    /**
+     Sets the bidi destination required property.  This property is true by default.
+     @param  bidiRemoveDirectionalMarks  true if the destination is required; false otherwise.
+     **/
+    public void setBidiDestinationRequired(boolean destinationRequired)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi destination required:", destinationRequired);
+        transformOptions_.destinationRequired = destinationRequired;
+    }
+
+    /**
+     Indicates the value of the bidi consider white space to always follow base orientation property.
+     @return  true if the bidi consider white space to always follow base orientation property is enabled; false otherwise.
+     **/
+    public boolean isBidiDestinationRequired()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi destination required:", transformOptions_.destinationRequired);
+        return transformOptions_.destinationRequired;
+    }
+
+    /**
+     Sets the create a source to destination mapping property.  This property is false by default.
+     @param  srcToDstMapRequired  true to use the bidi create a source to destination mapping property; false otherwise.
+     **/
+    public void setBidiCreateSourceToDestinationMapping(boolean srcToDstMapRequired)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi create a source to destination mapping property:", srcToDstMapRequired);
+        transformOptions_.srcToDstMapRequired = srcToDstMapRequired;
+    }
+
+    /**
+     Indicates the value of the bidi create a source to destination mapping property.
+     @return  true if the bidi create a source to destination mapping property is enabled; false otherwise.
+     **/
+    public boolean isBidiCreateSourceToDestinationMapping()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if create a source to destination mapping property is set:", transformOptions_.srcToDstMapRequired);
+        return transformOptions_.srcToDstMapRequired;
+    }
+
+    /**
+     Sets the create a destination to source mapping property.  This property is false by default.
+     @param  dstToSrcMapRequired  true to use the create a destination to source mapping property; false otherwise.
+     **/
+    public void setBidiCreateDestinationToSourceMapping(boolean dstToSrcMapRequired)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi create a destination to source mapping property:", dstToSrcMapRequired);
+        transformOptions_.dstToSrcMapRequired = dstToSrcMapRequired;
+    }
+
+    /**
+     Indicates the value of the bidi create a destination to source mapping property.
+     @return  true if the bidi create a destination to source mapping property is enabled; false otherwise.
+     **/
+    public boolean isBidiCreateDestinationToSourceMapping()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if create a destination to source mapping property is set:", transformOptions_.dstToSrcMapRequired);
+        return transformOptions_.dstToSrcMapRequired;
+    }
+
+    /**
+     Sets the create a property map property.  This property is false by default.
+     @param  dstToSrcMapRequired  true to use the create a property map property; false otherwise.
+     **/
+    public void setBidiCreatePropertyMap(boolean propertyMapRequired)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi create property map property:", propertyMapRequired);
+        transformOptions_.propertyMapRequired = propertyMapRequired;
+    }
+
+    /**
+     Indicates the value of the bidi create a property map property.
+     @return  true if the bidi create a property map property is enabled; false otherwise.
+     **/
+    public boolean isBidiCreatePropertyMap()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi create property map property is set:", transformOptions_.propertyMapRequired);
+        return transformOptions_.propertyMapRequired;
+    }
+
+    /**
+     Output value: number of characters processed in the source data by the last transform.
+     **/
+    public int getInputCount()
+    {
+        return transformOptions_.inpCount;
+    }
+
+    /**
+     Output value: number of characters written in the destination data by the last transform
+     **/
+    public int getOutputCount()
+    {
+        return transformOptions_.outCount;
     }
 
     /**
@@ -218,22 +349,22 @@ public class BidiConversionProperties implements Serializable
     }
 
     /**
-     Sets the create a source to destination mapping property.  This property is false by default.
-     @param  srcToDstMapRequired  true to use the window compatibility marks property; false otherwise.
+     Output value: destination-to-source map from the last transform with dstToSrcMapRequired specified; may be null if no such request.
+     <p>If when starting a transformation this field refers to a large enough array of integers, this array will be re-used to put the new map.  Otherwise a new array will be created.
+     <p>This map has a number for each character in the "interesting" data of the destination BidiText.  This number is the index of the source character from which the destination character originates.  This index is relative to the beginning of the "interesting" data.  If the offset of the source BidiText is not zero, index 0 does not indicate the first character of the data array, but the character at position "offset".
      **/
-    public void setBidiCreateSourceToDestinationMapping(boolean srcToDstMapRequired)
+    public int[] getDestinationToSourceMap()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi source to destination mapping:", srcToDstMapRequired);
-        transformOptions_.srcToDstMapRequired = srcToDstMapRequired;
+        return transformOptions_.dstToSrcMap;
     }
 
     /**
-     Indicates the value of the bidi create a source to destination mapping property.
-     @return  true if the bidi create a source to destination mapping  property is enabled; false otherwise.
+     Output value: property map from the last transform with propertyMapRequired specified; may be null if no such request.
+     <p>If when starting a transformation this field refers to a large enough array of bytes, this array will be re-used to put the new map.  Otherwise a new array will be created.
+     <p>This map has a byte for each character in the "interesting" data of the source BidiText.  The 6 lower bits of each property element is the Bidi level of the corresponding input character.  The highest bit is a new-cell indicator for composed character environments: a value of 0 indicates a zero-length composing character element, and a value of 1 indicates an element that begins a new cell.
      **/
-    public boolean isBidiCreateSourceToDestinationMapping()
+    public byte[] getPropertyMap()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi source to destination mapping:", transformOptions_.srcToDstMapRequired);
-        return transformOptions_.srcToDstMapRequired;
+        return transformOptions_.propertyMap;
     }
 }

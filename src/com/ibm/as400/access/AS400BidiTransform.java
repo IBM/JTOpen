@@ -325,6 +325,11 @@ public class AS400BidiTransform
     {
         properties.copyOptionsTo(bdxJ2A_);
         properties.copyOptionsTo(bdxA2J_);
+        if (properties.isBidiRemoveMarksOnImplicitToVisual())
+        {
+            bdxJ2A_.removeMarkers=true;
+            bdxA2J_.removeMarkers=false;
+        }
         setJavaStringType(properties.getBidiStringType());
     }
 
