@@ -138,15 +138,26 @@ class NPConversation extends Object
                        NPCPAttribute cpCPFMessage = (NPCPAttribute)reply.getCodePoint(NPCodePoint.ATTRIBUTE_VALUE);
                        if (cpCPFMessage != null)
                        {
+                          String msgFileName = new String();                                      //&C1
+                          String msgLibraryName = new String();                                   //&C1
+                          String msgDate = cpCPFMessage.getStringValue(PrintObject.ATTR_DATE);    //&C1
+                          String msgTime = cpCPFMessage.getStringValue(PrintObject.ATTR_TIME);    //&C1
                           String strCPFMessageID = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGID);
                           String strCPFMessageText = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGTEXT);
                           String strCPFMessageHelp = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGHELP);
+                          String strCPFMessageDefaultReply = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGREPLY); //&C1
+                          Integer intCPFMessageSeverity = cpCPFMessage.getIntValue(PrintObject.ATTR_MSGSEV); //&C1
+                          String strCPFMessageType = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGTYPE); //&C1
+                          byte[] substitutionData = new byte[cpCPFMessage.getLength()];                  //&C1
+                          Integer intCPFMessageType = new Integer(strCPFMessageType);
 
                           Trace.log(Trace.ERROR, "CPF Message("+strCPFMessageID+") = "
                                + strCPFMessageText + ", HelpText= " +strCPFMessageHelp);
 
                          // Create an AS400Message object
-                         AS400Message msg = new AS400Message(strCPFMessageID, strCPFMessageText);
+                         AS400Message msg = new AS400Message(strCPFMessageID, strCPFMessageText, msgFileName , msgLibraryName, intCPFMessageSeverity.intValue(), intCPFMessageType.intValue(),  substitutionData , strCPFMessageHelp, msgDate, msgTime, strCPFMessageDefaultReply);
+
+                        // AS400Message msg = new AS400Message(strCPFMessageID, strCPFMessageText);
                          msg.setHelp(strCPFMessageHelp);
 
                          // throw an exception containing our CPF message
