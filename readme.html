@@ -9,7 +9,7 @@ Copyright (C) 1997-2004 International Business Machines Corporation and
 others. All rights reserved.
 
 File: README
-Last updated: June 30, 2004
+Last updated: August 2, 2004
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -47,7 +47,7 @@ The IBM Toolbox for Java is a set of Java classes that allow you to
 access AS/400 or iSeries data through a Java program. With these classes,
 you can write client/server applications, applets, and servlets that work
 with data on your server. You can also run Java applications that use the
-IBM Toolbox for Java on the OS/400 Java Virtual Machine.
+IBM Toolbox for Java on the i5/OS or OS/400 Java Virtual Machine.
 
 The Toolbox is available as an installable licensed program for the AS/400
 as of OS/400 V4R2 and the iSeries as of OS/400 V5R1. Here is a breakdown of
@@ -75,7 +75,7 @@ JTOpen 4.3+     5722JC1 V5R3M0  V5R1 and up     V5R1 and up
 Newer versions of the Toolbox are backwards-compatible with earlier
 versions. Upgrading to a newer version is usually recommended, with the one
 main exception being that the Toolbox is only supported 
-for connection to servers running either of the two prior releases of OS/400.
+for connection to servers running either of the two prior releases of i5/OS or OS/400.
 
 
 <HR><A NAME="why"><H3>Why Open Source?</H3></A>
@@ -154,14 +154,14 @@ Briefly, the requirements for using the JTOpen code are as follows:
 2. Almost all JTOpen functions require a TCP/IP connection to an iSeries or
    AS/400 server.
 
-   a. The server must be OS/400 V4R3 or higher.
+   a. The server must be i5/OS, or OS/400 V4R3 or higher.
 
    b. The server must have the Option 12 Host Servers installed and
       running. JTOpen uses the host servers as TCP/IP endpoints to
       communicate with the server from a client.
 
    c. If the Java application using JTOpen is being run directly on a server
-      running OS/400, then certain JTOpen functions might use native API and/or
+      running i5/OS or OS/400, then certain JTOpen functions might use native API and/or
       local socket calls to improve performance. This will only occur under
       certain conditions, and only if the jt400Native.jar is included in
       the application's CLASSPATH.
@@ -196,7 +196,7 @@ jt400Micro.jar    This contains the ToolboxME (Micro Edition) classes for
 jt400Native.jar   Previously known as jt400Access.zip, this jar does not
                   contain the vaccess package. It does contain the native
                   optimization classes necessary for running performance-enhanced
-                  applications on the OS/400 JVM.
+                  applications on the i5/OS or OS/400 JVM.
 
 jt400Proxy.jar    This jar contains just the classes needed to run a client
                   application using the Toolbox proxy server. It is
