@@ -787,7 +787,7 @@ public class CommandHelpRetriever
 
     for (int i=0; i<mriUIMTags_.length; ++i)
     {
-      parms[i] = new String[] { "_"+mriUIMTags_[i], encode(bundle2.getString("GENCMDDOC_"+mriUIMTags_[i]))};
+      parms[i] = new String[] { "_"+mriUIMTags_[i], bundle2.getString("GENCMDDOC_"+mriUIMTags_[i])};
     }
 
     return parms;
