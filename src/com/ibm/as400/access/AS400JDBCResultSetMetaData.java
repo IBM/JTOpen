@@ -322,7 +322,10 @@ implements ResultSetMetaData
         // because we already have the information, we should return it to the user if they want it...
         if(extendedColumnDescriptors_ != null)
         {
-            return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableName(convTable_);       //K1C  use to call getBaseTableSchemaName
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
+            if(dataFormat != null)                                                                                      //@KBA  Depending on the query, dataFormat returned by the host server may be null.  For example, if a union was used or an expression
+                return dataFormat.getBaseTableName(convTable_);                                                         //@KBA
+            //@KBD return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableName(convTable_);       //K1C  use to call getBaseTableSchemaName
         }
 
         // we still return "" if we don't have the Base Table Name
