@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Trace.java
 //                                                                             
@@ -46,6 +46,9 @@ import java.util.Hashtable;                                         // $W1A
   <li>PROXY<br>
   This category is used by Toolbox classes to log data flow between the
   client and the proxy server.  It is not intended for use by application classes.
+  <li>PCML<br>
+  This category is used to determine how PCML interprets the data that is 
+  sent to and from the server.    
   </ul>
 
   <P>
@@ -190,7 +193,7 @@ public class Trace
 
 
 
-    private static boolean traceOn_;
+    static boolean traceOn_; //@P0C
     private static boolean traceInfo_;
     private static boolean traceWarning_;
     private static boolean traceError_;
@@ -250,9 +253,15 @@ public class Trace
      **/
     public static final int PROXY = 6;                           // @D0A
 
+    /**
+      PCML trace category.  This category is used to determine how PCML interprets
+      the data that is sent to and from the server.  
+     **/
+    public static final int PCML = 7;                            // @D8A
+
 
     // This is used so we don't have to change our bounds checking every time we add a new trace category.
-    private static final int LAST_ONE = 7; // @D3A
+    private static final int LAST_ONE = 8; // @D3A @D8C
 
     // The following are trace categories which cannot be log()-ed to directly.
     /**
@@ -461,10 +470,12 @@ public class Trace
     {
             // Load and apply the trace categories system property.
         String categories = SystemProperties.getProperty(SystemProperties.TRACE_CATEGORY);
-        if (categories != null) {
+        if (categories != null)
+        {
             setTraceOn (true);
             StringTokenizer tokenizer = new StringTokenizer (categories, ", ;");
-            while (tokenizer.hasMoreTokens ()) {
+            while (tokenizer.hasMoreTokens ())
+            {
                 String category = tokenizer.nextToken ();
                 if (category.equalsIgnoreCase ("datastream"))
                     setTraceDatastreamOn (true);
@@ -488,7 +499,8 @@ public class Trace
                     setTracePCMLOn (true);   // @D5A
                 else if (category.equalsIgnoreCase ("all")) //@D2A
                     setTraceAllOn (true); //@D2A
-                else {
+                else
+                {
                     if (isTraceOn ())
                         Trace.log (Trace.WARNING, "Trace category not valid: " + category + ".");
                 }
@@ -497,11 +509,14 @@ public class Trace
 
         // Load and apply the trace file system property.
         String file = SystemProperties.getProperty (SystemProperties.TRACE_FILE);
-        if (file != null) {
-            try {
+        if (file != null)
+        {
+            try
+            {
                 setFileName (file);
             }
-            catch (IOException e) {
+            catch (IOException e)
+            {
                 if (isTraceOn ())
                     Trace.log (Trace.WARNING, "Trace file not valid: " + file + ".", e);
             }
@@ -516,7 +531,8 @@ public class Trace
             pw.print("[" + component.toString() + "]  ");      //@W1A
 
       if (traceThread_)                                        //@D3A @W1C
-      {                                                        //@D3A @W1C
+        {
+            //@D3A @W1C
         pw.print(Thread.currentThread().toString());           //@D3A @W1C
         pw.print("  ");                                        //@D3A @W1C
       }                                                        //@D3A @W1C
@@ -1027,7 +1043,7 @@ public class Trace
       traceError_      = traceAll;
       traceInfo_       = traceAll;
       setTraceJDBCOn(traceAll);    // @D6C
-      setTracePCMLOn(traceAll);    // @D6C
+        tracePCML_       = traceAll; // @D6C @D8C
       traceProxy_      = traceAll;
       traceThread_     = traceAll; //@D3A
       traceWarning_    = traceAll;
@@ -1102,7 +1118,7 @@ public class Trace
 
          PrintStream ps = new PrintStream(os, true);         // @D5A
          java.sql.DriverManager.setLogStream(ps);            // @D5A
-         com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A
+            // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
 
          fileName_ = fileName;
      }
@@ -1113,7 +1129,7 @@ public class Trace
 
          PrintStream ps = new PrintStream(System.out, true); // @D5A
          java.sql.DriverManager.setLogStream(ps);            // @D5A
-         com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A
+            // com.ibm.as400.data.PcmlMessageLog.setLogStream(ps); // @D5A @D8D
 
          fileName_ = null;
          destination_ = new PrintWriter(System.out, true);
@@ -1253,7 +1269,8 @@ public class Trace
       @param  traceOn  If true, tracing is on; otherwise, all tracing is disabled.
      **/
     public static void setTraceOn(boolean traceOn)
-    {  traceOn_ = traceOn;
+    {
+        traceOn_ = traceOn;
        if (traceOn_)                                    //$D1A
           destination_.println("Toolbox for Java - " + Copyright.version);   // @A1C //@W1A //@D4C
     }
@@ -1269,14 +1286,14 @@ public class Trace
     {
         tracePCML_ = tracePCML;
 
-        try                                                                                                                            // @D7A
-        {                                                                                                                               // @D7A
-            com.ibm.as400.data.PcmlMessageLog.setTraceEnabled(tracePCML);                                           
-        }                                                                                                                               // @D7A
-        catch (NoClassDefFoundError e)                                                                                         // @D7A
-        {                                                                                                                               // @D7A
-            destination_.println("Unable to enable PCML tracing:  NoClassDefFoundError - PcmlMessageLog");    // @D7A
-        }                                                                                                                               // @D7A
+        // try                                                                                                   // @D7A @D8D
+        // {                                                                                                     // @D7A @D8D
+        //     com.ibm.as400.data.PcmlMessageLog.setTraceEnabled(tracePCML);                                     //      @D8D
+        // }                                                                                                     // @D7A @D8D
+        // catch (NoClassDefFoundError e)                                                                        // @D7A @D8D
+        // {                                                                                                     // @D7A @D8D
+        //     destination_.println("Unable to enable PCML tracing:  NoClassDefFoundError - PcmlMessageLog");    // @D7A @D8D
+        // }                                                                                                     // @D7A @D8D
     }
 
 
@@ -1346,6 +1363,9 @@ public class Trace
          case PROXY:                   
           trace = traceProxy_;         
           break;                       
+        case PCML:                                          // @D8A
+            trace = tracePCML_;                             // @D8A
+            break;                                          // @D8A
          default:
           throw new ExtendedIllegalArgumentException("category ("
                    + Integer.toString(category)
