@@ -485,7 +485,7 @@
         <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
         <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
       </classpath>
-      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
+      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
       <group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
       <group title="Toolbox Micro Edition Packages" packages="com.ibm.as400.micro"/>
       <!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
