@@ -1935,8 +1935,13 @@ public class AS400JDBCStatement implements Statement
     protected void finalize ()
     throws Throwable
     {
-        if(! isClosed ())
-            close ();
+        try{
+            if(! isClosed ())
+                close ();
+        }
+        catch(Exception e){
+            //catch any exceptions and don't throw them
+        }
         super.finalize ();
     }
 

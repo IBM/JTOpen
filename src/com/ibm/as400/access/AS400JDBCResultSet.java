@@ -482,8 +482,13 @@ public class AS400JDBCResultSet implements ResultSet
     protected void finalize ()
     throws Throwable
     {
-        if(! closed_)
-            close ();
+        try{
+            if(! closed_)
+                close ();
+        }
+        catch(Exception e){
+            //catch any exceptions and don't throw them
+        }
         super.finalize ();
     }
 
