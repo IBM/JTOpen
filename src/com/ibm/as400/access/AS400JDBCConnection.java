@@ -865,7 +865,14 @@ Indicates if the connection is closed.
     public boolean isClosed ()
 		throws SQLException
     {
-		return (server_ == null);
+		if (server_ == null)                        // @EFC
+            return true;                            // @EFA
+        if (!server_.isConnected()) {               // @EFA
+            server_ = null;                         // @EFA
+            return true;                            // @EFA
+        }                                           // @EFA
+        else                                        // @EFA
+            return false;                           // @EFA
     }
 
 
