@@ -310,17 +310,17 @@ abstract class PermissionAccess
      *
     **/
     ProgramParameter[] getParameters(int length, String objName, boolean useUnicode)
+      throws UnsupportedEncodingException
     {
 
         ProgramParameter[] parmList=new ProgramParameter[8];
-        AS400Bin4 bin4=new AS400Bin4();
         parmList[0]=new ProgramParameter(length);
 
-        parmList[1]=new ProgramParameter(bin4.toBytes(length));
+        parmList[1]=new ProgramParameter(BinaryConverter.intToByteArray(length));
 
         parmList[2]=new ProgramParameter(55);
 
-        parmList[3]=new ProgramParameter(bin4.toBytes(55));
+        parmList[3]=new ProgramParameter(BinaryConverter.intToByteArray(55));
 
         AS400Text text8 = new AS400Text(8, getCcsid(), as400_); //@A2C
         parmList[4]=new ProgramParameter(text8.toBytes("RTUA0100"));
@@ -332,9 +332,6 @@ abstract class PermissionAccess
           {
             Trace.log(Trace.DIAGNOSTIC, "PermissionAccess creating QSYRTVUA parameters using job CCSID.");
           }
-          // #bytes == ((length*5)+3)/2 == worst case mixed-byte array size +1 for extra shift byte, just in case.
-          int objnameBytesLength = ((objName.length()*5) + 3) / 2;
-          AS400Text text = new AS400Text(objnameBytesLength, getCcsid(), as400_); //@A2C
 
           //@A3A: Need to use uppercase name if it is a DLO object because
           // ccsid 5026 currently doesn't convert a lowercase name to an
@@ -352,9 +349,10 @@ abstract class PermissionAccess
               Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
             }
           }
-          parmList[5]=new ProgramParameter(text.toBytes(objName));
+          byte[] objnameBytes = CharConverter.stringToByteArray(getCcsid(), as400_, objName);
+          parmList[5]=new ProgramParameter(objnameBytes);
 
-          parmList[6]=new ProgramParameter(bin4.toBytes(objnameBytesLength));
+          parmList[6]=new ProgramParameter(BinaryConverter.intToByteArray(objnameBytes.length));
         }
         else
         {
@@ -399,6 +397,7 @@ abstract class PermissionAccess
               pathNameBytes[bc*2+1] = (byte)(pathChar);
             }
           }
+
           byte[] qlgPathNameTStructure = new byte[32 + pathNameBytes.length];
           BinaryConverter.intToByteArray(1200, qlgPathNameTStructure, 0); // CCSID
           // 2-byte country or region ID... x0000 = use current job settings
@@ -413,7 +412,7 @@ abstract class PermissionAccess
           System.arraycopy(pathNameBytes, 0, qlgPathNameTStructure, 32, pathNameBytes.length); // path name
 
           parmList[5] = new ProgramParameter(qlgPathNameTStructure);
-          parmList[6] = new ProgramParameter(bin4.toBytes(-1));
+          parmList[6] = new ProgramParameter(BinaryConverter.intToByteArray(-1));
         }
 
         byte[] errorInfo = new byte[32];
