@@ -365,7 +365,7 @@ were placed in the Vector as the user called setString on the CLOB.
 
     @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
     @param string The string that will be written to the CLOB.
-    @param offset The offset into string to start reading characters (1-based).
+    @param offset The offset into string to start reading characters (0-based).
     @param lengthOfWrite The number of characters to write.
     @return The number of characters written.
 
@@ -378,10 +378,10 @@ were placed in the Vector as the user called setString on the CLOB.
     throws SQLException
     {
         // Validate the parameters
-        if ((lengthOfWrite < 0) || (offset <= 0) || (string == null) || positionToStartWriting > locator_.getLength())
+        if ((lengthOfWrite < 0) || (offset < 0) || (string == null) || positionToStartWriting > locator_.getLength())  //@H3C
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        offset--;
+        //@H3D offset--;
 
         return setString(positionToStartWriting, string.substring(offset,lengthOfWrite));
     }
@@ -423,9 +423,9 @@ when ResultSet.updateClob() is called.
     truncation.
      
     @exception SQLException If there is an error accessing the CLOB or if the length
-    specified is greater than the length of the CLOB.    
+    specified is greater than the length of the CLOB. 
     
-    @since Modification 5
+    @since Modification 5   
     **/
     public void truncate(long lengthOfCLOB)
     throws SQLException

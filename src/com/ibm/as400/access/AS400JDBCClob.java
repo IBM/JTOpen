@@ -49,7 +49,7 @@ implements Clob
 Constructs an AS400JDBCClob object.  The data is contained
 in the String.  No further server communication is necessary.
 
-@param  data     The clob data.
+@param  data     The CLOB data.
 **/
     AS400JDBCClob (String data)
     {
@@ -60,14 +60,14 @@ in the String.  No further server communication is necessary.
 
 
 /**
-Returns the entire clob as a stream of ASCII characters.
+Returns the entire CLOB as a stream of ASCII characters.
 
 @return The stream.
 
 @exception  SQLException    If an error occurs.
 **/
     public InputStream getAsciiStream ()
-        throws SQLException
+    throws SQLException
     {
         try {
             return new ByteArrayInputStream (data_.getBytes ("ISO8859_1"));
@@ -81,14 +81,14 @@ Returns the entire clob as a stream of ASCII characters.
 
 
 /**
-Returns the entire clob as a character stream.
+Returns the entire CLOB as a character stream.
 
 @return The stream.
 
 @exception  SQLException    If an error occurs.
 **/
     public Reader getCharacterStream ()
-        throws SQLException
+    throws SQLException
     {
         return new StringReader (data_);
     }
@@ -97,9 +97,9 @@ Returns the entire clob as a character stream.
 
 // @B1C
 /**
-Returns part of the contents of the clob.
+Returns part of the contents of the CLOB.
 
-@param  start       The start position within the clob (1-based).
+@param  start       The start position within the CLOB (1-based).
 @param  length      The length to return.
 @return             The contents.
 
@@ -108,7 +108,7 @@ Returns part of the contents of the clob.
                             or an error occurs.
 **/
     public String getSubString (long start, int length)
-        throws SQLException
+    throws SQLException
     {
         // Validate the parameters.
         --start;                                                        // @B1A
@@ -123,14 +123,14 @@ Returns part of the contents of the clob.
 
 
 /**
-Returns the length of the clob.
+Returns the length of the CLOB.
 
-@return     The length of the clob, in characters.
+@return     The length of the CLOB, in characters.
 
 @exception SQLException     If an error occurs.
 **/
     public long length ()
-        throws SQLException
+    throws SQLException
     {
         return length_;
     }
@@ -139,10 +139,10 @@ Returns the length of the clob.
 
 // @B1C
 /**
-Returns the position at which a pattern is found in the clob.
+Returns the position at which a pattern is found in the CLOB.
 
 @param  pattern     The pattern.
-@param  start       The position within the clob to begin
+@param  start       The position within the CLOB to begin
                     searching (1-based).
 @return             The position at which the pattern
                     is found, or -1 if the pattern is not
@@ -153,7 +153,7 @@ Returns the position at which a pattern is found in the clob.
                             or an error occurs.
 **/
     public long position (String pattern, long start)
-        throws SQLException
+    throws SQLException
     {
         // Validate the parameters.
         --start;                                                            // @B1A
@@ -167,10 +167,10 @@ Returns the position at which a pattern is found in the clob.
 
 // @B1C
 /**
-Returns the position at which a pattern is found in the clob.
+Returns the position at which a pattern is found in the CLOB.
 
 @param  pattern     The pattern.
-@param  start       The position within the clob to begin
+@param  start       The position within the CLOB to begin
                     searching (1-based).
 @return             The position at which the pattern
                     is found, or -1 if the pattern is not
@@ -181,7 +181,7 @@ Returns the position at which a pattern is found in the clob.
                             or an error occurs.
 **/
     public long position (Clob pattern, long start)
-        throws SQLException
+    throws SQLException
     {
         // Validate the parameters.
         --start;                                                                // @B1A
@@ -209,7 +209,7 @@ Returns the position at which a pattern is found in the clob.
     throws SQLException
     {
         if (positionToStartWriting <= 0 || positionToStartWriting > length_)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         //Didn't decrement the position here even though clobs are 1-based and output streams
         //are 0-based because output stream uses this number for what position to call
@@ -287,7 +287,7 @@ Returns the position at which a pattern is found in the clob.
 
     @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
     @param string The string that will be written to the CLOB.
-    @param offset The offset into string to start reading characters (1-based).
+    @param offset The offset into string to start reading characters (0-based).
     @param lengthOfWrite The number of characters to write.
     @return The number of characters written.
 
@@ -299,10 +299,10 @@ Returns the position at which a pattern is found in the clob.
     public int setString (long positionToStartWriting, String string, int offset, int lengthOfWrite)
     throws SQLException
     {
-        if ((lengthOfWrite < 0) || (offset <= 0) || (string == null))
+        if ((lengthOfWrite < 0) || (offset < 0) || (string == null))            //@H2C
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        offset--;
+        //@H2D offset--;
 
         return setString(positionToStartWriting, string.substring(offset, lengthOfWrite));
     }

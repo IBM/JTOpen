@@ -46,7 +46,7 @@ Constructs an AS400JDBCBlob object.  The data is contained
 in the raw byte array.  No further server communication
 is necessary.
 
-@param  data     The blob data.
+@param  data     The BLOB data.
 **/
     AS400JDBCBlob (DBByteSubarray data)
     {
@@ -61,7 +61,7 @@ Constructs an AS400JDBCBlob object.  The data is contained
 in the raw byte array.  No further server communication
 is necessary.
 
-@param  data     The blob data.
+@param  data     The BLOB data.
 **/
     AS400JDBCBlob (byte[] data)
     {
@@ -107,7 +107,7 @@ a byte array.
 
 
 /**
-Returns the entire blob as a stream of uninterpreted bytes.
+Returns the entire BLOB as a stream of uninterpreted bytes.
 
 @return The stream.
 
@@ -123,9 +123,9 @@ Returns the entire blob as a stream of uninterpreted bytes.
 
 // @B1C
 /**
-Returns part of the contents of the blob.
+Returns part of the contents of the BLOB.
 
-@param  start       The start position within the blob (1-based).
+@param  start       The start position within the BLOB (1-based).
 @param  length      The length to return.
 @return             The contents.
 
@@ -151,9 +151,9 @@ Returns part of the contents of the blob.
 
 
 /**
-Returns the length of the blob.
+Returns the length of the BLOB.
 
-@return     The length of the blob, in bytes.
+@return     The length of the BLOB, in bytes.
 
 @exception SQLException     If an error occurs.
 **/
@@ -167,10 +167,10 @@ Returns the length of the blob.
 
 // @B1C
 /**
-Returns the position at which a pattern is found in the blob.
+Returns the position at which a pattern is found in the BLOB.
 
 @param  pattern     The pattern.
-@param  start       The position within the blob to begin
+@param  start       The position within the BLOB to begin
                     searching (1-based).
 @return             The position at which the pattern
                     is found, or -1 if the pattern is not
@@ -195,10 +195,10 @@ Returns the position at which a pattern is found in the blob.
 
 // @B1C
 /**
-Returns the position at which a pattern is found in the blob.
+Returns the position at which a pattern is found in the BLOB.
 
 @param  pattern     The pattern.
-@param  start       The position within the blob to begin
+@param  start       The position within the BLOB to begin
                     searching (1-based).
 @return             The position at which the pattern
                     is found, or -1 if the pattern is not
@@ -296,10 +296,9 @@ Returns the position at which a pattern is found in the blob.
 
     @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
     @param bytesToWrite The array of bytes to be written to this BLOB.
-    @param offset The offset into the array bytes at which to start reading the bytes 
-    (1-based).
+    @param offset The offset into the array at which to start reading bytes (0-based).
     @param length The number of bytes to be written to the BLOB from the array of bytes.
-    @return the number of bytes written.
+    @return The number of bytes written.
 
     @exception SQLException If there is an error accessing the BLOB or if the position
     specified is greater than the length of the BLOB.
@@ -311,11 +310,11 @@ Returns the position at which a pattern is found in the blob.
     throws SQLException
     {
         // Validate parameters
-        if ((lengthOfWrite < 0) || (offset <= 0) || (bytesToWrite == null) || 
+        if ((lengthOfWrite < 0) || (offset < 0) || (bytesToWrite == null) ||        //@H2C
             (bytesToWrite.length < 0))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
 
-        offset--;
+        //@H2D offset--;
         byte[] newData = new byte[lengthOfWrite];
         System.arraycopy(bytesToWrite, offset, newData, 0, lengthOfWrite);
         return setBytes(positionToStartWriting, newData);

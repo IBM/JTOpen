@@ -311,10 +311,9 @@ This method is not supported.
 
     @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
     @param bytesToWrite The array of bytes to be written to this BLOB.
-    @param offset The offset into the array bytes at which to start reading the bytes 
-    (1-based).
+   @param offset The offset into the array at which to start reading bytes (0-based).
     @param length The number of bytes to be written to the BLOB from the array of bytes.
-   @return The number of bytes written.
+    @return The number of bytes written.
 
     @exception SQLException If there is an error accessing the BLOB or if the position
     specified is greater than the length of the BLOB.
@@ -325,11 +324,11 @@ This method is not supported.
     throws SQLException
     {
         // Validate parameters
-        if ((length < 0) || (offset <= 0) || (bytesToWrite == null) || (bytesToWrite.length < 0)
+        if ((length < 0) || (offset < 0) || (bytesToWrite == null) || (bytesToWrite.length < 0)   //@H3C
             || positionToStartWriting > locator_.getLength())
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        offset--;
+        //@H3D offset--;
 
         byte[] newData = new byte[length];
         System.arraycopy(bytesToWrite, offset, newData, 0, length);
