@@ -226,7 +226,7 @@ implements SQLData
 
     public int getMaximumPrecision()
     {
-        return 32739;
+        return 16369;
     }
 
     public int getMaximumScale()
