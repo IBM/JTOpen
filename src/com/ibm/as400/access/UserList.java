@@ -443,7 +443,7 @@ Returns the list of users in the user list.
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
     parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(number)); // number of records to return
+    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? length_ : number)); // number of records to return
     parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? -1 : listOffset+1)); // starting record
     parms2[6] = errorCode_;
 
