@@ -316,7 +316,7 @@ Retrieves part of the contents of the lob.
                 if(JDTrace.isTraceOn())
                     JDTrace.logInformation(connection_, "Retrieving lob data from handle: " + handle_ + 
                                            " bytesToRead: " + bytesToRead + " startingOffset: " + startingOffset +
-                                           "dataCompression: " + dataCompression_ + " columnIndex: " + columnIndex_);
+                                           " dataCompression: " + dataCompression_ + " columnIndex: " + columnIndex_);
 
                 reply = connection_.sendAndReceive(request, id_); //@P0C
                 int errorClass = reply.getErrorClass();
