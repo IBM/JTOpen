@@ -86,14 +86,14 @@ public class SpooledFileListItem
    * an output device by a writer.
    * @see #getStatus
   **/
-  public static final int STATUS_READY = 1;
+  public static final String STATUS_READY = "*READY";
 
   /**
    * Constant indicating the spooled file has not been processed completely
    * and is not ready to be selected by a writer.
    * @see #getStatus
   **/
-  public static final int STATUS_OPEN = 2;
+  public static final String STATUS_OPEN = "*OPEN";
 
   /**
    * Constant indicating the spooled file has been processed completely by a
@@ -101,47 +101,47 @@ public class SpooledFileListItem
    * spooled file has not finished.
    * @see #getStatus
   **/
-  public static final int STATUS_CLOSED = 3;
+  public static final String STATUS_CLOSED = "*CLOSED";
 
   /**
    * Constant indicating the spooled file has been written and then saved. This
    * spooled file remains saved until it is released.
    * @see #getStatus
   **/
-  public static final int STATUS_SAVED = 4;
+  public static final String STATUS_SAVED = "*SAVED";
 
   /**
    * Constant indicating the spooled file currently is being produced by the writer
    * on an output device.
    * @see #getStatus
   **/
-  public static final int STATUS_WRITING = 5;
+  public static final String STATUS_WRITING = "*WRITING";
 
   /**
    * Constant indicating the spooled file has been held.
    * @see #getStatus
   **/
-  public static final int STATUS_HELD = 6;
+  public static final String STATUS_HELD = "*HELD";
 
   /**
    * Constant indicating the spooled file has a message that needs a reply or needs
    * an action to be taken.
    * @see #getStatus
   **/
-  public static final int STATUS_MESSAGE_WAIT = 7;
+  public static final String STATUS_MESSAGE_WAIT = "*MESSAGE";
 
   /**
    * Constant indicating the spooled file is pending (waiting) to be printed.
    * @see #getStatus
   **/
-  public static final int STATUS_PENDING = 8;
+  public static final String STATUS_PENDING = "*PENDING";
 
   /**
    * Constant indicating the spooled file has been sent to the printer completely,
    * but the print complete status has not been sent back.
    * @see #getStatus
   **/
-  public static final int STATUS_PRINTING = 9;
+  public static final String STATUS_PRINTING = "*PRINTING";
 
   /**
    * Constant indicating the spooled file is no longer in the system. A spooled file
@@ -149,27 +149,27 @@ public class SpooledFileListItem
    * job name was specified.
    * @see #getStatus
   **/
-  public static final int STATUS_FINISHED = 10;
+  public static final String STATUS_FINISHED = "*FINISHED";
 
   /**
    * Constant indicating the spooled file is being sent or has been sent to a remote
    * system.
    * @see #getStatus
   **/
-  public static final int STATUS_SENDING = 11;
+  public static final String STATUS_SENDING = "*SENDING";
 
   /**
    * Constant indicating the spooled file has been deferred from printing.
    * @see #getStatus
   **/
-  public static final int STATUS_DEFERRED = 12;
+  public static final String STATUS_DEFERRED = "*DEFERRED";
 
   private String jobName_;
   private String jobUser_;
   private String jobNumber_;
   private String spooledFileName_;
   private int spooledFileNumber_;
-  private int status_;
+  private String status_;
   private String dateOpened_;
   private String timeOpened_;
   private String spooledFileSchedule_;
@@ -198,8 +198,7 @@ public class SpooledFileListItem
                       int spooledFileNumber, int totalPages, int currentPage, int copiesLeftToPrint,
                       String outputQueueName, String outputQueueLib, String userData, String status,
                       String formType, String priority, byte[] internalJobID, byte[] internalSplID,
-                      String deviceType, String jobSystemName, String dateOpened, String timeOpened,
-                      String printerAssigned, String printerName)
+                      String deviceType, String jobSystemName)
   {
     spooledFileName_ = spooledFileName;
     jobName_ = jobName_;
@@ -251,7 +250,7 @@ public class SpooledFileListItem
     jobNumber_ = jobNumber;
     spooledFileName_ = spooledFileName;
     spooledFileNumber_ = spooledFileNumber;
-    status_ = status;
+    status_ = mapStatus(status);
     dateOpened_ = dateOpened;
     timeOpened_ = timeOpened;
     spooledFileSchedule_ = spooledFileSchedule;
@@ -637,8 +636,21 @@ public class SpooledFileListItem
    *                         {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
    * @return The status.
   **/
-  public int getStatus()
+  public String getStatus()
   {
+    if (status_.equals(STATUS_READY)) return STATUS_READY;
+    if (status_.equals(STATUS_OPEN)) return STATUS_OPEN;
+    if (status_.equals(STATUS_CLOSED)) return STATUS_CLOSED;
+    if (status_.equals(STATUS_SAVED)) return STATUS_SAVED;
+    if (status_.equals(STATUS_WRITING)) return STATUS_WRITING;
+    if (status_.equals(STATUS_HELD)) return STATUS_HELD;
+    if (status_.equals(STATUS_MESSAGE_WAIT)) return STATUS_MESSAGE_WAIT;
+    if (status_.equals(STATUS_PENDING)) return STATUS_PENDING;
+    if (status_.equals(STATUS_PRINTING)) return STATUS_PRINTING;
+    if (status_.equals(STATUS_FINISHED)) return STATUS_FINISHED;
+    if (status_.equals(STATUS_SENDING)) return STATUS_SENDING;
+    if (status_.equals(STATUS_DEFERRED)) return STATUS_DEFERRED;
+
     return status_;
   }
 
@@ -678,5 +690,42 @@ public class SpooledFileListItem
   {
     return userData_;
   }
+
+
+  // Helper method used to convert the integer status returned by one API format
+  // to the String status returned by the other API format.
+  private static final String mapStatus(int status)
+  {
+    switch(status)
+    {
+      case 1:
+        return STATUS_READY;
+      case 2:
+        return STATUS_OPEN;
+      case 3:
+        return STATUS_CLOSED;
+      case 4:
+        return STATUS_SAVED;
+      case 5:
+        return STATUS_WRITING;
+      case 6:
+        return STATUS_HELD;
+      case 7:
+        return STATUS_MESSAGE_WAIT;
+      case 8:
+        return STATUS_PENDING;
+      case 9:
+        return STATUS_PRINTING;
+      case 10:
+        return STATUS_FINISHED;
+      case 11:
+        return STATUS_SENDING;
+      case 12:
+        return STATUS_DEFERRED;
+      default:
+        return ""; // Shouldn't happen.
+    }
+  }
+
 }
 
