@@ -52,7 +52,7 @@ import java.util.Map;
 *  </blockquote></pre>
 *
 **/
-class AS400JDBCConnectionHandle 
+public class AS400JDBCConnectionHandle 
 implements Connection //@A5A
 //@A5D extends AS400JDBCConnection
 {
@@ -432,6 +432,32 @@ implements Connection //@A5A
   {
     validateConnection();
     return connection_.getProperties();
+  }
+
+  /**
+  *  Returns the job identifier of the host server job corresponding to this connection.
+  *  Every JDBC connection is associated with an OS/400 host server job on the server.  The
+  *  format is:
+  *  <ul>
+  *    <li>10 character job name
+  *    <li>10 character user name
+  *    <li>6 character job number
+  *  </ul>
+  *  
+  *  <p>Note: Since this method is not defined in the JDBC Connection interface,
+  *  you typically need to cast a Connection object returned from PooledConnection.getConnection()
+  *  to an AS400JDBCConnectionHandle in order to call this method:
+  *  <blockquote><pre>
+  *  String serverJobIdentifier = ((AS400JDBCConnectionHandle)connection).getServerJobIdentifier();
+  *  </pre></blockquote>
+  *  
+  *  @return The server job identifier, or null if not known.
+  *  @exception  SQLException  If the connection is not open.
+  **/
+  public String getServerJobIdentifier() throws SQLException
+  {
+      validateConnection();
+      return connection_.getServerJobIdentifier();
   }
 
   /**
