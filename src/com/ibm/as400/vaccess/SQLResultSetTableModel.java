@@ -957,8 +957,12 @@ public class SQLResultSetTableModel
           Trace.log(Trace.DIAGNOSTIC, "SQLResultSetTableModel-updatable? " + updatable_); // @D2A
         }
 
-        if(scrollable_)
-          resultSet_.beforeFirst();
+        //@KBD removed since a stored procedure may or may not return a scrollable cursor
+        // if the user specified ResultSet.TYPE_SCROLL_SENSITIVE or ResultSet.TYPE_SCROLL_INSENSITVE
+        //@KBD if(scrollable_)
+        //@KBD {
+        //@KBD     resultSet_.beforeFirst();
+        //@KBD }
       }
       catch(SQLException e)
       {
