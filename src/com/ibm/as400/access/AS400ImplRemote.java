@@ -1911,8 +1911,7 @@ class AS400ImplRemote implements AS400Impl
                     byte[] rcBytes = new byte[4];
                     BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
                     Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed, return code:", rcBytes);
-                    signonDisconnect();
-                    throw new ServerStartupException(ServerStartupException.SIGNON_CONNECT_FAILED);
+                    throw AS400ImplRemote.returnSecurityException(attrRep.getRC());
                 }
 
                 version_ = new ServerVersion(attrRep.getServerVersion());

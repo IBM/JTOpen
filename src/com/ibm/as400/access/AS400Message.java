@@ -481,11 +481,8 @@ public class AS400Message implements Serializable
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + retrievedMessage.text_);
                 text_ = retrievedMessage.text_;
             }
-            if (help_ == null)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
-                help_ = retrievedMessage.help_;
-            }
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
+            help_ = retrievedMessage.help_;
             messageLoaded_ = true;  // Set flag to not go to AS/400 again.
         }
         catch (PropertyVetoException e)
