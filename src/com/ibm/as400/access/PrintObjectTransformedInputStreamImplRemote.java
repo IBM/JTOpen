@@ -50,6 +50,9 @@ implements PrintObjectTransformedInputStreamImpl
     private int             numBytes_ = 0;       // total size of data in inputstream
     private int             objectType_ ;        // object type (SpooledFile)
     private int             offset_ = 0;         // offset from beginning of file (in bytes)
+    private boolean         cidConv = false;     // add second level ASCII conversion  @B2
+    private String          convSource = null;   // holds conversion table source values @B2A
+    private String          convTarget = null;   // holds conversion target values @B2A
 
 
 /**
@@ -76,12 +79,15 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
                InterruptedException,
                RequestNotSupportedException
     {
+        AS400ImplRemote system = ((SpooledFileImplRemote)spooledFile).getSystem(); // @B2A
+        int ccsid = system.getCcsid();                                             // @B2A
+
         objectType_ = NPConstants.SPOOLED_FILE; // @B1C
         npSystem_   = NPSystem.getSystem(((SpooledFileImplRemote)spooledFile).getSystem());  // @A3C
         cpObjID_    = ((SpooledFileImplRemote)spooledFile).getIDCodePoint();  // @A3C
         cpCPFMsg_   = new NPCPAttribute();
         cpObjHndl_  = new NPCPSplFHandle();
-
+        
         // set up OPEN request datastream
         NPDataStream openReq = new NPDataStream(objectType_);
         openReq.setAction(NPDataStream.OPEN_MODIFIED_SPLF);   // @A1C from OPEN
@@ -97,6 +103,98 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
         //  why create an instance of this class?)
         if (transformOptions != null) {
             selectionCP.addUpdateAttributes(transformOptions.getAttrCodePoint());
+            // Get the value of the target code page attribute                    @B2A
+            String tempTarget = transformOptions.getStringParameter(PrintObject.ATTR_TGT_CODEPAGE);
+            // Check for the setting of the client/target code page attribute.    @B2A
+            // If it exist then the source ASCII code page can be determined.     @B2A
+            if (tempTarget != null){
+                cidConv = true;//    @B2A
+                // prepare the 'CPxxxx' (where xxxx is the actual code page) to be 'Cpxxx' @B2A  
+                convTarget = tempTarget.replace('P', 'p');
+                /* table of target ASCII CCSIDs can be found in the "OS/400 Workstation 
+                   Customization Reference" that can be found on the Information Center for 
+                   iSeries publications.                                          @B2A */        
+                switch (ccsid) //    @B2A  "Euro Phase 2 = EP2 "
+                {
+                case 37:                       /* US           @B2A */
+                case 836:                      /* Simplified   @B2A */
+                    convSource = "Cp437";  /* 8bit ASCII US PC @B2A */      
+                    break;
+                case 420:                      /* Arabic       @B2A */
+                    convSource = "Cp864";  /* 8bit ASCII Arabic@B2A */
+                    break;
+                case 423:                      /* Greece (old) @B2A */
+                    convSource = "Cp1253"; /* MS-Win Greek     @B2A */
+                    break;
+                case 424:                      /* Hebrew       @B2A */
+                    convSource = "Cp856";  /* 8bit ASCII Hebrew@B2A */
+                    break;
+                case 838:                      /* Thai         @B2A */
+                case 1130:                     /* Vietnamese   @B2A */
+                case 1132:                     /* Lao          @B2A */
+                case 1164:                     /* Viet Nam EP2 @B2A */
+                    convSource = "Cp874";/* 8bit ASCII Thailand@B2A */
+                    break;
+                case 870:                      /* Latin 2      @B2A */
+                    convSource = "Cp852";    /* 8bit Latin-2   @B2A */
+                    break;
+                case 875:                      /* Greece (new) @B2A */
+                    convSource = "Cp869";/* 8bit ASCII Greek   @B2A */
+                    break;
+                case 905:                      /* Turkey (old) @B2A */
+                case 1026:                     /* Turkey (new) @B2A */
+                    convSource = "Cp857";/* 8bit ASCII Latin-5 @B2A */
+                    break;
+                case 1097:                     /* Farsi (new)  @B2A */
+                    convSource = "Cp1097";/*IBM EBCDIC Farsi   @B2A */
+                    break;
+                case 1112:                     /* Latvian, Lith@B2A */
+                    convSource = "Cp921";/* 8bit ASCII Baltic  @B2A */
+                    break;
+                case 1122:                     /* Estonia      @B2A */
+                    convSource = "Cp922";      /* 8bit Estonia @B2A */      
+                    break;
+                case 1153:           /* Czech, Poland, EP2     @B2A */
+                    convSource = "Cp1250";    /* MS-Win Latin-2@B@A */   
+                    break;
+                case 1154:                     /* Bulgarian EP2@B2A */
+                case 1158:                     /* Ukraine   EP2@B2A */
+                    convSource = "Cp1251";/* MS-Win Cyrillic   @B2A */
+                    break;
+                case 1155:                     /* Turkey  EP2  @B2A */
+                    convSource = "Cp1254";/* MS-Win Turkish    @B2A */
+                    break;
+                case 1156:                     /* Latvia EP2   @B2A */
+                case 1157:                     /* Estonia EP2  @B2A */
+                    convSource = "Cp1257";/* MS-Win Balic      @B2A */
+                    break;
+                case 1160:                     /* Thailand EP2 @B2A */
+                    convSource = "Cp874";/* 8bit ASCII Thailand@B2A */
+                    break;
+                case 5026:            /* Japanese Ext Katakana @B2A */
+                case 1390:        /* Japanese new Ext Katakana @B2A */
+                case 5035:        /* Japanese Ext Latin        @B2A */
+                case 1399:        /* Japanese new Ext Latin    @B2A */
+                    convSource = "Cp942";/* 8bit ASCII Japanese@B2A */
+                    break;
+                case 933:                      /* Korean       @B2A */
+                case 1364:                     /* Korean (new) @B2A */
+                    convSource = "Cp949";/* 8bit ASCII Korean  @B2A */
+                    break;
+                case 937:                      /* T-Chinese    @B2A */
+                case 1371:                  /* T-Chinese (new) @B2A */
+                case 1388:                  /* S-Chinese (new) @B2A */
+                    convSource = "Cp950";/* 8bit ASCII T-Chinese@B2A*/
+                    break;
+                case 935:                      /* S-Chinese    @B2A */
+                    convSource = "Cp1381";/* 8bit ASCII S-Chinese@B2A*/
+                    break;
+                                    
+                default: convSource = "Cp850";
+                }
+                
+                transformOptions.setParameter(PrintObject.ATTR_SRC_CODEPAGE, convSource);
+            }//    @B2A
         }
 
         // add the selection codepoint to the open request datastream
@@ -247,7 +345,11 @@ no more data because the end of file has been reached.
 **/
     public int read(byte data[], int dataOffset, int length) throws IOException
     {
-        int bytesRead = 0;
+        int bytesRead = 0;                               
+        int bytesToRead = 0;                             //@B2A
+        Integer sizeTarget = new Integer(data.length);   //@B2A
+        
+        byte dataSource[] = new byte[length];            //@B2A
         if (conversation_ == null) {
             Trace.log(Trace.ERROR, "Conversation is null.");
             throw new IOException();
@@ -277,6 +379,21 @@ no more data because the end of file has been reached.
             try {
                 // make the READ request
                 int iRC = conversation_.makeRequest(readReq, readRep);
+                // cidConv and convTarget are checked/initialized w/in   @B2A
+                // createPrintObjectTransformedInputStream and indicate  @B2A
+                // A second ASCII conversion required    @B2A
+                if (cidConv){ //  begin                  @B2A
+                    String convString = new String(data, dataOffset, length, convSource);
+                    dataSource = convString.getBytes(convTarget);
+                    Integer sizeSource = new Integer(dataSource.length);
+                    if (sizeSource.compareTo(sizeTarget) >= 0){
+                        bytesToRead = sizeTarget.intValue();
+                    }
+                    else { 
+                        bytesToRead = sizeSource.intValue();
+                    }
+                    System.arraycopy(dataSource, 0, data, 0, bytesToRead);
+                } //              end                    @B2A
 
                 switch (iRC) {
                     case NPDataStream.RET_OK:

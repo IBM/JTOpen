@@ -449,6 +449,8 @@ abstract public class PrintObject implements java.io.Serializable
     /**  **/
            static final int ATTR_SPLFSENDCMD  = 0x0092;  // spooled file send command
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY106">Source drawer</A>. **/
+    public static final int ATTR_SRC_CODEPAGE = 0x0107;  // Source code page conversion   @AAA
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY213">Source code page conversion</A>. **/
     public static final int ATTR_SRCDRWR      = 0x0066;  // source drawer
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY107">Spool the data</A>. **/
     public static final int ATTR_SPOOL        = 0x0067;  // spool the data
@@ -474,6 +476,8 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY122.5">System where output was created</A>. **/
     public static final int ATTR_SYSTEM       = 0x00BC;  // system where created @A1A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY114">Time object created</A>. **/
+    public static final int ATTR_TGT_CODEPAGE = 0x0108; // Target code page converstion @AAA
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY214">Target code page conversion</A>. **/
     public static final int ATTR_TIME         = 0x006E;  // time spooled file was opened at
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY204">Time Job creating spooled file ended</A>. **/
     public static final int ATTR_TIME_END     = 0x00FE;  //Time job creating spooled file ended @A9A          
@@ -565,7 +569,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x0106;  // last attribute ID @A4C @A7C @A9C
+    static final int                    MAX_ATTR_ID = 0x0108;  // last attribute ID @A4C @A7C @A9C @AAA
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";
