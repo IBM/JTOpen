@@ -194,6 +194,8 @@ implements Connection
     private int statementCount_ = 0;                                    //@K1A
     private boolean thousandStatements_ = false;                        //@K1A
 
+    private String qaqqiniLibrary_ = null;                              //@K2A
+
     /**
     Static initializer.  Initializes the reply data streams
     that we expect to receive.
@@ -2736,6 +2738,9 @@ implements Connection
         traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) +
                        ServerTrace.getJDBCServerTraceCategories();  // @j1a
 
+        // Determine if a QAQQINI library name was specified.  The library can be set using                     //@K2A
+        // a JDBC property.                                                                                     //@k2A
+        qaqqiniLibrary_ = properties_.getString(JDProperties.QAQQINILIB);                                       //@K2A
 
         //@A3D
         // Initialize the conversation.
@@ -2897,6 +2902,20 @@ implements Connection
                 {
                     JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not trace server job");
                 }
+            }
+        }
+
+        //@K2A    Issue Change Query Attributes command if user specified QAQQINI library name
+        if(qaqqiniLibrary_.length() > 0 && !qaqqiniLibrary_.equals("null"))
+        {
+            boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
+            try
+            {
+                JDUtilities.runCommand(this, "CHGQRYA QRYOPTLIB(" + qaqqiniLibrary_ + ")", SQLNaming );
+            }
+            catch (Exception e)
+            {
+                JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to issue Change Query Attributes command using QAQQINI Library name failed.");
             }
         }
     }
