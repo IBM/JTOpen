@@ -169,6 +169,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONSTBCK_OVL);  // Constant back overlay  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHARID);        // Character ID  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET_LIB);   // character set library name @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHR_RTT_CMDS); // DBCS character rotation commands @D3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET);       // character set name @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_COLOR);         // Color   @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODFNT_ARRAY);  // coded font array @D1A
@@ -180,7 +181,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CURPAGE);       // current page
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI_CHANGES);   // Characters per inch changes  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);          // date file was opened
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_END);      // date spooled file creation ended @C5A
+ //           attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_END);    date spooled file creation ended @C5A@D3D
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_BEGAN_FILE); // date writer began processing file
                                                                         //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_CMPL_FILE); // date writer finished processing file
@@ -302,7 +303,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // system where output was created @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM);   // system driver program  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // time spooled file was opened at
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);      // ending time which spooled file was created @C5A
+    //        attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);     ending time which spooled file was created @C5A@D3D
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // time writer began processing file
                                                                         //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE); // time writer finished processing file

@@ -61,6 +61,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_CODFNT_ARRAY = 0x0132; // AT_CODED_FNT_ARRAY @ABA
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY241">Character ID</A>. **/
     public static final int ATTR_CHARID       = 0x012C; // AT_CHAR_ID  @ABA
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY261">DBCS character rotation commands</A>. **/
+    public static final int ATTR_CHR_RTT_CMDS = 0x013C; //AT_CHR_RTT_CMDS     @ACA
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY247">Character set library name</A>. **/
     public static final int ATTR_CHRSET_LIB   = 0x0133; // AT_CHARSET_LIB_NAME @ABA
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY248">Character set name</A>. **/
@@ -666,7 +668,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x013B;  // last attribute ID @A4C @A7C @A9C @AAC
+    static final int                    MAX_ATTR_ID = 0x013C;  // last attribute ID @A4C @A7C @A9C @AAC @ACC
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";
