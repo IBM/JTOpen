@@ -111,7 +111,8 @@ implements SQLData
         byte[] value = null;                                                        // @C1A
 
         if (object instanceof String)
-            value = ((String) object).getBytes();                                   // @C1C
+            //@F1D value = ((String) object).getBytes();                                   // @C1C
+            value = SQLBinary.stringToBytes((String)object); //@F1A
 
         else if (object instanceof byte[])
             value = (byte[]) object;                                                // @C1C
@@ -461,7 +462,8 @@ implements SQLData
 	{
 	    // This is written in terms of toBytes(), since it will
 	    // handle truncating to the max field size if needed.
-	    return new String (toBytes ());
+	    //@F1D return new String (toBytes ());
+      return SQLBinary.bytesToString(toBytes()); //@F1A
 	}
 
 

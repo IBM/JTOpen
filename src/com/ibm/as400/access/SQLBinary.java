@@ -62,12 +62,6 @@ implements SQLData
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
 
 //---------------------------------------------------------//
 //                                                         //
@@ -107,7 +101,8 @@ implements SQLData
         byte[] value = null;                                                        // @C1A
 
         if (object instanceof String)
-            value = ((String) object).getBytes();                                   // @C1C
+            //@F1D value = ((String) object).getBytes();                                   // @C1C
+            value = stringToBytes((String)object); //@F1A
 
         else if (object instanceof byte[])
             value = (byte[]) object;                                                // @C1C
@@ -380,7 +375,8 @@ implements SQLData
 	{
 	    // This is written in terms of toBytes(), since it will
 	    // handle truncating to the max field size if needed.
-	    return new StringReader (new String (toBytes ()));
+	    //@F1D return new StringReader (new String (toBytes ()));
+      return new StringReader(bytesToString(toBytes())); //@F1A
 	}
 
 
@@ -390,7 +386,8 @@ implements SQLData
 	{
   	    // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob (new String (toBytes ()));
+        //@F1D return new AS400JDBCClob (new String (toBytes ()));
+        return new AS400JDBCClob(bytesToString(toBytes())); //@F1A
 	}
 
 
@@ -462,8 +459,65 @@ implements SQLData
 	{
 	    // This is written in terms of toBytes(), since it will
 	    // handle truncating to the max field size if needed.
-	    return new String (toBytes ());
+	    //@F1D return new String (toBytes ());
+      return bytesToString(toBytes()); //@F1A
 	}
+
+
+  //@F1A
+  // Constant used in bytesToString()
+  private static final char[] c_ = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+  //@F1A
+  // Helper method to convert a byte array into its hex string representation.
+  // This is faster than calling Integer.toHexString(...)
+  static final String bytesToString(final byte[] b)
+  {
+    final char[] c = new char[b.length*2];
+    for (int i=0; i<b.length; ++i)
+    {
+      final int j = i*2;
+      final byte hi = (byte)((b[i]>>>4) & 0x0F);
+      final byte lo = (byte)((b[i] & 0x0F));
+      c[j] = c_[hi];
+      c[j+1] = c_[lo];
+   }
+   return new String(c);
+  }
+  //@F1A
+  // Constant used in stringToBytes()
+  private static final byte[] b_ = 
+  {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F
+  };
+  //@F1A
+  // Helper method to convert a String in hex into its corresponding byte array.
+  static final byte[] stringToBytes(final String s) throws SQLException
+  {
+    try
+    {
+      final char[] hex = s.toCharArray();
+      final byte[] b = new byte[hex.length/2];
+      for (int i=0; i<b.length; ++i)
+      {
+        final int j = i*2;
+        final byte hi = (byte)(b_[hex[j]]<<4);
+        final byte lo = b_[hex[j+1]];
+        b[i] = (byte)(hi + lo);
+      }
+      return b;
+    }
+    catch(ArrayIndexOutOfBoundsException e)
+    {
+      JDError.throwSQLException(JDError.EXC_CHAR_CONVERSION_INVALID);
+    }
+    return null;
+  }
 
 
 
