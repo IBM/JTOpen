@@ -14,24 +14,35 @@
 package com.ibm.as400.access;
 
 import java.io.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 
 /**
- * The Command class represents an OS/400 CL command (*CMD) object. This class uses the 
- * QCDRCMDD and QCDRCMDI system APIs to retrieve information about an OS/400 CL command.
+ * The Command class represents information about an OS/400 CL command (*CMD) object. 
  * <P>
  * To actually execute a CL command, see the
  * {@link com.ibm.as400.access.CommandCall CommandCall} class.
+ * <P>
+ * To generate HTML help for a CL command, see the
+ * {@link com.ibm.as400.util.CommandHelpRetriever CommandHelpRetriever} utility.
+ *
 **/
-public class Command
+public class Command implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-  
+
+  /** 
+   * NOTE:   This class uses the QCDRCMDD and QCDRCMDI system APIs to retrieve information about an OS/400 CL command.
+   **/
+
+  static final long serialVersionUID = 6L;  
+
   /**
    * Constant indicating that the multithreaded job action used by
-   * the command is not to run the command, and issue an escape message instead.
+   * the command is not to run the command, but issue an escape message instead.
    * @see #getMultithreadedJobAction
-  **/  
+  **/
   public static final byte ACTION_ESCAPE_MESSAGE = (byte)0xF3;
 
   /**
@@ -47,7 +58,7 @@ public class Command
    * @see #getMultithreadedJobAction
   **/
   public static final byte ACTION_NO_MESSAGE = (byte)0xF1;
-  
+
   /**
    * Constant indicating that the multithreaded job action used by
    * the command is specified by the QMLTTHDACN system value.
@@ -66,43 +77,43 @@ public class Command
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_BATCH_JOB = 4;
-  
+
   /**
    * Constant indicating that the command is allowed to run in a batch program (*BPGM).
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_BATCH_PROGRAM = 0;
-  
+
   /**
    * Constant indicating that the command is allowed to run in a batch REXX procedure (*BREXX).
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_BATCH_REXX_PROCEDURE = 5;
-  
+
   /**
-   * Constant indicating that the command can be run using QCMDEXC, QCAEXEC, or QCAPCMD (*EXEC).
+   * Constant indicating that the command is allowed to run using QCMDEXC, QCAEXEC, or QCAPCMD (*EXEC).
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_EXEC = 2;
-  
+
   /**
    * Constant indicating that the command is allowed to run in an interactive job (*INTERACT).
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_INTERACTIVE_JOB = 3;
-  
+
   /**
    * Constant indicating that the command is allowed to run in an interactive program (*IPGM).
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_INTERACTIVE_PROGRAM = 1;
-  
+
   /**
    * Constant indicating that the command is allowed to run in an interactive REXX procedure (*IREXX).
    * @see #isAllowedToRun
   **/
   public static final int ALLOW_INTERACTIVE_REXX_PROCEDURE = 6;
-  
+
   /**
    * Constant indicating that the command will run in all modes.
    * @see #isOperatingMode
@@ -114,13 +125,13 @@ public class Command
    * @see #isOperatingMode
   **/
   public static final int MODE_DEBUG = 11;
-  
+
   /**
    * Constant indicating that the command will run in production mode of the operating environment.
    * @see #isOperatingMode
   **/
   public static final int MODE_PRODUCTION = 10;
-  
+
   /**
    * Constant indicating that the command will run in service mode of the operating environment.
    * @see #isOperatingMode
@@ -168,8 +179,7 @@ public class Command
   private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
   private AS400 system_;
-  private String library_;
-  private String command_;
+  private String path_;
 
   private String commandProcessingProgram_;
   private String sourceFile_;
@@ -200,55 +210,86 @@ public class Command
 
   private boolean refreshed_ = false;
   private boolean refreshedXML_ = false;
+  private boolean loadedDescription_ = false;
+
+  // List of property change event bean listeners.
+  private transient PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
+
+
+  /**
+   * Constructs a Command object. The system and command path must be set
+   * before this object can be used.
+   * @see #setPath
+   * @see #setSystem
+  **/
+  public Command()
+  {
+    initializeTransient();
+  }
+
 
   /**
    * Constructs a Command object.
    * @param system The server on which the command resides.
-   * @param commandPath The fully qualified integrated file system path of the command,
-   * e.g. "/QSYS.LIB/CRTUSRPRF.CMD"
+   * @param path The fully qualified integrated file system path of the command,
+   * e.g. "/QSYS.LIB/CRTUSRPRF.CMD".
    * @see com.ibm.as400.access.QSYSObjectPathName
   **/
-  public Command(AS400 system, String commandPath)
+  public Command(AS400 system, String path)
   {
-    if (system == null) throw new NullPointerException("system");
-    if (commandPath == null) throw new NullPointerException("commandPath");
+    if (system == null)
+      throw new NullPointerException("system");
 
-    QSYSObjectPathName path = new QSYSObjectPathName(commandPath);
-    if (!path.getObjectType().equals("CMD"))
-    {
-      throw new ExtendedIllegalArgumentException("commandPath", ExtendedIllegalArgumentException.PATH_NOT_VALID);
-    }
+    if (path == null)
+      throw new NullPointerException("path");
+
+    QSYSObjectPathName verify = new QSYSObjectPathName(path, "CMD");
+
     system_ = system;
-    library_ = path.getLibraryName().trim().toUpperCase();
-    command_ = path.getObjectName().trim().toUpperCase();
+    path_ = path;
+
+    initializeTransient();
   }
 
   /**
-   * Constructs a Command object.
-   * @param system The server on which the command resides.
-   * @param library The library in which the command resides, e.g. "QSYS"
-   * @param command The name of the command, e.g. "CRTUSRPRF"
+   * Called from CommandList.
   **/
-  public Command(AS400 system, String library, String command)
+  Command(AS400 system, String path, String description)
   {
-    if (system == null) throw new NullPointerException("system");
-    if (library == null) throw new NullPointerException("library");
-    if (command == null) throw new NullPointerException("command");
-
     system_ = system;
-    library_ = library.trim().toUpperCase();
-    command_ = command.trim().toUpperCase();
+    path_ = path;
+    description_ = description;
+    loadedDescription_ = true;
   }
+
+
+  /**
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  
+   *  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this Command.  It can be removed with removePropertyChangeListener.
+   *
+   *  @param  listener  The PropertyChangeListener.
+  **/
+  public void addPropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null)
+    {
+      throw new NullPointerException("listener");
+    }
+    propertyChangeListeners_.addPropertyChangeListener(listener);
+  }
+
 
   /**
    * Indicates whether or not a user with limited authorities is allowed to run this command.
    * @return true if a limited user is allowed to run this command; false otherwise.
   **/
   public boolean allowsLimitedUser() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return allowLimitedUser_;
   }
 
@@ -258,10 +299,12 @@ public class Command
    * @return The CCSID of the command.
   **/
   public int getCCSID() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return ccsid_;
   }
 
@@ -272,10 +315,12 @@ public class Command
    * program is a REXX procedure.
   **/
   public String getCommandProcessingProgram() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return commandProcessingProgram_;
   }
 
@@ -289,10 +334,12 @@ public class Command
    * @return The state.
   **/
   public String getCommandProcessingState() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return cppState_;
   }
 
@@ -310,10 +357,12 @@ public class Command
    * @return The current library name.
   **/
   public String getCurrentLibrary() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return currentLibrary_;
   }
 
@@ -322,10 +371,12 @@ public class Command
    * @return The text description, or "" if there is none.
   **/
   public String getDescription() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_ && !loadedDescription_)
+      refreshCommandInfo();
+
     return description_;
   }
 
@@ -339,25 +390,30 @@ public class Command
    * @return The help identifier.
   **/
   public String getHelpIdentifier() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return helpIdentifier_;
   }
 
   /**
    * Returns the fully integrated file system path of the help panel group in which
    * the online help information exists for this command.
-   * @return The help panel group name, or *NONE if no help panel group is defined
+   * @return The help panel group, or null if no help panel group is defined
    * for this command.
   **/
-  public String getHelpPanelGroup() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  public PanelGroup getHelpPanelGroup() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
-    return helpPanelGroup_;
+    if (!refreshed_)
+      refreshCommandInfo();
+
+    if (helpPanelGroup_.equals("*NONE")) return null;
+    return new PanelGroup(system_, helpPanelGroup_);
   }
 
   /**
@@ -366,21 +422,13 @@ public class Command
    * @return The search index name, or *NONE if no help search index is specified.
   **/
   public String getHelpSearchIndex() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
-    return searchIndex_;
-  }
+    if (!refreshed_)
+      refreshCommandInfo();
 
-  /**
-   * Returns the library for this Command object.
-   * @return The library.
-   * @see #getName
-  **/
-  public String getLibrary()
-  {
-    return library_;
+    return searchIndex_;
   }
 
   /**
@@ -390,10 +438,12 @@ public class Command
    * limit specified for this command.
   **/
   public int getMaximumPositionalParameters() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return maxPosParms_;
   }
 
@@ -404,10 +454,12 @@ public class Command
    * @return The message file.
   **/
   public MessageFile getMessageFile() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return new MessageFile(system_, messageFile_);
   }
 
@@ -431,22 +483,24 @@ public class Command
    * @see #getThreadSafety
   **/
   public byte getMultithreadedJobAction() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return multithreadedJobAction_;
   }
 
-  
+
   /**
-   * Returns the CL command name for this Command object.
-   * @return The command name.
-   * @see #getLibrary
+   * Returns the path name of this Command object.
+   * @return The path name, or null if the path is not set.
+   * @see #setPath
   **/
-  public String getName()
+  public String getPath()
   {
-    return command_;
+    return path_;
   }
 
 
@@ -460,10 +514,12 @@ public class Command
    * @return The product library name.
   **/
   public String getProductLibrary() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return productLibrary_;
   }
 
@@ -474,14 +530,15 @@ public class Command
    * the prompt text.
   **/
   public MessageFile getPromptMessageFile() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     if (promptMessageFile_ != null)
-    {
       return new MessageFile(system_, promptMessageFile_);
-    }
+
     return null;
   }
 
@@ -493,10 +550,12 @@ public class Command
    * program was specified for this command.
   **/
   public String getPromptOverrideProgram() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return promptOverrideProgram_;
   }
 
@@ -510,10 +569,12 @@ public class Command
    * @return The state.
   **/
   public String getPromptOverrideState() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return poState_;
   }
 
@@ -527,10 +588,12 @@ public class Command
    * @see com.ibm.as400.access.AS400#getVRM
   **/
   public String getRestrictedRelease() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return restricted_;
   }
 
@@ -538,25 +601,28 @@ public class Command
    * Returns the fully qualified integrated file system path of the 
    * source file member that contains the command definition statements
    * used to create this command.
-   * @return The source file name.
+   * @return The source file name, or null if the source file is not known.
   **/
   public String getSourceFile() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return sourceFile_;
   }
 
 
   /**
    * Returns the AS400 object for this command.
-   * @return The system.
+   * @return The system, or null if the system is not set.
   **/
   public AS400 getSystem()
   {
     return system_;
   }
+
 
   /**
    * Returns the type of threadsafety for this command; that is, whether or not this command
@@ -576,10 +642,12 @@ public class Command
    * @see #getMultithreadedJobAction
   **/
   public byte getThreadSafety() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return threadsafe_;
   }
 
@@ -591,10 +659,12 @@ public class Command
    * validity checking is done for this command.
   **/
   public String getValidityCheckProgram() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return validityCheckProgram_;
   }
 
@@ -608,27 +678,61 @@ public class Command
    * @return The state.
   **/
   public String getValidityCheckState() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return vcState_;
   }
+
+  /**
+   * Returns the API string for the "where allowed to run" field.
+   * This method is externalized for those classes that need the entire
+   * field. Simpler access to this data can be achieved by using the
+   * following methods:
+   * <UL>
+   * <LI>{@link #isAllowedToRun isAllowedToRun(mode)}
+   * <LI>{@link #isAllowedToRunBatch isAllowedToRunBatch}
+   * <LI>{@link #isAllowedToRunInteractive isAllowedToRunInteractive}
+   * </UL>
+   * @return The "where allowed to run" field.
+  **/
+  public String getWhereAllowedToRun() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
+  {
+    if (!refreshed_) refreshCommandInfo();
+
+    return whereAllowedToRun_;
+  }
+
 
   /**
    * Retrieves the XML source for this CL command.
    * @return The XML describing this command.
   **/
   public String getXML() throws AS400Exception, AS400SecurityException,
-                                ErrorCompletingRequestException, IOException,
-                                InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshedXML_) refreshXML();
+    if (!refreshedXML_)
+      refreshXML();
+
     return xml_;
   }
 
+
+  // Called on construct or after de-serialization
+  private void initializeTransient()
+  {
+    propertyChangeListeners_ = new PropertyChangeSupport(this);
+  }
+
+
   /**
-   * Returns the environments in which this command is allowed to run.
+   * Indicates whether the command is allowed to run in the specified environment.
    * @param environment The environment to check. Possible values are:
    * <UL>
    * <LI>{@link #ALLOW_BATCH_PROGRAM ALLOW_BATCH_PROGRAM}
@@ -643,11 +747,13 @@ public class Command
    * @return true if this command is allowed to run in the specified environment; false otherwise.
   **/
   public boolean isAllowedToRun(int environment) throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
-    switch(environment)
+    if (!refreshed_)
+      refreshCommandInfo();
+
+    switch (environment)
     {
       case ALLOW_BATCH_PROGRAM:
         return whereAllowedToRun_.charAt(0) == '1';
@@ -684,13 +790,15 @@ public class Command
    * @see #isAllowedToRun
   **/
   public boolean isAllowedToRunBatch() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return whereAllowedToRun_.charAt(0) == '1' ||
-           whereAllowedToRun_.charAt(4) == '1' ||
-           whereAllowedToRun_.charAt(5) == '1';
+    whereAllowedToRun_.charAt(4) == '1' ||
+    whereAllowedToRun_.charAt(5) == '1';
   }
 
   /**
@@ -705,13 +813,15 @@ public class Command
    * @see #isAllowedToRun
   **/
   public boolean isAllowedToRunInteractive() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return whereAllowedToRun_.charAt(1) == '1' ||
-           whereAllowedToRun_.charAt(3) == '1' ||
-           whereAllowedToRun_.charAt(6) == '1';
+    whereAllowedToRun_.charAt(3) == '1' ||
+    whereAllowedToRun_.charAt(6) == '1';
   }
 
   /**
@@ -722,16 +832,18 @@ public class Command
    * the 5250 data stream; false otherwise.
   **/
   public boolean isEnabledForGUI() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
+    if (!refreshed_)
+      refreshCommandInfo();
+
     return guiEnabled_;
   }
 
 
   /**
-   * Returns the mode of operating environment to which the command applies.
+   * Indicates if this command applies to the specified mode of operating environment.
    * @param mode The operating mode to check. Possible values are:
    * <UL>
    * <LI>{@link #MODE_PRODUCTION MODE_PRODUCTION} - Production mode.
@@ -742,11 +854,13 @@ public class Command
    * @return true if this command applies to the specified operating mode; false otherwise.
   **/
   public boolean isOperatingMode(int mode) throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
-    if (!refreshed_) refreshCommandInfo();
-    switch(mode)
+    if (!refreshed_)
+      refreshCommandInfo();
+
+    switch (mode)
     {
       case MODE_PRODUCTION:
         return mode_.charAt(0) == '1';
@@ -763,26 +877,43 @@ public class Command
   }
 
 
+  // Called when this object is de-serialized
+  private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
+  {
+    in.defaultReadObject();
+    initializeTransient();
+  }
+
+
   /**
    * Refreshes the information for this Command object.
    * This method is used to perform the call to the server
    * that retrieves the command information for this CL command. That
    * information is cached internally until this method is called again.
+   * <p>
+   * The necessary information is implicitly refreshed by the various getter methods.
+   * The system and path must be set before refresh() is called.
+   * @see #setPath
+   * @see #setSystem
   **/
-  public void refresh() throws AS400Exception, AS400SecurityException,
-                               ErrorCompletingRequestException, IOException,
-                               InterruptedException, ObjectDoesNotExistException
+  public synchronized void refresh() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
     refreshCommandInfo();
     refreshXML();
   }
 
-  
+
   // Worker method.
-  private void refreshCommandInfo() throws AS400Exception, AS400SecurityException,
-                                    ErrorCompletingRequestException, IOException,
-                                    InterruptedException, ObjectDoesNotExistException
+  private synchronized void refreshCommandInfo() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Refreshing command information for "+path_+".");
+    if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    if (path_ == null) throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+
     // Call the QCDRCMDI API to get all of the information.
     ProgramParameter[] parms = new ProgramParameter[5];
     parms[0] = new ProgramParameter(335); // receiver variable
@@ -790,8 +921,11 @@ public class Command
     parms[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "CMDI0100")); // format name
     byte[] cmdBytes = new byte[20];
     AS400Text text10 = new AS400Text(10, system_.getCcsid());
-    text10.toBytes(command_.toUpperCase().trim(), cmdBytes, 0);
-    text10.toBytes(library_.toUpperCase().trim(), cmdBytes, 10);
+    QSYSObjectPathName p = new QSYSObjectPathName(path_);
+    String command = p.getObjectName();
+    String library = p.getLibraryName();
+    text10.toBytes(command, cmdBytes, 0);
+    text10.toBytes(library, cmdBytes, 10);
     parms[3] = new ProgramParameter(cmdBytes); // qualified command name
     parms[4] = errorCode_;
 
@@ -799,13 +933,11 @@ public class Command
     pc.setThreadSafe(true);
 
     if (!pc.run())
-    {
       throw new AS400Exception(pc.getMessageList());
-    }
 
     byte[] outputData = parms[0].getOutputData();
     CharConverter conv = new CharConverter(system_.getCcsid());
-    
+
     String cppName = conv.byteArrayToString(outputData, 18, 10).trim();
     if (cppName.equals("*REXX"))
     {
@@ -816,12 +948,20 @@ public class Command
       String cppLib = conv.byteArrayToString(outputData, 28, 10).trim();
       commandProcessingProgram_ = QSYSObjectPathName.toPath(cppLib, cppName, "PGM");
     }
-    
+
     String srcName = conv.byteArrayToString(outputData, 48, 10).trim();
     String srcLib = conv.byteArrayToString(outputData, 58, 10).trim();
     String srcMbr = conv.byteArrayToString(outputData, 68, 10).trim();
-    sourceFile_ = QSYSObjectPathName.toPath(srcLib, srcName, srcMbr, "MBR");
-    
+    try
+    {
+      sourceFile_ = QSYSObjectPathName.toPath(srcLib, srcName, srcMbr, "MBR");
+    }
+    catch(ExtendedIllegalArgumentException eiae)
+    {
+      if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Unable to process source file: '"+srcName+","+srcLib+","+srcMbr+"'.", eiae);
+      sourceFile_ = null;
+    }
+
     String vldName = conv.byteArrayToString(outputData, 78, 10).trim();
     if (vldName.equals("*NONE"))
     {
@@ -916,22 +1056,34 @@ public class Command
     multithreadedJobAction_ = outputData[334];
 
     refreshed_ = true;
+
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed command information for "+path_+".");
   }
 
 
   // Worker method.  
-  private void refreshXML() throws AS400Exception, AS400SecurityException,
-                                   ErrorCompletingRequestException, IOException,
-                                   InterruptedException, ObjectDoesNotExistException
+  private synchronized void refreshXML() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
   {
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Refreshing XML information for "+path_+".");
+    if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    if (path_ == null) throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+
     ProgramParameter[] parms = new ProgramParameter[6];
     byte[] cmdBytes = new byte[20];
     AS400Text text10 = new AS400Text(10, system_.getCcsid());
-    text10.toBytes(command_.toUpperCase().trim(), cmdBytes, 0);
-    text10.toBytes(library_.toUpperCase().trim(), cmdBytes, 10);
+    QSYSObjectPathName p = new QSYSObjectPathName(path_);
+    String command = p.getObjectName().trim().toUpperCase();
+    String library = p.getLibraryName().trim().toUpperCase();
+    text10.toBytes(command, cmdBytes, 0);
+    text10.toBytes(library, cmdBytes, 10);
 
     // Make 2 program calls. The first call tells us how much
     // data is coming back. The second call actually retrieves the data.
+    // Since a large amount of data can be returned, and the size is so
+    // variable depending on the command, we do not send up an initial
+    // guess size on the first attempt, just enough to get the real amount back.
     parms[0] = new ProgramParameter(cmdBytes); // qualified command name
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(8)); // destination, AKA length of receiver variable
     parms[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "DEST0100")); // destination format name
@@ -955,31 +1107,94 @@ public class Command
     {
       parms[3].setOutputDataLength(bytesAvailable+8);
     }
-    catch(java.beans.PropertyVetoException pve) {}
-    
+    catch (java.beans.PropertyVetoException pve)
+    {
+    }
+
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
     }
-    
+
     outputData = parms[3].getOutputData();
     bytesReturned = BinaryConverter.byteArrayToInt(outputData, 0);
-    bytesAvailable = BinaryConverter.byteArrayToInt(outputData, 4);
-    byte[] xmlResults = new byte[bytesReturned];
-    System.arraycopy(outputData, 8, xmlResults, 0, bytesReturned);
-    ConvTable conv1208 = ConvTable.getTable(1208, null);
+    //bytesAvailable = BinaryConverter.byteArrayToInt(outputData, 4);
+    ConvTable conv1208 = ConvTable.getTable(1208, null); // CCSID 1208 is UTF-8
     xml_ = conv1208.byteArrayToString(outputData, 8, bytesReturned, 0);
     refreshedXML_ = true;
+    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed XML information for "+path_+".");
   }
 
 
   /**
-   * Returns a String representation of this Command, in the form
-   * of the command's fully qualified integrated file system path.
-   * @return The path.
+   *  Removes the PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
+   *
+   *  @param  listener  The PropertyChangeListener.
+   **/
+  public void removePropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null)
+    {
+      throw new NullPointerException("listener");
+    }
+    propertyChangeListeners_.removePropertyChangeListener(listener);
+  }
+
+
+  /**
+   * Sets the path name of the command.
+   * @param path The command path, e.g. "/QSYS.LIB/CRTUSRPRF.CMD".
+   * @see #getPath
+  **/
+  public void setPath(String path)
+  {
+    if (path == null) throw new NullPointerException("path");
+
+    synchronized(this)
+    {
+      QSYSObjectPathName verify = new QSYSObjectPathName(path, "CMD");
+
+      String old = path_;
+      path_ = path;
+
+      // In case you want to switch commands on-the-fly.
+      refreshed_ = false;
+      refreshedXML_ = false;
+
+      propertyChangeListeners_.firePropertyChange("path", old, path);
+    }
+  }
+
+  /**
+   *  Sets the server from which to retrieve the command list.
+   *
+   *  @param  system  The server from which to retrieve the commands.
+   * @see #getSystem
+   **/
+  public void setSystem(AS400 system)
+  {
+    if (system == null) throw new NullPointerException("system");
+
+    synchronized(this)
+    {
+      AS400 old = system_;
+      system_ = system;
+
+      refreshed_ = false;
+      refreshedXML_ = false;
+
+      propertyChangeListeners_.firePropertyChange("system", old, system);
+    }
+  }
+
+
+  /**
+   * Returns a String representation of this Command.
+   * @return The string, which includes the fully integrated file system 
+   * path name of this command.
   **/
   public String toString()
   {
-    return QSYSObjectPathName.toPath(library_, command_, "CMD");
+    return super.toString()+"["+path_+"]";
   }
 }
