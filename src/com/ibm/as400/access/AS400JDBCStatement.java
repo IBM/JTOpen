@@ -621,39 +621,78 @@ public class AS400JDBCStatement implements Statement
                         request.setBlockingFactor(getBlockingFactor (sqlStatement, fetchFirstBlock ? resultRow.getRowLength() : 0));
                     }
 
-                    //@F8 If we are pre-V5R2, the user set the resultSetType to "TYPE_SCROLL_INSENSITIVE", or
-                    //@F8 the user did not change from the default of the "cursor sensitivity" property,  
-                    //@F8 send what we always have.
-                    //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and 
-                    //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ == 
-                    //@F8 ResultSet.TYPE_SCROLL_INSENSITIVE to v5r1 or later hosts.
+                    //@K1D //@F8 If we are pre-V5R2, the user set the resultSetType to "TYPE_SCROLL_INSENSITIVE", or
+                    //@K1D //@F8 the user did not change from the default of the "cursor sensitivity" property,  
+                    //@K1D //@F8 send what we always have.
+                    //@K1D //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and 
+                    //@K1D //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ == 
+                    //@K1D //@F8 ResultSet.TYPE_SCROLL_INSENSITIVE to v5r1 or later hosts.
                     String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY); //@F8A
-                    if((connection_.getVRM() < JDUtilities.vrm520)                                                    //@F8A
-                       || (resultSetType_ == ResultSet.TYPE_SCROLL_INSENSITIVE)                                       //@F8A
-                       || (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE)))           //@F8A
-                    {
-                        if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);
-                        else
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); 
+                    //@K1D if((connection_.getVRM() < JDUtilities.vrm520)                                                    //@F8A
+                    //@K1D    || (resultSetType_ == ResultSet.TYPE_SCROLL_INSENSITIVE)                                       //@F8A
+                    //@K1D    || (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE)))           //@F8A
+                    //@K1D {
+                    //@K1D     if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
+                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);
+                    //@K1D     else
+                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); 
+                    //@K1D }
+                    //@K1D //@F8 If we are V5R2 or later, send new numbers based on what the user
+                    //@K1D //@F8 set in "cursor sensitivity" property                                                      //@F8A
+                    //@K1D else if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
+                    //@K1D {
+                    //@K1D     if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))     //@F8A
+                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);  //@F8A
+                    //@K1D     else  //else property set to sensitive                                                   //@F8A
+                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);    //@F8A
+                    //@K1D }
+                    //@K1D //@F8 Else, resultSetType_ is ResultSet.TYPE_CURSOR_SENSITIVE
+                    //@K1D else
+                    //@K1D {
+                    //@K1D     if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))      //@F8A
+                    //@K1D         request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);       //@F8A
+                    //@K1D     else  //else property set to sensitive                                                    //@F8A
+                    //@K1D         request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);          //@F8A
                     }
-                    //@F8 If we are V5R2 or later, send new numbers based on what the user
-                    //@F8 set in "cursor sensitivity" property                                                      //@F8A
-                    else if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
-                    {
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))     //@F8A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);  //@F8A
-                        else  //else property set to sensitive                                                   //@F8A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);    //@F8A
-                    }
-                    //@F8 Else, resultSetType_ is ResultSet.TYPE_CURSOR_SENSITIVE
-                    else
-                    {
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))      //@F8A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);       //@F8A
-                        else  //else property set to sensitive                                                    //@F8A
-                            request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);          //@F8A
-                    }
+                    //@K1D }
+                    //If earlier than V5R2, do what we always have                                                       //@K1A
+                    if(connection_.getVRM() < JDUtilities.vrm520)                                                        //@K1A
+                    {                                                                                                    //@K1A
+                        if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)                                                //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);           //@K1A        Option 0
+                        else                                                                                             //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);               //@K1A        Option 1
+                    }                                                                                                    //@K1A
+                    else if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)                                               //@K1A
+                    {                                                                                                    //@K1A
+                        //Determine if user set cursor sensitivity property                                              //@K1A
+                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))                //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);            //@K1A        Option 4
+                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))         //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);          //@K1A        Option 5
+                        else                                                                                             //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);           //@K1A        Option 0
+                    }                                                                                                    //@K1A
+                    else if(resultSetType_ == ResultSet.TYPE_SCROLL_SENSITIVE)                                           //@K1A
+                    {                                                                                                    //@K1A
+                        //Determine if user set cursor sensitivity property                                              //@K1A
+                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))               //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);               //@K1A        Option 1
+                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))         //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);              //@K1A        Option 2
+                        else                                                                                             //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);                //@K1A        Option 3
+                    }                                                                                                    //@K1A
+                    else        //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@K1A
+                    {                                                                                                    //@K1A
+                        //Determine if user set cursor sensitivity property                                              //@K1A
+                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))                //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);                //@K1A        Option 3
+                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))          //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);               //@K1A        Option 1
+                        else                                                                                             //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);              //@K1A        Option 2
+                    }                                                                                                    //@K1A
 
                     // Check server level before sending new code point
                     if(connection_.getVRM() >= JDUtilities.vrm520)                                    // @G4A

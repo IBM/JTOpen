@@ -6388,9 +6388,8 @@ implements DatabaseMetaData
         {
             case ResultSet.TYPE_FORWARD_ONLY:
             case ResultSet.TYPE_SCROLL_SENSITIVE:
-                return true;
             case ResultSet.TYPE_SCROLL_INSENSITIVE:
-                return false;
+                return true;
             default:
                 JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
                 return false;
