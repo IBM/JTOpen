@@ -184,7 +184,7 @@ implements SQLData
 
     public String getLiteralPrefix ()
     {
-        return "\'";
+        return "X\'";
     }
 
 
