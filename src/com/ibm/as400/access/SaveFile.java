@@ -71,13 +71,11 @@ implements Serializable
 
   private transient int               systemVRM_;
   private transient boolean           gotSystemVRM_;
-  private transient AS400FTP          ftp_;
   private transient ObjectDescription objectDescription_;
   private transient Record            fileAttributes_;  // format is described by class "SaveFileAttrFormat"
   private transient String            savefileNameAndLib_;
 
   private transient int existence_ = EXISTENCE_UNKNOWN;  // cached value from most recent existence check
-  private transient boolean loaded_;
 
   // Note: If it's ever required, we'll make this class into a Bean later.
   // Until then, we don't provide a default (zero-argument) constructor.
@@ -398,7 +396,7 @@ implements Serializable
 
 
   /**
-   Returns the current size (in bytes) of the save file.
+   Returns the current total size (in bytes) of the save file.
    @return  The size of the save file.
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.
@@ -617,7 +615,7 @@ implements Serializable
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSRLSAVF.PGM", parms);
     byte[] buf = null;
 
-    synchronized(USERSPACE_NAME)
+    synchronized (USERSPACE_NAME)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
@@ -749,7 +747,7 @@ implements Serializable
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QLPLPRDS.PGM", parms);
     byte[] buf = null;
 
-    synchronized(USERSPACE_NAME)
+    synchronized (USERSPACE_NAME)
     {
       // Create a user space in QTEMP to receive output.
       UserSpace space = new UserSpace(system_, USERSPACE_PATH);
