@@ -212,6 +212,7 @@ public class Command implements Serializable
   private byte multithreadedJobAction_;
 
   private String xml_;
+  private String xml2_;
   private PanelGroupHelpIdentifier[] helpIDs_;
   private String xmlProductLibrary_;
   private String xmlPanelGroup_;
@@ -219,6 +220,7 @@ public class Command implements Serializable
 
   private boolean refreshed_ = false;
   private boolean refreshedXML_ = false;
+  private boolean refreshedXML2_ = false;
   private boolean refreshedHelpIDs_ = false;
   private boolean refreshedHelpText_ = false;  
   private boolean loadedDescription_ = false;
@@ -729,9 +731,29 @@ public class Command implements Serializable
   InterruptedException, ObjectDoesNotExistException
   {
     if (!refreshedXML_)
-      refreshXML();
+      refreshXML(true);
 
     return xml_;
+  }
+
+  /**
+   * Retrieves the extended XML source for this CL command. This returns more
+   * information than {@link #getXML getXML()}.
+   * <P>
+   * Note: This method uses the CMDD0200 format on the QCDRCMDD API.
+   * If the server does not support this format, an AS400Exception will be
+   * thrown with a message ID of CPF3C21, and you should use the getXML() method instead.
+   * @return The XML describing this command.
+   * @see #getXML
+  **/
+  public String getXMLExtended() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException
+  {
+    if (!refreshedXML2_)
+      refreshXML(false);
+
+    return xml2_;
   }
 
   /**
@@ -1064,8 +1086,10 @@ public class Command implements Serializable
   /**
    * Refreshes the information for this Command object.
    * This method is used to perform the call to the server
-   * that retrieves the command information for this CL command. That
-   * information is cached internally until this method is called again.
+   * that retrieves the command information, XML, and help ID information for this CL command.
+   * That information is cached internally until this method is called again. Note that
+   * this method does not currently refresh the extended XML information provided by
+   * the {@link #getXMLExtended getXMLExtended()} method.
    * <p>
    * The necessary information is implicitly refreshed by the various getter methods.
    * The system and path must be set before refresh() is called.
@@ -1077,7 +1101,7 @@ public class Command implements Serializable
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
     refreshCommandInfo();
-    refreshXML();
+    refreshXML(true); // Refresh just the CMDD0100 format for now, since the 0200 format is new.
     refreshHelpIDs();
   }
 
@@ -1239,11 +1263,12 @@ public class Command implements Serializable
 
 
   // Worker method.  
-  private synchronized void refreshXML() throws AS400Exception, AS400SecurityException,
+  private synchronized void refreshXML(boolean f) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException
   {
-    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Refreshing XML information for "+path_+".");
+    String format = f ? "CMDD0100" : "CMDD0200";
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Refreshing XML (format "+format+") information for "+path_+".");
     if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     if (path_ == null) throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
@@ -1265,7 +1290,7 @@ public class Command implements Serializable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(8)); // destination, AKA length of receiver variable
     parms[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "DEST0100")); // destination format name
     parms[3] = new ProgramParameter(8); // receiver variable
-    parms[4] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "CMDD0100")); // receiver format name
+    parms[4] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, format)); // receiver format name
     parms[5] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDD.PGM", parms);
@@ -1273,19 +1298,7 @@ public class Command implements Serializable
 
     if (!pc.run())
     {
-      AS400Message[] msgs = pc.getMessageList();
-//      if (msgs.length == 1 && msgs[0].getID().equalsIgnoreCase("CPF3C21")) // Don't support CMDD0200 yet
-//      {
-//        try { parms[4].setInputData(CharConverter.stringToByteArray(37, system_, "CMDD0100")); } catch(PropertyVetoException pve) {}
-//        if (!pc.run())
-//        {
-//          throw new AS400Exception(pc.getMessageList());
-//        }
-//      }
-//      else
-//      {
-        throw new AS400Exception(msgs);
-//      }
+      throw new AS400Exception(pc.getMessageList());
     }
 
     byte[] outputData = parms[3].getOutputData();
@@ -1309,9 +1322,17 @@ public class Command implements Serializable
     bytesReturned = BinaryConverter.byteArrayToInt(outputData, 0);
     //bytesAvailable = BinaryConverter.byteArrayToInt(outputData, 4);
     ConvTable conv1208 = ConvTable.getTable(1208, null); // CCSID 1208 is UTF-8
-    xml_ = conv1208.byteArrayToString(outputData, 8, bytesReturned, 0);
-    refreshedXML_ = true;
-    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed XML information for "+path_+".");
+    if (f)
+    {
+      xml_ = conv1208.byteArrayToString(outputData, 8, bytesReturned, 0);
+      refreshedXML_ = true;
+    }
+    else
+    {
+      xml2_ = conv1208.byteArrayToString(outputData, 8, bytesReturned, 0);
+      refreshedXML2_ = true;
+    }
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Successfully refreshed XML (format "+format+") information for "+path_+".");
   }
 
 
