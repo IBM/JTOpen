@@ -64,12 +64,9 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DFR_WRITE);   // defer write
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);      // print on both sides of pape
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edgestich number of staples
-                                                                      // of staples              @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_STPL_OFFSET_INFO);// edgestitch info offset
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF);    // edgestitch reference
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // edgestitch reference offset
-                                                                            //  offset   @C1A
-
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ENDPAGE);     // ending page number to print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EXPIRATION_DATE); // Spool file expiration date
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);    // the error handling when pri
@@ -110,9 +107,7 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLUNPRT);    // replace unprintable charact
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLCHAR);     // character to replace unprin
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES); // saddle stitch number of staple
-                                                                      // number of staple       @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch reference
-                                                                      // reference              @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);// saddle stitch offset
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);        // whether to save after print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SRCDRWR);     // source drawer

@@ -506,7 +506,23 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_SADDLESTITCH_STPL_OFFSEINFO = 0x00F4;  // saddle stitch staple offset
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0064">Save spooled file after written</A>. **/
     public static final int ATTR_SAVE         = 0x0064;  // Save spooled file after written
-    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY111">Spooled output schedule</A>. **/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0142">Save command</A>. **/
+    public static final int ATTR_SAVE_COMMAND = 0x0142;  // Save command
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0143">Save device</A>. **/
+    public static final int ATTR_SAVE_DEVICE  = 0x0143;  // Save device
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEYIFS_14">Save file integrated file system name</A>. **/
+    public static final int ATTR_SAVE_FILE    =    -14;  // Save file IFSPath
+           static final int ATTR_SAVEFILE     = 0x0145;  // Save file name
+           static final int ATTR_SAVEFILELIB  = 0x0144;  // Save file library name
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0146">Save label</A>. **/
+    public static final int ATTR_SAVE_LABEL   = 0x0146;  // Save label
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0147">Save sequence number</A>. **/
+    public static final int ATTR_SAVE_SEQUENCE_NUMBER = 0x0147;  // Save sequence number
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0148">Save volume format</A>. **/
+    public static final int ATTR_SAVE_VOLUME_FORMAT = 0x0148; // Save volume format
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0149">Save volume ID</A>. **/
+    public static final int ATTR_SAVE_VOLUME_ID = 0x0149; // Save volume ID
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY111">File available</A>. **/
     public static final int ATTR_SCHEDULE     = 0x006B;  // when available to the writer
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY116">Transform SCS to ASCII</A>. **/
     public static final int ATTR_SCS2ASCII    = 0x0071;  // transform SCS to ASCII
@@ -1284,6 +1300,8 @@ abstract public class PrintObject implements java.io.Serializable
         case 0x011F: return "ATTR_3812SCS";
         case 0x0109: return "ATTR_ACCOUNT_CODE";
         case 0x000A: return "ATTR_AFP";
+        case    -12: return "ATTR_AFP_RESOURCE"; // "negative decimal"
+        case 0x011A: return "ATTR_AFPRESOURCE";
         case 0x0128: return "ATTR_ASCIITRANS";
         case 0x00FC: return "ATTR_AUX_POOL";
         case 0x011B: return "ATTR_BARCODE";
@@ -1504,6 +1522,15 @@ abstract public class PrintObject implements java.io.Serializable
         case 0x00F2: return "ATTR_SADDLESTITCH_REF";
         case 0x00F4: return "ATTR_SADDLESTITCH_STPL_OFFSEINFO";
         case 0x0064: return "ATTR_SAVE";
+        case 0x0142: return "ATTR_SAVE_COMMAND";
+        case 0x0143: return "ATTR_SAVE_DEVICE";
+        case    -14: return "ATTR_SAVE_FILE";
+        case 0x0145: return "ATTR_SAVEFILE";
+        case 0x0144: return "ATTR_SAVEFILELIB";
+        case 0x0146: return "ATTR_SAVE_LABEL";
+        case 0x0147: return "ATTR_SAVE_SEQUENCE_NUMBER";
+        case 0x0148: return "ATTR_SAVE_VOLUME_FORMAT";
+        case 0x0149: return "ATTR_SAVE_VOLUME_ID";
         case 0x006B: return "ATTR_SCHEDULE";
         case 0x0071: return "ATTR_SCS2ASCII";
         case 0x007E: return "ATTR_SEEKOFF";

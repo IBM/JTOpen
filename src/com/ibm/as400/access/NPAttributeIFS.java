@@ -45,8 +45,8 @@ class NPAttributeIFS
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    //@A1C - Now there are 13 IFS attributes
-    static final int NUM_IFS_ATTRS = 13;   // there are 13 IFS attributes thus far
+    //@A1C - Now there are 14 IFS attributes
+    static final int NUM_IFS_ATTRS = 14;   // there are 14 IFS attributes thus far
     static final NPAttributeIFS[] ifsAttrs = new NPAttributeIFS[NUM_IFS_ATTRS];
     static
     {
@@ -134,21 +134,19 @@ class NPAttributeIFS
                                           PrintObject.ATTR_RSCTYPE,
                                           null);
 
-        //@A1A
         /* -13 is ATTR_PAGE_DEFINITION */
         ifsAttrs[java.lang.Math.abs(PrintObject.ATTR_PAGE_DEFINITION) - 1] =
-                      new NPAttributeIFS(PrintObject.ATTR_PAGDFN,
-                                         PrintObject.ATTR_PAGDFNLIB,
-                                         0,
-                                         "PAGDFN");
-
-        
-
-
-
-
-
-
+                       new NPAttributeIFS(PrintObject.ATTR_PAGDFN,
+                                          PrintObject.ATTR_PAGDFNLIB,
+                                          0,
+                                          "PAGDFN");
+                                         
+        /* -14 is ATTR_SAVE_FILE */
+        ifsAttrs[java.lang.Math.abs(PrintObject.ATTR_SAVE_FILE) - 1] =
+                       new NPAttributeIFS(PrintObject.ATTR_SAVEFILE,
+                                          PrintObject.ATTR_SAVEFILELIB,
+                                          0,
+                                          "FILE");
 
     }
 
