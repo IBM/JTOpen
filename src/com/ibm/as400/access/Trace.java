@@ -1267,9 +1267,16 @@ public class Trace
      **/
     public static void setTracePCMLOn(boolean tracePCML)           // @D5A
     {
-       tracePCML_ = tracePCML;
-       
-       com.ibm.as400.data.PcmlMessageLog.setTraceEnabled(tracePCML);
+        tracePCML_ = tracePCML;
+
+        try                                                                                                                            // @D7A
+        {                                                                                                                               // @D7A
+            com.ibm.as400.data.PcmlMessageLog.setTraceEnabled(tracePCML);                                           
+        }                                                                                                                               // @D7A
+        catch (NoClassDefFoundError e)                                                                                         // @D7A
+        {                                                                                                                               // @D7A
+            destination_.println("Unable to enable PCML tracing:  NoClassDefFoundError - PcmlMessageLog");    // @D7A
+        }                                                                                                                               // @D7A
     }
 
 
