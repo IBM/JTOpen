@@ -1,3 +1,17 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ObjectDescription.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
 package com.ibm.as400.access;
 
 import java.beans.*;
@@ -5,7 +19,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Represents an OS/400 QSYS object and its attributes.
+ * Represents a server QSYS object and its attributes.
  * ObjectDescription objects can be constructed individually, or generated
  * from an {@link com.ibm.as400.access.ObjectList ObjectList}. An object's
  * attributes can be retrieved by calling {@link #getValue getValue()} and
@@ -204,7 +218,7 @@ public class ObjectDescription
   
   /**
    * Object attribute representing whether the object
-   * has an OS/400 digital signature.
+   * has a digital signature.
    * <P>Type: {@link java.lang.Boolean Boolean}
    * @see #DIGITALLY_SIGNED_TRUSTED
    * @see #DIGITALLY_SIGNED_MULTIPLE
@@ -213,7 +227,7 @@ public class ObjectDescription
   
   /**
    * Object attribute representing whether the object has
-   * more than one OS/400 digital signature.
+   * more than one digital signature.
    * <P>Type: {@link java.lang.Boolean Boolean}
    * @see #DIGITALLY_SIGNED
    * @see #DIGITALLY_SIGNED_TRUSTED
@@ -1380,7 +1394,7 @@ public class ObjectDescription
       set(JOURNAL_IMAGES, data[548] == (byte)0xF1); // '1' means both before and after images are generated, '0' means just after images.
       set(JOURNAL_OMITTED_ENTRIES, data[549] == (byte)0xF0); // '0' means no entries are omitted, '1' means open/close ops don't generate entries, ' ' means object isn't journaled.
       set(JOURNAL_START_DATE, conv.byteArrayToString(data, 550, 13).trim()); // date; will be blank of not journaled
-      set(DIGITALLY_SIGNED, data[563] == (byte)0xF1); // '1' means it has an OS/400 digital signature, '0' means not.
+      set(DIGITALLY_SIGNED, data[563] == (byte)0xF1); // '1' means it has a digital signature, '0' means not.
       set(SAVE_SIZE, BinaryConverter.byteArrayToInt(data, 564));
       set(SAVE_SIZE_MULTIPLIER, BinaryConverter.byteArrayToInt(data, 568));
       set(LIBRARY_ASP_NUMBER, BinaryConverter.byteArrayToInt(data, 572));

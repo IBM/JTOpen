@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Represents a Program Temporary Fix (PTF) for an OS/400 licensed program
+ * Represents a Program Temporary Fix (PTF) for a licensed program
  * product. Call {@link #refresh refresh()} to reload all of the values from the server.
  * Individual getters will only refresh their own necessary information.
  * @see com.ibm.as400.access.Product#getPTFs
@@ -1083,7 +1083,7 @@ public class PTF
 
   
   /**
-   * Returns the earliest release of OS/400 on which you can load and apply
+   * Returns the earliest release of the operating system on which you can load and apply
    * this PTF (e.g. "V4R5M0").
    * @return The target release.
   **/

@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,11 +23,11 @@ import java.io.Serializable;
 import java.util.Vector;
 
 /**
- The UserSpace class represents a user space on an iSeries server.
+ The UserSpace class represents a user space object in the server operating system.  By default, when running on a system other than the server that contains the user space, the UserSpace class will make use of two separate host servers.  The file server will be used for read() and write() requests and the remote command server will be used for the other requests.  This behavior can be changed with the setMustUseProgramCall() method.  Although it is not recommended, applications using the QTEMP library might wish to set the mustUseProgramCall property to true. 
  **/
 public class UserSpace implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -501,7 +501,7 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Indicates if the user space is auto extendible.  When running on a system other than the server that contains the user space, the auto extend attribute is always true and cannot be changed, so the attribute value returned should be ignored.  The auto extend attribute can be used when running on the same system as the user space with the optimizations that are a part of OS/400.
+     Indicates if the user space is auto extendible.  When running on a system other than the server that contains the user space, the auto extend attribute is always true and cannot be changed, so the attribute value returned should be ignored.  The auto extend attribute can be used when running on the same system as the user space with the optimizations that are a part of the operating system.
      @return  true if the user space is auto extendible; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -696,7 +696,7 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Sets the auto extend attribute if possible.  When running on a system other than the server that contains the user space, the auto extend attribute cannot be set, so this method is ignored and auto extend is always true.  Auto extend can be set when running on the same system as the user space with the optimizations that are a part of OS/400.
+     Sets the auto extend attribute if possible.  When running on a system other than the server that contains the user space, the auto extend attribute cannot be set, so this method is ignored and auto extend is always true.  Auto extend can be set when running on the same system as the user space with the optimizations that are a part of the operating system.
      @param  autoExtendibility  The attribute for user space auto extendibility.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.

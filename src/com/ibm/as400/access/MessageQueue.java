@@ -27,7 +27,7 @@ import java.util.Calendar;
 
 
 /**
-The MessageQueue class represents an OS/400 message queue.  If no message
+The MessageQueue class represents a server message queue.  If no message
 queue path is set, then the default is {@link #CURRENT CURRENT},
 which represents the current user's message queue,
 <code>/QSYS.LIB/QUSRSYS.LIB/<em>userID</em>.MSGQ</code>.
@@ -631,13 +631,13 @@ need replies.
    * If an error occurs while the Enumeration is loading the next block of messages, a
    * NoSuchElementException will be thrown while the real error will be logged to {@link com.ibm.as400.access.Trace Trace.ERROR}.
    * @return An Enumeration of {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public Enumeration getMessages()
   throws  AS400Exception,
@@ -986,13 +986,13 @@ need replies.
    * attribute values</a> which are set on a received message.
    * @param messageKey The message key.
    * @return The queued message, or null if the message can not be received.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
    * @see com.ibm.as400.access.QueuedMessage#getKey
 **/
   public QueuedMessage receive(byte[] messageKey)
@@ -1085,13 +1085,13 @@ need replies.
    *                             optional.
    *                         </ul>
    * @return The queued message, or null if the message can not be received.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
    * @see com.ibm.as400.access.QueuedMessage#getKey
 **/
   public QueuedMessage receive(byte[] messageKey,
@@ -1251,13 +1251,13 @@ need replies.
 
 /**
    * Remove all messages from the message queue.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void remove()
   throws AS400Exception,
@@ -1273,13 +1273,13 @@ need replies.
 /**
    * Removes a message from the message queue.
    * @param messageKey The message key.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void remove(byte[] messageKey)
   throws AS400Exception,
@@ -1310,13 +1310,13 @@ need replies.
                         All old messages in the message queue.  Old messages
                         are those that have already been received.
                     </ul>
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void remove(String messageType)
   throws AS400Exception,
@@ -1405,13 +1405,13 @@ need replies.
    * @param messageKey The message key.
    * @param replyText The reply. To send the default reply stored in the message description,
    * use blanks for this parameter.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void reply(byte[] messageKey, String replyText)
   throws AS400Exception,
@@ -1433,13 +1433,13 @@ need replies.
    * @param remove true to remove the inquiry message and the reply from the
                     message queue after the reply is sent, false to keep the
                     inquiry message and the reply after the reply is sent.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void reply(byte[] messageKey, String replyText, boolean remove)
   throws AS400Exception,
@@ -1583,13 +1583,13 @@ need replies.
    * Sends an informational message to the message queue.
    * @param messageID The message ID.
    * @param messageFile The integrated file system path name of the message file.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void sendInformational(String messageID, String messageFile)
   throws AS400Exception,
@@ -1610,13 +1610,13 @@ need replies.
    * @param messageID The message ID.
    * @param messageFile The integrated file system path name of the message file.
    * @param substitutionData The substitution data for the message, or null if none.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void sendInformational(String messageID, String messageFile, byte[] substitutionData)
   throws AS400Exception,
@@ -1635,13 +1635,13 @@ need replies.
 /**
    * Sends an informational message to the message queue.
    * @param messageText The message text.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public void sendInformational(String messageText)
   throws AS400Exception,
@@ -1665,13 +1665,13 @@ need replies.
    * @param messageFile The integrated file system path name of the message file.
    * @param replyMessageQueue The integrated file system path name of the reply message queue.
    * @return The message key.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public byte[] sendInquiry(String messageID,
                             String messageFile,
@@ -1697,13 +1697,13 @@ need replies.
    * @param substitutionData The substitution data for the message, or null if none.
    * @param replyMessageQueue The integrated file system path name of the reply message queue.
    * @return The message key.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public byte[] sendInquiry(String messageID,
                             String messageFile,
@@ -1731,13 +1731,13 @@ Sends an inquiry message to the message queue.
 @param replyMessageQueue The integrated file system path name of the reply message queue.
 @return                 The message key.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public byte[] sendInquiry(String messageText, String replyMessageQueue)
   throws AS400Exception,
@@ -1763,7 +1763,7 @@ Sends an inquiry message to the message queue.
     * <UL>
     * <LI>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - the help text is returned as a string of characters.
     * This is the default.
-    * <LI>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - the help text contains AS/400
+    * <LI>{@link com.ibm.as400.access.MessageFile#RETURN_FORMATTING_CHARACTERS MessageFile.RETURN_FORMATTING_CHARACTERS} - the help text contains
     * formatting characters.  The formatting characters are:
     * <UL>
     * &N -- Force a new line <BR>
@@ -1771,7 +1771,7 @@ Sends an inquiry message to the message queue.
     * &B -- Force a new line and indent the new line four characters
     * </UL>
     * <LI>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - the MessageFile class replaces
-    * AS/400 formatting characters with new line and space characters.
+    * formatting characters with new line and space characters.
     * </UL>
     * @param helpTextFormatting The help text formatting value.
     **/

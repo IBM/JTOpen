@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: RequestNotSupportedException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  RequestNotSupportedException.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 
 package com.ibm.as400.access;
 
@@ -17,7 +18,7 @@ package com.ibm.as400.access;
 /**
    The RequestNotSupportedException class represents an exception 
    that indicates that the requested function is not supported
-   because the AS/400 system is not at the correct level.
+   because the server is not at the correct level.
 **/
 public class RequestNotSupportedException extends Exception
                                     implements ReturnCodeException
@@ -54,9 +55,9 @@ public class RequestNotSupportedException extends Exception
        Constructs a RequestNotSupportedException object. It indicates 
        that the requested function is not supported due to the system
        level not being correct. This constructor should be used when
-       the required OS/400 level is known.
-       Exception message will look like this: V2R1M0: Correct OS/400 level is required.
-       @param requiredLevel The required OS/400 level.  This needs to be in the
+       the required server level is known.
+       Exception message will look like this: V2R1M0: Correct server level is required.
+       @param requiredLevel The required server level.  This needs to be in the
                             format VvRrMm where v is the version, r is the release
                             and m is the modification.              
        @param returnCode The return code which identifies the message to be returned.

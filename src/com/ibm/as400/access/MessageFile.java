@@ -24,7 +24,7 @@ import java.beans.PropertyVetoException;
 
 /**
   * The MessageFile class
-  * allows a user to get a message from an OS/400 message file.
+  * allows a user to get a message from a server message file.
   * It returns an AS400Message object which contains the message.
   * The calling program can optionally supply substitution text for the message.
   *
@@ -36,7 +36,7 @@ import java.beans.PropertyVetoException;
   * <LI>No formatting - the help text is returned as a string of characters.
   * This is the default.
   *
-  * <LI>Include formatting characters - the help text contains AS/400
+  * <LI>Include formatting characters - the help text contains
   * formatting characters.  The formatting characters are:
   * <UL>
   * &N -- Force a new line <BR>
@@ -45,7 +45,7 @@ import java.beans.PropertyVetoException;
   * </UL>
   *
   * <LI>Substitute formatting characters - the MessageFile class replaces
-  * AS/400 formatting characters with newline and space characters.
+  * server formatting characters with newline and space characters.
   * </OL>
   *
   * The difference between options 2 and 3 are with line wrapping.
@@ -130,10 +130,10 @@ public class MessageFile extends Object implements Serializable
 
 
     /**
-      *Constructs a MessageFile object. It uses the specified AS/400.
+      *Constructs a MessageFile object. It uses the specified server.
       *The message file name must be provided later.
       *
-      *@param  system  The AS/400 which contains the message file.
+      *@param  system  The server which contains the message file.
     **/
     public MessageFile(AS400 system)
     {
@@ -145,10 +145,10 @@ public class MessageFile extends Object implements Serializable
 
 
     /**
-      *Constructs a message file object. It uses the specified AS/400 and
+      *Constructs a message file object. It uses the specified server and
       *message file name.
       *
-      *@param system   The AS/400 which contains the message file
+      *@param system   The server which contains the message file
       *@param path     The integrated file system pathname for the message file.
       *                That is, the message file name as a fully qualified path name
       *                in the library file system.
@@ -249,7 +249,7 @@ public class MessageFile extends Object implements Serializable
       * <UL>
       * <LI>NO_FORMATTING - The help text is returned as a string of characters.
       * This is the default.
-      * <LI>RETURN_FORMATTING_CHARACTERS - The help text contains AS/400
+      * <LI>RETURN_FORMATTING_CHARACTERS - The help text contains
       * formatting characters.  The formatting characters are:
       * <UL>
       * &N -- Force a new line <BR>
@@ -257,7 +257,7 @@ public class MessageFile extends Object implements Serializable
       * &B -- Force a new line and indent the new line four characters
       * </UL>
       * <LI>SUBSTITUTE_FORMATTING_CHARACTERS - The MessageFile class replaces
-      * AS/400 formatting characters with newline and space characters.
+      * formatting characters with newline and space characters.
       * </UL>
       * @return  The status of help text formatting.
       **/
@@ -294,9 +294,9 @@ public class MessageFile extends Object implements Serializable
       *@exception AS400SecurityException If a security or authority error occurs.
       *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
       *@exception InterruptedException If this thread is interrupted.
-      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception IOException If an error occurs while communicating with the server.
       *@exception PropertyVetoException If a change is vetoed.
-      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      *@exception ObjectDoesNotExistException If the server object does not exist.
       **/
     public AS400Message getMessage(String ID)                         //$D4C
                         throws AS400SecurityException,
@@ -329,9 +329,9 @@ public class MessageFile extends Object implements Serializable
       *@exception AS400SecurityException If a security or authority error occurs.
       *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
       *@exception InterruptedException If this thread is interrupted.
-      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception IOException If an error occurs while communicating with the server.
       *@exception PropertyVetoException If a change is vetoed.
-      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      *@exception ObjectDoesNotExistException If the server object does not exist.
       **/
     public AS400Message getMessage(String ID, int type)               //$D4A
                         throws AS400SecurityException,
@@ -353,7 +353,7 @@ public class MessageFile extends Object implements Serializable
       *responsible for correctly formatting the string containing the
       *substitution text for the specified message.
       *<P>For example, using
-      *AS/400 command DSPMSGD, we see the format of the substitution text for
+      *CL command DSPMSGD, we see the format of the substitution text for
       *message CPD0170 is char 4, char 10, char 10.  Passing string
       *<PRE>"12  abcd      xyz"</PRE> as the substitution text on this call means
       *"12" will be substituted for &1, "abcd" will be substituted for &2, and
@@ -366,9 +366,9 @@ public class MessageFile extends Object implements Serializable
       *@exception AS400SecurityException If a security or authority error occurs.
       *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
       *@exception InterruptedException If this thread is interrupted.
-      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception IOException If an error occurs while communicating with the server.
       *@exception PropertyVetoException If a change is vetoed.
-      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      *@exception ObjectDoesNotExistException If the server object does not exist.
       **/
     public AS400Message getMessage(String ID, String substitutionText)               //$D4C
                         throws AS400SecurityException,
@@ -395,7 +395,7 @@ public class MessageFile extends Object implements Serializable
       *responsible for correctly formatting the string containing the
       *substitution text for the specified message.
       *<P>For example, using
-      *AS/400 command DSPMSGD, we see the format of the substitution text for
+      *CL command DSPMSGD, we see the format of the substitution text for
       *message CPD0170 is char 4, char 10, char 10.  Passing string
       *<PRE>"12  abcd      xyz"</PRE> as the substitution text on this call means
       *"12" will be substituted for &1, "abcd" will be substituted for &2, and
@@ -411,9 +411,9 @@ public class MessageFile extends Object implements Serializable
       *@exception AS400SecurityException If a security or authority error occurs.
       *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
       *@exception InterruptedException If this thread is interrupted.
-      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception IOException If an error occurs while communicating with the server.
       *@exception PropertyVetoException If a change is vetoed.
-      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      *@exception ObjectDoesNotExistException If the server object does not exist.
       **/
     public AS400Message getMessage(String ID, String substitutionText, int type)  //$D4A
                         throws AS400SecurityException,
@@ -452,7 +452,7 @@ public class MessageFile extends Object implements Serializable
       *message file name must be
       *set before calling this method.  Up to 1024 bytes of substitution
       *text can be supplied to this method.  <B>The byte array is not changed
-      *or converted before being sent to the AS/400</B>.
+      *or converted before being sent to the server</B>.
       *
       *@param  ID The message identifier.
       *@param  substitutionText The substitution text.
@@ -461,9 +461,9 @@ public class MessageFile extends Object implements Serializable
       *@exception AS400SecurityException If a security or authority error occurs.
       *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
       *@exception InterruptedException If this thread is interrupted.
-      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception IOException If an error occurs while communicating with the server.
       *@exception PropertyVetoException If a change is vetoed.
-      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      *@exception ObjectDoesNotExistException If the server object does not exist.
       **/
     public AS400Message getMessage(String ID, byte[] substitutionText)         //$D4C
                         throws AS400SecurityException,
@@ -489,7 +489,7 @@ public class MessageFile extends Object implements Serializable
       *message file name must be
       *set before calling this method.  Up to 1024 bytes of substitution
       *text can be supplied to this method.  <B>The byte array is not changed
-      *or converted before being sent to the AS/400</B>.
+      *or converted before being sent to the server</B>.
       *
       *@param  ID The message identifier.
       *@param  substitutionText The substitution text.
@@ -501,9 +501,9 @@ public class MessageFile extends Object implements Serializable
       *@exception AS400SecurityException If a security or authority error occurs.
       *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
       *@exception InterruptedException If this thread is interrupted.
-      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception IOException If an error occurs while communicating with the server.
       *@exception PropertyVetoException If a change is vetoed.
-      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      *@exception ObjectDoesNotExistException If the server object does not exist.
       **/
     public AS400Message getMessage(String ID, byte[] substitutionText, int type)          //$D4A
                         throws AS400SecurityException,                           // @D2a
@@ -560,11 +560,11 @@ public class MessageFile extends Object implements Serializable
         // 1: create an area to hold the message                                 // @D2m
         parms[0] = new ProgramParameter(MAX_MESSAGE_SIZE);                       // @D2m
                                                                                  // @D2m
-        // 2: tell the AS/400 the size of our output buffer                      // @D2m
+        // 2: tell the server the size of our output buffer                      // @D2m
         byte[] msgsize = intType.toBytes(new Integer(MAX_MESSAGE_SIZE) );        // @D2m
         parms[1] = new ProgramParameter( msgsize );                              // @D2m
                                                                                  // @D2m
-        // 3: tell the AS/400 the format of the data we want returned            // @D2m
+        // 3: tell the server the format of the data we want returned            // @D2m
         byte[] format = new byte[8];                                             // @D2m
         text8Type.toBytes("RTVM0200", format, 0);                                // @D2m
         parms[2] = new ProgramParameter( format );                               // @D2m
@@ -662,9 +662,9 @@ public class MessageFile extends Object implements Serializable
 
 
     /**
-      *Returns the AS/400 which contains the message file.
+      *Returns the server which contains the message file.
       *
-      *@return        The AS/400 which contains the message file.
+      *@return        The server which contains the message file.
       **/
     public AS400 getSystem()
     {
@@ -754,7 +754,7 @@ public class MessageFile extends Object implements Serializable
       * <UL>
       * <LI>NO_FORMATTING - the help text is returned as a string of characters.
       * This is the default.
-      * <LI>RETURN_FORMATTING_CHARACTERS - the help text contains AS/400
+      * <LI>RETURN_FORMATTING_CHARACTERS - the help text contains
       * formatting characters.  The formatting characters are:
       * <UL>
       * &N -- Force a new line <BR>
@@ -762,7 +762,7 @@ public class MessageFile extends Object implements Serializable
       * &B -- Force a new line and indent the new line four characters
       * </UL>
       * <LI>SUBSTITUTE_FORMATTING_CHARACTERS - the MessageFile class replaces
-      * AS/400 formatting characters with new line and space characters.
+      * formatting characters with new line and space characters.
       * </UL>
       * @param value The help text formatting value.
       * @exception PropertyVetoException If a change is vetoed.
@@ -793,7 +793,7 @@ public class MessageFile extends Object implements Serializable
 
     /**
       *Sets the message file name.  The name cannot be changed after
-      *retrieving a message from the AS/400.
+      *retrieving a message from the server.
       *
       *@param path  The integrated file system pathname for the message file.
       *             That is, the message file name as a fully qualified path name
@@ -864,10 +864,10 @@ public class MessageFile extends Object implements Serializable
 
 
     /**
-      *Sets the AS/400 which contains the message file. The system cannot be changed after
-      *retrieving a message from the AS/400.
+      *Sets the server which contains the message file. The system cannot be changed after
+      *retrieving a message from the server.
       *
-      *@param system  The AS/400 which contains the message file.
+      *@param system  The server which contains the message file.
       *@exception PropertyVetoException If a change is vetoed.
       **/
     public void setSystem(AS400 system)

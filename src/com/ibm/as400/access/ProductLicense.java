@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ProductLicense.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ProductLicense.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 
 package com.ibm.as400.access;
 
@@ -22,13 +23,13 @@ import java.util.Vector;                                        // @A2A
 
 /**
 * <p>
-*   A ProductLicense object represents a license for an AS/400 product. To request
+*   A ProductLicense object represents a license for a product. To request
 *   a license, construct a ProductLicense object then invoke the request() method.
 *   The caller must keep a reference to the ProductLicense object until the
 *   license is no longer needed since the ProductLicense object will release
 *   the license when it is garbage collected.  Licenses are managed on a
 *   per-connection basis.  Each ProductLicense object has a separate connection to
-*   the an AS/400 server.  If the connection ends unexpectedly the server
+*   the server.  If the connection ends unexpectedly the server
 *   releases the license.  To maintain an accurate count, the application should
 *   call release() instead of relying on the license being released when the object
 *   is garbage collected or when the connection ends.  Cleanup during garbage
@@ -207,7 +208,7 @@ public class ProductLicense implements java.io.Serializable
     /**
     *   Constructs a ProductLicense object for an AS400 system, product, feature,
     *   and release.
-    *   @param  system  the AS/400 from which the license will be requested.
+    *   @param  system  the server from which the license will be requested.
     *   @param  productID the product identifier.  For example, "5769JC1".
     *   @param  featureID the product feature.  For example, "5050".
     *   @param  release the product release.  For example, "V4R5M0".
@@ -445,8 +446,8 @@ public class ProductLicense implements java.io.Serializable
     }  */
 
     /**
-    *   Returns the AS/400 object for this license.
-    *   @return The AS/400.
+    *   Returns the server object for this license.
+    *   @return The server.
     **/
     public AS400 getSystem()
     {
@@ -524,13 +525,12 @@ public class ProductLicense implements java.io.Serializable
     *   Release this license.  This method must be called to release the license.  Failure
     *   to do so may result in incorrect license usage count. Calling this method will
     *   disconnect from the AS400 Optimized License Management server.
-    *   @exception  IOException  If an error occurs while communicating with the AS/400.
-    *   @exception  ConnectionDroppedException If the connection was dropped while trying to communicate with the AS/400.
+    *   @exception  IOException  If an error occurs while communicating with the server.
     *   @exception  InterruptedException  If this thread is interrupted.
     *   @exception  LicenseException  If a license error occurs.
     **/
     public  void release()
-    throws IOException, ConnectionDroppedException, InterruptedException, LicenseException
+    throws IOException, InterruptedException, LicenseException
     {
 
         // Verify that the bean properties are set prior to attempting the release.
@@ -614,7 +614,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Request a license.
-    *   @exception  IOException  If an error occurs while communicating with the AS/400.
+    *   @exception  IOException  If an error occurs while communicating with the server.
     *   @exception  AS400SecurityException Unable to connect due to some problem with the user ID or password used to authenticate.
     *   @exception  InterruptedException  If this thread is interrupted.
     *   @exception  LicenseException  If a license error occurs.
@@ -928,8 +928,8 @@ public class ProductLicense implements java.io.Serializable
     }
 
     /**
-    *   Sets the AS/400 object for this license.
-    *   @param  system the AS/400 from which the license will be requested.
+    *   Sets the server object for this license.
+    *   @param  system the server from which the license will be requested.
     **/
     public void setSystem(AS400 system)                    // @A2C
     {

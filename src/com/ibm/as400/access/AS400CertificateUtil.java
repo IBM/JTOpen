@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: AS400CertificateUtil.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  AS400CertificateUtil.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -30,7 +30,7 @@ import java.beans.VetoableChangeListener;
    <p>The AS400CertificateUtil class provides the methods common to AS400CertificateVldlUtil and AS400CertificateUserProfileUtil.
   * The following example demonstrates the use of AS400CertificateUtil, AS400CertificateVldlUtil, and AS400CertificateUserProfileUtil. It copies an arbitrary number of X.509 certificates from an AS400 user profile to an AS400 validation list (vldl) object. The user profile certificates are first placed into a user space and then added to the validation list:<br>
   * <PRE>
-      // Get certificates from the local AS/400
+      // Get certificates from the local system
     AS400 as400 = new AS400();
 <BR>
       // Local variables
@@ -211,7 +211,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   /**
    * Constructs an AS400CertificateUtil object.
    *
-   * @param  system  The AS/400 system on which the certificate repository exists.
+   * @param  system  The server on which the certificate repository exists.
    * @param  path  The fully qualified integrated file system path name of the validation list or user profile. For example, /QSYS.LIB/MYLIB.LIB/MYVLDL.VLDL or /QSYS.LIB/MYPROFILE.USRPRF.
    */
   public AS400CertificateUtil(AS400 system, String path)
@@ -247,7 +247,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate already added and  other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   abstract public void addCertificate(byte[] certificate)
@@ -312,7 +312,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and  other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   abstract public void deleteCertificate(byte[] certificate)
@@ -336,7 +336,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   abstract public void deleteCertificateByHandle(byte[] certificatehandle)
@@ -366,7 +366,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate, firstCertificateToReturn set to more than the total number of certificates in user space, and other invalid input parameters.
    * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   public AS400Certificate [] getCertificates(
@@ -444,7 +444,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIOException If invalid certificate and  other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   public byte[] getCertificateHandle(byte[] certificate)
@@ -509,7 +509,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   /**
    *  Retrieves certificates placed in the user space by listCertificates starting at the first certificate in the user space.
    *
-   * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character library of the user space may also be specified as %CURLIB% or %LIBL%.
    * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    * @param buffSize  The number of kilobytes allocated for the returned certificates.
    *   Increasing this value for remote invocations will require more client memory and longer transmission times. The recommended default buffer size is 128 kilobytes. The minimum buffer size allowed is 8 kilobytes.
@@ -521,7 +521,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate and other invalid input parameters.
    * @exception ExtendedIOException If no certificate returned, user space certificates not stored in format "CERT0100", and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   public AS400Certificate [] getFirstCertificates(String userSpaceName,
@@ -616,7 +616,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If buffer size out of range or too small for one certificate.
    * @exception ExtendedIOException If certificates are not in "CERT0100" format in the user space, user space and initial certificate to return are not set by calling getCertificates or getFirstCertificates, and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   public AS400Certificate [] getNextCertificates(int buffSize)
@@ -733,7 +733,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *   search for certificates without the subject organization field.
    *   Null search attributes are ignored.
    *
-   * @param userSpaceName The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%.
+   * @param userSpaceName The fully qualified integrated file system path name of the user space to put the list results, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character library of the user space may also be specified as %CURLIB% or %LIBL%.
    * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    *
    * @return  The number of certificates found.
@@ -743,7 +743,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
    * @exception ExtendedIOException If AS400 certificate access error.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
   abstract public int listCertificates(
@@ -815,7 +815,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
   /**
     *Sets the system on which the certificate repository exists.
     *
-    *@param  system    The AS/400 system on which the repository exists.
+    *@param  system    The server on which the repository exists.
     *@exception PropertyVetoException If the change is vetoed.
     **/
   public void setSystem(AS400 system)
@@ -1231,7 +1231,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *then continue on to restore the state (as necessary) of the remaining varaibles.
    *@param in The input stream from which to deserialize the object.
    *@exception ClassNotFoundException If the class being deserialized is not found.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
    private void readObject(java.io.ObjectInputStream in)
       throws ClassNotFoundException,

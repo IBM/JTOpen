@@ -492,7 +492,7 @@ public class SystemValueList implements java.io.Serializable
     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     @exception InterruptedException If this thread is interrupted.
     @exception IOException If an error occurs while communicating with the server.
-    @exception ObjectDoesNotExistException If the OS/400 object does not exist.
+    @exception ObjectDoesNotExistException If the server object does not exist.
     @exception UnknownHostException If the server cannot be located.
   **/
   public Vector getGroup(int group)

@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ObjectAlreadyExistsException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ObjectAlreadyExistsException.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 
 package com.ibm.as400.access;
 
@@ -17,7 +18,7 @@ package com.ibm.as400.access;
 
 /**
    The ObjectAlreadyExistsException class represents an exception 
-   that indicates that an AS/400 object already exists.
+   that indicates that a server object already exists.
 **/
 public class ObjectAlreadyExistsException extends Exception
                             implements ReturnCodeException
@@ -51,7 +52,7 @@ public class ObjectAlreadyExistsException extends Exception
    
    /**
        Constructs an ObjectAlreadyExistsException object.
-       It indicates that an AS/400 object already exists.
+       It indicates that a server object already exists.
        Exception message will look like this: Object already exists. 
        @param returnCode The return code which identifies the message to be returned.
    **/
@@ -66,7 +67,7 @@ public class ObjectAlreadyExistsException extends Exception
 
    /**
       Constructs an ObjectAlreadyExistsException object.
-      It indicates that an AS/400 object already exists.
+      It indicates that a server object already exists.
       Exception message will look like this:  dataQueue (mydataqueue): Object already exists. 
       @param objectName The object that already exists.
                         It should be in the format: type (value).

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: AS400UnsignedBin2.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  AS400UnsignedBin2.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -57,7 +57,7 @@ public class AS400UnsignedBin2 implements AS400DataType
 
     /**
      * Returns the byte length of the data type.
-     * @return Two (2), the number of bytes in the AS/400 representation of the data type.
+     * @return Two (2), the number of bytes in the server representation of the data type.
      **/
     public int getByteLength()
     {
@@ -83,9 +83,9 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object to AS/400 format.
+     * Converts the specified Java object to server format.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Integer, and the integer must be greater than or equal to zero and representable in two bytes.
-     * @return The AS/400 representation of the data type.
+     * @return The server representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
@@ -100,9 +100,9 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified int to AS/400 format.
-     * @param intValue The value to be converted to AS/400 format.  The integer must be greater than or equal to zero and representable in two bytes.
-     * @return The AS/400 representation of the data type.
+     * Converts the specified int to server format.
+     * @param intValue The value to be converted to server format.  The integer must be greater than or equal to zero and representable in two bytes.
+     * @return The server representation of the data type.
      **/
     public byte[] toBytes(int intValue)
     {
@@ -116,10 +116,10 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into AS/400 format in the specified byte array.
+     * Converts the specified Java object into server format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Integer, and the integer must be greater than or equal to zero and representable in two bytes.
-     * @param as400Value The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-     * @return Two (2), the number of bytes in the AS/400 representation of the data type.
+     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
+     * @return Two (2), the number of bytes in the server representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] as400Value)
     {
@@ -134,10 +134,10 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified int into AS/400 format in the specified byte array.
-     * @param intValue The value to be converted to AS/400 format.  The integer must be greater than or equal to zero and representable in two bytes.
-     * @param as400Value The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-     * @return Two (2), the number of bytes in the AS/400 representation of the data type.
+     * Converts the specified int into server format in the specified byte array.
+     * @param intValue The value to be converted to server format.  The integer must be greater than or equal to zero and representable in two bytes.
+     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
+     * @return Two (2), the number of bytes in the server representation of the data type.
      **/
     public int toBytes(int intValue, byte[] as400Value)
     {
@@ -151,11 +151,11 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified Java object into AS/400 format in the specified byte array.
+     * Converts the specified Java object into server format in the specified byte array.
      * @param javaValue The object corresponding to the data type.  It must be an instance of Integer, and the integer must be greater than or equal to zero and representable in two bytes.
-     * @param as400Value The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-     * @param offset The offset into the byte array for the start of the AS/400 value. It must be greater than or equal to zero.
-     * @return Two (2), the number of bytes in the AS/400 representation of the data type.
+     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
+     * @param offset The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
+     * @return Two (2), the number of bytes in the server representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] as400Value, int offset)
     {
@@ -170,11 +170,11 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified int into AS/400 format in the specified byte array.
-     * @param intValue The value to be converted to AS/400 format.  The integer must be greater than or equal to zero and representable in two bytes.
-     * @param as400Value The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
-     * @param offset The offset into the byte array for the start of the AS/400 value. It must be greater than or equal to zero.
-     * @return Two (2), the number of bytes in the AS/400 representation of the data type.
+     * Converts the specified int into server format in the specified byte array.
+     * @param intValue The value to be converted to server format.  The integer must be greater than or equal to zero and representable in two bytes.
+     * @param as400Value The array to receive the data type in server format.  There must be enough space to hold the server value.
+     * @param offset The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
+     * @return Two (2), the number of bytes in the server representation of the data type.
      **/
     public int toBytes(int intValue, byte[] as400Value, int offset)
     {
@@ -188,8 +188,8 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified AS/400 data type to an int.
-     * @param as400Value The array containing the data type in AS/400 format.  The entire data type must be represented.
+     * Converts the specified server data type to an int.
+     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
      * @return The int corresponding to the data type.
      **/
     public int toInt(byte[] as400Value)
@@ -199,9 +199,9 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified AS/400 data type to an int.
-     * @param as400Value The array containing the data type in AS/400 format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the AS/400 value.  It must be greater than or equal to zero.
+     * Converts the specified server data type to an int.
+     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
      * @return The int corresponding to the data type.
      **/
     public int toInt(byte[] as400Value, int offset)
@@ -211,8 +211,8 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified AS/400 data type to a Java object.
-     * @param as400Value The array containing the data type in AS/400 format.  The entire data type must be represented.
+     * Converts the specified server data type to a Java object.
+     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
      * @return The Integer object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value)
@@ -222,9 +222,9 @@ public class AS400UnsignedBin2 implements AS400DataType
     }
 
     /**
-     * Converts the specified AS/400 data type to a Java object.
-     * @param as400Value The array containing the data type in AS/400 format.  The entire data type must be represented.
-     * @param offset The offset into the byte array for the start of the AS/400 value.  It must be greater than or equal to zero.
+     * Converts the specified server data type to a Java object.
+     * @param as400Value The array containing the data type in server format.  The entire data type must be represented.
+     * @param offset The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
      * @return The Integer object corresponding to the data type.
      **/
     public Object toObject(byte[] as400Value, int offset)

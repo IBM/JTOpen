@@ -29,7 +29,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 
 /**
-The Job class represents an OS/400 job.  In order to access a job,
+The Job class represents a server job.  In order to access a job,
 the system and either the job name, user name, and job number or
 internal job identifier need to be set.  A valid combination of
 these must be set by getting or setting any of the job's attributes.
@@ -51,8 +51,8 @@ while (job.getStatus().equals(Job.JOB_STATUS_ACTIVE))
 System.out.println("Job status is: " + job.getStatus());
 </pre>
 
-<p>Note: To obtain information about the job in which an
-OS/400 program or command runs, do something like the following:
+<p>Note: To obtain information about the job in which a
+ program or command runs, do something like the following:
 <pre>
 AS400 sys = new AS400();
 ProgramCall pgm = new ProgramCall(sys);
@@ -451,7 +451,7 @@ implements Serializable
   
   /**
    * Constant indicating that a job is waiting for the completion of an OSI
-   * Communications Subsystem for OS/400 operation.
+   * Communications Subsystem operation.
    * @see #ACTIVE_JOB_STATUS
   **/
   public static final String ACTIVE_JOB_STATUS_WAIT_OSI = "OSIW";
@@ -584,7 +584,7 @@ implements Serializable
 
   /**
    * Job attribute representing whether a job allows multiple threads. This attribute
-   * does not prevent OS/400 from creating system threads in the job.
+   * does not prevent the server from creating system threads in the job.
    * <P>Read-only: true
    * <P>Type: Boolean
    * <P>Only valid on V5R1 systems and higher.
@@ -3875,13 +3875,13 @@ Returns the number of auxiliary I/O requests for the initial thread of this job.
 
 @return The number of auxiliary I/O requests.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #AUXILIARY_IO_REQUESTS
@@ -3916,13 +3916,13 @@ Returns a value which represents how this job handles break messages.
             arrives.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #BREAK_MESSAGE_HANDLING
@@ -3964,13 +3964,13 @@ Returns the coded character set identifier (CCSID).
 
 @return The coded character set identifier.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #CCSID
@@ -4003,13 +4003,13 @@ Returns the completion status of the job.
             - The job completed abnormally.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #COMPLETION_STATUS
@@ -4034,13 +4034,13 @@ Returns the country ID.
 
 @return The country ID.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #COUNTRY_ID
@@ -4067,13 +4067,13 @@ the job used.
 @return The amount of processing time used (in milliseconds) the
         the job used.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #CPU_TIME_USED
@@ -4098,13 +4098,13 @@ Returns the name of the current library for the initial thread of the job.
 
 @return The name of the current library for the initial thread of the job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #CURRENT_LIBRARY
@@ -4129,13 +4129,13 @@ Indicates if a current library exists.
 
 @return true if a current library exists, false otherwise.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #CURRENT_LIBRARY_EXISTENCE
@@ -4161,13 +4161,13 @@ system.
 
 @return  The date and time when the job was placed on the system.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_ENTERED_SYSTEM
@@ -4198,13 +4198,13 @@ Returns the format in which dates are presented.
         <li>{@link #DATE_FORMAT_JULIAN DATE_FORMAT_JULIAN }  - Julian format (year and day).
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_FORMAT
@@ -4230,13 +4230,13 @@ months, and years when representing a date.
 
 @return The date separator.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_SEPARATOR
@@ -4269,13 +4269,13 @@ remain active when they are not being used.
             users.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #KEEP_DDM_CONNECTIONS_ACTIVE
@@ -4313,13 +4313,13 @@ Returns the decimal format used for this job.
             point.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DECIMAL_FORMAT
@@ -4345,13 +4345,13 @@ Returns the default coded character set identifier (CCSID) for this job.
 @return The default coded character set identifier (CCSID) for this job.
         The value will be 0 if the job is not active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DEFAULT_CCSID
@@ -4379,13 +4379,13 @@ for a system instruction.
 @return The default maximum time (in seconds) that a thread in the job
         waits for a system instruction.  The value -1 means there is no maximum.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DEFAULT_WAIT_TIME
@@ -4430,13 +4430,13 @@ for the job's requesting program device.
             a message to the QHST log indicating the job ended because of a device error.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DEVICE_RECOVERY_ACTION
@@ -4465,13 +4465,13 @@ request processing program.
 @return The message severity level of escape messages that can cause a batch
         job to end.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #END_SEVERITY
@@ -4498,13 +4498,13 @@ performing.  This information is updated only when a command is processed.
 @return The additional information about the function the initial thread is currently
         performing.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #FUNCTION_NAME
@@ -4558,13 +4558,13 @@ if any.
         <li>{@link #FUNCTION_TYPE_SPECIAL FUNCTION_TYPE_SPECIAL }  - The function type is special.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #FUNCTION_TYPE
@@ -4601,13 +4601,13 @@ Returns how the job answers inquiry messages.
             entry.  If no entry exists for that message, the system uses an inquiry message.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #INQUIRY_MESSAGE_REPLY
@@ -4632,13 +4632,13 @@ Returns the number of interactive transactions.
 
 @return The number of interactive transactions.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #INTERACTIVE_TRANSACTIONS
@@ -4687,13 +4687,13 @@ use information for the job when job accounting is active.
 @return The identifier assigned to the job by the system to collect resource
         use information for the job when job accounting is active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #ACCOUNTING_CODE
@@ -4718,13 +4718,13 @@ Returns the date and time when the job began to run on the system.
 
 @return The date and time when the job began to run on the system.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_STARTED
@@ -4749,13 +4749,13 @@ Returns the date to be used for the job.
 
 @return The date to be used for the job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_DATE
@@ -4782,13 +4782,13 @@ description.
 @return The fully qualified integrated path name for the job
         description.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_DESCRIPTION
@@ -4822,13 +4822,13 @@ Returns the date and time when the job ended.
 
 @return The date and time when the job ended.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_ENDED
@@ -4853,13 +4853,13 @@ Returns the date and time when the job was placed on the system.
 
 @return The date and time when the job was placed on the system.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_ENTERED_SYSTEM
@@ -4915,13 +4915,13 @@ Returns the action to take when the message queue is full.
             messages that are being overlaid because of the wrapping.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #MESSAGE_QUEUE_ACTION
@@ -4947,13 +4947,13 @@ Returns the maximum size (in megabytes) that the job message queue can become.
 @return The maximum size (in megabytes) that the job message queue can become.
         The range is 2 through 64.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #MESSAGE_QUEUE_MAX_SIZE
@@ -4978,13 +4978,13 @@ Returns the date and time the job was put on the job queue.
 
 @return The date and time the job was put on the job queue.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_QUEUE_DATE
@@ -5008,13 +5008,13 @@ Returns the date and time the job is scheduled to become active.
 
 @return The date and time the job is scheduled to become active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SCHEDULE_DATE
@@ -5087,13 +5087,13 @@ Returns the status of the job on the job queue.
         <li>{@link #JOB_QUEUE_STATUS_READY JOB_QUEUE_STATUS_READY }  - The job is ready to be selected.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_QUEUE_STATUS
@@ -5118,13 +5118,13 @@ Returns the current setting of the job switches used by this job.
 
 @return The current setting of the job switches used by this job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_SWITCHES
@@ -5149,13 +5149,13 @@ Returns the language identifier associated with this job.
 
 @return The language identifier associated with this job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LANGUAGE_ID
@@ -5183,13 +5183,13 @@ CL programs.
         CL programs. Possible values are: {@link #LOG_CL_PROGRAMS_YES LOG_CL_PROGRAMS_YES }  and
         {@link #LOG_CL_PROGRAMS_NO LOG_CL_PROGRAMS_NO }.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOG_CL_PROGRAMS
@@ -5231,13 +5231,13 @@ Returns the type of information logged.
             with a severity code greater than or equal to the logging severity are logged.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOGGING_LEVEL
@@ -5264,13 +5264,13 @@ in the job log.
 @return The minimum severity level that causes error messages to be logged
         in the job log.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOGGING_SEVERITY
@@ -5305,13 +5305,13 @@ or displayed to the user.
             job log contain both the message and the message help.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOGGING_TEXT
@@ -5338,13 +5338,13 @@ communications (APPC) device that started the job.
 @return The mode name of the advanced program-to-program
         communications (APPC) device that started the job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #MODE
@@ -5395,13 +5395,13 @@ initial thread.
 @return The number of libraries in the system portion of the library list of the
         initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SYSTEM_LIBRARY_LIST
@@ -5427,13 +5427,13 @@ the initial thread.
 @return The number of libraries in the user portion of the library list of
 the initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #USER_LIBRARY_LIST
@@ -5460,13 +5460,13 @@ for the initial thread.
 @return The number of libraries that contain product information
         for the initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRODUCT_LIBRARIES
@@ -5493,13 +5493,13 @@ output queue that is used for spooled output produced by this job.
 @return The fully qualified integrated file system path name of the default
         output queue that is used for spooled output produced by this job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #OUTPUT_QUEUE
@@ -5534,13 +5534,13 @@ Returns the output priority for spooled files that this job produces.
 @return The output priority for spooled files that this job produces.
         The highest priority is 0 and the lowest is 9.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #OUTPUT_QUEUE_PRIORITY
@@ -5567,13 +5567,13 @@ main storage is allocated.
 @return The identifier of the system-related pool from which the job's
         main storage is allocated.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SYSTEM_POOL_ID
@@ -5598,13 +5598,13 @@ Returns the printer device used for printing output from this job.
 
 @return The printer device used for printing output from this job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRINTER_DEVICE_NAME
@@ -5641,13 +5641,13 @@ the Print key is pressed.
             is included with output from the Print key.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRINT_KEY_FORMAT
@@ -5674,13 +5674,13 @@ bottom of each page of printed output for the job.
 @return The line of text, if any, that is printed at the
         bottom of each page of printed output for the job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRINT_TEXT
@@ -5705,13 +5705,13 @@ Returns the libraries that contain product information for the initial thread.
 
 @return The libraries that contain product information for the initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRODUCT_LIBRARIES
@@ -5749,13 +5749,13 @@ beginning a long wait.
         and put into auxiliary storage at the end of a time slice or when it is
         beginning a long wait, or false otherwise.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #ELIGIBLE_FOR_PURGE
@@ -5784,13 +5784,13 @@ it is active.
         of the job queue that the job is on, or that the job was on if
         it is active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_QUEUE
@@ -5826,13 +5826,13 @@ Returns the scheduling priority of the job compared to other jobs on the same jo
         The highest priority is 0 and the lowest is 9. If this job's status is *OUTQ,
         then the priority returned is -1.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_QUEUE_PRIORITY
@@ -5860,13 +5860,13 @@ that identifies the program to start for the routing step.
 @return The routing data that is used to determine the routing entry
 that identifies the program to start for the routing step.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #ROUTING_DATA
@@ -5893,13 +5893,13 @@ to other jobs on the system.
         to other jobs on the system.  The run priority ranges from 1
         (highest priority) to 99 (lowest priority).
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #RUN_PRIORITY
@@ -5926,13 +5926,13 @@ the system.
 @return true if the job is to be treated like a signed-on user on
         the system, false otherwise.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SIGNED_ON_JOB
@@ -5959,13 +5959,13 @@ sort sequence table.
 @return The fully qualified integrated file system path name of the
         sort sequence table.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SORT_SEQUENCE_TABLE
@@ -6005,13 +6005,13 @@ Returns the job status.
             on an output queue.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_STATUS
@@ -6042,13 +6042,13 @@ Returns a value indicating status messages are displayed for this job.
             This job displays status messages.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #STATUS_MESSAGE_HANDLING
@@ -6076,13 +6076,13 @@ subsystem description for the subsystem in which the job is running.
         subsystem description for the subsystem in which the job is
         running.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SUBSYSTEM
@@ -6128,13 +6128,13 @@ Returns additional information about the job type.
         <li>{@link #JOB_SUBTYPE_ALTERNATE_SPOOL_USER JOB_SUBTYPE_ALTERNATE_SPOOL_USER }  - Alternate spool user.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_SUBTYPE
@@ -6173,13 +6173,13 @@ Returns the system portion of the library list of the initial thread.
 
 @return The system portion of the library list of the initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SYSTEM_LIBRARY_LIST
@@ -6214,13 +6214,13 @@ a time.
 @return The value used to separate hours, minutes, and seconds when presenting
         a time.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TIME_SEPARATOR
@@ -6250,13 +6250,13 @@ jobs are given the opportunity to run.
         each thread in this job before other threads in this job and in other
         jobs are given the opportunity to run.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TIME_SLICE
@@ -6293,13 +6293,13 @@ job moves to another main storage pool at the end of its time slice.
             the end of its time slice.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TIME_SLICE_END_POOL
@@ -6326,13 +6326,13 @@ initial thread.
 @return The total amount of response time (in milliseconds) for the
         initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TOTAL_RESPONSE_TIME
@@ -6368,13 +6368,13 @@ Returns the job type.
         <li>{@link #JOB_TYPE_SCPF_SYSTEM JOB_TYPE_SCPF_SYSTEM }  - The job is the SCPF system job.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_TYPE
@@ -6415,13 +6415,13 @@ the initial thread.
 @return The user portion of the library list of
         the initial thread.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #USER_LIBRARY_LIST
@@ -6506,13 +6506,13 @@ of work identifier.
                               within the application program.
         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOCATION_NAME
@@ -7461,13 +7461,13 @@ Sets how this job handles break messages.
                                   arrives.
                             </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #BREAK_MESSAGE_HANDLING
@@ -7530,13 +7530,13 @@ Sets the coded character set identifier (CCSID).
                                 in the user profile under which this thread was initially running is used.
                             </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #CCSID
@@ -7572,13 +7572,13 @@ Sets the country ID.
                         was initially running is used.
                     </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #COUNTRY_ID
@@ -7612,13 +7612,13 @@ Sets the format in which dates are presented.
 <li>{@link #DATE_FORMAT_JULIAN DATE_FORMAT_JULIAN }  - Julian format (year and day).
 </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_FORMAT
@@ -7661,13 +7661,13 @@ a date.
                             system value QDATSEP is used.
                         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DATE_SEPARATOR
@@ -7709,13 +7709,13 @@ protocols remain active when they are not being used.
                                     users.
                                 </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #KEEP_DDM_CONNECTIONS_ACTIVE
@@ -7763,13 +7763,13 @@ Sets the decimal format used for this job.
                             system value QDECFMT is used.
                         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DECIMAL_FORMAT
@@ -7807,13 +7807,13 @@ waits for a system instruction.
                     waits for a system instruction.  The value -1 means there is no maximum.
                     The value 0 is not valid.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DEFAULT_WAIT_TIME
@@ -7859,13 +7859,13 @@ for the job's requesting program device.
                                 system value QDEVRCYACN is used.
                             </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #DEVICE_RECOVERY_ACTION
@@ -7914,13 +7914,13 @@ Sets how the job answers inquiry messages.
                                 entry.  If no entry exists for that message, the system uses an inquiry message.
                             </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #INQUIRY_MESSAGE_REPLY
@@ -7952,11 +7952,11 @@ Sets how the job answers inquiry messages.
 
 /**
 Sets the internal job identifier.  This does not change
-the job on the AS/400.  Instead, it changes the job
+the job on the server.  Instead, it changes the job
 this Job object references.  The job name
 must be set to "*INT" for this to be recognized.
 This cannot be changed if the object has established
-a connection to the AS/400.
+a connection to the server.
 
 @param internalJobID    The internal job identifier.
 
@@ -8037,13 +8037,13 @@ use information for the job when job accounting is active.
                             system to collect resource use information
                             for the job when job accounting is active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #ACCOUNTING_CODE
@@ -8070,13 +8070,13 @@ Sets the date to be used for the job.
 
 @param jobDate The date to be used for the job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_DATE
@@ -8109,13 +8109,13 @@ Sets the action to take when the message queue is full.
                                     <LI>{@link #MESSAGE_QUEUE_ACTION_SYSTEM_VALUE MESSAGE_QUEUE_ACTION_SYSTEM_VALUE} - The QJOBMSGQFL system value is used.
                                     </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #MESSAGE_QUEUE_ACTION
@@ -8150,13 +8150,13 @@ Sets the current setting of the job switches used by this job.
 
 @param jobSwitches The current setting of the job switches used by this job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_SWITCHES
@@ -8197,13 +8197,13 @@ Sets the language identifier associated with this job.
                             was initially running is used.
                         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LANGUAGE_ID
@@ -8232,13 +8232,13 @@ Sets whether messages are logged for CL programs.
                             CL programs. Possible values are: {@link #LOG_CL_PROGRAMS_YES LOG_CL_PROGRAMS_YES }  and
                             {@link #LOG_CL_PROGRAMS_NO LOG_CL_PROGRAMS_NO } .
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOG_CL_PROGRAMS
@@ -8290,13 +8290,13 @@ Sets the type of information that is logged.
                         with a severity code greater than or equal to the logging severity are logged.
                     </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOGGING_LEVEL
@@ -8328,13 +8328,13 @@ in the job log.
 @param loggingSeverity  The minimum severity level that causes error messages to be logged
                         in the job log.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOGGING_SEVERITY
@@ -8369,13 +8369,13 @@ or displayed to the user.
                         job log contain both the message and the message help.
                     </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #LOGGING_TEXT
@@ -8405,7 +8405,7 @@ or displayed to the user.
 
 
 /**
-Sets the job name.  This does not change the name of the actual OS/400 job.
+Sets the job name.  This does not change the name of the actual server job.
 Instead, it changes the job this Job object references.   This cannot be changed
 if the object has already established a connection to the server.
 
@@ -8443,7 +8443,7 @@ if the object has already established a connection to the server.
 
 
 /**
-Sets the job number.  This does not change the name of the actual OS/400 job.
+Sets the job number.  This does not change the name of the actual server job.
 Instead, it changes the job this Job object references.  This cannot be changed
 if the object has already established a connection to the server.
 
@@ -8486,13 +8486,13 @@ spooled output produced by this job.
                     the default output queue that is used for
                     spooled output produced by this job.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #OUTPUT_QUEUE
@@ -8539,13 +8539,13 @@ produces.
 @param outputQueuePriority  The output priority for spooled output files that this job
                             produces.   The highest priority is 0 and the lowest is 9.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #OUTPUT_QUEUE_PRIORITY
@@ -8582,13 +8582,13 @@ from this job.
                                 was initially running is used.
                             </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRINTER_DEVICE_NAME
@@ -8635,13 +8635,13 @@ the Print key is pressed.
                             system value QPRTKEYFMT is used.
                         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRINT_KEY_FORMAT
@@ -8684,13 +8684,13 @@ bottom of each page of printed output for the job.
                         system value QPRTTXT is used.
                     </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #PRINT_TEXT
@@ -8721,13 +8721,13 @@ beginning a long wait.
                 and put into auxiliary storage at the end of a time slice or when it is
                 beginning a long wait, false otherwise.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #ELIGIBLE_FOR_PURGE
@@ -8753,13 +8753,13 @@ Sets the job queue that the job is currently on.
 @param jobQueue     The fully qualified integrated file system path name
                     of the job queue.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_QUEUE
@@ -8807,13 +8807,13 @@ on the same job queue.
                         on the same job queue.  The highest priority is 0 and the
                         lowest is 9.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #JOB_QUEUE_PRIORITY
@@ -8841,13 +8841,13 @@ relative to other jobs on the system.
                     relative to other jobs on the system.  The run priority
                     ranges from 1 (highest priority) to 99 (lowest priority).
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #RUN_PRIORITY
@@ -8871,13 +8871,13 @@ Sets the date and time the job is scheduled to become active.
 
 @param scheduleDate The date and time the job is scheduled to become active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SCHEDULE_DATE
@@ -8973,13 +8973,13 @@ Sets the date the job is scheduled to become active.
                         the century flag indicates years 19<em>xx</em> and a
                         1 indicates years 20<em>xx</em>.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SCHEDULE_DATE
@@ -9026,13 +9026,13 @@ Sets the date and time the job is scheduled to become active.
 
 @param scheduleTime The date and time the job is scheduled to become active.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SCHEDULE_DATE
@@ -9062,13 +9062,13 @@ Sets the time the job is scheduled to become active.
                         the hours, <em>MM</em> are the minutes, and <em>SS</em>
                         are the seconds.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SCHEDULE_DATE
@@ -9115,13 +9115,13 @@ Sets the sort sequence table.
 @param sortSequenceTable    The fully qualified integrated file system path name
                             of the sort sequence table.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #SORT_SEQUENCE_TABLE
@@ -9179,13 +9179,13 @@ this job.
                                     was initially running is used.
                                 </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #STATUS_MESSAGE_HANDLING
@@ -9209,7 +9209,7 @@ this job.
 
 /**
 Sets the system.  This cannot be changed if the object
-has established a connection to the AS/400.
+has established a connection to the server.
 
 @param system The system.
 
@@ -9253,13 +9253,13 @@ a time.
                             system value QTIMSEP is used.
                         </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TIME_SEPARATOR
@@ -9296,13 +9296,13 @@ jobs are given the opportunity to run.
                     each thread in this job before other threads in this job and in other
                     jobs are given the opportunity to run.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TIME_SLICE
@@ -9338,13 +9338,13 @@ pool at the end of its time slice.
                                 the end of its time slice.
                             </ul>
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 
 @see #TIME_SLICE_END_POOL
@@ -9367,7 +9367,7 @@ pool at the end of its time slice.
 
 
 /**
-Sets the user name.  This does not change the name of the actual OS/400 job.
+Sets the user name.  This does not change the name of the actual server job.
 Instead, it changes the job this Job object references.  This cannot be changed
 if the object has already established a connection to the server.
 

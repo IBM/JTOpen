@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: AS400CertificateUserProfileUtil.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  AS400CertificateUserProfileUtil.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -51,7 +51,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
   /**
    * Constructs an AS400CertificateUserProfileUtil object. If the user profile specified is not the user profile that is currently running, adding and deleting certificates require *SECADM special authority for the currently running user profile and *USE and *OBJMGT authorities to the target user profile.
    *
-   * @param system  The AS/400 system on which the user profile exists.
+   * @param system  The server on which the user profile exists.
    *
    * @param path  The fully qualified integrated file system path name of the user profile, for example, "/QSYS.LIB/MYLIB.LIB/MYUSRPRF.USRPRF".
    */
@@ -98,7 +98,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
                           ExtendedIllegalStateException.PROPERTY_NOT_SET);
      }
 
-     // Determine if we are running on the AS/400 or some remote system.
+     // Determine if we are running on the server or some remote system.
      usrprfImpl_ = (com.ibm.as400.access.AS400CertificateUsrPrfUtilImpl)
        system_.loadImpl(
           "com.ibm.as400.access.AS400CertificateUsrPrfUtilImplNative",
@@ -132,7 +132,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate already added and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
    public void addCertificate(byte[] certificate)
@@ -178,7 +178,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
    public void deleteCertificate(byte[] certificate)
@@ -225,7 +225,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
    public void deleteCertificateByHandle(byte[] certificateHandle)
@@ -275,7 +275,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate.
    * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
    public String findCertificateUser(byte[] certificate)
@@ -329,7 +329,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
    * @exception ExtendedIOException If certificate not found and other AS400 certificate access errors.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
    public String findCertificateUserByHandle(byte[] certificateHandle)
@@ -387,7 +387,7 @@ public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implem
    * @exception ExtendedIllegalArgumentException If invalid search attributes or input parameter.
    * @exception ExtendedIOException If AS400 certificate access error.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
+   * @exception IOException If an error occurs while communicating with the server.
    * @exception ObjectDoesNotExistException If the AS400 object does not exist.
    */
 

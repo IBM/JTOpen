@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ProxyException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ProxyException.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 
 package com.ibm.as400.access;
 
@@ -68,7 +69,7 @@ was rejected.
 The return code indicating that communication failed to the proxy
 server because of a mismatch between code levels.  This usually
 occurs if the client and proxy server are running with different
-versions of the AS/400 Toolbox for Java or different versions
+versions of the IBM Toolbox for Java or different versions
 of the JVM.
 **/
     public static final int VERSION_MISMATCH = 4;        // @B1A

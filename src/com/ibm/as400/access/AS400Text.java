@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 /**
- The AS400Text class provides character set conversion between Java String objects and OS/400 native code pages.
+ The AS400Text class provides character set conversion between Java String objects and server code pages.
  <P>Note that in the past few releases, several constructors were deprecated because they did not accept a system object as an argument.  Due to recent changes in the behavior of the character conversion routines, this system object is no longer necessary, except when the AS400Text object is to be passed as a parameter on a Toolbox Proxy connection.  Since this case is extremely rare, it is more beneficial not to have the constructors issue deprecation warnings.
  @see  com.ibm.as400.access.CharConverter
  **/
@@ -37,7 +37,7 @@ public class AS400Text implements AS400DataType
     /**
      Constructs an AS400Text object.
      It uses the most likely CCSID based on the default locale.
-     @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
+     @param  length  The byte length of the server text.  It must be greater than or equal to zero.
      **/
     public AS400Text(int length)
     {
@@ -51,8 +51,8 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs an AS400Text object.
-     @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
-     @param  ccsid  The CCSID of the OS/400 text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+     @param  length  The byte length of the server text.  It must be greater than or equal to zero.
+     @param  ccsid  The CCSID of the server text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
      **/
     public AS400Text(int length, int ccsid)
     {
@@ -72,7 +72,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs AS400Text object.
-     @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
+     @param  length  The byte length of the server text.  It must be greater than or equal to zero.
      @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
      **/
     public AS400Text(int length, String encoding)
@@ -93,7 +93,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs an AS400Text object.  The CCSID used for conversion will be the CCSID of the <i>system</i> object.
-     @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
+     @param  length  The byte length of the server text.  It must be greater than or equal to zero.
      @param  system  The server with which to determine the CCSID.
      */
     public AS400Text(int length, AS400 system)
@@ -104,8 +104,8 @@ public class AS400Text implements AS400DataType
 
     /**
      Constructs an AS400Text object.
-     @param  length  The byte length of the OS/400 text.  It must be greater than or equal to zero.
-     @param  ccsid  The CCSID of the OS/400 text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
+     @param  length  The byte length of the server text.  It must be greater than or equal to zero.
+     @param  ccsid  The CCSID of the server text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
      @param  system  The server from which the conversion table may be downloaded.
      */
     public AS400Text(int length, int ccsid, AS400 system)
@@ -173,7 +173,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Returns the byte length of the data type.
-     @return  The number of bytes in the OS/400 representation of the data type.
+     @return  The number of bytes in the server representation of the data type.
      **/
     public int getByteLength()
     {
@@ -300,9 +300,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object to OS/400 format.
+     Converts the specified Java object to server format.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @return  The OS/400 representation of the data type.
+     @return  The server representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
@@ -312,10 +312,10 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into OS/400 format in the specified byte array.
+     Converts the specified Java object into server format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
-     @return  The number of bytes in the OS/400 representation of the data type.
+     @param  serverValue  The array to receive the data type in server format.  There must be enough space to hold the server value.
+     @return  The number of bytes in the server representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue)
     {
@@ -323,11 +323,11 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into OS/400 format in the specified byte array.
+     Converts the specified Java object into server format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
-     @param  offset  The offset into the byte array for the start of the OS/400 value.  It must be greater than or equal to zero.
-     @return  The number of bytes in the OS/400 representation of the data type.
+     @param  serverValue  The array to receive the data type in server format.  There must be enough space to hold the server value.
+     @param  offset  The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
+     @return  The number of bytes in the server representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset)
     {
@@ -342,12 +342,12 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into OS/400 format in the specified byte array.
+     Converts the specified Java object into server format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
-     @param  offset  The offset into the byte array for the start of the OS/400 value.  It must be greater than or equal to zero.
+     @param  serverValue  The array to receive the data type in server format.  There must be enough space to hold the server value.
+     @param  offset  The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
      @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
-     @return  The number of bytes in the OS/400 representation of the data type.
+     @return  The number of bytes in the server representation of the data type.
      @see  com.ibm.as400.access.BidiStringType
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset, int type)
@@ -356,12 +356,12 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified Java object into OS/400 format in the specified byte array.
+     Converts the specified Java object into server format in the specified byte array.
      @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
-     @param  serverValue  The array to receive the data type in OS/400 format.  There must be enough space to hold the OS/400 value.
-     @param  offset  The offset into the byte array for the start of the OS/400 value.  It must be greater than or equal to zero.
+     @param  serverValue  The array to receive the data type in server format.  There must be enough space to hold the server value.
+     @param  offset  The offset into the byte array for the start of the server value.  It must be greater than or equal to zero.
      @param  properties  The bidi conversion properties.
-     @return  The number of bytes in the OS/400 representation of the data type.
+     @return  The number of bytes in the server representation of the data type.
      **/
     public int toBytes(Object javaValue, byte[] serverValue, int offset, BidiConversionProperties properties)
     {
@@ -477,8 +477,8 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified OS/400 data type to a Java object.
-     @param  serverValue  The array containing the data type in OS/400 format.  The entire data type must be represented.
+     Converts the specified server data type to a Java object.
+     @param  serverValue  The array containing the data type in server format.  The entire data type must be represented.
      @return  The String object corresponding to the data type.
      **/
     public Object toObject(byte[] serverValue)
@@ -494,9 +494,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified OS/400 data type to a Java object.
-     @param  serverValue  The array containing the data type in OS/400 format.  The entire data type must be represented.
-     @param  offset  The offset into the byte array for the start of the OS/400 value. It must be greater than or equal to zero.
+     Converts the specified server data type to a Java object.
+     @param  serverValue  The array containing the data type in server format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
      @return  The String object corresponding to the data type.
      **/
     public Object toObject(byte[] serverValue, int offset)
@@ -512,9 +512,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified OS/400 data type to a Java object.
-     @param  serverValue  The array containing the data type in OS/400 format.  The entire data type must be represented.
-     @param  offset  The offset into the byte array for the start of the OS/400 value. It must be greater than or equal to zero.
+     Converts the specified server data type to a Java object.
+     @param  serverValue  The array containing the data type in server format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
      @param  type  The bidi string type, as defined by the CDRA (Character Data Representataion Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
      @return  The String object corresponding to the data type.
      @see com.ibm.as400.access.BidiStringType
@@ -525,9 +525,9 @@ public class AS400Text implements AS400DataType
     }
 
     /**
-     Converts the specified OS/400 data type to a Java object.
-     @param  serverValue  The array containing the data type in OS/400 format.  The entire data type must be represented.
-     @param  offset  The offset into the byte array for the start of the OS/400 value. It must be greater than or equal to zero.
+     Converts the specified server data type to a Java object.
+     @param  serverValue  The array containing the data type in server format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the server value. It must be greater than or equal to zero.
      @param  properties  The bidi conversion properties.
      @return  The String object corresponding to the data type.
      **/

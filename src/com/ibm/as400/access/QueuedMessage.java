@@ -21,7 +21,7 @@ import java.util.Date;
 
 
 /**
-The QueuedMessage class represents a message on an OS/400 message queue
+The QueuedMessage class represents a message on a server message queue
 or job log.
 @see com.ibm.as400.access.MessageQueue
 @see com.ibm.as400.access.JobLog
@@ -210,7 +210,7 @@ Returns the sender job number.
   /**
    * Returns the sender job's user. To get the
    * current user of the message, call {@link #getCurrentUser getCurrentUser()} when accessing a system
-   * running OS/400 V5R3 or higher.
+   * running V5R3 or higher.
    * @return The sender job's user, or "" if it is not set.
    * @see #getFromJobName
    * @see #getFromJobNumber
@@ -275,7 +275,7 @@ Returns the reply status.
 
 
   /**
-   * Returns the current user name. If the system being accessed is running OS/400 V5R2 or earlier,
+   * Returns the current user name. If the system being accessed is running V5R2 or earlier,
    * then "" is returned.
    * @return The current user name, or "" if it is not set.
   **/

@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * The NLS class contains a set of static methods that can be used
  * to access various pieces of National Language Support information
- * (such as language and country descriptions) on an OS/400 server.
+ * (such as language and country descriptions) on a server.
 **/
 public final class NLS
 {
@@ -159,7 +159,7 @@ public final class NLS
    * The list is cached, so that a subsequent call to this method will
    * return immediately if the specified country or region identifier is in the list.
    * If it is not in the list, the system will be queried.
-   * @param system The OS/400 server.
+   * @param system The server.
    * @param countryID The country or region identifier.
    * @return The descriptive text.
    * @see #getLanguageDescription
@@ -229,7 +229,7 @@ public final class NLS
    * The list is cached, so that a subsequent call to this method will
    * return immediately if the specified language identifier is in the list.
    * If it is not in the list, the system will be queried.
-   * @param system The OS/400 server.
+   * @param system The server.
    * @param languageID The language identifier.
    * @return The descriptive text.
    * @see #getCountryDescription
@@ -299,7 +299,7 @@ public final class NLS
    * converter tables that are part of the Toolbox, or the converter tables that are
    * part of the Java Runtime Environment. The default is to use the Toolbox
    * converter tables, since their behavior more closely matches the behavior of 
-   * text conversion on OS/400.
+   * text conversion on the server.
    * @return true if the Java Runtime Environement converter tables are used;
    * false if the Toolbox converter tables are used. The default is false.
    * @see #setForceJavaConversion
@@ -314,7 +314,7 @@ public final class NLS
    * converter tables that are part of the Toolbox, or the converter tables that are
    * part of the Java Runtime Environment. The default is to use the Toolbox
    * converter tables, since their behavior more closely matches the behavior of 
-   * text conversion on OS/400.
+   * text conversion on the server.
    * <p>
    * The usefulness of this method is arbitrary. Typically, applications only need to 
    * force Java conversion if they are seeing inconsistent character conversion between

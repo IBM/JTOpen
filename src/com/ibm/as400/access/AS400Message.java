@@ -2,12 +2,12 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
-// Filename: AS400Message.java
+// Filename:  AS400Message.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
-// others. All rights reserved.                                                
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// others.  All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- The AS400Message class represents a message returned from an AS/400 or iSeries server.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
+ The AS400Message class represents a message returned from a server.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
 <br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the server, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
  @see  com.ibm.as400.access.AS400Exception
  @see  com.ibm.as400.access.CommandCall
@@ -409,9 +409,9 @@ public class AS400Message implements Serializable
      If this message does not have an associated message file, this method does nothing.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     @exception  ObjectDoesNotExistException  If the server object does not exist.
      **/
     public void load() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -428,9 +428,9 @@ public class AS400Message implements Serializable
              and replace (substitute) formatting characters.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     @exception  ObjectDoesNotExistException  If the server object does not exist.
      **/
     public void load(int helpTextFormatting) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -483,7 +483,7 @@ public class AS400Message implements Serializable
             }
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
             help_ = retrievedMessage.help_;
-            messageLoaded_ = true;  // Set flag to not go to AS/400 again.
+            messageLoaded_ = true;  // Set flag to not go to server again.
         }
         catch (PropertyVetoException e)
         {
@@ -596,8 +596,8 @@ public class AS400Message implements Serializable
         substitutionData_ = substitutionData;
     }
 
-    // Sets the AS/400 system.
-    // @param  system  The AS/400 system.
+    // Sets the system.
+    // @param  system  The system.
     void setSystem(AS400 system)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message file system: " + system);

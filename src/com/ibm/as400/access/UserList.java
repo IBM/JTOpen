@@ -31,7 +31,7 @@ import java.util.*;
 
 
 /**
-The UserList class represents a list of OS/400 user profiles.
+The UserList class represents a list of server user profiles.
 <p>
 Implementation note:
 This class internally uses the Open List APIs (e.g. QGYOLAUS).
@@ -347,14 +347,14 @@ Returns the list of users in the user list.
 
 @return An Enumeration of {@link com.ibm.as400.access.User User} objects.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception RequestNotSupportedException    If the requested function is not supported because the AS/400 system is not at the correct level.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
+@exception RequestNotSupportedException    If the requested function is not supported because the server system is not at the correct level.
 @see #close
 @see #load
 **/

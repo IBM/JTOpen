@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ErrorCompletingRequestException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ErrorCompletingRequestException.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -38,7 +38,7 @@ public class ErrorCompletingRequestException extends Exception
 
     /**
        The return code indicating that 
-       an error has occurred on the AS/400.
+       an error has occurred on the server.
     **/
     public static final int AS400_ERROR = 1;
     /**
@@ -81,7 +81,7 @@ public class ErrorCompletingRequestException extends Exception
     public static final int EXIT_PROGRAM_RESOLVE_ERROR = 8;
     /**
        The return code indicating that 
-       the AS/400 resource has a length that is  not valid or cannot
+       the server resource has a length that is not valid or cannot
        be handled through this interface.
     **/
     public static final int LENGTH_NOT_VALID = 9;

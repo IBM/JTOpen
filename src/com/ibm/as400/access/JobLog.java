@@ -27,7 +27,7 @@ import java.util.Enumeration;
 
 
 /**
-The JobLog class represents an OS/400 job log.  This is used
+The JobLog class represents a server job log.  This is used
 to get a list of messages in a job log or to write messages to a job log.
 
 <p>QueuedMessage objects have many attributes.  Only some of theses
@@ -257,15 +257,12 @@ oldest to newest.
 @return An Enumeration of <a href="QueuedMessage.html">QueuedMessage</a>
         objects.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public Enumeration getMessages()
   throws  AS400Exception,
@@ -822,15 +819,12 @@ Writes a program message to the job log for the job in which the program is runn
                     message.
 @see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public static void writeMessage(AS400 system,
                                   String messageID,
@@ -881,15 +875,12 @@ Writes a program message to the job log for the job in which the program is runn
                         for a conventional message and from 1-6000 bytes for an immediate message.
 @see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public static void writeMessage(AS400 system,
                                   String messageID,
@@ -939,15 +930,12 @@ Writes a program message to the job log for the job in which the program is runn
 @param messageFile      The integrated file system path name of the message file.
 @see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public static void writeMessage(AS400 system,
                                   String messageID,
@@ -1006,15 +994,12 @@ Writes a program message to the job log for the job in which the program is runn
                         for a conventional message and from 1-6000 bytes for an immediate message.
 @see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public static void writeMessage(AS400 system,
                                   String messageID,
@@ -1077,15 +1062,12 @@ for the <i>onThread</i> parameter and is invoked while running on the iSeries se
                         the iSeries server and the system object is using native optimizations.
 @see com.ibm.as400.access.ProgramCall#isStayOnThread()
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
   public static void writeMessage(AS400 system,
                                   String messageID,

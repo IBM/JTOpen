@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: SystemValueGroup.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SystemValueGroup.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -64,7 +64,7 @@ public class SystemValueGroup implements java.io.Serializable
   
   /**
    * Constructs a SystemValueGroup object. The group of system value names is initialized to be empty.
-   * @param system The AS/400 or iSeries that this group of system value names references.
+   * @param system The server that this group of system value names references.
    * @param groupName The user-defined group name to be used.
    * @param groupDescription The user-defined group description to be used.
   **/
@@ -84,7 +84,7 @@ public class SystemValueGroup implements java.io.Serializable
   /**
    * Constructs a SystemValueGroup object. The group of system value names is initialized to
    * contain the system value names in <i>names</i>.
-   * @param system The AS/400 or iSeries that this group of system value names references.
+   * @param system The server that this group of system value names references.
    * @param groupName The user-defined group name to be used.
    * @param groupDescription The user-defined group description to be used.
    * @param names The array of system value names to be initially added to this group.
@@ -114,7 +114,7 @@ public class SystemValueGroup implements java.io.Serializable
    * <P>
    * Note: This constructor now makes a connection to the <I>system</I> in order to retrieve the
    * release level of the server.
-   * @param system The AS/400 or iSeries that this group of system values references.
+   * @param system The server that this group of system values references.
    * @param groupName The user-defined group name to be used.
    * @param groupDescription The user-defined group description to be used.
    * @param group The system value group constant indicating the set of system value names to be
@@ -302,9 +302,8 @@ public class SystemValueGroup implements java.io.Serializable
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-   * @exception UnknownHostException If the AS/400 system cannot be located.
+   * @exception IOException If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException If the server object does not exist.
    * @see #refresh
   **/
   public Vector getSystemValues()
@@ -312,8 +311,7 @@ public class SystemValueGroup implements java.io.Serializable
                ErrorCompletingRequestException,
                InterruptedException,
                IOException,
-               ObjectDoesNotExistException,
-               UnknownHostException
+               ObjectDoesNotExistException
   {
     // Make sure they've set the system, we don't care about the name or description.
     if (system_ == null)

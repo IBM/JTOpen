@@ -59,7 +59,7 @@ public class PTFCoverLetter
 
   /**
    * Constant indicating that it is not known if the cover letter has special instructions.
-   * The most likely reasons are that the cover letter was created prior to OS/400 V5R1M0,
+   * The most likely reasons are that the cover letter was created prior to V5R1M0,
    * or the cover letter was created using the System Manager licensed product.
   **/
   public static final int SPECIAL_INSTRUCTIONS_UNKNOWN = 9;

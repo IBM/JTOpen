@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: LogicalDataArea.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  LogicalDataArea.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,18 +19,18 @@ import java.beans.PropertyVetoException;
 import java.net.UnknownHostException;
 
 /**
-The LogicalDataArea class represents a logical data area on the AS/400.
+The LogicalDataArea class represents a logical data area on the server.
 <p>
 The following example demonstrates the use of LogicalDataArea:
 <pre>
-// Prepare to work with the AS/400 system named "My400".
+// Prepare to work with the server named "My400".
 AS400 system = new AS400("My400");
 
 // Create a LogicalDataArea object.
 QSYSObjectPathName path = new QSYSObjectPathName("MYLIB", "MYDATA", "DTAARA");
 LogicalDataArea dataArea = new LogicalDataArea(system, path.getPath());
 
-// Create the logical data area on the AS/400 using default values.
+// Create the logical data area on the server using default values.
 dataArea.create();
 
 // Clear the data area.
@@ -42,7 +42,7 @@ dataArea.write(true);
 // Read from the data area.
 boolean data = dataArea.read();
 
-// Delete the data area from the AS/400.
+// Delete the data area from the server.
 dataArea.delete();
 </pre>
 **/
@@ -87,7 +87,7 @@ public class LogicalDataArea extends DataArea implements Serializable
    Constructs a LogicalDataArea object.
    It creates a LogicalDataArea instance that represents the data area <i>path</i>
    on <i>system</i>.
-      @param system The AS/400 that contains the data area.
+      @param system The server that contains the data area.
       @param path The fully qualified integrated file system path name. The
              integrated file system file extension for a data area is DTAARA. An example of a
              fully qualified integrated file system path to a data area "MYDATA" in library
@@ -105,23 +105,17 @@ public class LogicalDataArea extends DataArea implements Serializable
    Clears the data area.
    This method resets the data area to contain the default value of false.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void clear()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      if (impl_ == null)
        chooseImpl();
@@ -134,7 +128,7 @@ public class LogicalDataArea extends DataArea implements Serializable
 
 
    /**
-   Creates a logical data area on the AS/400.
+   Creates a logical data area on the server.
    This method uses the following default property values.
    <ul>
    <li>initialValue - A value of false.
@@ -143,25 +137,19 @@ public class LogicalDataArea extends DataArea implements Serializable
    </ul>
    Note the <i>length</i> of a LogicalDataArea is always 1.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void create()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
               ObjectAlreadyExistsException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      if (impl_ == null)
        chooseImpl();
@@ -181,26 +169,20 @@ public class LogicalDataArea extends DataArea implements Serializable
             values are *ALL, *CHANGE, *EXCLUDE, *LIBCRTAUT, *USE, or the
             name of an authorization list. The maximum length is 10 characters.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void create(boolean initialValue, String textDescription,
                       String authority)
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
               ObjectAlreadyExistsException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      // Validate the text description parameter
      if (textDescription == null)
@@ -226,23 +208,17 @@ public class LogicalDataArea extends DataArea implements Serializable
    /**
    Removes the data area from the system.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
    **/
    public void delete()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      super.delete0();
    }
@@ -263,10 +239,10 @@ public class LogicalDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public boolean read()
         throws AS400SecurityException,
@@ -311,23 +287,17 @@ public class LogicalDataArea extends DataArea implements Serializable
    Writes the value in <i>data</i> to the data area.
      @param data The data to be written.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void write(boolean data)
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      if (impl_ == null)
        chooseImpl();

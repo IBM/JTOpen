@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DataArea.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DecimalDataArea.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -24,7 +24,7 @@ import java.beans.VetoableChangeListener;
 import java.net.UnknownHostException;
 
 /**
-The DataArea class is an abstract base class that represents an AS/400
+The DataArea class is an abstract base class that represents a server
 data area object.
 <p>DataArea objects generate the following events:
 <ul>
@@ -62,7 +62,7 @@ public abstract class DataArea implements Serializable
    Variables
    **/
 
-  private AS400 system_ = null;              // The AS/400 where the data area is located.
+  private AS400 system_ = null;              // The server where the data area is located.
   private String dataAreaPathName_ = null;   // The full path name of the data area,
                                              // as specified by the user.
   private String name_ = null;               // The name of the data area.
@@ -102,7 +102,7 @@ public abstract class DataArea implements Serializable
    Constructs a DataArea object.
    It creates a DataArea instance that represents the data area <i>path</i>
    on <i>system</i>.
-      @param system The AS/400 that contains the data area.
+      @param system The server that contains the data area.
       @param path The fully qualified integrated file system path name. The
              integrated file system file extension for a data area is DTAARA. An example of a
              fully qualified integrated file system path to a data area "MYDATA" in library
@@ -207,23 +207,17 @@ public abstract class DataArea implements Serializable
    Removes the data area from the system.
    This is a common implementation for the delete() methods of the subclasses.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
    **/
    void delete0()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      if (impl_ == null)
        chooseImpl();
@@ -320,10 +314,10 @@ public abstract class DataArea implements Serializable
         @return The size of the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public int getLength()
         throws AS400SecurityException,
@@ -403,14 +397,14 @@ public abstract class DataArea implements Serializable
 
    /**
    Refreshes the attributes of the data area.
-   This method should be called if the underlying AS/400 data area has changed
+   This method should be called if the underlying server data area has changed
    and it is desired that this object should reflect those changes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void refreshAttributes()
         throws AS400SecurityException,
@@ -520,7 +514,7 @@ public abstract class DataArea implements Serializable
    /**
    Sets the system on which the data area exists. The system cannot be set
    if a connection has already been established.
-     @param system The AS/400 system on which the data area exists.
+     @param system The server on which the data area exists.
      @exception PropertyVetoException If the change is vetoed.
    **/
    public void setSystem(AS400 system) throws PropertyVetoException

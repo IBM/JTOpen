@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: SystemStatus.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SystemStatus.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 
 package com.ibm.as400.access;
 
@@ -31,7 +32,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * The SystemStatus class represents the system status on the AS/400.
+ * The SystemStatus class represents the system status on the server.
  * It provides facilities for retrieving system status information.
 **/
 public class SystemStatus implements Serializable //@B0C - made Serializable
@@ -151,8 +152,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -215,8 +216,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -248,8 +249,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -277,8 +278,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -306,8 +307,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -335,8 +336,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -362,8 +363,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -391,8 +392,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -422,8 +423,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -450,8 +451,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -478,8 +479,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -509,8 +510,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -559,8 +560,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -588,8 +589,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -617,8 +618,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -645,8 +646,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -672,8 +673,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -701,8 +702,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -728,8 +729,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -763,8 +764,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -781,9 +782,9 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     }
 
     /** 
-     * Returns the AS/400 system.
+     * Returns the server.
      *
-     * @return The AS/400 system.
+     * @return The server.
     **/
     public AS400 getSystem()
     {
@@ -802,8 +803,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -831,8 +832,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -886,8 +887,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -914,8 +915,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -943,8 +944,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -972,8 +973,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -1001,8 +1002,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
      *            exist.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
@@ -1074,7 +1075,7 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     }
     
   /**
-   * Loads system status data from the AS/400 for the specified
+   * Loads system status data from the server for the specified
    * format. (It does not load all of the formats). If the
    * specified format was previously loaded, this method
    * does nothing. To always load the specified format, you
@@ -1265,8 +1266,8 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     /**
      * Turns caching on or off.
      * @param cache true if caching should be used when getting
-     *              and setting information to and from the AS/400; false
-     *              if every get or set should communicate with the AS/400
+     *              and setting information to and from the server; false
+     *              if every get or set should communicate with the server
      *              immediately. Any cached changes that are not committed
      *              when caching is turned off will be lost.
      *              The default behavior is no caching.
@@ -1281,9 +1282,9 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     
     //@B0C - changed this method to not go to the system
     /** 
-     * Sets the AS/400 system. 
+     * Sets the server. 
      *
-     * @param system The AS/400 system from which the system status information
+     * @param system The server from which the system status information
      *              will be retrieved.
      * @exception PropertyVetoException If the change is vetoed.
     **/

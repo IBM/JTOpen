@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /**
- The EnvironmentVariableList class represents a list of OS/400 system-level environment variables.
+ The EnvironmentVariableList class represents a list of server system-level environment variables.
  <p>This class can only access system-level environment variables.  You must have *JOBCTL special authority to add, change, or delete system-level environment variables.
  <p>This example gets the list of environment variables as a java.util.Properties object:
  <pre>

@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1999-2003 International Business Machines Corporation and
+// Copyright (C) 1999-2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ import java.net.Socket;
 
 
 /**
- *  The AS400JPing class is used to determine if OS/400 services are running.
+ *  The AS400JPing class is used to determine if services are running.
  *  <p>
  *  Here is an example of calling AS400JPing within a Java program to ping the AS400 Remote Command Service:
  *  <br>
@@ -40,7 +40,7 @@ public class AS400JPing
   private static final String copyright = "Copyright (C) 1999-2003 International Business Machines Corporation and others.";
 
    /**
-    *  Constant for pinging all the OS/400 services.    
+    *  Constant for pinging all the services.    
     **/
    public final static int ALL_SERVICES = 99;      // The default service is 99, which pings all the servers.
 
@@ -53,7 +53,7 @@ public class AS400JPing
    private long       time_ = 20000;            //$A1D   $A2A
 
    private PrintWriter     writer_;
-   private SocketContainer sc_;                   // SocketContainer to all OS/400 Services but the DDM Server.      $A2A
+   private SocketContainer sc_;                   // SocketContainer to all Services but the DDM Server.      $A2A
    private Socket          s_;                    // Socket to the DDM Server.                                       $A2A
    private Thread          thread_;               // Thread to handle timeout values.                                $A2A
    private JPingThread     jpingThread;           // Inner class that implements runnable.                           $A2A
@@ -67,7 +67,7 @@ public class AS400JPing
     *  Constructs an AS400JPing object with the specified <i>systemName</i>.
     *
     *  A JPing object created with this constructor
-    *  will ping all of the OS/400 services when ping() is called.
+    *  will ping all of the services when ping() is called.
     *
     *  @param systemName The server to ping.  The <i>systemName</i> string can be
     *                    in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), 
@@ -104,7 +104,7 @@ public class AS400JPing
     *  @param systemName The server to ping.  The <i>systemName</i> string can be
     *                    in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), 
     *                    or IP address (eg. "9.1.2.3").
-    *  @param service  The OS/400 service to ping.  One of the following constants: AS400.FILE, AS400.DATABASE, 
+    *  @param service  The service to ping.  One of the following constants: AS400.FILE, AS400.DATABASE, 
     *                  AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, 
     *                  AS400.RECORDACCESS, AS400.PRINT, or ALL_SERVICES.
     *  @param useSSL  true if the pinging the SSL port for the service, false otherwise.  The default is false.
@@ -154,7 +154,7 @@ public class AS400JPing
 
 
    /**
-    *  Ping a specific OS/400 service.  One of the following constants: AS400.FILE, AS400.DATABASE, 
+    *  Ping a specific service.  One of the following constants: AS400.FILE, AS400.DATABASE, 
     *  AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, AS400.RECORDACCESS, AS400.PRINT, 
     *  or ALL_SERVICES.  
     *

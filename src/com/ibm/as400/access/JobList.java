@@ -28,7 +28,7 @@ import java.util.Vector;
 
 
 /**
- * The JobList class represents a list of OS/400 jobs. By default, all jobs are selected. To filter the list,
+ * The JobList class represents a list of server jobs. By default, all jobs are selected. To filter the list,
  * use the {@link #addJobSelectionCriteria addJobSelectionCriteria()} method.
  *
  * @see com.ibm.as400.access.Job
@@ -255,7 +255,7 @@ public class JobList implements Serializable
    * Selection type used for job selection based on job queue.
    * Multiple selection values are allowed for this selection type.
    * The selection value corresponding to this selection type is a String
-   * representing the fully-qualified integrated file system name for an OS/400 job queue.
+   * representing the fully-qualified integrated file system name for a server job queue.
    * By default no selection values are specified for this selection type.
    * This value is only used when the value for SELECTION_PRIMARY_JOB_STATUS_JOBQ is true.
    * @see #SELECTION_PRIMARY_JOB_STATUS_JOBQ
@@ -974,15 +974,12 @@ more calls to the server. The block size used internally by the Enumeration is s
 
 @return An Enumeration of {@link com.ibm.as400.access.Job Job} objects.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
-@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-@exception ServerStartupException          If the AS/400 server cannot be started.
-@exception UnknownHostException            If the AS/400 system cannot be located.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @see com.ibm.as400.access.Job
 **/
   public synchronized Enumeration getJobs() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException

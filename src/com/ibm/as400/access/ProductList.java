@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * Represents a list of OS/400 licensed products.
+ * Represents a list of licensed products.
  * @see com.ibm.as400.access.Product
 **/
 public class ProductList

@@ -27,7 +27,7 @@ import java.util.Calendar;
 
 
 /**
-The User class represents an OS/400 user profile.
+The User class represents a server user profile.
 <P>
 Note that calling any of the attribute getters for the first time will
 result in an implicit call to {@link #loadUserInformation loadUserInformation()}.
@@ -218,13 +218,13 @@ they remain for compatibility.
 @param system   The system.
 @param name     The user profile name.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 **/
     public User(AS400 system,String name)
@@ -1242,7 +1242,7 @@ Returns the special environment the user operates in after signing on.
 @return The special environment the user operates in after signing on.
         Possible values are:
         <ul>
-        <li>{@link #NONE User.NONE} - The user operates in the OS/400 environment.
+        <li>{@link #NONE User.NONE} - The user operates in the server environment.
         <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special
             environment.
         <li>"*S36" - The user operates in the System/36 environment.
@@ -1601,13 +1601,13 @@ Indicates whether there are digital certificates associated with this user.
 /**
 Refreshes the values for all attributes.
 
-@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400Exception                  If the server returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 @exception UnsupportedEncodingException    If the character encoding is not supported.
 **/
     public void loadUserInformation()

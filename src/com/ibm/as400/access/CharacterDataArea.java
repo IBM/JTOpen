@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: CharacterDataArea.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  CharacterDataArea.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,18 +19,18 @@ import java.beans.PropertyVetoException;
 import java.net.UnknownHostException;
 
 /**
-The CharacterDataArea class represents a character data area on the AS/400.
+The CharacterDataArea class represents a character data area on the server.
 <p>
 The following example demonstrates the use of CharacterDataArea:
 <pre>
-// Prepare to work with the AS/400 system named "My400".
+// Prepare to work with the server named "My400".
 AS400 system = new AS400("My400");
 
 // Create a CharacterDataArea object.
 QSYSObjectPathName path = new QSYSObjectPathName("MYLIB", "MYDATA", "DTAARA");
 CharacterDataArea dataArea = new CharacterDataArea(system, path.getPath());
 
-// Create the character data area on the AS/400 using default values.
+// Create the character data area on the server using default values.
 dataArea.create();
 
 // Clear the data area.
@@ -42,7 +42,7 @@ dataArea.write("Hello world");
 // Read from the data area.
 String data = dataArea.read();
 
-// Delete the data area from the AS/400.
+// Delete the data area from the server.
 dataArea.delete();
 </pre>
 **/
@@ -85,7 +85,7 @@ public class CharacterDataArea extends DataArea implements Serializable
    Constructs a CharacterDataArea object.
    It creates a CharacterDataArea instance that represents the data area <i>path</i>
    on <i>system</i>.
-      @param system The AS/400 that contains the data area.
+      @param system The server that contains the data area.
       @param path The fully qualified integrated file system path name. The
              integrated file system file extension for a data area is DTAARA. An example of a
              fully qualified integrated file system path to a data area "MYDATA" in library
@@ -102,24 +102,18 @@ public class CharacterDataArea extends DataArea implements Serializable
    /**
    Resets the data area to contain all blanks.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void clear()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
-   {
+              ObjectDoesNotExistException
+  {
      if (impl_ == null)
        chooseImpl();
 
@@ -131,7 +125,7 @@ public class CharacterDataArea extends DataArea implements Serializable
 
 
    /**
-   Creates a character data area on the AS/400.
+   Creates a character data area on the server.
    This method uses the following default property values.
    <ul>
    <li>length - 32 characters.
@@ -140,25 +134,19 @@ public class CharacterDataArea extends DataArea implements Serializable
    <li>authority - A value of *LIBCRTAUT.
    </ul>
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void create()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
               ObjectAlreadyExistsException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      if (impl_ == null)
        chooseImpl();
@@ -183,26 +171,20 @@ public class CharacterDataArea extends DataArea implements Serializable
             values are *ALL, *CHANGE, *EXCLUDE, *LIBCRTAUT, *USE, or the name
             of an authorization list. The maximum length is 10 characters.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void create(int length, String initialValue,
                       String textDescription, String authority)
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
               ObjectAlreadyExistsException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      // Validate the length
      if (length < 1 || length > 2000)
@@ -239,23 +221,17 @@ public class CharacterDataArea extends DataArea implements Serializable
    /**
    Removes the data area from the system.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception IOException                     If an error occurs while communicating with the server.
      @exception ObjectDoesNotExistException     If the object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
    **/
    public void delete()
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      super.delete0();
    }
@@ -279,10 +255,10 @@ public class CharacterDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public String read()
         throws AS400SecurityException,
@@ -318,10 +294,10 @@ public class CharacterDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public String read(int type)                                          //$A2A
         throws AS400SecurityException,
@@ -357,10 +333,10 @@ public class CharacterDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public String read(int dataAreaOffset, int dataLength)
         throws AS400SecurityException,
@@ -412,10 +388,10 @@ public class CharacterDataArea extends DataArea implements Serializable
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public String read(int dataAreaOffset, int dataLength, int type)                //$A2A
         throws AS400SecurityException,
@@ -478,23 +454,17 @@ public class CharacterDataArea extends DataArea implements Serializable
    characters in the data area are blank padded.
      @param data The data to be written.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void write(String data)
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      try //@B1A
      {
@@ -534,23 +504,17 @@ public class CharacterDataArea extends DataArea implements Serializable
      @param data The data to be written.
      @param dataAreaOffset The offset in the data area at which to start writing.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void write(String data, int dataAreaOffset)
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      try //@B1A
      {
@@ -603,23 +567,17 @@ public class CharacterDataArea extends DataArea implements Serializable
                  BidiStringType</a> for more information and valid values.
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
-     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void write(String data, int dataAreaOffset, int type)      //$A2A
        throws AS400SecurityException,
-              ConnectionDroppedException,
               ErrorCompletingRequestException,
               InterruptedException,
               IOException,
-              ObjectDoesNotExistException,
-              ServerStartupException,
-              UnknownHostException
+              ObjectDoesNotExistException
    {
      try //@B1A
      {

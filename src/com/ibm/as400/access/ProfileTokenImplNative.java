@@ -310,7 +310,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 
     /**
      Indicates if the credential is still considered valid for authenticating 
-     to associated OS/400 services or performing related actions.
+     to associated services or performing related actions.
      <p>An exception is not thrown on failure to remain consistent with the 
      Refreshable interface (even though some credential classes currently 
      avoid the dependency established by implementing the interface).
@@ -384,7 +384,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     native void nativeRemoveFromSystem(byte[] token) 
             throws DestroyFailedException;
 
-    // Attempt to swap the OS/400 thread identity based on the given 
+    // Attempt to swap the thread identity based on the given 
     // profile token.
     // @param  token  The token bytes.
     // @exception  SwapFailedException  If errors occur while swapping 
@@ -440,7 +440,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     }
 
     /**
-     Attempts to swap the OS/400 thread identity based on this credential.
+     Attempts to swap the thread identity based on this credential.
      @param  genRtnCr  Indicates whether a return credential should be 
      generated, even if supported.  When appropriate, not generating a return
      credential can improve performance and avoid potential problems in 

@@ -48,7 +48,7 @@ public class ProfileHandleImplNative implements ProfileHandleImpl
     }
 
     /**
-     Generates and returns a profile handle based on the current OS/400 thread identity.
+     Generates and returns a profile handle based on the current thread identity.
      @return  The handle bytes.
      @exception  RetrieveFailedException  If errors occur while generating the handle.
      **/
@@ -77,7 +77,7 @@ public class ProfileHandleImplNative implements ProfileHandleImpl
     }
 
     /**
-     Indicates if the credential is still considered valid for authenticating to associated OS/400 services or performing related actions.
+     Indicates if the credential is still considered valid for authenticating to associated services or performing related actions.
      <p>An exception is not thrown on failure to remain consistent with the Refreshable interface (even though some credential classes currently avoid the dependency established by implementing the interface).
      @return  true if valid; false if not valid or if the operation fails.
      **/
@@ -125,14 +125,14 @@ public class ProfileHandleImplNative implements ProfileHandleImpl
     }
 
     /**
-     Sets the current OS/400 thread identity based on the given profile handle.
+     Sets the current thread identity based on the given profile handle.
      @param  handle  The handle bytes.
      @exception  SwapFailedException  If errors occur while generating the handle.
      **/
     public native void setCurrentHandle(byte[] handle) throws SwapFailedException;
 
     /**
-     Attempts to swap the OS/400 thread identity based on this credential.
+     Attempts to swap the thread identity based on this credential.
      @param  genRtnCr  Indicates whether a return credential should be generated, even if supported.  When appropriate, not generating a return credential can improve performance and avoid potential problems in creating the credential.
      @return  A credential capable of swapping back to the original identity; classes not supporting this capability will return null. This value will also be null if genRtnCr is false.
      @exception  SwapFailedException  If errors occur while swapping thread identity.

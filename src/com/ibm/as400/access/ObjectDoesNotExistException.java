@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ObjectDoesNotExistException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ObjectDoesNotExistException.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 
 package com.ibm.as400.access;
 
@@ -17,7 +18,7 @@ package com.ibm.as400.access;
 
 /**
    The ObjectDoesNotExistException class represents an exception 
-   that indicates that an AS/400 object does not exists.
+   that indicates that a server object does not exists.
 **/
 public class ObjectDoesNotExistException extends Exception
                               implements ReturnCodeException
@@ -56,7 +57,7 @@ public class ObjectDoesNotExistException extends Exception
 
     /**
        Constructs an ObjectDoesNotExistException object.
-       It indicates that an AS/400 object does not exist.
+       It indicates that a server object does not exist.
        Exception message will look like this: Object does not exist. 
        @param returnCode The return code which identifies the message to be returned.
     **/
@@ -72,7 +73,7 @@ public class ObjectDoesNotExistException extends Exception
 
    /**
       Constructs an ObjectDoesNotExistException object.
-      It indicates that an AS/400 object does not exist.
+      It indicates that a server object does not exist.
       Exception message will look like this:
       dataQueue (/QSYS.LIB/MYLIB.LIB/MYQUEUE.DTAQ): Object does not exist. 
       @param objectName The object that does not exist.

@@ -25,7 +25,7 @@ import java.net.UnknownHostException;
 
 /**
 The SystemValue class represents a system value or network attribute
-on the AS/400 or iSeries server.
+on the server.
 **/
 public class SystemValue implements java.io.Serializable
 {
@@ -44,7 +44,7 @@ public class SystemValue implements java.io.Serializable
 
   /*@B0D private */ Object value_; // The actual data this system value is set to
   
-  private AS400 system_; // The AS/400 this system value belongs to.
+  private AS400 system_; // The server this system value belongs to.
 
   transient boolean cached_ = false; // Has this system value been read from the 400 yet?
 
@@ -80,7 +80,7 @@ public class SystemValue implements java.io.Serializable
   Constructs a SystemValue object.
   It creates a SystemValue instance that represents the system value
   <i>name</i> on <i>system</i>.
-    @param system The AS/400 that this system value references.
+    @param system The server that this system value references.
     @param name The name of the system value.
   **/
   public SystemValue(AS400 system, String name)
@@ -110,7 +110,7 @@ public class SystemValue implements java.io.Serializable
   This constructor is used by SystemValueUtility to fill in all of the internal data
   for a SystemValue object when it comes off of the API call.
   Note that the SystemValue's cached_ flag is set to true.
-    @param system The AS/400.
+    @param system The server.
     @param info The SystemValueInfo for this system value.
     @param value The data contained by this system value.
   **/
@@ -169,7 +169,7 @@ public class SystemValue implements java.io.Serializable
   /**
   Clears this system value from the cache.
   The next time a getValue() is performed on this system value, the value
-  will be retrieved from the AS/400 instead of from the cache.
+  will be retrieved from the server instead of from the cache.
   **/
   public void clear()
   {
@@ -178,7 +178,7 @@ public class SystemValue implements java.io.Serializable
 
 
   /**
-  Makes a "connection" to the AS/400.
+  Makes a "connection" to the server.
   The <i>system</i> and <i>name</i> properties must be set before a
   connection can be made.
   **/
@@ -200,7 +200,7 @@ public class SystemValue implements java.io.Serializable
     }
 
     // Check if the system value is supported
-    // on this AS/400.
+    // on this server.
     // Also don't want to prohibit the user from running to a
     // pre-V4R2 system, even though we do not support it.
     if (info_.release_ > system_.getVRM() &&
@@ -324,7 +324,7 @@ public class SystemValue implements java.io.Serializable
 
   /**
   Returns the supported release version for this system value.
-  The returned value is the earliest version of OS/400 under which the
+  The returned value is the earliest version of server under which the
   system value is supported. If the system value is supported in a release
   prior to V4R2, then V4R2 is returned.
     @see AS400#generateVRM
@@ -400,10 +400,9 @@ public class SystemValue implements java.io.Serializable
     @exception AS400SecurityException If a security or authority error occurs.
     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     @exception InterruptedException If this thread is interrupted.
-    @exception IOException If an error occurs while communicating with the AS/400.
-    @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-    @exception RequestNotSupportedException If the release level of the AS/400 does not support the system value.
-    @exception UnknownHostException If the AS/400 system cannot be located.
+    @exception IOException If an error occurs while communicating with the server.
+    @exception ObjectDoesNotExistException If the server object does not exist.
+    @exception RequestNotSupportedException If the release level of the server does not support the system value.
   **/
   public Object getValue()
       throws AS400SecurityException,
@@ -412,8 +411,7 @@ public class SystemValue implements java.io.Serializable
              IOException,
              ObjectDoesNotExistException,
 //@B0D             PropertyVetoException,
-             RequestNotSupportedException,
-             UnknownHostException
+             RequestNotSupportedException
   {
     if (!connected_)
       connect();

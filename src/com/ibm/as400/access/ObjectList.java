@@ -2,12 +2,12 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
-// Filename: ObjectList.java
+// Filename:  ObjectList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// others.  All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@ import java.util.*;
 
 
 /**
-The ObjectList class represents a list of OS/400 objects in a
+The ObjectList class represents a list of server objects in a
 specific library, multiple libraries, or system-wide.
 <p>
 Implementation note:
@@ -788,14 +788,14 @@ public class ObjectList implements Serializable
   /**
    * Returns the list of objects in the object list.
    * @return An Enumeration of {@link com.ibm.as400.access.ObjectDescription ObjectDescription} objects.
-   * @exception AS400Exception                  If the AS/400 system returns an error message.
+   * @exception AS400Exception                  If the server returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException            If this thread is interrupted.
-   * @exception IOException                     If an error occurs while communicating with the AS/400.
-   * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-   * @exception RequestNotSupportedException    If the requested function is not supported because the AS/400 system is not at the correct level.
+   * @exception IOException                     If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException     If the server object does not exist.
+   * @exception RequestNotSupportedException    If the requested function is not supported because the server is not at the correct level.
    * @see #close
    * @see #load
   **/
