@@ -2527,7 +2527,7 @@ will be thrown.
       // proper generatedKey
     }
     String[] fieldNames = {""};
-    SQLData[] sqlData   = { new SQLDecimal (30, 0, settings_)};  //@F6C
+    SQLData[] sqlData   = { new SQLDecimal (30, 0, settings_, connection_.getProperties())};  //@F6C
     int[] fieldNullables = {AS400JDBCDatabaseMetaData.columnNoNulls};    
     JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
     boolean[][] nulls = { { false}};

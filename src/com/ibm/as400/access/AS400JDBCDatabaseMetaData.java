@@ -481,7 +481,7 @@ implements DatabaseMetaData
                         JDFieldMap[] maps = new JDFieldMap[8];
                         maps[0] = new JDHardcodedFieldMap(new Short ((short) scope)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
-                        maps[2] = new JDDataTypeFieldMap (2, 4, 3, 5);   // data type - converted to short
+                        maps[2] = new JDDataTypeFieldMap (2, 4, 3, 5, connection_.getProperties());   // data type - converted to short
                         maps[3] = new JDSimpleFieldMap (2);  // type name
                         maps[4] = new JDSimpleFieldMap (4); // column size (length)
                         maps[5] = new JDHardcodedFieldMap(new Integer (0)); // buffer length
@@ -1155,11 +1155,11 @@ implements DatabaseMetaData
                     maps[1] = new JDSimpleFieldMap (1); // library
                     maps[2] = new JDSimpleFieldMap (3); // table
                     maps[3] = new JDSimpleFieldMap (4); // column
-                    maps[4] = new JDDataTypeFieldMap (6, 7, 10, 11);    // Data type
-                    maps[5] = new JDLocalNameFieldMap (6, 7, 10, 11);     // Type name
-                    maps[6] = new JDPrecisionFieldMap (6, 7, 10, 11); // column size (length)
+                    maps[4] = new JDDataTypeFieldMap (6, 7, 10, 11, connection_.getProperties());    // Data type
+                    maps[5] = new JDLocalNameFieldMap (6, 7, 10, 11, connection_.getProperties());     // Type name
+                    maps[6] = new JDPrecisionFieldMap (6, 7, 10, 11, connection_.getProperties()); // column size (length)
                     maps[7] = new JDHardcodedFieldMap(new Integer(0)); // Buffer - not used
-                    maps[8] = new JDScaleFieldMap (6, 7, 10, 11); // decimal digits (scale)
+                    maps[8] = new JDScaleFieldMap (6, 7, 10, 11, connection_.getProperties()); // decimal digits (scale)
                     maps[9] = new JDSimpleFieldMap (9); // radix
                     maps[10] = new JDNullableIntegerFieldMap(8); // is null capable?
 
@@ -1177,7 +1177,7 @@ implements DatabaseMetaData
                     // Per JDBC api - not used - hardcode to 0
                     maps[14] = new JDHardcodedFieldMap (new Integer (0)); // SQL datetime
 
-                    maps[15] = new JDCharOctetLengthFieldMap (6, 7, 10, 11); // octet
+                    maps[15] = new JDCharOctetLengthFieldMap (6, 7, 10, 11, connection_.getProperties()); // octet
 
                     // If the server functional level is 7 or greater, then ordinal        @E3A
                     // position is supported.  Otherwise, just hardcode to -1.             @E3A
@@ -3142,7 +3142,7 @@ implements DatabaseMetaData
                 maps[3] = new JDHandleNullFieldMap (3, ""); // parameter name (col name)
                 maps[4] = new JDParameterModeFieldMap(4); // Parameter mode (col type)
 
-                maps[5] = new JDDataTypeFieldMap(5, 7, 6, 8); // data type - converts from string to short
+                maps[5] = new JDDataTypeFieldMap(5, 7, 6, 8, connection_.getProperties()); // data type - converts from string to short
                 maps[6] = new JDSimpleFieldMap (5); // type name
 
                 maps[7] = new JDHandleNullFieldMap (6, new Integer (0));  // precision
@@ -4464,11 +4464,11 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLBinary(32765, settings_));                // @D0C
         typeSamples.addElement(new SQLChar(32756, false, settings_));           // @D0C
         typeSamples.addElement(new SQLDate(settings_));                         // @D0C
-        typeSamples.addElement(new SQLDecimal(31, 31, settings_));              // @D0C
+        typeSamples.addElement(new SQLDecimal(31, 31, settings_, connection_.getProperties()));              // @D0C
         typeSamples.addElement(new SQLDouble(settings_));                       // @D0C
         typeSamples.addElement(new SQLFloat(settings_));                        // @D0C
         typeSamples.addElement(new SQLInteger());                               // @D0C
-        typeSamples.addElement(new SQLNumeric(31, 31, settings_));              // @D0C
+        typeSamples.addElement(new SQLNumeric(31, 31, settings_, connection_.getProperties()));              // @D0C
         typeSamples.addElement(new SQLReal(settings_));                         // @D0C
         typeSamples.addElement(new SQLSmallint());                              // @D0C
         typeSamples.addElement(new SQLTime(settings_));                         // @D0C
@@ -4769,24 +4769,24 @@ implements DatabaseMetaData
                 if (!isJDBC3)               //@F2A
                 {
                     maps = new JDFieldMap[] {
-                        new JDHardcodedFieldMap (connection_.getCatalog ()),    // type catalog
-                        new JDSimpleFieldMap (1),                               // type schema
-                        new JDSimpleFieldMap (2),                               // type name
-                        new JDClassNameFieldMap (3, settings_),                 // class name   // @B3C
-                        new JDHardcodedFieldMap (new Integer (Types.DISTINCT)), // data type
-                        new JDHandleNullFieldMap (4, ""),                       // remarks      // @B3C 
+                        new JDHardcodedFieldMap (connection_.getCatalog ()),                 // type catalog
+                        new JDSimpleFieldMap (1),                                            // type schema
+                        new JDSimpleFieldMap (2),                                            // type name
+                        new JDClassNameFieldMap (3, settings_, connection_.getProperties()), // class name   // @B3C
+                        new JDHardcodedFieldMap (new Integer (Types.DISTINCT)),              // data type
+                        new JDHandleNullFieldMap (4, ""),                                    // remarks      // @B3C 
                     };
                 }
                 else
                 {
                     maps = new JDFieldMap[] {
-                        new JDHardcodedFieldMap (connection_.getCatalog ()),    // type catalog
-                        new JDSimpleFieldMap (1),                               // type schema
-                        new JDSimpleFieldMap (2),                               // type name
-                        new JDClassNameFieldMap (3, settings_),                 // class name   // @B3C
-                        new JDHardcodedFieldMap (new Integer (Types.DISTINCT)), // data type
-                        new JDHandleNullFieldMap (4, ""),                       // remarks      // @B3C
-                        new JDSimpleFieldMap (5)                                // base type    // @G4A  
+                        new JDHardcodedFieldMap (connection_.getCatalog ()),                 // type catalog
+                        new JDSimpleFieldMap (1),                                            // type schema
+                        new JDSimpleFieldMap (2),                                            // type name
+                        new JDClassNameFieldMap (3, settings_, connection_.getProperties()), // class name   // @B3C
+                        new JDHardcodedFieldMap (new Integer (Types.DISTINCT)),              // data type
+                        new JDHandleNullFieldMap (4, ""),                                    // remarks      // @B3C
+                        new JDSimpleFieldMap (5)                                             // base type    // @G4A  
                     };
 
                 }
@@ -5014,7 +5014,7 @@ implements DatabaseMetaData
                         JDFieldMap[] maps = new JDFieldMap[8];
                         maps[0] = new JDHardcodedFieldMap (new Short ((short) 0)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
-                        maps[2] = new JDDataTypeFieldMap (2, 3, 3, 5);   // data type - converted to short
+                        maps[2] = new JDDataTypeFieldMap (2, 3, 3, 5, connection_.getProperties());   // data type - converted to short
                         maps[3] = new JDSimpleFieldMap (2);  // type name
                         maps[4] = new JDSimpleFieldMap (3); // column size (precision)
                         maps[5] = new JDSimpleFieldMap(4); // buffer length

@@ -29,16 +29,17 @@ implements JDFieldMap
     private int precisionIndex_;
     private int scaleIndex_;
     private int typeIndex_;
-
+    private JDProperties properties_;
 
 
     JDTypeInfoFieldMap (int typeIndex, int lengthIndex, int precisionIndex, 
-                    int scaleIndex)
+                    int scaleIndex, JDProperties properties)
     {
         typeIndex_          = typeIndex;
         lengthIndex_        = lengthIndex;
         precisionIndex_     = precisionIndex;
         scaleIndex_         = scaleIndex;
+        properties_         = properties;
     }
 
 
@@ -57,7 +58,7 @@ implements JDFieldMap
         int precision = row.getSQLData (precisionIndex_).toInt ();
         int scale = row.getSQLData (scaleIndex_).toInt ();
         return SQLDataFactory.newData (typeName, length, 
-            precision, scale, null);
+            precision, scale, null, properties_);
     }
 
 

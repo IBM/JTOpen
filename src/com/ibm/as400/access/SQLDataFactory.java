@@ -256,7 +256,8 @@ it will map to the next closest type.
                             int precision,
                             int scale,
                             SQLConversionSettings settings,
-                            int vrm)                            // @D0C
+                            int vrm,
+                            JDProperties properties)                            // @D0C
         throws SQLException
     {
         switch (sqlType) {                                      // @D0C
@@ -286,8 +287,8 @@ it will map to the next closest type.
         case Types.DECIMAL:
             if (settings != null)                                           // @E0A
                 if (! settings.useBigDecimal())                             // @E0A
-                    return new SQLDecimal2 (precision, scale, settings);    // @E0A
-            return new SQLDecimal(precision, scale, settings);              // @E0A   
+                    return new SQLDecimal2 (precision, scale, settings, properties); // pass the JDProperties so we can get the scale
+            return new SQLDecimal(precision, scale, settings, properties);              // @E0A   
 
         case Types.DOUBLE:
             return new SQLDouble (settings);
@@ -301,8 +302,8 @@ it will map to the next closest type.
         case Types.NUMERIC:
             if (settings != null)                                           // @E0A
                 if (! settings.useBigDecimal())                             // @E0A
-                    return new SQLNumeric2 (precision, scale, settings);    // @E0A
-            return new SQLNumeric(precision, scale, settings);              // @E0A   
+                    return new SQLNumeric2 (precision, scale, settings, properties); // pass the JDProperties so we can get the scale
+            return new SQLNumeric(precision, scale, settings, properties);              // @E0A   
 
         case Types.REAL:
             return new SQLReal (settings);
@@ -515,14 +516,14 @@ specific OS/400 native type identifier.
         case 484:                           // Packed decimal.
             if (settings != null)                                           // @E0A
                 if (! settings.useBigDecimal())                             // @E0A
-                    return new SQLDecimal2 (precision, scale, settings);    // @E0A
-            return new SQLDecimal(precision, scale, settings);              // @E0A   
+                    return new SQLDecimal2 (precision, scale, settings, connection.getProperties()); // pass the JDProperties object so we can get the precision
+            return new SQLDecimal(precision, scale, settings, connection.getProperties());              // @E0A   
 
         case 488:                           // Zoned decimal.
             if (settings != null)                                           // @E0A
                 if (! settings.useBigDecimal())                             // @E0A
-                    return new SQLNumeric2 (precision, scale, settings);    // @E0A
-            return new SQLNumeric(precision, scale, settings);              // @E0A   
+                    return new SQLNumeric2 (precision, scale, settings, connection.getProperties()); // pass the JDProperties object so we can get the precision
+            return new SQLNumeric(precision, scale, settings, connection.getProperties());              // @E0A   
 
         case 492:                           // Bigint.   // @D0A
             return new SQLBigint();                      // @D0A
@@ -582,7 +583,8 @@ specific OS/400 native type string.
                             int length,
                             int precision,
                             int scale,
-                            SQLConversionSettings settings)
+                            SQLConversionSettings settings,
+                            JDProperties properties)
         throws SQLException
     {
         if (nativeType.equals ("BINARY"))
@@ -623,8 +625,8 @@ specific OS/400 native type string.
         else if (nativeType.equals ("DECIMAL")) {
             if (settings != null)                                           // @E0A
                 if (! settings.useBigDecimal())                             // @E0A
-                    return new SQLDecimal2 (precision, scale, settings);    // @E0A
-            return new SQLDecimal(precision, scale, settings);              // @E0A   
+                    return new SQLDecimal2 (precision, scale, settings, properties); // pass the JDProperties so we can get the scale
+            return new SQLDecimal(precision, scale, settings, properties);              // @E0A   
         }
 
         else if (nativeType.equals ("DOUBLE"))
@@ -655,8 +657,8 @@ specific OS/400 native type string.
         else if (nativeType.equals ("NUMERIC")) {
             if (settings != null)                                           // @E0A
                 if (! settings.useBigDecimal())                             // @E0A
-                    return new SQLNumeric2 (precision, scale, settings);    // @E0A
-            return new SQLNumeric(precision, scale, settings);              // @E0A   
+                    return new SQLNumeric2 (precision, scale, settings, properties); // pass the JDProperties so we can get the scale
+            return new SQLNumeric(precision, scale, settings, properties);              // @E0A   
         }
 
         else if (nativeType.equals ("REAL"))

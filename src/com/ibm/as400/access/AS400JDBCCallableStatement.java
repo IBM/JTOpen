@@ -1654,7 +1654,7 @@ it was set.
 
             // Register the parameter.
             registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (expectedType,   // @D8c
-                0, scale+1, scale, settings_, connection_.getVRM());                // @D0C
+                0, scale+1, scale, settings_, connection_.getVRM(), connection_.getProperties());                // @D0C
         }
     }
 

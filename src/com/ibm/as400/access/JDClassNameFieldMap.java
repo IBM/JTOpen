@@ -32,14 +32,16 @@ implements JDFieldMap
 
     // Private data.
     private SQLConversionSettings   settings_;                                  // @A1A
+    private JDProperties            properties_;
 
 
 
 
-    JDClassNameFieldMap (int fromIndex, SQLConversionSettings settings)         // @A1C
+    JDClassNameFieldMap (int fromIndex, SQLConversionSettings settings, JDProperties properties)         // @A1C
     {
         super (fromIndex);
         settings_ = settings;                                                   // @A1A
+        properties_ = properties;
     }
 
 
@@ -56,7 +58,7 @@ implements JDFieldMap
     {
         String sourceType = super.getValue (row).toString ();
         if (sourceType != null)
-            return SQLDataFactory.newData (sourceType, 2, 1, 1, settings_).toObject ().getClass ().getName (); // @A1C
+            return SQLDataFactory.newData (sourceType, 2, 1, 1, settings_, properties_).toObject ().getClass ().getName (); // @A1C
         else
             return "";
     }

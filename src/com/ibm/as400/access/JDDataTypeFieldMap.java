@@ -32,9 +32,9 @@ implements JDFieldMap
 
 
     JDDataTypeFieldMap (int typeIndex, int lengthIndex, int precisionIndex, 
-                        int scaleIndex)
+                        int scaleIndex, JDProperties properties)
     {
-        super (typeIndex, lengthIndex, precisionIndex, scaleIndex);
+        super (typeIndex, lengthIndex, precisionIndex, scaleIndex, properties);
     }
 
 
