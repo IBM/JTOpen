@@ -16,13 +16,12 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal; //@C1A
 import java.util.Vector; //@C1A
 
 //@C0C: We now extend AS400FileImplBase.
-class AS400FileImplNative extends AS400FileImplBase implements Serializable
+class AS400FileImplNative extends AS400FileImplBase
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
