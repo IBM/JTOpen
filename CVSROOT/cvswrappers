@@ -10,14 +10,17 @@
 #
 # Format of wrapper file ($CVSROOT/CVSROOT/cvswrappers or .cvswrappers)
 #
-#  wildcard	[option value][option value]...
+#  wildcard     [option value][option value]...
 #
 #  where option is one of
-#  -f		from cvs filter		value: path to filter
-#  -t		to cvs filter		value: path to filter
-#  -m		update methodology	value: MERGE or COPY
-#  -k		expansion mode		value: b, o, kkv, &c
+#  -f           from cvs filter         value: path to filter
+#  -t           to cvs filter           value: path to filter
+#  -m           update methodology      value: MERGE or COPY
+#  -k           expansion mode          value: b, o, kkv, &c
 #
 #  and value is a single-quote delimited value.
 # For example:
-#*.gif -k 'b'
+*.gif -k 'b'
+*.jar -k 'b'
+*.zip -k 'b'
+
