@@ -20,6 +20,7 @@ import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.SocketException;                                                    // @A1A
 
 
 
@@ -124,29 +125,42 @@ extends StoppableThread
     {
         started_ = true;
         running_ = true;
+        int exceptionCounter = 0;                                                   // @A1A
 
         PxRepCV reply;
         try {
             while (canContinue()) {
-                reply = (PxRepCV)factory_.getNextDS(input_);
-                if (Trace.isTraceProxyOn())
-                    reply.dump (Trace.getPrintWriter ());
+                try {                                                               // @A1A
+                    reply = (PxRepCV)factory_.getNextDS(input_);
+                    if (Trace.isTraceProxyOn())
+                        reply.dump (Trace.getPrintWriter ());
 
-                // If the correlation id is set, just store the reply
-                // in the hashtable.  This means that somebody is 
-                // waiting for it and they will ask for it when the 
-                // time is right.
-                long correlationId = reply.getCorrelationId();
-                if (correlationId >= 0) {
-                    synchronized(this) {
-                        replies_.put(new Long(correlationId), reply);
-                        notifyAll();
+                    // We had a successful read, reset the exception counter.       // @A1A
+                    exceptionCounter = 0;                                           // @A1A
+    
+                    // If the correlation id is set, just store the reply
+                    // in the hashtable.  This means that somebody is 
+                    // waiting for it and they will ask for it when the 
+                    // time is right.
+                    long correlationId = reply.getCorrelationId();
+                    if (correlationId >= 0) {
+                        synchronized(this) {
+                            replies_.put(new Long(correlationId), reply);
+                            notifyAll();
+                        }
                     }
-                }
-
-                // Otherwise, process it and forget about it!
-                else 
-                    reply.process();                
+    
+                    // Otherwise, process it and forget about it!
+                    else 
+                        reply.process();                
+                }                                                                   // @A1A
+                catch(SocketException e) {                                          // @A1A
+                    // Ignore this.  Netscape is throwing this in certain           // @A1A
+                    // situations.  Try again and it will go away!                  // @A1A
+                    // If we get it a few times in a row, then rethrow it.          // @A1A
+                    if (++exceptionCounter >= 3)                                    // @A1A
+                        throw e;                                                    // @A1A
+                }                                                                   // @A1A
             }
         }
         catch(InvocationTargetException e) {
