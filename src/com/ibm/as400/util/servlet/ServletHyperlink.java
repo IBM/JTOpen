@@ -345,7 +345,7 @@ public class ServletHyperlink extends HTMLHyperlink
         StringBuffer buffer = new StringBuffer();
 
         buffer.append("<a href=\"");
-        buffer.append(url);
+        buffer.append(url.toString());
 
         String location = getLocation();                //$A3A
         if (location != null)                           //$A3A
@@ -388,7 +388,7 @@ public class ServletHyperlink extends HTMLHyperlink
         buffer.append(text);
         buffer.append("</a>");
 
-        return new String(buffer);           
+        return buffer.toString();
     }
 
 
