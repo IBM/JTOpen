@@ -315,6 +315,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_IPP_PRINTER_NAME= 0x00E5;  // IPP Printer URI name
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY180.5">IPP natural language</A>. **/
     public static final int ATTR_IPP_ATTR_NL  = 0x00FA;  // IPP natural language
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x014E">Job ccsid</A>. **/
+    public static final int ATTR_JOBCCSID     = 0x014E;  // ccsid of the job that created file
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY57">Job name</A>. **/
     public static final int ATTR_JOBNAME      = 0x003B;  // name of the job that created file
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY58">Job number</A>.**/
@@ -669,7 +671,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x014D;  // last attribute ID
+    static final int                    MAX_ATTR_ID = 0x014E;  // last attribute ID
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";
@@ -1409,6 +1411,7 @@ abstract public class PrintObject implements java.io.Serializable
         case 0x00E9: return "ATTR_IPP_JOB_ORIGUSER_NL";
         case 0x00E5: return "ATTR_IPP_PRINTER_NAME";
         case 0x00FA: return "ATTR_IPP_ATTR_NL";
+        case 0x014E: return "ATTR_JOBCCSID";
         case 0x003B: return "ATTR_JOBNAME";
         case 0x003C: return "ATTR_JOBNUMBER";
         case 0x003D: return "ATTR_JOBSEPRATR";
