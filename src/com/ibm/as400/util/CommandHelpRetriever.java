@@ -115,9 +115,9 @@ public class CommandHelpRetriever
 
   private static String library_ = null;
   private static String command_ = null;
-  private static String outputDirectory_ = "."; // Default to current directory
 
   private boolean showChoices_ = false;
+  private String outputDirectory_ = "."; // Default to current directory
 
   // This instance has its own copy of the XSL transformer,
   // SAX parser, URI resolver, and entity resolver/handler.
