@@ -1092,7 +1092,7 @@ implements IFSFileImpl
         if (rc == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
         ||  rc == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
         {
-          Trace.log(Trace.ERROR, "Error getting file attributes: " +
+          Trace.log(Trace.ERROR, "Error getting file attributes for file " + fd_.path_ + ": " +
                     "IFSReturnCodeRep return code = ", rc);
           throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
         }
@@ -1102,7 +1102,7 @@ implements IFSFileImpl
             rc != IFSReturnCodeRep.FILE_NOT_FOUND &&
             rc != IFSReturnCodeRep.PATH_NOT_FOUND)
         {
-          Trace.log(Trace.ERROR, "Error getting file attributes: " +
+          Trace.log(Trace.ERROR, "Error getting file attributes for file " + fd_.path_ + ": " +
                     "IFSReturnCodeRep return code = ", rc);  // @A9C
           throw new ExtendedIOException(rc);
         }
