@@ -102,7 +102,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         try
         {
             // Retrieve command information.  Failure is returned as a message list.
-            if(!runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_COUNT_UP_TO_10))
+            if(!runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
             {
                 Trace.log(Trace.ERROR, "Unable to retrieve command information.");
                 String id = messageList_[messageList_.length - 1].getID();

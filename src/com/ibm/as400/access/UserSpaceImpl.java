@@ -183,6 +183,23 @@ abstract class UserSpaceImpl extends Object
       system_ = system;
    }
 
+   void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall) throws UnsupportedEncodingException
+   {
+      system_ = system;
+      userSpacePathName_ = path;
+      library_ = library;
+      name_ = name;
+      mustUseProgramCall_ = mustUseProgramCall;
+
+      converter_ = ConverterImplRemote.getConverter(((AS400ImplRemote)system_).getCcsid(), (AS400ImplRemote)system_);
+     StringBuffer pathName = new StringBuffer("                    ");
+     pathName.insert(0, name_);
+     pathName.insert(10, library_);
+     pathName.setLength(20);
+     String newString = pathName.toString();
+     userSpaceSystemPathName_ = converter_.stringToByteArray(newString);
+   }
+
    abstract void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary)
             throws AS400SecurityException,
                    ErrorCompletingRequestException,

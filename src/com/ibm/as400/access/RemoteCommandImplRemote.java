@@ -96,7 +96,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         // Retrieve Current Attributes.  Failure is returned as a message list.
         try
         {
-            if (!runProgram("QSYS", "QWCRTVCA", parameterList, threadSafety, AS400Message.MESSAGE_COUNT_UP_TO_10))
+            if (!runProgram("QSYS", "QWCRTVCA", parameterList, threadSafety, AS400Message.MESSAGE_OPTION_UP_TO_10))
             {
                 Trace.log(Trace.ERROR, "Unable to retrieve job information.");
                 throw new AS400Exception(messageList_);

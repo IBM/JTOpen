@@ -291,7 +291,7 @@ public class ServiceProgramCall extends ProgramCall
         }
 
         // Run the service program.
-        returnValue_ = impl_.runServiceProgram(library_, name_, procedureName_, rvf, parameterList_, threadSafety_, procedureNameCCSID_, messageCount_);
+        returnValue_ = impl_.runServiceProgram(library_, name_, procedureName_, rvf, parameterList_, threadSafety_, procedureNameCCSID_, messageOption_);
 
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();

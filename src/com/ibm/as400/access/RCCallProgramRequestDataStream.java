@@ -107,7 +107,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         converter.stringToByteArray(library, data_, 30);
 
         // Return messages.
-        if (dataStreamLevel < 6 && messageCount == AS400Message.MESSAGE_COUNT_ALL) messageCount = AS400Message.MESSAGE_COUNT_UP_TO_10;
+        if (dataStreamLevel < 6 && messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = AS400Message.MESSAGE_OPTION_UP_TO_10;
         data_[40] = (byte)messageCount;
 
         // Set number of program parameters.

@@ -87,7 +87,7 @@ public class CommandCall implements Serializable
     private static final int BY_SET_METHOD = 2;
     private static final int BY_LOOK_UP = 3;
 
-    //The server the command is run on.
+    // The server where the command is located.
     private AS400 system_ = null;
     // The command to run.
     private String command_ = "";
@@ -98,7 +98,7 @@ public class CommandCall implements Serializable
     // How thread safety was determined.
     private int threadSafetyDetermined_ = BY_DEFAULT;
     // The number of messages to retrieve.
-    private int messageCount_ = AS400Message.MESSAGE_COUNT_UP_TO_10;  // Default for compatibility.
+    private int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
 
     // Implemenation object shared with program call, interacts with server or native methods.
     private transient RemoteCommandImpl impl_ = null;
@@ -111,7 +111,7 @@ public class CommandCall implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a CommandCall object.  The server and the command must be set later.
+     Constructs a CommandCall object.  The system and the command properties must be set before using any method requiring a connection to the server.
      **/
     public CommandCall()
     {
@@ -235,6 +235,7 @@ public class CommandCall implements Serializable
     // Chooses the appropriate implementation, synchronize to protect impl_ object.
     private synchronized void chooseImpl() throws AS400SecurityException, IOException
     {
+        if (system_ != null) system_.signon(false);
         if (impl_ == null)
         {
             if (system_ == null)
@@ -252,7 +253,6 @@ public class CommandCall implements Serializable
             impl_ = (RemoteCommandImpl)system_.loadImpl3("com.ibm.as400.access.RemoteCommandImplNative", "com.ibm.as400.access.RemoteCommandImplRemote", "com.ibm.as400.access.RemoteCommandImplProxy");
             impl_.setSystem(system_.getImpl());
         }
-        if (system_ != null) system_.signon(false);
     }
 
     // Fires the action completed event.
@@ -301,13 +301,18 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns an indication of how many messages will be retrieved.
-     @return  A constant indicating how many messages will be retrieved.
+     Returns the option for how many messages will be retrieved.
+     @return  A constant indicating how many messages will be retrieved.  Valid values are:
+     <ul>
+     <li>AS400Message.MESSAGE_OPTION_UP_TO_10
+     <li>AS400Message.MESSAGE_OPTION_NONE
+     <li>AS400Message.MESSAGE_OPTION_ALL
+     </ul>
      **/
-    public int getMessageCount()
+    public int getMessageOption()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message count:", messageCount_);
-        return messageCount_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message option:", messageOption_);
+        return messageOption_;
     }
 
     /**
@@ -559,7 +564,7 @@ public class CommandCall implements Serializable
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command thread safety: ", threadSafety_);
         }
         // Run the command.
-        boolean result = impl_.runCommand(command_, threadSafety_, messageCount_);
+        boolean result = impl_.runCommand(command_, threadSafety_, messageOption_);
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
         // Set our system into each of the messages.
@@ -620,7 +625,7 @@ public class CommandCall implements Serializable
         chooseImpl();
 
         // Run the command.
-        boolean success = impl_.runCommand(command, threadSafety_, messageCount_);
+        boolean success = impl_.runCommand(command, threadSafety_, messageOption_);
 
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
@@ -685,13 +690,24 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Specifies how many messages should be retrieved.  By default, to preserve compatability, only the messages set to the command caller and only up to ten messages are retrieved.  This property will only take affect on servers that support the new property.
-     @param  messageCount  A constant indicating how many messages to retrieve.
+     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the command caller and only up to ten messages are retrieved.  This property will only take affect on servers that support the new option.  
+     @param  messageOption  A constant indicating how many messages to retrieve.  Valid values are:
+     <ul>
+     <li>AS400Message.MESSAGE_OPTION_UP_TO_10
+     <li>AS400Message.MESSAGE_OPTION_NONE
+     <li>AS400Message.MESSAGE_OPTION_ALL
+     </ul>
      **/
-    public void setMessageCount(int messageCount)
+    public void setMessageOption(int messageOption)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting retrieve all messages: " + messageCount);
-        messageCount_ = messageCount;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message option:", messageOption);
+        // Validate the messageOption parameter.
+        if (messageOption < 0 || messageOption > 2)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'messageOption' is not valid.");
+            throw new ExtendedIllegalArgumentException("messageOption (" + messageOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        messageOption_ = messageOption;
     }
 
     /**

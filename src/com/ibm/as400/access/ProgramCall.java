@@ -111,13 +111,13 @@ public class ProgramCall implements Serializable
     private static final int BY_PROPERTY = 1;
     private static final int BY_SET_METHOD = 2;
 
-    //The server the program is run on.
+    // The server where the program is located.
     AS400 system_ = null;
-    //The IFS path name of the program.
+    // The full IFS path name of the program.
     String program_ = "";
-    //The library the program is in.
+    // The library that contains the program.
     String library_ = "";
-    //The name of the program.
+    // The name of the program.
     String name_ = "";
     // Program parameters.
     ProgramParameter[] parameterList_ = new ProgramParameter[0];
@@ -128,7 +128,7 @@ public class ProgramCall implements Serializable
     // How thread safety was determined.
     private int threadSafetyDetermined_ = BY_DEFAULT;
     // The number of messages to retrieve.
-    int messageCount_ = AS400Message.MESSAGE_COUNT_UP_TO_10;  // Default for compatibility.
+    int messageOption_ = AS400Message.MESSAGE_OPTION_UP_TO_10;  // Default for compatibility.
 
     // Implemenation object shared with command call, interacts with server or native methods.
     transient RemoteCommandImpl impl_ = null;
@@ -141,7 +141,7 @@ public class ProgramCall implements Serializable
     transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
-     Constructs a ProgramCall object.  The system, program, and parameters must be provided later.
+     Constructs a ProgramCall object.  The system, program, and parameters must be set before using any method requiring a connection to the server.
      **/
     public ProgramCall()
     {
@@ -288,6 +288,7 @@ public class ProgramCall implements Serializable
     // Chooses the appropriate implementation, synchronize to protect impl_ object.
     synchronized void chooseImpl() throws AS400SecurityException, IOException
     {
+        if (system_ != null) system_.signon(false);
         if (impl_ == null)
         {
             if (system_ == null)
@@ -305,7 +306,6 @@ public class ProgramCall implements Serializable
             impl_ = (RemoteCommandImpl)system_.loadImpl3("com.ibm.as400.access.RemoteCommandImplNative", "com.ibm.as400.access.RemoteCommandImplRemote", "com.ibm.as400.access.RemoteCommandImplProxy");
             impl_.setSystem(system_.getImpl());
         }
-        if (system_ != null) system_.signon(false);
     }
 
     // Fires the action completed event.
@@ -344,16 +344,6 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Returns an indication of how many messages will be retrieved.
-     @return  A constant indicating how many messages will be retrieved.
-     **/
-    public int getMessageCount()
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message count:", messageCount_);
-        return messageCount_;
-    }
-
-    /**
      Returns the list of messages returned from running the program.  It will return an empty list if the program has not been run yet or if there are no messages.
      @return  The array of messages returned by the program.
      **/
@@ -361,6 +351,21 @@ public class ProgramCall implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message list.");
         return messageList_;
+    }
+
+    /**
+     Returns the option for how many messages will be retrieved.
+     @return  A constant indicating how many messages will be retrieved.  Valid values are:
+     <ul>
+     <li>AS400Message.MESSAGE_OPTION_UP_TO_10
+     <li>AS400Message.MESSAGE_OPTION_NONE
+     <li>AS400Message.MESSAGE_OPTION_ALL
+     </ul>
+     **/
+    public int getMessageOption()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message option:", messageOption_);
+        return messageOption_;
     }
 
     /**
@@ -574,7 +579,7 @@ public class ProgramCall implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -600,7 +605,7 @@ public class ProgramCall implements Serializable
         // Run the program.
         try
         {
-            boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafety_, messageCount_);
+            boolean result = impl_.runProgram(library_, name_, parameterList_, threadSafety_, messageOption_);
             // Retrieve the messages.
             messageList_ = impl_.getMessageList();
             // Set our system object into each of the messages.
@@ -641,7 +646,7 @@ public class ProgramCall implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the server object does not exist.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
      @exception  PropertyVetoException  If a change is vetoed.
      **/
     public boolean run(String program, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, PropertyVetoException
@@ -746,13 +751,24 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Specifies how many messages should be retrieved.  By default, to preserve compatability, only the messages set to the program caller and only up to ten messages are retrieved.  This property will only take affect on servers that support the new property.
-     @param  messageCount  A constant indicating how many messages to retrieve.
+     Specifies the option for how many messages should be retrieved.  By default, to preserve compatability, only the messages sent to the program caller and only up to ten messages are retrieved.  This property will only take affect on servers that support the new option.  
+     @param  messageOption  A constant indicating how many messages to retrieve.  Valid values are:
+     <ul>
+     <li>AS400Message.MESSAGE_OPTION_UP_TO_10
+     <li>AS400Message.MESSAGE_OPTION_NONE
+     <li>AS400Message.MESSAGE_OPTION_ALL
+     </ul>
      **/
-    public void setMessageCount(int messageCount)
+    public void setMessageOption(int messageOption)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting retrieve all messages: " + messageCount);
-        messageCount_ = messageCount;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message option:", messageOption);
+        // Validate the messageOption parameter.
+        if (messageOption < 0 || messageOption > 2)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'messageOption' is not valid.");
+            throw new ExtendedIllegalArgumentException("messageOption (" + messageOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        messageOption_ = messageOption;
     }
 
     /**

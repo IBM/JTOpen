@@ -1,189 +1,157 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: QSYSObjectPathNameBeanInfo.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  QSYSObjectPathNameBeanInfo.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.beans.SimpleBeanInfo;
-import java.beans.PropertyDescriptor;
-import java.beans.EventSetDescriptor;
-import java.beans.BeanDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.BeanInfo;
 import java.awt.Image;
-
+import java.beans.BeanDescriptor;
+import java.beans.BeanInfo;
+import java.beans.EventSetDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
+import java.beans.VetoableChangeListener;
 
 /**
-The QSYSObjectPathNameBeanInfo class provides BeanInfo for QSYSObjectPathName class.
-**/
+ The QSYSObjectPathNameBeanInfo class provides BeanInfo for QSYSObjectPathName class.
+ **/
 public class QSYSObjectPathNameBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
+    // Class this bean info represents.
+    private final static Class BEAN_CLASS = QSYSObjectPathName.class;
 
-// Class this bean info represents.
-private final static Class beanClass = QSYSObjectPathName.class;
+    private static EventSetDescriptor[] eventSetDescriptors;
+    private static PropertyDescriptor[] propertyDescriptors;
 
-// Handles loading the appropriate resource bundle
-private static ResourceBundleLoader loader_;
-
-private static EventSetDescriptor[] events_;
-private static PropertyDescriptor[] properties_;
-
-
-static
-{
-    try
+    static
     {
-        EventSetDescriptor changed = new EventSetDescriptor(beanClass,
-                    "propertyChange",
-                    java.beans.PropertyChangeListener.class,
-                    "propertyChange");
-        changed.setDisplayName(loader_.getText("EVT_NAME_PROPERTY_CHANGE"));
-        changed.setShortDescription(loader_.getText("EVT_DESC_PROPERTY_CHANGE"));
+        try
+        {
+            EventSetDescriptor propertyChange = new EventSetDescriptor(BEAN_CLASS, "propertyChange", PropertyChangeListener.class, "propertyChange");
+            propertyChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_CHANGE"));
+            propertyChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_CHANGE"));
 
-        EventSetDescriptor veto = new EventSetDescriptor(beanClass,
-                    "propertyVeto",
-                    java.beans.VetoableChangeListener.class,
-                    "vetoableChange");
-        veto.setDisplayName(loader_.getText("EVT_NAME_PROPERTY_VETO"));
-        veto.setShortDescription(loader_.getText("EVT_DESC_PROPERTY_VETO"));
+            EventSetDescriptor vetoableChange = new EventSetDescriptor(BEAN_CLASS, "propertyVeto", VetoableChangeListener.class, "vetoableChange");
+            vetoableChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_VETO"));
+            vetoableChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_VETO"));
 
-        EventSetDescriptor[] events = {changed, veto};
+            eventSetDescriptors = new EventSetDescriptor[] { propertyChange, vetoableChange };
 
-        events_ = events;
+            PropertyDescriptor path = new PropertyDescriptor("path", BEAN_CLASS);
+            path.setBound(true);
+            path.setConstrained(true);
+            path.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_PATH"));
+            path.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_PATH"));
 
-        PropertyDescriptor path = new PropertyDescriptor("path", beanClass);
-        path.setBound(true);
-        path.setConstrained(true);
-        path.setDisplayName(loader_.getText("PROP_NAME_PATH"));
-        path.setShortDescription(loader_.getText("PROP_DESC_PATH"));
+            PropertyDescriptor libraryName = new PropertyDescriptor("libraryName", BEAN_CLASS);
+            libraryName.setBound(true);
+            libraryName.setConstrained(true);
+            libraryName.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_LIBRARY"));
+            libraryName.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_LIBRARY"));
 
-        PropertyDescriptor library = new PropertyDescriptor("libraryName", beanClass);
-        library.setBound(true);
-        library.setConstrained(true);
-        library.setDisplayName(loader_.getText("PROP_NAME_LIBRARY"));
-        library.setShortDescription(loader_.getText("PROP_DESC_LIBRARY"));
+            PropertyDescriptor objectName = new PropertyDescriptor("objectName", BEAN_CLASS);
+            objectName.setBound(true);
+            objectName.setConstrained(true);
+            objectName.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_OBJECT"));
+            objectName.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_OBJECT"));
 
-        PropertyDescriptor object = new PropertyDescriptor("objectName", beanClass);
-        object.setBound(true);
-        object.setConstrained(true);
-        object.setDisplayName(loader_.getText("PROP_NAME_OBJECT"));
-        object.setShortDescription(loader_.getText("PROP_DESC_OBJECT"));
+            PropertyDescriptor memberName = new PropertyDescriptor("memberName", BEAN_CLASS);
+            memberName.setBound(true);
+            memberName.setConstrained(true);
+            memberName.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_MEMBER"));
+            memberName.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_MEMBER"));
 
-        PropertyDescriptor member = new PropertyDescriptor("memberName", beanClass);
-        member.setBound(true);
-        member.setConstrained(true);
-        member.setDisplayName(loader_.getText("PROP_NAME_MEMBER"));
-        member.setShortDescription(loader_.getText("PROP_DESC_MEMBER"));
+            PropertyDescriptor objectType = new PropertyDescriptor("objectType", BEAN_CLASS);
+            objectType.setBound(true);
+            objectType.setConstrained(true);
+            objectType.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_TYPE"));
+            objectType.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_TYPE"));
 
-        PropertyDescriptor type = new PropertyDescriptor("objectType", beanClass);
-        type.setBound(true);
-        type.setConstrained(true);
-        type.setDisplayName(loader_.getText("PROP_NAME_TYPE"));
-        type.setShortDescription(loader_.getText("PROP_DESC_TYPE"));
-
-        PropertyDescriptor properties[] = {path, library, object, member, type};
-
-        properties_ = properties;
+            propertyDescriptors = new PropertyDescriptor[] { path, libraryName, objectName, memberName, objectType };
+        }
+        catch (IntrospectionException e)
+        {
+            Trace.log(Trace.ERROR, "Unexpected IntrospectionException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
     }
-    catch (Exception e)
-    {
-        throw new Error(e.toString());
-    }
-}
-
-
-/**
-Returns the bean descriptor.
-@return The bean descriptor.
-**/
-public BeanDescriptor getBeanDescriptor()
-{
-    return new BeanDescriptor(beanClass);
-}
-
-
-// Returns the copyright.
-private static String getCopyright()
-{
-    return Copyright.copyright;
-}
-
-
-/**
-Returns the index of the default event.
-@return The index to the default event.
-**/
-public int getDefaultEventIndex()
-{
-    // the index for the property change event
-    return 0;
-}
-
-
-/**
-Returns the index of the default property.
-@return The index to the default property.
-**/
-public int getDefaultPropertyIndex()
-{
-    // the index for the "path" property
-    return 0;
-}
-
-
-/**
-Returns the descriptors for all events.
-@return The descriptors for all events.
-**/
-public EventSetDescriptor[] getEventSetDescriptors()
-{
-    return events_;
-}
-
-
-/**
-Returns the descriptors for all properties.
-@return The descriptors for all properties.
-**/
-public PropertyDescriptor[] getPropertyDescriptors()
-{
-    return properties_;
-}
 
     /**
-      * Returns an Image for this bean's icon.
-      * @param icon The desired icon size and color.
-      * @return The Image for the icon.
-      **/
+     Returns the bean descriptor.
+     @return  The bean descriptor.
+     **/
+    public BeanDescriptor getBeanDescriptor()
+    {
+        return new BeanDescriptor(BEAN_CLASS);
+    }
+
+    /**
+     Returns the index of the default event.
+     @return  Zero (0), the index to the default event.
+     **/
+    public int getDefaultEventIndex()
+    {
+        // The index for the "propertyChange" event.
+        return 0;
+    }
+
+    /**
+     Returns the index of the default property.
+     @return  Zero (0), the index to the default property.
+     **/
+    public int getDefaultPropertyIndex()
+    {
+        // The index for the "path" property.
+        return 0;
+    }
+
+    /**
+     Returns the descriptors for all events.
+     @return  The descriptors for all events.
+     **/
+    public EventSetDescriptor[] getEventSetDescriptors()
+    {
+        return eventSetDescriptors;
+    }
+
+    /**
+     Returns the descriptors for all properties.
+     @return  The descriptors for all properties.
+     **/
+    public PropertyDescriptor[] getPropertyDescriptors()
+    {
+        return propertyDescriptors;
+    }
+
+    /**
+     Returns an Image for this bean's icon.
+     @param  icon  The desired icon size and color.
+     @return  The Image for the icon.
+     **/
     public Image getIcon(int icon)
     {
-        Image image = null;
-
-        switch(icon)
+        switch (icon)
         {
             case BeanInfo.ICON_MONO_16x16:
             case BeanInfo.ICON_COLOR_16x16:
-                image = loadImage("QSYSObjectPathName16.gif");
-                break;
+                return loadImage("QSYSObjectPathName16.gif");
             case BeanInfo.ICON_MONO_32x32:
             case BeanInfo.ICON_COLOR_32x32:
-                image = loadImage("QSYSObjectPathName32.gif");
-                break;
+                return loadImage("QSYSObjectPathName32.gif");
         }
-
-        return image;
+        return null;
     }
-
 }
-

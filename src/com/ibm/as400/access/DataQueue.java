@@ -29,7 +29,7 @@ public class DataQueue extends BaseDataQueue
 
 
     /**
-     Constructs a DataQueue object.  The system and path properties will need to be set before using any method requiring a connection to the AS/400.
+     Constructs a DataQueue object.  The system and path properties must be set before using any method requiring a connection to the server.
      **/
     public DataQueue()
     {

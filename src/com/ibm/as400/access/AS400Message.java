@@ -114,17 +114,17 @@ public class AS400Message implements Serializable
     public static final int REPLY_FROM_SYSTEM_REPLY_LIST = 25;
 
     /**
-     Constant indicating the command server should return up to ten messages sent to the server job.
+     Constant for the option indicating up to ten messages sent to the caller should be returned.  For compatibility, this option is the default.  Only messages sent to the caller will be returned, messages sent by the invoked procedure to itself will not be returned.
      **/
-    public static final int MESSAGE_COUNT_UP_TO_10 = 0;
+    public static final int MESSAGE_OPTION_UP_TO_10 = 0;
     /**
-     Constant indicating the command server should not return messages.
+     Constant for the option indicating that no messages should be returned.
      **/
-    public static final int MESSAGE_COUNT_NONE = 1;
+    public static final int MESSAGE_OPTION_NONE = 1;
     /**
-     Constant indicating the command server should return all the messages.
+     Constant for the option indicating all the messages should be returned.  All messages sent from invocation beginning to invocation end will be returned.  Servers not supporting this new option will revert to the behavior specified for option MESSAGE_OPTION_UP_TO_10.
      **/
-    public static final int MESSAGE_COUNT_ALL = 2;
+    public static final int MESSAGE_OPTION_ALL = 2;
 
     // Date and time message sent.
     private Calendar date_;

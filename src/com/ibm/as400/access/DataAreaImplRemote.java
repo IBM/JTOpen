@@ -499,7 +499,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_COUNT_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
         {
             // Throw AS400MessageList
             processExceptions(rmtCmd_.getMessageList());
@@ -693,7 +693,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_COUNT_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
         {
             // Throw AS400MessageList
             processExceptions(rmtCmd_.getMessageList());
@@ -867,7 +867,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }
 
         // Run the program.  Failure is returned as a message list.
-        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_COUNT_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
+        if(!rmtCmd_.runProgram("QSYS", "QWCRDTAA", parmlist, false, AS400Message.MESSAGE_OPTION_UP_TO_10))  // QWCRDTAA isn't threadsafe. $B1C
         {
             // Throw AS400MessageList
             processExceptions(rmtCmd_.getMessageList());
@@ -981,7 +981,7 @@ class DataAreaImplRemote implements DataAreaImpl
             rmtCmd_ = new RemoteCommandImplRemote();
             rmtCmd_.setSystem(system_);
         }
-        result = rmtCmd_.runCommand(command, threadSafe, AS400Message.MESSAGE_COUNT_UP_TO_10);      // @B2C
+        result = rmtCmd_.runCommand(command, threadSafe, AS400Message.MESSAGE_OPTION_UP_TO_10);      // @B2C
         messageList_ = rmtCmd_.getMessageList();
 
         return result;
@@ -1160,7 +1160,7 @@ class DataAreaImplRemote implements DataAreaImpl
         }                                                       //$D2A
         
         // Run the command as bytes
-        boolean result = rmtCmd_.runCommand(wrtcmd, false, AS400Message.MESSAGE_COUNT_UP_TO_10);     //@D2C
+        boolean result = rmtCmd_.runCommand(wrtcmd, false, AS400Message.MESSAGE_OPTION_UP_TO_10);     //@D2C
         messageList_ = rmtCmd_.getMessageList();                //$D2A
 
         if(!result)                                             //$D2C

@@ -32,7 +32,7 @@ public class KeyedDataQueue extends BaseDataQueue
     int keyLength_ = 0;
 
     /**
-     Constructs a KeyedDataQueue object.  The system and path properties will need to be set before using any method requiring a connection to the AS/400.
+     Constructs a KeyedDataQueue object.  The system and path properties must be set before using any method requiring a connection to the server.
      **/
     public KeyedDataQueue()
     {

@@ -36,13 +36,13 @@ public abstract class BaseDataQueue implements Serializable
     static final long serialVersionUID = 4L;
 
 
-    //The AS/400 system the data queue is on.
+    // The server where the data queue is located.
     private AS400 system_ = null;
-    //The IFS path name of the data queue.
+    // The full IFS path name of the data queue.
     private String path_ = "";
-    //The library the data queue is in.
+    // The library that contains the data queue.
     private String library_ = "";
-    //The name of the data queue.
+    // The name of the data queue.
     private String name_ = "";
 
     // The CCSID to be used for String conversions of entry data.
@@ -78,7 +78,7 @@ public abstract class BaseDataQueue implements Serializable
     private transient VetoableChangeSupport vetoableChangeListeners_ = new VetoableChangeSupport(this);
 
     /**
-     Constructs a BaseDataQueue object.  The system and path properties will need to be set before using any method requiring a connection to the AS/400.
+     Constructs a BaseDataQueue object.  The system and path properties must be set before using any method requiring a connection to the server.
      **/
     public BaseDataQueue()
     {
