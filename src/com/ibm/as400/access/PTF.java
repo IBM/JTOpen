@@ -65,7 +65,7 @@ public class PTF
   private boolean loaded600_ = false;
   private boolean loaded700_ = false;
   private boolean loaded800_ = false;
-  private boolean loaded900_ = false;
+//  private boolean loaded900_ = false;
   private int chunkSize_ = 8192;
 
   // PTFR0200
@@ -82,6 +82,9 @@ public class PTF
   private PTF[] dependents_;
   private boolean isDependent_; // type
 
+  private boolean loadedRequisites_ = false;
+  private boolean loadedDependents_ = false;
+
   // PTFR0600
   private String[] apars_;
 
@@ -92,7 +95,7 @@ public class PTF
   private PTFExitProgram[] exitPrograms_;
 
   // PTFR0900
-  private PTFPrecondition[] preconditions_;
+//  private PTFPrecondition[] preconditions_;
 
   private String messageData_; // This is loaded from CPX3501 and contains the translated text.
 
@@ -191,6 +194,38 @@ public class PTF
    * Constant indicating that the PTF type is not known.
   **/
   public static final String PTF_TYPE_UNKNOWN = " ";
+  
+  
+  
+  /**
+   * Constant indicating that there is a co-requisite relationship between two PTFs.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_COREQ = "*COREQ";
+  
+  /**
+   * Constant indicating that there is a dependent (pre-requisite) relationship between two PTFs.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_DEPEND = "*DEPEND";
+  
+  /**
+   * Constant indicating that there is no known relationship between two PTFs.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_NONE = "*NONE";
+  
+  /**
+   * Constant indicating that there is a pre-requisite relationship between two PTFs.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_PREREQ = "*PREREQ";
+  
+  /**
+   * Constant indicating that two PTFs are identical.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_SAME = "*SAME";
   
   
   
@@ -306,6 +341,7 @@ public class PTF
     maximumLevel_ = maxLevel;
     isDependent_ = type;
     isCoRequisite_ = !type;
+    loadedDependents_ = true;
   }
 
   
@@ -322,6 +358,7 @@ public class PTF
     isCoRequisite_ = !type;
     isConditional_ = cond;
     isRequired_ = reqRequired;
+    loadedRequisites_ = true;
   }
 
 
@@ -757,7 +794,7 @@ public class PTF
    * Retrieves the list of preconditions for this PTF.
    * @return The array of preconditions.
   **/
-  public PTFPrecondition[] getPreconditions()
+/*  public PTFPrecondition[] getPreconditions()
   throws AS400Exception,
          AS400SecurityException,
          ErrorCompletingRequestException,
@@ -768,7 +805,7 @@ public class PTF
     if (!loaded900_) refresh(900);
     return preconditions_;
   }
-
+*/
 
   /**
    * Returns the product feature to which this PTF applies. This
@@ -827,7 +864,75 @@ public class PTF
     return ptfProductOption_;
   }
 
-     
+  
+  /**
+   * Returns the relationship between this PTF and another PTF.
+   * @param ptf The PTF to compare.
+   * @return The relationship between the two PTFs. Possible values are:
+   * <UL>
+   * <LI>{@link #RELATIONSHIP_PREREQ RELATIONSHIP_PREREQ} - If this PTF is a pre-requisite of the specified PTF.
+   * <LI>{@link #RELATIONSHIP_COREQ RELATIONSHIP_COREQ} - If this PTF is a co-requisite of the specified PTF.
+   * <LI>{@link #RELATIONSHIP_DEPEND RELATIONSHIP_DEPEND} - If the specified PTF is a pre-requisite of this PTF.
+   * <LI>{@link #RELATIONSHIP_SAME RELATIONSHIP_SAME} - If this PTF is identical to the specified PTF.
+   * <LI>{@link #RELATIONSHIP_NONE RELATIONSHIP_NONE} - If there is no known relationship.
+   * </UL>
+  **/
+  public String getRelationship(PTF ptf)
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    // * <LI>{@link #RELATIONSHIP_DIST RELATIONSHIP_DIST} - If this PTF is a distribution requisite of the specified PTF.
+    String id = getID();
+    String id2 = ptf.getID();
+    if (id.equals(id2)) return RELATIONSHIP_SAME;
+
+    refresh(300);
+    refresh(500);
+    ptf.refresh(300);
+    ptf.refresh(500);
+    PTF[] requisites = getRequisitePTFs();
+    PTF[] dependents = getDependentPTFs();
+    PTF[] req2 = ptf.getRequisitePTFs();
+    PTF[] dep2 = ptf.getDependentPTFs();
+    for (int i=0; i<requisites.length; ++i)
+    {
+      if (requisites[i].getID().equals(id2))
+      {
+        if (requisites[i].isCoRequisite()) return RELATIONSHIP_COREQ;
+        return RELATIONSHIP_DEPEND;
+      }
+    }
+    for (int i=0; i<dependents.length; ++i)
+    {
+      if (dependents[i].getID().equals(id2))
+      {
+        if (dependents[i].isCoRequisite()) return RELATIONSHIP_COREQ;
+        return RELATIONSHIP_PREREQ;
+      }
+    }
+    for (int i=0; i<req2.length; ++i)
+    {
+      if (req2[i].getID().equals(id))
+      {
+        if (req2[i].isCoRequisite()) return RELATIONSHIP_COREQ;
+        return RELATIONSHIP_PREREQ;
+      }
+    }
+    for (int i=0; i<dep2.length; ++i)
+    {
+      if (dep2[i].getID().equals(id))
+      {
+        if (dep2[i].isCoRequisite()) return RELATIONSHIP_COREQ;
+        return RELATIONSHIP_DEPEND;
+      }
+    }
+    return RELATIONSHIP_NONE;
+  }
+
   /**
    * Returns the release level of this PTF (e.g. "V5R1M0").
    * If this value was initially set to PRODUCT_RELEASE_ONLY, it
@@ -850,6 +955,10 @@ public class PTF
      
   /**
    * Retrieves the list of pre- and co-requisite PTFs for this PTF.
+   * To determine whether the PTFs returned by this method are
+   * co-requisites or pre-requisites with this PTF object, call their
+   * respective {@link #isCoRequisite isCoRequisite()} and {@link #isPreRequisite isPreRequisite()}
+   * methods.
    * @return The list of PTFs.
   **/
   public PTF[] getRequisitePTFs()
@@ -1037,15 +1146,27 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded300_) refresh(300);
+    if (!loadedRequisites_ && !loaded300_) refresh(300);
     return isConditional_;
   }
 
   
   /**
    * Indicates if this PTF has a co-requisite relationship with another PTF.
+   * <P>
+   * If this PTF object was returned by a call to {@link #getRequisitePTFs getRequisitePTFs()} or
+   * {@link #getDependentPTFs getDependentPTFs()},
+   * then this method indicates if this PTF has a co-requisite relationship with the
+   * PTF of which it is a requisite or dependent.
+   * <P>
+   * If this PTF object was constructed otherwise, then this method indicates if this
+   * PTF has a known co-requisite relationship with at least one other PTF on the system. This
+   * is accomplished by checking the list of known dependent and requisite PTFs for this PTF.
+   *                                                                                          
    * @return true if this PTF is a co-requisite, false otherwise.
+   * @see #getDependentPTFs
    * @see #getRequisitePTFs
+   * @see #isDependent
    * @see #isPreRequisite
   **/
   public boolean isCoRequisite()
@@ -1056,14 +1177,31 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded300_) refresh(300); // Could use the 500 format too.
+    if (!loadedRequisites_ && !loadedDependents_ && !loaded300_)
+    {
+      refresh(300);
+      refresh(500);
+    }
     return isCoRequisite_;
   }
 
   
   /**
    * Indicates if this PTF has a dependent relationship with another PTF.
-   * @return true if this PTF is dependent on another PTF, false otherwise.
+   * <P>
+   * If this PTF object was returned by a call to {@link #getDependentPTFs getDependentPTFs()},
+   * then this method indicates if the PTF that generated this PTF object is a
+   * pre-requisite of this PTF object.
+   * <P>
+   * If this PTF object was constructed otherwise, then this method indicates if this
+   * PTF is a known dependent of at least one other PTF on the system.
+   *                                                                                          
+   * @return true if this PTF is dependent on another PTF (that is, another PTF is
+   * a pre-requisite of this PTF), false otherwise.
+   * @see #getDependentPTFs
+   * @see #getRequisitePTFs
+   * @see #isCoRequisite
+   * @see #isPrePrequisite
   **/
   public boolean isDependent()
   throws AS400Exception,
@@ -1073,7 +1211,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded300_) refresh(300);
+    if (!loadedDependents_ && !loaded300_) refresh(300);
     return isDependent_;
   }
 
@@ -1098,9 +1236,19 @@ public class PTF
   
   /**
    * Indicates if this PTF has a pre-requisite relationship with another PTF.
+   * <P>
+   * If this PTF object was returned by a call to {@link #getRequisitePTFs getRequisitePTFs()},
+   * then this method indicates if this PTF is a pre-requisite for the PTF object
+   * that generated this PTF.
+   * <P>
+   * If this PTF object was constructed otherwise, then this method indicates if this
+   * PTF is a known pre-requisite of at least one other PTF on the system.
+   *                                                                                          
    * @return true if this PTF is a pre-requisite of another PTF, false otherwise.
+   * @see #getDependentPTFs
    * @see #getRequisitePTFs
    * @see #isCoRequisite
+   * @see #isDependent
   **/
   public boolean isPreRequisite()
   throws AS400Exception,
@@ -1110,7 +1258,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded500_) refresh(500);
+    if (!loadedRequisites_ && !loaded500_) refresh(500);
     return isPreRequisite_;
   }
 
@@ -1149,7 +1297,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded300_) refresh(300);
+    if (!loadedRequisites_ && !loaded300_) refresh(300);
     return isRequired_;
   }
 
@@ -1219,9 +1367,9 @@ public class PTF
         format = "PTFR0800";
         len = baseSize_+12+chunkSize_; // 108+12+(29*numberOfExitPrograms)
         break;
-      case 900:
-        format = "PTFR0900";
-        len = baseSize_+12+chunkSize_; // 108+12+(30*numberOfPreconditions)
+//      case 900:
+//        format = "PTFR0900";
+//        len = baseSize_+12+chunkSize_; // 108+12+(30*numberOfPreconditions)
       default:
         format = "PTFR0100";
         len = baseSize_+chunkSize_;
@@ -1353,8 +1501,8 @@ public class PTF
       offset += 4;
       int entryLength = BinaryConverter.byteArrayToInt(output, offset);
       requisites_ = new PTF[numReqs];
-      isDependent_ = false;
-      isConditional_ = false;
+      //isDependent_ = false;
+      //isConditional_ = false;
       for (int i=0; i<numReqs; ++i)
       {
         offset = entryOffset + (i*entryLength);
@@ -1368,7 +1516,8 @@ public class PTF
         offset += 2;
         String reqMaxLvl = conv.byteArrayToString(output, offset, 2);
         offset += 2;
-        boolean type = (output[offset++] == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
+        byte prereqType = output[offset++];
+        boolean type = (prereqType == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
         boolean cond = (output[offset++] == (byte)0xF1); // '1' is conditional; '0' is not.
         boolean required = (output[offset++] == (byte)0xF1); // '1' is required; '0' is not.
         String option = conv.byteArrayToString(output, offset, 4);
@@ -1399,7 +1548,7 @@ public class PTF
       offset += 4;
       int entryLength = BinaryConverter.byteArrayToInt(output, offset);
       dependents_ = new PTF[numDeps];
-      isPreRequisite_ = false;
+      //isPreRequisite_ = false;
       for (int i=0; i<numDeps; ++i)
       {
         offset = entryOffset + (i*entryLength);
@@ -1413,7 +1562,8 @@ public class PTF
         offset += 2;
         String depMaxLvl = conv.byteArrayToString(output, offset, 2);
         offset += 2;
-        boolean type = (output[offset++] == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
+        byte depType = output[offset++];
+        boolean type = (depType == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
         String option = conv.byteArrayToString(output, offset, 4);
         offset += 4;
         String depLoadID = conv.byteArrayToString(output, offset, 4);
@@ -1491,14 +1641,24 @@ public class PTF
       }
       loaded800_ = true;
     }
-    else if (whichFormat == 900)
+/*    else if (whichFormat == 900)
     {
       int offset = BinaryConverter.byteArrayToInt(output, 8);
+      if (offset == 0)
+      {
+        preconditions_ = new PTFPrecondition[0];
+      }
+      else
+      {
+      System.out.println("offset = "+offset);
       int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
       offset += 4;
+      System.out.println("entryoffset = "+entryOffset);
       int numConds = BinaryConverter.byteArrayToInt(output, offset);
       offset += 4;
+      System.out.println("numConds = "+numConds);
       int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      System.out.println("entrylength = "+entryLength);
       preconditions_ = new PTFPrecondition[numConds];
       for (int i=0; i<numConds; ++i)
       {
@@ -1508,11 +1668,13 @@ public class PTF
         String preCondName = conv.byteArrayToString(output, offset, 10).trim();
         offset += 10;
         String preCondLib = conv.byteArrayToString(output, offset, 10).trim();
-        String path = QSYSObjectPathName.toPath(preCondLib, preCondName, preCondType);
+//        String path = QSYSObjectPathName.toPath(preCondLib, preCondName, preCondType);
         preconditions_[i] = new PTFPrecondition(preCondLib, preCondName, preCondType);
+      }
       }
       loaded900_ = true;
     }
+*/    
 
   }
 
