@@ -186,7 +186,7 @@ public final class IdentityDomain
  Any existing published keys for this instance of the application will be
  removed from EIM.
 
- @param appEimID The name of the EIM identifier that represents this application.
+ @param appEimID The EIM identifier that represents this application.
  This value can be obtained from {@link #getApplicationInfo(String,int) getApplicationInfo}.
  @param appInstanceID The application instance identifier is used to uniquely identify this
  instance of the application in the network.
@@ -220,16 +220,21 @@ public final class IdentityDomain
 
 /**
  Unpublishes the application's public identity key from EIM.
+
+ @param appEimID The EIM identifier that represents this application.
+ This value can be obtained from {@link #getApplicationInfo(String,int) getApplicationInfo}.
+ @param appInstanceID The application instance identifier is used to uniquely identify this
+ instance of the application in the network.
+ This value can be obtained from {@link #getApplicationInfo(String,int) getApplicationInfo}.
 **/
-  public void unpublishPublicKey(IdentityKeyPair keyPair)
+  public void unpublishPublicKey(Eid appEimID, String appInstanceID)
     throws EimException
   {
-    if (keyPair == null) throw new NullPointerException("keyPair");
+   if (appEimID == null) throw new NullPointerException("appEimID");
+   if (appInstanceID == null) throw new NullPointerException("appInstanceID");
 
-    removeTargetAssociations(keyPair.getEid(),
-                       keyPair.getAppInstanceID()+"=cur");
-    removeTargetAssociations(keyPair.getEid(),
-                       keyPair.getAppInstanceID()+"=prev");
+    removeTargetAssociations(appEimID, appInstanceID+"=cur");
+    removeTargetAssociations(appEimID, appInstanceID+"=prev");
   }
 
 
@@ -240,7 +245,7 @@ public final class IdentityDomain
    @param authenticatedUser The name of the user that has been authenticated by the caller.  This user name will be the source registry user name for the EIM getTargetFromSource()
    operation for the endpoint application.
    @param userRegistry The name of the EIM user registry for the authenticated user.  This registry name will be the source registry name for the EIM getTargetFromSource() operation for the endpoint application.
-   @param rcvEimID The name of the EIM identifier that represents the application
+   @param rcvEimID The EIM identifier that represents the application
    that is to receive this token.  This information will be added to
    the token to be checked by the receiver to make sure this token was
    intended for the receiver.
@@ -303,7 +308,7 @@ public final class IdentityDomain
 
    @param keyPair Contains published key information.  It was returned on a previous call to {@link #publishPublicKey(Eid,String,long,int) publishPublicKey}.
    @param identityToken The identity token to be delegated.
-   @param rcvEimID The name of the EIM identifier that represents the application
+   @param rcvEimID The EIM identifier that represents the application
    that is to receive this token.  This information will be added to
    the token to be checked by the receiver to make sure this token was
    intended for the receiver.
@@ -354,7 +359,7 @@ public final class IdentityDomain
  EIM source registry and source registry user name used to find the
  target user are retrieved from the identity token.
  @param targetRegistry The name of the EIM registry to check for an association.
- @param appEimID The name of the EIM identifier that represents this application.
+ @param appEimID The EIM identifier that represents the current application.
  This value can be obtained from {@link #getApplicationInfo(String,int) getApplicationInfo}.
  @param appInstanceID The application instance identifier that uniquely identifies this
  instance of the application in the network.
@@ -362,15 +367,15 @@ public final class IdentityDomain
 
  @return The target user associated with this identity token.  If the source user name could not be mapped to a target user, <tt>null</tt> is returned.
 **/
-  public RegistryUser getUser(IdentityToken identityToken, String targetRegistry, Eid currentAppEimID, String currentAppInstanceID)
+  public RegistryUser getUser(IdentityToken identityToken, String targetRegistry, Eid appEimID, String appInstanceID)
     throws EimException, IOException, GeneralSecurityException
   {
     if (identityToken == null) throw new NullPointerException("identityToken");
     if (targetRegistry == null) throw new NullPointerException("targetRegistry");
-    if (currentAppEimID == null) throw new NullPointerException("currentAppEimID");
-    if (currentAppInstanceID == null) throw new NullPointerException("currentAppInstanceID");
+    if (appEimID == null) throw new NullPointerException("appEimID");
+    if (appInstanceID == null) throw new NullPointerException("appInstanceID");
 
-    verify(identityToken, currentAppEimID, currentAppInstanceID);
+    verify(identityToken, appEimID, appInstanceID);
 
     UserToken userToken = identityToken.getUserToken();
 
