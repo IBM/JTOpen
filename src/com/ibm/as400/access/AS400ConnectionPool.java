@@ -751,100 +751,219 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       initializeTransient();      
    }
    
-   /**
-    * Return the AS400 object to the connection pool.
-    *
-    * @param   system  The system to return to the pool.
-    **/
-   public void returnConnectionToPool(AS400 system)
-      //@A4D throws AS400SecurityException, IOException, ConnectionPoolException   
-   {		
-      if (system == null)
-         throw new NullPointerException("system");
-      if (Trace.isTraceOn()) //@A5A
-	Trace.log(Trace.INFORMATION, "returnConnectionToPool key= " + system.getSystemName() + "/" + system.getUserId()); //@A5A
-      String key = createKey(system.getSystemName(), system.getUserId());
-      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-      PoolItem p = null;
+	//@A6A
+	/**
+	 * Remove the connections for a systemName/userID.  Call this function if connections for a
+	 * particular system/userID/password would no longer be valid.  For example, if you change the password for a 
+	 * userId, you will want to call this method to remove the connections for the old userID/password 
+	 * combination.  This will not invalidate connections in use; rather it will mean that the next time
+	 * a connection is requested for that userID, a new connection 
+	 * will be established to the server.  After you call this method, you may want 
+	 * to fill the pool with connections with your new password to avoid connection time. 
+	 *
+	 * @param systemName The system name of connections you want to remove.
+	 * @param userID The user ID of connections you want to remove.       
+	 **/
+	public void removeFromPool(String systemName, String userID)
+	{
+		if (systemName == null)
+			throw new NullPointerException("systemName");
+		if (userID == null)
+			throw new NullPointerException("userID");
+		systemName = AS400.resolveSystem(systemName);  
+		userID = AS400.resolveUserId(userID);		   
+		String key = createKey(systemName, userID);
+		ConnectionList listToBeRemoved = (ConnectionList)as400ConnectionPool_.get(key);
+		if (listToBeRemoved != null)
+		{
+			listToBeRemoved.removeUnusedElements();
+			removedAS400ConnectionPool_.put(key, listToBeRemoved);
+			as400ConnectionPool_.remove(key);
+		}
+		else
+			Trace.log(Trace.WARNING, "A list of connections for: " + key + "does not exist");
+	} 
 
-      if (connections != null)  
-         p = connections.findElement(system); 
+	/**
+	 * Return the AS400 object to the connection pool.
+	 *
+	 * @param   system  The system to return to the pool.
+	 **/
+	public void returnConnectionToPool(AS400 system)
+	//@A4D throws AS400SecurityException, IOException, ConnectionPoolException   
+	{       
+		// This method searches the lists of connections for a reference to the AS400
+		// object that was returned.  There will be one list per systemName/userId key.
+		if (system == null)
+			throw new NullPointerException("system");
+		if (Trace.isTraceOn()) //@A5A
+			Trace.log(Trace.INFORMATION, "returnConnectionToPool key= " + system.getSystemName() + "/" + system.getUserId()); //@A5A
+		String key = createKey(system.getSystemName(), system.getUserId());
+		ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
+		PoolItem poolItem = null;
 
-      if (p != null) 
-      {
-         p.setInUse(false);
-         if (log_ != null) 
-            log(loader_.substitute(loader_.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
-         ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RETURNED);
-         poolListeners_.fireConnectionReturnedEvent(event);
-         Trace.log(Trace.INFORMATION, "returned connection to pool"); 
-      }
+		// First look for the list for the systemName/userId key for the AS400 object.
+		// If such a list exists, search that list for a reference to the AS400 object returned.
+		if (connections != null)
+			poolItem = connections.findElement(system);
 
-      if (p == null) 
-      {
-         Enumeration keys = as400ConnectionPool_.keys();
-         while (keys.hasMoreElements())
-         {
-            String tryKey = (String)keys.nextElement();  	
-            ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(tryKey);
-            p = connList.findElement(system);
-            if (p != null) 
-            {
-               Trace.log(Trace.WARNING, "connection belongs to a different list than expected");
-               p.getAS400Object().disconnectAllServices();
-               connList.removeElement(system);  
-               break;
-            }
-         } 
-      }
+		// If such an item is found, set it not in use and send an event that the connection
+		// was returned to the pool.
+		if (poolItem != null)
+		{
+			poolItem.setInUse(false);
+			if (log_ != null)
+				log(loader_.substitute(loader_.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
+			ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RETURNED);
+			poolListeners_.fireConnectionReturnedEvent(event);
+			Trace.log(Trace.INFORMATION, "returned connection to pool"); 
+		}
 
-      if (p == null)
-         Trace.log(Trace.WARNING, "connection does not belong to this pool");
+		// If the item was not found, search all the lists, looking for a reference to that 
+		// item.  If it is found, disconnect it and remove it from the pool since its
+		// systemName/userId has been changed from what was expected.
+		if (poolItem == null)
+		{
+			Enumeration keys = as400ConnectionPool_.keys();
+			while (keys.hasMoreElements())
+			{
+				String tryKey = (String)keys.nextElement();     
+				ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(tryKey);
+				poolItem = connList.findElement(system);
+				if (poolItem != null)
+				{
+					Trace.log(Trace.WARNING, "connection belongs to a different list than expected");
+					poolItem.getAS400Object().disconnectAllServices();
+					connList.removeElement(system);  
+					break;
+				}
+			} 
+		}
 
-      //If running single-threaded and cleanup interval has elapsed, run cleanup
-      if (!isThreadUsed() && isRunMaintenance() && 
-          System.currentTimeMillis() - maintenance_.getLastTime() > getCleanupInterval()) 
-      {
-         cleanupConnections();
-      }         
-   }
+		// A removed pool was added to this class.  A list of connections will
+		// be moved into the removed pool if removeFromPool() with the systemName/userId of the
+		// list is called.  This allows us to keep references to an AS400 object until
+		// the user calls returnConnectionToPool() on it, but not give it out again 
+		// to the user.
+		// Code was added here to handle checking in removed pool for the connection
+		// and removing it from that pool if it is found.
+		// @A6 New code starts here.
 
-   /**
-    *  Run cleanupConnections().
-    *  @param reduced true if need to check current num connections; false otherwise.
-    **/
-   void runMaintenance(boolean reduced)
-   {
-      if (maintenance_ != null && maintenance_.isRunning()) 
-      {  
-         synchronized(maintenance_)
-         {
-	    if (reduced)
-	    {
-               synchronized (as400ConnectionPool_)
-               {
-                  Enumeration keys = as400ConnectionPool_.keys();
-	     	  while (keys.hasMoreElements())
-		  {
-		     String key = (String)keys.nextElement();
-		     try
-		     { 
-		        ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(key);
-			connList.shutDownOldest(); 
-	             }
-	             catch (Exception e)
-	             {
-	                log(e, key);
-		     }
-                  }
-	       }
-	    }
-            maintenance_.notify();
-	 }
-      }   
-   }
+		// If the pooled connection was not found in the regular lists, start looking 
+		// in the lists in the removed pool.
+		if (poolItem == null)
+		{
+			ConnectionList removedConnections = (ConnectionList)removedAS400ConnectionPool_.get(key);
 
-	
+			// Start looking in the list with the systemName/userId combination.
+			if (removedConnections != null)
+				poolItem = removedConnections.findElement(system);
+
+			// If the object is found, disconnect it and remove the element from removed pool.
+			if (poolItem != null)
+			{
+			        poolItem.getAS400Object().disconnectAllServices();
+			        removedConnections.removeElement(system); 
+				if (log_ != null)
+				{
+					log(loader_.substitute(loader_.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
+					ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RETURNED);
+					poolListeners_.fireConnectionReturnedEvent(event);
+					Trace.log(Trace.INFORMATION, "returned connection to removed pool");
+				}
+			}
+
+			// If the object was not found, search through every list in the removed pool,
+			// looking for a reference to the object.
+			if (poolItem == null)
+			{
+				Enumeration keys = removedAS400ConnectionPool_.keys();
+				while (keys.hasMoreElements())
+				{
+					String tryKey = (String)keys.nextElement();     
+					ConnectionList connList = (ConnectionList)removedAS400ConnectionPool_.get(tryKey);
+					poolItem = connList.findElement(system);
+					if (poolItem != null)
+					{
+						poolItem.getAS400Object().disconnectAllServices();
+						connList.removeElement(system);
+						Trace.log(Trace.INFORMATION, "returned connection to removed pool");
+						break;
+					}
+				} 
+			}
+			//@A6A New code ends
+
+			// If the object was not found in either pool, it does not belong to the pool
+			// and trace a warning message.
+			if (poolItem == null)
+				Trace.log(Trace.WARNING, "connection does not belong to this pool");
+		}
+
+		//If running single-threaded and cleanup interval has elapsed, run cleanup
+		if (!isThreadUsed() && isRunMaintenance() && 
+			System.currentTimeMillis() - maintenance_.getLastTime() > getCleanupInterval())
+		{
+			cleanupConnections();
+		}
+	}
+
+	/**
+	 *  Run cleanupConnections().
+	 *  @param reduced true if need to check current num connections; false otherwise.
+	 **/
+	void runMaintenance(boolean reduced)
+	{
+		if (maintenance_ != null && maintenance_.isRunning())
+		{  
+			synchronized(maintenance_)
+			{
+				if (reduced)
+				{
+					synchronized (as400ConnectionPool_)
+					{
+						Enumeration keys = as400ConnectionPool_.keys();
+						while (keys.hasMoreElements())
+						{
+							String key = (String)keys.nextElement();
+							try
+							{ 
+								ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(key);
+								connList.shutDownOldest(); 
+							}
+							catch (Exception e)
+							{
+								log(e, key);
+							}
+						}
+					}
+				}
+				//@A6A Start new code
+				synchronized (removedAS400ConnectionPool_)                              
+				{                                                                       
+					Enumeration removedKeys = removedAS400ConnectionPool_.keys();       
+					while (removedKeys != null && removedKeys.hasMoreElements())
+					{                                                                   
+						//go through each list of systemName/userID
+						String key = (String)removedKeys.nextElement();                                                                                 
+						ConnectionList connList = (ConnectionList)removedAS400ConnectionPool_.get(key); 
+						//disconnect and remove any unused connections from the list
+						if (!connList.removeUnusedElements())
+						{                                                           
+							//if there are no more connections remaining, remove the 
+							//list from the pool
+							removedAS400ConnectionPool_.remove(key);                
+						}
+
+					}                                                                   
+				}                                                                       
+				//@A6A End new code
+				maintenance_.notify();
+			}
+		}
+	}
+
+
 
    /**
      * Set the Log object to log events.  The default is to not log events.

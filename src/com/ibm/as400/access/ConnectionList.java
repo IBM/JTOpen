@@ -506,6 +506,38 @@ class ConnectionList
 	}
 
 
+	//@A4A
+	/**
+	*  New method to work with remove() in AS400ConnectionPool.
+	**/
+	boolean removeUnusedElements()
+	{
+		synchronized (connectionList_)
+		{
+			if (connectionList_.size() > 0)
+			{
+				int size = connectionList_.size();
+				//if there are no more elements remaining in the list, remove and 
+				//return false.
+				if (size == 0)
+				    return false;
+				//incrementally search the list, looking for elements that are not in 
+				//use to remove
+
+				for (int numToCheck = size - 1; numToCheck >= 0; numToCheck--)
+				{
+					PoolItem item = (PoolItem)connectionList_.elementAt(numToCheck);
+					if (!item.isInUse())
+					{
+						item.getAS400Object().disconnectAllServices();
+						connectionList_.removeElementAt(numToCheck);   
+					}
+				}
+			}//end if (connectionList_.size() > 0)	 
+		}//end synchronized
+		return true;
+	}
+
 	/**
 	 *  Remove the pool item in the list that contains this AS400 instance.
 	 **/
@@ -517,7 +549,7 @@ class ConnectionList
 		for (int i=0; i<size; i++)
 		{
 			PoolItem item = (PoolItem)connectionList_.elementAt(i);
-			if (item.getAS400Object()==systemToFind)   //@A3C
+			if (item.getAS400Object().equals(systemToFind))   //@A3C //@A4C
 			{
 				connectionList_.removeElement(item);
 				return;		//@A3A
