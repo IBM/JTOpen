@@ -649,7 +649,7 @@ public class FTP
 
            try
            {
-              lastMessage_ = issueCommand("QUIT");
+              issueCommand("QUIT");
            }
            catch (Exception e) {}
 
@@ -1260,12 +1260,12 @@ public class FTP
           connect();
 
         ps_.println(cmd);
-        String reply = readReply();
+        readReply();
 
         //if (echo)
         //   lastMessage_ =  cmd + "\n" + reply;
         //else
-           lastMessage_ =  reply;
+        //   lastMessage_ =  reply;
 
         if (Trace.isTraceOn())
            Trace.log(Trace.DIAGNOSTIC,"leaving  issueCommand(), message is: " + lastMessage_);
@@ -1339,7 +1339,7 @@ public class FTP
            in.close();
            dataSocket.close();
 
-           lastMessage_ = readReply();
+           readReply();
 
            fireEvent(FTPEvent.FTP_LISTED);
         }
@@ -1723,13 +1723,13 @@ public class FTP
         if (Trace.isTraceOn())
            Trace.log(Trace.DIAGNOSTIC,"entering readReply()");
 
-        String r = reader_.readLine();
+        String currentLine = reader_.readLine();
 
-        if ((r == null) || (r.length() == 0))
+        if ((currentLine == null) || (currentLine.length() == 0))
            throw new IOException();
 
-        String code = r.substring(0, 3);
-        String currentLine = r;
+        String code = currentLine.substring(0, 3);
+        StringBuffer buf = new StringBuffer(currentLine);
 
         boolean Continue = true;
 
@@ -1742,14 +1742,16 @@ public class FTP
           else
           {
              currentLine = reader_.readLine();
-             r += "\n" + currentLine;
+             buf.append("\n" + currentLine);
           }
         }
+
+        lastMessage_ = buf.toString();
 
         if (Trace.isTraceOn())
            Trace.log(Trace.DIAGNOSTIC,"leaving readReply()");
 
-        return r;
+        return lastMessage_;
     }
 
 
