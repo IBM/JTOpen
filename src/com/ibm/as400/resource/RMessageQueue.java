@@ -1450,7 +1450,7 @@ if this object has already established a connection to the AS/400.
         StringBuffer fullName = new StringBuffer();
         fullName.append(path_);
         fullName.append('-');
-        fullName.append(name);
+        fullName.append(name.toString());
 
         Presentation presentation = rQueuedMessage.getPresentation();
         presentation.setName(name.toString());
