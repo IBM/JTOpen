@@ -179,7 +179,7 @@ public class AS400 implements Serializable
     // Proxy server system name.
     private transient String proxyServer_ = "";
     // Client side proxy connection information.
-    private transient ProxyClientConnection proxyClientConnection_ = null;
+    private transient Object proxyClientConnection_ = null;  // tolerate not having class ProxyClientConnection in the jar
 
     // This controls the prompting.  If set to true, then prompting will occur during sign-on if needed.  If set to false, no prompting will occur and all security errors are returned as exceptions.
     private boolean guiAvailable_ = true;
@@ -1970,7 +1970,7 @@ public class AS400 implements Serializable
             ProxyImpl proxyImpl = (ProxyImpl)loadImpl(impl2);
             if (proxyImpl != null)
             {
-                proxyImpl.construct(proxyClientConnection_);
+                proxyImpl.construct((ProxyClientConnection)proxyClientConnection_);
                 return proxyImpl;
             }
         }
@@ -2000,7 +2000,7 @@ public class AS400 implements Serializable
             ProxyImpl proxyImpl = (ProxyImpl)loadImpl(impl3);
             if (proxyImpl != null)
             {
-                proxyImpl.construct(proxyClientConnection_);
+                proxyImpl.construct((ProxyClientConnection)proxyClientConnection_);
                 return proxyImpl;
             }
         }
