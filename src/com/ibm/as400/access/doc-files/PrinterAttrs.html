@@ -12,30 +12,15 @@
 
 <h2> Retrieve Attributes </h2>
 
- <p>The following attributes may be retrieved for a printer using the appropriate
- getIntegerAttribute(), getStringAttribute(), or getFloatAttribute() method :
+<p>The following attributes may be retrieved for a Printer using the appropriate
+getIntegerAttribute(), getStringAttribute(), or getFloatAttribute() method :
 
- <ul>
+<ul>
  <li> <A HREF="PrintAttributes.html#HDRKEY1">
           ATTR_AFP - Advanced Function Printing
        </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY2.5">
-          ATTR_ALIGNFORMS - Align Forms
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY3">
-          ATTR_ALWDRTPRT - Allow Direct Print
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY12.3">
-          ATTR_BTWNCPYSTS - Between Copies Status
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY12.6">
-          ATTR_BTWNFILESTS - Between Files Status
-       </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY14">
           ATTR_CODEPAGE - Code Page
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY13.5">
-          ATTR_CHANGES - Changes
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY35">
           ATTR_DEVCLASS - Device Class
@@ -52,12 +37,6 @@
  <li> <A HREF="PrintAttributes.html#HDRKEY39">
           ATTR_DRWRSEP - Drawer for Separators
        </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY40.5">
-          ATTR_ENDPNDSTS - End Pending Status
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY41">
-          ATTR_FILESEP - File Separators
-       </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY43">
           ATTR_FONTID - Font Identifier
        </A>
@@ -67,20 +46,11 @@
  <li> <A HREF="PrintAttributes.html#HDRKEY45">
           ATTR_FORMTYPE - Form Type
        </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY46">
-          ATTR_FORMTYPEMSG - Form Type Message
-       </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY44">
           ATTR_FORMFEED - Form Feed
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY53">
           ATTR_CHAR_ID - Graphic Character Set
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY54.5">
-          ATTR_HELDSTS - Held Status
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY55.5">
-          ATTR_HOLDPNDSTS - Hold Pending Status
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY60">
           ATTR_JOBUSER - Job User
@@ -90,9 +60,6 @@
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_5">
           ATTR_MESSAGE_QUEUE - Message Queue Integrated File System Name
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY77.3">
-          ATTR_ONJOBQSTS - On job queue status
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_6">
           ATTR_OUTPUT_QUEUE - Output Queue Integrated File System Name
@@ -105,9 +72,6 @@
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY92">
           ATTR_PRINTER - Printer
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY93">
-          ATTR_PRTDEVTYPE - Printer Device Type
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY96a">
           ATTR_PUBINF_COLOR_SUP - Publishing Info Color Supported
@@ -126,15 +90,6 @@
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY96f">
           ATTR_RMTLOCNAME - Remote Location Name
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY108">
-          ATTR_SPOOLFILE - Spooled File Name
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY109">
-          ATTR_SPLFNUM - Spooled File Number
-       </A>
- <li> <A HREF="PrintAttributes.html#HDRKEY121.5">
-          ATTR_STARTEDBY - Started By User
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY113">
           ATTR_DESCRIPTION - Text Description
@@ -156,6 +111,57 @@
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY116">
           ATTR_SCS2ASCII - Transform SCS to ASCII
+       </A>
+</ul>
+
+<p>The following additional attributes may be retrieved for a Printer
+when a Writer is active to the Printer.
+
+<ul>
+ <li> <A HREF="PrintAttributes.html#HDRKEY2.5">
+          ATTR_ALIGNFORMS - Align Forms
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY3">
+          ATTR_ALWDRTPRT - Allow Direct Print
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY12.3">
+          ATTR_BTWNCPYSTS - Between Copies Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY12.6">
+          ATTR_BTWNFILESTS - Between Files Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY13.5">
+          ATTR_CHANGES - Changes
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY40.5">
+          ATTR_ENDPNDSTS - End Pending Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY41">
+          ATTR_FILESEP - File Separators
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY46">
+          ATTR_FORMTYPEMSG - Form Type Message
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY54.5">
+          ATTR_HELDSTS - Held Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY55.5">
+          ATTR_HOLDPNDSTS - Hold Pending Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY77.3">
+          ATTR_ONJOBQSTS - On job queue status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY93">
+          ATTR_PRTDEVTYPE - Printer Device Type
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY108">
+          ATTR_SPOOLFILE - Spooled File Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY109">
+          ATTR_SPLFNUM - Spooled File Number
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY121.5">
+          ATTR_STARTEDBY - Started By User
        </A>
  <li> <A HREF="PrintAttributes.html#HDRKEY128.2">
           ATTR_WTNGDATASTS - Waiting for data status
@@ -187,7 +193,7 @@
 
 <h2> Set Attributes </h2>
 
-<p>Attributes are not allowed to be set for a printer.
+<p>Attributes are not allowed to be set for a Printer.
 
 <hr>
 
