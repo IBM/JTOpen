@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ import org.xml.sax.SAXException;                                    //@E1A
  */
 public class ProgramCallDocument implements Serializable, Cloneable
 {                                                                   // @C1C @C3C
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = -1836686444079106483L;	    // @C1A
 
@@ -126,7 +126,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     If a serialized resource is not found, the classpath will be
     searched for a PCML or XPCML source file.
 
-    @param sys The AS400 on which to run the program.
+    @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
 
@@ -147,7 +147,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     The XPCML document resource will be loaded from the classpath and parsed using
     the XML schema definitions provided in the input XSD stream.
 
-    @param sys The AS400 on which to run the program.
+    @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
@@ -174,7 +174,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     If a serialized resource is not found, the classpath will be
     searched for a PCML or XPCML source file.
 
-     @param sys The AS400 on which to run the program.
+     @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
@@ -196,7 +196,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Constructs a <code>ProgramCallDocument</code>.
     The XPCML document resource will be loaded from the classpath and parsed using
     the XML schema definitions provided in the input XSD stream.
-    @param sys The AS400 on which to run the program.
+    @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
     @param loader The ClassLoader that will be used when loading the specified document resource.
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML
@@ -218,7 +218,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Constructs a <code>ProgramCallDocument</code>.
     The XPCML document resource will be loaded from the classpath and parsed using
     the XML schema definitions provided in the input XSD stream.
-    @param sys The AS400 on which to run the program.
+    @param sys The system on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
     @param docStream The InputStream from which to read the contents of the document.
     @param loader The ClassLoader that will be used when loading the DTD for PCML. This parameter can be null.
@@ -268,6 +268,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @see #setSystem
     @see #setDocument
     @see com.ibm.as400.access.AS400
+    @deprecated Use one of the other constructors instead.
     */
     public ProgramCallDocument()
     	throws PcmlException                                        // @C1A
@@ -814,9 +815,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Gets the OS/400 on which programs are to be called.
+    Gets the system on which programs are to be called.
 
-    @return The current OS/400 for this ProgramCallDocument.
+    @return The current system for this ProgramCallDocument.
 
     @see #setSystem
     @see com.ibm.as400.access.AS400
@@ -838,13 +839,41 @@ public class ProgramCallDocument implements Serializable, Cloneable
      where <kbd><i>docName</i>.pcml.ser</kbd> is the name of the document used to
 	 construct this object.
 
-     @exception PcmlException
-                If an error occurs.
+     @exception PcmlException If an error occurs.
      */
     public void serialize()
         throws PcmlException
     {
+      if (m_pcmlDoc == null) {
+        throw new PcmlException(DAMRI.DOCUMENT_NOT_SET);
+      }
+      try {
         savePcmlDocument(m_pcmlDoc);
+      }
+      catch (IOException e) {
+        if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
+        throw new PcmlException(e.getClass().getName());
+      }
+    }
+
+
+    /**
+     Serializes the ProgramCallDocument to a stream.
+
+     @param outputStream The output stream to which to serialize the object.
+     @exception IOException  If an error occurs while writing to the stream.
+     @exception PcmlException  If an error occurs while processing PCML.
+     **/
+    public void serialize(OutputStream outputStream)
+      throws IOException, PcmlException
+    {
+      if (outputStream == null) {
+        throw new NullPointerException("outputStream");
+      }
+      if (m_pcmlDoc == null) {
+        throw new PcmlException(DAMRI.DOCUMENT_NOT_SET);
+      }
+      savePcmlDocument(m_pcmlDoc, outputStream);
     }
 
     /**
@@ -1029,9 +1058,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
 
     /**
-    Sets the OS/400 on which to call programs.
+    Sets the system on which to call programs.
 
-    @param system  The OS/400 on which to call programs.
+    @param system  The system on which to call programs.
 
     **/
     public void setSystem(AS400 system)                             // @C1A
@@ -1140,29 +1169,29 @@ public class ProgramCallDocument implements Serializable, Cloneable
       Saves a PcmlDocument as a serialized resource.
     **/
     private static void savePcmlDocument(PcmlDocument pd)
-        throws PcmlException
+        throws PcmlException, IOException
     {
-        pd.setSerializingWithData(false);                           // @C1A
+      String outFileName = pd.getDocName() + SystemResourceFinder.m_pcmlSerializedExtension;
+      BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFileName));
+
+      savePcmlDocument(pd, fos);
+    }
+
+
+    /**
+      Saves a PcmlDocument as a serialized resource.
+    **/
+    private static void savePcmlDocument(PcmlDocument pd, OutputStream outStream)
+        throws PcmlException, IOException
+    {
+        pd.setSerializingWithData(false);
+
+        ObjectOutputStream out = new ObjectOutputStream(outStream);
+        out.writeObject(pd);
+        out.flush();
+        out.close();
 
         String outFileName = pd.getDocName() + SystemResourceFinder.m_pcmlSerializedExtension;
-
-        try
-        {
-            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFileName));
-//             gzos = new GZIPOutputStream(fos);                    // @C7D
-//             out = new ObjectOutputStream(gzos);
-            ObjectOutputStream out = new ObjectOutputStream(fos);                      // @C7C
-            out.writeObject(pd);
-            out.flush();
-            out.close();
-        }
-        catch (IOException e)
-        {
-            if (Trace.isTraceErrorOn())                         // @C4A
-               e.printStackTrace(Trace.getPrintWriter());       // @C4C
-            throw new PcmlException(e.getClass().getName());
-        }
-
         Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.PCML_SERIALIZED, new Object[] {outFileName} )); // @D2C
     }
 
