@@ -33,6 +33,7 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
     private String m_sAS400Server;
     
     // Server Tab
+    private String m_sSQLlibrary;                                       //@A1A
     private String m_sDefaultLibraries;
     private Object m_oCommitMode;
     private ChoiceDescriptor[] m_cdCommitMode;
@@ -149,7 +150,23 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
     // Server Tab //
     ////////////////
     
-    /** Returns the value of the "Default libraries" field on the
+    /* Returns the value of the "Default SQL library" field on the Server tab.
+    @return The Default SQL library name.                                   //@A1A
+    */
+    public String getSQLlibrary()                                           //@A1A
+    {                                                                       //@A1A
+        return m_sSQLlibrary;                                               //@A1A
+    }                                                                       //@A1A
+
+    /* Sets the value of the "Default SQL library" field on the Server tab.
+    @param s The Default SQL library name.                                  //@A1A
+    */
+    public void setSQLlibrary(String s)                                     //@A1A
+    {                                                                       //@A1A
+        m_sSQLlibrary = s;                                                  //@A1A
+    }                                                                       //@A1A
+    
+    /** Returns the value of the "Library list" field on the
     Server tab.
     @return The server name.
     */
@@ -158,7 +175,7 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
         return m_sDefaultLibraries;
     }
     
-    /** Sets the value of the "Default libraries" field on the Server tab.
+    /** Sets the value of the "Library list" field on the Server tab.
     @param s The library list.
     */
     public void setDefaultLibraries(String s)
@@ -884,6 +901,7 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
         m_sAS400Server = "";
         
         // Server Tab
+        m_sSQLlibrary = "";                                                             //@A1A
         m_sDefaultLibraries = "";
         m_oCommitMode = null;
         m_cdCommitMode = new ChoiceDescriptor[5];

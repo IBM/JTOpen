@@ -17,7 +17,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
 
    public Object[][] getContents() { return contents; }
    static final Object[][] contents = {
-      {"@FileEditorBounds", "16,172,368,323"},
+      {"@FileEditorBounds", "63,101,368,323"},
       {"@GenerateBeans", "1"},
       {"@GenerateHandlers", "1"},
       {"@Serialize", "1"},
@@ -161,9 +161,11 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_SERVER", "Server"},
       {"AJDSP_SERVER.AJDSP_COMMIT_MODE_COMBOBOX.EditorBounds", "12,159,454,250"},
       {"AJDSP_SERVER.AJDSP_COMMIT_MODE_LABEL", "Commit mode: "},
-      {"AJDSP_SERVER.AJDSP_DFT_LIBS_LABEL", "Default libraries:"},
+      {"AJDSP_SERVER.AJDSP_DFT_LIBS_LABEL", "Library list:"},
       {"AJDSP_SERVER.AJDSP_DFT_LIBS_TEXTBOX", ""},
-      {"AJDSP_SERVER.EditorBounds", "28,14,972,648"},
+      {"AJDSP_SERVER.AJDSP_DFT_SQLLIB_LABEL", "SQL default library:"},
+      {"AJDSP_SERVER.AJDSP_SQL_DEFLIB_TEXTBOX", ""},
+      {"AJDSP_SERVER.EditorBounds", "277,76,972,648"},
       {"AJDSP_SERVER1", "Server"},
       {"AJDSP_SORTHEX", "HEX values"},
       {"AJDSP_SORTJOB", "Job profile"},
