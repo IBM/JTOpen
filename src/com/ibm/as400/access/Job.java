@@ -3394,6 +3394,25 @@ implements Serializable
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {        
+    if (!isConnected_) //@E3A - Already validated if we are connected
+    {
+      if (system_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      if (name_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET); //@E3A
+      }
+      if (user_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_SET); //@E3A
+      }
+      if (number_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("number", ExtendedIllegalStateException.PROPERTY_NOT_SET); //@E3A
+      }
+    }
     if (cachedChanges_ == null || cachedChanges_.size_ == 0) return;
     ProgramParameter[] parmList = new ProgramParameter[5];
     int ccsid = system_.getCcsid();
@@ -3495,6 +3514,7 @@ implements Serializable
     {
       Trace.log(Trace.DIAGNOSTIC, "Setting job information for job "+toString());
     }
+    isConnected_ = true; //@E3A
     if (!program.run())
     {
       AS400Message[] msgList = program.getMessageList();
@@ -6794,6 +6814,26 @@ of work identifier.
   UnsupportedEncodingException
 
   {
+    if (!isConnected_) //@E3A - Already validated if we are connected
+    {
+      if (system_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      if (name_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET); //@E3A
+      }
+      if (user_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_SET); //@E3A
+      }
+      if (number_ == null) //@E3A
+      {
+        throw new ExtendedIllegalStateException("number", ExtendedIllegalStateException.PROPERTY_NOT_SET); //@E3A
+      }
+    }
+
     // First lookup the format to use for this key
     String format = lookupFormatName(key);
     int ccsid = system_.getCcsid();
@@ -6821,6 +6861,7 @@ of work identifier.
     {
       Trace.log(Trace.DIAGNOSTIC, "Retrieving job information for job "+toString());
     }
+    isConnected_ = true; //@E3A
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
