@@ -188,8 +188,9 @@ public class CommandHelpRetriever
         "VALUES_SINGLE",             
         "WHERE_ALLOWED_TO_RUN"       
     };
-    private static ResourceBundle bundle_, bundle2_;
-    private static final String[][] transformedParms_ = new String[mriTags_.length+4][];
+//    private static ResourceBundle bundle_, bundle2_;
+//    private static final String[][] transformedParms_ = new String[mriTags_.length+4][];
+    private static final String[][] transformedParms_ = getTransformedParms(null);
 
 
     // Find the XSL document, generate an XSL template, load the resource bundles,
@@ -214,8 +215,8 @@ public class CommandHelpRetriever
             defaultResolver_ = factory.getURIResolver();
             template_ = factory.newTemplates(new StreamSource(xslURI));
 
-            bundle_ = ResourceBundle.getBundle("com.ibm.as400.access.MRI");
-            bundle2_ = ResourceBundle.getBundle("com.ibm.as400.access.MRI2");
+//            bundle_ = ResourceBundle.getBundle("com.ibm.as400.access.MRI");
+//            bundle2_ = ResourceBundle.getBundle("com.ibm.as400.access.MRI2");
         }
         catch (Exception e)
         {
@@ -227,7 +228,8 @@ public class CommandHelpRetriever
 
         // Transform the MRI and save it off so we can easily reset it into new Transformer
         // objects when setupTransformer() is called.
-        if (Trace.isTraceOn())
+// This code moved to getTransformedParms().
+/*        if (Trace.isTraceOn())
         {
             Trace.log(Trace.DIAGNOSTIC, "Transforming CommandHelpRetriever MRI.");
         }
@@ -241,6 +243,7 @@ public class CommandHelpRetriever
         transformedParms_[i++] = new String[] { "_THREADSAFE_NO", encode(bundle_.getString("DLG_NO_BUTTON"))};
         transformedParms_[i++] = new String[] { "_THREADSAFE_YES", encode(bundle_.getString("DLG_YES_BUTTON"))};
         transformedParms_[i] = new String[] { "_TYPE_NAME", encode(bundle2_.getString("NETSERVER_NAME_NAME"))};
+*/
     }
 
 
@@ -426,8 +429,14 @@ public class CommandHelpRetriever
 
     /**
      * Generates IBM-formatted command help documentation for the specified CL command.
+     * Portions of the resulting HTML will contain strings that were translated using
+     * the {@link java.util.Locale Locale} specified on the {@link com.ibm.as400.access.AS400 AS400}
+     * object for the given {@link com.ibm.as400.access.Command Command}.
      * @param command The command.
      * @return An HTML string consisting of the help documentation for the command.
+     * @see java.util.Locale
+     * @see com.ibm.as400.access.AS400
+     * @see com.ibm.as400.access.Command
     **/
     public synchronized String generateHTML(Command command) throws AS400Exception, AS400SecurityException,
     ErrorCompletingRequestException, IOException,
@@ -625,7 +634,7 @@ public class CommandHelpRetriever
         // has to marshal into its own internal format. It turns out that
         // using a document() call in the XSL code is faster, especially since
         // we don't get any re-use out of the help text's DOM tree.
-        setupTransformer();
+        setupTransformer(command.getSystem().getLocale());
 
         transformer_.setParameter("CommandHelp", helpResults == null || helpResults.trim().length() == 0 ? "__NO_HELP" : "myCommandHelpResolver");
         transformer_.setParameter("ShowChoicePgmValues", showChoices_ ? "1" : "0");
@@ -684,6 +693,33 @@ public class CommandHelpRetriever
     public boolean getShowChoiceProgramValues()
     {
         return showChoices_;
+    }
+
+
+    /**
+     * Used to get the translated MRI for a given Locale.
+    **/
+    private static final String[][] getTransformedParms(Locale locale)
+    {
+      String[][] parms = new String[mriTags_.length+4][];
+      if (Trace.isTraceOn())
+      {
+        Trace.log(Trace.DIAGNOSTIC, "Transforming CommandHelpRetriever MRI for locale: "+locale);
+      }
+      ResourceBundle bundle = ResourceBundle.getBundle("com.ibm.as400.access.MRI", locale);
+      ResourceBundle bundle2 = ResourceBundle.getBundle("com.ibm.as400.access.MRI2", locale);
+
+      int i=0;
+      for (; i<mriTags_.length; ++i)
+      {
+        parms[i] = new String[] { "_"+mriTags_[i], encode(bundle2.getString("GENCMDDOC_"+mriTags_[i]))};
+      }
+      parms[i++] = new String[] { "_DESCRIPTION", encode(bundle2.getString("NETSERVER_DESCRIPTION_NAME"))};
+      parms[i++] = new String[] { "_THREADSAFE_NO", encode(bundle.getString("DLG_NO_BUTTON"))};
+      parms[i++] = new String[] { "_THREADSAFE_YES", encode(bundle.getString("DLG_YES_BUTTON"))};
+      parms[i] = new String[] { "_TYPE_NAME", encode(bundle2.getString("NETSERVER_NAME_NAME"))};
+
+      return parms;
     }
 
 
@@ -829,14 +865,23 @@ public class CommandHelpRetriever
      * Resets our internal XSL Transformer object and makes it ready
      * for the next call to transform().
     **/
-    private void setupTransformer() throws TransformerConfigurationException
+    private void setupTransformer(Locale locale) throws TransformerConfigurationException
     {
         transformer_ = template_.newTransformer();
         transformer_.setURIResolver(resolver_);
-        for (int i=0; i<transformedParms_.length; ++i)
+        String[][] transformedParms = null;
+        if (locale == null) // Just use the default locale of the JVM. We already pre-loaded that MRI.
         {
-            transformer_.setParameter(transformedParms_[i][0], transformedParms_[i][1]);
-        }  
+          transformedParms = transformedParms_;
+        }
+        else
+        {
+          transformedParms = getTransformedParms(locale);
+        }
+        for (int i=0; i<transformedParms.length; ++i)
+        {
+          transformer_.setParameter(transformedParms[i][0], transformedParms[i][1]);
+        }
     }
 
 
@@ -845,10 +890,11 @@ public class CommandHelpRetriever
     **/
     static void usage() 
     {
-        final String usage      = bundle2_.getString ("PROXY_SERVER_USAGE");
-        final String optionslc  = bundle2_.getString ("PROXY_SERVER_OPTIONSLC");
-        final String optionsuc  = bundle2_.getString ("PROXY_SERVER_OPTIONSUC");
-        final String shortcuts  = bundle2_.getString ("PROXY_SERVER_SHORTCUTS");  
+        ResourceBundle bundle2 = ResourceBundle.getBundle("com.ibm.as400.access.MRI2");
+        final String usage      = bundle2.getString ("PROXY_SERVER_USAGE");
+        final String optionslc  = bundle2.getString ("PROXY_SERVER_OPTIONSLC");
+        final String optionsuc  = bundle2.getString ("PROXY_SERVER_OPTIONSUC");
+        final String shortcuts  = bundle2.getString ("PROXY_SERVER_SHORTCUTS");  
 
         System.out.println (usage + ":");
         System.out.println ();
