@@ -194,7 +194,7 @@ public class BidiConversionProperties implements Serializable
     public void setBidiWindowCompatibility(boolean bidiWindowCompatibility)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi window compatibility marks:", bidiWindowCompatibility);
-        transformOptions_.removeMarkers = bidiWindowCompatibility;
+        transformOptions_.winCompatible = bidiWindowCompatibility;
     }
 
     /**
@@ -203,8 +203,8 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiWindowCompatibility()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility marks:", transformOptions_.removeMarkers);
-        return transformOptions_.removeMarkers;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility marks:", transformOptions_.winCompatible);
+        return transformOptions_.winCompatible;
     }
 
     /**
@@ -223,7 +223,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public void setBidiCreateSourceToDestinationMapping(boolean srcToDstMapRequired)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi window compatibility marks:", srcToDstMapRequired);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting bidi source to destination mapping:", srcToDstMapRequired);
         transformOptions_.srcToDstMapRequired = srcToDstMapRequired;
     }
 
@@ -233,7 +233,7 @@ public class BidiConversionProperties implements Serializable
      **/
     public boolean isBidiCreateSourceToDestinationMapping()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi window compatibility marks:", transformOptions_.srcToDstMapRequired);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if bidi source to destination mapping:", transformOptions_.srcToDstMapRequired);
         return transformOptions_.srcToDstMapRequired;
     }
 }

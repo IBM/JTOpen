@@ -249,8 +249,6 @@ class BidiText
  */
     public BidiText transform(BidiTransform bdx)
     {
-        char[] data;
-
         BidiText dst = new BidiText();
         dst.flags.setAllFlags(bdx.flags);
         if (bdx.myOrder == null)  bdx.myOrder = new BidiOrder();
@@ -258,6 +256,8 @@ class BidiText
 
         if (this.flags.getText() != dst.flags.getText())
         {
+            char[] sData;               /* char array for shaping */
+
             if (bdx.myShape == null)
             {
                 bdx.myShape = new BidiShape();
@@ -266,8 +266,29 @@ class BidiText
             }
             bdx.flags1.setAllFlags(this.flags);
             bdx.flags2.setAllFlags(dst.flags);
-            dst.data = bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data, bdx.options);
-            dst.count = dst.data.length;
+            if ((dst.offset == 0) && (dst.data.length == dst.count))
+                sData = dst.data;
+            else
+            {
+                sData = new char[dst.count];
+                System.arraycopy(dst.data, dst.offset, sData, 0, dst.count);
+            }
+            sData = bdx.myShape.shape(bdx.flags1, bdx.flags2, sData, bdx.options);
+            dst.count = sData.length;   /* could be changed by shaping */
+            if (dst.offset == 0)
+                dst.data = sData;
+            else
+            {
+                if ((dst.offset + dst.count) <= dst.data.length)
+                    System.arraycopy(sData, 0, dst.data, dst.offset, dst.count);
+                else
+                {
+                    char[] tmp = new char[dst.offset + dst.count];
+                    System.arraycopy(dst.data, 0, tmp, 0, dst.offset);
+                    System.arraycopy(sData, 0, tmp, dst.offset, dst.count);
+                    dst.data = tmp;
+                }
+            }
         }
         return dst;
     }
