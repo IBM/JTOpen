@@ -26,7 +26,12 @@ import java.io.IOException;
 * <LI>The service program must be on an AS/400 running OS/400 V4R4 or later.
 * <LI>Up to seven parameters can be passed to the service program.
 * <LI>The return value must be void or numeric.  This class does not support calling service programs that return a pointer.
-* <LI>Parameters can be "pass by reference" or "pass by value".  When pass by reference, the data is copied from Java storage to AS/400 storage, then a pointer to the AS/400 storage is passed to the service program.
+* <LI>Parameters can be "pass by reference" or "pass by value".  
+*     <UL>
+*     <LI>When pass by reference the data is copied from Java storage to OS/400 storage, then a pointer to the OS/400 storage is passed to the service program.
+*     <LI>Up to four bytes can be passed by value.  Parameters longer than four bytes must be passed by reference which may 
+*     require a change to the service program.  
+*     </UL>
 * </UL>
 *
 * <P>The name of the service program to call is the fully qualified name in the AS/400's integrated file system.  The extension is ".SRVPGM".  For example, to call MySrvPgm in MyLib, the program name is /QSYS.LIB/MYLIB.LIB/MYSRVPGM.SRVPGM.
@@ -219,7 +224,19 @@ public class ServiceProgramCall extends ProgramCall
     }
 
     /**
-     Returns the error number (errno).  If the service program returns an integer and an errno, use this method to retrieve the errno.  Zero is returned if the service program returns an integer but no errno.
+     Returns the error number (errno).  If the service program returns an integer 
+     and an errno, use this method to retrieve the errno.  
+     Zero is returned if the service program returns an integer but no errno.
+     <P>
+     The errno is valid only when the return code is non-zero.  Service
+     programs are not required to reset the errno each time the API is called, 
+     so the errno may not be reset from a previous call. 
+     Suppose, for example, calling an entry point the first time fails so
+     the return code and errno are both non-zero.  If the next call works, 
+     the return code will be zero but the errno may have the non-zero value from 
+     the previous call of the entry point.  Checking only the errno would indicate
+     the second call failed when it actually worked.  Call this method only
+     when a call to getIntegerReturnValue returns a non-zero value.  
      @return  The return data.
      **/
     public int getErrno()
