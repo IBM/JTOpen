@@ -74,7 +74,7 @@ public class SVMRI extends ListResourceBundle
         { "QCHRIDCTL_DES" , "Character identifier control" },
         { "QCMNARB_DES" , "Comunication arbiters" },
         { "QCMNRCYLMT_DES" , "Communications recovery limits" },
-        { "QCNTRYID_DES" , "Country identifier" },
+        { "QCNTRYID_DES" , "Country or Region identifier" },   // @D4C
         { "QCONSOLE_DES" , "Console name" },
         { "QCRTAUT_DES" , "Create default public authority" },
         { "QCRTOBJAUD_DES" , "Create object auditing" },
@@ -213,7 +213,7 @@ public class SVMRI extends ListResourceBundle
         { "LCLNETID_DES" , "Local network identifier" },
         { "MAXINTSSN_DES" , "Maximum sessions" },
         { "MAXHOP_DES" , "Maximum hop count" },
-        { "MDMCNTRYID_DES" , "Modem country identifier" },            //@D1a
+        { "MDMCNTRYID_DES" , "Modem country or region identifier" },            //@D1a  @D4C
         { "MSGQ_DES" , "Message queue" },
         { "NETSERVER_DES" , "Server network identifier" },
         { "NODETYPE_DES" , "APPN node type" },

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceMRI.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,12 +18,12 @@ import java.util.ListResourceBundle;
 
 
 /**
-Locale-specific objects for the OS/400 Toolbox for Java.
+Locale-specific objects for the IBM Toolbox for Java.
 **/
 public class ResourceMRI
 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -206,7 +206,7 @@ extends ListResourceBundle
         { "JOB_CONTROLLED_END_REQUESTED__NAME",                 "Not Running" },
         { "JOB_CONTROLLED_END_REQUESTED_0_NAME",                "Not Canceled" },
         { "JOB_CONTROLLED_END_REQUESTED_1_NAME",                "Canceled" },
-        { "JOB_COUNTRY_ID_NAME",                                "Country ID" },
+        { "JOB_COUNTRY_ID_NAME",                                "Country or Region ID" },  // @D4C
         { "JOB_COUNTRY_ID_SYSVAL_NAME",                         "System Value" },
         { "JOB_COUNTRY_ID_USRPRF_NAME",                         "User Profile" },
         { "JOB_CPU_TIME_USED_NAME",                             "CPU Time Used" },
@@ -711,7 +711,7 @@ extends ListResourceBundle
         { "USER_CHARACTER_IDENTIFIER_CONTROL_JOBCCSID_NAME",    "Job CCSID" },
         { "USER_CHARACTER_IDENTIFIER_CONTROL_SYSVAL_NAME",      "System Value" },
         { "USER_COMPANY_NAME",                                  "Company" },
-        { "USER_COUNTRY_ID_NAME",                               "Country ID" },
+        { "USER_COUNTRY_ID_NAME",                               "Country or Region ID" },  // @D4C
         { "USER_COUNTRY_ID_SYSVAL_NAME",                        "System Value" },
         { "USER_CURRENT_LIBRARY_NAME_NAME",                     "Current Library Name" },
         { "USER_CURRENT_LIBRARY_NAME_CRTDFT_NAME",              "Default" },

@@ -338,7 +338,7 @@ public class VMRI extends ListResourceBundle
       { "JOB_BREAK_MESSAGE_HANDLING", "Break message handling"},
       { "JOB_CCSID", "CCSID"},
       { "JOB_COMPLETION_STATUS", "Job completion status"},
-      { "JOB_COUNTRY_ID", "Country ID"},
+      { "JOB_COUNTRY_ID", "Country or Region ID"},           // @D4C
       { "JOB_CPU_USED", "CPU Used" },
       { "JOB_CURRENT_LIB_EXISTENCE", "Current library existence"},
       { "JOB_CURRENT_LIB", "Current library if one exists"},
@@ -1019,7 +1019,7 @@ public class VMRI extends ListResourceBundle
 //@A4D      { "USER_ATTENTION_PROGRAM_LIB",  "          Library" },
       { "USER_CLASS_NAME","User class name"},
       { "USER_CODED_CHARACTER_SET_ID","Coded character set ID"},
-      { "USER_COUNTRY_ID","Country ID"},
+      { "USER_COUNTRY_ID","Country or Region ID"},           //@D4C
       { "USER_CURRENT_LIB","Current library"},
       { "USER_CUSTOM","Custom"}, //@A4C: Removed leading blanks
       { "USER_DAYS_UNTIL_PASSWORD_EXPIRE", "Days until password expires" }, //@A4C
