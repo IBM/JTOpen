@@ -527,63 +527,68 @@ implements java.sql.Driver
 		boolean proxyServerWasSpecifiedInProperties = false;
 		boolean proxyServerWasSpecified             = false;
 
-		// @B2A
-		// Determine whether the native driver is available.
-		Driver nativeDriver;
-		try
-		{
-			nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
-            if (JDTrace.isTraceOn())                                                                                            // @C2A
-                JDTrace.logInformation(this, "Native AS/400 Developer Kit for Java JDBC driver implementation was loaded");     // @C2A
-		}
-		catch (Throwable e)
-		{
-			nativeDriver = null;
-		}
+		//@C4A Check for native driver only if driver property is not set to Toolbox
+		String driverImplementation = jdProperties.getString(JDProperties.DRIVER);	//@C4M
+		if (!driverImplementation.equals(JDProperties.DRIVER_TOOLBOX))              //@C4A
+		{									   						                //@C4A
+			// @B2A
+			// Determine whether the native driver is available.
+			Driver nativeDriver;
+			try
+			{
+				nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
+				if (JDTrace.isTraceOn())																							// @C2A
+					JDTrace.logInformation(this, "Native AS/400 Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
+			}
+			catch (Throwable e)
+			{
+				nativeDriver = null;
+			}
 
-		// @B2A
-		// Decide which JDBC driver implementation to use.  If the
-		// native driver is available AND there is no secondary URL
-		// available AND the "driver" property was not set to "toolbox",
-		// then use the native driver implementation.
-		String driverImplementation = jdProperties.getString(JDProperties.DRIVER);
-		if ((nativeDriver != null) 
-			&& (dataSourceUrl.getSecondaryURL().length() == 0)
-			&& (!driverImplementation.equals(JDProperties.DRIVER_TOOLBOX)))
-		{            
-            //@C3M
-            boolean isLocal = false;                                                    // @C2A
-            String serverName = dataSourceUrl.getServerName();                          // @C2A
-            if (serverName.length() == 0)                                               // @C2A
-                isLocal = true;                                                         // @C2A
-            else {                                                                      // @C2A
-                try {                                                                   // @C2A
-                    InetAddress localInet = InetAddress.getLocalHost();                 // @C2A
-                    InetAddress[] remoteInet = InetAddress.getAllByName(serverName);    // @C2A
-                    for (int i = 0; i < remoteInet.length; ++i) {                       // @C2A
-                        if (localInet.equals(remoteInet[i])) {                          // @C2A
-                            isLocal = true;                                             // @C2A
-                        }                                                               // @C2A
-                    }                                                                   // @C2A
-                }                                                                       // @C2A
-                catch(Throwable e) {                                                    // @C2A
-                    // Ignore.  We will just assume that we are not local.                 @C2A
-                }                                                                       // @C2A
-            }
+			// @B2A
+			// Decide which JDBC driver implementation to use.  If the
+			// native driver is available AND there is no secondary URL
+			// available AND the "driver" property was not set to "toolbox",
+			// then use the native driver implementation.
+			//@C4M String driverImplementation = jdProperties.getString(JDProperties.DRIVER);
+			if ((nativeDriver != null) 
+				&& (dataSourceUrl.getSecondaryURL().length() == 0))
+				//@C4D Already checked above && (!driverImplementation.equals(JDProperties.DRIVER_TOOLBOX)))
+			{            
+				//@C3M
+				boolean isLocal = false;													// @C2A
+				String serverName = dataSourceUrl.getServerName();							// @C2A
+				if (serverName.length() == 0)												// @C2A
+					isLocal = true;															// @C2A
+				else {																		// @C2A
+					try {																	// @C2A
+						InetAddress localInet = InetAddress.getLocalHost();					// @C2A
+						InetAddress[] remoteInet = InetAddress.getAllByName(serverName);	// @C2A
+						for (int i = 0; i < remoteInet.length; ++i) {						// @C2A
+							if (localInet.equals(remoteInet[i])) {							// @C2A
+								isLocal = true;												// @C2A
+							}																// @C2A
+						}																	// @C2A
+					}																		// @C2A
+					catch (Throwable e) {													 // @C2A
+						// Ignore.  We will just assume that we are not local.                 @C2A
+					}																		// @C2A
+				}
 
-            if (isLocal) {                                                              // @C2A
-                if (JDTrace.isTraceOn())                                                // @C2A                                              
-                    JDTrace.logInformation(this, "Connection is local");                // @C2A
-			    String nativeURL = dataSourceUrl.getNativeURL();                       
-			    if (JDTrace.isTraceOn())
-				    JDTrace.logInformation(this, "Using native AS/400 Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
-			    return nativeDriver.connect(nativeURL, info);
-            }                                                                           // @C2A
-		}
+				if (isLocal) {																// @C2A
+					if (JDTrace.isTraceOn())												// @C2A                                              
+						JDTrace.logInformation(this, "Connection is local");				// @C2A
+					String nativeURL = dataSourceUrl.getNativeURL();                       
+					if (JDTrace.isTraceOn())
+						JDTrace.logInformation(this, "Using native AS/400 Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
+					return nativeDriver.connect(nativeURL, info);
+				}																			// @C2A
+			}
+		}//@C4A
 		// @C2D else
 		// @C2D {
-			if (JDTrace.isTraceOn())
-				JDTrace.logInformation (this, "Using AS/400 Toolbox for Java JDBC driver implementation");
+		if (JDTrace.isTraceOn())
+			JDTrace.logInformation (this, "Using AS/400 Toolbox for Java JDBC driver implementation");
 		// @C2D }
 
 		// @A0A

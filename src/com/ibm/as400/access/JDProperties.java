@@ -237,7 +237,6 @@ class JDProperties implements Serializable {
     static final String         DECIMAL_SEPARATOR_PERIOD        = PERIOD_;
     static final String         DECIMAL_SEPARATOR_NOTSET        = EMPTY_;
 
-    static final String         DRIVER_DEFAULT                  = "default";        // @E3A
     static final String         DRIVER_NATIVE                   = "native";         // @E3A
     static final String         DRIVER_TOOLBOX                  = "toolbox";        // @E3A
 
@@ -479,10 +478,10 @@ Static initializer.
           dpi_[i].description = "DRIVER_DESC";
           dpi_[i].required    = false;
           dpi_[i].choices          = new String[2];
-          dpi_[i].choices[0]  = DRIVER_DEFAULT;
+          //@F4D dpi_[i].choices[0]  = DRIVER_DEFAULT;
           dpi_[i].choices[0]  = DRIVER_TOOLBOX;
           dpi_[i].choices[1]  = DRIVER_NATIVE;
-        defaults_[i]        = DRIVER_DEFAULT;
+        defaults_[i]        = DRIVER_TOOLBOX;	//@F4C
 
           // Extended dynamic.
           i = EXTENDED_DYNAMIC;
