@@ -27,15 +27,12 @@ import java.lang.reflect.InvocationTargetException;
 class SpooledFileImplProxy extends PrintObjectImplProxy
 implements SpooledFileImpl, ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     
     SpooledFileImplProxy()
     {
         super("SpooledFile");
     }
-
 
     public void answerMessage(String reply)
       throws AS400Exception,
@@ -259,7 +256,6 @@ implements SpooledFileImpl, ProxyImpl
     
     
     
-    // @C1A - added method
     public NPCPIDSplF copy(OutputQueueImpl outputQueue)
       throws AS400Exception,
              AS400SecurityException,

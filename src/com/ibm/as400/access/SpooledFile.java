@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFile.java
 //                                                                             
@@ -32,23 +32,20 @@ import java.io.UnsupportedEncodingException;
  * @see PrintObjectTransformedInputStream
  **/
 
-/* @A2C - Changed to implement java.io.Serializable */
 public class SpooledFile extends PrintObject
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
    
     static final long serialVersionUID = 4L;
 
-
-    transient boolean       fMsgRetrieved_  = false;    /* @A2C - Changed to transient */
+    transient boolean       fMsgRetrieved_  = false;
 
     // constructor used internally (not externalized since it takes
     // an ID code point
     SpooledFile(AS400 system, NPCPIDSplF id, NPCPAttribute attrs)
     {
-       super(system, id, attrs, NPConstants.SPOOLED_FILE); // @B1C
+       super(system, id, attrs, NPConstants.SPOOLED_FILE);
     }
 
 
@@ -82,7 +79,7 @@ implements java.io.Serializable
                              jobUser,
                              jobNumber),
               null,
-              NPConstants.SPOOLED_FILE); // @B1C
+              NPConstants.SPOOLED_FILE);
 
         // base class constructor checks for null system.
         if (name == null)
@@ -91,9 +88,9 @@ implements java.io.Serializable
             throw new NullPointerException("name");
         }
 
-        if (number < -1)    // @B2C  (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
+        if (number < -1)    // (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
         {
-	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");   // @B2C
+	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");
 	    throw new ExtendedIllegalArgumentException(
                 "number(" + number + ")",
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -117,7 +114,7 @@ implements java.io.Serializable
             throw new NullPointerException("jobNumber");
         }
     }
-   // Alternate constructor for spooled files detached from jobs @B3 
+   // Alternate constructor for spooled files detached from jobs
     /**
      * Constructs a SpooledFile object. It uses the specified system and
      * spooled file attributes that identify it on that system.
@@ -154,7 +151,7 @@ implements java.io.Serializable
                              createDate,
                              createTime),
               null,
-              NPConstants.SPOOLED_FILE); // @B1C
+              NPConstants.SPOOLED_FILE);
 
         // base class constructor checks for null system.
    
@@ -164,9 +161,9 @@ implements java.io.Serializable
             throw new NullPointerException("name");
         }
 
-        if (number < -1)    // @B2C  (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
+        if (number < -1)    // (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
         {
-	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");   // @B2C
+	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");
 	    throw new ExtendedIllegalArgumentException(
                 "number(" + number + ")",
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -250,7 +247,7 @@ implements java.io.Serializable
      * Chooses the implementation
      **/
     void chooseImpl()
-    throws IOException, AS400SecurityException                              // @B1A
+    throws IOException, AS400SecurityException
     {
         // We need to get the system to connect to...
         AS400 system = getSystem();
@@ -262,14 +259,13 @@ implements java.io.Serializable
 
         impl_ = (SpooledFileImpl) system.loadImpl2("com.ibm.as400.access.SpooledFileImplRemote",
                                                    "com.ibm.as400.access.SpooledFileImplProxy");
-        // @A4A  The connectService(AS400.PRINT) is done in setImpl()
-        // @A4A  in the Printobject class.
+        // The connectService(AS400.PRINT) is done in setImpl()
+        // in the Printobject class.
         super.setImpl();  
     }
     
         
     
-    // @C1A - added method
     /**
      * Creates a copy of the spooled file this (SpooledFile) object represents.  The
      * new spooled file is created on the same output queue and on the same system 
@@ -299,7 +295,6 @@ implements java.io.Serializable
 
 
 
-    // @C1A - added method
     /**
      * Creates a copy of the spooled file this object represents.  The
      * new spooled file is created on the specified output queue.
@@ -408,7 +403,6 @@ implements java.io.Serializable
         return is;
     }
 
-// @C2A
     /**
       * Returns an input stream merged with an AFP datastream that can be 
       * used to read the contents of the spooled file.
@@ -446,7 +440,6 @@ implements java.io.Serializable
         return is;
     }
 
-//@C2A
 
     /**
       * Returns the name of the job that created the spooled file.
@@ -497,9 +490,8 @@ implements java.io.Serializable
         }
     }
 
-   // @B3A 
    // the next three attributes are added to provide the decoupled spooled file 
-   // identity @B3A
+   // identity
      /**
      * Returns the name of the system where the spooled file was created.
      * @return The name of the system where the spooled file was created.
@@ -512,7 +504,7 @@ implements java.io.Serializable
         } else {
             return IDCodePoint.getStringValue(ATTR_JOBSYSTEM);
         }
-    }// @B3A #1
+    }
      /**
      * Returns the date of the spooled file creation.
      * @return The date of the spooled file creation.
@@ -525,7 +517,7 @@ implements java.io.Serializable
         } else {
             return IDCodePoint.getStringValue(ATTR_DATE);
         }
-    }// @B3A #2
+    }
      /**
      * Returns the time of spooled file creation.
      * @return The time of the spooled file creation.
@@ -538,7 +530,7 @@ implements java.io.Serializable
         } else {
             return IDCodePoint.getStringValue(ATTR_TIME);
         }
-    }// @B3A #3
+    }
     
     /**
       * Returns the message that is associated with this spooled file.
@@ -604,7 +596,6 @@ implements java.io.Serializable
 
 
 
-    // below function added 6/12/98 @A2A
     /**
      * Returns a page input stream that can be used to read the contents of the
      * spooled file, one page at a time.
@@ -653,7 +644,6 @@ implements java.io.Serializable
 
 
 
-    // below function added 6/12/98 @A2A
     /**
      * Returns a transformed input stream that can be used to read the contents of the
      * spooled file.
@@ -766,10 +756,10 @@ implements java.io.Serializable
     {
         if (impl_ == null)
             chooseImpl();
-        if (targetSpooledFile.getImpl() == null) {      // @A4A
-            targetSpooledFile.chooseImpl();             // @A4A
-        }                                               // @A4A
-        ((SpooledFileImpl) impl_).move((SpooledFileImpl)targetSpooledFile.getImpl()); // @A4C
+        if (targetSpooledFile.getImpl() == null) {
+            targetSpooledFile.chooseImpl();
+        }
+        ((SpooledFileImpl) impl_).move((SpooledFileImpl)targetSpooledFile.getImpl());
     	//update the spooled file attributes
         attrs = impl_.getAttrValue();
     }
@@ -802,10 +792,10 @@ implements java.io.Serializable
     {
         if (impl_ == null)
             chooseImpl();
-        if (targetOutputQueue.getImpl() == null) {      // @A4A
-            targetOutputQueue.chooseImpl();             // @A4A
-        }                                               // @A4A
-        ((SpooledFileImpl) impl_).move((OutputQueueImpl)targetOutputQueue.getImpl());  // @A4C
+        if (targetOutputQueue.getImpl() == null) {
+            targetOutputQueue.chooseImpl();
+        }
+        ((SpooledFileImpl) impl_).move((OutputQueueImpl)targetOutputQueue.getImpl());
     	// update the spooled file attributes
         attrs = impl_.getAttrValue();
     }
@@ -839,7 +829,6 @@ implements java.io.Serializable
 
 
 
-    /* @A2A - Added method below.
     /**
     Restores the state of the object from an input stream.
     This is used when deserializing an object.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileOutputStreamImpl.java
 //                                                                             
@@ -22,10 +22,10 @@ import java.io.IOException;
 
 interface SpooledFileOutputStreamImpl
 {
-   public abstract void createSpooledFileOutputStream(AS400Impl system, // @A1C
+   public abstract void createSpooledFileOutputStream(AS400Impl system, 
                                         PrintParameterList options,
-                                        PrinterFileImpl printerFile,  // @A2C
-                                        OutputQueueImpl outputQueue)  // @A2C
+                                        PrinterFileImpl printerFile,
+                                        OutputQueueImpl outputQueue)
         throws AS400Exception,
                AS400SecurityException,
                ErrorCompletingRequestException,

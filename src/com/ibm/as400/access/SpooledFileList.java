@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileList.java
 //                                                                             
@@ -21,31 +21,25 @@ import java.beans.PropertyVetoException;
  * ending time, or user data.
  *
  *@see SpooledFile
- **/ // @B2C
+ **/ 
 
 
 public class SpooledFileList extends PrintObjectList
 implements java.io.Serializable 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
-
 
     private static final String FORM_TYPE_FILTER = "formTypeFilter";
     private static final String QUEUE_FILTER = "queueFilter";
     private static final String USER_FILTER = "userFilter";
     private static final String USER_DATA_FILTER = "userDataFilter";
-    private static final String END_DATE_FILTER = "endDateFilter"; //@B2A
-    private static final String END_TIME_FILTER = "endTimeFilter"; //@B2A
-    private static final String START_DATE_FILTER = "startDateFilter"; //@B2A
-    private static final String START_TIME_FILTER = "startTimeFilter"; //@B2A
-    private static final String JOB_SYSTEM_FILTER = "jobSystemFilter"; //@B2A
-    
-    
+    private static final String END_DATE_FILTER = "endDateFilter";
+    private static final String END_TIME_FILTER = "endTimeFilter";
+    private static final String START_DATE_FILTER = "startDateFilter";
+    private static final String START_TIME_FILTER = "startTimeFilter";
+    private static final String JOB_SYSTEM_FILTER = "jobSystemFilter";
    
     /**
      * Constructs a SpooledFileList object. The AS/400 system
@@ -57,7 +51,7 @@ implements java.io.Serializable
      **/
     public SpooledFileList()
     {
-        super(NPConstants.SPOOLED_FILE, new NPCPSelSplF()); // @B1C
+        super(NPConstants.SPOOLED_FILE, new NPCPSelSplF());
         
         // Because of this constructor we will need to check the
         // system before trying to use it.
@@ -76,12 +70,11 @@ implements java.io.Serializable
      **/
     public SpooledFileList(AS400 system)
     {
-        super(NPConstants.SPOOLED_FILE, new NPCPSelSplF(), system); // @B1C
+        super(NPConstants.SPOOLED_FILE, new NPCPSelSplF(), system);
     }
 
 
 
-    // @A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
@@ -161,7 +154,6 @@ implements java.io.Serializable
         return( selectionCP.getUserData() );
     }
 
-    // @B2A
     /**
      * Returns the create job system filter.
      *
@@ -174,7 +166,6 @@ implements java.io.Serializable
        return( selectionCP.getJobSystem() );
    }
 
-   // @B2A
    /**
      * Returns the end create date filter.
      *
@@ -187,7 +178,6 @@ implements java.io.Serializable
        return( selectionCP.getEndDate() );
    }
    
-   // @B2A
    /**
      * Returns the end create date filter.
      *
@@ -202,13 +192,11 @@ implements java.io.Serializable
    
    
 
-    // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new SpooledFile(system_, (NPCPIDSplF)cpid, cpattr);
     }
 
-   // @B2A
    /**
      * Returns the create start date filter.
      *
@@ -221,7 +209,6 @@ implements java.io.Serializable
        return( selectionCP.getStartDate() );
    }
 
-   // @B2A
    /**
      * Returns the create date filter.
      *
@@ -284,8 +271,8 @@ implements java.io.Serializable
         selectionCP.setFormType(formTypeFilter);
         
         // Propagate any change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("formType", formTypeFilter); // @A1A
+        if (impl_ != null)
+            impl_.setFilter("formType", formTypeFilter);
             
         changes.firePropertyChange( FORM_TYPE_FILTER,
                                     oldFormTypeFilter, formTypeFilter );
@@ -334,15 +321,14 @@ implements java.io.Serializable
         selectionCP.setQueue(queueFilter);
 
         // Propagate any change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("spooledFileQueue", queueFilter);  // @A1A
+        if (impl_ != null)
+            impl_.setFilter("spooledFileQueue", queueFilter);
 
         // Notify any property change listeners.
         changes.firePropertyChange( QUEUE_FILTER, oldQueueFilter, queueFilter );
     }
 
 
-    //  @B2A
     /**
       * Sets the create job system filter.
       * The name of the system where the job, specified in the qualified job name
@@ -391,9 +377,8 @@ implements java.io.Serializable
 
         // Notify any property change listeners.
         changes.firePropertyChange( JOB_SYSTEM_FILTER, oldJobSystemFilter, jobSystemFilter );
-    } // @B2A
+    }
 
-    // @B2A
     /**
       * Sets the end date filter.
       * The date the spooled file was created on the system. If the Starting 
@@ -445,9 +430,8 @@ implements java.io.Serializable
 
         // Notify any property change listeners.
         changes.firePropertyChange( END_DATE_FILTER, oldEndDateFilter, endDateFilter );
-    } // @B2A
+    }
 
-    // @B2A
     /**
       * Sets the end time filter.
       * The time the spooled file was created on the system. This field must be 
@@ -490,9 +474,8 @@ implements java.io.Serializable
 
         // Notify any property change listeners.
         changes.firePropertyChange( END_TIME_FILTER, oldEndTimeFilter, endTimeFilter );
-    }  // @B2A
+    }
 
-    // @B2A
     /**
       * Sets the create start date filter.
       * The date the spooled file was created on the system. This parameter can be
@@ -541,9 +524,8 @@ implements java.io.Serializable
 
         // Notify any property change listeners.
         changes.firePropertyChange( START_DATE_FILTER, oldStartDateFilter, startDateFilter );
-    } // @B2A
+    }
 
-    // @B2A
     /**
       * Sets the create start time filter.
       * This parameter can be used in conjunction with the user name, qualified
@@ -585,12 +567,12 @@ implements java.io.Serializable
         selectionCP.setStartTime(startTimeFilter);
 
         // Propagate any change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
+        if (impl_ != null)
             impl_.setFilter("StartTime", startTimeFilter);  
 
         // Notify any property change listeners.
         changes.firePropertyChange( START_TIME_FILTER, oldStartTimeFilter, startTimeFilter );
-    }  // @B2A
+    }
 
 
 
@@ -642,8 +624,8 @@ implements java.io.Serializable
         selectionCP.setUser(userFilter);
         
         // Propagate any change to ImplRemote if necessary...
-        if (impl_ != null)  // @A1A
-            impl_.setFilter("user", userFilter);    // @A1A
+        if (impl_ != null)
+            impl_.setFilter("user", userFilter);
    
         // Notify any property change listeners
         changes.firePropertyChange( USER_FILTER, oldUserFilter, userFilter );
@@ -696,8 +678,8 @@ implements java.io.Serializable
         selectionCP.setUserData(userDataFilter);
    
         // Propagate any change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("userData", userDataFilter); // @A1A
+        if (impl_ != null)
+            impl_.setFilter("userData", userDataFilter);
    
         // Notify any property change listeners.
         changes.firePropertyChange( USER_DATA_FILTER,

@@ -22,7 +22,7 @@ import java.io.IOException;
 class SpooledFileOutputStreamImplRemote
 implements SpooledFileOutputStreamImpl
 {   
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final String DT_AUTO = "*AUTO";
     static final String DT_PRTF = "*PRTF";
@@ -42,7 +42,7 @@ implements SpooledFileOutputStreamImpl
     private boolean        fCreatePending_;
     private NPSystem       npSystem_;
     private int            offset_ = 0;                  // current offset into buffer
-    private AS400ImplRemote sys_;               // @A2 
+    private AS400ImplRemote sys_;
 
     /**
       * Constructs a SpooledFileOutputStream object.
@@ -187,7 +187,7 @@ implements SpooledFileOutputStreamImpl
       *  <li> <A HREF="PrintAttributes.html#HDRKEY180.5">
       *         ATTR_IPP_ATTR_NL - IPP Natural Language
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY203"> // @A5A
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY203">
       *         ATTR_JOBSYSTEM - Job System Name
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY64">
@@ -304,15 +304,15 @@ implements SpooledFileOutputStreamImpl
       *<p>
       * @param printerFile   Optional.  The printer file that should be used
       *                          to create the spooled file.  This printer file
-      *                          must reside on the same AS400 system that the
-      *                          spooled file is being created.
+      *                          must reside on the same server system that the
+      *                          spooled file is being created on.
       * @param outputQueue   Optional.  The output queue on which to create the
       *                          spooled file.  The output queue must reside on
-      *                          the same AS400 system that the spooled file
-      *                          is being created.
+      *                          the same server system that the spooled file
+      *                          is being created on.
       * @return An output stream that can be used to write data into the spooled
       *         file and to close the spooled file.
-      * @exception AS400Exception If the system returns an error message.
+      * @exception AS400Exception If the server returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
       * @exception IOException If an error occurs while communicating with the server.
@@ -338,8 +338,8 @@ implements SpooledFileOutputStreamImpl
         // npSystem.returnConversation(conv);  // we're done with it
 
         fCreatePending_ = true;   // we haven't issued the create yet
-        sys_            = (AS400ImplRemote) system;  // @A2C
-        npSystem_       = NPSystem.getSystem(sys_);  // @A2C
+        sys_            = (AS400ImplRemote) system;
+        npSystem_       = NPSystem.getSystem(sys_);
         conversation_   = npSystem_.getConversation();
         cpCPFMsg_       = new NPCPAttribute();
         cpIDSplF_       = new NPCPIDSplF();
@@ -349,13 +349,13 @@ implements SpooledFileOutputStreamImpl
         // if the user passed in a printer file, get its ID
         if (printerFile != null)
         {
-            cpIDPrtrFile_ = (NPCPIDPrinterFile)((PrinterFileImplRemote) printerFile).getIDCodePoint(); // @A2C
+            cpIDPrtrFile_ = (NPCPIDPrinterFile)((PrinterFileImplRemote) printerFile).getIDCodePoint();
         }
 
         // if the user passed in an output queue, get its ID
         if (outputQueue != null)
         {
-            cpIDOutQ_ = (NPCPIDOutQ)((OutputQueueImplRemote) outputQueue).getIDCodePoint();  // @A2C
+            cpIDOutQ_ = (NPCPIDOutQ)((OutputQueueImplRemote) outputQueue).getIDCodePoint();
         }
 
         /////////////////////////////////////////////////////////////////////////
@@ -412,7 +412,6 @@ implements SpooledFileOutputStreamImpl
     }
 
 
-
     /**
       * Closes the stream.
       * It must be called to release any resources associated with the stream.
@@ -440,8 +439,8 @@ implements SpooledFileOutputStreamImpl
         }
 
 
-        NPDataStream closeReq = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
-        NPDataStream closeRep = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream closeReq = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream closeRep = new NPDataStream(NPConstants.SPOOLED_FILE);
 
         // setup the close request data stream
         closeReq.setAction(NPDataStream.CLOSE);
@@ -498,7 +497,7 @@ implements SpooledFileOutputStreamImpl
            if (!fCreatePending_)
            {
                // send up a close request and ignore the reply
-               NPDataStream closeReq = new NPDataStream(NPConstants.SPOOLED_FILE);  // @B1C
+               NPDataStream closeReq = new NPDataStream(NPConstants.SPOOLED_FILE);
 
 
                // setup the close request data stream
@@ -508,8 +507,8 @@ implements SpooledFileOutputStreamImpl
                AS400Server server= conversation_.getServer();
                if (server != null)
                {
-                   // @B1D closeReq.setHostCCSID(conversation_.getHostCCSID());
-                   closeReq.setConverter(conversation_.getConverter());             // @B1A
+                   // @D closeReq.setHostCCSID(conversation_.getHostCCSID());
+                   closeReq.setConverter(conversation_.getConverter());
                    server.sendAndDiscardReply(closeReq);
                }
            }
@@ -542,11 +541,11 @@ implements SpooledFileOutputStreamImpl
       * this output stream.
       * @return A reference to the spooled file object.
       **/
-    public synchronized NPCPIDSplF getSpooledFile()  //@A2C 
+    public synchronized NPCPIDSplF getSpooledFile()
        throws IOException
     {
-        // SpooledFile sf = null;  // @A2D
-        NPCPIDSplF sfID = null;    // @A2A
+        // @D SpooledFile sf = null;
+        NPCPIDSplF sfID = null;
 
         // flush any data we have first
         // if the file hasn't been closed already
@@ -560,17 +559,17 @@ implements SpooledFileOutputStreamImpl
         {
             // return the spooled file that we created
             
-            // sf = new SpooledFile(sys_, cpIDSplF_, null);   // @A2D (see below)
+            // sf = new SpooledFile(sys_, cpIDSplF_, null);   // @D (see below)
             // The call to create the SpooledFile will be made on the proxy side
-            sfID = cpIDSplF_;  // @A2A
+            sfID = cpIDSplF_;
         } else {
             Trace.log(Trace.ERROR, "Spooled File has not been created.");
             throw new
                 ExtendedIllegalStateException(ExtendedIllegalStateException.OBJECT_MUST_BE_OPEN);
         }
 
-        // return sf;    // @A2D
-        return sfID;     // @A2A
+        // return sf;    // @D
+        return sfID;
     }
 
 
@@ -601,8 +600,8 @@ implements SpooledFileOutputStreamImpl
             }
             cpAttr_.setAttrValue(PrintObject.ATTR_PRTDEVTYPE, strDataType);
         }
-        NPDataStream createReq = new NPDataStream(NPConstants.SPOOLED_FILE);    // @B1C
-        NPDataStream createRep = new NPDataStream(NPConstants.SPOOLED_FILE);    // @B1C
+        NPDataStream createReq = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream createRep = new NPDataStream(NPConstants.SPOOLED_FILE);
 
         // setup the create request data stream
         createReq.setAction(NPDataStream.CREATE);
@@ -669,8 +668,8 @@ implements SpooledFileOutputStreamImpl
         //
         // now make the write request
         //
-        NPDataStream writeReq = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
-        NPDataStream writeRep = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
+        NPDataStream writeReq = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream writeRep = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPCPData     cpData   = new NPCPData();
         cpData.setDataBuffer(buf, len, offset);
 
@@ -710,7 +709,6 @@ implements SpooledFileOutputStreamImpl
       *
       * @exception IOException If an error occurs while communicating with the server.
       **/
-
     public synchronized void write(byte data[], int offset, int length)
         throws IOException
     {

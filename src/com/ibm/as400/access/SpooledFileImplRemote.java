@@ -33,7 +33,7 @@ import java.io.IOException;
 class SpooledFileImplRemote extends PrintObjectImplRemote
 implements SpooledFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
@@ -45,7 +45,6 @@ implements SpooledFileImpl
 
     // We have decide that spooled files are too transient to
     // be JavaBeans
-
 
     /** Replies to the message that caused the spooled file to wait.
      *
@@ -452,7 +451,7 @@ implements SpooledFileImpl
         }
     }
     
-//@D2A  retrieve only one attribute
+   // retrieve only one attribute
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
         if (!fAttrIDsToRtvBuilt_) {
@@ -460,8 +459,6 @@ implements SpooledFileImpl
         }
         return attrsToRetrieve_;
     }
-
-//@D2A
 
 
     NPCPAttributeIDList getAttrIDsToRetrieve()
@@ -474,7 +471,7 @@ implements SpooledFileImpl
 
 
 
-    // @A1A - Added method for synchronization with base class.
+    // method for synchronization with base class.
     public boolean getFMsgRetrieved()
     {
         return fMsgRetrieved_;
@@ -523,7 +520,7 @@ implements SpooledFileImpl
         // 2) synchronizes accsss to instance variable fMsgRetrieved
         retrieveMessage(cpAttrsToRetrieve, cpMessage);
 
-        // create an AS400 Message and set appropriate values
+        // create an AS400Message and set appropriate values
         msg = new AS400Message(cpMessage.getStringValue(PrintObject.ATTR_MSGID),
                                cpMessage.getStringValue(PrintObject.ATTR_MSGTEXT));
         msg.setDate(cpMessage.getStringValue(PrintObject.ATTR_DATE),cpMessage.getStringValue(PrintObject.ATTR_TIME));

@@ -14,9 +14,9 @@
 package com.ibm.as400.access;
 
 /**
- * The SpooledFileList class is used to build a list of OS/400 spooled file objects of type
+ * The SpooledFileList class is used to build a list of spooled file objects of type
  * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date and 
- * time or user data.   @B2C
+ * time or user data.
  *
  *@see SpooledFile
  **/
@@ -42,7 +42,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x50,             // big endian(BE), number of attrs
         0x00, 0x02,             // BE - size in bytes of each ID
         0x00, 0x0B,             // ATTR_ALIGN
-        0x01, 0x1A,             // ATTR_AFP_RESOURCE  @B3
+        0x01, 0x1A,             // ATTR_AFP_RESOURCE
         0x00, 0x11,             // ATTR_BKMGN_ACR
         0x00, 0x12,             // ATTR_BKMGN_DWN
         0x00, 0x13,             // ATTR_BKOVRLLIB
@@ -56,7 +56,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x1D,             // ATTR_COPIESLEFT
         0x00, 0x1E,             // ATTR_CURPAGE
         0x00, 0x22,             // ATTR_DATE
-        0x00, (byte)0xFD,       // ATTR_DATE_END @B2A
+        0x00, (byte)0xFD,       // ATTR_DATE_END
         0x00, (byte)0x99,       // ATTR_DBCSDATA
         0x00, (byte)0x9A,       // ATTR_DBCSEXTENSN
         0x00, (byte)0x9B,       // ATTR_DBCSROTATE
@@ -82,7 +82,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x39,             // ATTR_HOLD
         0x00, 0x3B,             // ATTR_JOBNAME
         0x00, 0x3C,             // ATTR_JOBNUMBER
-        0x00, (byte)0xFB,       // ATTR_JOBSYSTEM @B2A
+        0x00, (byte)0xFB,       // ATTR_JOBSYSTEM
         0x00, 0x3E,             // ATTR_JOBUSER
         0x00, 0x3F,             // ATTR_LASTPAGE
         0x00, 0x40,             // ATTR_LPI
@@ -115,10 +115,10 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x6B,             // ATTR_SCHEDULE
         0x00, 0x6C,             // ATTR_STARTPAGE
         0x00, 0x6E,             // ATTR_TIME
-        0x00, (byte)0xFE,       // ATTR_TIME_END @B2A
+        0x00, (byte)0xFE,       // ATTR_TIME_END
         0x00, 0x6F,             // ATTR_PAGES
-        0x00, (byte)0xF5,       // ATTR_PAGDFNLIB  @B3A
-        0x00, (byte)0xF6,       // ATTR_PAGDFN     @B3A
+        0x00, (byte)0xF5,       // ATTR_PAGDFNLIB
+        0x00, (byte)0xF6,       // ATTR_PAGDFN
         0x00, 0x72,             // ATTR_UNITOFMEAS
         0x00, 0x73,             // ATTR_USERCMT
         0x00, 0x74,             // ATTR_USERDATA
@@ -137,7 +137,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         NPDataStream ds;
         NPCodePoint  cp;
         
-        ds = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
+        ds = new NPDataStream(NPConstants.SPOOLED_FILE);
         cp = new NPCPIDSplF();
         ds.addCodePoint(cp);
         cp = new NPCPAttribute();
@@ -160,7 +160,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
     /**
       * Creates a new SpooledFile object.
       **/
-    /* @A5D
+    /* @D
     PrintObject newNPObject(AS400 system, NPDataStream reply)
     {
         SpooledFile npSplF = null;
@@ -174,7 +174,6 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
     */
 
 
-    // @A5A
     NPCPID newNPCPID(NPDataStream reply)
     {
         return (NPCPIDSplF)reply.getCodePoint(NPCodePoint.SPOOLED_FILE_ID);  // never should return null

@@ -38,10 +38,10 @@ implements SpooledFileOutputStreamImpl, ProxyImpl
     }
 
 
-    public void createSpooledFileOutputStream(AS400Impl system,  //@A1C
+    public void createSpooledFileOutputStream(AS400Impl system,  
                                          PrintParameterList options,
-                                        PrinterFileImpl printerFile,  //@A1C
-                                        OutputQueueImpl outputQueue)  //@A1C
+                                        PrinterFileImpl printerFile,  
+                                        OutputQueueImpl outputQueue)
         throws AS400Exception,
                AS400SecurityException,
                ErrorCompletingRequestException,
@@ -49,7 +49,6 @@ implements SpooledFileOutputStreamImpl, ProxyImpl
                IOException
     {
         try {
-            // @A1C - Changed classes to XXXImpl...
             connection_.callMethod(pxId_, "createSpooledFileOutputStream",
                                    new Class [] { AS400Impl.class, PrintParameterList.class,
                                                        PrinterFileImpl.class, OutputQueueImpl.class }, 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileImpl.java
 //                                                                             
@@ -33,7 +33,7 @@ interface SpooledFileImpl extends PrintObjectImpl
 
 
 
-    // Added method for synchronization with base class.
+    // method for synchronization with base class.
     public boolean getFMsgRetrieved();
 
 
@@ -131,7 +131,6 @@ interface SpooledFileImpl extends PrintObjectImpl
              InterruptedException,
              RequestNotSupportedException;
     
-    // C1A 
     public abstract NPCPIDSplF copy(OutputQueueImpl outputQueue)
       throws AS400Exception,
              AS400SecurityException,

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileOutputStream.java
 //                                                                             
@@ -15,14 +15,14 @@ package com.ibm.as400.access;
 
 import java.io.OutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException; // @B1A
+import java.io.UnsupportedEncodingException;
 
 /**
-  * The SpooledFileOutputStream class is used to write data into an AS/400 spooled file.
+  * The SpooledFileOutputStream class is used to write data into a server spooled file.
   **/
 public class SpooledFileOutputStream extends OutputStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     //Private Data
     
@@ -31,7 +31,7 @@ public class SpooledFileOutputStream extends OutputStream
 
     /**
       * Constructs a SpooledFileOutputStream object.
-      * Use this object to create a new spooled file on the given AS/400
+      * Use this object to create a new spooled file on the given system
       * with the specified parameters.
       * @param system The system on which to create the spooled file.
       * @param options       Optional.  A print parameter list that contains
@@ -288,16 +288,16 @@ public class SpooledFileOutputStream extends OutputStream
       *<p>
       * @param printerFile   Optional.  The printer file that should be used
       *                          to create the spooled file.  This printer file
-      *                          must reside on the same AS400 system that the
-      *                          spooled file is being created.
+      *                          must reside on the same server that the
+      *                          spooled file is being created on.
       * @param outputQueue   Optional.  The output queue on which to create the
       *                          spooled file.  The output queue must reside on
-      *                          the same AS400 system that the spooled file
-      *                          is being created.
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      *                          the same server that the spooled file
+      *                          is being created on.
+      * @exception AS400Exception If the server system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
 
@@ -319,27 +319,27 @@ public class SpooledFileOutputStream extends OutputStream
         system_ = system;
         if (impl_ == null)
             chooseImpl();
-        // @A2A Do connect here because it may throw Exceptions.    
-        system_.connectService(AS400.PRINT);                // @A2A   
+        // Do connect here because it may throw Exceptions.    
+        system_.connectService(AS400.PRINT);
       
-        PrinterFileImpl pfi = null;                         // @A2A
-        if (printerFile != null) {                          // @A2A
-            if (printerFile.getImpl() == null) {            // @A2A
-                printerFile.chooseImpl();                   // @A2A
-            }                                               // @A2A
-            pfi = (PrinterFileImpl) printerFile.getImpl();  // @A2A
-        }                                                   // @A2A
-        OutputQueueImpl oqi = null;                         // @A2A
-        if (outputQueue != null) {                          // @A2A
-            if (outputQueue.getImpl() == null) {            // @A2A
-                outputQueue.chooseImpl();                   // @A2A
-            }                                               // @A2A
-            oqi = (OutputQueueImpl) outputQueue.getImpl();  // @A2A
-        }                                                   // @A2A
-        impl_.createSpooledFileOutputStream(system_.getImpl(),  // @A2C 
+        PrinterFileImpl pfi = null;
+        if (printerFile != null) {
+            if (printerFile.getImpl() == null) {
+                printerFile.chooseImpl();
+            }
+            pfi = (PrinterFileImpl) printerFile.getImpl();
+        }
+        OutputQueueImpl oqi = null;
+        if (outputQueue != null) {
+            if (outputQueue.getImpl() == null) {
+                outputQueue.chooseImpl();
+            }
+            oqi = (OutputQueueImpl) outputQueue.getImpl();
+        }
+        impl_.createSpooledFileOutputStream(system_.getImpl(),
                                             options,
-                                            pfi,            // @A2C
-                                            oqi);           // @A2C
+                                            pfi,
+                                            oqi);
     }
 
 
@@ -362,7 +362,7 @@ public class SpooledFileOutputStream extends OutputStream
     /**
       * Closes the stream.
       * It must be called to release any resources associated with the stream.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void close()
        throws IOException
@@ -373,7 +373,7 @@ public class SpooledFileOutputStream extends OutputStream
 
 
     /** Flushes the stream.  This will write any buffered output bytes.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void flush()
         throws IOException
@@ -390,24 +390,24 @@ public class SpooledFileOutputStream extends OutputStream
     public SpooledFile getSpooledFile()
        throws IOException
     {
-        SpooledFile sf = null;                      // @A2A
-        NPCPIDSplF spID = impl_.getSpooledFile();   // @A2C
-        try {                                                                               // @B1A
-            spID.setConverter((new Converter(system_.getCcsid(), system_)).impl);           // @B1A
-        }                                                                                   // @B1A
-        catch(UnsupportedEncodingException e) {                                             // @B1A
-            if (Trace.isTraceErrorOn())                                                     // @B1A
-                Trace.log(Trace.ERROR, "Error initializing converter for print object", e); // @B1A
-        }                                                                                   // @B1A
-        sf = new SpooledFile(system_, spID, null);  // @A2A  
-        return sf;                                  // @A2A
+        SpooledFile sf = null;
+        NPCPIDSplF spID = impl_.getSpooledFile();
+        try {
+            spID.setConverter((new Converter(system_.getCcsid(), system_)).impl);
+        }
+        catch(UnsupportedEncodingException e) {
+            if (Trace.isTraceErrorOn())
+                Trace.log(Trace.ERROR, "Error initializing converter for print object", e);
+        }
+        sf = new SpooledFile(system_, spID, null);
+        return sf;
     }
 
 
 
     /** Writes a byte of data.
       * @param b The byte to be written.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void write(int b)
         throws IOException
@@ -423,7 +423,7 @@ public class SpooledFileOutputStream extends OutputStream
       *  <i>data</i> to the spooled file.
       *
       * @param data The data to be written.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void write(byte[] data)
         throws IOException
@@ -441,7 +441,7 @@ public class SpooledFileOutputStream extends OutputStream
       * @param offset The start offset in the data.
       * @param length The number of bytes that are written.
       *
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       **/
     public void write(byte data[], int offset, int length)
         throws IOException

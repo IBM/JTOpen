@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPAttribute.java
 //                                                                             
@@ -30,7 +30,7 @@ abstract class NPAttribute extends Object implements Cloneable,
 
     /* attribute types                                                  */
     /* These attribute types are known with these numeric IDs by the    */
-    /* AS/400 netprint server - DO NOT CHANGE the values of these IDs   */
+    /* netprint server - DO NOT CHANGE the values of these IDs          */
     static final int  TWO_BYTE      = 0x0001;
     static final int  TWO_BYTE_ENU  = 0x0002;
     static final int  FOUR_BYTE     = 0x0003;
