@@ -729,13 +729,83 @@ Prepares (pre-compiles) the SQL statement on the server.
         // the statement on the server.
         if (nameOverride_.length() == 0) {
 
+            // @E7A - start
+            //
+            // CASE 2a: Statement is a DRDA CONNECT.
+            //
+            if (sqlStatement.getNativeType() == JDSQLStatement.TYPE_CONNECT) {
+
+                // Sync up the RPB.
+                syncRPB();
+
+        		try {
+
+	        		DBSQLRequestDS request = new DBSQLRequestDS (
+		        	    DBSQLRequestDS.FUNCTIONID_CONNECT, id_,
+			            DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
+			            + DBSQLRequestDS.ORS_BITMAP_SQLCA, 0);
+
+        			request.setStatementText (sqlStatement.toString (), connection_.getConverter());
+	        		request.setStatementType (sqlStatement.getNativeType ());
+
+    		    	if (packageManager_.isEnabled()) {
+	    		        if (sqlStatement.isPackaged()) {
+              		    	request.setPrepareOption (1);
+   			                request.setPackageName (packageManager_.getName (), connection_.getConverter ());
+          		        }
+          		        else
+          		            request.setPrepareOption (0);
+              		}
+           		    else
+       	    	        request.setPrepareOption (0);
+
+                    commonPrepareBefore (sqlStatement, request);
+                    commonExecuteBefore (sqlStatement, request);
+
+	        		DBReplyRequestedDS reply = connection_.sendAndReceive (request, id_);
+
+    	    		int errorClass = reply.getErrorClass();
+	    	    	int returnCode = reply.getReturnCode();
+
+		    	    if (errorClass != 0) {
+                  	    if (returnCode < 0)
+                    	    JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+                    	else
+    	                    postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
+       	    	    }
+                    
+                    // Compute the update count and number of results.
+                    updateCount_ = 0;
+                    numberOfResults_ = 0;
+
+                    commonPrepareAfter (sqlStatement, reply);
+                    commonExecuteAfter (sqlStatement, reply);
+                }
+		        catch (DBDataStreamException e) {
+			        JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+        		}
+
+                // Inform the transaction manager that a statement
+                // was executed.
+                transactionManager_.statementExecuted ();
+
+                // Output a summary as a trace message.   The * signifies that the
+                // statement name comes from the RPB.
+                if (JDTrace.isTraceOn()) {
+                    JDTrace.logInformation (this,
+                        "Executed connect " + name_ + "* [" + sqlStatement + "]");
+                }
+
+            }
+            // @E7A - end
+
             // CASE 2: Statement can be executed immediately.
             //
             // This is essentially the prepare and execute combined
             // in one datastream.  We will then be able to skip the
             // execute step later.
             //
-            if ((allowImmediate_) && (sqlStatement.isImmediatelyExecutable ())) {
+            else if ((allowImmediate_) && (sqlStatement.isImmediatelyExecutable ())) {  // @E7C
 
                 // Sync up the RPB.
                 syncRPB ();
