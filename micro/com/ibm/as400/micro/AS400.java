@@ -192,15 +192,18 @@ public final class AS400
     }
 
 
-
-    /**
-     *  When the garbage collector calls finalize(), this
-     *  method will call disconnect() on the AS400 object.
-     **/
-    protected void finalize()
-    {
-        disconnect();
-    }
+    // This method is removed because the J2MEWTK by default when it preverifies
+    // the classes uses the -nofinalize option.  So it is now up to the
+    // application to properly disconnect.
+    //
+    ///**
+    // *  When the garbage collector calls finalize(), this
+    // *  method will call disconnect() on the AS400 object.
+    // **/
+    //protected void finalize()
+    //{
+    //    disconnect();
+    //}
 
 
     /**
