@@ -2270,9 +2270,25 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       // positioning or reading.
       cache_.setIsEmpty();
     }
-    // Call super's positionCursorToPrevious to get to the record
-    // immediately following the matching record
-    positionCursorToPrevious();
+    try //@CRS
+    {   //@CRS
+      // Call super's positionCursorToPrevious to get to the record
+      // immediately following the matching record
+      positionCursorToPrevious();
+    } //@CRS
+    catch(AS400Exception e) //@CRS
+    { //@CRS
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "KeyedFile - Possible attempt to position by key before first record. Manually positioning cursor.", e); //@CRS
+      if (e.getAS400Message().getID().equalsIgnoreCase("CPF5001")) //@CRS
+      {
+        //@CRS - Probably tried to position before first record.
+        positionCursorBeforeFirst(); //@CRS
+      } //@CRS
+      else //@CRS
+      { //@CRS
+        throw e; //@CRS
+      } //@CRS
+    } //@CRS
   }
 
 
