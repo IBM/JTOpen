@@ -3013,7 +3013,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public boolean getKeepAlive()
     {
-        return sockProps_.getKeepAlive();
+        return sockProps_.isKeepAlive();
     }
 
     /**
@@ -3062,7 +3062,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public boolean getTcpNoDelay()
     {
-        return sockProps_.getTcpNoDelay();
+        return sockProps_.isTcpNoDelay();
     }
 
     /**
