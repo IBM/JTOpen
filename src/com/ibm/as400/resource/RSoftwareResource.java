@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RSoftwareResource.java
 //                                                                             
@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RSoftwareResource class represents an AS/400 software product.
+The RSoftwareResource class represents a server software product.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
@@ -722,7 +722,7 @@ Computes the resource key.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -900,7 +900,7 @@ ResourceEvent.
 
 /**
 Sets the load ID.  This does not change the software product
-on the AS/400.  Instead, it changes the software product
+on the server.  Instead, it changes the software product
 to which this object references.
 
 <p>The default value is LOAD_ID_CODE.
@@ -923,7 +923,7 @@ to which this object references.
 
 /**
 Sets the product ID.  This does not change the software product
-on the AS/400.  Instead, it changes the software product
+on the server.  Instead, it changes the software product
 to which this object references.
 
 <p>The default value is PRODUCT_ID_OPERATING_SYSTEM.
@@ -947,7 +947,7 @@ to which this object references.
 
 /**
 Sets the product option.  This does not change the software product
-on the AS/400.  Instead, it changes the software product
+on the server.  Instead, it changes the software product
 to which this object references.
 
 <p>The default value is PRODUCT_OPTION_BASE.
@@ -971,7 +971,7 @@ to which this object references.
 
 /**
 Sets the release level.  This does not change the software product
-on the AS/400.  Instead, it changes the software product
+on the server.  Instead, it changes the software product
 to which this object references.
 
 <p>The default value is RELEASE_LEVEL_CURRENT.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ChangeableResource.java
 //                                                                             
@@ -23,9 +23,9 @@ import java.util.Vector;
 
 
 /**
-The ChangeableResource represents an AS/400 resource.
+The ChangeableResource represents an server resource.
 This is an abstract subclass of {@link com.ibm.as400.resource.Resource Resource}
-which adds the ability to change attribute values of an AS/400 resource.
+which adds the ability to change attribute values of an server resource.
 Attribute changes are cached internally until they are committed
 or canceled.  This allows you to change many attribute values at
 once.  Every attribute is identified using an attribute ID.  Any given
@@ -34,7 +34,7 @@ that it supports.
 
 <p>One example of a concrete subclass of ChangeableResource is
 {@link com.ibm.as400.resource.RJob RJob}, which represents
-an AS/400 job.  RJob supports many <a href="{@docRoot}/com/ibm/as400/resource/RJob.html#attributeIDs">attribute IDs</a>,
+a server job.  RJob supports many <a href="{@docRoot}/com/ibm/as400/resource/RJob.html#attributeIDs">attribute IDs</a>,
 each of which can be used to access attribute values.
 Here is an example which sets two attribute values for an RJob:
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceList.java
 //                                                                             
@@ -34,7 +34,7 @@ import java.util.Vector;
 
 
 /**
-The ResourceList class represents a list of AS/400 resources.  This
+The ResourceList class represents a list of server resources.  This
 is an abstract class which provides generic access to the list's
 contents.
 
@@ -74,7 +74,7 @@ and sort IDs that it supports.
 
 <p>One example of a concrete subclass of ResourceList is
 {@link com.ibm.as400.resource.RJobList RJobList}, which
-represents a list of AS/400 jobs.  RJobList supports many
+represents a list of server jobs.  RJobList supports many
 <a href="{@docRoot}/com/ibm/as400/resource/RJobList.html#selectionIDs">selection
 IDs</a> and <a href="{@docRoot}/com/ibm/as400/resource/RJobList.html#sortIDs">sort
 IDs</a>, each of which can be used to filter or sort the list.
@@ -440,7 +440,7 @@ This method fires a listClosed() ResourceListEvent.
 
 
 /**
-Establishes the connection to the AS/400, if any.  Subclasses can override
+Establishes the connection to the server, if any.  Subclasses can override
 this method and put all connection initialization code here.
 It is assumed that all properties have been set when this
 method is called.  Any subclass that overrides this method
@@ -1022,7 +1022,7 @@ may load resources on demand.
 
 
 /**
-Indicates if a connection to the AS/400 is established.  This means that the
+Indicates if a connection to the server is established.  This means that the
 resource is in a state where certain properties can no longer be
 changed.
 
@@ -1431,7 +1431,7 @@ or refreshed.
 /**
 Sets the system.   This cannot be changed
 if the object has established a connection
-to the AS/400.
+to the server.
 
 @param  system  The system.
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PresentationLoader.java
 //                                                                             
@@ -360,8 +360,8 @@ Creates and returns a new presentation.
 
         // We don't load the icon now.  Instead, we wait until the caller
         // asks for it.  This improves performance for sure.  But it also
-        // solves problems like AWT not being around when running on an AS/400
-        // (since an AS/400 Java program will never probably ask for the
+        // solves problems like AWT not being around when running on a server
+        // (since a server Java program will never probably ask for the
         // icon).
         if (iconBaseName != null)
             presentation.setColorIcons(iconBaseName + ICON_16_SUFFIX, iconBaseName + ICON_32_SUFFIX);

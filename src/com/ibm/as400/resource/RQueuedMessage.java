@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RQueuedMessage.java
 //                                                                             
@@ -20,7 +20,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RQueuedMessage class represents a message in an AS/400 message queue
+The RQueuedMessage class represents a message in a server message queue
 or job log.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
@@ -455,9 +455,9 @@ Computes the resource key.
              and replace (substitute) formatting characters.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     @exception  ObjectDoesNotExistException  If the server object does not exist.
      **/
     public void load(int helpTextFormatting) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {

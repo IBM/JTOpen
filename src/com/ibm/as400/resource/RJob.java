@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RJob.java
 //                                                                             
@@ -29,7 +29,7 @@ import java.util.Hashtable;
 
 
 /**
-The RJob class represents an AS/400 job.  In order to access a job,
+The RJob class represents a server job.  In order to access a job,
 the system and either the job name, user name, and job number or
 internal job identifier need to be set.  A valid combination of
 these must be set by getting or setting any of the job's attributes.
@@ -1444,7 +1444,7 @@ which represents additional information about the job type.  Possible values are
 <li>{@link #JOB_SUBTYPE_IMMEDIATE JOB_SUBTYPE_IMMEDIATE} - The job is an immediate job.
 <li>{@link #JOB_SUBTYPE_PROCEDURE_START_REQUEST JOB_SUBTYPE_PROCEDURE_START_REQUEST} - The job started
     with a procedure start request.
-<li>{@link #JOB_SUBTYPE_MACHINE_SERVER_JOB JOB_SUBTYPE_MACHINE_SERVER_JOB} - The job is an AS/400
+<li>{@link #JOB_SUBTYPE_MACHINE_SERVER_JOB JOB_SUBTYPE_MACHINE_SERVER_JOB} - The job is a server
     Advanced 36 machine server job.
 <li>{@link #JOB_SUBTYPE_PRESTART JOB_SUBTYPE_PRESTART} - The job is a prestart job.
 <li>{@link #JOB_SUBTYPE_PRINT_DRIVER JOB_SUBTYPE_PRINT_DRIVER} - The job is a print driver job.
@@ -1478,7 +1478,7 @@ which represents additional information about the job type.  Possible values are
     public static final String JOB_SUBTYPE_PROCEDURE_START_REQUEST  = "E";
 
     /**
-    Attribute value indicating that the job is an AS/400
+    Attribute value indicating that the job is a server
     Advanced 36 machine server job.
 
     @see #JOB_SUBTYPE
@@ -3144,7 +3144,7 @@ Ends the job.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -3382,11 +3382,11 @@ ResourceEvent.
 
 /**
 Sets the internal job identifier.  This does not change
-the job on the AS/400.  Instead, it changes the job
+the job on the server.  Instead, it changes the job
 that this object references.  The job name
 must be set to "*INT" for this to be recognized.
 This cannot be changed if the object has established
-a connection to the AS/400.
+a connection to the server.
 
 @param internalJobID    The internal job identifier.
 
@@ -3415,9 +3415,9 @@ a connection to the AS/400.
 
 /**
 Sets the job name.  This does not change the job on
-the AS/400.  Instead, it changes the job
+the server.  Instead, it changes the job
 that this object references.   This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param name    The job name.  Specify "*" to indicate the job this
                program running in, or "*INT" to indicate that the job
@@ -3448,9 +3448,9 @@ if the object has established a connection to the AS/400.
 
 /**
 Sets the job number.  This does not change the job on
-the AS/400.  Instead, it changes the job
+the server.  Instead, it changes the job
 that this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param number    The job number.  This must be blank if the job name is "*".
 
@@ -3478,9 +3478,9 @@ if the object has established a connection to the AS/400.
 
 /**
 Sets the user name.  This does not change the job on
-the AS/400.  Instead, it changes the job
+the server.  Instead, it changes the job
 that this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param user    The user name.  This must be blank if the job name is "*".
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemResourceList.java
 //                                                                             
@@ -26,7 +26,7 @@ import java.util.Hashtable;
 /**
 The SystemResourceList class represents a subclass of
 of the {@link com.ibm.as400.resource.BufferedResourceList BufferedResourceList}
-class which retrieves list items using AS/400 System Open List
+class which retrieves list items using i5/OS "Open List"
 Application Programming Interfaces (APIs).  This class is intended
 to be extended and customized by subclasses.
 **/

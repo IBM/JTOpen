@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RMessageQueue.java
 //                                                                             
@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-The RMessageQueue class represents an AS/400 message queue.  If no message
+The RMessageQueue class represents a server message queue.  If no message
 queue path is set, then the default is {@link #CURRENT CURRENT},
 which represents the current user's message queue,
 <blockquote>/QSYS.LIB/QUSRSYS.LIB/<em>userID</em>.MSGQ</blockquote>.
@@ -646,7 +646,7 @@ Constructs an RMessageQueue object.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -1344,7 +1344,7 @@ Sends an inquiry message to the message queue.
 /**
 Sets the fully qualified integrated file system path name of the
 message queue.  The default is {@link #CURRENT CURRENT}. The path cannot be changed
-if this object has already established a connection to the AS/400.
+if this object has already established a connection to the server.
 
 @param path The fully qualified integrated file system path name of the
             message queue, or {@link #CURRENT CURRENT} to refer to the user's default

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceLevel.java
 //                                                                             
@@ -23,8 +23,8 @@ import java.io.Serializable;
 The ResourceLevel class represents a range of supported levels.
 A level is a string which describes some level of support.
 
-<p>In most cases within the AS/400 Toolbox for Java, the level
-is the version, release, and modification level of the AS/400
+<p>In most cases within the IBM Toolbox for Java, the level
+is the version, release, and modification level of the server
 to which you are connected, in the form <code>VxRxMx</code>.
 **/
 // 
@@ -49,21 +49,21 @@ implements Serializable
 
 
 /**
-Constant value for the level representing a V4R4M0 AS/400.
+Constant value for the level representing V4R4M0.
 **/
     public static final String V4R4M0                           = "V4R4M0";
 
     
     
 /**
-Constant value for the level representing a V4R5M0 AS/400.
+Constant value for the level representing V4R5M0.
 **/
     public static final String V4R5M0                           = "V4R5M0";
 
     
     
 /**
-Constant value for the level representing a V5R1M0 AS/400.
+Constant value for the level representing V5R1M0.
 **/
     public static final String V5R1M0                           = "V5R1M0";
 
@@ -116,7 +116,7 @@ Constructs a ResourceLevel object.
 /**
 Indicates if the VRM is within the range of this level.
 
-@param vrm  The VRM for an AS/400.  
+@param vrm  The VRM for a server.  
 @return     true if the VRM is within the range of this level,
             false otherwise.
             
@@ -186,7 +186,7 @@ Returns the maximum supported level.
 /**
 Converts the VRM to a level.
 
-@param vrm  The VRM for an AS/400.  
+@param vrm  The VRM for a server.  
 @return         The level.
 
 @see com.ibm.as400.access.AS400#getVRM()            

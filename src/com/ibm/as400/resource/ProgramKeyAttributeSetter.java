@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramKeyAttributeSetter.java
 //                                                                             
@@ -29,8 +29,8 @@ import java.util.Hashtable;
 
 
 /**
-The ProgramKeyAttributeSetter class sets attribute values by calling an
-AS/400 program.  The program call is specified using Program Call
+The ProgramKeyAttributeSetter class sets attribute values by calling a
+program on the server.  The program call is specified using Program Call
 Markup Language (PCML).  
 
 <p>This class uses a {@link com.ibm.as400.resource.ProgramKeys ProgramKeys}

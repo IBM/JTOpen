@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ResourceException.java
 //                                                                             
@@ -91,7 +91,7 @@ The return code indicating that resource attributes were not set.
 
 
 /**
-The return code indicating that AS/400 messages were returned.
+The return code indicating that AS400Message's were returned.
 **/
     public static final int MESSAGES_RETURNED           = 3;
 
@@ -340,8 +340,8 @@ Unwraps the underlying exception and throws it.
 @exception AS400SecurityException          If a security or authority error occurs.
 @exception ErrorCompletingRequestException If an error occurs before the request is completed.
 @exception InterruptedException            If this thread is interrupted.
-@exception IOException                     If an error occurs while communicating with the AS/400.
-@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception IOException                     If an error occurs while communicating with the server.
+@exception ObjectDoesNotExistException     If the server object does not exist.
 **/
     public void unwrap()
         throws  AS400SecurityException,

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RJobList.java
 //                                                                             
@@ -23,7 +23,7 @@ import java.beans.PropertyVetoException;
 
 
 /**
-The RJobList class represents a list of AS/400 jobs.
+The RJobList class represents a list of server jobs.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
@@ -350,7 +350,7 @@ Constructs an RJobList object.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically 
 when the connection needs to be established.

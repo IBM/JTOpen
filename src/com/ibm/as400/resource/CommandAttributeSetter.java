@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandAttributeSetter.java
 //                                                                             
@@ -31,8 +31,8 @@ import java.util.Hashtable;
 
 
 /**
-The CommandAttributeSetter class sets attribute values by issuing an
-AS/400 command.  The base command string is usually an AS/400 command
+The CommandAttributeSetter class sets attribute values by calling a
+command on the server.  The base command string is usually a server command
 name and any invariant parameter names and values.
 
 <p>This class uses a <a href="CommandMap.html">

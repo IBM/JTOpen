@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RIFSFile.java
 //                                                                             
@@ -26,7 +26,7 @@ import java.util.Date;
 
 /**
 The RIFSFile class represents a file or directory in the integrated
-file system on the iSeries or AS/400 server.  This class provides function similar to
+file system on the server.  This class provides function similar to
 {@link com.ibm.as400.access.IFSFile IFSFile } and
 {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile }
 except that it is a subclass of {@link com.ibm.as400.resource.Resource Resource}.

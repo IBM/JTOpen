@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RIFSFileList.java
 //                                                                             
@@ -26,7 +26,7 @@ import java.util.Vector;
 
 /**
 The RIFSFileList class represents a list of files and directories
-in the AS/400 integrated file system.  This class provides function similar to
+in the server integrated file system.  This class provides function similar to
 {@link com.ibm.as400.access.IFSFile IFSFile } and
 {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile }
 except that it is a subclass of
@@ -221,7 +221,7 @@ Constructs an RIFSFileList object.
 
 
 /**
-Establishes the connection to the AS/400.
+Establishes the connection to the server.
 
 <p>The method is called by the resource framework automatically
 when the connection needs to be established.
@@ -403,9 +403,9 @@ Returns the resource specified by the index.
 
 /**
 Sets the directory path.  This does not change the directory on
-the AS/400.  Instead, it changes the directory to which
+the server.  Instead, it changes the directory to which
 this object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+if the object has established a connection to the server.
 
 @param path    The directory path.
 **/
