@@ -8,18 +8,18 @@ package com.ibm.as400.security;
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 import java.util.*;
 /**
  * Defines locale-specific objects for security-related
- * components of the OS/400 Toolbox for Java.
+ * components of the IBM Toolbox for Java.
  **/
 public class SecurityMRI extends ListResourceBundle
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
      // Note: It is a build/translation requirement that this NOT refer
      // to the Copyright class. The requirement is that the MRI
      // builds do not depend on the code builds.)
