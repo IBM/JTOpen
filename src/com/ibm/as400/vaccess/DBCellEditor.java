@@ -62,6 +62,17 @@ class DBCellEditor extends DefaultCellEditor
 
   
   /**
+   * Returns the value inside the cell. This is just the text inside the JTextArea.
+   * This method is needed for the JTable to properly call setValueAt() on the model
+   * after a cell is finished being edited.
+  **/
+  public Object getCellEditorValue()
+  {
+    return textArea_.getText();
+  }
+
+
+  /**
    * Always use a JTextArea, since someone could paste multi-line text into the cell.
   **/  
   public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)

@@ -965,10 +965,12 @@ public class SQLResultSetTablePane
           {
             col.setCellEditor(cellSelector_); //@D6A
           }
-          else
+          else if (type == TYPE_CHAR) //@D6C
           {
             col.setCellEditor(cellEditor_); //@D6A
           }
+          // otherwise, just use the table's default editor.
+
 
           table_.addColumn(col);
         }
