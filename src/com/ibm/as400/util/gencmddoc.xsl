@@ -243,7 +243,7 @@
       seem to do a good job of proportional spacing of the four columns.  -->
   <xsl:if test="$HasParameters">     
     <xsl:text>&#xa;</xsl:text>
-    <table border="1">
+    <table cellspacing="0" cellpadding="4" border>
     <xsl:text>&#xa;</xsl:text>
     <tr><xsl:text>&#xa;</xsl:text>
       <th align="left" valign="bottom" bgcolor="aqua">
