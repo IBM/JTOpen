@@ -147,6 +147,17 @@ class AS400FileImplProxy extends AbstractProxyImpl implements AS400FileImpl
     }
   }
 
+  public AS400Message[] execute(String command) throws AS400SecurityException, InterruptedException, IOException
+  {
+    try
+    {
+      return (AS400Message[])connection_.callMethod(pxId_, "execute", new Class[] { String.class }, new Object[] { command }).getReturnValue();
+    }
+    catch(InvocationTargetException e)
+    {
+      throw ProxyClientConnection.rethrow3(e);
+    }
+  }
 
   public int[] getExplicitLocks()
   {

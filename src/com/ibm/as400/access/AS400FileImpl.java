@@ -81,6 +81,8 @@ interface AS400FileImpl
   boolean doItBoolean(String methodName);
   
   boolean doItBoolean(String methodName, Class[] classes, Object[] objects); //@E0A
+
+  AS400Message[] execute(String command) throws AS400SecurityException, InterruptedException, IOException;
 }
 
 

@@ -2104,6 +2104,23 @@ abstract public class AS400File implements Serializable
         impl.doIt("rollback", new Class[] { AS400Impl.class }, new Object[] { system.getImpl() });
     }
 
+    /**
+     * Runs a CL command in the DDM host server job. This is useful for changing the IASP
+     * used by the DDM server for the currently connected AS400 object, changing library lists,
+     * etc.
+     * <p>
+     * Note: If using Toolbox native optimizations under OS/400, the CL command will run in
+     * the current job, since there will not be an associated DDM host server job.
+     * @param command The CL command to run.
+     * @return The list of AS400Message objects output by the CL command (if any).
+     * @see com.ibm.as400.access.CommandCall
+    **/ 
+    public AS400Message[] runCommand(String command) throws AS400SecurityException, InterruptedException, IOException
+    {
+      if (command == null) throw new NullPointerException("command");
+      chooseImpl();
+      return impl_.execute(command);
+    }
 
     //@B0A
     /**
