@@ -64,6 +64,9 @@ public class SpooledFileOpenList extends OpenList
   **/
   public static final String FORMAT_0300 = "OSPL0300";
 
+  
+  // Sorting constants... in no particular order...
+
   /**
    * Sorting constant used to sort the list of spooled files by the job name portion of the job information.
    * @see #addSortField
@@ -185,6 +188,35 @@ public class SpooledFileOpenList extends OpenList
   **/
   public static final int PRIORITY = 19;
 
+  /**
+   * Sorting constant used to sort the list of spooled files by printer name.
+   * This is only valid for FORMAT_0200.
+   * @see #addSortField
+  **/
+  public static final int PRINTER_NAME = 20;
+
+  /**
+   * Sorting constant used to sort the list of spooled files by printer assignment.
+   * This is only valid for FORMAT_0200.
+   * @see #addSortField
+  **/
+  public static final int PRINTER_ASSIGNED = 21;
+
+  /**
+   * Sorting constant used to sort the list of spooled files by current page number.
+   * This is only valid for FORMAT_0100 and FORMAT_0200.
+   * @see #addSortField
+  **/
+  public static final int CURRENT_PAGE = 22;
+
+  /**
+   * Sorting constant used to sort the list of spooled files by device type.
+   * This is only valid for FORMAT_0100 and FORMAT_0200.
+   * @see #addSortField
+  **/
+  public static final int DEVICE_TYPE = 23;
+
+
   
   private String format_ = FORMAT_0300;
 
@@ -276,8 +308,16 @@ public class SpooledFileOpenList extends OpenList
     
     // Figure out our sort parameter.
     int numSortKeys = sortKeys_.size();
-    byte[] sortInfo = new byte[4+(12*numSortKeys)];
-    BinaryConverter.intToByteArray(numSortKeys, sortInfo, 0);
+    int actualSortKeys = numSortKeys;
+    // Ignore any sort fields that don't apply for our current format. Their length will be 0.
+    for (int i=0; i<numSortKeys; ++i)
+    {
+      Object[] pair = (Object[])sortKeys_.elementAt(i);
+      int field = ((Integer)pair[0]).intValue();
+      if (findFieldLength(field) == 0) --actualSortKeys;
+    }
+    byte[] sortInfo = new byte[4+(12*actualSortKeys)];
+    BinaryConverter.intToByteArray(actualSortKeys, sortInfo, 0);
     int offset = 4;
     for (int i=0; i<numSortKeys; ++i)
     {
@@ -286,16 +326,19 @@ public class SpooledFileOpenList extends OpenList
       boolean ascend = ((Boolean)pair[1]).booleanValue();
       int startingPosition = findStartingPosition(field);
       int fieldLength = findFieldLength(field);
-      short dataType = findDataType(field);
-      byte sortOrder = ascend ? (byte)0xF1 : (byte)0xF2; // '1' is ascending, '2' is descending.
-      BinaryConverter.intToByteArray(startingPosition, sortInfo, offset);
-      offset += 4;
-      BinaryConverter.intToByteArray(fieldLength, sortInfo, offset);
-      offset += 4;
-      BinaryConverter.shortToByteArray(dataType, sortInfo, offset);
-      offset += 2;
-      sortInfo[offset] = sortOrder;
-      offset += 2;
+      if (fieldLength > 0) // Ignore any sort fields that don't apply for our current format.
+      {
+        short dataType = findDataType(field);
+        byte sortOrder = ascend ? (byte)0xF1 : (byte)0xF2; // '1' is ascending, '2' is descending.
+        BinaryConverter.intToByteArray(startingPosition, sortInfo, offset);
+        offset += 4;
+        BinaryConverter.intToByteArray(fieldLength, sortInfo, offset);
+        offset += 4;
+        BinaryConverter.shortToByteArray(dataType, sortInfo, offset);
+        offset += 2;
+        sortInfo[offset] = sortOrder;
+        offset += 2;
+      }
     }
     parms[4] = new ProgramParameter(sortInfo); // sort information
     
@@ -437,7 +480,7 @@ public class SpooledFileOpenList extends OpenList
   }
 
   // Helper method for sort parameter.
-  private static final short findDataType(int field)
+  private final short findDataType(int field)
   {
     // 4 is character.
     // 0 is signed binary.
@@ -448,7 +491,7 @@ public class SpooledFileOpenList extends OpenList
       case JOB_NUMBER: return 4;
       case NAME: return 4;
       case NUMBER: return 0;
-      case STATUS: return 0;
+      case STATUS: return format_.equalsIgnoreCase(FORMAT_0300) ? (short)0 : (short)4;
       case DATE_OPENED: return 4;
       case TIME_OPENED: return 4;
       case SCHEDULE: return 4;
@@ -463,14 +506,20 @@ public class SpooledFileOpenList extends OpenList
       case TOTAL_PAGES: return 0;
       case COPIES_LEFT_TO_PRINT: return 0;
       case PRIORITY: return 4;
+      case PRINTER_NAME: return 4;
+      case PRINTER_ASSIGNED: return 4;
+      case CURRENT_PAGE: return 0;
+      case DEVICE_TYPE: return 4;
       default:
-        throw new RuntimeException();
+        return 0;
     }
   }
 
-  // Helper method for sort parameter.
-  private static final int findFieldLength(int field)
+  // Helper method for sort parameter. Returns 0 for fields that do not 
+  // exist on the current format.
+  private final int findFieldLength(int field)
   {
+    boolean is300 = format_.equalsIgnoreCase(FORMAT_0300);
     switch(field)
     {
       case JOB_NAME: return 10;
@@ -478,54 +527,63 @@ public class SpooledFileOpenList extends OpenList
       case JOB_NUMBER: return 6;
       case NAME: return 10;
       case NUMBER: return 4;
-      case STATUS: return 4;
+      case STATUS: return is300 ? 4 : 10;
       case DATE_OPENED: return 7;
       case TIME_OPENED: return 6;
-      case SCHEDULE: return 1;
-      case JOB_SYSTEM: return 10;
+      case SCHEDULE: return is300 ? 1 : 0;
+      case JOB_SYSTEM: return is300 ? 10 : 8;
       case USER_DATA: return 10;
       case FORM_TYPE: return 10;
       case OUTPUT_QUEUE_NAME: return 10;
       case OUTPUT_QUEUE_LIBRARY: return 10;
-      case ASP: return 4;
-      case SIZE: return 4;
-      case SIZE_MULTIPLIER: return 4;
+      case ASP: return is300 ? 4 : 0;
+      case SIZE: return is300 ? 4 : 0;
+      case SIZE_MULTIPLIER: return is300 ? 4 : 0;
       case TOTAL_PAGES: return 4;
       case COPIES_LEFT_TO_PRINT: return 4;
-      case PRIORITY: return 1;
+      case PRIORITY: return is300 ? 1 : 2;
+      case PRINTER_NAME: return is300 ? 10 : 0;
+      case PRINTER_ASSIGNED: return 1;
+      case CURRENT_PAGE: return is300 ? 0 : 4;
+      case DEVICE_TYPE: return is300 ? 0 : 10;
       default:
-        throw new RuntimeException();
+        return 0;
     }
   }
 
   // Helper method for sort parameter.
-  private static final int findStartingPosition(int field)
+  private final int findStartingPosition(int field)
   {
+    boolean is300 = format_.equalsIgnoreCase(FORMAT_0300);
     // This is 1-based for whatever reason.
     switch(field)
     {
-      case JOB_NAME: return 1;
-      case JOB_USER: return 11;
-      case JOB_NUMBER: return 21;
-      case NAME: return 27;
+      case JOB_NAME: return is300 ? 1 : 11;
+      case JOB_USER: return is300 ? 11 : 21;
+      case JOB_NUMBER: return is300 ? 21 : 31;
+      case NAME: return is300 ? 27 : 1;
       case NUMBER: return 37;
-      case STATUS: return 41;
-      case DATE_OPENED: return 45;
-      case TIME_OPENED: return 52;
+      case STATUS: return is300 ? 41 : 83;
+      case DATE_OPENED: return is300 ? 45 : 161;
+      case TIME_OPENED: return is300 ? 52 : 168;
       case SCHEDULE: return 58;
-      case JOB_SYSTEM: return 59;
-      case USER_DATA: return 69;
-      case FORM_TYPE: return 79;
-      case OUTPUT_QUEUE_NAME: return 89;
-      case OUTPUT_QUEUE_LIBRARY: return 99;
+      case JOB_SYSTEM: return is300 ? 59 : (format_.equalsIgnoreCase(FORMAT_0100) ? 161 : 192);
+      case USER_DATA: return is300 ? 69 : 73;
+      case FORM_TYPE: return is300 ? 79 : 93;
+      case OUTPUT_QUEUE_NAME: return is300 ? 89 : 53;
+      case OUTPUT_QUEUE_LIBRARY: return is300 ? 99 : 63;
       case ASP: return 109;
       case SIZE: return 113;
       case SIZE_MULTIPLIER: return 117;
       case TOTAL_PAGES: return 121;
-      case COPIES_LEFT_TO_PRINT: return 125;
-      case PRIORITY: return 129;
+      case COPIES_LEFT_TO_PRINT: return is300 ? 125 : 49;
+      case PRIORITY: return is300 ? 129 : 103;
+      case PRINTER_NAME: return 175;
+      case PRINTER_ASSIGNED: return 174;
+      case CURRENT_PAGE: return 45;
+      case DEVICE_TYPE: return 137;
       default:
-        throw new RuntimeException();
+        return 0;
     }
   }
 
@@ -574,10 +632,10 @@ public class SpooledFileOpenList extends OpenList
         if (format_.equals(FORMAT_0200))
         {
           // format OSPL0200 only
-          String dateOpened = conv.byteArrayToString(data, 160, 7);
-          String timeOpened = conv.byteArrayToString(data, 167, 6);
-          String printerAssigned = conv.byteArrayToString(data, 173, 1); // Not in 0300 format.
-          String printerName = conv.byteArrayToString(data, 174, 10).trim(); // Not in 0300 format.
+          String dateOpened = conv.byteArrayToString(data, offset+160, 7);
+          String timeOpened = conv.byteArrayToString(data, offset+167, 6);
+          String printerAssigned = conv.byteArrayToString(data, offset+173, 1); // Not in 0300 format.
+          String printerName = conv.byteArrayToString(data, offset+174, 10).trim(); // Not in 0300 format.
         
           sp[i] = new SpooledFileListItem(spooledFileName, jobName, jobUser, jobNumber, spooledFileNumber,
                                           totalPages, currentPage, copiesLeftToPrint, outputQueueName,
