@@ -72,6 +72,8 @@ import java.io.*;
  **/
 public class JdbcMeDriver
 {
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
     private static AS400 system_;
 
 
@@ -125,7 +127,7 @@ public class JdbcMeDriver
      *
      *  @return The connection to the database or null if the driver does not understand how to connect to the database.
      *
-     *  @see com.ibm.as400.micro.JdbcMeDriver.getConnection(String, String, String);
+     *  @see com.ibm.as400.micro.JdbcMeDriver#getConnection(String, String, String)
      *
      *  @exception JdbcMeException If the driver is unable to make the connection.
      **/

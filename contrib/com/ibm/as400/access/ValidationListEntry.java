@@ -94,7 +94,7 @@ public ValidationListDataToEncrypt getDataToEncrypt() {
  * for the <i>QsyEncryptData</i> attribute when the entry was inserted.
  *
  * @return com.kingland.as400.access.ValidationListTranslatedData
- * @see getDataToEncrypt()
+ * @see #getDataToEncrypt
  */
 public ValidationListTranslatedData getEncryptedData() {
 	if (encryptedData_ == null)
