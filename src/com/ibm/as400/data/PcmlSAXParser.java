@@ -488,439 +488,17 @@ class PcmlSAXParser extends DefaultHandler
     // Reset initValue
     initValue="";
 
-    if (xsdFileStream != null  && isXPCML)
-    {
 
-      // Check if this is a user defined element. If so, convert to equivalent XPCML element
-      if (!qName.equals("xpcml") && !qName.equals("program")  && !qName.equals("parameterList") && !qName.equals("struct") &&
-          !qName.equals("stringParm") && !qName.equals("intParm") && !qName.equals("shortParm") &&
-          !qName.equals("longParm") && !qName.equals("zonedDecimalParm") && !qName.equals("floatParm") &&
-          !qName.equals("packedDecimalParm") && !qName.equals("doubleParm") && !qName.equals("structParm") &&
-          !qName.equals("hexBinaryParm" ) && !qName.equals("unsignedIntParm") && !qName.equals("unsignedShortParm") &&
-          !qName.equals("arrayOfStringParm") && !qName.equals("arrayOfIntParm") && !qName.equals("arrayOfShortParm") &&
-          !qName.equals("arrayOfLongParm") && !qName.equals("arrayOfZonedDecimalParm") && !qName.equals("arrayOfFloatParm") &&
-          !qName.equals("arrayOfPackedDecimalParm") && !qName.equals("arrayOfDoubleParm") && !qName.equals("arrayOfStructParm") &&
-          !qName.equals("arrayOfHexBinaryParm" ) && !qName.equals("arrayOfUnsignedIntParm") &&
-          !qName.equals("arrayOfUnsignedShortParm") && !qName.equals("arrayOfStruct"))
+    if (!isXPCML)    // Copy old PCML code exactly - do not change!!!
+    {
+      // Create a PcmlAttributeList to hold all the
+      // attributes for this node.
+      PcmlAttributeList attrs = new PcmlAttributeList(xmlAttrs.getLength());
+      for (int attr = 0; attr < xmlAttrs.getLength(); attr++)
       {
-        // User defined parameter.  Need to find it in XSD stream.
-        uDefinedQName=true;
-        ByteArrayInputStream stream = new ByteArrayInputStream(xmlOut.toByteArray());
-        if (stream == null)
-          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
-        // Cache the line count of the header
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
-        try
-        {
-          String line;
-          line=lnr.readLine();
-          boolean found=false;
-          while (line != null && !found)
-          {
-            if (line.indexOf("name="+"\""+qName+"\"") != -1 && line.indexOf("parm type=") != -1)
-            {
-              if (line.indexOf("parm type=string") != -1)
-              {
-                // String parm found!!!
-                equivQName = "stringParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=int") != -1)
-              {
-                // Int parm found!!!
-                equivQName="intParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=uint") != -1)
-              {
-                // Unsigned Int parm found!!!
-                equivQName="unsignedIntParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=hexBinary") != -1)
-              {
-                // hexBinary parm found!!!
-                equivQName="hexBinaryParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=short") != -1)
-              {
-                // Short parm found!!!
-                equivQName="shortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=ushort") != -1)
-              {
-                // Unsigned Short parm found!!!
-                equivQName="unsignedShortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=long") != -1)
-              {
-                // Long parm found!!!
-                equivQName="longParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=float") != -1)
-              {
-                // Float parm found!!!
-                equivQName="floatParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=double") != -1)
-              {
-                // Double parm found!!!
-                equivQName="doubleParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=packed") != -1)
-              {
-                // Packed parm found!!!
-                equivQName="packedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=zoned") != -1)
-              {
-                // Zoned parm found!!!
-                equivQName="zonedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=structParm") != -1)
-              {
-                // Struct parm found!!!
-                equivQName="structParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfString") != -1)
-              {
-                // String parm found!!!
-                equivQName = "arrayOfStringParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfInt") != -1)
-              {
-                // Int parm found!!!
-                equivQName="arrayOfIntParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfUInt") != -1)
-              {
-                // Unsigned Int parm found!!!
-                equivQName="arrayOfUnsignedIntParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfHexBinary") != -1)
-              {
-                // hexBinary parm found!!!
-                equivQName="arrayOfHexBinaryParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfShort") != -1)
-              {
-                // Short parm found!!!
-                equivQName="arrayOfShortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfUShort") != -1)
-              {
-                // Unsigned Short parm found!!!
-                equivQName="arrayOfUnsignedShortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfLong") != -1)
-              {
-                // Long parm found!!!
-                equivQName="arrayOfLongParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfFloat") != -1)
-              {
-                // Float parm found!!!
-                equivQName="arrayOfFloatParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfDouble") != -1)
-              {
-                // Double parm found!!!
-                equivQName="arrayOfDoubleParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfPacked") != -1)
-              {
-                // Packed parm found!!!
-                equivQName="arrayOfPackedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfZoned") != -1)
-              {
-                // Zoned parm found!!!
-                equivQName="arrayOfZonedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfStructParm") != -1)
-              {
-                // Struct parm found!!!
-                equivQName="arrayOfStructParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=structArray") != -1)
-              {
-                // Struct parm found!!!
-                equivQName="arrayOfStruct";
-                found=true;
-              }
-              else
-              {
-                // Should never reach here.  Should get parse error if invalid type passed in
-                Trace.log(Trace.WARNING,"User defined type passed in not found in xsd stream");
-              }
-
-              // Now get attributes and set them to equivalent XPCML base attributes
-              // Find and print attributes
-              if (found==true)
-              {
-                line = lnr.readLine();
-                while (line != null && line.indexOf("parm type=") == -1)
-                {
-                  // Save attributes attributes
-                  String attrName="";
-                  String attrVal="";
-                  // Parse line into attribute, value pair
-                  if (line.indexOf("attributeName=") != -1)
-                  {
-                    // Found an attribute
-                    attrName=line.substring(line.indexOf("attributeName=")+14, line.indexOf("attributeValue=")).trim();
-                  }
-                  if (line.indexOf("attributeValue=") != -1)
-                  {
-                    attrVal=line.substring(line.indexOf("attributeValue=")+15).trim();
-                  }
-                  // Save the attribute in the attribute list
-                  uAttrs.addAttribute("","",attrName,"",attrVal);
-                  // Read next line. While loop checks if its still an attribute line
-                  line = lnr.readLine();
-                }
-              }
-            }
-            if (!found)
-              line=lnr.readLine();
-          }
-        }
-        catch (IOException e)
-        {
-          Trace.log(Trace.PCML,"Error reading xsd stream in startElement");
-        }
-      }
-    }     // end if xsdStream not null
-
-    if (equivQName.equals("arrayOfStringParm") || equivQName.equals("arrayOfStructParm") ||
-        equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfShortParm") ||
-        equivQName.equals("arrayOfUnsignedIntParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
-        equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm") ||
-        equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfZonedDecimalParm") ||
-        equivQName.equals("arrayOfPackedDecimalParm") || equivQName.equals("arrayOfHexBinaryParm") ||
-        equivQName.equals("arrayOfStruct"))
-    {
-      //          if (equivQName.equals("arrayOfStructParm"))
-      curDim++;
-
-      if (uDefinedQName)
-      {
-        if (curAttrs.size() > curDim)
-          curAttrs.set(curDim,uAttrs);
-        else
-          curAttrs.add(curDim,uAttrs);
-      }
-      else
-      {
-        if (curAttrs.size() > curDim)
-          curAttrs.set(curDim, new AttributesImpl(xmlAttrs));
-        else
-          curAttrs.add(curDim, new AttributesImpl(xmlAttrs));
-      }
-      if (curQName.size() > curDim)
-        curQName.set(curDim,equivQName);
-      else
-        curQName.add(curDim,equivQName);
-      lastQName = equivQName;
-    }
-
-    // Create a PcmlAttributeList to hold all the
-    // attributes for this node.
-    AttributesImpl curList;
-    String curName;
-    if (equivQName.equals("i") || equivQName.equals("struct_i"))
-    {
-      // Check if this is first element in array.  If not, then increase dimensions by 1
-      if (lastQName.indexOf("arrayOf") == -1)   // Last element not arrayOf element so up by 1
-      {
-        // This is not first element so up index by 1
-        dimensions.set(curDim, dimensions.at(curDim)+1);
-      }
-      curList = new AttributesImpl( (AttributesImpl) curAttrs.elementAt(curDim));
-      curName=  new String((String) curQName.elementAt(curDim));
-    }
-    else
-    {
-      if (uDefinedQName)
-        curList = uAttrs;
-      else
-        curList = new AttributesImpl(xmlAttrs);
-      curName = equivQName;
-    }
-
-    // Check if this is the first instance of this node.  If not, do not create the node again
-    firstInstance = true;
-
-    if (m_currentNode != null)
-    {
-      if (m_currentNode.getNodeType() == PcmlNodeType.STRUCT && !equivQName.equals("struct_i") && !equivQName.equals("struct") && !equivQName.equals("xpcml"))
-      {
-        boolean isInTree;
-        isInTree = inTree(equivQName,curList);
-        if (isInTree)
-          firstInstance=false;
-      }
-    }
-
-    for (int i=0; i<= curDim; ++i)
-    {
-      if (dimensions.at(i) > 0)
-        firstInstance=false;
-    }
-
-    if (equivQName.equals("i") || equivQName.equals("struct_i"))
-    {
-      for (int attr=0; attr < xmlAttrs.getLength(); attr++)
-      {
-        if (xmlAttrs.getQName(attr).equals("index"))
-        {
-          // Set current dimension to index value
-          Integer indexInt = new Integer(xmlAttrs.getValue(attr));
-          dimensions.set(curDim,indexInt.intValue());
-        }
-      }
-    }
-
-
-    lastQName = equivQName;
-
-    if (firstInstance && !equivQName.equals("i") && !equivQName.equals("struct_i"))
-    {
-      PcmlAttributeList attrs= new PcmlAttributeList(curList.getLength()+2);
-
-      for (int attr = 0; attr < curList.getLength(); attr++)
-      {
-        //@E1A -- XPCML code.  Need to convert XPCML representation of attributes to their PCML
-        // equivalents.
-        if (curList.getQName(attr).equals("name"))
-          parmName = curList.getValue(attr);
-
-        if (curList.getQName(attr).equals("passDirection"))                      //@E1A
-        {
-          //@E1A
-          if (curList.getValue(attr).equals("in"))                            //@E1A
-            attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
-                                                  "input",
-                                                  (true | false)) );
-          else if (curList.getValue(attr).equals("inout"))                     //@E1A
-            attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
-                                                  "inputoutput",
-                                                  (true | false)) );
-
-          else if (curList.getValue(attr).equals("out"))                       //@E1A
-            attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
-                                                  "output",
-                                                  (true | false)) );
-          else if (curList.getValue(attr).equals("inherit"))                   //@E1A
-            attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
-                                                  "inherit",
-                                                  (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("passMode"))                    //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("passby",                       //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("bytesPerChar"))                //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("chartype",                  //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("totalBytes"))                  //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("length",                    //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("outputSize"))                  //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("outputsize",                //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("entryPoint"))                  //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("entrypoint",                //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("returnValue"))                 //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("returnvalue",               //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("threadSafe"))                 //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("threadsafe",               //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("offsetFrom"))                 //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("offsetfrom",               //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("totalDigits"))                //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("length",                   //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("fractionDigits"))             //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("precision",                //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("parseOrder"))                 //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("parseorder",               //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("bidiStringType"))             //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("bidistringtype",           //@E1A
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
-        else if (curList.getQName(attr).equals("isEmptyString"))             //@E1A
-        {
-          attrs.addAttribute( new PcmlAttribute("init",           //@E1A
-                                                "",
-                                                (true | false)) );
-        }
-        else if (!qName.equals("xpcml") || (qName.equals("xpcml") && curList.getQName(attr).equals("version")))
-        {
-          attrs.addAttribute( new PcmlAttribute(curList.getQName(attr),   // @C3C @E0C
-                                                curList.getValue(attr),
-                                                (true | false)) );
-        }
+        attrs.addAttribute( new PcmlAttribute(xmlAttrs.getQName(attr),   // @C3C
+                                              xmlAttrs.getValue(attr),
+                                              (true | false)) );
       }
 
       // Create PcmlDocNode subclass based on tag name
@@ -931,210 +509,19 @@ class PcmlSAXParser extends DefaultHandler
       else if (tagName.equals("program"))
       {
         newNode = new PcmlProgram(attrs);
-        // Reset dimensions
-        for (int i=0; i< dimensions.size();++i)
-          dimensions.set(i, 0);
       }
       else if (tagName.equals("struct"))
       {
         newNode = new PcmlStruct(attrs);
-        // Check if outside program parameter list.  If so, then reset dimensions
-        //
-      }
-      else if (tagName.equals("arrayOfStruct"))
-      {
-        newNode = new PcmlStruct(attrs);
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-
-      }
-      else if (equivQName.equals("arrayOfStructParm"))
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "struct",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);                 //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-
       }
       else if (tagName.equals("data"))
       {
         newNode = new PcmlData(attrs);
-
-      }
-      else if (tagName.equals("xpcml"))            //@E1A
-      {
-        newNode = new PcmlDocument(attrs,m_docName);     //@E1A
-      }
-      else if (equivQName.equals("stringParm") || equivQName.equals("arrayOfStringParm"))           //@E1A
-      {
-
-        attrs.addAttribute( new PcmlAttribute("type",    //@E1A
-                                              "char",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);                   //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("hexBinaryParm") || equivQName.equals("arrayOfHexBinaryParm"))           //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",    // @E1A
-                                              "byte",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);                   //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("intParm") || equivQName.equals("arrayOfIntParm"))                    //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "int",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "4",
-                                              (true | false)) );
-
-        newNode = new PcmlData(attrs);                    //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("unsignedIntParm") || equivQName.equals("arrayOfUnsignedIntParm"))                    //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "int",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "4",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("precision",   // @E1A
-                                              "32",
-                                              (true | false)) );
-
-        newNode = new PcmlData(attrs);                    //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("shortParm") || equivQName.equals("arrayOfShortParm"))                   //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "int",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "2",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("unsignedShortParm") || equivQName.equals("arrayOfUnsignedShortParm"))                   //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "int",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "2",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("precision",   // @E1A
-                                              "16",
-                                              (true | false)) );
-
-        newNode = new PcmlData(attrs);
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("longParm") || equivQName.equals("arrayOfLongParm"))                  //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "int",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "8",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("floatParm") || equivQName.equals("arrayOfFloatParm"))                 //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "float",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "4",
-                                              (true | false)) );
-
-        newNode = new PcmlData(attrs);
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("doubleParm") || equivQName.equals("arrayOfDoubleParm"))               //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "float",
-                                              (true | false)) );
-
-        attrs.addAttribute( new PcmlAttribute("length",   // @E1A
-                                              "8",
-                                              (true | false)) );
-
-        newNode = new PcmlData(attrs);                    //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("zonedDecimalParm") || equivQName.equals("arrayOfZonedDecimalParm"))            //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",     // @E1A
-                                              "zoned",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);                    //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("packedDecimalParm") || equivQName.equals("arrayOfPackedDecimalParm"))           //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "packed",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
-      }
-      else if (equivQName.equals("structParm"))    //@E1A
-      {
-        attrs.addAttribute( new PcmlAttribute("type",   // @E1A
-                                              "struct",
-                                              (true | false)) );
-        newNode = new PcmlData(attrs);                 //@E1A
-        // Check if this is a user-defined element. Update field in docNode if so
-        if (uDefinedQName)
-          newNode.setCondensedName(qName);
       }
       else
       {
-        newNode = null;   // Unrecognized tag name chould never happen
-                          // if the tags parse successfully
+        newNode = null; // Unrecognized tag name chould never happen
+        // if the tags parse successfully
       }
 
       if (newNode != null)
@@ -1150,41 +537,695 @@ class PcmlSAXParser extends DefaultHandler
           m_currentNode = newNode;
         }
       }
-    } // end else
-    else
+    }
+
+    if (isXPCML)
     {
-      // Not first instance of node so we need to retrieve the node from the tree and set
-      // it to current node
-      if (m_currentNode.getNodeType()== PcmlNodeType.STRUCT && !equivQName.equals("struct_i") ||
-          (m_currentNode.getNodeType()==PcmlNodeType.DATA && m_currentNode.getAttributeValue("type").equals("struct") ) &&
-          !equivQName.equals("struct_i"))
+      if (xsdFileStream != null)
       {
-        String pName="";
-        for (int attr = 0; attr < curList.getLength(); attr++)
+
+        // Check if this is a user defined element. If so, convert to equivalent XPCML element
+        if (!qName.equals("xpcml") && !qName.equals("program")  && !qName.equals("parameterList") && !qName.equals("struct") &&
+            !qName.equals("stringParm") && !qName.equals("intParm") && !qName.equals("shortParm") &&
+            !qName.equals("longParm") && !qName.equals("zonedDecimalParm") && !qName.equals("floatParm") &&
+            !qName.equals("packedDecimalParm") && !qName.equals("doubleParm") && !qName.equals("structParm") &&
+            !qName.equals("hexBinaryParm" ) && !qName.equals("unsignedIntParm") && !qName.equals("unsignedShortParm") &&
+            !qName.equals("arrayOfStringParm") && !qName.equals("arrayOfIntParm") && !qName.equals("arrayOfShortParm") &&
+            !qName.equals("arrayOfLongParm") && !qName.equals("arrayOfZonedDecimalParm") && !qName.equals("arrayOfFloatParm") &&
+            !qName.equals("arrayOfPackedDecimalParm") && !qName.equals("arrayOfDoubleParm") && !qName.equals("arrayOfStructParm") &&
+            !qName.equals("arrayOfHexBinaryParm" ) && !qName.equals("arrayOfUnsignedIntParm") &&
+            !qName.equals("arrayOfUnsignedShortParm") && !qName.equals("arrayOfStruct"))
         {
-          if (curList.getQName(attr).equals("name"))
-            pName = curList.getValue(attr);
+          // User defined parameter.  Need to find it in XSD stream.
+          uDefinedQName=true;
+          ByteArrayInputStream stream = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (stream == null)
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
+
+          // Cache the line count of the header
+          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
+          try
+          {
+            String line;
+            line=lnr.readLine();
+            boolean found=false;
+            while (line != null && !found)
+            {
+              if (line.indexOf("name="+"\""+qName+"\"") != -1 && line.indexOf("parm type=") != -1)
+              {
+                if (line.indexOf("parm type=string") != -1)
+                {
+                  // String parm found!!!
+                  equivQName = "stringParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=int") != -1)
+                {
+                  // Int parm found!!!
+                  equivQName="intParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=uint") != -1)
+                {
+                  // Unsigned Int parm found!!!
+                  equivQName="unsignedIntParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=hexBinary") != -1)
+                {
+                  // hexBinary parm found!!!
+                  equivQName="hexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=short") != -1)
+                {
+                  // Short parm found!!!
+                  equivQName="shortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=ushort") != -1)
+                {
+                  // Unsigned Short parm found!!!
+                  equivQName="unsignedShortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=long") != -1)
+                {
+                  // Long parm found!!!
+                  equivQName="longParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=float") != -1)
+                {
+                  // Float parm found!!!
+                  equivQName="floatParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=double") != -1)
+                {
+                  // Double parm found!!!
+                  equivQName="doubleParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=packed") != -1)
+                {
+                  // Packed parm found!!!
+                  equivQName="packedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=zoned") != -1)
+                {
+                  // Zoned parm found!!!
+                  equivQName="zonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=structParm") != -1)
+                {
+                  // Struct parm found!!!
+                  equivQName="structParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfString") != -1)
+                {
+                  // String parm found!!!
+                  equivQName = "arrayOfStringParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfInt") != -1)
+                {
+                  // Int parm found!!!
+                  equivQName="arrayOfIntParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfUInt") != -1)
+                {
+                  // Unsigned Int parm found!!!
+                  equivQName="arrayOfUnsignedIntParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfHexBinary") != -1)
+                {
+                  // hexBinary parm found!!!
+                  equivQName="arrayOfHexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfShort") != -1)
+                {
+                  // Short parm found!!!
+                  equivQName="arrayOfShortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfUShort") != -1)
+                {
+                  // Unsigned Short parm found!!!
+                  equivQName="arrayOfUnsignedShortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfLong") != -1)
+                {
+                  // Long parm found!!!
+                  equivQName="arrayOfLongParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfFloat") != -1)
+                {
+                  // Float parm found!!!
+                  equivQName="arrayOfFloatParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfDouble") != -1)
+                {
+                  // Double parm found!!!
+                  equivQName="arrayOfDoubleParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfPacked") != -1)
+                {
+                  // Packed parm found!!!
+                  equivQName="arrayOfPackedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfZoned") != -1)
+                {
+                  // Zoned parm found!!!
+                  equivQName="arrayOfZonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfStructParm") != -1)
+                {
+                  // Struct parm found!!!
+                  equivQName="arrayOfStructParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=structArray") != -1)
+                {
+                  // Struct found!!!
+                  equivQName="arrayOfStruct";
+                  found=true;
+                }
+                else
+                {
+                  // Should never reach here.  Should get parse error if invalid type passed in
+                  Trace.log(Trace.WARNING,"User defined type passed in not found in xsd stream");
+                }
+
+                // Now get attributes and set them to equivalent XPCML base attributes
+                // Find and print attributes
+                if (found==true)
+                {
+                  line = lnr.readLine();
+                  while (line != null && line.indexOf("parm type=") == -1)
+                  {
+                    // Save attributes attributes
+                    String attrName="";
+                    String attrVal="";
+                    // Parse line into attribute, value pair
+                    if (line.indexOf("attributeName=") != -1)
+                    {
+                      // Found an attribute
+                      attrName=line.substring(line.indexOf("attributeName=")+14, line.indexOf("attributeValue=")).trim();
+                    }
+                    if (line.indexOf("attributeValue=") != -1)
+                    {
+                      attrVal=line.substring(line.indexOf("attributeValue=")+15).trim();
+                    }
+                    // Save the attribute in the attribute list
+                    uAttrs.addAttribute("","",attrName,"",attrVal);
+                    // Read next line. While loop checks if its still an attribute line
+                    line = lnr.readLine();
+                  }
+                }
+              } // end if
+              if (!found)
+                line=lnr.readLine();
+            } // end while
+          }  // end try
+          catch (IOException e)
+          {
+            Trace.log(Trace.PCML,"Error reading xsd stream in startElement");
+          }
         }
+      }  // end if xsdStream not null
 
-        Enumeration items;
-        PcmlNode child=null;
+      if (equivQName.equals("arrayOfStringParm") || equivQName.equals("arrayOfStructParm") ||
+          equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfShortParm") ||
+          equivQName.equals("arrayOfUnsignedIntParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
+          equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm") ||
+          equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfZonedDecimalParm") ||
+          equivQName.equals("arrayOfPackedDecimalParm") || equivQName.equals("arrayOfHexBinaryParm") ||
+          equivQName.equals("arrayOfStruct"))
+      {
+        curDim++;
 
-        items = m_currentNode.getChildren();
-        if (items == null)
-          return;
-
-        boolean found=false;
-        while (items.hasMoreElements() && !found)
+        if (uDefinedQName)
         {
-          child = (PcmlNode) items.nextElement();
-          if (child.getName().equals(pName))
-            found=true;
+          if (curAttrs.size() > curDim)
+            curAttrs.set(curDim,uAttrs);
+          else
+            curAttrs.add(curDim,uAttrs);
         }
-        m_currentNode = (PcmlDocNode) child;
+        else
+        {
+          if (curAttrs.size() > curDim)
+            curAttrs.set(curDim, new AttributesImpl(xmlAttrs));
+          else
+            curAttrs.add(curDim, new AttributesImpl(xmlAttrs));
+        }
+        if (curQName.size() > curDim)
+          curQName.set(curDim,equivQName);
+        else
+          curQName.add(curDim,equivQName);
+        lastQName = equivQName;
       }
 
+      // Create a PcmlAttributeList to hold all the
+      // attributes for this node.
+      AttributesImpl curList;
+      String curName;
+      if (equivQName.equals("i") || equivQName.equals("struct_i"))
+      {
+        // Check if this is first element in array.  If not, then increase dimensions by 1
+        if (lastQName.indexOf("arrayOf") == -1)   // Last element not arrayOf element so up by 1
+        {
+          // This is not first element so up index by 1
+          dimensions.set(curDim, dimensions.at(curDim)+1);
+        }
+        curList = new AttributesImpl( (AttributesImpl) curAttrs.elementAt(curDim));
+        curName=  new String((String) curQName.elementAt(curDim));
+      }
+      else
+      {
+        if (uDefinedQName)
+          curList = uAttrs;
+        else
+          curList = new AttributesImpl(xmlAttrs);
+        curName = equivQName;
+      }
 
-    }
+      // Check if this is the first instance of this node.  If not, do not create the node again
+      firstInstance = true;
+      if (m_currentNode != null)
+      {
+        if (m_currentNode.getNodeType() == PcmlNodeType.STRUCT && !equivQName.equals("struct_i") && !equivQName.equals("struct") && !equivQName.equals("xpcml"))
+        {
+          boolean isInTree;
+          isInTree = inTree(equivQName,curList);
+          if (isInTree)
+            firstInstance=false;
+        }
+      }
+      for (int i=0; i<= curDim; ++i)
+      {
+        if (dimensions.at(i) > 0)
+          firstInstance=false;
+      }
+
+      // Set current dimension to index value if specified
+      if (equivQName.equals("i") || equivQName.equals("struct_i"))
+      {
+        for (int attr=0; attr < xmlAttrs.getLength(); attr++)
+        {
+          if (xmlAttrs.getQName(attr).equals("index"))
+          {
+            // Set current dimension to index value
+            Integer indexInt = new Integer(xmlAttrs.getValue(attr));
+            dimensions.set(curDim,indexInt.intValue());
+          }
+        }
+      }
+
+      // Set attributes if this is the first instance of this node
+      lastQName = equivQName;
+      if (firstInstance && !equivQName.equals("i") && !equivQName.equals("struct_i"))
+      {
+        PcmlAttributeList attrs= new PcmlAttributeList(curList.getLength()+2);
+
+        for (int attr = 0; attr < curList.getLength(); attr++)
+        {
+          //@E1A -- XPCML code.  Need to convert XPCML representation of attributes to their PCML
+          // equivalents.
+          if (curList.getQName(attr).equals("name"))
+            parmName = curList.getValue(attr);
+
+          if (curList.getQName(attr).equals("passDirection"))                      //@E1A
+          {
+            //@E1A
+            if (curList.getValue(attr).equals("in"))                            //@E1A
+              attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
+                                                    "input",
+                                                    (true | false)) );
+            else if (curList.getValue(attr).equals("inout"))                     //@E1A
+              attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
+                                                    "inputoutput",
+                                                    (true | false)) );
+
+            else if (curList.getValue(attr).equals("out"))                       //@E1A
+              attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
+                                                    "output",
+                                                    (true | false)) );
+            else if (curList.getValue(attr).equals("inherit"))                   //@E1A
+              attrs.addAttribute( new PcmlAttribute("usage",                  //@E1A
+                                                    "inherit",
+                                                    (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("passMode"))                    //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("passby",                       //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("bytesPerChar"))                //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("chartype",                  //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("totalBytes"))                  //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("length",                    //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("outputSize"))                  //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("outputsize",                //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("entryPoint"))                  //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("entrypoint",                //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("returnValue"))                 //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("returnvalue",               //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("threadSafe"))                 //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("threadsafe",               //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("offsetFrom"))                 //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("offsetfrom",               //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("totalDigits"))                //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("length",                   //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("fractionDigits"))             //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("precision",                //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("parseOrder"))                 //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("parseorder",               //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("bidiStringType"))             //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("bidistringtype",           //@E1A
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+          else if (curList.getQName(attr).equals("isEmptyString"))             //@E1A
+          {
+            attrs.addAttribute( new PcmlAttribute("init",           //@E1A
+                                                  "",
+                                                  (true | false)) );
+          }
+          else if (!qName.equals("xpcml") || (qName.equals("xpcml") && curList.getQName(attr).equals("version")))
+          {
+            attrs.addAttribute( new PcmlAttribute(curList.getQName(attr),   // @C3C @E0C
+                                                  curList.getValue(attr),
+                                                  (true | false)) );
+          }
+        } // end for loop
+
+        // Create PcmlDocNode subclass based on tag name
+        if (tagName.equals("program"))
+        {
+          newNode = new PcmlProgram(attrs);
+          // Reset dimensions
+          for (int i=0; i< dimensions.size();++i)
+            dimensions.set(i, 0);
+        }
+        else if (tagName.equals("struct"))
+        {
+          newNode = new PcmlStruct(attrs);
+          // Check if outside program parameter list.  If so, then reset dimensions
+          //
+        }
+        else if (tagName.equals("arrayOfStruct"))
+        {
+          newNode = new PcmlStruct(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+
+        }
+        else if (equivQName.equals("arrayOfStructParm"))
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "struct",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);                 //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+
+        }
+        else if (tagName.equals("xpcml"))            //@E1A
+        {
+          newNode = new PcmlDocument(attrs,m_docName);     //@E1A
+        }
+        else if (equivQName.equals("stringParm") || equivQName.equals("arrayOfStringParm"))           //@E1A
+        {
+
+          attrs.addAttribute( new PcmlAttribute("type",    //@E1A
+                                                "char",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);                   //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("hexBinaryParm") || equivQName.equals("arrayOfHexBinaryParm"))           //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",    // @E1A
+                                                "byte",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);                   //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("intParm") || equivQName.equals("arrayOfIntParm"))                    //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "4",
+                                                (true | false)) );
+
+          newNode = new PcmlData(attrs);                    //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("unsignedIntParm") || equivQName.equals("arrayOfUnsignedIntParm"))                    //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "4",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("precision",   // @E1A
+                                                "32",
+                                                (true | false)) );
+
+          newNode = new PcmlData(attrs);                    //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("shortParm") || equivQName.equals("arrayOfShortParm"))                   //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "2",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("unsignedShortParm") || equivQName.equals("arrayOfUnsignedShortParm"))                   //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "2",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("precision",   // @E1A
+                                                "16",
+                                                (true | false)) );
+
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("longParm") || equivQName.equals("arrayOfLongParm"))                  //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "int",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "8",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("floatParm") || equivQName.equals("arrayOfFloatParm"))                 //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "float",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "4",
+                                                (true | false)) );
+
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("doubleParm") || equivQName.equals("arrayOfDoubleParm"))               //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "float",
+                                                (true | false)) );
+
+          attrs.addAttribute( new PcmlAttribute("length",   // @E1A
+                                                "8",
+                                                (true | false)) );
+
+          newNode = new PcmlData(attrs);                    //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("zonedDecimalParm") || equivQName.equals("arrayOfZonedDecimalParm"))            //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",     // @E1A
+                                                "zoned",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);                    //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("packedDecimalParm") || equivQName.equals("arrayOfPackedDecimalParm"))           //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "packed",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else if (equivQName.equals("structParm"))    //@E1A
+        {
+          attrs.addAttribute( new PcmlAttribute("type",   // @E1A
+                                                "struct",
+                                                (true | false)) );
+          newNode = new PcmlData(attrs);                 //@E1A
+          // Check if this is a user-defined element. Update field in docNode if so
+          if (uDefinedQName)
+            newNode.setCondensedName(qName);
+        }
+        else
+        {
+          newNode = null;   // Unrecognized tag name chould never happen
+                            // if the tags parse successfully
+        }
+
+        if (newNode != null)
+        {
+          if (m_rootNode == null)
+          {
+            m_rootNode = (PcmlDocument) newNode;
+            m_currentNode = newNode;
+          }
+          else
+          {
+            m_currentNode.addChild(newNode);
+            m_currentNode = newNode;
+          }
+        }
+      } // end if firstInstance
+      else
+      {
+        // Not first instance of node so we need to retrieve the node from the tree and set
+        // it to current node
+        if (m_currentNode.getNodeType()== PcmlNodeType.STRUCT && !equivQName.equals("struct_i") ||
+            (m_currentNode.getNodeType()==PcmlNodeType.DATA && m_currentNode.getAttributeValue("type").equals("struct") ) &&
+            !equivQName.equals("struct_i"))
+        {
+          String pName="";
+          for (int attr = 0; attr < curList.getLength(); attr++)
+          {
+            if (curList.getQName(attr).equals("name"))
+              pName = curList.getValue(attr);
+          }
+
+          Enumeration items;
+          PcmlNode child=null;
+
+          items = m_currentNode.getChildren();
+          if (items == null)
+            return;
+
+          boolean found=false;
+          while (items.hasMoreElements() && !found)
+          {
+            child = (PcmlNode) items.nextElement();
+            if (child.getName().equals(pName))
+              found=true;
+          }
+          m_currentNode = (PcmlDocNode) child;
+        }
+      }
+    } // end isXPCML
 
   }
 
@@ -1286,218 +1327,223 @@ class PcmlSAXParser extends DefaultHandler
     String equivQName=qName;
     boolean uDefinedQName=false;
 
-
-    if (xsdFileStream != null && isXPCML)
-    {
-      // Check if this is a user defined element. If so, convert to equivalent XPCML element
-      if (!qName.equals("program")  && !qName.equals("parameterList") && !qName.equals("struct") &&
-          !qName.equals("stringParm") && !qName.equals("intParm") && !qName.equals("shortParm") &&
-          !qName.equals("longParm") && !qName.equals("zonedDecimalParm") && !qName.equals("floatParm") &&
-          !qName.equals("packedDecimalParm") && !qName.equals("doubleParm") && !qName.equals("structParm") &&
-          !qName.equals("hexBinaryParm" ) && !qName.equals("unsignedIntParm") && !qName.equals("unsignedShortParm") &&
-          !qName.equals("arrayOfStringParm") && !qName.equals("arrayOfIntParm") && !qName.equals("arrayOfShortParm") &&
-          !qName.equals("arrayOfLongParm") && !qName.equals("arrayOfZonedDecimalParm") && !qName.equals("arrayOfFloatParm") &&
-          !qName.equals("arrayOfPackedDecimalParm") && !qName.equals("arrayOfDoubleParm") && !qName.equals("arrayOfStructParm") &&
-          !qName.equals("arrayOfHexBinaryParm" ) && !qName.equals("arrayOfUnsignedIntParm") &&
-          !qName.equals("arrayOfUnsignedShortParm") && !qName.equals("arrayOfStruct"))
-      {
-        // User defined parameter.  Need to find it in XSD stream.
-        uDefinedQName=true;
-        ByteArrayInputStream stream = new ByteArrayInputStream(xmlOut.toByteArray());
-        if (stream == null)
-          throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
-        // Cache the line count of the header
-        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
-        try
-        {
-          String line = lnr.readLine();
-          boolean found=false;
-          while (line != null && !found)
-          {
-            if (line.indexOf("name="+"\""+qName+"\"") != -1 && line.indexOf("parm type=") != -1)
-            {
-              if (line.indexOf("parm type=string") != -1)
-              {
-                // String parm found!!!
-                equivQName = "stringParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=int") != -1)
-              {
-                // Int parm found!!!
-                equivQName="intParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=uint") != -1)
-              {
-                // Unsigned Int parm found!!!
-                equivQName="unsignedIntParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=hexBinary") != -1)
-              {
-                // hexBinary parm found!!!
-                equivQName="hexBinaryParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=short") != -1)
-              {
-                // Short parm found!!!
-                equivQName="shortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=ushort") != -1)
-              {
-                // Unsigned Short parm found!!!
-                equivQName="unsignedShortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=long") != -1)
-              {
-                // Long parm found!!!
-                equivQName="longParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=float") != -1)
-              {
-                // Float parm found!!!
-                equivQName="floatParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=double") != -1)
-              {
-                // Double parm found!!!
-                equivQName="doubleParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=packed") != -1)
-              {
-                // Packed parm found!!!
-                equivQName="packedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=zoned") != -1)
-              {
-                // Zoned parm found!!!
-                equivQName="zonedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=structParm") != -1)
-              {
-                // Struct parm found!!!
-                equivQName="structParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfString") != -1)
-              {
-                // String parm found!!!
-                equivQName = "arrayOfStringParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfInt") != -1)
-              {
-                // Int parm found!!!
-                equivQName="arrayOfIntParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfUInt") != -1)
-              {
-                // Unsigned Int parm found!!!
-                equivQName="arrayOfUnsignedIntParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfHexBinary") != -1)
-              {
-                // hexBinary parm found!!!
-                equivQName="arrayOfHexBinaryParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfShort") != -1)
-              {
-                // Short parm found!!!
-                equivQName="arrayOfShortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfUShort") != -1)
-              {
-                // Unsigned Short parm found!!!
-                equivQName="arrayOfUnsignedShortParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfLong") != -1)
-              {
-                // Long parm found!!!
-                equivQName="arrayOfLongParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfFloat") != -1)
-              {
-                // Float parm found!!!
-                equivQName="arrayOfFloatParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfDouble") != -1)
-              {
-                // Double parm found!!!
-                equivQName="arrayOfDoubleParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfPacked") != -1)
-              {
-                // Packed parm found!!!
-                equivQName="arrayOfPackedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfZoned") != -1)
-              {
-                // Zoned parm found!!!
-                equivQName="arrayOfZonedDecimalParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=arrayOfStructParm") != -1)
-              {
-                // Struct parm found!!!
-                equivQName="arrayOfStructParm";
-                found=true;
-              }
-              else if (line.indexOf("parm type=structArray") != -1)
-              {
-                // Struct parm found!!!
-                equivQName="arrayOfStruct";
-                found=true;
-              }
-              {
-                // Should never reach here.  Should get parse error if invalid type passed in
-                // What should I do here?
-              }
-            }
-            line=lnr.readLine();
-          }
-        }
-        catch (IOException e)
-        {
-          Trace.log(Trace.PCML,"Error reading xsd stream in endElement");
-        }
-      }
-    }
-
-
-    if (!equivQName.equals("parameterList") && !equivQName.equals("i") && !equivQName.equals("struct_i"))
+    if (!isXPCML)
       m_currentNode = (PcmlDocNode) m_currentNode.getParent();
 
-    // Backing up tree.  Reset dimensions and current dimension
-    if (equivQName.equals("arrayOfStructParm") || equivQName.equals("arrayOfStringParm")  ||
-        equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfUnsignedIntParm") |
-        equivQName.equals("arrayOfShortParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
-        equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm")   ||
-        equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfHexBinaryParm") ||
-        equivQName.equals("arrayOfZonedDecimalParm") || equivQName.equals("arrayOfPackedDecimalParm") ||
-        equivQName.equals("arrayOfStruct"))
+    if (isXPCML)
     {
-      dimensions.set(curDim, 0); //reset
-      curDim--;
-    }
+      if (xsdFileStream != null)
+      {
+        // Check if this is a user defined element. If so, convert to equivalent XPCML element
+        if (!qName.equals("program")  && !qName.equals("parameterList") && !qName.equals("struct") &&
+            !qName.equals("stringParm") && !qName.equals("intParm") && !qName.equals("shortParm") &&
+            !qName.equals("longParm") && !qName.equals("zonedDecimalParm") && !qName.equals("floatParm") &&
+            !qName.equals("packedDecimalParm") && !qName.equals("doubleParm") && !qName.equals("structParm") &&
+            !qName.equals("hexBinaryParm" ) && !qName.equals("unsignedIntParm") && !qName.equals("unsignedShortParm") &&
+            !qName.equals("arrayOfStringParm") && !qName.equals("arrayOfIntParm") && !qName.equals("arrayOfShortParm") &&
+            !qName.equals("arrayOfLongParm") && !qName.equals("arrayOfZonedDecimalParm") && !qName.equals("arrayOfFloatParm") &&
+            !qName.equals("arrayOfPackedDecimalParm") && !qName.equals("arrayOfDoubleParm") && !qName.equals("arrayOfStructParm") &&
+            !qName.equals("arrayOfHexBinaryParm" ) && !qName.equals("arrayOfUnsignedIntParm") &&
+            !qName.equals("arrayOfUnsignedShortParm") && !qName.equals("arrayOfStruct"))
+        {
+          // User defined parameter.  Need to find it in XSD stream.
+          uDefinedQName=true;
+          ByteArrayInputStream stream = new ByteArrayInputStream(xmlOut.toByteArray());
+          if (stream == null)
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {"xmlOut"}), "xmlOut", "");
 
+          // Cache the line count of the header
+          LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
+          try
+          {
+            String line = lnr.readLine();
+            boolean found=false;
+            while (line != null && !found)
+            {
+              if (line.indexOf("name="+"\""+qName+"\"") != -1 && line.indexOf("parm type=") != -1)
+              {
+                if (line.indexOf("parm type=string") != -1)
+                {
+                  // String parm found!!!
+                  equivQName = "stringParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=int") != -1)
+                {
+                  // Int parm found!!!
+                  equivQName="intParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=uint") != -1)
+                {
+                  // Unsigned Int parm found!!!
+                  equivQName="unsignedIntParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=hexBinary") != -1)
+                {
+                  // hexBinary parm found!!!
+                  equivQName="hexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=short") != -1)
+                {
+                  // Short parm found!!!
+                  equivQName="shortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=ushort") != -1)
+                {
+                  // Unsigned Short parm found!!!
+                  equivQName="unsignedShortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=long") != -1)
+                {
+                  // Long parm found!!!
+                  equivQName="longParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=float") != -1)
+                {
+                  // Float parm found!!!
+                  equivQName="floatParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=double") != -1)
+                {
+                  // Double parm found!!!
+                  equivQName="doubleParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=packed") != -1)
+                {
+                  // Packed parm found!!!
+                  equivQName="packedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=zoned") != -1)
+                {
+                  // Zoned parm found!!!
+                  equivQName="zonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=structParm") != -1)
+                {
+                  // Struct parm found!!!
+                  equivQName="structParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfString") != -1)
+                {
+                  // String parm found!!!
+                  equivQName = "arrayOfStringParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfInt") != -1)
+                {
+                  // Int parm found!!!
+                  equivQName="arrayOfIntParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfUInt") != -1)
+                {
+                  // Unsigned Int parm found!!!
+                  equivQName="arrayOfUnsignedIntParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfHexBinary") != -1)
+                {
+                  // hexBinary parm found!!!
+                  equivQName="arrayOfHexBinaryParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfShort") != -1)
+                {
+                  // Short parm found!!!
+                  equivQName="arrayOfShortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfUShort") != -1)
+                {
+                  // Unsigned Short parm found!!!
+                  equivQName="arrayOfUnsignedShortParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfLong") != -1)
+                {
+                  // Long parm found!!!
+                  equivQName="arrayOfLongParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfFloat") != -1)
+                {
+                  // Float parm found!!!
+                  equivQName="arrayOfFloatParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfDouble") != -1)
+                {
+                  // Double parm found!!!
+                  equivQName="arrayOfDoubleParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfPacked") != -1)
+                {
+                  // Packed parm found!!!
+                  equivQName="arrayOfPackedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfZoned") != -1)
+                {
+                  // Zoned parm found!!!
+                  equivQName="arrayOfZonedDecimalParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=arrayOfStructParm") != -1)
+                {
+                  // Struct parm found!!!
+                  equivQName="arrayOfStructParm";
+                  found=true;
+                }
+                else if (line.indexOf("parm type=structArray") != -1)
+                {
+                  // Struct parm found!!!
+                  equivQName="arrayOfStruct";
+                  found=true;
+                }
+                {
+                  // Should never reach here.  Should get parse error if invalid type passed in
+                  // What should I do here?
+                }
+              }
+              line=lnr.readLine();
+            }
+          }
+          catch (IOException e)
+          {
+            Trace.log(Trace.PCML,"Error reading xsd stream in endElement");
+          }
+        }
+      }
+
+
+      if (!equivQName.equals("parameterList") && !equivQName.equals("i") && !equivQName.equals("struct_i"))
+        m_currentNode = (PcmlDocNode) m_currentNode.getParent();
+
+      // Backing up tree.  Reset dimensions and current dimension
+      if (equivQName.equals("arrayOfStructParm") || equivQName.equals("arrayOfStringParm")  ||
+          equivQName.equals("arrayOfIntParm") || equivQName.equals("arrayOfUnsignedIntParm") |
+          equivQName.equals("arrayOfShortParm") || equivQName.equals("arrayOfUnsignedShortParm") ||
+          equivQName.equals("arrayOfLongParm") || equivQName.equals("arrayOfFloatParm")   ||
+          equivQName.equals("arrayOfDoubleParm") || equivQName.equals("arrayOfHexBinaryParm") ||
+          equivQName.equals("arrayOfZonedDecimalParm") || equivQName.equals("arrayOfPackedDecimalParm") ||
+          equivQName.equals("arrayOfStruct"))
+      {
+        dimensions.set(curDim, 0); //reset
+        curDim--;
+      }
+    }  // end if isXPCML
   }
 
 
@@ -1536,7 +1582,7 @@ class PcmlSAXParser extends DefaultHandler
     while (items.hasMoreElements() && !found)
     {
       child = (PcmlNode) items.nextElement();
-      if (child.getName().equals(pName))
+      if (child.getName().equals(pName) && pName != "")
         found=true;
     }
     return found;
