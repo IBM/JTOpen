@@ -215,7 +215,6 @@ public class CharConverter implements Serializable
     <P>
     For more information, please see <A HREF="http://publib.boulder.ibm.com/pubs/html/as400/v4r5/ic2924/info/RBAM6NAMEINCOM.HTM">iSeries Information Center: CL and APIs: Control Language (CL): Naming within commands</A>.
     @see #convertJobPathnameToIFSQSYSPathname
-    @see com.ibm.as400.ui.util.AS400SnameFormatter
     @param qsysData the String in which to substitute variant QSYS characters.
     @param jobCCSID the CCSID of the job in which to convert the variant characters.
     @return the Unicode String with correctly substituted variant characters for use with host servers that convert based upon job CCSID.
