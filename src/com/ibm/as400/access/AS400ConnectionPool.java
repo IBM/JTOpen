@@ -213,10 +213,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       log(loader_.substitute(loader_.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
                                systemName, userID} ));
       // create the specified number of connections
-      AS400.addPasswordCacheEntry(systemName, userID, password);
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       for (int i = 0; i < numberOfConnections; i++)
       {
-        newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, null));  //@B3C add null locale
+        newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, null, password));  //@B3C add null locale  //@B4C
       }
       connections = (ConnectionList)as400ConnectionPool_.get(key);
       for (int j = 0; j < numberOfConnections; j++)
@@ -291,10 +291,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       log(loader_.substitute(loader_.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
                                systemName, userID} ));
       // create the specified number of connections
-      AS400.addPasswordCacheEntry(systemName, userID, password);
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       for (int i = 0; i < numberOfConnections; i++)
       {
-        newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, locale));
+        newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, locale, password));  //@B4C
       }
       connections = (ConnectionList)as400ConnectionPool_.get(key);
       for (int j = 0; j < numberOfConnections; j++)
@@ -412,7 +412,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   /**
    * Get a connected AS400 object from the connection pool.  If an appropriate one is 
    * not found, one is created.  If the maximum connection limit has been reached, an exception
-   * will be thrown.
+     * will be thrown.  Note that the password is validated only when creating a new connection, 
+     * not as part 
+     * of the match criteria to pull a connection out of the pool.  This means that
+     * if a connection in the pool matches the systemName and userID passed in, a
+     * connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
@@ -426,8 +430,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {
     try
     {
-      AS400.addPasswordCacheEntry(systemName, userID, password);
-      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, null); //@B3C add null locale
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
+      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, null, password); //@B3C add null locale //@B4C
       ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
       poolListeners_.fireConnectionReleasedEvent(event); 
       return releaseConnection;
@@ -463,9 +467,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {
     try
     {
-      AS400.addPasswordCacheEntry(systemName, userID, password);
-      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, locale);
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
+      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, locale, password);     //@B4C
+      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
       poolListeners_.fireConnectionReleasedEvent(event); 
       return releaseConnection;
     }
@@ -489,26 +493,28 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   userID  The name of the user.
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+     * @exception ConnectionPoolException Always thrown because this method has been deprecated.
+     * @deprecated  Use getConnection(String systemName, String userID, String password, int service) instead.
   **/
   public AS400 getConnection(String systemName, String userID, int service)
   throws ConnectionPoolException
   {
-    try
-    {
-      AS400 releaseConnection = getConnection(systemName, userID, service, true, false, null); //@B3C add null locale
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
-      return releaseConnection;
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ConnectionPoolException(e);
-    }
-    catch (IOException ie)
-    {
-      throw new ConnectionPoolException(ie);
-    }
+    //@B4D try
+    //@B4D {
+    //@B4D     AS400 releaseConnection = getConnection(systemName, userID, service, true, false, null); //@B3C add null locale
+    //@B4D     ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+    //@B4D     poolListeners_.fireConnectionReleasedEvent(event); 
+    //@B4D     return releaseConnection;
+    //@B4D }
+    //@B4D catch (AS400SecurityException e)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(e);
+    //@B4D }
+    //@B4D catch (IOException ie)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(ie);
+    //@B4D }
+    throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
 
 
@@ -516,6 +522,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
    * one is created.  If the maximum connection limit has been reached, an exception
    * will be thrown.  The AS400 object may not be connected to any services.
+     * Note that the password is validated only when creating a new connection, not as part 
+     * of the match criteria to pull a connection out of the pool.  This means that
+     * if a connection in the pool matches the systemName and userID passed in, a
+     * connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
@@ -528,8 +538,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {    
     try
     {
-      AS400.addPasswordCacheEntry(systemName, userID, password);
-      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, null);  //@B3C add null locale
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
+      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, null, password);  //@B3C add null locale //@B4C
       ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
       poolListeners_.fireConnectionReleasedEvent(event); 
       return releaseConnection; 
@@ -563,9 +573,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {    
     try
     {
-      AS400.addPasswordCacheEntry(systemName, userID, password);
-      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, locale);
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
+      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, locale, password); //@B4C
+      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
       poolListeners_.fireConnectionReleasedEvent(event); 
       return releaseConnection; 
     }
@@ -589,27 +599,29 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @return     An AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+* @exception ConnectionPoolException Always thrown because this method has been deprecated.
+     * @deprecated  Use getConnection(String systemName, String userID, String password) instead.
    **/ 
   public AS400 getConnection(String systemName, String userID)
   throws ConnectionPoolException
   {    
-    try
-    {
-      AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, null);  //@B3C add null locale
-      releaseConnection.getVRM();
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
-      return releaseConnection; 
-    }
-    catch (AS400SecurityException ae)
-    {
-      throw new ConnectionPoolException(ae);
-    }
-    catch (IOException ie)
-    {
-      throw new ConnectionPoolException(ie);
-    }
+    //@B4D try
+    //@B4D {
+    //@B4D     AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, null);  //@B3C add null locale
+    //@B4D     releaseConnection.getVRM();
+    //@B4D     ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+    //@B4D     poolListeners_.fireConnectionReleasedEvent(event); 
+    //@B4D     return releaseConnection; 
+    //@B4D }
+    //@B4D catch (AS400SecurityException ae)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(ae);
+    //@B4D }
+    //@B4D catch (IOException ie)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(ie);
+    //@B4D }
+    throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
 
 
@@ -630,7 +642,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @exception   IOException  If a communications error occured.
    * @exception ConnectionPoolException If a connection pool error occured.
    **/ 
-  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale)  //@B3C
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, String password)  //@B3C //@B4C
   throws AS400SecurityException, IOException, ConnectionPoolException 
   {
     if (systemName == null)
@@ -723,9 +735,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
     //Get a connection from the list
     if (connect)
-      return connections.getConnection(service, secure, poolListeners_, locale).getAS400Object();  //@B3C add null locale
+      return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
     else
-      return connections.getConnection(secure, poolListeners_, locale).getAS400Object();  //@B3C add null locale
+      return connections.getConnection(secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
   }
 
 
@@ -733,6 +745,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * Get an secure connected AS400 object from the connection pool.  If an appropriate one is not found, 
    * one is created.  If the maximum connection limit has been reached, an exception
    * will be thrown.  The AS400 object may not be connected to any services.
+     * Note that the password is validated only when creating a new connection, not as part 
+     * of the match criteria to pull a connection out of the pool.  This means that
+     * if a connection in the pool matches the systemName and userID passed in, a
+     * connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
@@ -745,10 +761,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {    
     try
     {
-      AS400.addPasswordCacheEntry(systemName, userID, password);
-      AS400 releaseConnection = getConnection(systemName, userID, 0, false, true, null);  //@B3C add null locale
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
+      AS400 releaseConnection = getConnection(systemName, userID, 0, false, true, null, password);  //@B3C add null locale //@B4C
       releaseConnection.getVRM();
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
       poolListeners_.fireConnectionReleasedEvent(event); 
       return releaseConnection; 
     }
@@ -771,34 +787,39 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
    * @return     A secure connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+     * @exception ConnectionPoolException Always thrown because this method has been deprecated.
+     * @deprecated  Use getSecureConnection(String systemName, String userID, String password) instead.
   **/  
   public AS400 getSecureConnection(String systemName, String userID)
   throws ConnectionPoolException
   {    
-    try
-    {
-      AS400 releaseConnection = getConnection(systemName, userID, 0, false, true, null);  //@B3C add null locale
-      releaseConnection.getVRM();
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
-      return releaseConnection; 
-    }
-    catch (AS400SecurityException ae)
-    {
-      throw new ConnectionPoolException(ae);
-    }
-    catch (IOException ie)
-    {
-      throw new ConnectionPoolException(ie);
-    }
+    //@B4D try
+    //@B4D {
+    //@B4D     AS400 releaseConnection = getConnection(systemName, userID, 0, false, true, null);  //@B3C add null locale
+    //@B4D     releaseConnection.getVRM();
+    //@B4D     ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+    //@B4D     poolListeners_.fireConnectionReleasedEvent(event); 
+    //@B4D     return releaseConnection; 
+    //@B4D }
+    //@B4D catch (AS400SecurityException ae)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(ae);
+    //@B4D }
+    //@B4D catch (IOException ie)
+    //@B4D {        
+    //@B4D     throw new ConnectionPoolException(ie);
+    //@B4D }
+    throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
 
 
   /**
    * Get a secure connected AS400 object from the connection pool.  If an appropriate one is 
    * not found, one is created.  If the maximum connection limit has been reached, an exception
-   * will be thrown.
+     * will be thrown.  Note that the password is validated only when creating a new connection, not as part 
+     * of the match criteria to pull a connection out of the pool.  This means that
+     * if a connection in the pool matches the systemName and userID passed in, a
+     * connection will be returned without the password being validated.
    *
    * @param   systemName  The name of the system where the object should exist.
    * @param   userID  The name of the user.
@@ -812,8 +833,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {
     try
     {
-      AS400.addPasswordCacheEntry(systemName, userID, password);
-      AS400 releaseConnection = getConnection(systemName, userID, service, true, true, null);  //@B3C add null locale
+      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
+      AS400 releaseConnection = getConnection(systemName, userID, service, true, true, null, password);  //@B3C add null locale //@B4C
       ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
       poolListeners_.fireConnectionReleasedEvent(event); 
       return releaseConnection;
@@ -838,26 +859,28 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   userID  The name of the user.
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
-   * @exception ConnectionPoolException If a connection pool error occured.
+     * @exception ConnectionPoolException Always thrown because this method has been deprecated.
+     * @deprecated  Use getConnection(String systemName, String userID, String password, int service) instead.
    **/
   public AS400 getSecureConnection(String systemName, String userID, int service)
   throws ConnectionPoolException
   {
-    try
-    {
-      AS400 releaseConnection = getConnection(systemName, userID, service, true, true, null);  //@B3C add null locale
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
-      return releaseConnection;
-    }
-    catch (AS400SecurityException e)
-    {
-      throw new ConnectionPoolException(e);
-    }
-    catch (IOException ie)
-    {
-      throw new ConnectionPoolException(ie);
-    }
+    //@B4D try
+    //@B4D {
+    //@B4D     AS400 releaseConnection = getConnection(systemName, userID, service, true, true, null);  //@B3C add null locale
+    //@B4D     ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+    //@B4D     poolListeners_.fireConnectionReleasedEvent(event); 
+    //@B4D     return releaseConnection;
+    //@B4D }
+    //@B4D catch (AS400SecurityException e)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(e);
+    //@B4D }
+    //@B4D catch (IOException ie)
+    //@B4D {
+    //@B4D     throw new ConnectionPoolException(ie);
+    //@B4D }
+    throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
 
 
