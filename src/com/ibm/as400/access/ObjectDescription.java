@@ -902,9 +902,9 @@ public class ObjectDescription
     if (objectType == null) throw new NullPointerException("type");
     system_ = system;
     QSYSObjectPathName.toPath(objectLibrary, objectName, objectType); // Verify valid values.
-    library_ = objectLibrary;
-    name_ = objectName;
-    type_ = objectType;
+    library_ = objectLibrary.toUpperCase().trim();
+    name_ = objectName.toUpperCase().trim();
+    type_ = objectType.toUpperCase().trim();
   }
 
   /**
@@ -913,12 +913,34 @@ public class ObjectDescription
   ObjectDescription(AS400 sys, String lib, String name, String type, byte status)
   {
     system_ = sys;
-    library_ = lib;
-    name_ = name;
-    type_ = type;
+    library_ = lib.toUpperCase().trim();
+    name_ = name.toUpperCase().trim();
+    type_ = type.toUpperCase().trim();
     status_ = status;
   }
 
+  /**
+   * Checks to see if this object currently exists on the system.
+   * @return true if the object exists; false if the object or library do not exist.
+  **/
+  public boolean exists() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    try
+    {
+      refresh();
+    }
+    catch(AS400Exception e)
+    {
+      String id = e.getAS400Message().getID().trim();
+      if (id.equalsIgnoreCase("CPF9801") ||
+          id.equalsIgnoreCase("CPF9810"))
+      {
+        return false;
+      }
+      throw e;
+    }
+    return true;
+  }
 
   /**
    * Helper method used to parse one of the attributes that are dates.
