@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: Product.java
+// Filename:  Product.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2001 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -182,8 +182,8 @@ public class Product
 
   /**
    * Constant indicating that this product is an IBM-supplied product and
-   * it is not compatible with the currently installed release level of i5/OS.
-   * An error occurred when the product was restored or when i5/OS was installed.
+   * it is not compatible with the currently installed release level of the server operating system.
+   * An error occurred when the product was restored or when the operating system was installed.
    * The IBM-supplied product is at a release level earlier than V2R2M0, which
    * is not supported by the Save Licensed Program (SAVLICPGM) command.
   **/
@@ -314,7 +314,7 @@ public class Product
 
   /**
    * Constant indicating that the registration type is the
-   * same as the registration type for i5/OS.
+   * same as the registration type for the operating system.
   **/
   public static final String REGISTRATION_TYPE_SYSTEM = "04";
 
@@ -937,7 +937,7 @@ public class Product
 
 
   /**
-   * Returns the minimum i5/OS release to which the Save Licensed Program
+   * Returns the minimum operating system release to which the Save Licensed Program
    * (SAVLICPGM) command will allow the product to be saved.
    * @return The minimum target release (e.g. "V5R1M0").
   **/
