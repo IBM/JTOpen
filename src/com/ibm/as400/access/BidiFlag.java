@@ -1,19 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: BidiFlag.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BidiFlag.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
- /**
+/**
  *  Bidi text can be stored in different formats, which are characterized
  *  by 5 Bidi attributes, whose values may be stored in 5 Bidi flags.
  *  These 5 flags constitute a BidiFlagSet.
@@ -39,7 +39,7 @@ package com.ibm.as400.access;
 
 class BidiFlag
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 /**
  *  Value identifying Implicit type of text
@@ -100,6 +100,11 @@ class BidiFlag
  */
     public static final BidiFlag    NUMERALS_CONTEXTUAL
             = new BidiFlag(BidiFlagSet.INUMERALS_CONTEXTUAL, BidiFlagSet.NUMERALS_MASK);
+/**
+ *  Value identifying that Numeral Shapes may be Nominal or National
+ */
+    public static final BidiFlag    NUMERALS_ANY
+            = new BidiFlag(BidiFlagSet.INUMERALS_ANY, BidiFlagSet.NUMERALS_MASK);
 
 /**
  *  Value identifying that the text is stored in Nominal characters

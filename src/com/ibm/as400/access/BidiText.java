@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: BidiText.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BidiText.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -35,8 +35,7 @@ package com.ibm.as400.access;
 
 class BidiText
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 /**
  *  BidiFlagSet qualifying the character data
@@ -251,27 +250,27 @@ class BidiText
  */
   public BidiText transform(BidiTransform bdx)
   {
-    char[] data;
+      char[] data;
 
-    BidiText dst = new BidiText();
-    dst.flags.setAllFlags(bdx.flags);
-    dst.data = new char[this.count];
-    if (bdx.myOrder == null)   bdx.myOrder = new BidiOrder();
-    bdx.myOrder.order(this, dst, bdx);
+      BidiText dst = new BidiText();
+      dst.flags.setAllFlags(bdx.flags);
+      dst.data = new char[this.count];
+      if (bdx.myOrder == null)  bdx.myOrder = new BidiOrder();
+      bdx.myOrder.order(this, dst, bdx);
 
-    if (this.flags.getText() != dst.flags.getText())
-    {
-      if (bdx.myShape == null)
+      if (this.flags.getText() != dst.flags.getText())
       {
-        bdx.myShape = new BidiShape();
-        bdx.flags1 = new BidiFlagSet();
-        bdx.flags2 = new BidiFlagSet();
-      }
-      bdx.flags1.setAllFlags(this.flags);
-      bdx.flags2.setAllFlags(dst.flags);
+          if (bdx.myShape == null)
+          {
+              bdx.myShape = new BidiShape();
+              bdx.flags1 = new BidiFlagSet();
+              bdx.flags2 = new BidiFlagSet();
+          }
+          bdx.flags1.setAllFlags(this.flags);
+          bdx.flags2.setAllFlags(dst.flags);
             dst.data = bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data, bdx.options);
             dst.count = dst.data.length;
         }
-    return dst;
+      return dst;
   }
 }

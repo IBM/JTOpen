@@ -1,19 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: BidiFlagSet.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BidiFlagSet.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import  java.util.StringTokenizer;
+import java.util.StringTokenizer;
 
 /**
  *  Bidi text can be stored in different formats, which are characterized
@@ -26,7 +26,7 @@ import  java.util.StringTokenizer;
  *  <li> type of text (Implicit or Visual)
  *  <li> orientation (LTR, RTL, Contextual LTR, Contextual RTL)
  *  <li> symmetric swapping (Yes or No)
- *  <li> numeral shapes (Nominal, National or Contextual)
+ *  <li> numeral shapes (Nominal, National, Contextual or Any)
  *  <li> text shapes (Nominal, Shaped, Initial, Middle, Final or Isolated)
  *  </ul>
  *  <p><b>Multi-threading considerations:</b> Different threads may use
@@ -38,7 +38,7 @@ import  java.util.StringTokenizer;
 
 class BidiFlagSet
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 /**
  *  Mask to apply on a BidiFlagSet value to isolate the
@@ -108,6 +108,10 @@ class BidiFlagSet
  *  depending on context)
  */
     static final int    INUMERALS_CONTEXTUAL    = 0x00000500;
+/**
+ *  Value identifying that Numeral Shapes can be Nominal or National
+ */
+    static final int    INUMERALS_ANY           = 0x00000700;
 
 /**
  *  Mask to apply on a BidiFlagSet value to isolate the
@@ -293,7 +297,7 @@ class BidiFlagSet
  *  <li>character 2: orientation = L (LTR), R (RTL), C (Contextual LTR) or D (Contextual RTL)
  *  <li>character 3: swapping = Y (Swapping ON) or N (Swapping OFF)
  *  <li>character 4:  text shaping = N (Nominal), S (Shaped), I (Initial), M (Middle), F (Final), B (Isolated)
- *  <li>character 5: numeral shaping = N (Nominal), H (National), C (Contextual)
+ *  <li>character 5: numeral shaping = N (Nominal), H (National), C (Contextual), A (Any)
  *  <li>character 6: bidi algorithm = U (Unicode), R (Roundtrip)
  *  <li>character 7: Lamalef mode = G (Grow), S(Shrink), N (Near), B (Begin), E (End), W (groW with space), A (Auto)
  *  <li>character 8: SeenTail mode = O (One cell), N (Near), B (Begin), E (End), A (Auto)
@@ -353,6 +357,8 @@ class BidiFlagSet
                 newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_NATIONAL;
             else if ('C' == chars[4])
                 newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_CONTEXTUAL;
+            else if ('A' == chars[4])
+                newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_ANY;
             break;
         }
 
@@ -407,7 +413,7 @@ class BidiFlagSet
  *  Returns the Numeral Shapes flag from a BidiFlagSet.
  *  @return The value of the numeral shapes flag.
  *  <p> The expected value is one of NUMERALS_NOMINAL, NUMERALS_NATIONAL,
- *  NUMERALS_CONTEXTUAL.
+ *  NUMERALS_CONTEXTUAL, NUMERALS_ANY.
  *  <br>It can be tested as in the following example:
  *  <pre>
  *  if (getNumerals(myFlags) == NUMERALS_NATIONAL) . . .
@@ -420,6 +426,7 @@ class BidiFlagSet
         case INUMERALS_NOMINAL:         return BidiFlag.NUMERALS_NOMINAL;
         case INUMERALS_NATIONAL:        return BidiFlag.NUMERALS_NATIONAL;
         case INUMERALS_CONTEXTUAL:      return BidiFlag.NUMERALS_CONTEXTUAL;
+        case INUMERALS_ANY:             return BidiFlag.NUMERALS_ANY;
         }
         return BidiFlag.NUMERALS_NOMINAL;
     }
@@ -650,6 +657,11 @@ class BidiFlagSet
                 newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_NATIONAL;
                 continue;
             }
+            if (token.equals("any")) {
+                if (!keyword.equals("numerals")) return counter;
+                newValue = (newValue & (~NUMERALS_MASK)) | INUMERALS_ANY;
+                continue;
+            }
             if (token.equals("shaped")) {
                 if (!keyword.equals("shaping")) return counter;
                 newValue = (newValue & (~TEXT_MASK)) | ITEXT_SHAPED;
@@ -822,7 +834,7 @@ class BidiFlagSet
  *  orientation     ltr rtl contextual
  *  context         ltr rtl
  *  swapping        yes no
- *  numerals        nominal national contextual
+ *  numerals        nominal national contextual any
  *  shaping         nominal shaped shform1 shform2 shform3 shform4
  *  </pre>
  *  @return A human readable form of the flag values.
@@ -844,7 +856,7 @@ class BidiFlagSet
             "contextual, context=ltr", "contextual, context=rtl"};
         final   String[] swapStrings = {"yes", "no"};
         final   String[] numeralsStrings = {"nominal", "national",
-                                            "contextual", "invalid"};
+                                            "contextual", "any"};
         final   String[] textStrings = {"nominal", "shaped", "shform1",
             "shform2", "shform3", "shform4", "invalid", "invalid"};
 

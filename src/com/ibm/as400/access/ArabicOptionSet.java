@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ArabicOptionSet.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  ArabicOptionSet.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -38,30 +38,30 @@ package com.ibm.as400.access;
 
 class ArabicOptionSet
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 /**
  *  Mask to apply on an ArabicOptionSet value to isolate the
  *  Lam-Alef option
  */
-    static final int    LAMALEF_MASK         		= 0x0F000000;
-    
+    static final int    LAMALEF_MASK                    = 0x0F000000;
+
 /**
  *  Value identifying LAMALEF_AUTO
  */
-    static final int    ILAMALEF_AUTO        		= 0x01000000;
+    static final int    ILAMALEF_AUTO                   = 0x01000000;
 /**
  *  Value identifying LAMALEF_NEAR
  */
-    static final int    ILAMALEF_NEAR        		= 0x03000000;
+    static final int    ILAMALEF_NEAR                   = 0x03000000;
 /**
  *  Value identifying LAMALEF_ATBEGIN
  */
-    static final int    ILAMALEF_ATBEGIN     		= 0x05000000;
+    static final int    ILAMALEF_ATBEGIN                = 0x05000000;
 /**
  *  Value identifying LAMALEF_ATEND
  */
-    static final int    ILAMALEF_ATEND       		= 0x07000000;
+    static final int    ILAMALEF_ATEND                  = 0x07000000;
 /**
  *  Value identifying LAMALEF_RESIZE_BUFEER
  */
@@ -73,24 +73,24 @@ class ArabicOptionSet
  *  Mask to apply on an ArabicOptionSet value to isolate the
  *  Seen option
  */
-    static final int    SEEN_MASK            		= 0x00700000;
-    
+    static final int    SEEN_MASK                       = 0x00700000;
+
 /**
  *  Value identifying SEEN_AUTO
  */
-    static final int    ISEEN_AUTO           		= 0x00100000;
+    static final int    ISEEN_AUTO                      = 0x00100000;
 /**
  *  Value identifying SEEN_ATBEGIN
  */
-    static final int    ISEEN_ATBEGIN        		= 0x00300000;
+    static final int    ISEEN_ATBEGIN                   = 0x00300000;
 /**
  *  Value identifying SEEN_ATEND
  */
-    static final int    ISEEN_ATEND          		= 0x00500000;
+    static final int    ISEEN_ATEND                     = 0x00500000;
 /**
  *  Value identifying SEEN_NEAR
  */
-    static final int    ISEEN_NEAR         		= 0x00700000;
+    static final int    ISEEN_NEAR                      = 0x00700000;
 
 //--------
 
@@ -99,7 +99,7 @@ class ArabicOptionSet
  *  Yeh Hamza option
  */
     static final int    YEHHAMZA_MASK              = 0x000F0000;
-    
+
 /**
  *  Value identifying YEHHAMZA_AUTO
  */
@@ -126,32 +126,32 @@ class ArabicOptionSet
  *  Mask to apply on an ArabicOptionSet value to isolate the
  *  Tashkeel option
  */
-    static final int    TASHKEEL_MASK                  		= 0x00000F00;
+    static final int    TASHKEEL_MASK                           = 0x00000F00;
 
 /**
  *  Value identifying TASHKEEL_AUTO
  */
-    static final int    ITASHKEEL_AUTO                 		= 0x00000100;
+    static final int    ITASHKEEL_AUTO                          = 0x00000100;
 /**
  *  Value identifying TASHKEEL_CUSTOMIZED_WITHZEROWIDTH
  */
-    static final int    ITASHKEEL_CUSTOMIZED_WITHZEROWIDTH 	= 0x00000300;
+    static final int    ITASHKEEL_CUSTOMIZED_WITHZEROWIDTH      = 0x00000300;
 /**
  *  Value identifying TASHKEEL_CUSTOMIZED_WITHWIDTH
  */
-    static final int    ITASHKEEL_CUSTOMIZED_WITHWIDTH 		= 0x00000500;
+    static final int    ITASHKEEL_CUSTOMIZED_WITHWIDTH          = 0x00000500;
 /**
  *  Value identifying TASHKEEL_CUSTOMIZED_ATBEGIN
  */
-    static final int    ITASHKEEL_CUSTOMIZED_ATBEGIN   		= 0x00000700;
+    static final int    ITASHKEEL_CUSTOMIZED_ATBEGIN            = 0x00000700;
 /**
  *  Value identifying TASHKEEL_CUSTOMIZED_ATEND
  */
-    static final int    ITASHKEEL_CUSTOMIZED_ATEND     		= 0x00000900;
+    static final int    ITASHKEEL_CUSTOMIZED_ATEND              = 0x00000900;
 /**
  *  Value identifying TASHKEEL_KEEP
  */
-    static final int    ITASHKEEL_KEEP                 		= 0x00000B00;
+    static final int    ITASHKEEL_KEEP                          = 0x00000B00;
 
 
 //  This is the default value for uninitialized ArabicOptionSet.
@@ -280,7 +280,7 @@ class ArabicOptionSet
  *  </ul>
  *  <p>Only characters 7 to 10 are used to build the ArabicOptionSet.
  *  <p>
- *  @param  chars  character array in Convert parms format. It contains the output options specified in the Bidi environment variable 
+ *  @param  chars  character array in Convert parms format. It contains the output options specified in the Bidi environment variable
  */
     public ArabicOptionSet(char chars[])
     {
@@ -302,7 +302,7 @@ class ArabicOptionSet
                 newValue = (newValue & (~LAMALEF_MASK)) | ILAMALEF_AUTO;
 
             if (len <= 7)  break;
-            
+
             if ('N' == chars[7])
                 newValue = (newValue & (~SEEN_MASK)) | ISEEN_NEAR;
             else if ('B' == chars[7])
@@ -311,10 +311,10 @@ class ArabicOptionSet
                 newValue = (newValue & (~SEEN_MASK)) | ISEEN_ATEND;
             else if ('A' == chars[7])
                 newValue = (newValue & (~SEEN_MASK)) | ISEEN_AUTO;
-            
+
 
             if (len <= 8)  break;
-            
+
             if ('O' == chars[8])
                 newValue = (newValue & (~YEHHAMZA_MASK)) | IYEHHAMZA_ONE_CELL;
             else if ('N' == chars[8])
@@ -327,7 +327,7 @@ class ArabicOptionSet
                 newValue = (newValue & (~YEHHAMZA_MASK)) | IYEHHAMZA_AUTO;
 
             if (len <= 9)  break;
-            
+
             if ('K' == chars[9])
                 newValue = (newValue & (~TASHKEEL_MASK)) | ITASHKEEL_KEEP;
             else if ('Z' == chars[9])

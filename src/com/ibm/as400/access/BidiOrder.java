@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: BidiOrder.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BidiOrder.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -22,8 +22,7 @@ package com.ibm.as400.access;
 
 class BidiOrder
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 // Private Variables  :
 // ----------------
@@ -158,15 +157,15 @@ class BidiOrder
 /**************************************************************************/
   private static final short impTab_LTR[][] =
   {
-    /* B, S,  L,  R,  EN,  AN, ET, ES, CS,  W,  N, IL, Cond */
+                    /*   B,   S,   L,   R,  EN,  AN,  ET, ES, CS,  W,  N, IL, Cond */
 
-/* 0 L0 text      */  { 0, 0,  0,  3,   0,   1,  0,  0,  0,  0,  0,  0,  0},
-/* 1 L0+AN        */  { 0, 0,  0,  3,   0,   1,  4,  4,  2,  4,  4,  2,  0},
+/* 0 L0 text     */  {   0,   0,   0,   3,   0,   1,   0,  0,  0,  0,  0,  0,  0},
+/* 1 L0+AN       */  {   0,   0,   0,   3,   0,   1,   4,  4,  2,  4,  4,  2,  0},
 /* 2 L0+AN+CS    */  {   0,   0,   0,   3,   0,   1,   4,  4,  4,  4,  4,  2,  1},
-/* 3 L1 text      */  { 0, 0,  0,  3,   6,   1,  5,  4,  4,  4,  4,  1,  0},
-/* 4 L1 cont      */  { 0, 0,  0,  3,0x66,0x61,  5,  4,  4,  4,  4,  1,  1},
+/* 3 L1 text     */  {   0,   0,   0,   3,   6,   1,   5,  4,  4,  4,  4,  1,  0},
+/* 4 L1 cont     */  {   0,   0,   0,   3,0x66,0x61,   5,  4,  4,  4,  4,  1,  1},
 /* 5 L1+ET       */  {   0,   0,   0,   3,0x66,0x41,   5,  4,  4,  4,  4,  1,  1},
-/* 6 L1+EN        */  { 0, 0,  0,  3,   6,   1,  8,  7,  7,  4,  4,  2,  0},
+/* 6 L1+EN       */  {   0,   0,   0,   3,   6,   1,   8,  7,  7,  4,  4,  2,  0},
 /* 7 L1+EN+ES/CS */  {   0,   0,   0,   3,   6,0x41,   5,  4,  4,  4,  4,  2,  1},
 /* 8 L1+EN+ET    */  {   0,   0,   0,   3,   6,   1,   5,  4,  4,  4,  4,  2,  0}
   };
@@ -251,13 +250,13 @@ class BidiOrder
                     //  target area
 
   byte ucb_outLev; // Output Level = 0 or 1 according to the direction of output
-  // specified in argument 5 (0 = LTR, 1 = RTL)
+                   // specified in argument 5 (0 = LTR, 1 = RTL)
 
   byte ucb_basLev;   // Base Level = 0 or 1 (0 = LTR, 1 = RTL)
 
 //  Mati: addlev neutralized because it was implemented badly
 //  int ucb_addLev;   // Added Level = 0 or 2 (2 if basLev is 0 and the output direction
-  // (from argument 5) is RTL; 0 otherwise)
+                      // (from argument 5) is RTL; 0 otherwise)
 
   byte ucb_curLev;  // Current Level = between basLev and 15; initially set equal to basLev;
                     // modified by LRE/RLE/LRO/RLO/PDF
@@ -320,25 +319,21 @@ class BidiOrder
   BidiFlag ics_type_in;
   BidiFlag ics_type_out;
   BidiFlag ics_txtShp_flag;
+  BidiTransform myBdx;                  /* local reference of bdx */
   int ics_size;     // length of source text to process
   int ics_size_out;
   int ics_orient;
-  boolean ics_wordbreak;
   int ics_flip_flag;
   int ics_num;
   boolean ics_compc;
   char[] ics_buffer_in;
   char[] ics_buffer_out;
-  byte[] ics_A_level;
-  int[]  ics_SrcToTrgMap;
-  int[]  ics_TrgToSrcMap;
   byte[] specialTreatment;
-  boolean reqImpToImp;                  /* impToImp request */
   boolean visToVis;
   short impTab[][];
   byte typeArray[][];
-  boolean roundTrip;                    /* roundTrip enabled */
-  boolean impToImp;                     /* impToImp  enabled */
+
+  boolean reqImpToImp;                  /* impToImp request */
   int impToImpOrient;
   int impToImpPhase;
 
@@ -346,14 +341,14 @@ class BidiOrder
 
   private static boolean odd(int n)
   {
-    return(n & 1) == 1;
+    return (n & 1) == 1;
   }
 
 /*------------------------------------------------------------------------*/
 
   private static boolean even(int n)
   {
-    return(n & 1) == 0;
+    return (n & 1) == 0;
   }
 
 /*------------------------------------------------------------------------*/
@@ -432,7 +427,7 @@ void fillTypeArray()
     ta = typeArray;
     for (i = 0; i < ics_size; i++)
     {
-        cType = getChType( ics_buffer_in[i] );
+        cType = getChType( ics_buffer_in[i], myBdx.wordBreak );
         ta[i][ORIG] = cType;
         ta[i][FINAL] = UBAT_N;
         switch (cType)
@@ -490,9 +485,7 @@ void fillTypeArray()
                 ta[i][FINAL] = UBAT_AN;
                 break;
             case UBAT_W:
-                if (ics_wordbreak)
-                    ta[i][FINAL] = UBAT_S;
-                else  ta[i][FINAL] = UBAT_W;
+                ta[i][FINAL] = UBAT_W;
                 break;
             case UBAT_ET:
                 if ((i > 0) && (ta[i-1][FINAL] == UBAT_EN))
@@ -518,7 +511,7 @@ void fillTypeArray2()
     ta = typeArray;
     for (i = 0; i < ics_size; i++)
     {
-        k = ics_TrgToSrcMap[i];
+        k = myBdx.dstToSrcMap[i];
         cType = ta[k][ORIG];
         ta[k][FINAL] = UBAT_N;
         switch (cType)
@@ -557,31 +550,29 @@ void fillTypeArray2()
                 else
                 {
                     wType = UBAT_EN;
-                    if ((i >= 2) && (ta[ics_TrgToSrcMap[i-1]][ORIG] == UBAT_ES)
-                                 && (ta[ics_TrgToSrcMap[i-2]][ORIG] == UBAT_EN))
-                        ta[ics_TrgToSrcMap[i-1]][FINAL] = UBAT_EN;
+                    if ((i >= 2) && (ta[myBdx.dstToSrcMap[i-1]][ORIG] == UBAT_ES)
+                                 && (ta[myBdx.dstToSrcMap[i-2]][ORIG] == UBAT_EN))
+                        ta[myBdx.dstToSrcMap[i-1]][FINAL] = UBAT_EN;
                     prev = i - 1;
-                    while ((prev >= 0) && (ta[ics_TrgToSrcMap[prev]][ORIG] == UBAT_ET))
-                        ta[ics_TrgToSrcMap[prev--]][FINAL] = UBAT_EN;
+                    while ((prev >= 0) && (ta[myBdx.dstToSrcMap[prev]][ORIG] == UBAT_ET))
+                        ta[myBdx.dstToSrcMap[prev--]][FINAL] = UBAT_EN;
                 }
-                if ((i >= 2) && (ta[ics_TrgToSrcMap[i-1]][ORIG] == UBAT_CS)
-                             && (ta[ics_TrgToSrcMap[i-2]][ORIG] == UBAT_EN))
-                    ta[ics_TrgToSrcMap[i-1]][FINAL] = wType;
+                if ((i >= 2) && (ta[myBdx.dstToSrcMap[i-1]][ORIG] == UBAT_CS)
+                             && (ta[myBdx.dstToSrcMap[i-2]][ORIG] == UBAT_EN))
+                    ta[myBdx.dstToSrcMap[i-1]][FINAL] = wType;
                 ta[k][FINAL] = wType;
                 break;
             case UBAT_AN:
-                if ((i >= 2) && (ta[ics_TrgToSrcMap[i-1]][ORIG] == UBAT_CS)
-                             && (ta[ics_TrgToSrcMap[i-2]][ORIG] == UBAT_AN))
-                    ta[ics_TrgToSrcMap[i-1]][FINAL] = UBAT_AN;
+                if ((i >= 2) && (ta[myBdx.dstToSrcMap[i-1]][ORIG] == UBAT_CS)
+                             && (ta[myBdx.dstToSrcMap[i-2]][ORIG] == UBAT_AN))
+                    ta[myBdx.dstToSrcMap[i-1]][FINAL] = UBAT_AN;
                 ta[k][FINAL] = UBAT_AN;
                 break;
             case UBAT_W:
-                if (ics_wordbreak)
-                    ta[k][FINAL] = UBAT_S;
-                else  ta[k][FINAL] = UBAT_W;
+                ta[k][FINAL] = UBAT_W;
                 break;
             case UBAT_ET:
-                if ((i > 0) && (ta[ics_TrgToSrcMap[i-1]][FINAL] == UBAT_EN))
+                if ((i > 0) && (ta[myBdx.dstToSrcMap[i-1]][FINAL] == UBAT_EN))
                     ta[k][FINAL] = UBAT_EN;
                 break;
             case UBAT_NSM:
@@ -614,34 +605,34 @@ void fillTypeArray2()
     Special =  (short)(newIS >> 5);
 
     newIS = (short)(newIS & 0x1F);   /* keep only 5 low bits             */
-    newIL = impTab[newIS][ITIL];     /* ITIL equates 11                        */
+    newIL = impTab[newIS][ITIL];     /* ITIL equates 11                  */
 
     if (Special > 0)
       switch (Special)
       {
         case 1:    /* note a: set characters to level 0 from ucb_condPos until last */
-          for (i=ucb_condPos; i < ucb_ix; i++)
+          for (i = ucb_condPos; i < ucb_ix; i++)
           {
-            ics_A_level[i] = ucb_curLev;
+            myBdx.propertyMap[i] = ucb_curLev;
           }
           ucb_condPos = -1;
           break;
 
         case 2:     /* note b: set characters to level 1 from ucb_condPos until last */
-          for (i=ucb_condPos; i < ucb_ix; i++)
+          for (i = ucb_condPos; i < ucb_ix; i++)
           {
-            ics_A_level[i] = (byte)(ucb_curLev + 1);
+            myBdx.propertyMap[i] = (byte)(ucb_curLev + 1);
           }
           ucb_condPos = -1;
           break;
 
         case 3:    /* note c: set characters to level 1 from ucb_condPos until next to last
                                 and set last character to level 2 */
-          for (i=ucb_condPos; i < ucb_ix; i++)
+          for (i = ucb_condPos; i < ucb_ix; i++)
           {
-            ics_A_level[i] = (byte)(ucb_curLev + 1);
+            myBdx.propertyMap[i] = (byte)(ucb_curLev + 1);
           }
-          ics_A_level[i] = (byte)(ucb_curLev + 2);
+          myBdx.propertyMap[i] = (byte)(ucb_curLev + 2);
           ucb_condPos = -1;
 
           break;
@@ -655,7 +646,7 @@ void fillTypeArray2()
           break;
 
         case 6:    /*         ES, CS or ET before level 2 EN            */
-          ics_A_level[ucb_ix-1] = (byte)(ucb_curLev + 2);
+          myBdx.propertyMap[ucb_ix-1] = (byte)(ucb_curLev + 2);
           break;
 
       }
@@ -666,16 +657,16 @@ void fillTypeArray2()
     {
       if (ucb_condPos > -1)
       {
-        for (i= ucb_condPos; i <  ucb_ix; i++)
+        for (i = ucb_condPos; i < ucb_ix; i++)
         {
-            oldLevel = ics_A_level[i];
+            oldLevel = myBdx.propertyMap[i];
             newLevel = (byte)(ucb_curLev + newIL);
-            ics_A_level[i] = newLevel;
+            myBdx.propertyMap[i] = newLevel;
             if (ics_symmetric && odd(oldLevel ^ newLevel))   /* change parity? */
             /* EN and AN never change parity */
             {
                 if (impToImpPhase == 2)
-                    pos = ics_TrgToSrcMap[i];
+                    pos = myBdx.dstToSrcMap[i];
                 else  pos = i;
                 /* clear bit 7 of SpecialTreatment */
                 specialTreatment[pos] ^= SWAPPING_FLAG;
@@ -689,7 +680,7 @@ void fillTypeArray2()
       if (ucb_lineSepPos >= 0)
       {
         /* set Level area to 0 at ucb_lineSepPos position  */
-        ics_A_level[ucb_lineSepPos] = 0;
+        myBdx.propertyMap[ucb_lineSepPos] = 0;
         ucb_lineSepPos = -1;
       }
     }
@@ -705,10 +696,16 @@ void fillTypeArray2()
 
 /*------------------------------------------------------------------------*/
 
+  private static byte getChType (char x, boolean wordBreak)
+  {
+    /* This routine gets the type of a certain character */
+    if (wordBreak && (x == 0x0020))  return UBAT_S;
+    return getChType( x );
+  }
+
   private static byte getChType (char x)
   {
     /* This routine gets the type of a certain character */
-
     if (
        (x == 0x000A)                    ||
        (x == 0x000D)                    ||
@@ -740,7 +737,7 @@ void fillTypeArray2()
        ((x >= 0xFF41) && (x <= 0xFF5A)) ||
        ((x >= 0xFF60) && (x <= 0xFFDF))
        )
-      return UBAT_L;
+        return UBAT_L;
 
     if (
        ((x >= 0x0591) && (x <= 0x065F)) ||
@@ -750,7 +747,7 @@ void fillTypeArray2()
        ((x >= 0xFB20) && (x <= 0xFDFF)) ||
        ((x >= 0xFE70) && (x <= 0xFEFC))
        )
-      return UBAT_R;
+        return UBAT_R;
 
     if (
        ((x >= 0x0030) && (x <= 0x0039)) ||
@@ -764,13 +761,13 @@ void fillTypeArray2()
        (x == 0x24EA)                    ||
        ((x >= 0xFF10) && (x <= 0xFF19))
        )
-      return UBAT_EN;
+        return UBAT_EN;
 
     if (
        ((x >= 0x0660) && (x <= 0x0669)) ||
        ((x >= 0x066B) && (x <= 0x066C))
        )
-      return UBAT_AN;
+        return UBAT_AN;
 
     if (
        ((x >= 0x0023) && (x <= 0x0025)) ||
@@ -800,13 +797,13 @@ void fillTypeArray2()
        ((x >= 0xFFE0) && (x <= 0xFFE1)) ||
        ((x >= 0xFFE5) && (x <= 0xFFE6))
        )
-      return UBAT_ET;
+        return UBAT_ET;
 
     if (
        (x == 0x002F)                    ||
        (x == 0xFF0F)
        )
-      return UBAT_ES;
+        return UBAT_ES;
 
     if (
        (x == 0x002C)                    ||
@@ -821,7 +818,7 @@ void fillTypeArray2()
        (x == 0xFF0E)                    ||
        (x == 0xFF1A)
        )
-      return UBAT_CS;
+        return UBAT_CS;
 
     if (
        (x == 0x000C)                    ||
@@ -834,13 +831,13 @@ void fillTypeArray2()
        (x == 0x205F)                    ||
        (x == 0x3000)
        )
-      return UBAT_W;
+        return UBAT_W;
 
     if (
        ((x >= 0x202A) && (x <= 0x202E)) ||
        ((x >= 0x206C) && (x <= 0x206F))
        )
-      return UBAT_BD;
+        return UBAT_BD;
 
     return UBAT_N;
   }
@@ -879,23 +876,23 @@ void fillTypeArray2()
 
   private void BaseLvl ()
   {
-    visToVis = false;
+      visToVis = false;
 
       if (ics_orient_in == BidiFlag.ORIENTATION_RTL)
-        ucb_basLev = 1; /* 0 = LTR, 1 = RTL */
+          ucb_basLev = 1; /* 0 = LTR, 1 = RTL */
       else  ucb_basLev = 0;
       if (ics_orient_out == BidiFlag.ORIENTATION_RTL)
-        ucb_outLev = 1;
+          ucb_outLev = 1;
       else  ucb_outLev = 0;
       ucb_curLev = ucb_basLev;
       if (ucb_basLev == 0 && ucb_outLev == 1)
-        ucb_curLev=2;
+          ucb_curLev=2;
 
     if ((ics_type_in == BidiFlag.TYPE_VISUAL) && (ics_type_out == BidiFlag.TYPE_VISUAL))
         visToVis = true;
 
     ucb_lineSepPos = -1;
-    if (roundTrip && !impToImp)
+    if (myBdx.roundTrip)
     {
       if (ucb_basLev == 1)
         impTab = impTab_RTL_r;
@@ -929,7 +926,7 @@ void fillTypeArray2()
     if (ucb_ix ==0)  ucb_pType = UBAT_B;
     ucb_wTarget = 0;
     cChar = ics_buffer_in[ ucb_ix ];
-    cType = getChType(cChar);
+    cType = getChType( cChar, myBdx.wordBreak );
 
     switch (cType)
     {
@@ -952,7 +949,7 @@ void fillTypeArray2()
             break;
         }
         break;
-        /* Block Separator */
+      /* Block Separator */
       case UBAT_B:
         /* do implicit process for UBAT_B */
         ucb_xType = UBAT_B;
@@ -961,7 +958,7 @@ void fillTypeArray2()
         /* redo Determination of the base level ucb_basLev */
         BaseLvl();
         break;
-        /* Segment Separator */
+      /* Segment Separator */
       case UBAT_S:
         if (visToVis)
         {
@@ -1075,8 +1072,8 @@ Gilan
           else for (int i2 = ucb_ix+1; i2 < ics_size; i2++)
           {
               ucb_pType = getChType(ics_buffer_in[i2]);
-            if (ucb_pType == UBAT_EN)
-            {
+              if (ucb_pType == UBAT_EN)
+              {
                 if (!ucb_araLet)
                   cType = UBAT_EN;
                 break;
@@ -1113,8 +1110,8 @@ Gilan
 
           /*This is the range of Arabic tashkeel characters.
             In case of having a Shadda in the first of buffer or
-            on the boundary between english and arabic text, the 
-            value of "savIL" is 0 which causes this character to 
+            on the boundary between english and arabic text, the
+            value of "savIL" is 0 which causes this character to
             be processed as an english character.
           */
 /*
@@ -1123,7 +1120,7 @@ Gilan
           else
             ucb_wTarget = (byte)(ucb_curLev + savIL);
           if (ucb_ix == 0)  cType = UBAT_N;
-          else cType = ucb_pType;
+          else  cType = ucb_pType;
           if (ucb_condPos == ucb_ix) ucb_condPos = -1;
 */
         }
@@ -1142,7 +1139,7 @@ Gilan
     }
 
     ucb_pType = cType;
-    ics_A_level[ucb_ix] = ucb_wTarget; /* put ucb_wTarget in target area at
+    myBdx.propertyMap[ucb_ix] = ucb_wTarget; /* put ucb_wTarget in target area at
                                                        position ucb_ix  */
     specialTreatment[ucb_ix] = treatmentFlag;
   }
@@ -1165,8 +1162,8 @@ Gilan
 
     for (i = 0; i < ics_size; i++)
     {
-        if (impToImpPhase != 2)  ics_TrgToSrcMap[i] = i;
-        current_level = ics_A_level[i];
+        if (impToImpPhase != 2)  myBdx.dstToSrcMap[i] = i;
+        current_level = myBdx.propertyMap[i];
 
         if (current_level < lowest_level)
             lowest_level  = current_level;
@@ -1174,7 +1171,7 @@ Gilan
             highest_level = current_level;
     }
 
-    if (reqImpToImp && !impToImp)  return;
+    if (reqImpToImp && (impToImpOrient == 0))  return;
     if ((lowest_level % 2) == 0)  /* We must reverse until the lowest _odd_ level */
         ++lowest_level;
 
@@ -1183,26 +1180,26 @@ Gilan
         i = 0;
         while (i < ics_size)
         {
-            current_level = ics_A_level[i];
+            current_level = myBdx.propertyMap[i];
 
             if (current_level < work_level)
                 i++;
             else
             {
                 flip_from = i;
-                while ((current_level = ics_A_level[i]) >= work_level)
+                while ((current_level = myBdx.propertyMap[i]) >= work_level)
                 {
                     flip_to = i;
                     i++;
                     if (i >= ics_size)
-              break;
-        }
-                invertMap( ics_TrgToSrcMap, flip_from, flip_to );
+                        break;
+                }
+                invertMap( myBdx.dstToSrcMap, flip_from, flip_to );
             }
         }
     }
     if (ics_orient_out == BidiFlag.ORIENTATION_RTL)
-        invertMap( ics_TrgToSrcMap, 0, ics_size - 1 );
+        invertMap( myBdx.dstToSrcMap, 0, ics_size - 1 );
   }
 
 /*------------------------------------------------------------------------*/
@@ -1215,7 +1212,7 @@ Gilan
 
     for (ucb_ix = 0; ucb_ix < ics_size; ucb_ix++)
     {
-      logPos = ics_TrgToSrcMap[ucb_ix];
+      logPos = myBdx.dstToSrcMap[ucb_ix];
       xTran = specialTreatment[logPos];
       xchar = ics_buffer_in[logPos];
 
@@ -1230,7 +1227,7 @@ Gilan
           xchar -= (0x0660 - 0x0030);
       }
       else if ((xTran & SWAPPING_FLAG) > 0)
-            xchar = UCQSYMM(xchar);
+        xchar = UCQSYMM(xchar);
 
       ics_buffer_out[ucb_ix] = xchar;
     }
@@ -1257,8 +1254,7 @@ Gilan
     /* Initializations */
     /*******************/
 
-    roundTrip = bdx.roundTrip;
-    impToImp = bdx.impToImp;
+    myBdx = bdx;
     ics_orient_in  = src.flags.getOrientation();
     ics_orient_out = dst.flags.getOrientation();
     if (ics_orient_in == BidiFlag.ORIENTATION_CONTEXT_LTR ||
@@ -1308,7 +1304,7 @@ Gilan
                   (ics_type_out == BidiFlag.TYPE_IMPLICIT);
 
     /* check if implicit to implicit case */
-    if (impToImp && reqImpToImp &&
+    if (myBdx.impToImp && reqImpToImp &&
         (ics_orient_in != ics_orient_out))
     {
         /* LocalData->symmetric is set for each phase in UCB2VIS */
@@ -1324,7 +1320,11 @@ Gilan
            once all transformations are changed to use typeArray */
         typeArray = new byte[src.count][2];
     }
-    else  impToImpOrient = 0;
+    else
+    {
+        impToImpOrient = 0;
+        typeArray = null;
+    }
 
     ics_buffer_in = new char[src.count];
     if ((ics_type_in == BidiFlag.TYPE_VISUAL) &&
@@ -1352,8 +1352,10 @@ Gilan
 
     ics_buffer_out = new char [ics_buffer_in.length];
 
-    ics_A_level = new byte[src.count];
-    ics_TrgToSrcMap = new int[src.count];
+    if ((myBdx.propertyMap == null) || (myBdx.propertyMap.length < src.count))
+        myBdx.propertyMap = new byte[src.count];
+    if ((myBdx.dstToSrcMap == null) || (myBdx.dstToSrcMap.length < src.count))
+        myBdx.dstToSrcMap = new int[src.count];
     specialTreatment = new byte[src.count];
 
     ucb_ix=0;
@@ -1379,7 +1381,7 @@ Gilan
             ucb_xType = typeArray[pos][FINAL];
             ucb_ix = pos;
             implicitProcessing();
-            ics_A_level[pos] = ucb_wTarget;
+            myBdx.propertyMap[pos] = ucb_wTarget;
             if ( (ucb_xType == UBAT_N) &&
                  ics_symmetric &&
                  odd(ucb_wTarget) )
@@ -1403,7 +1405,7 @@ Gilan
         if (impToImpOrient == IMP_LTR)
         {
             ics_orient_in = BidiFlag.ORIENTATION_RTL;
-            invertMap( ics_TrgToSrcMap, 0, ics_size - 1);
+            invertMap( myBdx.dstToSrcMap, 0, ics_size - 1);
         }
         else  ics_orient_in = BidiFlag.ORIENTATION_LTR;
         ics_symmetric = (dst.flags.getSwap() == BidiFlag.SWAP_YES);
@@ -1411,11 +1413,11 @@ Gilan
         fillTypeArray2();
         for (pos = 0; pos < ics_size; pos++)
         {
-            ipos = ics_TrgToSrcMap[pos];
+            ipos = myBdx.dstToSrcMap[pos];
             ucb_xType = typeArray[ipos][FINAL];
             ucb_ix = pos;
             implicitProcessing();
-            ics_A_level[pos] = ucb_wTarget;
+            myBdx.propertyMap[pos] = ucb_wTarget;
             if ( (ucb_xType == UBAT_N) &&
                  ics_symmetric &&
                  odd(ucb_wTarget) )
@@ -1434,22 +1436,22 @@ Gilan
     }
     else
     {
-    BaseLvl();
-    while (ucb_ix < ics_size)
-    {
-      pass1();
-      ucb_ix++ ;
-    }
+        BaseLvl();
+        while (ucb_ix < ics_size)
+        {
+          pass1();
+          ucb_ix++ ;
+        }
 
-    /* do Implicit process for UBAT_B to resolve possible conditional string */
-    ucb_xType = UBAT_B;
+        /* do Implicit process for UBAT_B to resolve possible conditional string */
+        ucb_xType = UBAT_B;
 
-    implicitProcessing();
+        implicitProcessing();
 
-    /* Pass 2 :This pass must not be executed when there is no request
-               for reordering */
+        /* Pass 2 :This pass must not be executed when there is no request
+                   for reordering */
 
-    pass2();
+        pass2();
     }
 
     /* Pass 3 :The logical to visual mapping must be converted to a visual-
@@ -1460,11 +1462,19 @@ Gilan
                need swapping are replaced by their symmetric symbol.  */
     pass3();
 
-    if (ics_compc)
+    if (myBdx.srcToDstMapRequired)
     {
-      ics_SrcToTrgMap = new int[src.count];
-      for (i=0; i< ics_size;i++)
-        ics_SrcToTrgMap[ics_TrgToSrcMap[ics_TrgToSrcMap[i]]] = ics_TrgToSrcMap[i] ;
+      if ((myBdx.srcToDstMap == null) || (myBdx.srcToDstMap.length < src.count))
+          myBdx.srcToDstMap = new int[src.count];
+      for (i = 0; i< ics_size; i++)
+        myBdx.srcToDstMap[myBdx.dstToSrcMap[i]] = i;
+    }
+    if (myBdx.propertyMapRequired)
+    {
+        if (typeArray != null)
+            for (i = 0; i < src.count; i++)
+                if (typeArray[i][ORIG] != UBAT_NSM)
+                    bdx.propertyMap[i] |= 0x80;
     }
 
     System.arraycopy(ics_buffer_out, 0, dst.data, dst.offset, src.count);
