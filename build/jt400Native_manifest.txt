@@ -5,7 +5,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.access
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/data/
@@ -13,7 +13,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.data
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/micro/
@@ -21,7 +21,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.micro
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/resource/
@@ -29,7 +29,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.resource
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/security/
@@ -37,7 +37,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.security
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/security/auth/
@@ -45,7 +45,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.security.auth
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/util/
@@ -53,7 +53,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.util
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/util/html/
@@ -61,7 +61,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.util.html
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/util/servlet/
@@ -69,7 +69,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.2.0.2
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.util.servlet
-Implementation-Version: JTOpen 3.3
+Implementation-Version: JTOpen 4.0
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/access/AFPResource.class
