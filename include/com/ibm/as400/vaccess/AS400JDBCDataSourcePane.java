@@ -263,6 +263,22 @@ private void createPaneAndSetDataSource(AS400JDBCDataSource dataSource)
     add("Center",container);   
     
     m_justBeingCreated = false;
+
+    // The following stmts are a workaround for a PDML regression where controls are not being 
+    // initialized as disabled									//@A5A
+    m_packagePaneManager.getComponent("AJDSP_PACKAGE_TEXTBOX").setEnabled(false);		//@A5A
+    m_packagePaneManager.getComponent("AJDSP_PACKAGELIB_TEXTBOX").setEnabled(false);		//@A5A
+    m_packagePaneManager.getComponent("AJDSP_USE_RADIOBUTTON").setEnabled(false);      		//@A5A
+    m_packagePaneManager.getComponent("AJDSP_USEADD_RADIOBUTTON").setEnabled(false);		//@A5A
+    m_packagePaneManager.getComponent("AJDSP_SEND_EXCEP_RADIOBUTTON").setEnabled(false);	//@A5A
+    m_packagePaneManager.getComponent("AJDSP_POST_WARN_RADIOBUTTON").setEnabled(false);		//@A5A
+    m_packagePaneManager.getComponent("AJDSP_IGNORE_RADIOBUTTON").setEnabled(false);		//@A5A
+    m_packagePaneManager.getComponent("AJDSP_CACHE_PACKAGE_CHECKBOX").setEnabled(false);	//@A5A
+
+    m_languagePaneManager.getComponent("AJDSP_SORTTABLE_TEXTBOX").setEnabled(false);		//@A5A
+    m_languagePaneManager.getComponent("AJDSP_SHAREDWEIGHT_RADIOBUTTON").setEnabled(false);	//@A5A
+    m_languagePaneManager.getComponent("AJDSP_UNIQUEWEIGHT_RADIOBUTTON").setEnabled(false);	//@A5A
+    m_languagePaneManager.getComponent("AJDSP_LANGUAGE_COMBOBOX").setEnabled(false);		//@A5A
 }
 
 private void enableListenersForComponentsWeCareAbout()
