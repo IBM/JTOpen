@@ -357,8 +357,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 	{
 		AS400JDBCConnection connection = new AS400JDBCConnection();
 		connection.setSystem(as400);
-		connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER), properties_, as400);
-
+    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
 		log(loader_.getText("AS400_JDBC_DS_CONN_CREATED"));	 //@A9C
 		return connection;
 	}
