@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: ServiceProgramCall.java
-//                                                                             
+//
 // The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2000 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -39,55 +39,51 @@ import java.io.IOException;
  <p>The following example calls procedure int_int in service program ENTRYPTS in library MYPGM.  The procedure takes one input parameter, an integer, and returns an integer.
  <pre>
  *    // Create a single parameter parameter list.
-*    ProgramParameter[] parameterList = new ProgramParameter[1];
-*
+ *    ProgramParameter[] parameterList = new ProgramParameter[1];
+ *
  *    // Create the input parameter.  We are sending the number 9 to the service program.
-*    AS400Bin4 bin4 = new AS400Bin4();
-*    byte[] parameter = bin4.toBytes(9);
-*    parameterList[0] = new ProgramParameter(parameter);
-*
+ *    AS400Bin4 bin4 = new AS400Bin4();
+ *    byte[] parameter = bin4.toBytes(9);
+ *    parameterList[0] = new ProgramParameter(parameter);
+ *
  *    // Construct the server object.  The service program is on this server.
-*    AS400 system = new AS400("mySystem");
-*
-*    // Construct the ServiceProgramCall object.
-*    ServiceProgramCall sPGMCall = new ServiceProgramCall(system);
-*
-*    // Set the fully qualified service program and the parameter list.
-*    sPGMCall.setProgram("/QSYS.LIB/MYPGM.LIB/ENTRYPTS.SRVPGM", parameterList);
-*
-*    // Set the procedure to call in the service program.
-*    sPGMCall.setProcedureName("int_int");
-*
-*    // Set the format of returned value.  The program we call returns an integer.
-*    sPGMCall.setReturnValueFormat(ServiceProgramCall.RETURN_INTEGER);
-*
+ *    AS400 system = new AS400("mySystem");
+ *
+ *    // Construct the ServiceProgramCall object.
+ *    ServiceProgramCall sPGMCall = new ServiceProgramCall(system);
+ *
+ *    // Set the fully qualified service program and the parameter list.
+ *    sPGMCall.setProgram("/QSYS.LIB/MYPGM.LIB/ENTRYPTS.SRVPGM", parameterList);
+ *
+ *    // Set the procedure to call in the service program.
+ *    sPGMCall.setProcedureName("int_int");
+ *
+ *    // Set the format of returned value.  The program we call returns an integer.
+ *    sPGMCall.setReturnValueFormat(ServiceProgramCall.RETURN_INTEGER);
+ *
  *    // Call the service program.
-*    if (sPGMCall.run() != true)
-*    {
-*        // Get the error messages when the call fails.
-*        AS400Message[] messageList = sPGMCall.getMessageList();
-*        for (int i = 0; i < messageList.length; ++i)
-*        {
-*            System.out.println(messageList[i].getText());
-*        }
-*    }
-*    else
-*    {
-*        // Get the returned value when the call is successful.
-*        int i = bin4.toInt(sPGMCall.getReturnValue());
-*        System.out.println("Result is: " + i);
-*    }
+ *    if (sPGMCall.run() != true)
+ *    {
+ *        // Get the error messages when the call fails.
+ *        AS400Message[] messageList = sPGMCall.getMessageList();
+ *        for (int i = 0; i < messageList.length; ++i)
+ *        {
+ *            System.out.println(messageList[i].getText());
+ *        }
+ *    }
+ *    else
+ *    {
+ *        // Get the returned value when the call is successful.
+ *        int i = bin4.toInt(sPGMCall.getReturnValue());
+ *        System.out.println("Result is: " + i);
+ *    }
  </pre>
-* @see  ProgramParameter
-* @see  ProgramCall
-**/
-
+ @see  ProgramParameter
+ @see  ProgramCall
+ **/
 public class ServiceProgramCall extends ProgramCall
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -122,7 +118,7 @@ public class ServiceProgramCall extends ProgramCall
     public ServiceProgramCall()
     {
         super();
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object.");
     }
 
     /**
@@ -132,7 +128,7 @@ public class ServiceProgramCall extends ProgramCall
     public ServiceProgramCall(AS400 system)
     {
         super(system);
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object.");
     }
 
     /**
@@ -144,7 +140,7 @@ public class ServiceProgramCall extends ProgramCall
     public ServiceProgramCall(AS400 system, String serviceProgram, ProgramParameter[] parameterList)
     {
         super(system, serviceProgram, parameterList);
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object.");
     }
 
     /**
@@ -157,7 +153,7 @@ public class ServiceProgramCall extends ProgramCall
     public ServiceProgramCall(AS400 system, String serviceProgram, String procedureName, ProgramParameter[] parameterList)
     {
         super(system, serviceProgram, parameterList);
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object, procedureName: " + procedureName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object, procedureName: " + procedureName);
         if (procedureName == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'procedureName' is null.");
@@ -181,7 +177,7 @@ public class ServiceProgramCall extends ProgramCall
     public ServiceProgramCall(AS400 system, String serviceProgram, String procedureName, int returnValueFormat, ProgramParameter[] parameterList)
     {
         super(system, serviceProgram, parameterList);
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object, procedureName: " + procedureName + " return value format:", returnValueFormat);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing ServiceProgramCall object, procedureName: " + procedureName + " return value format:", returnValueFormat);
 
         if (procedureName == null)
         {
@@ -205,7 +201,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public int getErrno()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting error number.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting error number.");
         if (returnValue_ == null || returnValueFormat_ != RETURN_INTEGER)
         {
             Trace.log(Trace.ERROR, "Attempt to get error number before running service program.");
@@ -224,7 +220,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public int getIntegerReturnValue()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting integer return value.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting integer return value.");
         if (returnValue_ == null || returnValueFormat_ != RETURN_INTEGER)
         {
             Trace.log(Trace.ERROR, "Attempt to get integer return value before running service program.");
@@ -239,7 +235,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public String getProcedureName()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting procedure name: " + procedureName_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting procedure name: " + procedureName_);
         return procedureName_;
     }
 
@@ -249,7 +245,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public byte[] getReturnValue()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting return value:", returnValue_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting return value:", returnValue_);
         return returnValue_;
     }
 
@@ -259,7 +255,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public int getReturnValueFormat()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting return value format:", returnValueFormat_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting return value format:", returnValueFormat_);
         return returnValueFormat_;
     }
 
@@ -274,7 +270,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Running service program: " + program_ + " procedure name: " + procedureName_);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Running service program: " + program_ + " procedure name: " + procedureName_);
         if (program_.length() == 0)
         {
             Trace.log(Trace.ERROR, "Attempt to run before setting program.");
@@ -295,17 +291,17 @@ public class ServiceProgramCall extends ProgramCall
         }
 
         // Run the service program.
-        returnValue_ = impl_.runServiceProgram(library_, name_, procedureName_, rvf, parameterList_, threadSafety_, procedureNameCCSID_);
+        returnValue_ = impl_.runServiceProgram(library_, name_, procedureName_, rvf, parameterList_, threadSafety_, procedureNameCCSID_, messageCount_);
 
         // Retrieve the messages.
         messageList_ = impl_.getMessageList();
         // Set our system object into each of the messages.
         if (system_ != null)
         {
-        for (int i = 0; i < messageList_.length; ++i)
-        {
-            messageList_[i].setSystem(system_);
-        }
+            for (int i = 0; i < messageList_.length; ++i)
+            {
+                messageList_[i].setSystem(system_);
+            }
         }
 
         // The SRVPGM API we call will return an MCH3401 if the Object or Library do not exist.  We need to monitor the message list for that return code and throw an ObjectDoesNotExistException.  Unfortunately we do not know if it is the object or the library that does not exist.
@@ -318,7 +314,7 @@ public class ServiceProgramCall extends ProgramCall
         }
 
         // Fire action completed event.
-        fireActionCompleted();
+        if (actionCompletedListeners_ != null) fireActionCompleted();
         return returnValue_ != null;
     }
 
@@ -375,21 +371,36 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public void setProcedureName(String procedureName) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting procedure name: " + procedureName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting procedure name: " + procedureName);
         if (procedureName == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'procedureName' is null.");
             throw new NullPointerException("procedureName");
         }
-        String old = procedureName_;
-        vetoableChangeListeners_.fireVetoableChange("procedureName", old, procedureName);
-        procedureName_ = procedureName;
-        propertyChangeListeners_.firePropertyChange("procedureName", old, procedureName);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            procedureName_ = procedureName;
+        }
+        else
+        {
+            String oldValue = procedureName_;
+            String newValue = procedureName;
+
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("procedureName", oldValue, newValue);
+            }
+            procedureName_ = procedureName;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("procedureName", oldValue, newValue);
+            }
+        }
     }
 
     /**
      Sets the service program procedure to call.
-     @param  procedureName       The procedure in the service program to call.
+     @param  procedureName  The procedure in the service program to call.
      @param  procedureNameCCSID  The CCSID to use when converting the procedure name from a Java String to EBCDIC.
      @exception  PropertyVetoException  If a change for the value of procedureName is vetoed.
      **/
@@ -406,7 +417,7 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public void setProgram(String serviceProgram) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting service program: " + serviceProgram);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting service program: " + serviceProgram);
         if (serviceProgram == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'program' is null.");
@@ -415,12 +426,29 @@ public class ServiceProgramCall extends ProgramCall
         // Verify serviceProgram is valid IFS path name.
         QSYSObjectPathName ifs = new QSYSObjectPathName(serviceProgram, "SRVPGM");
 
-        String old = program_;
-        vetoableChangeListeners_.fireVetoableChange("program", old, serviceProgram);
-        library_ = ifs.getLibraryName();
-        name_ = ifs.getObjectName();
-        program_ = serviceProgram;
-        propertyChangeListeners_.firePropertyChange("program", old, serviceProgram);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            library_ = ifs.getLibraryName();
+            name_ = ifs.getObjectName();
+            program_ = serviceProgram;
+        }
+        else
+        {
+            String oldValue = program_;
+            String newValue = serviceProgram;
+
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("program", oldValue, newValue);
+            }
+            library_ = ifs.getLibraryName();
+            name_ = ifs.getObjectName();
+            program_ = newValue;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("program", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -434,17 +462,31 @@ public class ServiceProgramCall extends ProgramCall
      **/
     public void setReturnValueFormat(int returnValueFormat) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting return value format:", returnValueFormat);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting return value format:", returnValueFormat);
         if (returnValueFormat < NO_RETURN_VALUE || returnValueFormat > RETURN_INTEGER)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'returnValueFormat' is not valid:", returnValueFormat);
             throw new ExtendedIllegalArgumentException("returnValueFormat (" + returnValueFormat + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        Integer oldValue = new Integer(returnValueFormat_);
-        Integer newValue = new Integer(returnValueFormat);
-        vetoableChangeListeners_.fireVetoableChange("returnValueFormat", oldValue, newValue);
-        returnValueFormat_ = returnValueFormat;
-        propertyChangeListeners_.firePropertyChange("returnValueFormat", oldValue, newValue);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            returnValueFormat_ = returnValueFormat;
+        }
+        else
+        {
+            Integer oldValue = new Integer(returnValueFormat_);
+            Integer newValue = new Integer(returnValueFormat);
+
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("returnValueFormat", oldValue, newValue);
+            }
+            returnValueFormat_ = returnValueFormat;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("returnValueFormat", oldValue, newValue);
+            }
+        }
     }
 }

@@ -179,7 +179,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //catch (PropertyVetoException v) {}       // $B1
 
         // Run the program.  Failure is returned as a message list.
-        if(rmtCmd_.runProgram("QSYS", "QUSCRTUS", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        if(rmtCmd_.runProgram("QSYS", "QUSCRTUS", parmlist, true, AS400Message.MESSAGE_COUNT_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // Throw AS400MessageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
@@ -235,7 +235,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //}
         //catch (PropertyVetoException v) {}       // $B1
 
-        if (rmtCmd_.runProgram("QSYS", "QUSDLTUS", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        if (rmtCmd_.runProgram("QSYS", "QUSDLTUS", parmlist, true, AS400Message.MESSAGE_COUNT_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // failure occurred, throw AS400Message list
             AS400Message[] messageList = rmtCmd_.getMessageList();
@@ -298,7 +298,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //catch (PropertyVetoException v) {}       // $B1                   //$C0D
 
         // Run the program.  Failure returns message list
-        if(rmtCmd_.runProgram("QSYS", "QUSRUSAT", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        if(rmtCmd_.runProgram("QSYS", "QUSRUSAT", parmlist, true, AS400Message.MESSAGE_COUNT_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // failure, Throw AS400MessageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
@@ -673,7 +673,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
         rmtCmd_.setSystem(system_);                                         //$C0A
 
         // Run the program.
-        if(rmtCmd_.runProgram("QSYS", "QUSRTVUS", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        if(rmtCmd_.runProgram("QSYS", "QUSRTVUS", parmlist, true, AS400Message.MESSAGE_COUNT_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             messageList = rmtCmd_.getMessageList();
         }
@@ -739,7 +739,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //catch(PropertyVetoException v) {}        // $B1
 
         // Run the program.
-        if(rmtCmd_.runProgram("QSYS", "QUSCUSAT", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        if(rmtCmd_.runProgram("QSYS", "QUSCUSAT", parmlist, true, AS400Message.MESSAGE_COUNT_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // Throw messageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
@@ -985,7 +985,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
         rmtCmd_.setSystem(system_);                                         //$C0A
 
         // Run the program.
-        if(rmtCmd_.runProgram("QSYS", "QUSCHGUS", parmlist, true) != true)  // This API is threadsafe.   @D3A $C0C @D2C
+        if(rmtCmd_.runProgram("QSYS", "QUSCHGUS", parmlist, true, AS400Message.MESSAGE_COUNT_UP_TO_10) != true)  // This API is threadsafe.   @D3A $C0C @D2C
         {
             // Throw messageList
             AS400Message[] messageList = rmtCmd_.getMessageList();

@@ -21,7 +21,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    RCCallProgramRequestDataStream(String library, String program, ProgramParameter[] parameterList, ConverterImplRemote converter, int dataStreamLevel) throws CharConversionException
+    RCCallProgramRequestDataStream(String library, String program, ProgramParameter[] parameterList, ConverterImplRemote converter, int dataStreamLevel, int messageCount) throws CharConversionException
     {
         int dataStreamLength = 43;  // Data stream length is 43 + length of the parameters.
 
@@ -107,7 +107,8 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         converter.stringToByteArray(library, data_, 30);
 
         // Return messages.
-        // data_[40] = 0x00;
+        if (dataStreamLevel < 6 && messageCount == AS400Message.MESSAGE_COUNT_ALL) messageCount = AS400Message.MESSAGE_COUNT_UP_TO_10;
+        data_[40] = (byte)messageCount;
 
         // Set number of program parameters.
         set16bit(parameterList.length, 41);

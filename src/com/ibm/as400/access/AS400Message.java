@@ -113,6 +113,19 @@ public class AS400Message implements Serializable
      **/
     public static final int REPLY_FROM_SYSTEM_REPLY_LIST = 25;
 
+    /**
+     Constant indicating the command server should return up to ten messages sent to the server job.
+     **/
+    public static final int MESSAGE_COUNT_UP_TO_10 = 0;
+    /**
+     Constant indicating the command server should not return messages.
+     **/
+    public static final int MESSAGE_COUNT_NONE = 1;
+    /**
+     Constant indicating the command server should return all the messages.
+     **/
+    public static final int MESSAGE_COUNT_ALL = 2;
+
     // Date and time message sent.
     private Calendar date_;
     private String dateSent_; //@G0A

@@ -20,7 +20,7 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    RCRunCommandRequestDataStream(byte[] commandBytes)
+    RCRunCommandRequestDataStream(byte[] commandBytes, int dataStreamLevel, int messageCount)
     {
         super(new byte[27 + commandBytes.length]);
         setLength(27 + commandBytes.length);
@@ -31,7 +31,9 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
         setTemplateLen(0x0001);  // Template length is one byte.
         setReqRepID(0x1002);
 
-        // data_[20] = 0x00;  // Always return messages.
+        // Return messages.
+        if (dataStreamLevel < 6 && messageCount == AS400Message.MESSAGE_COUNT_ALL) messageCount = AS400Message.MESSAGE_COUNT_UP_TO_10;
+        data_[20] = (byte)messageCount;
 
         set32bit(6 + commandBytes.length, 21);  // Set LL = 4 bytes LL, 2 bytes CP + length of command.
         set16bit(0x1101, 25);  // Set CP.

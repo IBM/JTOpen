@@ -22,7 +22,7 @@ import org.ietf.jgss.Oid;
 class TokenManager
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    static byte[] getGSSToken(String systemName) throws Exception
+    static byte[] getGSSToken(String systemName, String gssName) throws Exception
     {
         GSSManager manager = GSSManager.getInstance();
         if (Trace.isTraceOn())
@@ -33,7 +33,18 @@ class TokenManager
         }
         Oid krb5Mech = new Oid("1.2.840.113554.1.2.2");
         GSSName serverName = manager.createName("krbsvr400@" + systemName, GSSName.NT_HOSTBASED_SERVICE, krb5Mech);
-        GSSCredential credential = manager.createCredential(GSSCredential.INITIATE_ONLY);
+
+        GSSCredential credential;
+        if (gssName.length() == 0)
+        {
+            credential = manager.createCredential(GSSCredential.INITIATE_ONLY);
+        }
+        else
+        {
+            GSSName userName = manager.createName(gssName, GSSName.NT_USER_NAME);
+            credential = manager.createCredential(userName, GSSCredential.DEFAULT_LIFETIME, krb5Mech, GSSCredential.INITIATE_ONLY);
+        }
+
         GSSContext context = manager.createContext(serverName, krb5Mech, credential, GSSCredential.DEFAULT_LIFETIME);
         return context.initSecContext(null, 0, 0);
     }

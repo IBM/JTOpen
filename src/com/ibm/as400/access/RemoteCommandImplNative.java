@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
 class RemoteCommandImplNative extends RemoteCommandImplRemote
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Load the service program.
     static
@@ -102,7 +102,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         try
         {
             // Retrieve command information.  Failure is returned as a message list.
-            if(!runProgram("QSYS", "QCDRCMDI", parameterList, true))
+            if(!runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_COUNT_UP_TO_10))
             {
                 Trace.log(Trace.ERROR, "Unable to retrieve command information.");
                 String id = messageList_[messageList_.length - 1].getID();
@@ -125,8 +125,8 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         catch (ObjectDoesNotExistException e)
         {
-           Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
-           throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
 
         // Get the data returned from the program.
@@ -136,15 +136,15 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             Trace.log(Trace.DIAGNOSTIC, "Command information retrieved:", dataReceived);
 
             // Examine the "multithreaded job action" field.
-        // The "multithreaded job action" field is a single byte at offset 334.
+            // The "multithreaded job action" field is a single byte at offset 334.
             // Multithreaded job action. The action to take when a command that is not threadsafe is called in a multithreaded job.  The possible values are:
-        // 0  Use the action specified in QMLTTHDACN system value.
-        // 1  Run the command. Do not send a message.
-        // 2  Send an informational message and run the command.
-        // 3  Send an escape message, and do not run the command.
-        // System value . . . . . :   QMLTTHDACN
-        // Description  . . . . . :   Multithreaded job action
-        // Interpretation:
+            // 0  Use the action specified in QMLTTHDACN system value.
+            // 1  Run the command. Do not send a message.
+            // 2  Send an informational message and run the command.
+            // 3  Send an escape message, and do not run the command.
+            // System value . . . . . :   QMLTTHDACN
+            // Description  . . . . . :   Multithreaded job action
+            // Interpretation:
             // 1  Perform the function that is not threadsafe without sending a message.
             // 2  Perform the function that is not threadsafe and send an informational message.
             // 3  Do not perform the function that is not threadsafe.
@@ -163,13 +163,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
             case 0:
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command not threadsafe: " + cmdLibAndName);
-            return false;
+                return false;
             case 1:
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command threadsafe: " + cmdLibAndName);
-            return true;
+                return true;
             case 2:
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Conditionally threadsafe: " + cmdLibAndName);
-            return false;
+                return false;
         }
         if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Invalid threadsafe indicator: " + cmdLibAndName);
         return false;  // Assume the command is not thread-safe.
@@ -177,35 +177,35 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
     // Runs the command.
     // @return  true if command is successful; false otherwise.
-    public boolean runCommand(String command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(String command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
         if (!threadSafety)
         {
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
-            return super.runCommand(command, false);
+            return super.runCommand(command, false, messageCount);
         }
         open(true);
-        return runCommand(command, converter_.stringToByteArray(command));
+        return runCommand(command, converter_.stringToByteArray(command), messageCount);
     }
 
     // Runs the command.
     // @return  true if command is successful; false otherwise.
-    public boolean runCommand(byte[] command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(byte[] command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Native implementation running command:", command);
         if (!threadSafety)
         {
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
-            return super.runCommand(command, false);
+            return super.runCommand(command, false, messageCount);
         }
 
         open(true);
 
-        return runCommand(null, command);
+        return runCommand(null, command, messageCount);
     }
 
-    private boolean runCommand(String command, byte[] commandBytes) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommand(String command, byte[] commandBytes, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
@@ -234,13 +234,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     }
 
     // Run the program.
-    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
         if (!threadSafety)
         {
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Sending program to super class.");
-            return super.runProgram(library, name, parameterList, false);
+            return super.runProgram(library, name, parameterList, false, messageCount);
         }
         // Run the program on-thread.
         open(true);
@@ -307,21 +307,21 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             // Reset the message list.
             messageList_ = new AS400Message[0];
 
-        // For each output/inout parm, in order, set data returned.
-        for (int index = 0, i = 0; i < parameterList.length; ++i)
-        {
-            int parameterMaxLength = parameterList[i].getMaxLength();
-            int outputDataLength = parameterList[i].getOutputDataLength();
-            if (outputDataLength > 0)
+            // For each output/inout parm, in order, set data returned.
+            for (int index = 0, i = 0; i < parameterList.length; ++i)
             {
-                byte[] outputData = new byte[outputDataLength];
+                int parameterMaxLength = parameterList[i].getMaxLength();
+                int outputDataLength = parameterList[i].getOutputDataLength();
+                if (outputDataLength > 0)
+                {
+                    byte[] outputData = new byte[outputDataLength];
                     System.arraycopy(replyBytes, index, outputData, 0, outputDataLength);
-                parameterList[i].setOutputData(outputData);
+                    parameterList[i].setOutputData(outputData);
+                }
+                index += parameterMaxLength;
             }
-            index += parameterMaxLength;
+            return true;
         }
-        return true;
-    }
         catch (NativeException e)  // Exception found by C code.
         {
             messageList_ = RemoteCommandImplNative.parseMessages(e.data, converter_);

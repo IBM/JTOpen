@@ -18,7 +18,7 @@ import java.io.IOException;
 // The RemoteCommandImplRemote class is the remote implementation of CommandCall and ProgramCall.
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     AS400ImplRemote system_;
     ConverterImplRemote converter_;
@@ -96,7 +96,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         // Retrieve Current Attributes.  Failure is returned as a message list.
         try
         {
-            if(!runProgram("QSYS", "QWCRTVCA", parameterList, threadSafety))
+            if (!runProgram("QSYS", "QWCRTVCA", parameterList, threadSafety, AS400Message.MESSAGE_COUNT_UP_TO_10))
             {
                 Trace.log(Trace.ERROR, "Unable to retrieve job information.");
                 throw new AS400Exception(messageList_);
@@ -176,7 +176,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
-    public boolean runCommand(String command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(String command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running command: " + command);
 
@@ -185,25 +185,25 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         byte[] data = converter_.stringToByteArray(command);
 
-        return runCommand(data);
+        return runCommand(data, messageCount);
     }
 
-    public boolean runCommand(byte[] command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(byte[] command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running command:", command);
 
         // Connect to server.
         open(threadSafety);
 
-        return runCommand(command);
+        return runCommand(command, messageCount);
     }
 
-    private boolean runCommand(byte[] command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommand(byte[] command, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         try
         {
             // Create and send request.
-            DataStream baseReply = server_.sendAndReceive(new RCRunCommandRequestDataStream(command));
+            DataStream baseReply = server_.sendAndReceive(new RCRunCommandRequestDataStream(command, serverDataStreamLevel_, messageCount));
 
             // Punt if unknown data stream.
             if (!(baseReply instanceof RCRunCommandReplyDataStream))
@@ -230,7 +230,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
-    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running program: " + library + "/" + name);
 
@@ -241,7 +241,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         try
         {
             // Create and send request.
-            DataStream baseReply = server_.sendAndReceive(new RCCallProgramRequestDataStream(library, name, parameterList, converter_, serverDataStreamLevel_));
+            DataStream baseReply = server_.sendAndReceive(new RCCallProgramRequestDataStream(library, name, parameterList, converter_, serverDataStreamLevel_, messageCount));
 
             // Punt if unknown data stream.
             if (!(baseReply instanceof RCCallProgramReplyDataStream))
@@ -263,9 +263,9 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 messageList_ = new AS400Message[0];
                 return true;
             }
-                messageList_ = reply.getMessageList(converter_);
-                if (rc == 0x0500)
-                {
+            messageList_ = reply.getMessageList(converter_);
+            if (rc == 0x0500)
+            {
                 String id = messageList_[messageList_.length - 1].getID();
 
                 if (id.equals("MCH3401"))
@@ -273,16 +273,16 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                     byte[] substitutionBytes = messageList_[messageList_.length - 1].getSubstitutionData();
                     if (substitutionBytes[0] == 0x02 && substitutionBytes[1] == 0x01 && name.equals(converter_.byteArrayToString(substitutionBytes, 2, 30).trim()))
                     {
-                    throw new ObjectDoesNotExistException(QSYSObjectPathName.toPath(library, name, "PGM"), ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
-                }
+                        throw new ObjectDoesNotExistException(QSYSObjectPathName.toPath(library, name, "PGM"), ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+                    }
                     if (substitutionBytes[0] == 0x04 && substitutionBytes[1] == 0x01 && library.equals(converter_.byteArrayToString(substitutionBytes, 2, 30).trim()))
                     {
                         throw new ObjectDoesNotExistException(QSYSObjectPathName.toPath(library, name, "PGM"), ObjectDoesNotExistException.LIBRARY_DOES_NOT_EXIST);
                     }
                 }
             }
-                return false;
-            }
+            return false;
+        }
         catch (IOException e)
         {
             system_.disconnectServer(server_);
@@ -291,7 +291,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
     }
 
-    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, boolean threadSafety, int procedureNameCCSID) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, boolean threadSafety, int procedureNameCCSID, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running service program: " + library + "/" + name + " procedure name: " + procedureName);
 
@@ -350,7 +350,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         System.arraycopy(serviceParameterList, 0, programParameterList, 7, serviceParameterList.length);
 
         // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or through the host servers, we will issue the service program call request accordingly, either on-thread or through the host servers.
-        if (!runProgram("QSYS", "QZRUCLSP", programParameterList, threadSafety))
+        if (!runProgram("QSYS", "QZRUCLSP", programParameterList, threadSafety, messageCount))
         {
             return null;
         }
@@ -370,12 +370,12 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
         switch (rc)
         {
-            // The following is the list of return codes the RMTCMD/RMTPGMCALL server sends to the client application in the request replies:
+                // The following is the list of return codes the RMTCMD/RMTPGMCALL server sends to the client application in the request replies:
             case 0x0000:  // Request processed successfully.
                 if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Request processed successfully.");
                 return;
 
-            // Initial allocate & exchange attribute return codes:
+                // Initial allocate & exchange attribute return codes:
             case 0x0100:  // Limited user.
                 if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Limited user.");
                 return;
@@ -408,7 +408,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Error adding NLV library to system library list.");
                 return;
 
-            // Return codes for all requests:  These are return codes that can result from processing any type of requests (exchange attributes, RMTCMD, RMTPGMCALL, & end).
+                // Return codes for all requests:  These are return codes that can result from processing any type of requests (exchange attributes, RMTCMD, RMTPGMCALL, & end).
             case 0x0200:  // Unable to process request.  An error occured on the receive data.
             case 0x0201:  // Invalid LL.
             case 0x0202:  // Invalid server ID.
@@ -422,7 +422,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 system_.disconnectServer(server_);
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
 
-            // Return codes common to RMTCMD & RMTPGMCALL requests:
+                // Return codes common to RMTCMD & RMTPGMCALL requests:
             case 0x0300:  // Process exit point error.  Error occurred when trying to retrieve the exit point for user exit program processing.  This can occur when the user exit program cannot be resolved.
                 Trace.log(Trace.ERROR, "Process exit point error.");
                 system_.disconnectServer(server_);
@@ -442,12 +442,12 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 system_.disconnectServer(server_);
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_DENIED_REQUEST);
 
-            // RMTCMD specific return codes:
+                // RMTCMD specific return codes:
             case 0x0400:  // Command failed.  Messages returned.
                 if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Error calling the command.");
                 return;
 
-            // RMTPGMCALL specific return codes:
+                // RMTPGMCALL specific return codes:
             case 0x0500:  // An error occured when resolving to the program to call.
                 if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Could not resolve program.");
                 return;

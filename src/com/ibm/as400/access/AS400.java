@@ -92,6 +92,19 @@ public class AS400 implements Serializable
      **/
     public static final int USE_PORT_MAPPER = -1;
 
+    /**
+     Constant indicating the authentication scheme is password.
+     **/
+    public static final int AUTHENTICATION_SCHEME_PASSWORD = 0;
+    /**
+     Constant indicating the authentication scheme is GSS token.
+     **/
+    public static final int AUTHENTICATION_SCHEME_GSS_TOKEN = 1;
+    /**
+     Constant indicating the authentication scheme is profile token.
+     **/
+    public static final int AUTHENTICATION_SCHEME_PROFILE_TOKEN = 2;
+
     // Determine if we are running on an iSeries server.
     static boolean onAS400 = false;
     // VRM from system property, if we are native.
@@ -138,8 +151,10 @@ public class AS400 implements Serializable
     private String userId_ = "";
     // Password, GSS token, or profile token bytes twiddled.
     private transient byte[] bytes_ = null;
-    // Type of authentication bytes: 0 = password, 1 = GSS token, 2 = profile token.
-    private transient int byteType_ = 0;
+    // Type of authentication bytes, start by default in password mode.
+    private transient int byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
+    // GSS name string, for Kerberos.
+    private String gssName_ = "";
 
     // Proxy server system name.
     private transient String proxyServer_ = "";
@@ -273,7 +288,7 @@ public class AS400 implements Serializable
         construct();
         systemName_ = resolveSystem(systemName);
         bytes_ = store(profileToken.getToken());
-        byteType_ = 2;  // 2 = profile token.
+        byteType_ = AUTHENTICATION_SCHEME_PROFILE_TOKEN;
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -598,7 +613,7 @@ public class AS400 implements Serializable
     {
         try
         {
-            if (AS400.onAS400 && !mustUseSockets_ && systemName_.equalsIgnoreCase("localhost") && proxyServer_.length() == 0 && byteType_ == 0 && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
+            if (AS400.onAS400 && !mustUseSockets_ && systemName_.equalsIgnoreCase("localhost") && proxyServer_.length() == 0 && byteType_ == AUTHENTICATION_SCHEME_PASSWORD && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
                 return true;
@@ -678,7 +693,7 @@ public class AS400 implements Serializable
 
             // Change instance variable to match.
             bytes_ = store(newPassword);
-            byteType_ = 0;  // 0 = password.
+            byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
         }
     }
 
@@ -986,6 +1001,20 @@ public class AS400 implements Serializable
     }
 
     /**
+     Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the server has been made.
+     <br>Valid authentication schemes are:
+     <br>   AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
+     <br>   AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
+     <br>   AUTHENTICATION_SCHEME_PROFILE_TOKEN - profile tokens are used.
+     @return  The authentication scheme in use for this object.
+     **/
+    public int getAuthenticationScheme()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting authentication scheme, scheme:", byteType_);
+        return byteType_;
+    }
+
+    /**
      Returns the CCSID for this object.  The CCSID returned either is the one retrieved from the server based on the user profile or is set by the setCcsid() method.
      @return  The CCSID in use for this object.
      **/
@@ -1223,7 +1252,7 @@ public class AS400 implements Serializable
             throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
         }
         // If the password is not set and we are not using Kerberos.
-        if (bytes_ == null && byteType_ != 1)
+        if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
@@ -1276,7 +1305,7 @@ public class AS400 implements Serializable
             throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
         }
         // If the password is not set and we are not using Kerberos.
-        if (bytes_ == null && byteType_ != 1)
+        if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
@@ -1533,6 +1562,16 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID: " + userId_);
         userId_ = resolveUserId(userId_, byteType_);
         return userId_;
+    }
+
+    /**
+     Returns the GSS name string.  This method will only return the information provided on the setGSSName() method.
+     @return  The GSS name string, or an empty string ("") if not set.
+     **/
+    public String getGSSName()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS name: " + gssName_);
+        return gssName_;
     }
 
     /**
@@ -2443,14 +2482,14 @@ public class AS400 implements Serializable
         }
 
         // If using GSS tokens.
-        if (byteType_ == 1)
+        if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            signonInfo_ = impl_.signon(systemName_, userId_, bytes_, byteType_);
+            signonInfo_ = impl_.signon(systemName_, userId_, bytes_, byteType_, gssName_);
             bytes_ = null;  // GSSToken is single use only.
         }
         else
         {
-            signonInfo_ = impl_.signon(systemName_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_);
+            signonInfo_ = impl_.signon(systemName_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_, gssName_);
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
@@ -2557,6 +2596,34 @@ public class AS400 implements Serializable
     }
 
     /**
+     Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, or password) can be used at a single time.  Using this method will clear any set profile token or password.
+     @param  name  The GSS name string.
+     **/
+    public void setGSSName(String gssName)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS name: '" + gssName + "'");
+
+        if (gssName == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'gssName' is null.");
+            throw new NullPointerException("gssName");
+        }
+
+        if (signonInfo_ != null)
+        {
+            Trace.log(Trace.ERROR, "Cannot set gssName after connection has been made.");
+            throw new ExtendedIllegalStateException("gssName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        synchronized (this)
+        {
+            gssName_ = gssName;
+            bytes_ = null;
+            byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+        }
+    }
+
+    /**
      Sets the environment you are running in.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then these conditions will result in return codes and exceptions.  Applications that are running as server applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
      @param  guiAvailable  true to prompt; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
@@ -2655,7 +2722,7 @@ public class AS400 implements Serializable
         synchronized (this)
         {
             bytes_ = store(password);
-            byteType_ = 0;  // 0 = password.
+            byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
             signonInfo_ = null;
         }
     }
@@ -2687,7 +2754,7 @@ public class AS400 implements Serializable
         synchronized (this)
         {
             bytes_ = store(profileToken.getToken());
-            byteType_ = 2;  // 2 = profile token.
+            byteType_ = AUTHENTICATION_SCHEME_PROFILE_TOKEN;
             signonInfo_ = null;
         }
     }
@@ -3077,8 +3144,8 @@ public class AS400 implements Serializable
                 if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null)
                 {
                     // Try for Kerberos.
-                    bytes_ = TokenManager.getGSSToken(systemName_);
-                    byteType_ = 1;
+                    bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                    byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
                 }
             }
             catch (Throwable e)
@@ -3087,7 +3154,7 @@ public class AS400 implements Serializable
             }
 
             // If we can use the prompts, use them, else go right to server flows.
-            if (guiAvailable_ && byteType_ == 0)
+            if (guiAvailable_ && byteType_ == AUTHENTICATION_SCHEME_PASSWORD)
             {
                 promptSignon();
             }

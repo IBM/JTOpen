@@ -23,7 +23,7 @@ class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
 
     SignonGenAuthTokenRequestDS(byte[] userIdentity, int profileTokenType, int profileTokenTimeout)
     {
-        super(new byte[53 + userIdentity.length]);
+        super(new byte[51 + userIdentity.length]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -56,10 +56,8 @@ class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
         set32bit(8 + userIdentity.length, 45);
         //   CP
         set16bit(0x1127, 49);
-        //   CCSID.
-        set16bit(0x34B0, 51);
         //   Data.
-        System.arraycopy(userIdentity, 0, data_, 53, userIdentity.length);
+        System.arraycopy(userIdentity, 0, data_, 51, userIdentity.length);
     }
 
     void write(OutputStream out) throws IOException
