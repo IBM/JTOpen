@@ -2,7 +2,7 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: UserSpace.java
+// Filename:  UserSpace.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
@@ -34,35 +34,35 @@ public class UserSpace implements Serializable
     /**
      Force to auxiliary storage option that allows changes to be forced asynchronously.
      **/
-    public final static int FORCE_ASYNCHRONOUS = 1;
+    public static final int FORCE_ASYNCHRONOUS = 1;
 
     /**
      Force to auxiliary storage option that does not allow changes to be forced.  It uses normal system writes.
      **/
-    public final static int FORCE_NONE = 0;
+    public static final int FORCE_NONE = 0;
 
     /**
      Force to auxiliary storage option that allows changes to be forced synchronously.
      **/
-    public final static int FORCE_SYNCHRONOUS = 2;
+    public static final int FORCE_SYNCHRONOUS = 2;
 
     /**
      Constant representing the default domain for the user space.  The QALWUSRDMN system value is used to determine the domain.
      **/
-    public final static String DOMAIN_DEFAULT = "*DEFAULT";
+    public static final String DOMAIN_DEFAULT = "*DEFAULT";
 
     /** 
      Constant indicating the domain for the user space is *USER.
      **/
-    public final static String DOMAIN_USER = "*USER";
+    public static final String DOMAIN_USER = "*USER";
 
     /**
      Constant indicating the domain for the user space is *SYSTEM.
      **/
-    public final static String DOMAIN_SYSTEM = "*SYSTEM";
+    public static final String DOMAIN_SYSTEM = "*SYSTEM";
 
     // Maximum allowed user space size.
-    private final static int MAX_USER_SPACE_SIZE = 16776704;
+    private static final int MAX_USER_SPACE_SIZE = 16776704;
 
     // The server where the user space is located.
     private AS400 system_ = null;
@@ -227,18 +227,12 @@ public class UserSpace implements Serializable
     public synchronized void close() throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Closing user space.");
-        // Verify connection.
-        if (impl_ == null)
-        {
-            Trace.log(Trace.ERROR, "User space is not open.");
-            throw new ExtendedIllegalStateException("UserSpace", ExtendedIllegalStateException.OBJECT_MUST_BE_OPEN);
-        }
-        impl_.close();
+        if (impl_ != null) impl_.close();
     }
 
     /**
      Creates the user space.
-     @param  length  The initial size (in bytes) of the user space.  Valid values are 1 through 16,776,704.
+     @param  length  The initial size (in bytes) of the user space.  Valid values are 1 through 16,776,704.  User spaces with lengths of 16,773,120 or less will be created with optimum space alignment.  These user spaces can not be resized to greater than 16,773,120 bytes.  For performance, lengths of 16,773,120 or less are recommended.
      @param  replace  The value indicating if an existing user space is to be replaced.
      @param  extendedAttribute  The user-defined extended attribute of the user space.  This string must be 10 characters or less.
      @param  initialValue  The value used in creation and extension.
@@ -260,7 +254,8 @@ public class UserSpace implements Serializable
      **/
     public void create(int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        create(DOMAIN_DEFAULT, length, replace, extendedAttribute, initialValue, textDescription, authority);
+        // Create with domain "*DEFAULT"
+        create(new byte[] { 0x5C, (byte)0xC4, (byte)0xC5, (byte)0xC6, (byte)0xC1, (byte)0xE4, (byte)0xD3, (byte)0xE3, (byte)0x40, (byte)0x40 }, length, replace, extendedAttribute, initialValue, textDescription, authority);
     }
 
     /**
@@ -271,7 +266,7 @@ public class UserSpace implements Serializable
      <li>{@link #DOMAIN_USER DOMAIN_USER}
      <li>{@link #DOMAIN_SYSTEM DOMAIN_SYSTEM}
      </ul>
-     @param  length  The initial size (in bytes) of the user space.  Valid values are 1 through 16,776,704.
+     @param  length  The initial size (in bytes) of the user space.  Valid values are 1 through 16,776,704.  User spaces with lengths of 16,773,120 or less will be created with optimum space alignment.  These user spaces can not be resized to greater than 16,773,120 bytes.  For performance, lengths of 16,773,120 or less are recommended.
      @param  replace  The value indicating if an existing user space is to be replaced.
      @param  extendedAttribute  The user-defined extended attribute of the user space.  This string must be 10 characters or less.
      @param  initialValue  The value used in creation and extension.
@@ -293,18 +288,40 @@ public class UserSpace implements Serializable
      **/
     public void create(String domain, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating user space.");
         // Validate the domain parameter.
         if (domain == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'domain' is null.");
             throw new NullPointerException("domain");
         }
-        if (!domain.equals(DOMAIN_DEFAULT) && !domain.equals(DOMAIN_USER) && !domain.equals(DOMAIN_SYSTEM))
+        byte[] domainBytes;
+        if (domain.equals(DOMAIN_DEFAULT))
+        {
+            // EBCDIC "*DEFAULT"
+            domainBytes = new byte[] { 0x5C, (byte)0xC4, (byte)0xC5, (byte)0xC6, (byte)0xC1, (byte)0xE4, (byte)0xD3, (byte)0xE3, (byte)0x40, (byte)0x40 };
+        }
+        else if (domain.equals(DOMAIN_USER))
+        {
+            // EBCDIC "*USER"
+            domainBytes = new byte[] { 0x5C, (byte)0xE4, (byte)0xE2, (byte)0xC5, (byte)0xD9, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 };
+        }
+        else if (domain.equals(DOMAIN_SYSTEM))
+        {
+            // EBCDIC "*SYSTEM"
+            domainBytes = new byte[] { 0x5C, (byte)0xE2, (byte)0xE8, (byte)0xE2, (byte)0xE3, (byte)0xC6, (byte)0xD4, (byte)0x40, (byte)0x40, (byte)0x40 };
+        }
+        else
         {
             Trace.log(Trace.ERROR, "Parameter 'domain' is not valid.");
             throw new ExtendedIllegalArgumentException("domain (" + domain + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+        create(domainBytes, length, replace, extendedAttribute, initialValue, textDescription, authority);
+    }
+
+    // Creates the user space.
+    private void create(byte[] domainBytes, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating user space.");
         // Validate the length parameter.
         if (length < 1 || length > MAX_USER_SPACE_SIZE)
         {
@@ -348,7 +365,7 @@ public class UserSpace implements Serializable
         }
 
         chooseImpl();
-        impl_.create(domain, length, replace, extendedAttribute, initialValue, textDescription, authority);
+        impl_.create(domainBytes, length, replace, extendedAttribute, initialValue, textDescription, authority);
 
         // Fire the CREATED event.
         if (userSpaceListeners_ != null) fireUserSpaceEvent(UserSpaceEvent.US_CREATED);
@@ -392,17 +409,6 @@ public class UserSpace implements Serializable
         catch (ObjectDoesNotExistException e)
         {
             return false;
-        }
-        catch (IOException e2)
-        {
-            String message = e2.getMessage();
-
-            if (message.startsWith("CPF2209") ||     // library not found
-                message.startsWith("CPF9810") ||     // library not found
-                message.startsWith("CPF9801"))       // object not found
-                return false;
-            else
-                throw e2;
         }
     }
 
@@ -720,8 +726,8 @@ public class UserSpace implements Serializable
     }
 
     /**
-     Sets the size (in bytes) of the user space.  Valid values are 1 through 16,776,704.
-     @param  length  The new size (in bytes) of the user space.
+     Sets the size (in bytes) of the user space.
+     @param  length  The new size (in bytes) of the user space.  Valid values are 1 through 16,776,704.  User spaces with lengths of 16,773,120 or less, created with optimum space alignment,  can not be resized to greater than 16,773,120 bytes.  For performance, lengths of 16,773,120 or less are recommended.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
@@ -750,7 +756,7 @@ public class UserSpace implements Serializable
         // Verify that connection has not been made.
         if (impl_ != null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'mustUseProgramCall' is not changed (Connected=true).");
+            Trace.log(Trace.ERROR, "Cannot set property 'mustUseProgramCall' after connect.");
             throw new ExtendedIllegalStateException("mustUseProgramCall", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
@@ -788,7 +794,7 @@ public class UserSpace implements Serializable
 
         if (impl_ != null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'path' is not changed (Connected=true).");
+            Trace.log(Trace.ERROR, "Cannot set property 'path' after connect.");
             throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
@@ -835,7 +841,7 @@ public class UserSpace implements Serializable
         // Verify that connection has not been made.
         if (impl_ != null)
         {
-            Trace.log(Trace.ERROR, "Parameter 'system' is not changed (Connected=true).");
+            Trace.log(Trace.ERROR, "Cannot set property 'system' after connect.");
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
@@ -929,7 +935,7 @@ public class UserSpace implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'dataBuffer' is not valid.");
             throw new ExtendedIllegalArgumentException("dataBuffer.length (" + dataBuffer.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        // Validate the User Space offset parameter.
+        // Validate the user space offset parameter.
         if (userSpaceOffset < 0 || userSpaceOffset > MAX_USER_SPACE_SIZE)
         {
             Trace.log(Trace.ERROR, "Parameter 'userSpaceOffset' is not valid.");

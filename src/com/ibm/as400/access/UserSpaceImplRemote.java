@@ -1,1057 +1,513 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: UserSpaceImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM  Toolbox for Java - OSS version)
+//
+// Filename:  UserSpaceImplRemote.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import java.beans.PropertyVetoException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-/**
- The UserSpaceImplRemote is the remote implementation of the user space class.
- **/
+// The UserSpaceImplRemote class is the remote implementation of the user space class.
 class UserSpaceImplRemote implements UserSpaceImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-   /**
-     Constants
-   **/
-   final static int SPACE_SIZE = 1;      // Key option for the size attribute.
-   final static int INITIAL_VALUE = 2;   // Key option for the initial value attribute.
-   final static int AUTO_EXTEND = 3;     // Key option for the auto extendibility attribute.
+    // The server where the user space is located.
+    protected AS400ImplRemote system_ = null;
+    // The full path name of the user space.
+    protected String path_ = null;
+    // The library that contains the user space.
+    protected String library_ = null;
+    // The name of the user space.
+    protected String name_ = null;
+    // Use ProgramCall instead of IFS.
+    protected boolean mustUseProgramCall_ = false;
+    // The string to byte data converter.
+    protected ConverterImplRemote converter_;
+    // Qualified user space name parameter, set on first touch.
+    private ProgramParameter nameParameter_ = null;
+    // Error code parameter for API's, set on first touch.
+    private ProgramParameter errorCodeParameter_ = null;
 
-    /**
-     Variables
-     **/
-    AS400Impl system_ = null;           // The AS400 where the user space is located.
-    String userSpacePathName_ = null;   // The full path name of the user space.
-    String library_ = null;             // The library that contains the user space.
-    String name_ = null;                // The name of the user space.
-    byte[] userSpaceSystemPathName_;    // The name and library of the user space used in program call.
+    // Impl object for remote command server delete, getAttributes, setAttributes.
+    protected RemoteCommandImplRemote remoteCommand_;
+    // The integrated file system object used for read and write.
+    private IFSRandomAccessFileImplRemote file_;
 
-    boolean mustUseProgramCall_ = false; // Use ProgramCall instead of IFS @E1a
-
-    ConverterImpl converter_;            // The string to AS400 data converter.              // @C1C
-
-    /**
-     Force to Auxiliary Storage option that allow changes to be forced asynchronously.
-     **/
-    private static int FORCE_ASYNCHRONOUS = 1;
-
-    /**
-     Force to Auxiliary Storage option that does not allow changes to be forced.  It uses normal system writes.
-     **/
-    private static int FORCE_NONE = 0;
-
-    /**
-     Force to Auxiliary Storage option that allow changes to be forced synchronously.
-     **/
-    private static int FORCE_SYNCHRONOUS = 2;
-
-    private int length_;                        // The size of the user space.
-    private byte initialValue_;                 // The initial value for the future extension.
-    private char autoExtend_;                   // The automatic extension value.
-    private boolean replace_;                   // The object replace option, used if re-create is attempted.
-
-    private RemoteCommandImplRemote rmtCmd_;  // Impl object for remote command server.
-    //  delete, getAttributes, setAttributes
-    private IFSRandomAccessFileImplRemote aUserSpace_;    // The integrated file system object used   $C0C
-    //  for read and write.
-
-    /**
-     Closes the user space's random access file stream and releases any system resources associated with the stream.
-     **/
-    public void close() throws IOException       // $B2
+    // Throw or return an exception based on the message list from a remote program call.
+    private AS400Exception buildException() throws AS400SecurityException, ObjectDoesNotExistException
     {
-        if (mustUseProgramCall_)           // E1a close only if using IFS to read/write
-        {                                  // E1a
-            if (Trace.isTraceOn())          // E1a
-                Trace.log(Trace.INFORMATION, "Close ignored since using ProgramCall."); // E1a
-            return;                         // E1a
-        }                                  // E1a
+        // Get the message list.
+        AS400Message[] messageList = remoteCommand_.getMessageList();
+        // Get the message id of the first message.
+        String id = messageList[0].getID();
 
-        if (aUserSpace_ == null) {
-            Trace.log(Trace.ERROR, "User space is not open.");
-            throw new ExtendedIllegalStateException("user space",
-                                                    ExtendedIllegalStateException.OBJECT_MUST_BE_OPEN);
+        // Throw appropriate exceptions for not existing or not authorized.
+        if (id.equals("CPF9801") || id.equals("CPF2105"))
+        {
+            Trace.log(Trace.ERROR, "Object does not exist: " + path_);
+            throw new ObjectDoesNotExistException(path_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
         }
-        aUserSpace_.close();                      // close the random access file stream.
-        aUserSpace_ = null;                       // clear the file connection info.
+        if (id.equals("CPF9802") || id.equals("CPF2189"))
+        {
+            Trace.log(Trace.ERROR, "User is not authorized to object: " + path_);
+            throw new AS400SecurityException(path_, AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
+        }
+        if (id.equals("CPF9810") || id.equals("CPF2209") || id.equals("CPF2110"))
+        {
+            Trace.log(Trace.ERROR, "Library does not exist: " + path_);
+            throw new ObjectDoesNotExistException(path_, ObjectDoesNotExistException.LIBRARY_DOES_NOT_EXIST);
+        }
+        if (id.equals("CPF9820") || id.equals("CPF2182"))
+        {
+            Trace.log(Trace.ERROR, "User is not authorized to library: " + path_);
+            throw new AS400SecurityException(path_, AS400SecurityException.LIBRARY_AUTHORITY_INSUFFICIENT);
+        }
+        if (id.equals("CPF2283"))
+        {
+            String authorizationListName = "/QSYS.LIB/" + converter_.byteArrayToString(messageList[0].getSubstitutionData()).trim() + ".AUTL";
+            Trace.log(Trace.ERROR, "Object does not exist: " + authorizationListName);
+            throw new ObjectDoesNotExistException(authorizationListName, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+        }
+        // Else return exception for messages.
+        return new AS400Exception(messageList);
     }
 
-    /**
-     Creates a user space.
-
-     @param domain  The domain into which the user space is created.
-     Valid value are: *DEFAULT, *USER, or *SYSTEM.
-     *DEFAULT uses the allow user domain system value to determine if *USER or *SYSTEM will be used.
-     @param length  The initial size in bytes of the user space.
-     Valid values are 1 through 16,776,704.
-     @param replace The value indicating if an existing user space is to be replaced.
-     @param extendedAttribute  The user-defined extended attribute of the user space.  This string must be 10 characters or less.
-     @param initialValue  The value used in creation and extension.
-     @param textDescription  The text describing the user space.  This string must be 50 characters or less.
-     @param authority  The public authority for the user space.  This string must be 10 characters or less.
-     Valid values are:
-     <ul>
-     <li>*ALL
-     <li>*CHANGE
-     <li>*EXCLUDE
-     <li>*LIBCRTAUT
-     <li>*USE
-     <li>authorization-list name
-     </ul>
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public void create(String domain,
-                int length,
-                boolean replace,
-                String extendedAttribute,
-                byte initialValue,
-                String textDescription,
-                String authority)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
+    // Closes the user space's random access file stream and releases any system resources associated with the stream.
+    public void close() throws IOException
     {
-        // Close the user space if an existing object exists and the existing object had replace=true.
-        if (aUserSpace_ != null && replace_ == true) {
-            aUserSpace_.close();
-        }
-
-        // Validate the replace parameter
-        String replaceString = (replace) ? "*YES":"*NO";
-
-        // **** Setup the parameter list ****
-        ProgramParameter[] parmlist = new ProgramParameter[9];
-
-        // First parameter: input, is the user space name
-        parmlist[0] = new ProgramParameter(userSpaceSystemPathName_);
-
-        // Second parameter: input, is the extended attribute      @D1c
-        // @C1D byte[] extendAttr = initializeByteArray(10);
-        // @C1D if (extendedAttribute == null) {
-        // @C1D    System.out.println("extendedAttribute is NULL");
-        // @C1D }
-        // @C1D if (extendAttr == null) {
-        // @C1D    System.out.println("extendAttr is NULL");
-        // @C1D }
-        byte[] extendAttr = padByteArray(converter_.stringToByteArray(extendedAttribute), 10);         // @C1C
-        parmlist[1] = new ProgramParameter(extendAttr);
-
-        // Third parameter: input, is the initial size of the user space
-        byte[] initialLength = new byte[4];
-        BinaryConverter.intToByteArray(length, initialLength, 0);
-        parmlist[2] = new ProgramParameter(initialLength);
-
-        // Fourth parameter: input, is the initial value used after extension
-        byte[] initialByte = new byte[1];
-        initialByte[0] = initialValue;
-        parmlist[3] = new ProgramParameter(initialByte);
-
-        // Fifth parameter: input, is the public authority         @D1c
-        // @C1D byte[] publicAuth = initializeByteArray(10);
-        byte[] publicAuth = padByteArray(converter_.stringToByteArray(authority), 10);                 // @C1C
-        parmlist[4] = new ProgramParameter(publicAuth);
-
-        // Sixth parameter: input, is the Text Description         @D1c
-        // @C1D byte[] description = initializeByteArray(50);
-        byte[] description = padByteArray(converter_.stringToByteArray(textDescription), 50);          // @C1C
-        parmlist[5] = new ProgramParameter(description);
-
-        // Seventh parameter: input, is the Replace Attribute      @D1c
-        // @C1D byte[] replaceAttr = initializeByteArray(10);
-        byte[] replaceAttr = padByteArray(converter_.stringToByteArray(replaceString), 10);            // @C1C
-        parmlist[6] = new ProgramParameter(replaceAttr);
-
-        // Eighth parameter: input/output, is the error code array
-        byte[] errorInfo = new byte[32];
-        parmlist[7] = new ProgramParameter( errorInfo, 0 );
-
-        // Ninth parameter: input, is the domain                   @D1c
-        // @C1D byte[] domainAttr = initializeByteArray(10);
-        byte[] domainAttr = padByteArray(converter_.stringToByteArray(domain), 10);                    // @C1C
-        parmlist[8] = new ProgramParameter(domainAttr);
-
-        // Create the pgm call object
-        rmtCmd_ = new RemoteCommandImplRemote();                             //$C0C
-        rmtCmd_.setSystem(system_);                                        //$C0A
-        //try                                                               //$C0D
-        //{
-        //   pgmCall_.setProgram( "/QSYS.LIB/QUSCRTUS.PGM", parmlist );
-        //}
-        //catch (PropertyVetoException v) {}       // $B1
-
-        // Run the program.  Failure is returned as a message list.
-        if(rmtCmd_.runProgram("QSYS", "QUSCRTUS", parmlist, true, AS400Message.MESSAGE_OPTION_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        if (file_ != null)
         {
-            // Throw AS400MessageList
-            AS400Message[] messageList = rmtCmd_.getMessageList();
-            for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toStringM2());
-        }
-
-        // Construct the user space file object.
-        open();
-
-        // Set the objects replace value for future reference.
-        replace_ = replace;
-    }
-
-
-    /**
-     Deletes a user space.
-
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public void delete()
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-    {
-        // Close the user space
-        if (aUserSpace_ != null) {
-            aUserSpace_.close();
-            aUserSpace_ = null;         // clear the file connection info.
-        }
-
-        // Setup the parameter list
-        ProgramParameter[] parmlist = new ProgramParameter[2];
-
-        // First parameter: input, is the user space name
-        parmlist[0] = new ProgramParameter(userSpaceSystemPathName_);
-
-        // Second parameter: input/output, is the error code array
-        byte[] errorlist = new byte[32];
-        parmlist[1] = new ProgramParameter(errorlist, 0);
-
-        rmtCmd_ = new RemoteCommandImplRemote();                             //$C0C
-        rmtCmd_.setSystem(system_);                                        //$C0A
-        //try
-        //{
-        //   pgmCall_.setProgram("/QSYS.LIB/QUSDLTUS.PGM", parmlist );
-        //}
-        //catch (PropertyVetoException v) {}       // $B1
-
-        if (rmtCmd_.runProgram("QSYS", "QUSDLTUS", parmlist, true, AS400Message.MESSAGE_OPTION_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
-        {
-            // failure occurred, throw AS400Message list
-            AS400Message[] messageList = rmtCmd_.getMessageList();
-            for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toStringM2());
+            // Close the random access file stream.
+            file_.close();
+            // Clear the file connection info.
+            file_ = null;
         }
     }
 
-    /**
-     Returns the user space attribute list from the QUSRUSAT pgm call.
-
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    void getAttributes()
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
+    // Creates a user space.
+    public void create(byte[] domainBytes, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        // Close the user space.
+        close();
 
-        // Close the user space
-        if (aUserSpace_ != null)
-            aUserSpace_.close();
-
-        // **** Setup the parameter list ****
-        ProgramParameter[] parmlist = new ProgramParameter[5];
-
-        // First parameter: output, is the receiveByteArray
-        byte[] rcvByteArray = new byte[24];
-        parmlist[0] = new ProgramParameter(rcvByteArray.length);
-
-        // Second parameter: input, is the length of the receiveByteArray
-        byte[] statusLength = new byte[4];
-        BinaryConverter.intToByteArray(rcvByteArray.length, statusLength, 0);
-        parmlist[1] = new ProgramParameter(statusLength);
-
-        // Third parameter: input, is return format name
-        byte[] statusFormat = new byte[8];
-        statusFormat = converter_.stringToByteArray("SPCA0100");              // @C1C
-        parmlist[2] = new ProgramParameter( statusFormat );
-
-        // Fourth parameter: input, is the user space name
-        parmlist[3] = new ProgramParameter(userSpaceSystemPathName_);
-
-        // Fifth parameter: input/output, is the error code array
-        byte[] errorInfo = new byte[32];
-        parmlist[4] = new ProgramParameter( errorInfo, 0 );
-
-        rmtCmd_ = new RemoteCommandImplRemote();                             //$C0C
-        rmtCmd_.setSystem(system_);                                        //$C0A
-        //try                                                               //$C0D
-        //{                                                                 //$C0D
-        //   pgmCall_.setProgram("/QSYS.LIB/QUSRUSAT.PGM", parmlist );      //$C0D
-        //}                                                                 //$C0D
-        //catch (PropertyVetoException v) {}       // $B1                   //$C0D
-
-        // Run the program.  Failure returns message list
-        if(rmtCmd_.runProgram("QSYS", "QUSRUSAT", parmlist, true, AS400Message.MESSAGE_OPTION_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
+        // Setup qualified user space name parameter.
+        setupNameParameter();
+        // Setup error code parameter.
+        setupErrorCodeParameter();
+        // Setup program call parameters.
+        ProgramParameter[] parameters = new ProgramParameter[]
         {
-            // failure, Throw AS400MessageList
-            AS400Message[] messageList = rmtCmd_.getMessageList();
-            for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toStringM2());
-        }
-        else
+            // Qualified user space name, input, char(20).
+            nameParameter_,
+            // Extended attributes, input, char(10).
+            new ProgramParameter(padByteArray(converter_.stringToByteArray(extendedAttribute), 10)),
+            // Initial size, input, binary(4).
+            new ProgramParameter(BinaryConverter.intToByteArray(length)),
+            // Initial value, input, char(1).
+            new ProgramParameter(new byte[] { initialValue }),
+            // Public authority, input, char(10).
+            new ProgramParameter(padByteArray(converter_.stringToByteArray(authority), 10)),
+            // Text description, input, char(50).
+            new ProgramParameter(padByteArray(converter_.stringToByteArray(textDescription), 50)),
+            // Replace, input, char(10), EBCDIC "*YES" or "*NO".
+            new ProgramParameter((replace) ? new byte[] { 0x5C, (byte)0xE8, (byte)0xC5, (byte)0xE2, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 } : new byte[] { 0x5C, (byte)0xD5, (byte)0xD6, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 } ),
+            // Error code, input/output, char(*).
+            errorCodeParameter_,
+            // Domain, input, char(10).
+            new ProgramParameter(domainBytes),
+            // Transfer size request, input, binary(4).
+            new ProgramParameter(new byte[] { 0x00, 0x00, 0x00, 0x00 } ),
+            // Optimum space alignment, input, char(1).
+            new ProgramParameter(new byte[] { length > 16773120 ? (byte)0xF0 : (byte)0xF1 } )
+        };
+
+        // Setup for remote program call.
+        setupRemoteCommand();
+        // Run create user space (QUSCRTUS) API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSCRTUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
         {
-            // get the data returned from the program
-            rcvByteArray = parmlist[0].getOutputData();
-            Trace.log(Trace.DIAGNOSTIC, "byte array: ", rcvByteArray, 0, rcvByteArray.length);
-
-            // extract the user space size
-            length_ = BinaryConverter.byteArrayToInt(rcvByteArray, 8);
-            // extract the autoExtend value
-            String autoExtendString = converter_.byteArrayToString(rcvByteArray, 12, 1);
-            autoExtend_ = autoExtendString.charAt(0);
-            // extract the initial value
-            initialValue_ = rcvByteArray[13];
+            // Throw the returned messages.
+            throw buildException();
         }
-
-        // Reopen the user space
-        open();
     }
 
-
-    /**
-     create a byte array of the specified length.  The byte
-     array is initialized to EBCDIC spaces.
-     **/
-    /* @C1D
-     byte[] initializeByteArray(int length)
-     {
-     byte[] result = new byte[length];
-
-     for (int i=0; i<length; i++)
-     result[i] = 0x40;
-
-     return result;
-     }
-     */
-
-
-    // @C1A
-    private byte[] padByteArray(byte[] b, int length)
+    // Return a byte array padded to the correct length.
+    private static byte[] padByteArray(byte[] bytes, int length)
     {
         byte[] result = new byte[length];
-        System.arraycopy(b, 0, result, 0, b.length);
-        for(int i = b.length; i < length; ++i)
-            result[i] = 0x40;
+        System.arraycopy(bytes, 0, result, 0, bytes.length);
+        for (int i = bytes.length; i < length; ++i) result[i] = 0x40;
         return result;
     }
 
-
-    /**
-     Returns the initial value used for filling in the user space during creation and extension.
-
-     @return The initial value used during user space creation and extension.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public byte getInitialValue()
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
+    // Deletes a user space.
+    public void delete() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        // run pgm call
-        getAttributes();
+        // Close the user space.
+        close();
 
-        return initialValue_;
-    }
-    /**
-     Returns the size in bytes of the user space.
+        // Setup qualified user space name parameter.
+        setupNameParameter();
+        // Setup error code parameter.
+        setupErrorCodeParameter();
+        // Setup program call parameters.
+        ProgramParameter[] parameters = new ProgramParameter[]
+        {
+            // Qualified user space name, input, char(20).
+            nameParameter_,
+            // Error code, input/output, char(*).
+            errorCodeParameter_
+        };
 
-     @return The size in bytes of the user space.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public int getLength()
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
-    {
-        // run pgm call
-        getAttributes();
-
-        return length_;
-    }
-    /**
-     Indicates if the user space is auto extendible.
-
-     @return true if the user space is auto extendible; false otherwise.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public boolean isAutoExtendible()
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
-    {
-
-        boolean returnValue = false;
-
-        // run pgm call
-        getAttributes();
-        // return attribute
-        if (autoExtend_ == '1')
-            returnValue = true;
-
-        return returnValue;
+        // Setup for remote program call.
+        setupRemoteCommand();
+        // Run delete user space (QUSDLTUS) API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSDLTUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        {
+            // Throw the returned messages.
+            throw buildException();
+        }
     }
 
-    /**
-     Open the user space.
-     **/
-    void open()
-      throws AS400SecurityException,
-    IOException
+    // Returns the initial value used for filling in the user space during creation and extension.
+    public byte getInitialValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        if (mustUseProgramCall_)           // E1a open IFS object only if using IFS to read/write
-        {                                  // E1a
-            if (Trace.isTraceOn())          // E1a
-                Trace.log(Trace.INFORMATION, "Close ignored since using ProgramCall."); // E1a
-            return;                         // E1a
-        }                                  // E1a
-
-        IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote();                 //$C0A
-        fd_.initialize(0, this, userSpacePathName_, IFSRandomAccessFile.SHARE_ALL, system_); //$C0A
-
-        aUserSpace_ = new IFSRandomAccessFileImplRemote();                                   //$C0C
-        aUserSpace_.setFD(fd_);                                                              //$C0A
-        aUserSpace_.setMode("rw");                                                           //$C0A
-        aUserSpace_.setExistenceOption(IFSRandomAccessFile.OPEN_OR_FAIL);                    //$C0A
-        aUserSpace_.open();                                                                  //$C0A
+        return retrieveAttributes()[13];
     }
 
-
-    // @E1 Method added to call the correct read method.  The signature existed before,
-    //     it is the implementation of the method that is changed.
-    public int read(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
+    // Returns the size in bytes of the user space.
+    public int getLength() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        return BinaryConverter.byteArrayToInt(retrieveAttributes(), 8);
+    }
+
+    // Indicates if the user space is auto extendible.
+    public boolean isAutoExtendible() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        return retrieveAttributes()[12] == (byte)0xF1;
+    }
+
+    // Retrieve the user space attributes.
+    protected byte[] retrieveAttributes() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        // Close the user space.
+        close();
+
+        // Setup qualified user space name parameter.
+        setupNameParameter();
+        // Setup error code parameter.
+        setupErrorCodeParameter();
+        // Setup program call parameters.
+        ProgramParameter[] parameters = new ProgramParameter[]
+        {
+            // Receiver variable, output, char(*), ask for 24 bytes.
+            new ProgramParameter(24),
+            // Length of receiver variable, input, binary(4), 24 bytes.
+            new ProgramParameter(new byte[] { 0x00, 0x00, 0x00, 0x18 } ),
+            // Format name, input, char(8), EBCDIC "SPCA0100".
+            new ProgramParameter(new byte[] { (byte)0xE2, (byte)0xD7, (byte)0xC3, (byte)0xC1, (byte)0xF0, (byte)0xF1, (byte)0xF0, (byte)0xF0 } ),
+            // Qualified user space name, input, char(20).
+            nameParameter_,
+            // Error code, input/output, char(*).
+            errorCodeParameter_
+        };
+
+        // Setup for remote program call.
+        setupRemoteCommand();
+        // Run retrieve user space attributes (QUSRUSAT) API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSRUSAT", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        {
+            // Throw the returned messages.
+            throw buildException();
+        }
+        // Return the data returned from the program.
+        return parameters[0].getOutputData();
+    }
+
+    // Read from user space.
+    public int read(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        // Use remote program call implementation or file implementation.
         if (mustUseProgramCall_)
-            return readViaProgramCall(dataBuffer, userSpaceOffset, dataOffset, length);
-        else
-            return readViaIFS(dataBuffer, userSpaceOffset, dataOffset, length);
-    }
-
-
-
-
-    /**
-     Reads up to <i>length</i> bytes from the user space beginning at <i>userSpaceOffset</i> into <i>dataBuffer</i>
-     beginning at <i>dataOffset</i>.
-
-     @param dataBuffer The buffer into which the data from the user space is read.
-     @param userSpaceOffset  The offset (0 based) in the user space from which to start reading.
-     @param dataOffset  The data starting offset for the results of the read.
-     @param length  The number of bytes to be read.
-     @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
-
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    // E1c -- subroutine renamed
-    int readViaIFS(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
-    {
-        int bytesRead;
-
-        try
         {
-            // Verify that the userSpace exists
-            if (aUserSpace_ == null)
-                open();                           // open or fail if not exist
-
-            // Set the user space offset and reads from the user space
-            aUserSpace_.seek(userSpaceOffset);
-            bytesRead = aUserSpace_.read(dataBuffer,dataOffset,length, false);    //$C0C
-        }
-        catch(FileNotFoundException e)
-        {
-            Trace.log(Trace.ERROR, "Object does not exist (remote read).");
-            throw new ObjectDoesNotExistException("path",
-                                                  ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
-        }
-        catch(ExtendedIOException  e)
-        {
-            int returnCode = e.getReturnCode();
-            if (returnCode == 5)                  // ACCESS_DENIED
+            // Setup qualified user space name parameter.
+            setupNameParameter();
+            // Setup program call parameters.
+            ProgramParameter[] parameters = new ProgramParameter[]
             {
-                Trace.log(Trace.ERROR, "Object authority insufficient (remote read).");
-                throw new AS400SecurityException(AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
-            }
-            else
-                throw new ExtendedIOException(returnCode);
-        }
+                // Qualified user space name, input, char(20).
+                nameParameter_,
+                // Starting position, input, binary(4), add 1 for 1 based offset.
+                new ProgramParameter(BinaryConverter.intToByteArray(userSpaceOffset + 1)),
+                // Length of data, input, binary(4).
+                new ProgramParameter(BinaryConverter.intToByteArray(length)),
+                // Receiver variable, output, char(*).
+                new ProgramParameter(length)
+                // Omit error code optional parameter.
+            };
 
-        return bytesRead;
-    }
-
-
-    /**
-     Reads up to <i>length</i> bytes from the user space beginning at <i>userSpaceOffset</i> into <i>dataBuffer</i>
-     beginning at <i>dataOffset</i>.
-
-     @param dataBuffer The buffer into which the data from the user space is read.
-     @param userSpaceOffset  The offset (0 based) in the user space from which to start reading.
-     @param dataOffset  The data starting offset for the results of the read.
-     @param length  The number of bytes to be read.
-     @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
-
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    // @E1 new method
-    int readViaProgramCall(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
-    {
-        int actualLength = length;
-
-        AS400Message[] messageList = readViaProgramCall2(dataBuffer,
-                                                         userSpaceOffset,
-                                                         dataOffset,
-                                                         length);
-
-        if (messageList != null)
-        {
-            String message = messageList[0].toStringM2();
-
-            if (message.startsWith("CPF3C14"))
+            // Setup for remote program call.
+            setupRemoteCommand();
+            // Run retrieve user space (QUSRTVUS) API.
+            if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
             {
+                String id = remoteCommand_.getMessageList()[0].getID();
+                if (!id.equals("CPF3C14") && !id.equals("CPD3C14"))
+                {
+                    // Throw the returned messages.
+                    throw buildException();
+                }
                 int userSpaceLength = getLength();
-
-                if (userSpaceLength < userSpaceOffset)
+                if (userSpaceLength < userSpaceOffset) return -1;
+                length = userSpaceLength - userSpaceOffset;
+                try
                 {
-                    actualLength = -1;
+                    parameters[2].setInputData(BinaryConverter.intToByteArray(length));
+                    parameters[3].setOutputDataLength(length);
                 }
-                else
+                catch (PropertyVetoException e)
                 {
-                    actualLength = userSpaceLength - userSpaceOffset;
-                    messageList  = readViaProgramCall2(dataBuffer,
-                                                       userSpaceOffset,
-                                                       dataOffset,
-                                                       actualLength);
-                    if (messageList != null)
-                    {
-                        for (int msg = 0; msg < messageList.length; msg++)
-                            throw new IOException(messageList[msg].toStringM2());
-                    }
+                    Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+                }
+                if (!remoteCommand_.runProgram("QSYS", "QUSRTVUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+                {
+                    // Throw the returned messages.
+                    throw buildException();
                 }
             }
-            else if (message.startsWith("CPF9820") ||
-                     message.startsWith("CPF9802"))
-            {
-                throw new AS400SecurityException(AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
-            }
-            else if (message.startsWith("CPF2209") ||
-                     message.startsWith("CPF9810") ||
-                     message.startsWith("CPF9801"))
-            {
-                throw new ObjectDoesNotExistException("path",
-                                                      ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
-            }
-            else
-            {
-                for (int msg = 0; msg < messageList.length; msg++)
-                    throw new IOException(messageList[msg].toStringM2());
-            }
-        }
-        return actualLength;
-    }
-
-
-
-
-
-    /**
-     Reads up to <i>length</i> bytes from the user space beginning at <i>userSpaceOffset</i> into <i>dataBuffer</i>
-     beginning at <i>dataOffset</i>.
-
-     @param dataBuffer The buffer into which the data from the user space is read.
-     @param userSpaceOffset  The offset (0 based) in the user space from which to start reading.
-     @param dataOffset  The data starting offset for the results of the read.
-     @param length  The number of bytes to be read.
-     @return List of AS400Messages objects we get back from the program call.
-     If the program call returns no messages, null is returned.
-
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    // @E1 new method
-    AS400Message[] readViaProgramCall2(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
-    {
-        AS400Message[] messageList = null;
-
-        byte[] returnedData;
-        byte[] readOffset = new byte[4];
-        byte[] readLength = new byte[4];
-
-        // set the parameter list
-        ProgramParameter[] parmlist = new ProgramParameter[5];
-
-        // First parameter: input, is the user space name.
-        parmlist[0] = new ProgramParameter(userSpaceSystemPathName_);
-
-        // Create the second parm (the position).  We
-        // get an offset from our caller but the API we call needs a
-        // position.  Add 1 to the offset to get a position.
-        BinaryConverter.intToByteArray(userSpaceOffset + 1, readOffset, 0);
-        parmlist[1] = new ProgramParameter(readOffset);
-
-        // Create the third parm (the length).
-        BinaryConverter.intToByteArray(length, readLength, 0);
-        parmlist[2] = new ProgramParameter(readLength);
-
-        // create the fourth parm (space holder for read data)
-        parmlist[3] = new ProgramParameter(length);
-
-        // create the fifth parameter: input/output, is the error code array
-        byte[] errorInfo = new byte[32];
-        parmlist[4] = new ProgramParameter( errorInfo, 0 );
-
-        rmtCmd_ = new RemoteCommandImplRemote();                              //$C0C
-        rmtCmd_.setSystem(system_);                                         //$C0A
-
-        // Run the program.
-        if(rmtCmd_.runProgram("QSYS", "QUSRTVUS", parmlist, true, AS400Message.MESSAGE_OPTION_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
-        {
-            messageList = rmtCmd_.getMessageList();
+            // Copy output data into user's array.
+            System.arraycopy(parameters[3].getOutputData(), 0, dataBuffer, dataOffset, length);
+            return length;
         }
         else
-            System.arraycopy(parmlist[3].getOutputData(), 0, dataBuffer, dataOffset, length);
-
-        // call the native method to carry out the request.
-        return messageList;
-    }
-
-    /**
-     Sets the user space attributes
-
-     @param attributeKey The user space attribute to be changed.
-     @param data  The new attribute data.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    void setAttributes(int attributeKey, byte[] data)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
-    {
-        // Close the user space
-        if (aUserSpace_ != null)
-            aUserSpace_.close();
-
-        // set the parameter list
-        ProgramParameter[] parmlist = new ProgramParameter[4];
-
-        // First parameter: output, is a 10 char string, returns the library name.
-        byte[] rcvChangeStatus = new byte[10];
-        parmlist[0] = new ProgramParameter(10);
-
-        // Second parameter: input, is the user space name.
-        parmlist[1] = new ProgramParameter(userSpaceSystemPathName_);
-
-        // Third parameter: input is the attribute to be changed.
-        byte[] attributeParmData = new byte[12 + data.length];
-        BinaryConverter.intToByteArray(1, attributeParmData, 0);             // change one attribute
-        BinaryConverter.intToByteArray(attributeKey, attributeParmData, 4);  // attribute to be changed
-        BinaryConverter.intToByteArray(data.length, attributeParmData, 8);   // length of new attribute
-        for (int b = 0; b < data.length; b++)
-            attributeParmData[12+b] = data[b];                               // attribute byte array value
-        parmlist[2] = new ProgramParameter(attributeParmData);
-
-        // Fourth parameter: input/output, is the error code array
-        byte[] errorInfo = new byte[32];
-        parmlist[3] = new ProgramParameter( errorInfo, 0 );
-
-        rmtCmd_ = new RemoteCommandImplRemote();                              //$C0C
-        rmtCmd_.setSystem(system_);                                         //$C0A
-        //try                                                                //$C0D
-        //{                                                                  //$C0D
-        //   pgmCall_.setProgram("/QSYS.LIB/QUSCUSAT.PGM", parmlist );       //$C0D
-        //}                                                                  //$C0D
-        //catch(PropertyVetoException v) {}        // $B1
-
-        // Run the program.
-        if(rmtCmd_.runProgram("QSYS", "QUSCUSAT", parmlist, true, AS400Message.MESSAGE_OPTION_UP_TO_10) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
-            // Throw messageList
-            AS400Message[] messageList = rmtCmd_.getMessageList();
-            for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toStringM2());
+            // Setup for file.
+            setupFile();
+
+            // Seek to correct offset.
+            file_.seek(userSpaceOffset);
+            // Read from the user space, return number of bytes read.
+            return file_.read(dataBuffer, dataOffset, length, false);
         }
-
-        // Reopen the user space
-        open();
     }
 
-    /**
-     Sets the auto extend attribute.
-
-     @param autoExtendibility  The attribute for user space auto extendibility.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public void setAutoExtendible(boolean autoExtendibility)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
+    // Sets the auto extend attribute.
+    public void setAutoExtendible(boolean autoExtendibility) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-
-        // convert value to AS400 data
-        byte[] autoExtendValue = new byte[1];
-
-        if (autoExtendibility == true)
-            autoExtendValue = converter_.stringToByteArray("1");                 // @C1C
-        else
-            autoExtendValue = converter_.stringToByteArray("0");                 // @C1C
-
-        // run pgm call
-        setAttributes(AUTO_EXTEND, autoExtendValue);
+        // Number of attributes is 1, key is 3, length of attribute is 1 byte, value is EBCDIC "1" or "0".
+        changeAttributes(new byte[] { 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, autoExtendibility ? (byte)0xF1 : (byte)0xF0 });
     }
 
-    /**
-     Sets the initial value to be used during user space creation or extension.
-
-     @param initialValue  The new initial value used during future extensions.
-     For best performance set byte to zero.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public void setInitialValue(byte initialValue)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-
+    // Sets the initial value to be used during user space creation or extension.
+    public void setInitialValue(byte initialValue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        byte[] value_array = new byte[1];
-        value_array[0] = initialValue;
-
-        // run pgm call
-        setAttributes(INITIAL_VALUE, value_array);
+        // Number of attributes is 1, key is 2, length of attribute is 1 byte, value is as specified.
+        changeAttributes(new byte[] { 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, initialValue });
     }
 
-    /**
-     Sets the size of the user space.  Valid values are 1 through 1,6776,704.
-
-     @param length  The new size of the user space.
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    public void setLength(int length)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
+    // Sets the size of the user space.  Valid values are 1 through 1,6776,704.
+    public void setLength(int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        // convert to AS400 data
-        byte[] size = new byte[4];
-        BinaryConverter.intToByteArray(length, size, 0);
-
-        // run the change attribute program
-        setAttributes(SPACE_SIZE, size);
+        // Number of attributes is 1, key is 1, length of attribute is 4 bytes, use 4 bytes of  0 to hold space for value.
+        byte[] attributeBytes = new byte[] { 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00 };
+        // Set the length into the 12th position of the byte array.
+        BinaryConverter.intToByteArray(length, attributeBytes, 12);
+        changeAttributes(attributeBytes);
     }
 
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall) throws IOException
+    // Change the user space attributes.
+    protected void changeAttributes(byte[] attributeBytes) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-        system_ = system;
-        userSpacePathName_ = path;
+        // Close the user space.
+        close();
+
+        // Setup qualified user space name parameter.
+        setupNameParameter();
+        // Setup error code parameter.
+        setupErrorCodeParameter();
+        // Setup program call parameters.
+        ProgramParameter[] parameters = new ProgramParameter[]
+        {
+            // Returned library name, output, char(10).
+            new ProgramParameter(10),
+            // Qualified user space name, input, char(20).
+            nameParameter_,
+            // Attribtes to change, input, char(*).
+            new ProgramParameter(attributeBytes),
+            // ErrorCode, input/output, char(*).
+            errorCodeParameter_
+        };
+
+        // Setup for remote program call.
+        setupRemoteCommand();
+        // Run change user space attributes (QUSCUSAT) API.
+        if (!remoteCommand_.runProgram("QSYS", "QUSCUSAT", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+        {
+            // Throw the returned messages.
+            throw buildException();
+        }
+    }
+
+    // Set needed implementation properties.
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall)
+    {
+        system_ = (AS400ImplRemote)system;
+        path_ = path;
         library_ = library;
         name_ = name;
         mustUseProgramCall_ = mustUseProgramCall;
-
-        converter_ = ConverterImplRemote.getConverter(((AS400ImplRemote)system_).getCcsid(), (AS400ImplRemote)system_);
-        StringBuffer pathName = new StringBuffer("                    ");
-        pathName.insert(0, name_);
-        pathName.insert(10, library_);
-        pathName.setLength(20);
-        String newString = pathName.toString();
-        userSpaceSystemPathName_ = converter_.stringToByteArray(newString);
     }
 
-    // @E1 Method added to call the correct write method.  The signature existed before,
-    //     it is the implementation of the method that is changed.
-    public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int force)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
+    // Setup error code program parameter object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+    private void setupErrorCodeParameter()
     {
+        // If not already setup.
+        if (errorCodeParameter_ == null)
+        {
+            // Set error code parameter to eight bytes of zero's.  This causes the messages to be issued to the API caller.
+            errorCodeParameter_ = new ProgramParameter(new byte[8]);
+        }
+    }
+
+    // Setup file object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+    private synchronized void setupFile() throws AS400SecurityException, IOException, ObjectDoesNotExistException
+    {
+        // If not already setup.
+        if (file_ == null)
+        {
+            try
+            {
+                // Create the file descriptor implementation object.
+                IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote();
+                // Set the necessary properties into it.
+                fd_.initialize(0, this, path_, IFSRandomAccessFile.SHARE_ALL, system_);
+
+                // Create the file implementation object.
+                file_ = new IFSRandomAccessFileImplRemote();
+                // Set the necessary properties into it.
+                file_.setFD(fd_);
+                file_.setMode("rw");
+                file_.setExistenceOption(IFSRandomAccessFile.OPEN_OR_FAIL);
+                // Open the file.
+                file_.open();
+            }
+            catch (FileNotFoundException e)
+            {
+                Trace.log(Trace.ERROR, "Object does not exist: " + path_, e);
+                throw new ObjectDoesNotExistException(path_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+            }
+            catch (ExtendedIOException e)
+            {
+                if (e.getReturnCode() == ExtendedIOException.ACCESS_DENIED)
+                {
+                    Trace.log(Trace.ERROR, "User is not authorized to object: " + path_, e);
+                    throw new AS400SecurityException(path_, AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
+                }
+                Trace.log(Trace.ERROR, "Error opening file: " + path_, e);
+                throw e;
+            }
+        }
+    }
+
+    // Setup qualified user space name program parameter object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+    private synchronized void setupNameParameter() throws IOException
+    {
+        // If not already setup.
+        if (nameParameter_ == null)
+        {
+            // Get a converter for the system objects CCSID.
+            converter_ = ConverterImplRemote.getConverter((system_).getCcsid(), system_);
+            // The name and library of the user space used in program call.  Start with 20 EBCDIC spaces (" ").
+            byte[] qualifiedUserSpaceName = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
+            // Put the converted object name at the beginning of the array.
+            converter_.stringToByteArray(name_, qualifiedUserSpaceName, 0);
+            // Put the converted library name at position ten.
+            converter_.stringToByteArray(library_, qualifiedUserSpaceName, 10);
+            // Create the program parameter object.
+            nameParameter_ = new ProgramParameter(qualifiedUserSpaceName);
+        }
+    }
+
+    // Setup remote command object on first touch.  Synchronized to protect instance variables.  This method can safely be called multiple times because it checks for a previous call before changing the instance variables.
+    protected synchronized void setupRemoteCommand() throws IOException
+    {
+        // If not already setup.
+        if (remoteCommand_ == null)
+        {
+            // Create the remote command implementation object
+            remoteCommand_ = new RemoteCommandImplRemote();
+            // Set the system object into it.
+            remoteCommand_.setSystem(system_);
+        }
+    }
+
+    // Remote implementation of write.
+    public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int force) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        // Use remote program call implementation or file implementation.
         if (mustUseProgramCall_)
-            writeViaProgramCall(dataBuffer, userSpaceOffset, dataOffset, length, force);
+        {
+            // Setup qualified user space name parameter.
+            setupNameParameter();
+            // Allocate parameter array bytes.
+            byte[] inputData = new byte[length];
+            // Copy data into parameter array.
+            System.arraycopy(dataBuffer, dataOffset, inputData, 0, length);
+            // Setup program call parameters.
+            ProgramParameter[] parameters = new ProgramParameter[]
+            {
+                // Qualified user space name, input, char(20).
+                nameParameter_,
+                // Starting position, input, binary(4), add 1 for 1 based offset.
+                new ProgramParameter(BinaryConverter.intToByteArray(userSpaceOffset + 1)),
+                // Length of data, input, binary(4).
+                new ProgramParameter(BinaryConverter.intToByteArray(length)),
+                // Input data, input, char(*).
+                new ProgramParameter(inputData),
+                // Force changes to auxiliary storage, input, char(1).
+                new ProgramParameter(new byte[] { (byte)(0xF0 | force) } )
+                // Omit error code optional parameter.
+            };
+
+            // Setup for remote program call.
+            setupRemoteCommand();
+            // Run change user space (QUSCHGUS) API.
+            if (!remoteCommand_.runProgram("QSYS", "QUSCHGUS", parameters, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+            {
+                // Throw the returned messages.
+                throw buildException();
+            }
+        }
         else
-            writeViaIFS(dataBuffer, userSpaceOffset, dataOffset, length, force);
-    }
-
-
-
-    /**
-     Writes up to <i>length</i> bytes from <i>dataBuffer</i> beginning at <i>dataOffset</i> into the user
-     space beginning at <i>userSpaceOffset</i>.
-
-     @param dataBuffer  The data buffer to be written to the user space.
-     @param userSpaceOffset  The offset (0 based) in the user space to start writing.
-     @param dataOffset  The offset in the write data buffer from which to start copying.
-     @param length  The length of data to be written.
-     @param force  The method of forcing changes made to the user space to
-     auxiliary storage.  Valid values are:
-     <UL>
-     <LI>FORCE_NONE
-     <LI>FORCE_ASYNCHRONOUS
-     <LI>FORCE_SYNCHRONOUS
-     </UL>
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    // E1c -- subroutine renamed
-    void writeViaIFS(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int force)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-    {
-        try
         {
-            // Verify that the userSpace exists
-            if (aUserSpace_ == null)
-                open();                          // open or fail if not exist
-
-            // Set the user space offset and Write the data to the user space
-            aUserSpace_.seek(userSpaceOffset);
-
-            if (force == FORCE_SYNCHRONOUS)
-                aUserSpace_.setForceToStorage(true);
-            else if (force == FORCE_ASYNCHRONOUS)
-                aUserSpace_.setForceToStorage(false);
-            aUserSpace_.writeBytes(dataBuffer, dataOffset, length);          //$C0C
-        }
-        catch(FileNotFoundException e)
-        {
-            Trace.log(Trace.ERROR, "Object does not exist (remote write).");
-            throw new ObjectDoesNotExistException("path",
-                                                  ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
-        }
-        catch(ExtendedIOException  e)
-        {
-            int returnCode = e.getReturnCode();
-            if (returnCode == ExtendedIOException.ACCESS_DENIED)
+            // Setup for file.
+            setupFile();
+            // Seek to correct offset.
+            file_.seek(userSpaceOffset);
+            // Set force option.
+            switch (force)
             {
-                Trace.log(Trace.ERROR, "Object authority insufficient (remote write).");
-                throw new AS400SecurityException(AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
+                case UserSpace.FORCE_SYNCHRONOUS:
+                    file_.setForceToStorage(true);
+                    break;
+                case UserSpace.FORCE_ASYNCHRONOUS:
+                    file_.setForceToStorage(false);
+                    break;
             }
-            else
-                throw new ExtendedIOException(returnCode);
+            // Write data.
+            file_.writeBytes(dataBuffer, dataOffset, length);
         }
     }
-
-
-    /**
-     Writes up to <i>length</i> bytes from <i>dataBuffer</i> beginning at <i>dataOffset</i> into the user
-     space beginning at <i>userSpaceOffset</i>.
-
-     @param dataBuffer  The data buffer to be written to the user space.
-     @param userSpaceOffset  The offset (0 based) in the user space to start writing.
-     @param dataOffset  The offset in the write data buffer from which to start copying.
-     @param length  The length of data to be written.
-     @param force  The method of forcing changes made to the user space to
-     auxiliary storage.  Valid values are:
-     <UL>
-     <LI>FORCE_NONE
-     <LI>FORCE_ASYNCHRONOUS
-     <LI>FORCE_SYNCHRONOUS
-     </UL>
-     @exception AS400SecurityException If a security or authority error occurs.
-     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException Signals that an I/O exception of some sort has occurred.
-     @exception ObjectDoesNotExistException If the AS400 object does not exist.
-     **/
-    // @E1a New Method
-    void writeViaProgramCall(byte[] dataBuffer, int userSpaceOffset, int dataOffset,
-                             int length,          int force)
-      throws AS400SecurityException,
-    ErrorCompletingRequestException,
-    InterruptedException,
-    IOException,
-    ObjectDoesNotExistException
-    {
-        byte[] writeOffset = new byte[4];
-        byte[] writeLength = new byte[4];
-        byte[] forceData   = new byte[1];
-
-        // set the parameter list
-        ProgramParameter[] parmlist = new ProgramParameter[6];
-
-        // First parameter: input, is the user space name.
-        parmlist[0] = new ProgramParameter(userSpaceSystemPathName_);
-
-        // Create the second parm (the position).  We
-        // get an offset from our caller but the API we call needs a
-        // position.  Add 1 to the offset to get a position.
-        BinaryConverter.intToByteArray(userSpaceOffset + 1, writeOffset, 0);
-        parmlist[1] = new ProgramParameter(writeOffset);
-
-        // Create the third parm (the length).
-        BinaryConverter.intToByteArray(length, writeLength, 0);
-        parmlist[2] = new ProgramParameter(writeLength);
-
-        // create the fourth parm (the data)
-        parmlist[3] = new ProgramParameter(dataBuffer);
-
-        // create the fifth parm (force option).
-        if (force == FORCE_ASYNCHRONOUS)
-            forceData = converter_.stringToByteArray("1");
-        else if (force == FORCE_SYNCHRONOUS)
-            forceData = converter_.stringToByteArray("2");
-        else
-            forceData = converter_.stringToByteArray("0");
-
-        parmlist[4] = new ProgramParameter(forceData);
-
-        // create the sixth parameter: input/output, is the error code array
-        byte[] errorInfo = new byte[32];
-        parmlist[5] = new ProgramParameter( errorInfo, 0 );
-
-        rmtCmd_ = new RemoteCommandImplRemote();                              //$C0C
-        rmtCmd_.setSystem(system_);                                         //$C0A
-
-        // Run the program.
-        if(rmtCmd_.runProgram("QSYS", "QUSCHGUS", parmlist, true, AS400Message.MESSAGE_OPTION_UP_TO_10) != true)  // This API is threadsafe.   @D3A $C0C @D2C
-        {
-            // Throw messageList
-            AS400Message[] messageList = rmtCmd_.getMessageList();
-
-            String message = messageList[0].toStringM2();
-
-            if (message.startsWith("CPF9820") ||
-                message.startsWith("CPF9802"))
-            {
-                throw new AS400SecurityException(AS400SecurityException.OBJECT_AUTHORITY_INSUFFICIENT);
-            }
-            else if (message.startsWith("CPF2209") ||
-                     message.startsWith("CPF9810") ||
-                     message.startsWith("CPF9801"))
-            {
-                throw new ObjectDoesNotExistException("path",
-                                                      ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
-            }
-            else
-            {
-                for (int msg = 0; msg < messageList.length; msg++)
-                    throw new IOException(messageList[msg].toStringM2());
-            }
-        }
-    }
-
-
-
-
-
 }
-

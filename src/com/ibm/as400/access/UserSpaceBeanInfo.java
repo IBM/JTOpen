@@ -31,7 +31,7 @@ public class UserSpaceBeanInfo extends SimpleBeanInfo
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Class this bean info represents.
-    private final static Class BEAN_CLASS = UserSpace.class;
+    private static final Class BEAN_CLASS = UserSpace.class;
 
     private static EventSetDescriptor[] eventSetDescriptors;
     private static PropertyDescriptor[] propertyDescriptors;

@@ -38,11 +38,11 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
         }
     }
 
-    public void create(String domain, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public void create(byte[] domainBytes, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         try
         {
-            connection_.callMethod(pxId_, "create", new Class[] { String.class, Integer.TYPE, Boolean.TYPE, String.class, Byte.TYPE, String.class, String.class }, new Object[] { domain, new Integer(length), new Boolean(replace), extendedAttribute, new Byte(initialValue), textDescription, authority } );
+            connection_.callMethod(pxId_, "create", new Class[] { byte[].class, Integer.TYPE, Boolean.TYPE, String.class, Byte.TYPE, String.class, String.class }, new Object[] { domainBytes, new Integer(length), new Boolean(replace), extendedAttribute, new Byte(initialValue), textDescription, authority } );
         }
         catch (InvocationTargetException e)
         {
@@ -152,7 +152,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
         }
     }
 
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall) throws IOException
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall)
     {
         try
         {
@@ -160,7 +160,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
         }
         catch (InvocationTargetException e)
         {
-            throw ProxyClientConnection.rethrow1(e);
+            throw ProxyClientConnection.rethrow(e);
         }
     }
 

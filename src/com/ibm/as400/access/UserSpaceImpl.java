@@ -20,7 +20,7 @@ interface UserSpaceImpl
 {
     public void close() throws IOException;
 
-    public void create(String domain, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
+    public void create(byte[] domainBytes, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
     public void delete() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
@@ -38,7 +38,7 @@ interface UserSpaceImpl
 
     public void setLength(int length) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 
-    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall) throws IOException;
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall);
 
     public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException;
 }

@@ -41,7 +41,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
             converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
         }
-            serverDataStreamLevel_ = 6;
+        serverDataStreamLevel_ = 6;
     }
 
     // Indicates whether or not the command will be considered thread-safe.
