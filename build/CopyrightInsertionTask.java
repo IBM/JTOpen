@@ -7,7 +7,11 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 
 public class CopyrightInsertionTask extends MatchingTask
 {
-  private static final String copyrightString_ = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  private static final String copyrightStringPart1_ = "Copyright (C) ";
+  private static final String copyrightStringPart2_ = "1997-2004";
+  private static final String copyrightStringPart3_ = " International Business Machines Corporation and others.";
+  private static final String copyrightString_ = copyrightStringPart1_ + copyrightStringPart2_ + copyrightStringPart3_;
+  private static final int copyrightStringLength_ = copyrightString_.length();
 
   private boolean verbose_;
 
@@ -65,7 +69,10 @@ public class CopyrightInsertionTask extends MatchingTask
         entries[i] = new Constant(tag, dis);
         entries[i].read();
         String name = entries[i].getName();
-        if (name != null && name.equals(copyrightString_))
+        if (name != null &&
+            name.length() == copyrightStringLength_ &&
+            name.startsWith(copyrightStringPart1_) && // tolerate different dates
+            name.endsWith(copyrightStringPart3_))
         {
           dis.close();
           if (verbose_) System.out.println("Already exists. Found it at index "+i);
