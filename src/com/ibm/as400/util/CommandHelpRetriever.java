@@ -190,7 +190,7 @@ public class CommandHelpRetriever
     };
 //    private static ResourceBundle bundle_, bundle2_;
 //    private static final String[][] transformedParms_ = new String[mriTags_.length+4][];
-    private static final String[][] transformedParms_ = getTransformedParms(null);
+    private static final String[][] transformedParms_ = getTransformedParms(Locale.getDefault());
 
 
     // Find the XSL document, generate an XSL template, load the resource bundles,
