@@ -257,7 +257,7 @@ implements SQLData
 
     public int getType()
     {
-        return java.sql.Types.VARCHAR;
+        return java.sql.Types.LONGVARCHAR;
     }
 
     public String getTypeName()
