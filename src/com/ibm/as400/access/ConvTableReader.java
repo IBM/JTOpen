@@ -188,17 +188,17 @@ public class ConvTableReader extends InputStreamReader
         int numRead = 0;
         if(Trace.traceOn_)
         {
-          Trace.log(Trace.CONVERSION, "Filling cache for reader "+ccsid_+" ["+toString()+"]: "+nextRead_+","+nextWrite_+","+cache_.length);
+          Trace.log(Trace.CONVERSION, "Filling cache for reader "+ccsid_+"/"+tableType_+" ["+toString()+"]: "+nextRead_+","+nextWrite_+","+cache_.length);
         }
-        if(tableType_ == SB_TABLE)
+        if(tableType_ == SB_TABLE || tableType_ == JV_TABLE)
         {
-          numRead = is_.read(b_cache_, 0, b_cache_.length);
+          numRead = is_.read(b_cache_, 0, cache_.length);
         }
         else if(tableType_ == DB_TABLE)
         {
           if(isCachedByte_)
           {
-            numRead = is_.read(b_cache_, 1, b_cache_.length-1);
+            numRead = is_.read(b_cache_, 1, cache_.length-1);
             if(numRead == -1)
             {
               if(Trace.traceOn_)
@@ -253,8 +253,8 @@ public class ConvTableReader extends InputStreamReader
           }
           //@CRS - Don't read too much, we only want to read enough that will fit
           //       in our character cache after conversion.
-          numRead = is_.read(b_cache_, 0, cache_.length-1);
-          if(numRead == -1)
+          int curRead = is_.read(b_cache_, numRead, cache_.length-1);
+          if(curRead == -1 && numRead == 0)
           {
             if(Trace.traceOn_)
             {
@@ -262,6 +262,7 @@ public class ConvTableReader extends InputStreamReader
             }
             return false; // end-of-stream
           }
+          if (curRead > -1) numRead += curRead;
           // Find out which mode we are in when we stopped reading.
           for (int i=0; i<numRead; ++i)
           {
@@ -278,7 +279,8 @@ public class ConvTableReader extends InputStreamReader
           {
             // Need to finish with a shift-in.
             b_cache_[numRead++] = ConvTableMixedMap.shiftIn_;
-            c = is_.read();
+            if (curRead == -1) c = -1;
+            else c = is_.read();
             if(c != ConvTableMixedMap.shiftIn_)
             {
               // If this is the end-of-stream (-1), then the stream
@@ -294,10 +296,13 @@ public class ConvTableReader extends InputStreamReader
             }
           }
         }
-        else if(tableType_ == JV_TABLE)
+        else
         {
-          // Let Java handle it...
-          numRead = is_.read(b_cache_, 0, cache_.length-1);
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.ERROR, "Unknown table type during conversion: "+tableType_);
+          }
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);
         }
         
         if(numRead == -1)
