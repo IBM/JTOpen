@@ -38,6 +38,18 @@ defined in this class.  These are provided for backwards compatibility
 with previous versions of the IBM Toolbox for Java.  The complete
 set of attribute values can be accessed using the public constants.
 
+<p>Note: Most of the "getter" methods will either go to the system to retrieve the job attribute, or will return a cached value if the attribute was previously retrieved or previously set by {@link #setValue setValue()} or one of the other setter methods.  Use {@link #loadInformation loadInformation()} to refresh the attributes from the system.
+<br>For example:
+<pre>
+Job job = new Job(system, jobName, userName, jobNumber);
+while (job.getStatus().equals(Job.JOB_STATUS_ACTIVE))
+{
+  Thread.sleep(1000);   // wait a while
+  job.loadInformation(); // refresh the attribute values
+}
+System.out.println("Job status is: " + job.getStatus());
+</pre>
+
 <p>Note: To obtain information about the job in which an
 OS/400 program or command runs, do something like the following:
 <pre>
