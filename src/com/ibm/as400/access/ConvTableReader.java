@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,21 +29,19 @@ import java.io.BufferedInputStream;
  * underlying EBCDIC bytes. This class exists primarily for use
  * with the IFSText classes, but other components are free to use it
  * as well.
- * @see ConvTableWriter
+ * @see com.ibm.as400.access.ConvTableWriter
+ * @see com.ibm.as400.access.ReaderInputStream
 **/
 public class ConvTableReader extends InputStreamReader
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-//@B0D  InputStream lock_ = null;
   BufferedInputStream is_ = null;
 
   int ccsid_ = -1;
   ConvTable table_ = null;
 
   int type_ = BidiStringType.DEFAULT;
-
-  //StringBuffer cache_ = new StringBuffer();
 
   // The mode is used for mixed-byte tables only.
   static final int DB_MODE = 1;
@@ -75,7 +73,6 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in) throws UnsupportedEncodingException
   {
     super(in);
-//@B0D    lock_ = in;
     is_ = new BufferedInputStream(in);
     initializeCcsid();
     initializeTable();
@@ -92,7 +89,6 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in, String encoding) throws UnsupportedEncodingException
   {
     super(in, encoding);
-//@B0D    lock_ = in;
     is_ = new BufferedInputStream(in);
     initializeCcsid();
     initializeTable();
@@ -108,7 +104,6 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in, int ccsid) throws UnsupportedEncodingException
   {
     super(in);
-//@B0D    lock_ = in;
     if(ccsid < 0 || ccsid > 65535)
     {
       throw new ExtendedIllegalArgumentException("ccsid", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -129,7 +124,6 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in, int ccsid, int bidiStringType) throws UnsupportedEncodingException
   {
     super(in);
-//@B0D    lock_ = in;
     if(ccsid < 0 || ccsid > 65535)
     {
       throw new ExtendedIllegalArgumentException("ccsid", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -191,31 +185,20 @@ public class ConvTableReader extends InputStreamReader
       checkOpen();
       if(nextRead_ >= nextWrite_)
       {
+        int numRead = 0;
         if(Trace.traceOn_)
         {
           Trace.log(Trace.CONVERSION, "Filling cache for reader "+ccsid_+" ["+toString()+"]: "+nextRead_+","+nextWrite_+","+cache_.length);
         }
         if(tableType_ == SB_TABLE)
         {
-          int numRead = is_.read(b_cache_, 0, 1024);
-          if(numRead == -1)
-          {
-            if(Trace.traceOn_)
-            {
-              Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
-            }
-            return false;
-          }
-          String s = table_.byteArrayToString(b_cache_, 0, numRead, type_);
-          s.getChars(0, s.length(), cache_, 0);
-          nextWrite_ = s.length();
-          nextRead_ = 0;
+          numRead = is_.read(b_cache_, 0, b_cache_.length);
         }
         else if(tableType_ == DB_TABLE)
         {
           if(isCachedByte_)
           {
-            int numRead = is_.read(b_cache_, 1, 2048);
+            numRead = is_.read(b_cache_, 1, b_cache_.length-1);
             if(numRead == -1)
             {
               if(Trace.traceOn_)
@@ -234,38 +217,21 @@ public class ConvTableReader extends InputStreamReader
             {
               isCachedByte_ = false;
             }
-            String s = table_.byteArrayToString(b_cache_, 0, numRead, type_);
-            s.getChars(0, s.length(), cache_, 0);
-            nextWrite_ = s.length();
-            nextRead_ = 0;
           }
           else
           {
-            int numRead = is_.read(b_cache_, 0, 2048);
-            if(numRead == -1)
-            {
-              if(Trace.traceOn_)
-              {
-                Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
-              }
-              return false;
-            }
+            numRead = is_.read(b_cache_, 0, cache_.length);
             if(numRead % 2 == 1) // read an odd number of characters
             {
               cachedByte_ = b_cache_[numRead-1];
               isCachedByte_ = true;
               --numRead;
             }
-            String s = table_.byteArrayToString(b_cache_, 0, numRead, type_);
-            s.getChars(0, s.length(), cache_, 0);
-            nextWrite_ = s.length();
-            nextRead_ = 0;
           }
         }
         else if(tableType_ == MB_TABLE)
         {
           // Max number of bytes for worst-case mixed-byte data scenario is (5x+3)/2
-          int numRead = 0;
           int c = 0;
           if(mode_ == DB_MODE)
           {
@@ -285,53 +251,40 @@ public class ConvTableReader extends InputStreamReader
               throw new InternalErrorException(InternalErrorException.UNKNOWN);
             }
           }
-          for(; numRead<b_cache_.length-1 && c != -1; ++numRead)
+          //@CRS - Don't read too much, we only want to read enough that will fit
+          //       in our character cache after conversion.
+          numRead = is_.read(b_cache_, 0, cache_.length-1);
+          if(numRead == -1)
           {
-            if(mode_ == SB_MODE)
+            if(Trace.traceOn_)
             {
-              c = is_.read();
-              if(c != -1)
-              {
-                b_cache_[numRead] = (byte)c;
-                if(c == ConvTableMixedMap.shiftOut_)
-                {
-                  mode_ = DB_MODE;
-                }
-              }
-              else
-              {
-                --numRead;
-              }
+              Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
             }
-            else if(mode_ == DB_MODE)
+            return false; // end-of-stream
+          }
+          // Find out which mode we are in when we stopped reading.
+          for (int i=0; i<numRead; ++i)
+          {
+            if (mode_ == SB_MODE && b_cache_[i] == ConvTableMixedMap.shiftOut_)
             {
-              c = is_.read();
-              if(c != -1)
-              {
-                b_cache_[numRead++] = (byte)c;
-                if(c == ConvTableMixedMap.shiftIn_)
-                {
-                  mode_ = SB_MODE;
-                  --numRead;
-                }
-                else
-                {
-                  c = is_.read();
-                  if(c != -1)
-                  {
-                    b_cache_[numRead] = (byte)c;
-                  }
-                }
-              }
+              mode_ = DB_MODE;
+            }
+            else if (mode_ == DB_MODE && b_cache_[i] == ConvTableMixedMap.shiftIn_)
+            {
+              mode_ = SB_MODE;
             }
           }
           if(mode_ == DB_MODE)
           {
-            // need to finished with a shift-in
+            // Need to finish with a shift-in.
             b_cache_[numRead++] = ConvTableMixedMap.shiftIn_;
             c = is_.read();
             if(c != ConvTableMixedMap.shiftIn_)
             {
+              // If this is the end-of-stream (-1), then the stream
+              // did not contain a correctly-formatted sequence of
+              // mixed-byte characters. It should've ended with
+              // a shift-in.
               cachedByte_ = (byte)c;
               isCachedByte_ = true;
             }
@@ -340,39 +293,27 @@ public class ConvTableReader extends InputStreamReader
               mode_ = SB_MODE;
             }
           }
-
-          if(numRead == 0 && c == -1)
-          {
-            if(Trace.traceOn_)
-            {
-              Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
-            }
-            return false; // end-of-stream
-          }
-          String s = table_.byteArrayToString(b_cache_, 0, numRead, type_);
-
-          s.getChars(0, s.length(), cache_, 0);
-          nextWrite_ = s.length();
-          nextRead_ = 0;
-
         }
         else if(tableType_ == JV_TABLE)
         {
           // Let Java handle it...
-          int numRead = is_.read(b_cache_, 0, 1024); //@B1C
-          if(numRead == -1)
-          {
-            if(Trace.traceOn_)
-            {
-              Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
-            }
-            return false;
-          }
-          String s = table_.byteArrayToString(b_cache_, 0, numRead, type_);
-          s.getChars(0, s.length(), cache_, 0);
-          nextWrite_ = s.length();
-          nextRead_ = 0;
+          numRead = is_.read(b_cache_, 0, cache_.length-1);
         }
+        
+        if(numRead == -1)
+        {
+          if(Trace.traceOn_)
+          {
+            Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
+          }
+          return false;
+        }
+
+        String s = table_.byteArrayToString(b_cache_, 0, numRead, type_);
+        nextWrite_ = s.length();
+        s.getChars(0, nextWrite_, cache_, 0);
+        nextRead_ = 0;
+
         if(Trace.traceOn_)
         {
           Trace.log(Trace.CONVERSION, "Filled cache for reader: "+nextRead_+","+nextWrite_+","+cache_.length, ConvTable.dumpCharArray(cache_, nextWrite_));
@@ -388,7 +329,33 @@ public class ConvTableReader extends InputStreamReader
     }
   }
 
-
+  
+  /**
+   * Returns the maximum number of bytes that may be stored in the internal buffer.
+   * This number represents the number of bytes that may be read from the
+   * underlying InputStream any time a read() method is called on this ConvTableReader.
+   * @return The size of the byte cache in use by this ConvTableReader.
+  **/
+  public int getByteCacheSize()
+  {
+    return b_cache_.length;
+  }
+  
+             
+  /**
+   * Returns the maximum number of characters that may be stored in the internal buffer.
+   * This number represents the number of characters that may be converted from the
+   * underlying InputStream any time a read() method is called on this ConvTableReader.
+   * Note that this is not the number of bytes actually read from the InputStream.
+   * The maximum number of bytes that can be read is determined by {@link #getByteCacheSize getByteCacheSize()}.
+   * @return The size of the character cache in use by this ConvTableReader.
+  **/
+  public int getCacheSize()
+  {
+    return cache_.length;
+  }
+  
+             
   /**
    * Returns the CCSID used by this ConvTableReader.
    * @return  The CCSID, or -1 if the CCSID is not known.
@@ -538,6 +505,7 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new NullPointerException("buffer");
     }
+    if (buffer.length == 0) return 0;
     synchronized(lock) //@B0C
     {
       if(fillCache())
@@ -566,11 +534,12 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new NullPointerException("buffer");
     }
-    if(offset < 0 || offset >= buffer.length)
+    if (length == 0) return 0; // The JDK doesn't throw exceptions when the length is 0.
+    if(offset < 0 || offset > buffer.length)
     {
       throw new ExtendedIllegalArgumentException("offset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
-    if(length < 0 || length > buffer.length)
+    if(length < 0 || (offset + length) > buffer.length)
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
@@ -605,6 +574,7 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
+    if (length == 0) return "";
     synchronized(lock) //@B0C
     {
       StringBuffer buf = new StringBuffer();
@@ -652,6 +622,7 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
+    if (length == 0) return 0;
     long total = 0;
     synchronized(lock) //@B0C
     {

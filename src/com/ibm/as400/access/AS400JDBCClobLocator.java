@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,422 +15,487 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;                        // @G4A
+import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;        // @A1A
-import java.io.Writer;                              // @G4A
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.sql.Clob;
 import java.sql.SQLException;
-import java.util.Vector;                            // @G5A
+import java.util.Vector;
 
+// Note: This code in this class requires understanding of bit manipulation
+// and sign extension. Do not attempt to rework this code if you do not
+// have a grasp of these concepts.
 
+// Currently, the database host server only supports 2 GB LOBs. Therefore,
+// we validate any long parameters to make sure they are not greater than
+// the maximum positive value for a 4-byte int (2 GB). This has the added
+// bonus of being able to cast the long down to an int without worrying
+// about sign extension. There are some cases where we could allow the
+// user to pass in a long greater than 2 GB, but for consistency, we will
+// throw an exception.
 
-// JDBC 2.0
+// Offset refers to a 0-based index. Position refers to a 1-based index.
+
+// In the event that the column on the server is a DBCLOB, know that
+// JDLobLocator knows that it is graphic and will correctly convert
+// the byte offsets and lengths into character offsets and lengths.
+
 /**
 The AS400JDBCClobLocator class provides access to character large
 objects.  The data is valid only within the current
 transaction.
 **/
-public class AS400JDBCClobLocator
-implements Clob
+public class AS400JDBCClobLocator implements Clob
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+
+  private ConvTable converter_;
+  JDLobLocator locator_;
+
+  Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
+
+  private char[] cache_;
+  private int cacheOffset_;
+  private static final char[] INIT_CACHE = new char[0];
+
+  private int truncate_ = -1;
+  private int maxLength_; // The max length in LOB-characters. See JDLobLocator.
+
+  /**
+  Constructs an AS400JDBCClob object.  The data for the
+  CLOB will be retrieved as requested, directly from the
+  server, using the locator handle.
+  
+  @param  locator             The locator.
+  @param  converter           The text converter.
+  **/
+  AS400JDBCClobLocator(JDLobLocator locator, ConvTable converter, Object savedObject)
+  {
+    locator_  = locator;
+    converter_ = converter;
+    savedObject_ = savedObject;
+    maxLength_ = locator_.getMaxLength();
+  }
 
 
 
-
-    // Private data.
-    private ConvTable converter_; //@P0C
-    private JDLobLocator        locator_;
-    private Vector          stringsToUpdate_;          //@G5A
-    private Vector          positionsToStartUpdates_;  //@G5A
-    private Object          internalLock_;             //@G5A
-
-
-
-    /**
-    Constructs an AS400JDBCClob object.  The data for the
-    CLOB will be retrieved as requested, directly from the
-    server, using the locator handle.
-    
-    @param  locator             The locator.
-    @param  converter           The text converter.
-    **/
-    AS400JDBCClobLocator (JDLobLocator locator,
-                          ConvTable converter) //@P0C
+  /**
+  Returns the entire CLOB as a stream of ASCII characters.
+  
+  @return The stream.
+  
+  @exception  SQLException    If an error occurs.
+  **/
+  public InputStream getAsciiStream() throws SQLException
+  {
+    synchronized(locator_)
     {
-        locator_  = locator;
-        converter_ = converter;
-        internalLock_ = new Object();       //@G5A
+      try
+      {
+        return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_), 819); // ISO 8859-1.
+      }
+      catch (UnsupportedEncodingException e)
+      {
+        JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+        return null;
+      }
     }
+  }
 
 
 
-    /**
-    Returns the entire CLOB as a stream of ASCII characters.
-    
-    @return The stream.
-    
-    @exception  SQLException    If an error occurs.
-    **/
-    public InputStream getAsciiStream ()
-    throws SQLException
+  /**
+  Returns the entire CLOB as a character stream.
+  
+  @return The stream.
+  
+  @exception  SQLException    If an error occurs.
+  **/
+  public Reader getCharacterStream() throws SQLException
+  {
+    synchronized(locator_)
     {
-        return new AS400JDBCInputStream (locator_, converter_, "ISO8859_1");
+      try
+      {
+        return new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid(), converter_.bidiStringType_);
+      }
+      catch (UnsupportedEncodingException e)
+      {
+        JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+        return null;
+      }
     }
+  }
 
 
 
-    /**
-    Returns the entire CLOB as a character stream.
-    
-    @return The stream.
-    
-    @exception  SQLException    If an error occurs.
-    **/
-    public Reader getCharacterStream ()
-    throws SQLException
-    {
-        try {                                                                   // @A1A
-            //@C2D return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @A1C
-            return new ConvTableReader (new AS400JDBCInputStream (locator_), converter_.getCcsid(), 0); // @C2A // @J0M
-        }                                                                       // @A1A
-        catch (UnsupportedEncodingException e) {                                // @A1A
-            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);                // @A1A
-            return null;                                                        // @A1A
-        }                                                                       // @A1A
-    }
-
-
-
-//@G5A
 /**
 Returns the handle to this CLOB locator in the database.
 
 @return             The handle to this locator in the databaes.
 **/
-    int getHandle()
+  int getHandle()
+  {
+    return locator_.getHandle();
+  }
+
+
+
+  /**
+  Returns part of the contents of the CLOB.
+  
+  @param  position       The position within the CLOB (1-based).
+  @param  length      The number of characters to return.
+  @return             The contents.
+  
+  @exception  SQLException    If the position is not valid,
+                              if the length is not valid,
+                              or an error occurs.
+  **/
+  public String getSubString(long position, int length) throws SQLException
+  {
+    synchronized(locator_)
     {
-        return locator_.getHandle();
+      int offset = (int)position-1;
+      if (offset < 0 || length < 0 || (offset + length) > length())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+
+      int lengthToUse = (int)length() - offset;
+      if (lengthToUse < 0) return "";
+      if (lengthToUse > length) lengthToUse = length;
+
+      DBLobData data = locator_.retrieveData(offset, lengthToUse);
+      int actualLength = data.getLength();
+      return converter_.byteArrayToString(data.getRawBytes(), data.getOffset(), actualLength);
     }
+  }
 
 
 
-//@G5A
-/**
-Returns the internal lock to this CLOB locator so that the caller
-can synchronize on it and update 
-the positionsToStartUpdates_ and stringsToUpdate_ vectors.
-
-@return             The internal lock to this CLOB locator.
-**/
-    Object getInternalLock()
+  /**
+  Returns the length of the current contents of the CLOB in characters.
+  
+  @return     The length of the CLOB in characters.
+  
+  @exception SQLException     If an error occurs.
+  **/
+  public long length() throws SQLException
+  {
+    synchronized(locator_)
     {
-        return internalLock_;
+      return locator_.getLength();
     }
+  }
 
 
+  // Used for position().
+  private void initCache()
+  {
+    cacheOffset_ = 0;
+    cache_ = INIT_CACHE;
+  }
 
-//@G5A
-/**
-Returns the array of positions where string updates, that are currently queued up to update
-the CLOB when ResultSet.updateClob() is called, should start.  The positions 
-were placed in the Vector as the user called setString on the CLOB.
-
-@return             The current array of positions to start string updates.
-**/
-    Vector getPositionsToStartUpdates()
+  // Used for position().
+  private int getCachedChar(int index) throws SQLException
+  {
+    int realIndex = index - cacheOffset_;
+    if (realIndex >= cache_.length)
     {
-        return positionsToStartUpdates_;
+      int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+      int len = (int)length();
+      if (len < 0) len = 0x7FFFFFFF;
+      if ((blockSize+index) > len) blockSize = len-index;
+      cache_ = getSubString(index+1, blockSize).toCharArray();
+      cacheOffset_ = index;
+      realIndex = 0;
     }
+    if (cache_.length == 0) return -1;
+    return cache_[realIndex];
+  }
 
 
 
-    // @B2C
-    /**
-    Returns part of the contents of the CLOB.
-    
-    @param  start       The position within the CLOB (1-based).
-    @param  length      The length to return.
-    @return             The contents.
-    
-    @exception  SQLException    If the position is not valid,
-                                if the length is not valid,
-                                or an error occurs.
-    **/
-    public String getSubString (long start, int length)
-    throws SQLException
+  /**
+  Returns the position at which a pattern is found in the CLOB.
+  This method is not supported.
+  
+  @param  position     The pattern.
+  @param  start       The position within the CLOB to begin
+                      searching (1-based).
+@return             The position in the CLOB at which the pattern was found,
+                    or -1 if the pattern was not found.
+  
+  @exception SQLException     If the pattern is null,
+                              the position is not valid,
+                              or an error occurs.
+  **/
+  public long position(String pattern, long position) throws SQLException
+  {
+    synchronized(locator_)
     {
-        --start;                                                                // @B2A
+      int offset = (int)position-1;
+      if (pattern == null || offset < 0 || offset >= length())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
 
-        long end = start + length - 1;                                   // @G7A
-        long lengthOfLocatorInChars = locator_.getLengthInCharacters();  // @G7A
-        if ((start < 0) || (length < 0) || end >= lengthOfLocatorInChars // @G7A          
-           || (start >= lengthOfLocatorInChars))                         // @G7A
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);        // @G7A
+      char[] charPattern = pattern.toCharArray();
+      int end = (int)length() - charPattern.length;
 
-        // @C4 A graphic locator means two bytes per character.  Locator_.retrieveData
-        //     expects bytes, but this method has input parms (start/length) in 
-        //     characters.  Convert them to bytes so retrieveData works properly
-        if (locator_.isGraphic())      // @C4a 2
-        {                              // @C4a 2
-            start = start * 2;         // @C4a 2
-            length = length * 2;       // @C4a 2
-        }                              // @C4a 2
+      // We use a cache of chars so we don't have to read in the entire
+      // contents of the CLOB.
+      initCache();
 
-        DBLobData data = locator_.retrieveData ((int) start, length);           // @B1C
-        String substring = converter_.byteArrayToString (data.getRawBytes (),
-                                                         data.getOffset (),
-                                                         data.getLength ());
-        return substring;
-    }
-
-
-
-//@G5A
-/**
-Returns the array of strings that are currently cued up to update
-the CLOB when ResultSet.updateClob() is called.  The strings 
-were placed in the Vector as the user called setString on the CLOB.
-
-@return             The current array of bytes to update.
-**/
-    Vector getStringsToUpdate()
-    {
-        return stringsToUpdate_;
-    }
-
-
-
-    /**
-    Returns the length of the CLOB.
-    
-    @return     The length of the CLOB, in characters.
-    
-    @exception SQLException     If an error occurs.
-    **/
-    public long length ()
-    throws SQLException
-    {
-        // @C1D // There is no way currently to efficiently compute the        @A1A
-        // @C1D // actual length of the CLOB.  We have 2 choices:              @A1A
-        // @C1D //                                                             @A1A
-        // @C1D // 1. Retrieve the entire CLOB from 0 to max and the           @A1A
-        // @C1D //    lob data will contain the actual length.                 @A1A
-        // @C1D // 2. Return the max length here.                              @A1A
-        // @C1D //                                                             @A1A
-        // @C1D // I chose to implement 2. because 1. could be quite slow      @A1A
-        // @C1D // and memory intensive.                                       @A1A
-
-        // @C1D return locator_.getMaxLength ();                            // @A1A
-        return locator_.getLengthInCharacters();                            // @C1A @C4c 2
-    }
-
-
-
-    // @B2C
-    /**
-    Returns the position at which a pattern is found in the CLOB.
-    This method is not supported.
-    
-    @param  pattern     The pattern.
-    @param  start       The position within the CLOB to begin
-                        searching (1-based).
-    @return             Always -1.  This method is not supported.
-    
-    @exception SQLException     If the pattern is null,
-                                the position is not valid,
-                                or an error occurs.
-    **/
-    public long position (String pattern, long start)
-    throws SQLException
-    {
-        return -1; // @A1C return locator_.position ("?", pattern, start);
-    }
-
-
-
-    // @B2C
-    /**
-    Returns the position at which a pattern is found in the CLOB.
-    This method is not supported.
-    
-    @param  pattern     The pattern.
-    @param  start       The position within the CLOB to begin
-                        searching (1-based).
-    @return             Always -1.  This method is not supported.
-    
-    @exception SQLException     If the pattern is null,
-                                the position is not valid,
-                                or an error occurs.
-    **/
-    public long position (Clob pattern, long start)
-    throws SQLException
-    {
-        return -1; // @A1A
-        // @A1D if (pattern instanceof AS400JDBCClobLocator)
-        // @A1D     return locator_.position ("CLOB(?)", new Integer (locator_.getHandle()), start);
-        // @A1D else
-        // @A1D     return locator_.position ("?", pattern.getBytes(0, (int) pattern.length()), start);
-    }
-
-
-    //@G4A  JDBC 3.0
-    /**
-    Returns a stream that an application can use to write Ascii characters to this CLOB.
-    The stream begins at position <i>positionToStartWriting</i>, and the CLOB will be truncated 
-    after the last character of the write.
-    
-    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
-    @return An OutputStream object to which data can be written by an application.
-    @exception SQLException If there is an error accessing the CLOB or if the position
-    specified is greater than the length of the CLOB.
-    
-    @since Modification 5
-    **/
-    public OutputStream setAsciiStream(long positionToStartWriting)
-    throws SQLException
-    {
-        if (positionToStartWriting <= 0 || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        return new AS400JDBCLobOutputStream (this, positionToStartWriting); 
-    }
-
-
-
-    //@G4A  JDBC 3.0
-    /**
-    Returns a stream that an application can use to write a stream of Unicode characters to 
-    this CLOB.  The stream begins at position <i>positionToStartWriting</i>, and the CLOB will 
-    be truncated after the last character of the write.
-
-    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
-    @return An OutputStream object to which data can be written by an application.
-    @exception SQLException If there is an error accessing the CLOB or if the position
-    specified is greater than the length of the CLOB.
-    
-    @since Modification 5
-    **/
-    public Writer setCharacterStream (long positionToStartWriting)
-    throws SQLException
-    {
-        if (positionToStartWriting <= 0 || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        return new AS400JDBCLobWriter (this, positionToStartWriting);  
-    }
-
-
-
-    //@G4A  JDBC 3.0
-    /**
-    Writes a String to this CLOB, starting at position <i>positionToStartWriting</i>.  The CLOB 
-    will be truncated after the last character written.
-
-    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
-    @param stringToWrite The string that will be written to the CLOB.
-    @return The number of characters that were written.
-
-    @exception SQLException If there is an error accessing the CLOB or if the position
-    specified is greater than the length of the CLOB.
-    
-    @since Modification 5
-    **/
-    public int setString (long positionToStartWriting, String string)
-    throws SQLException
-    {
-        // Validate the parameters.
-        if ((positionToStartWriting < 1) || (string == null) || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        positionToStartWriting--;
-
-        setVectors(positionToStartWriting, string);  
-
-        return string.length();
-    }
-
-
-
-    //@G4A  JDBC 3.0
-   /**
-    Writes a String to this CLOB, starting at position <i>positionToStartWriting</i> in the CLOB.  
-    The CLOB will be truncated after the last character written.  The <i>lengthOfWrite</i>
-    characters written will start from <i>offset</i> in the string that was provided by the
-    application.
-
-    @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
-    @param string The string that will be written to the CLOB.
-    @param offset The offset into string to start reading characters (0-based).
-    @param lengthOfWrite The number of characters to write.
-    @return The number of characters written.
-
-    @exception SQLException If there is an error accessing the CLOB value or if the position
-    specified is greater than the length of the CLOB.
-    
-    @since Modification 5
-    **/
-    public int setString (long positionToStartWriting, String string, int offset, int lengthOfWrite)
-    throws SQLException
-    {
-       // Validate the parameters
-        if ((lengthOfWrite < 0) || (offset < 0) || (string == null) || positionToStartWriting > locator_.getLength() //@H3C
-            || (offset + lengthOfWrite) > string.length())  //@H4C  Add cases
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        //@H3D offset--;
-
-        return setString(positionToStartWriting, string.substring(offset,lengthOfWrite));
-    }
-
-
-
-//@G5A
-/**
-Sets a position and string pair into the vectors that will be used to update the CLOB
-when ResultSet.updateClob() is called.
-
-@param pos The position in the CLOB object at which to start writing (1-based).
-@param string The string to be written to the CLOB value that this CLOB object represents.
-**/
-    void setVectors(long pos, String string)
-    {
-        synchronized (internalLock_)
+      for (int i=offset; i<=end; ++i)
+      {
+        int j = 0;
+        int cachedChar = getCachedChar(i+j);
+        while (j < charPattern.length && cachedChar != -1 && charPattern[j] == cachedChar)
         {
-            if (positionsToStartUpdates_ == null)
-            {
-                positionsToStartUpdates_ = new Vector();
-            }
-            if (stringsToUpdate_ == null)
-            {
-                stringsToUpdate_ = new Vector();
-            }
-            positionsToStartUpdates_.addElement(new Long (pos));
-            stringsToUpdate_.addElement(string);
+          ++j;
+          cachedChar = getCachedChar(i+j);
         }
+        if (j == charPattern.length) return i+1;
+      }
+      return -1;
     }
+  }
 
 
 
-    //@G4A  JDBC 3.0
-    /**
-    Truncates this CLOB to a length of <i>lengthOfCLOB</i> characters.
-     
-    @param lengthOfCLOB The length, in characters, that this CLOB should be after 
-    truncation.
-     
-    @exception SQLException If there is an error accessing the CLOB or if the length
-    specified is greater than the length of the CLOB. 
-    
-    @since Modification 5   
-    **/
-    public void truncate(long lengthOfCLOB)
-    throws SQLException
+  /**
+  Returns the position at which a pattern is found in the CLOB.
+  This method is not supported.
+  
+  @param  pattern     The pattern.
+  @param  position       The position within the CLOB to begin
+                      searching (1-based).
+@return             The position in the CLOB at which the pattern was found,
+                    or -1 if the pattern was not found.
+  
+  @exception SQLException     If the pattern is null,
+                              the position is not valid,
+                              or an error occurs.
+  **/
+  public long position(Clob pattern, long position) throws SQLException
+  {
+    synchronized(locator_)
     {
-        //parameter checking will be done in setString method 
-        setString(lengthOfCLOB+1, "");        //@G6C
+      int offset = (int)position-1;
+      if (pattern == null || offset < 0 || offset >= length())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+
+      int patternLength = (int)pattern.length();
+      int locatorLength = (int)length();
+      if (patternLength > locatorLength || patternLength < 0) return -1;
+
+      int end = locatorLength - patternLength;
+
+      char[] charPattern = pattern.getSubString(1L, patternLength).toCharArray(); //@CRS - Get all chars for now, improve this later.
+
+      // We use a cache of chars so we don't have to read in the entire
+      // contents of the CLOB.
+      initCache();
+
+      for (int i=offset; i<=end; ++i)
+      {
+        int j = 0;
+        int cachedChar = getCachedChar(i+j);
+        while (j < patternLength && cachedChar != -1 && charPattern[j] == cachedChar)
+        {
+          ++j;
+          cachedChar = getCachedChar(i+j);
+        }
+        if (j == patternLength) return i+1;
+      }
+
+      return -1;
+    }
+  }
+
+
+  /**
+  Returns a stream that an application can use to write Ascii characters to this CLOB.
+  The stream begins at position <i>position</i>, and the CLOB will be truncated 
+  after the last character of the write.
+  
+  @param position The position (1-based) in the CLOB where writes should start.
+  @return An OutputStream object to which data can be written by an application.
+  @exception SQLException If there is an error accessing the CLOB or if the position
+  specified is greater than the length of the CLOB.
+  **/
+  public OutputStream setAsciiStream(long position) throws SQLException
+  {
+    if (position <= 0 || position > maxLength_)
+    {
+      JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
+    try
+    {
+      return new AS400JDBCClobLocatorOutputStream(this, position, ConvTable.getTable(819, null));
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      // Should never happen.
+      JDError.throwSQLException(JDError.EXC_INTERNAL, e);
+      return null;
+    }
+  }
 
+
+
+  /**
+  Returns a stream that an application can use to write a stream of Unicode characters to 
+  this CLOB.  The stream begins at position <i>position</i>, and the CLOB will 
+  be truncated after the last character of the write.
+
+  @param position The position (1-based) in the CLOB where writes should start.
+  @return An OutputStream object to which data can be written by an application.
+  @exception SQLException If there is an error accessing the CLOB or if the position
+  specified is greater than the length of the CLOB.
+  
+  **/
+  public Writer setCharacterStream(long position) throws SQLException
+  {
+    if (position <= 0 || position > maxLength_)
+    {
+      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    }
+
+    return new AS400JDBCWriter(this, position);  
+  }
+
+
+
+  /**
+  Writes a String to this CLOB, starting at position <i>position</i>.  The CLOB 
+  will be truncated after the last character written.
+
+  @param position The position (1-based) in the CLOB where writes should start.
+  @param stringToWrite The string that will be written to the CLOB.
+  @return The number of characters that were written.
+
+  @exception SQLException If there is an error accessing the CLOB or if the position
+  specified is greater than the length of the CLOB.
+  
+  **/
+  public int setString(long position, String stringToWrite) throws SQLException
+  {
+    synchronized(locator_)
+    {
+      int offset = (int)position-1;
+
+      if (offset < 0 || offset >= maxLength_ || stringToWrite == null)
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+
+      // We will write as many chars as we can. If our internal char array
+      // would overflow past the 2 GB boundary, we don't throw an error, we just
+      // return the number of chars that were set.
+      char[] charsToWrite = stringToWrite.toCharArray();
+      int newSize = offset + charsToWrite.length;
+      if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+      int numChars = newSize - offset;
+      if (numChars != charsToWrite.length)
+      {
+        char[] temp = charsToWrite;
+        charsToWrite = new char[newSize];
+        System.arraycopy(temp, 0, charsToWrite, 0, numChars);
+      }
+
+      // We don't really know if all of these chars can be written until we go to
+      // the server, so we just return the char[] length as the number written.
+      byte[] bytesToWrite = converter_.stringToByteArray(charsToWrite, 0, charsToWrite.length);
+      locator_.writeData((long)offset, bytesToWrite);
+      return charsToWrite.length;
+    }
+  }
+
+
+
+  /**
+   Writes a String to this CLOB, starting at position <i>position</i> in the CLOB.  
+   The CLOB will be truncated after the last character written.  The <i>lengthOfWrite</i>
+   characters written will start from <i>offset</i> in the string that was provided by the
+   application.
+
+   @param position The position (1-based) in the CLOB where writes should start.
+   @param string The string that will be written to the CLOB.
+   @param offset The offset into string to start reading characters (0-based).
+   @param lengthOfWrite The number of characters to write.
+   @return The number of characters written.
+
+   @exception SQLException If there is an error accessing the CLOB value or if the position
+   specified is greater than the length of the CLOB.
+   
+   **/
+  public int setString(long position, String string, int offset, int lengthOfWrite) throws SQLException
+  {
+    synchronized(locator_)
+    {
+      int clobOffset = (int)position-1;
+      if (clobOffset < 0 || clobOffset >= maxLength_ ||
+          string == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > string.length() ||
+          (clobOffset+lengthOfWrite) > maxLength_)
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+
+      // We will write as many chars as we can. If our internal char array
+      // would overflow past the 2 GB boundary, we don't throw an error, we just
+      // return the number of chars that were set.
+      int newSize = clobOffset + lengthOfWrite;
+      if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+      int numChars = newSize - clobOffset;
+      int realLength = (numChars < lengthOfWrite ? numChars : lengthOfWrite);
+      char[] charsToWrite = new char[realLength];
+      string.getChars(offset, numChars, charsToWrite, 0);
+
+      // We don't really know if all of these chars can be written until we go to
+      // the server, so we just return the char[] length as the number written.
+      byte[] bytesToWrite = converter_.stringToByteArray(charsToWrite, 0, charsToWrite.length);
+      locator_.writeData((long)clobOffset, bytesToWrite);
+      return charsToWrite.length;
+    }
+  }
+
+
+
+  /**
+  Truncates this CLOB to a length of <i>lengthOfCLOB</i> characters.
+   
+  @param lengthOfCLOB The length, in characters, that this CLOB should be after 
+  truncation.
+   
+  @exception SQLException If there is an error accessing the CLOB or if the length
+  specified is greater than the length of the CLOB. 
+  
+  **/
+  public void truncate(long lengthOfCLOB) throws SQLException
+  {
+    synchronized(locator_)
+    {
+      int length = (int)lengthOfCLOB;
+      if (length < 0 || length > maxLength_)
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+      truncate_ = length;
+      // The host server does not currently provide a way for us
+      // to truncate the temp space used to hold the locator data,
+      // so we just keep track of it ourselves.  This should work,
+      // since the temp space on the server should only be valid
+      // within the scope of our transaction/connection. That means
+      // there's no reason to go to the server to update the data,
+      // since no other process can get at it.
+      locator_.writeData(length, new byte[0], 0, 0);
+    }
+  }
 }

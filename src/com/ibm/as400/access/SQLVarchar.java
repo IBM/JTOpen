@@ -536,7 +536,7 @@ implements SQLData
 	{
   	    // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob (toString ());
+        return new AS400JDBCClob (toString (), maxLength_);
 	}
 
 

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,9 +17,9 @@ import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Enumeration; // @B1A
-import java.util.Hashtable; // @B0A
-import java.sql.SQLException;                                            //@E9a
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.sql.SQLException;
 
 
 
@@ -189,9 +189,7 @@ import java.sql.SQLException;                                            //@E9a
 abstract class DBBaseRequestDS
 extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -201,10 +199,6 @@ extends ClientAccessDataStream
   private int                    parameterCount_;
   private boolean                rleCompressed_ = false;              // @E3A
   private final DBStorage storage_ = DBDSPool.storagePool_.getUnusedStorage(); //@P0A
-  //@P0D private DBStorage              storage_= null;                      // @E7c (make sure null)
-  // @B3D private static Hashtable       storagePoolManager_;         // @B0A
-  //@P0D private static DBStoragePool   storagePool_ = null;                 // @B0C @B1C @B3C
-
 
 
   // Values for operation result bitmap.
@@ -239,17 +233,6 @@ extends ClientAccessDataStream
 
 
 /**
-Static initializer.
-**/
-//@P0D  static
-//@P0D  {
-//@P0D    storagePool_ = new DBStoragePool ();                    // @B0D @B3C
-  // @B3D storagePoolManager_ = new Hashtable ();         // @B0A
-//@P0D  }
-
-
-
-/**
 Constructor.
 **/
   protected DBBaseRequestDS(int requestId,
@@ -258,70 +241,6 @@ Constructor.
                             int parameterMarkerDescriptorHandle)
   {
     super();
-
-    /* @B3D
-    // @B0A
-    // Get the storage pool for the current thread.  This ensures
-    // that threads won't corrupt each other's storage pools.
-    Thread currentThread = Thread.currentThread ();
-    if (storagePoolManager_.containsKey (currentThread)) {
-        storagePool_ = (DBStoragePool) storagePoolManager_.get (currentThread);
-    }
-    else {
-        // @B1A
-        // We first want to check for storage pools allocated for
-        // dead threads.  This has the benefit of recycling, but
-        // it also, reclaims storage allocated for dead threads.
-        // Without this, we eventually see a memory leak.
-        Enumeration enum = storagePoolManager_.keys ();
-        boolean found = false;
-        while ((enum.hasMoreElements ()) && (! found)) {
-            Thread thread = (Thread) enum.nextElement ();
-            if (! thread.isAlive ()) {
-                storagePool_ = (DBStoragePool) storagePoolManager_.get (thread);
-                storagePoolManager_.remove (thread);
-                storagePoolManager_.put (currentThread, storagePool_);
-                found = true;
-            }
-        }
-
-        // If there is still none, then create a new one.
-        if (! found) {
-        // End @B1A
-
-            storagePool_ = new DBStoragePool ();
-            storagePoolManager_.put (currentThread, storagePool_);
-
-        } // @B1A
-    }
-    // End @B0A
-    End @B3D */
-
-    // Allocate the large byte array for storage of the
-    // data stream.
-/*@P0M - Moved to initialize().    
-    storage_ = storagePool_.getUnusedStorage ();
-    data_ = storage_.getReference ();
-
-    // Data stream header.
-    setHeaderID (0);
-    setCSInstance(0);
-    setTemplateLen (20);
-    setReqRepID (requestId);
-
-    // Data stream template.
-    set32bit (operationResultBitmap, 20);   // Operation result bitmap.
-    set16bit (rpbId, 28);                   // Return ORS handle.
-    set16bit (rpbId, 30);                   // Fill ORS handle.
-    setBasedOnORSHandle (0);                // Based on ORS handle.
-    set16bit (rpbId, 34);                   // RPB handle.
-    setParameterMarkerDescriptorHandle (parameterMarkerDescriptorHandle);
-
-    // Initialization.
-    currentOffset_          = HEADER_LENGTH + 20;
-    parameterCount_         = 0;
-    operationResultBitmap_  = operationResultBitmap;
-*///@P0M
 
     initialize(requestId, rpbId, operationResultBitmap, parameterMarkerDescriptorHandle); //@P0A
   }
@@ -337,7 +256,6 @@ Constructor.
   {
     // Allocate the large byte array for storage of the
     // data stream.
-    //@P0D storage_ = storagePool_.getUnusedStorage ();
 
     data_ = storage_.data_; //@P0C
 
@@ -379,8 +297,7 @@ Adds another operation result to the operation result bitmap.
 /**
 Adds a 1 byte parameter.
 **/
-  protected void addParameter(int codePoint, byte value)
-  throws DBDataStreamException
+  protected void addParameter(int codePoint, byte value) throws DBDataStreamException
   {
     lock(1, codePoint);
 
@@ -443,14 +360,15 @@ Adds a byte array parameter.
   protected void addParameter(int codePoint, byte[] value)
   throws DBDataStreamException
   {
-    lock(value.length, codePoint);
-
-    System.arraycopy(value, 0, data_, currentOffset_, value.length);
-
-    unlock();
+    addParameter(codePoint, value, 0, value.length);
   }
 
-
+  protected void addParameter(int codePoint, byte[] value, int offset, int length) throws DBDataStreamException
+  {
+    lock(length, codePoint);
+    System.arraycopy(value, offset, data_, currentOffset_, length);
+    unlock();
+  }
 
 /**
 @B2A Adds a byte array parameter including CCSID and length.
@@ -460,16 +378,18 @@ Adds a byte array parameter.
                               boolean overloadThisMethod)
   throws DBDataStreamException
   {
-    lock(value.length + 6, codePoint);
-
-    set16bit((short) 0xFFFF, currentOffset_);              // CCSID
-    set32bit(value.length, currentOffset_ + 2);            // length
-    System.arraycopy(value, 0, data_, currentOffset_ + 6, value.length);
-
-    unlock();
+    addParameter(codePoint, value, 0, value.length, overloadThisMethod);
   }
 
 
+  protected void addParameter(int codePoint, byte[] value, int offset, int length, boolean overloadThisMethod) throws DBDataStreamException
+  {
+    lock(value.length + 6, codePoint);
+    set16bit((short)0xFFFF, currentOffset_);
+    set32bit(length, currentOffset_ + 2);
+    System.arraycopy(value, offset, data_, currentOffset_ + 6, length);
+    unlock();
+  }
 
 // @E4A
 /**
@@ -851,26 +771,6 @@ four bytes, and sixteen bytes per line.
 
 
 
-  // @E7a new method.
-  // Free the buffer holding the send-side data stream.  The buffer is normally
-  // freed in the write() method.  There are cases, however, when write()
-  // is not called.  For example, some code gets a data stream object but
-  // throws an exception (because user input is bad) before sending it.
-  // In that case the requester must manully free the buffer or it will not
-  // be returned to the pool (a memory leak).
-//@P0D - Removed this method as the comm buffers aren't freed, because
-// they each belong to their own datastream, and the datastreams are pooled now.
-//@P0D  void freeCommunicationsBuffer()
-//@P0D  {
-//@P0D    if (storage_ != null)
-//@P0D      storagePool_.freeStorage (storage_);
-
-//@P0D    storage_ = null;
-//@P0D  }
-
-
-
-
 /**
 "Locks" the request datastream for addition of a parameter.
 This will determine if there is space left in the data
@@ -1007,7 +907,6 @@ Overrides the superclass to write the datastream.
         }
         finally //@P0A
         {
-          //@P0D storagePool_.freeStorage(secondaryStorage);                                     // @E3A
           secondaryStorage.inUse_ = false; //@P0A
         }
       }                                                                                   // @E3A
@@ -1035,11 +934,6 @@ Overrides the superclass to write the datastream.
       }
       if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", data_, 0, currentOffset_);  //@E6A @P0C
     }                                                                                       // @E3A
-
-    // Free the storage for others to use.  We
-    // are done with it.
-    //@P0D storagePool_.freeStorage (storage_);
-    //@P0D storage_ = null;                                                          //@E7a
   }
 }
 

@@ -335,7 +335,7 @@ implements SQLData
 	{
 	    // This is written in terms of toBytes(), since it will
 	    // handle truncating to the max field size if needed.
-	    return new AS400JDBCBlob (toBytes ());
+	    return new AS400JDBCBlob (toBytes (), maxLength_);
 	}
 
 
@@ -394,7 +394,7 @@ implements SQLData
   	    // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new AS400JDBCClob (new String (toBytes ()));
-        return new AS400JDBCClob(bytesToString(toBytes())); //@F1A
+        return new AS400JDBCClob(bytesToString(toBytes()), maxLength_); //@F1A
 	}
 
 
@@ -474,22 +474,45 @@ implements SQLData
   //@F1A
   // Constant used in bytesToString()
   private static final char[] c_ = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+
+  static final char hiNibbleToChar(byte b)
+  {
+    return c_[(b >>> 4) & 0x0F];
+  }
+
+  static final char loNibbleToChar(byte b)
+  {
+    return c_[b & 0x0F];
+  }
+
+  static final String bytesToString(final byte[] b)
+  {
+    return bytesToString(b, 0, b.length);
+  }
+
+  static final String bytesToString(final byte[] b, int offset, int length)
+  {
+    char[] c = new char[length*2];
+    int num = bytesToString(b, offset, length, c, 0);
+    return new String(c, 0, num);
+  }
+
   //@F1A
   // Helper method to convert a byte array into its hex string representation.
   // This is faster than calling Integer.toHexString(...)
-  static final String bytesToString(final byte[] b)
+  static final int bytesToString(final byte[] b, int offset, int length, final char[] c, int coffset)
   {
-    final char[] c = new char[b.length*2];
-    for (int i=0; i<b.length; ++i)
+    for (int i=0; i<length; ++i)
     {
       final int j = i*2;
-      final byte hi = (byte)((b[i]>>>4) & 0x0F);
-      final byte lo = (byte)((b[i] & 0x0F));
-      c[j] = c_[hi];
-      c[j+1] = c_[lo];
-   }
-   return new String(c);
+      final byte hi = (byte)((b[i+offset]>>>4) & 0x0F);
+      final byte lo = (byte)((b[i+offset] & 0x0F));
+      c[j+coffset] = c_[hi];
+      c[j+coffset+1] = c_[lo];
+    }
+    return length*2;
   }
+
   //@F1A
   // Constant used in stringToBytes()
   // Note that 0x11 is "undefined".
@@ -512,23 +535,57 @@ implements SQLData
     0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
     0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11
   };
+
+  static final byte charsToByte(char hi, char lo)
+  {
+    int c1 = 0x00FFFF & hi;
+    int c2 = 0x00FFFF & lo;
+    if (c1 > 255 || c2 > 255) return 0;
+    byte b1 = b_[c1];
+    byte b2 = b_[c2];
+    if (b1 == 0x11 || b2 == 0x11) return 0;
+    return (byte)(((byte)(b1 << 4)) + b2);
+  }
+
+
+  static final byte[] stringToBytes(String s)
+  {
+    char[] c = s.toCharArray();
+    return stringToBytes(c, 0, c.length);
+  }
+
+  static final byte[] stringToBytes(char[] hex, int offset, int length)
+  {
+    if (hex.length == 0) return new byte[0];
+    byte[] buf = new byte[length/2];
+    int num = stringToBytes(hex, offset, length, buf, 0);
+    if (num < buf.length)
+    {
+      byte[] temp = buf;
+      buf = new byte[num];
+      System.arraycopy(temp, 0, buf, 0, num);
+    }
+    return buf;
+  }
+
   //@F1A
   // Helper method to convert a String in hex into its corresponding byte array.
-  static final byte[] stringToBytes(String s) throws SQLException
+  static final int stringToBytes(char[] hex, int offset, int length, final byte[] b, int boff)
   {
-    //try
-    //{
-      if (s.startsWith("0x") || s.startsWith("0X")) s = s.substring(2);
-      final char[] hex = s.toCharArray();
-      final byte[] b = new byte[hex.length/2];
+    if (hex.length == 0) return 0;
+      if (hex[offset] == '0' && (hex.length > offset+1 && (hex[offset+1] == 'X' || hex[offset+1] == 'x')))
+      {
+        offset += 2;
+        length -= 2;
+      }
       for (int i=0; i<b.length; ++i)
       {
         final int j = i*2;
-        final int c1 = 0x00FFFF & hex[j];
-        final int c2 = 0x00FFFF & hex[j+1];
+        final int c1 = 0x00FFFF & hex[j+offset];
+        final int c2 = 0x00FFFF & hex[j+offset+1];
         if (c1 > 255 || c2 > 255) // out of range
         {
-          b[i] = 0x00;
+          b[i+boff] = 0x00;
         }
         else
         {
@@ -536,22 +593,16 @@ implements SQLData
           final byte b2 = b_[c2];
           if (b1 == 0x11 || b2 == 0x11) // out of range
           {
-            b[i] = 0x00;
+            b[i+boff] = 0x00;
           }
           else
           {
             final byte hi = (byte)(b1<<4);
-            b[i] = (byte)(hi + b2);
+            b[i+boff] = (byte)(hi + b2);
           }
         }
       }
-      return b;
-    //}
-    //catch(ArrayIndexOutOfBoundsException e)
-    //{
-    //  JDError.throwSQLException(JDError.EXC_CHAR_CONVERSION_INVALID);
-    //}
-    //return null;
+      return b.length;
   }
 
 

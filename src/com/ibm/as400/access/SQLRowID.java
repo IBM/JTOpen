@@ -34,7 +34,7 @@ class SQLRowID implements SQLData
 
 
     // Private data.
-    private static final int        ROWID_SIZE  = 40;
+    private static final int        ROWID_SIZE  = 40; // This is the maxLength_ for this type of column.
 
     private SQLConversionSettings   settings;
     private int                     length;
@@ -42,13 +42,11 @@ class SQLRowID implements SQLData
     private byte[]                  value;
 
 
-
     SQLRowID(SQLConversionSettings settings) {
         this.settings   = settings;
         length          = 0;
         truncated       = 0;
         value           = new byte[0];
-        System.out.println("Created an SQLRowID object.");
     }
 
 
@@ -240,7 +238,7 @@ class SQLRowID implements SQLData
     public Blob toBlob() throws SQLException {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCBlob(toBytes());
+        return new AS400JDBCBlob(toBytes(), ROWID_SIZE);
     }
 
     public boolean toBoolean() throws SQLException {
@@ -274,7 +272,7 @@ class SQLRowID implements SQLData
     public Clob toClob() throws SQLException {
         // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes()));
+        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes()), ROWID_SIZE);
     }
 
     public Date toDate(Calendar calendar) throws SQLException {

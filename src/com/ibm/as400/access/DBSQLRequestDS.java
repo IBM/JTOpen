@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ to the SQL server.
 class DBSQLRequestDS
 extends DBBaseRequestDS
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
 
@@ -266,6 +266,10 @@ extends DBBaseRequestDS
   		addParameter (0x381D, value, true);            // @C1C
 	}
 
+  void setLOBData(byte[] value, int offset, int length) throws DBDataStreamException
+  {
+    addParameter(0x381D, value, offset, length, true);
+  }
 
 
 /**

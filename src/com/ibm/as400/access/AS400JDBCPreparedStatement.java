@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,27 +17,26 @@ import java.io.UnsupportedEncodingException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.net.URL;                    //@G4A
+import java.net.URL;
 import java.sql.Array;
 import java.sql.BatchUpdateException;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
-import java.sql.ParameterMetaData;      //@G4A
+import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;              //@G4A
+import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Enumeration;
-import java.util.Hashtable;             //@G4A
-//import java.util.ArrayList;             //@G9A Use array list when JDK 1.2 is the minimum supported release
+import java.util.Hashtable;
 import java.util.Vector;
 
 
@@ -81,7 +80,7 @@ a target SQL type.
 //
 public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements PreparedStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   private boolean             dataTruncation_;        // @B5A
@@ -250,10 +249,9 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
   @exception SQLException     This exception is always thrown.
   **/
-  public void addBatch (String sql)
-  throws SQLException
+  public void addBatch(String sql) throws SQLException
   {
-    JDError.throwSQLException (this, JDError.EXC_FUNCTION_SEQUENCE); // @B1C
+    JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE); // @B1C
   }
 
 
@@ -1864,7 +1862,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
   @param  parameterIndex  The parameter index (1-based).
   @param  parameterValue  The parameter value or null to set
                       the value to SQL NULL.
-  @param  length          The number of bytes in the reader.
+  @param  length          The number of characters to read from the reader.
 
   @exception  SQLException    If the statement is not open,
                               the index is not valid, the parameter

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,32 +14,43 @@
 package com.ibm.as400.access;
 
 import java.io.InputStream;
-import java.io.OutputStream;   //@G4A
+import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.Vector;       //@D3A
+import java.util.Vector;
+
+// Note: This code in this class requires understanding of bit manipulation
+// and sign extension. Do not attempt to rework this code if you do not
+// have a grasp of these concepts.
+
+// Currently, the database host server only supports 2 GB LOBs. Therefore,
+// we validate any long parameters to make sure they are not greater than
+// the maximum positive value for a 4-byte int (2 GB). This has the added
+// bonus of being able to cast the long down to an int without worrying
+// about sign extension. There are some cases where we could allow the
+// user to pass in a long greater than 2 GB, but for consistency, we will
+// throw an exception.
+
+// Offset refers to a 0-based index. Position refers to a 1-based index.
 
 
-
-// JDBC 2.0
 /**
 The AS400JDBCBlobLocator class provides access to binary large
 objects.  The data is valid only within the current
 transaction.
 **/
-public class AS400JDBCBlobLocator
-implements Blob
+public class AS400JDBCBlobLocator implements Blob
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
-    // Private data.
-    private JDLobLocator    locator_; 
-    private Vector          bytesToUpdate_;            //@G5A
-    private Vector          positionsToStartUpdates_;  //@G5A
-    private Object          internalLock_;             //@G5A
+  JDLobLocator locator_; 
+  Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
 
-
+  private byte[] cache_;
+  private int cacheOffset_;
+  private static final byte[] INIT_CACHE = new byte[0];
+  private int maxLength_;
 
 /**
 Constructs an AS400JDBCBlobLocator object.  The data for the
@@ -48,11 +59,12 @@ server, using the locator handle.
 
 @param  locator             The locator.
 **/
-    AS400JDBCBlobLocator (JDLobLocator locator)
-    {
-        locator_  = locator;
-        internalLock_ = new Object();   //@G5A
-    }
+  AS400JDBCBlobLocator(JDLobLocator locator, Object savedObject)
+  {
+    locator_  = locator;
+    savedObject_ = savedObject;
+    maxLength_ = locator_.getMaxLength();
+  }
 
 
 
@@ -63,19 +75,20 @@ Returns the entire BLOB as a stream of uninterpreted bytes.
 
 @exception  SQLException    If an error occurs.
 **/
-    public InputStream getBinaryStream ()
-    throws SQLException
+  public InputStream getBinaryStream() throws SQLException
+  {
+    synchronized(locator_)
     {
-        return new AS400JDBCInputStream (locator_);
+      return new AS400JDBCInputStream(locator_);
     }
+  }
 
 
 
-// @B3C
 /**
 Returns part of the contents of the BLOB.
 
-@param  start       The position within the BLOB (1-based).
+@param  position       The position within the BLOB (1-based).
 @param  length      The length to return.
 @return             The contents.
 
@@ -83,80 +96,38 @@ Returns part of the contents of the BLOB.
                             if the length is not valid,
                             or an error occurs.
 **/
-    public byte[] getBytes (long start, int length)
-    throws SQLException
+  public byte[] getBytes(long position, int length) throws SQLException
+  {
+    synchronized(locator_)
     {
-        --start;                                                        // @B3A
-        long end = start + length - 1;                                        // @G7A
-        long currentLengthOfLocator = locator_.getLength();  // @G7A
-        if ((start < 0) || (length < 0) || end >= currentLengthOfLocator    // @G7A
-          || (start >= currentLengthOfLocator) )    //@G7A
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);  // @G7A
-        DBLobData data = locator_.retrieveData ((int) start, length);   // @B1C
-        int actualLength = data.getLength ();
-        byte[] bytes = new byte[actualLength];
-        System.arraycopy (data.getRawBytes (), data.getOffset (),
-                          bytes, 0, actualLength);
-        return bytes;
+      int offset = (int)position-1;
+      if (offset < 0 || length < 0 || (offset + length) > locator_.getLength())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+      int lengthToUse = (int)locator_.getLength() - offset;
+      if (lengthToUse <= 0) return new byte[0];
+      if (lengthToUse > length) lengthToUse = length;
+
+      DBLobData data = locator_.retrieveData(offset, lengthToUse);
+      int actualLength = data.getLength();
+      byte[] bytes = new byte[actualLength];
+      System.arraycopy(data.getRawBytes(), data.getOffset(), bytes, 0, actualLength);
+      return bytes;
     }
+  }
 
 
 
-//@G5A
-/**
-Returns the Vector of byte arrays that are currently cued up to update
-the BLOB when ResultSet.updateBlob() is called.  The bytes 
-were placed in the Vector as the user called setBytes on the BLOB.
-
-@return             The current array of bytes to update.
-**/
-    Vector getBytesToUpdate()
-    {
-        return bytesToUpdate_;
-    }
-
-
-
-//@G5A
 /**
 Returns the handle to this BLOB locator in the database.
 
 @return             The handle to this locator in the database.
 **/
-    int getHandle()
-    {
-        return locator_.getHandle();
-    }
-
-
-
-//@G5A
-/**
-Returns the internal lock to this BLOB locator so that the caller
-can synchronize on it and update 
-the positionsToStartUpdates_ and bytesToUpdates_ vectors.
-
-@return             The internal lock to this BLOB locator.
-**/
-    Object getInternalLock()
-    {
-        return internalLock_;
-    }
-
-
-
-//@G5A
-/**
-Returns the Vector of positions where byte updates, that are currently cued up to update
-the BLOB when ResultSet.updateBlob() is called, should start.  The positions 
-were placed in the Vector as the user called setBytes on the BLOB.
-
-@return             The current array of positions to start byte updates.
-**/
-    Vector getPositionsToStartUpdates()
-    {
-        return positionsToStartUpdates_;
-    }
+  int getHandle()
+  {
+    return locator_.getHandle();
+  }
 
 
 
@@ -167,217 +138,274 @@ Returns the length of the BLOB.
 
 @exception SQLException     If an error occurs.
 **/
-    public long length ()
-    throws SQLException
+  public long length() throws SQLException
+  {
+    synchronized(locator_)
     {
-        // @C1D // There is no way currently to efficiently compute the        @A1A
-        // @C1D // actual length of the BLOB.  We have 2 choices:              @A1A
-        // @C1D //                                                             @A1A
-        // @C1D // 1. Retrieve the entire BLOB from 0 to max and the           @A1A
-        // @C1D //    lob data will contain the actual length.                 @A1A
-        // @C1D // 2. Return the max length here.                              @A1A
-        // @C1D //                                                             @A1A
-        // @C1D // I chose to implement 2. because 1. could be quite slow      @A1A
-        // @C1D // and memory intensive.                                       @A1A
-
-        // @C1D return locator_.getMaxLength ();                            // @A1A
-
-        return locator_.getLength();                                        // @C1A
+      return locator_.getLength();
     }
+  }
+
+  // Used for position().
+  private void initCache()
+  {
+    cacheOffset_ = 0;
+    cache_ = INIT_CACHE;
+  }
+
+  // Used for position().
+  private int getCachedByte(int index) throws SQLException
+  {
+    int realIndex = index - cacheOffset_;
+    if (realIndex >= cache_.length)
+    {
+      int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+      int len = (int)locator_.getLength();
+      if (len < 0) len = 0x7FFFFFFF;
+      if ((blockSize+index) > len) blockSize = len-index;
+      cache_ = getBytes(index+1, blockSize);
+      cacheOffset_ = index;
+      realIndex = 0;
+    }
+    if (cache_.length == 0) return -1;
+    return cache_[realIndex];
+  }
 
 
-
-// @B3C
 /**
 Returns the position at which a pattern is found in the BLOB.
-This method is not supported.
 
 @param  pattern     The pattern.
-@param  start       The position within the BLOB to begin
+@param  position       The position within the BLOB to begin
                     searching (1-based).
-@return             Always -1.  This method is not supported.
+@return             The offset into the BLOB at which the pattern was found,
+                    or -1 if the pattern was not found or the pattern was a byte
+                    array of length 0.
 
-@exception SQLException     If the pattern is null,
-                            the position is not valid,
-                            or an error occurs.
+@exception SQLException     If the position is not valid or an error occurs.
 **/
-    public long position (byte[] pattern, long start)
-    throws SQLException
+  public long position(byte[] pattern, long position) throws SQLException
+  {
+    synchronized(locator_)
     {
-        // Validate the parameters.                                             // @B2A
-        --start;                                                                // @B3A
-        if ((start < 0) || (start >= length()) || (pattern == null))            // @B2A
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    // @B2A
+      int offset = (int)position-1;
+      if (pattern == null || offset < 0 || offset >= locator_.getLength())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
 
-        return -1; // @A1C return locator_.position ("?", pattern, start);
+      int end = (int)locator_.getLength() - pattern.length;
+
+      // We use a cache of bytes so we don't have to read in the entire
+      // contents of the BLOB.
+      initCache();
+
+      for (int i=offset; i<=end; ++i)
+      {
+        int j = 0;
+        int cachedByte = getCachedByte(i+j);
+        while (j < pattern.length && cachedByte != -1 && pattern[j] == (byte)cachedByte)
+        {
+          ++j;
+          cachedByte = getCachedByte(i+j);
+        }
+        if (j == pattern.length) return i+1;
+      }
+      return -1;
     }
+  }
 
 
 
-// @B3C
 /**
 Returns the position at which a pattern is found in the BLOB.
-This method is not supported.
 
 @param  pattern     The pattern.
-@param  start       The position within the BLOB to begin
+@param  position       The position within the BLOB to begin
                     searching (1-based).
-@return             Always -1.  This method is not supported.
+@return             The offset into the BLOB at which the pattern was found,
+                    or -1 if the pattern was not found or the pattern was a byte
+                    array of length 0.
 
-@exception SQLException     If the pattern is null,
-                            the position is not valid,
-                            or an error occurs.
+@exception SQLException     If the position is not valid or an error occurs.
 **/
-    public long position (Blob pattern, long start)
-    throws SQLException
+  public long position(Blob pattern, long position) throws SQLException
+  {
+    synchronized(locator_)
     {
-        // Validate the parameters.                                             // @B2A
-        --start;                                                                // @B3A
-        if ((start < 0) || (start >= length()) || (pattern == null))            // @B2A
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    // @B2A
+      int offset = (int)position-1;
+      if (pattern == null || offset < 0 || offset >= locator_.getLength())
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
 
-        return -1; // @A1A
-        // @A1D if (pattern instanceof AS400JDBCBlobLocator)
-        // @A1D     return locator_.position ("BLOB(?)", new Integer (locator_.getHandle()), start);
-        // @A1D else
-        // @A1D     return locator_.position ("?", pattern.getBytes(0, (int) pattern.length()), start);
+      int patternLength = (int)pattern.length();
+      int locatorLength = (int)locator_.getLength();
+      if (patternLength > locatorLength || patternLength < 0) return -1;
+
+      int end = locatorLength - patternLength;
+
+      byte[] bytePattern = pattern.getBytes(1L, patternLength); //@CRS - Get all bytes for now, improve this later.
+
+      // We use a cache of bytes so we don't have to read in the entire
+      // contents of the BLOB.
+      initCache();
+
+      for (int i=offset; i<=end; ++i)
+      {
+        int j = 0;
+        int cachedByte = getCachedByte(i+j);
+        while (j < patternLength && cachedByte != -1 && bytePattern[j] == (byte)cachedByte)
+        {
+          ++j;
+          cachedByte = getCachedByte(i+j);
+        }
+        if (j == patternLength) return i+1;
+      }
+
+      return -1;
+    }
+  }
+
+
+  /**
+  Returns a stream that an application can use to write to this BLOB.
+  The stream begins at position <i>position</i>.
+
+  @param position The position (1-based) in the BLOB where writes should start.
+  @return An OutputStream object to which data can be written by an application.
+  @exception SQLException If there is an error accessing the BLOB or if the position
+  specified is greater than the length of the BLOB.
+  **/
+  public OutputStream setBinaryStream(long position) throws SQLException
+  {
+    if (position <= 0 || position > maxLength_)
+    {
+      JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
     }
 
-
-    //@G4A  JDBC 3.0
-    /**
-    Returns a stream that an application can use to write to this BLOB.
-    The stream begins at position <i>positionToStartWriting</i>, and the BLOB will be truncated 
-    after the last byte of the write.
-
-    @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
-    @return An OutputStream object to which data can be written by an application.
-    @exception SQLException If there is an error accessing the BLOB or if the position
-    specified is greater than the length of the BLOB.
-    
-    @since Modification 5
-    **/
-    public OutputStream setBinaryStream(long positionToStartWriting)
-    throws SQLException
-    {
-        if ((positionToStartWriting <= 0) || (positionToStartWriting > locator_.getLength()))
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        return new AS400JDBCLobOutputStream (this, positionToStartWriting);
-    }
+    return new AS400JDBCBlobLocatorOutputStream(this, position);
+  }
 
 
 
-    //@G4A  JDBC 3.0
-    /**
-     Writes an array of bytes to this BLOB, starting at position <i>positionToStartWriting</i> 
-     in the BLOB.  The BLOB will be truncated after the last byte written.  
-     
-     @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
-     @param bytesToWrite The array of bytes to be written to this BLOB.
-     @return The number of bytes written to the BLOB.
- 
-     @exception SQLException If there is an error accessing the BLOB or if the position
-     specified is greater than the length of the BLOB.
-     
-     @since Modification 5
-     **/
-    public int setBytes (long positionToStartWriting, byte[] bytesToWrite)
-    throws SQLException
-    {
-        if ((positionToStartWriting < 1) || (bytesToWrite == null) || (bytesToWrite.length < 0) || 
-            positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        positionToStartWriting--;
-
-        setVectors(positionToStartWriting, bytesToWrite);
-
-        return bytesToWrite.length;
-    }
-
-
-
-    //@G4A  JDBC 3.0
-    /**
-   Writes all or part of the byte array the application passes in to this BLOB, 
-   starting at position <i>positionToStartWriting</i> in the BLOB.  
-   The BLOB will be truncated after the last byte written.  The <i>lengthOfWrite</i>
-   bytes written will start from <i>offset</i> in the bytes that were provided by the
-   application.
-
-   @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
+  /**
+   Writes an array of bytes to this BLOB, starting at position <i>position</i> 
+   in the BLOB.
+   
+   @param position The position (1-based) in the BLOB where writes should start.
    @param bytesToWrite The array of bytes to be written to this BLOB.
-   @param offset The offset into the array at which to start reading bytes (0-based).
-   @param length The number of bytes to be written to the BLOB from the array of bytes.
-   @return The number of bytes written.
+   @return The number of bytes written to the BLOB.
 
    @exception SQLException If there is an error accessing the BLOB or if the position
    specified is greater than the length of the BLOB.
-   
-   @since Modification 5
    **/
-    public int setBytes (long positionToStartWriting, byte[] bytesToWrite, int offset, int length)
-    throws SQLException
+  public int setBytes(long position, byte[] bytesToWrite) throws SQLException
+  {
+    synchronized(locator_)
     {
-        // Validate parameters
-        if ((length < 0) || (offset < 0) || (bytesToWrite == null) || (bytesToWrite.length < 0)   //@H3C
-            || (positionToStartWriting <= 0) || positionToStartWriting > locator_.getLength() || 
-            (offset + length > bytesToWrite.length))                            //@H4A Added cases
-            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      int offset = (int)position-1;
 
-        //@H3D offset--;
+      if (offset < 0 || offset >= maxLength_ || bytesToWrite == null)
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
 
-        byte[] newData = new byte[length];
-        System.arraycopy(bytesToWrite, offset, newData, 0, length);
-        return setBytes(positionToStartWriting, newData);
+      // We will write as many bytes as we can. If the byte array
+      // would overflow past the 2 GB boundary, we don't throw an error, we just
+      // return the number of bytes that could be set.
+      int newSize = offset + bytesToWrite.length;
+      if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+      int numBytes = newSize - offset;
+      if (numBytes != bytesToWrite.length)
+      {
+        byte[] temp = bytesToWrite;
+        bytesToWrite = new byte[numBytes];
+        System.arraycopy(temp, 0, bytesToWrite, 0, numBytes);
+      }
+
+      // We don't really know if all of these bytes can be written until we go to
+      // the server, so we just return the byte[] length as the number written.
+      locator_.writeData((long)offset, bytesToWrite);
+      return bytesToWrite.length;
     }
+  }
 
 
 
-//@G5A
-/**
-Sets a position and byte array pair into the vectors that will be used to update the BLOB
-when ResultSet.updateBlob() is called.
+  /**
+ Writes all or part of the byte array the application passes in to this BLOB, 
+ starting at position <i>position</i> in the BLOB.  
+ The <i>lengthOfWrite</i>
+ bytes written will start from <i>offset</i> in the bytes that were provided by the
+ application.
 
-@param pos The position in the BLOB object at which to start writing (1-based).
-@param bytes The array of bytes to be written to the BLOB value that this BLOB object represents.
-**/
-    void setVectors(long pos, byte[] bytes)
+ @param position The position (1-based) in the BLOB where writes should start.
+ @param bytesToWrite The array of bytes to be written to this BLOB.
+ @param offset The offset into the array at which to start reading bytes (0-based).
+ @param lengthOfWrite The number of bytes to be written to the BLOB from the array of bytes.
+ @return The number of bytes written.
+
+ @exception SQLException If there is an error accessing the BLOB or if the position
+ specified is greater than the length of the BLOB.
+ **/
+  public int setBytes(long position, byte[] bytesToWrite, int offset, int lengthOfWrite) throws SQLException
+  {
+    synchronized(locator_)
     {
-        synchronized (internalLock_)
-        {
-            if (positionsToStartUpdates_ == null)
-            {
-                positionsToStartUpdates_ = new Vector();
-            }
-            if (bytesToUpdate_ == null)
-            {
-                bytesToUpdate_ = new Vector();
-            }
-            positionsToStartUpdates_.addElement(new Long (pos));
-            bytesToUpdate_.addElement(bytes);
-        }
+      int blobOffset = (int)position-1;
+      if (blobOffset < 0 || blobOffset >= maxLength_ ||
+          bytesToWrite == null || offset < 0 || lengthOfWrite < 0 || (offset+lengthOfWrite) > bytesToWrite.length ||
+          (blobOffset+lengthOfWrite) > maxLength_)
+      {
+        JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+
+      // We will write as many bytes as we can. If the byte array
+      // would overflow past the 2 GB boundary, we don't throw an error, we just
+      // return the number of bytes that could be set.
+      int newSize = blobOffset + lengthOfWrite;
+      if (newSize < 0) newSize = 0x7FFFFFFF; // In case the addition resulted in overflow.
+      int numBytes = newSize - blobOffset;
+      int realLength = (numBytes < lengthOfWrite ? numBytes : lengthOfWrite);
+      byte[] newData = new byte[realLength];
+      System.arraycopy(bytesToWrite, offset, newData, 0, lengthOfWrite);
+
+      // We don't really know if all of these bytes can be written until we go to
+      // the server, so we just return the byte[] length as the number written.
+      locator_.writeData((long)blobOffset, newData);
+      return newData.length;
     }
+  }
 
 
 
-    //@G4A  JDBC 3.0
-    /**
-    Truncates this BLOB to a length of <i>lengthOfBLOB</i> bytes.
-     
-    @param lengthOfBLOB The length, in bytes, that this BLOB should be after 
-    truncation.
+  /**
+  Truncates this BLOB to a length of <i>lengthOfBLOB</i> bytes.
+   
+  @param lengthOfBLOB The length, in bytes, that this BLOB should be after 
+  truncation.
 
-    @exception SQLException If there is an error accessing the BLOB or if the length
-    specified is greater than the length of the BLOB. 
-    
-    @since Modification 5   
-    **/
-    public void truncate(long lengthOfBLOB)
-    throws SQLException
+  @exception SQLException If there is an error accessing the BLOB or if the length
+  specified is greater than the length of the BLOB. 
+  **/
+  public void truncate(long lengthOfBLOB) throws SQLException
+  {
+    synchronized(locator_)
     {
-        //parameter validation will be done in setBytes
-        setBytes(lengthOfBLOB+1, new byte[0]);     //@G6C
+      int length = (int)lengthOfBLOB;
+      if (length < 0 || length > maxLength_)
+      {
+        JDError.throwSQLException(this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+      }
+      // The host server does not currently provide a way for us
+      // to truncate the temp space used to hold the locator data,
+      // so we just keep track of it ourselves.  This should work,
+      // since the temp space on the server should only be valid
+      // within the scope of our transaction/connection. That means
+      // there's no reason to go to the server to update the data,
+      // since no other process can get at it.
+      locator_.writeData(length, new byte[0], 0, 0);
     }
+  }
 }

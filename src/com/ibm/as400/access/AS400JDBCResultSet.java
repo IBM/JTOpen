@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,8 +17,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;      //@G4A JDBC 3.0
-import java.net.URL;                        //@G4A JDBC 3.0
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -166,9 +166,9 @@ index rather than accessing them by their name.
 //    so the very example given in the spec does not work.  As a
 //    result, we must create a new default Calendar each time.
 //
-public class AS400JDBCResultSet
-implements ResultSet {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+public class AS400JDBCResultSet implements ResultSet
+{
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.

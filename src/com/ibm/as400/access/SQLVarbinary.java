@@ -340,7 +340,7 @@ implements SQLData
 	{
 	    // This is written in terms of toBytes(), since it will
 	    // handle truncating to the max field size if needed.
-	    return new AS400JDBCBlob (toBytes ());
+	    return new AS400JDBCBlob (toBytes (), maxLength_);
 	}
 
 
@@ -399,7 +399,7 @@ implements SQLData
   	    // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new AS400JDBCClob (new String (toBytes ()));
-        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes())); //@F1A
+        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes()), maxLength_); //@F1A
 	}
 
 
