@@ -21,7 +21,8 @@ import java.beans.PropertyVetoException;
  * ending time, or user data.
  *
  *@see SpooledFile
- **/
+ **/ // @B2C
+
 
 public class SpooledFileList extends PrintObjectList
 implements java.io.Serializable 
@@ -160,6 +161,7 @@ implements java.io.Serializable
         return( selectionCP.getUserData() );
     }
 
+    // @B2A
     /**
      * Returns the create job system filter.
      *
@@ -171,6 +173,8 @@ implements java.io.Serializable
        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
        return( selectionCP.getJobSystem() );
    }
+
+   // @B2A
    /**
      * Returns the end create date filter.
      *
@@ -183,6 +187,7 @@ implements java.io.Serializable
        return( selectionCP.getEndDate() );
    }
    
+   // @B2A
    /**
      * Returns the end create date filter.
      *
@@ -203,6 +208,7 @@ implements java.io.Serializable
         return new SpooledFile(system_, (NPCPIDSplF)cpid, cpattr);
     }
 
+   // @B2A
    /**
      * Returns the create start date filter.
      *
@@ -214,6 +220,8 @@ implements java.io.Serializable
        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
        return( selectionCP.getStartDate() );
    }
+
+   // @B2A
    /**
      * Returns the create date filter.
      *
@@ -334,6 +342,7 @@ implements java.io.Serializable
     }
 
 
+    //  @B2A
     /**
       * Sets the create job system filter.
       * The name of the system where the job, specified in the qualified job name
@@ -384,6 +393,7 @@ implements java.io.Serializable
         changes.firePropertyChange( JOB_SYSTEM_FILTER, oldJobSystemFilter, jobSystemFilter );
     } // @B2A
 
+    // @B2A
     /**
       * Sets the end date filter.
       * The date the spooled file was created on the system. If the Starting 
@@ -437,6 +447,7 @@ implements java.io.Serializable
         changes.firePropertyChange( END_DATE_FILTER, oldEndDateFilter, endDateFilter );
     } // @B2A
 
+    // @B2A
     /**
       * Sets the end time filter.
       * The time the spooled file was created on the system. This field must be 
@@ -481,6 +492,7 @@ implements java.io.Serializable
         changes.firePropertyChange( END_TIME_FILTER, oldEndTimeFilter, endTimeFilter );
     }  // @B2A
 
+    // @B2A
     /**
       * Sets the create start date filter.
       * The date the spooled file was created on the system. This parameter can be
@@ -531,6 +543,7 @@ implements java.io.Serializable
         changes.firePropertyChange( START_DATE_FILTER, oldStartDateFilter, startDateFilter );
     } // @B2A
 
+    // @B2A
     /**
       * Sets the create start time filter.
       * This parameter can be used in conjunction with the user name, qualified
