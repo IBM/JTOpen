@@ -34,14 +34,94 @@ public final class NLS
   {
   }
 
+  
+  //@B0A
   /**
-   * Retrieves the descriptive text for the specified country identifier.
+   * Returns a best-guess Java encoding given a CCSID. 
+   * @param The coded character set identifier (CCSID), e.g. 37.
+   * @return The encoding that maps to the given CCSID, or null
+   * if one is not known.
+   * @see #encodingToCCSID
+   * @see #localeToCCSID
+  **/
+  public static String ccsidToEncoding(int ccsid)
+  {
+    return (String)ConversionMaps.ccsidEncoding_.get(Integer.toString(ccsid));
+  }
+
+
+  //@B0A
+  /**
+   * Returns a best-guess CCSID given a Java encoding.
+   * @param The encoding, e.g. "Cp037".
+   * @return The CCSID that maps to the given encoding, or -1
+   * if one is not known.
+   * @see #ccsidToEncoding
+   * @see #localeToCCSID
+  **/
+  public static int encodingToCCSID(String encoding)
+  {
+    if (encoding == null) return -1;
+    String ccsid = (String)ConversionMaps.encodingCcsid_.get(encoding);
+    if (ccsid == null) return -1;
+    return Integer.parseInt(ccsid);
+  }
+
+
+  //@B0A
+  /**
+   * Returns a best-guess CCSID given a Java locale string.
+   * Note that the CCSID returned will be the preferred server CCSID, i.e. 
+   * usually EBCDIC. So, the locale string representing English "en" will
+   * return the single-byte EBCDIC CCSID of 37.
+   * @param The locale string, e.g. "de_CH".
+   * @return The CCSID that maps the given locale string, or -1
+   * if one is not known.
+  **/
+  public static int localeToCCSID(String localeString)
+  {
+    if (localeString == null) return -1;
+    String ls = localeString.trim();
+    while (ls != null && ls.length() > 0)
+    {
+      String ccsidString = (String)ConversionMaps.localeCcsidMap_.get(ls);
+      if (ccsidString != null)
+      {
+        return Integer.parseInt(ccsidString);
+      }
+      ls = ls.substring(0, ls.lastIndexOf('_'));
+    }
+    return -1;
+  }
+
+
+  //@B0A
+  /**
+   * Returns a best-guess CCSID given a Java Locale object.
+   * Note that the CCSID returned will be the preferred server CCSID, i.e. 
+   * usually EBCDIC. So, the Locale representing English ({@link java.util.Locale#ENGLISH Locale.ENGLISH})
+   * will return the single-byte EBCDIC CCSID of 37.
+   * @param The Locale object.
+   * @return The CCSID that maps the given locale, or -1
+   * if one is not known.
+  **/
+  public static int localeToCCSID(Locale locale)
+  {
+    if (locale == null) return -1;
+    String ls = locale.toString();
+    return localeToCCSID(ls);
+  }
+
+
+  /**
+   * Retrieves the descriptive text for the specified country or region identifier.
    * The list is cached, so that a subsequent call to this method will
-   * return immediately if the specified country identifier is in the list.
+   * return immediately if the specified country or region identifier is in the list.
    * If it is not in the list, the system will be queried.
    * @param system The OS/400 server.
-   * @param countryID The country identifier.
+   * @param countryID The country or region identifier.
    * @return The descriptive text.
+   * @see #getLanguageDescription
   **/
   public static String getCountryDescription(AS400 system, String countryID)
   throws AS400Exception,
@@ -102,6 +182,7 @@ public final class NLS
     return description;
   }
 
+
   /**
    * Retrieves the descriptive text for the specified language identifier.
    * The list is cached, so that a subsequent call to this method will
@@ -110,6 +191,7 @@ public final class NLS
    * @param system The OS/400 server.
    * @param languageID The language identifier.
    * @return The descriptive text.
+   * @see #getCountryDescription
   **/
   public static String getLanguageDescription(AS400 system, String languageID)
   throws AS400Exception,
