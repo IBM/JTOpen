@@ -20,6 +20,7 @@ import com.ibm.as400.access.BidiStringType;                         // @C9A
 
 import java.io.IOException;                                         // @C1A
 import java.io.ObjectOutputStream;                                  // @C1A
+import java.io.OutputStream;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -938,7 +939,7 @@ class PcmlData extends PcmlDocNode
 
     // Convert Java object iSeries server bytes
     // Returns the number of bytes converted
-    int toBytes(byte[] bytes, int offset, PcmlDimensions indices) throws PcmlException
+    int toBytes(OutputStream bytes, int offset, PcmlDimensions indices) throws PcmlException
     {
         int totalBytes = 0;
         int myCount;
@@ -1015,7 +1016,7 @@ class PcmlData extends PcmlDocNode
         } // END: for myIndex
 
         return totalBytes;
-    } // public int toBytes(byte[] bytes, int offset)
+    } // public void toBytes(OutputStream bytes, int offset, PcmlDimensions indices)
 
 
     // Parses array of bytes and stores for later conversion

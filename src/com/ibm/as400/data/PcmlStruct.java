@@ -17,6 +17,7 @@ import com.ibm.as400.access.ProgramParameter;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.io.OutputStream;
 
 class PcmlStruct extends PcmlDocNode
 {
@@ -764,7 +765,7 @@ class PcmlStruct extends PcmlDocNode
 
     // Convert data to iSeries system format
     // Returns the number of bytes to'ed
-    int toBytes(byte[] bytes, int offset, PcmlDimensions indices) throws PcmlException
+    int toBytes(OutputStream bytes, int offset, PcmlDimensions indices) throws PcmlException
     {
         Enumeration children;
         PcmlDocNode child;
@@ -826,7 +827,7 @@ class PcmlStruct extends PcmlDocNode
         }
 
         return totalBytes;
-    } // END: public int toBytes(byte[] bytes, int offset, PcmlDimensions indices)
+    } // END: public int toBytes(OutputStream bytes, int offset, PcmlDimensions indices)
 
     // Parses array of bytes and stores for later conversion
     // to Java objects. This allows for lazy data translation

@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.io.IOException;                                         // @C1A
 import java.io.ObjectInputStream;                                   // @C1A
 import java.io.ObjectOutputStream;                                  // @C1A
+import java.io.OutputStream;
 import java.io.Serializable;                                        // @C1A
 
 import java.util.Hashtable;
@@ -459,7 +460,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     // Convert Java object i5/OS bytes
     // Returns the number of bytes converted
-    public int toBytes(byte[] bytes, int offset) throws PcmlException 
+    public int toBytes(OutputStream bytes, int offset) throws PcmlException 
     {
         Object value = null;
         int dataType = getDataType();
@@ -478,11 +479,12 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         // PcmlDocument will either create a converter or return 
         // and existing one.
         AS400DataType converter = m_owner.getDoc().getConverter(dataType, dataLength, dataPrecision, getCcsid());
+        byte[] byteArray = new byte[dataLength];
         if (dataType != PcmlData.CHAR)                              // @C6A
         {
             synchronized(converter)                                 // @B1A
             {                                                       // @B1A
-                converter.toBytes(value, bytes, offset);
+                converter.toBytes(value, byteArray);
                 bytesConverted = converter.getByteLength();         // @B2A
             }                                                       // @B1A
         }
@@ -490,10 +492,12 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         {
             synchronized(converter)                                 // @C6A
             {
-                ((AS400Text)converter).toBytes(value, bytes, offset, m_bidiStringType);  // @C6A
+                ((AS400Text)converter).toBytes(value, byteArray, 0, m_bidiStringType);  // @C6A
                 bytesConverted = converter.getByteLength();         // @C6A
             }
         }
+        try { bytes.write(byteArray, 0, bytesConverted); }
+        catch (IOException e) { throw new PcmlException(e); }
 
         // Detail tracing of data conversion
         if (Trace.isTracePCMLOn())                                  // @D3C
@@ -501,18 +505,18 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             String parseMsg;                                        // @B2A
             if (m_indices.size() > 0)                               // @B2A
             {                                                       // @B2A
-                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA_W_INDICES, new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), m_indices.toString(), PcmlMessageLog.byteArrayToHexString(bytes, offset, bytesConverted)} ); // @B2A
+                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA_W_INDICES, new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), m_indices.toString(), PcmlMessageLog.byteArrayToHexString(byteArray, 0, bytesConverted)} ); // @B2A
             }                                                       // @B2A
             else                                                    // @B2A
             {                                                       // @B2A
-                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA,           new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), PcmlMessageLog.byteArrayToHexString(bytes, offset, bytesConverted)} ); // @B2A
+                parseMsg = SystemResourceFinder.format(DAMRI.WRITE_DATA,           new Object[] {Integer.toHexString(offset), Integer.toString(bytesConverted), getNameForException(), PcmlMessageLog.byteArrayToHexString(byteArray, 0, bytesConverted)} ); // @B2A
             }                                                       // @B2A
             parseMsg = parseMsg + "\t  " + Thread.currentThread();  // @B2A
             Trace.log(Trace.PCML, parseMsg);                        // @D3C
         }                                                           // @B2A
             
         return bytesConverted;                                      // @B2A
-    } // public int toBytes(byte[] bytes, int offset)
+    } // public int toBytes(OutputStream bytes, int offset)
 
     // Convert i5/OS bytes to Java Object
     // Returns the Java Object
