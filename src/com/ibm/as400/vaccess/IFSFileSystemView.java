@@ -95,7 +95,7 @@ public class IFSFileSystemView extends FileSystemView
      Returns a File object constructed in directory from the given filename.
      <br>Note: This method does not create an actual file in the file system.
      @param containingDir The directory in which to create the file.
-     <br>containingDir must be of type {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile}.  If null, it is ignored.
+     <br>containingDir is assumed to represent an existing directory on the server.  If null, it is ignored.
      @param name The file name.
      @return a File object representing the new file.
      **/
@@ -159,7 +159,7 @@ public class IFSFileSystemView extends FileSystemView
      Creates a new folder with a default name.
      <br>Note: In the context of this class, "folder" is synonymous with "directory".
      @param containingDir The parent directory in which to create the folder.
-      Must be of type {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile}.
+     <br>containingDir is assumed to represent an existing directory on the server.
      @return a File object representing the new folder.
      **/
     public File createNewFolder(File containingDir)
@@ -178,7 +178,7 @@ public class IFSFileSystemView extends FileSystemView
       int i=1;
       while (newFolder.exists() && (i<100))
       {
-        newFolder = new IFSJavaFile((IFSJavaFile)containingDir,
+        newFolder = new IFSJavaFile(ifsDir,
                                     MessageFormat.format(
                                       NEW_FOLDER_NEXT_STRING, new Object[] { new Integer(i++)}));
       }
@@ -251,7 +251,7 @@ public class IFSFileSystemView extends FileSystemView
     /**
      Returns the parent directory of <tt>dir</tt>. 
      @param dir The directory being queried.
-     <br><tt>dir</tt> must be of type {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile}.
+     <br><tt>dir</tt> is assumed to represent an existing directory on the server.
      @return the parent directory of <tt>dir</tt>, or null if <tt>dir</tt> is null.
      **/
     public File getParentDirectory(File dir)
