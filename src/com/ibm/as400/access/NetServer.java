@@ -33,8 +33,7 @@ import java.util.Vector;
 <li>netServer.start()
 </ol>
  <p>
- Note: This class does not start or end the QSERVER subsystem on the server.
- If the QSERVER subsystem is not running, various methods of this class will fail.
+ If the NetServer job on the iSeries server is not started, the <code>listXxx</code> methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use one of the {@link #start() start} methods.  These methods will also attempt to start the QSERVER subsystem if it is not running.
  <p>
  Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile has *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
@@ -735,7 +734,7 @@ extends ChangeableResource
 
 
   /**
-   Ends the NetServer.
+   Ends the NetServer job on the iSeries server.
    <br>This method requires *IOSYSCFG special authority on the server.
 
    @exception ResourceException  If an error occurs.
@@ -863,8 +862,8 @@ extends ChangeableResource
 
 
   /**
-   Indicates whether or not the NetServer is started.
-   @return  <code>true</code> if the NetServer is started; <code>false</code> otherwise.
+   Indicates whether or not the NetServer job on the iSeries server is started.
+   @return  <code>true</code> if the NetServer job is started; <code>false</code> otherwise.
 
    @exception ResourceException  If an error occurs.
    **/
@@ -875,7 +874,7 @@ extends ChangeableResource
       establishConnection();
 
     RJobList jobList = new RJobList(getSystem());
-    // Note: If the NetServer has been successfully started, there will be at least one QZLSSERVER job in ACTIVE status.
+    // Note: If the NetServer job has been successfully started, there will be at least one QZLSSERVER job in ACTIVE status.
     // Set the selection so that only jobs with the name "QZLSSERVER", in ACTIVE status, are included in the list.
     jobList.setSelectionValue(RJobList.JOB_NAME, "QZLSSERVER");
     jobList.setSelectionValue(RJobList.PRIMARY_JOB_STATUSES, new String[] { RJob.JOB_STATUS_ACTIVE } );
@@ -891,13 +890,41 @@ extends ChangeableResource
     return foundActiveJob;
   }
 
+
+  /**
+   Indicates whether or not the QSERVER subsystem is started.
+   If QSERVER isn't running, we can't start the NetServer job.
+   @return  <code>true</code> if the QSERVER subsystem is started; <code>false</code> otherwise.
+
+   @exception ResourceException  If an error occurs.
+   **/
+  private boolean isQserverStarted()
+    throws ResourceException
+  {
+    if (! isConnectionEstablished())
+      establishConnection();
+    boolean foundActiveJob = false;
+
+    RJobList jobList = new RJobList(getSystem());
+    // Note: If the QSERVER subsystem is running, there will be at least one QSERVER job in ACTIVE status.
+    // Set the selection so that only jobs with the name "QSERVER", user QSYS, in ACTIVE status, are included in the list.
+    jobList.setSelectionValue(RJobList.JOB_NAME, "QSERVER");
+    jobList.setSelectionValue(RJobList.USER_NAME, "QSYS");
+    jobList.setSelectionValue(RJobList.PRIMARY_JOB_STATUSES, new String[] { RJob.JOB_STATUS_ACTIVE } );
+    jobList.open();
+    jobList.waitForComplete();
+    if (jobList.getListLength() > 0) foundActiveJob = true;
+    else foundActiveJob = false;
+
+    return foundActiveJob;
+  }
+
   /**
    Lists all file server shares currently associated with the NetServer.
-   The returned ResourceList contains NetServerFileShare objects.
+   The returned ResourceList contains {@link NetServerFileShare NetServerFileShare} objects.
    @return  Information about all current file shares.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerFileShare
    **/
   public ResourceList listFileShares()
     throws ResourceException
@@ -911,12 +938,11 @@ extends ChangeableResource
 
   /**
    Lists file server shares currently associated with the NetServer.
-   The returned ResourceList contains NetServerFileShare objects.
+   The returned ResourceList contains {@link NetServerFileShare NetServerFileShare} objects.
    @param shareName Name of shares to list.  Can include wildcard ("*").
    @return  Information about the specified file shares.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerFileShare
    **/
   public ResourceList listFileShares(String shareName)
     throws ResourceException
@@ -930,11 +956,10 @@ extends ChangeableResource
 
   /**
    Lists all print server shares currently associated with the NetServer.
-   The returned ResourceList contains NetServerPrintShare objects.
+   The returned ResourceList contains {@link NetServerPrintShare NetServerPrintShare} objects.
    @return  Information about all current print shares.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerPrintShare
    **/
   public ResourceList listPrintShares()
     throws ResourceException
@@ -948,12 +973,11 @@ extends ChangeableResource
 
   /**
    Lists print server shares currently associated with the NetServer.
-   The returned ResourceList contains NetServerPrintShare objects.
+   The returned ResourceList contains {@link NetServerPrintShare NetServerPrintShare} objects.
    @param shareName Name of shares to list.  Can include wildcard ("*").
    @return  Information about the specified print shares.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerPrintShare
    **/
   public ResourceList listPrintShares(String shareName)
     throws ResourceException
@@ -967,11 +991,10 @@ extends ChangeableResource
 
   /**
    Lists all session connections currently associated with the NetServer.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @return  Information about all current session connections.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   public ResourceList listSessionConnections()
     throws ResourceException
@@ -985,11 +1008,10 @@ extends ChangeableResource
 
   /**
    Lists all sessions currently associated with the NetServer.
-   The returned ResourceList contains NetServerSession objects.
+   The returned ResourceList contains {@link NetServerSession NetServerSession} objects.
    @return  Information about all current sessions.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerSession
    **/
   public ResourceList listSessions()
     throws ResourceException
@@ -1003,11 +1025,10 @@ extends ChangeableResource
 
   /**
    Lists all share connections currently associated with the NetServer.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @return  Information about all current share connections.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   public ResourceList listShareConnections()
     throws ResourceException
@@ -1043,9 +1064,10 @@ extends ChangeableResource
 
 
   /**
-   Starts the NetServer.
+   Starts the NetServer job on the iSeries server.
    If the NetServer is already started, this method does nothing.
-   <br>This method requires *IOSYSCFG special authority on the server.
+   This method requires *IOSYSCFG special authority on the server.
+   If the QSERVER subsystem is not running, this method will attempt to start it. 
    <br>Note: This method does not reset the server.
 
    @exception ResourceException  If an error occurs.
@@ -1057,10 +1079,11 @@ extends ChangeableResource
   }
 
   /**
-   Starts and (optionally) resets the NetServer.
+   Starts the NetServer job on the iSeries server, and (optionally) resets it.
    If the NetServer is already started, this method does nothing.
-   <br>This method requires *IOSYSCFG special authority on the server.
-   <p>Note: Reset is used when the NetServer fails to start normally on the server.  It is on the NetServer context menu so an administrator can use it.  It basically does some under-the-covers cleanup, and is used infrequently.  The times it would be used is if the server ended abnormally and there may be jobs or objects hanging around that need to be cleaned up before the server can start again.  The reset does that.
+   This method requires *IOSYSCFG special authority on the server.
+   If the QSERVER subsystem is not running, this method will attempt to start it. 
+   <p>Note: Reset is used when the NetServer fails to start normally on the server.  It is on the NetServer context menu so an administrator can use it.  The reset does some under-the-covers cleanup, and is used infrequently.  The times it would be used is if the server ended abnormally and there may be jobs or objects hanging around that need to be cleaned up before the server can start again.  The reset does that.
 
    @param reset  Whether or not the server is to be reset when started.
 
@@ -1074,8 +1097,22 @@ extends ChangeableResource
     }
     if (isStarted()) return;
 
+    // @A3a
+    // See if the QSERVER subsystem is running.  If it's not running, start it.
+    if (!isQserverStarted()) {
+      // Attempt to start the QSERVER subsystem.
+      CommandCall cmd = new CommandCall(getSystem(), "STRSBS SBSD(QSERVER)");
+      boolean started = false;
+      try { started = cmd.run(); }
+      catch (Exception e) { throw new ResourceException(e); }
+      if (!started) {
+        Trace.log(Trace.ERROR, "Error when starting QSERVER subsystem.");
+        throw new ResourceException(cmd.getMessageList());
+      }
+    }
 
-    // Set the input parameters and call the API.
+
+    // Start the NetServer job (QZLSSERVER) on the iSeries.
     try {
       ProgramCallDocument document = (ProgramCallDocument)staticDocument_.clone();
       document.setSystem(getSystem());
