@@ -203,13 +203,15 @@ class PermissionAccessQSYS extends PermissionAccess
                       +" AUTL("+object+")"
                       +" USER("+userProfile+")"
                       +" AUT("+qsysPermission.getAuthorities(isAuthList)+")";  // @B5c
-        } else
+        }
+        else
         {
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
                     +" USER("+userProfile+")"
-                    +" AUT("+qsysPermission.getAuthorities(isAuthList)+")";  // @B5c
+                    +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"  // @B5c
+                    +" REPLACE(*YES)";
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
@@ -394,14 +396,14 @@ class PermissionAccessQSYS extends PermissionAccess
                    UnknownHostException,
                    PropertyVetoException
     {
-        CommandCall setAuthority = getClrCommand(as400_,objName,permission);
-        if (setAuthority.run()!=true)
-        {
-           AS400Message[] msgList = setAuthority.getMessageList();
-           throw new AS400Exception(msgList);
-        }
+//        CommandCall setAuthority = getClrCommand(as400_,objName,permission);
+//        if (setAuthority.run()!=true)
+//        {
+//           AS400Message[] msgList = setAuthority.getMessageList();
+//           throw new AS400Exception(msgList);
+//        }
 
-        setAuthority = getChgCommand(as400_,objName,permission);
+        CommandCall setAuthority = getChgCommand(as400_,objName,permission);
         if (setAuthority.run()!=true)
         {
            AS400Message[] msgList = setAuthority.getMessageList();
