@@ -146,7 +146,10 @@ class NPAttrString extends NPAttribute implements Cloneable,
             (getID() != PrintObject.ATTR_IPP_JOB_NAME_NL)   &&   //@A1A
             (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER)   &&  //@A1A
             (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER_NL)  &&//@A1A
-            (getID() != PrintObject.ATTR_RMTSYSTEM)
+            (getID() != PrintObject.ATTR_RMTSYSTEM)  &&          //@A2C
+            (getID() != PrintObject.ATTR_FORMTYPE)   &&          //@A2A
+            (getID() != PrintObject.ATTR_USRDEFDATA) &&          //@A2A@A3C
+            (getID() != PrintObject.ATTR_USRDEFOPT)              //@A3C
             )
            {
            if (attrValue_.length() != 0)
