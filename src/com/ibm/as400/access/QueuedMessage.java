@@ -74,6 +74,7 @@ Constructs a QueuedMessage object.
     {
         if (messageQueue == null) throw new NullPointerException("messageQueue");
         messageQueue_   = messageQueue;
+        setSystem(messageQueue_.getSystem()); //@G1A
     }
 
 /**
@@ -86,6 +87,7 @@ Constructs a QueuedMessage object.
     {
       super(messageIdentifier, null, messageFileName, messageLibraryName, messageSeverity, messageType, null, null, dateSent, timeSent, null);
       messageQueue_ = messageQueue;
+      setSystem(messageQueue_.getSystem()); //@G1A
       key_ = messageKey;
     }
 
@@ -100,6 +102,7 @@ Constructs a QueuedMessage object.
     {
       super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, messageHelp, dateSent, timeSent, null);
       messageQueue_ = messageQueue;
+      setSystem(messageQueue_.getSystem()); //@G1A
       key_ = messageKey;
       sendingUser_ = sendingUserProfile;
       sendingJobName_ = sendingJob;
