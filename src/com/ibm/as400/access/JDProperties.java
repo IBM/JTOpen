@@ -416,6 +416,9 @@ class JDProperties implements Serializable
         // Behavior Override.  This property is a bit mask.  The following have
         // been defined:
         //   1 - (v5r2f) Don't throw exception of executeQuery() does not return a result set
+        // Native Driver has reserved the following bits:
+        // 0x02 to turn on these additional warnings in V5R2  (DATA TRUNCATION and DATA MAPPING)
+        // 0x04 to turn off the additional warnings when they become the default in V5R3
         i = BEHAVIOR_OVERRIDE;
         dpi_[i] = new DriverPropertyInfo (BEHAVIOR_OVERRIDE_, "");
         dpi_[i].description = "BEHAVIOR_OVERRIDE_DESC";
