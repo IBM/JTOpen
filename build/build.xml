@@ -477,13 +477,14 @@
 
   <target name="javadoc" depends="init">
     <javadoc packagenames="com.*,utilities"
-                    sourcepath="${source}:${source-contrib}:${source-micro}:${include}"
-                    destdir="${javadoc}"
-                    use="false"
-                    link="${doclink}"
-                    maxmemory="256m"
-                    failonerror="true"
-                    additionalparam="-breakiterator">
+             excludepackagenames="com.ibm.as400.security"
+             sourcepath="${source}:${source-contrib}:${source-micro}:${include}"
+             destdir="${javadoc}"
+             use="false"
+             link="${doclink}"
+             maxmemory="256m"
+             failonerror="true"
+             additionalparam="-breakiterator">
       <classpath>
         <!-- Include these if the user happens to have them, just so
              javadoc generates without any extra warnings. -->
@@ -493,7 +494,7 @@
         <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
         <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
       </classpath>
-      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.vaccess"/>
+      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
       <group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
       <group title="Toolbox Micro Edition Packages" packages="com.ibm.as400.micro"/>
       <!-- We skip javadoc-ing the java.sql package, otherwise the regular JDBC classes in the
