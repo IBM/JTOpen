@@ -62,8 +62,8 @@ class ConvTableJavaMap extends ConvTable
 //@B0D    {
       inBuffer_ = new ConvTableInputStream();
       outBuffer_ = new ByteArrayOutputStream();
-//@B0D      writer_ = new OutputStreamWriter(outBuffer_, encoding_);
-//@B0D      reader_ = new InputStreamReader(inBuffer_, encoding_);
+      writer_ = new OutputStreamWriter(outBuffer_, encoding_); //@B1C
+      reader_ = new InputStreamReader(inBuffer_, encoding_); //@B1C
 //@B0D    }
 //@B0D    catch(IOException e)
 //@B0D    {
