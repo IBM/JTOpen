@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,9 @@ class IFSListAttrsRep extends IFSDataStream
 
   private static final int TEMPLATE_LENGTH_OFFSET = 16;
 
+  private static final int HEADER_LENGTH = 20;
+  private static final int LLCP_LENGTH = 6;
+
   // Note: The following offsets are valid only if template length >= 61.
   private static final int CREATE_DATE_OFFSET = 22;
   private static final int MODIFY_DATE_OFFSET = 30;
@@ -52,7 +55,7 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int VERSION_NUMBER_OFFSET = 66;
   private static final int AMOUNT_ACCESSED_OFFSET = 70;
   private static final int ACCESS_HISTORY_OFFSET = 72;
-  private static final int NAME_CCSID_OFFSET = 73;
+  private static final int NAME_CCSID_OFFSET = 73;  // CCSID of the file/path name
   private static final int CHECKOUT_CCSID_OFFSET = 75;
   private static final int RESTART_ID_OFFSET = 77;
   // Note: Offets of fields beyond this point depend on the server datastream level (DSL).
@@ -60,27 +63,18 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int SYMBOLIC_LINK_OFFSET = 91;        // if DSL >= 8
 
   // The following offset is valid only if the reply contains an OA2 structure.
-  private static final int CODE_PAGE_OFFSET_INTO_OA2  = 126;
+  private static final int CODE_PAGE_OFFSET_INTO_OA2  = LLCP_LENGTH + 126;
 
   // The following offset is valid only if the reply contains an OA2a structure.   @A2a
-  private static final int CODE_PAGE_OFFSET_INTO_OA2a = 142;
+  private static final int CODE_PAGE_OFFSET_INTO_OA2a = LLCP_LENGTH + 142;
 
   // Note: Beginning with OA2b, we no longer care about the codepage field.  Instead, we get the "CCSID of the object" field.
 
-  // The following offset is valid only if the reply contains an OA2b structure.   @A2a
-  private static final int CCSID_OFFSET_INTO_OA2b = 134;
-
-  // The following offset is valid only if the reply contains an OA2c structure.
-  private static final int CCSID_OFFSET_INTO_OA2c = 134;
+  // The following offset is valid only if the reply contains an OA2b or OA2c structure.
+  private static final int CCSID_OFFSET_INTO_OA2x = LLCP_LENGTH + 134;
 
   // Offset of the "owner user ID" field in the OA2* structures.    @B7a
-  private static final int OWNER_OFFSET_INTO_OA2  = 64;
-
-  private static final int HEADER_LENGTH = 20;
-  private static final int LLCP_LENGTH = 6;
-
-  //private int serverDatastreamLevel_; // @A1A @B6d
-  //private IFSFileDescriptorImplRemote fd_; // @B6a
+  private static final int OWNER_OFFSET_INTO_OA2  = LLCP_LENGTH + 64;
 
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.     @A3a
@@ -116,6 +110,18 @@ Get the CCSID value for the IFS file on the AS/400.
 @return the CCSID value for the IFS file on the AS/400
 **/
   int getCCSID(int datastreamLevel)  // @A1A
+  {
+    // Determine the offset into the OA* structure of the CCSID or codepage field.
+    int offset_into_OA = getCCSIDOffset(datastreamLevel);
+    return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) + offset_into_OA);
+  }
+
+
+/**
+Get offset of the the 2-byte CCSID (or codepage) field in the OA2x structure.
+@return the CCSID offset
+**/
+  final static int getCCSIDOffset(int datastreamLevel)
   {
     // Note: Only if the server is reporting Datastream Level 2 (or later) will the reply have a CCSID field.
     // If prior to Level 2, we must make do with the codepage value.
@@ -161,15 +167,11 @@ Get the CCSID value for the IFS file on the AS/400.
       case 0xF4F4:
         offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
         break;
-      case 2:
-        offset_into_OA = CCSID_OFFSET_INTO_OA2b;
-        break;
       default:
-        offset_into_OA = CCSID_OFFSET_INTO_OA2c;
+        offset_into_OA = CCSID_OFFSET_INTO_OA2x;
         break;
     }
-    return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
-                    LLCP_LENGTH + offset_into_OA);
+    return offset_into_OA;
   }
 
 /**
@@ -279,6 +281,21 @@ Get the file name.
     return name;
   }
 
+
+  /**
+   Get the OA* structure (including the leading LLCP) returned in the reply.
+   **/
+  byte[] getOA()
+  {
+    // Assume that the OA structure is at the beginning of the Optional Section.
+    int offset_to_OA = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
+    int OA_length = get32bit(offset_to_OA); // total length includes the LLCP bytes
+    byte[] buf = new byte[OA_length];
+    System.arraycopy(data_, offset_to_OA, buf, 0, OA_length);
+    return buf;
+  }
+
+
 /**
 Determine the object type (file, directory, etc.)
 @return the object type
@@ -296,7 +313,7 @@ Get the owner's "user ID" number for the IFS file on the AS/400.
   long getOwnerUID()  // @C0c
   {
     int fieldOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
-                 LLCP_LENGTH + OWNER_OFFSET_INTO_OA2;
+                      OWNER_OFFSET_INTO_OA2;
     return (long)get32bit(fieldOffset) & 0x0FFFFFFFFL;  // @C0c
   }
 

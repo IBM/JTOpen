@@ -25,6 +25,7 @@ implements IFSFileImpl
 {
   transient private IFSListAttrsRep attributesReply_; // "list attributes" reply
   transient private IFSCachedAttributes cachedAttributes_; // cached attributes
+  transient private int errorRC_;  // error return code, in cases where listAttributes returns null
 
   private IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote(); // @B2A
 
@@ -496,15 +497,15 @@ implements IFSFileImpl
 
     // Verify that we got at least one reply.
     if (replys == null) {
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received null from listAttributes().");
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(req).");
     }
     else if (replys.size() == 0) {
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(req).");
     }
     else
     {
       if (replys.size() > 1) {
-        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(req) (" +
                   replys.size() + ")");
       }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
@@ -861,13 +862,15 @@ implements IFSFileImpl
       Vector replys = listAttributes(req);
 
       if (replys == null) {
-        Trace.log(Trace.ERROR, "Received null from listAttributes().");
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        if (errorRC_ != 0) {
+          throw new ExtendedIOException(errorRC_);
+        }
+        else throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
       else if (replys.size() == 0) {
         // Assume this simply indicates that the file does not exist.
         if (Trace.traceOn_) {
-          Trace.log(Trace.WARNING, "Received zero replies from listAttributes().");
+          Trace.log(Trace.WARNING, "Received no replies from listAttributes(req).");
         }
       }
       else
@@ -875,10 +878,10 @@ implements IFSFileImpl
         if ( replys.size() > 1 &&
              Trace.traceOn_ )
         {
-            Trace.log(Trace.WARNING, "Received multiple replies from listAttributes() (" +
+            Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(req) (" +
                       replys.size() + ")");
         }
-        IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
+        IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0); // use first reply
         size = reply.getSize8Bytes(/*fd_.serverDatastreamLevel_*/);
       }
     }
@@ -894,7 +897,7 @@ implements IFSFileImpl
     // Assume connect() has already been done.
 
     // Process attribute replies.
-    IFSListAttrsReq req = new IFSListAttrsReq(fileHandle, (short)0x44);  // Object Attribute 2 
+    IFSListAttrsReq req = new IFSListAttrsReq(fileHandle, (short)0x44);  // Object Attribute 2
     if (patternMatching_ != IFSFile.PATTERN_DEFAULT) req.setPatternMatching(patternMatching_);
 
     return listAttributes(req);
@@ -974,7 +977,8 @@ implements IFSFileImpl
         if (rc == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
         ||  rc == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
         {
-          replys = null;
+          Trace.log(Trace.ERROR, "Error getting file attributes: " +
+                    "IFSReturnCodeRep return code = ", rc);
           throw new AS400SecurityException(AS400SecurityException.DIRECTORY_ENTRY_ACCESS_DENIED);
         }
 
@@ -1021,8 +1025,10 @@ implements IFSFileImpl
     while (!done);
 
     // @A1A
+    errorRC_ = 0;
     if (rc == IFSReturnCodeRep.PATH_NOT_FOUND) {        // @A1A
         // If the directory or file does not exist, then return NULL.
+        errorRC_ = rc;
         replys = null;                                  // @A1A
     }                                                   // @A1A
     else {                                              // @A1A
@@ -1033,14 +1039,12 @@ implements IFSFileImpl
     return replys;
   }
 
-
   // @B7a - This code was formerly located in getCcsid().
   // Open the file, list the file attributes, and close the file.
   // May return null, for example if the file is a directory.
   private IFSListAttrsRep listAttributes()
     throws IOException, AS400SecurityException
   {
-    IFSListAttrsRep reply = null;
     // Ensure that we are connected to the server.
     fd_.connect();
 
@@ -1075,6 +1079,7 @@ implements IFSFileImpl
 
     // Verify that the open request was successful.
     int fileHandle = -1;
+    errorRC_ = 0;
     if (ds instanceof IFSOpenRep)
     {
       fileHandle = ((IFSOpenRep)ds).getFileHandle();
@@ -1084,7 +1089,9 @@ implements IFSFileImpl
     {
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (Trace.traceOn_) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
-      if (rc == 4) {       // We get a 4 if it's a directory.
+      if (rc == IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME) {
+        // We get that RC if it's a directory.
+        errorRC_ = rc;
         return null;       // @B7c
       }
       else {
@@ -1104,17 +1111,18 @@ implements IFSFileImpl
     // Do a list attributes, specifying the handle, and indicating that we
     // want an OA2 structure in the reply.
 
+    IFSListAttrsRep reply = null;
     Vector replys = listAttributes(fileHandle);
 
     // Verify that we got exactly one reply.
     if (replys == null) {
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received null from listAttributes().");
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(fileHandle).");
     }
     else if (replys.size() == 0) {
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(fileHandle).");
     }
     else if (replys.size() > 1) {
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(fileHandle) (" +
                 replys.size() + ")");
     }
     else
@@ -1137,7 +1145,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    Vector replys = listAttributes(directoryPath, -1, null, true);                        
+    Vector replys = listAttributes(directoryPath, -1, null, true);
     String[] names = null;
 
     // Add the name for each file or directory in the specified directory,
@@ -1468,6 +1476,77 @@ implements IFSFileImpl
     }
 
     return returnCode;
+  }
+
+
+  /**
+   Sets the file's data CCSID.
+   **/
+  public boolean setCCSID(int ccsid)
+    throws IOException, AS400SecurityException
+  {
+    // To change the file data CCSID, we need to get the file's current attributes (in an OA2* structure), reset the CCSID field, and then send back the modified OA2* struct in a Change Attributes request.
+
+    IFSListAttrsRep reply = listAttributes();  // get current attributes
+    if (reply == null) {
+      if (errorRC_ != 0) {
+        throw new ExtendedIOException(errorRC_);
+      }
+      else throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
+    boolean success = false;
+    byte[] oaStruct = reply.getOA(); // get the OA2* structure
+
+    // Sanity-check the length: If it's an OA2a or OA2b, the length will be 150 bytes (144 plus a 6-byte LLCP).  If it's an OA2c, the length will be 166 bytes (160 plus LLCP).
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Length of returned OA2* structure (should be 150 or 166): " + oaStruct.length);
+
+    // Reset the 2-byte "CCSID" field in the OA structure.
+    byte[] ccsidBytes = BinaryConverter.shortToByteArray((short)ccsid);
+    int ccsidOffsetInStruct = reply.getCCSIDOffset(fd_.serverDatastreamLevel_);
+    System.arraycopy(ccsidBytes, 0, oaStruct, ccsidOffsetInStruct, 2);
+
+    // Issue a change attributes request.
+    ClientAccessDataStream ds = null;
+    try
+    {
+      // Convert the path name to the AS/400 CCSID.
+      byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
+
+      IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
+                                                    fd_.preferredServerCCSID_,
+                                                    oaStruct);
+      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      throw new InterruptedIOException(e.getMessage());
+    }
+
+    if (ds instanceof IFSReturnCodeRep)
+    {
+      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc == IFSReturnCodeRep.SUCCESS)
+        success = true;
+      else
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting file data CCSID: " +
+                                      "IFSReturnCodeRep return code = ", rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+
+    return success;
   }
 
 

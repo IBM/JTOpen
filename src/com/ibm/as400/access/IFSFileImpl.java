@@ -62,6 +62,7 @@ interface IFSFileImpl
   int renameTo(IFSFileImpl file)
     throws IOException, AS400SecurityException;
 
+  boolean setCCSID(int ccsid) throws IOException, AS400SecurityException;
   boolean setFixedAttributes(int attributes) throws IOException;         //@D1a
   boolean setHidden(boolean attribute) throws IOException;               //@D1a
   boolean setLastModified(long time) throws IOException;

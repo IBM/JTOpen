@@ -1010,7 +1010,7 @@ public class IFSFile
 
   //@A9a
   /**
-   Returns the file's CCSID.  All files in the server's integrated file system
+   Returns the file's data CCSID.  All files in the server's integrated file system
    are tagged with a CCSID.  This method returns the value of that tag.
    If the file is non-existent or is a directory, returns -1.
    @return The file's CCSID.
@@ -2371,6 +2371,43 @@ public class IFSFile
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
+  }
+
+
+  /**
+   Sets the file's data CCSID.
+   @param ccsid The file data CCSID.  Note that the data in the file is not changed; only the CCSID "tag" on the file is changed.
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server, or if the file doesn't exist or is a directory.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+   **/
+  public boolean setCCSID(int ccsid)
+    throws IOException
+  {
+    boolean success = false;
+    try
+    {
+      if (impl_ == null) chooseImpl();
+      success = impl_.setCCSID(ccsid);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+
+    if (success)
+    {
+      // Fire the file modified event.
+      if (fileListeners_.size() != 0) {
+        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
+      }
+    }
+    return success;
   }
 
 

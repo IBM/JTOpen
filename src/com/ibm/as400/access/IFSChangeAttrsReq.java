@@ -22,7 +22,7 @@ class IFSChangeAttrsReq extends IFSDataStreamReq
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
   private static final int FILE_HANDLE_OFFSET = 22;
-  private static final int CCSID_OFFSET = 26;
+  private static final int CCSID_OFFSET = 26;  // CCSID of the filename
   private static final int WORKING_DIR_HANDLE_OFFSET = 28;
   private static final int ATTR_LIST_LEVEL_OFFSET = 32;
   private static final int CREATE_DATE_OFFSET = 34;
@@ -203,6 +203,41 @@ January 1, 1970 00:00:00 GMT)
 
     // Set the file name characters.
     System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+  }
+
+
+/**
+Construct a change attributes request.  Use this form to change the file data CCSID.
+@param fileName the name of the file to change
+@param fileNameCCSID file name CCSID
+@param oa2Structure The updated OA2x structure.  This includes the LLCP.
+**/
+  IFSChangeAttrsReq(byte[] fileName,
+                    int    fileNameCCSID,
+                    byte[] oa2Structure)
+  {
+    super(20 + TEMPLATE_LENGTH + 6 + fileName.length + oa2Structure.length);
+    setLength(data_.length);
+    setTemplateLen(TEMPLATE_LENGTH);
+    setReqRepID(0x000b);
+    set32bit(0, FILE_HANDLE_OFFSET);
+    set16bit(fileNameCCSID, CCSID_OFFSET);
+    set32bit(1, WORKING_DIR_HANDLE_OFFSET);
+    set16bit(5, ATTR_LIST_LEVEL_OFFSET);   // we're specifying an OA2b or OA2c
+    set16bit(0, SET_FLAGS_OFFSET);
+
+    // Set the filename LL.
+    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+
+    // Set the filename code point.
+    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+
+    // Set the filename characters.
+    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+
+    // Set the OA2 structure (includes the LLCP).
+    int offset = FILE_NAME_OFFSET + fileName.length;
+    System.arraycopy(oa2Structure, 0, data_, offset, oa2Structure.length);
   }
 
 }
