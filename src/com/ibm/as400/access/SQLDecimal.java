@@ -384,26 +384,32 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        if(value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0)
+        double d = value_.doubleValue();    //@KBA
+        //@KBD will never occur with current precision of 63
+        //@KBD if(value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0)
+        if(d == Double.POSITIVE_INFINITY || d == Double.NEGATIVE_INFINITY)  //@KBA
         {
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 8;
         }
-        return value_.doubleValue();
+        return d; //@KBC value_.doubleValue();
     }
 
     public float getFloat()
     throws SQLException
     {
         truncated_ = 0;
-        if(value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0)
+        float f = value_.floatValue();  //@KBA
+        //@KBD changed in order to avoid optimization problem in JRE 1.3
+        //@KBD if(value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0)
+        if( f == Float.POSITIVE_INFINITY || f == Float.NEGATIVE_INFINITY)   //@KBA
         {
             // we don't count the fractional part of the number as truncation
             int length = value_.toBigInteger().toByteArray().length;
             truncated_ = length - 4;
         }
-        return value_.floatValue();
+        return f;   //@KBC value_.floatValue();
     }
 
     public int getInt()
