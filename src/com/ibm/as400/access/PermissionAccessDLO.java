@@ -469,6 +469,31 @@ class PermissionAccessDLO extends PermissionAccess
     /**
      * This is so we correctly convert variant QSYS characters.
     **/
+    public void setPrimaryGroup(String objName, String primaryGroup, boolean revokeOldAuthority)
+    throws AS400Exception,
+           AS400SecurityException,
+           ConnectionDroppedException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           IOException,
+           ServerStartupException,
+           UnknownHostException,
+           PropertyVetoException
+    {
+      try
+      {
+        objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+      }
+      catch(Exception e)
+      {
+        Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+      }
+      super.setPrimaryGroup(objName, primaryGroup, revokeOldAuthority);
+    }
+
+    /**
+     * This is so we correctly convert variant QSYS characters.
+    **/
     public void setOwner(String objName, String owner, boolean revokeOldAuthority)
     throws AS400Exception,
            AS400SecurityException,
