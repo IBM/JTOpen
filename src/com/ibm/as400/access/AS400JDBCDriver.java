@@ -744,6 +744,7 @@ implements java.sql.Driver
 		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
 		String keyRingName     = jdProperties.getString (JDProperties.KEY_RING_NAME);  //@B9A
 		String keyRingPassword = jdProperties.getString (JDProperties.KEY_RING_PASSWORD); //@B9A
+                boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
 
 		// Create the AS400 object, so we can create a Connection via loadImpl2.
 		AS400 as400 = null;
@@ -791,7 +792,15 @@ implements java.sql.Driver
 			// This will never happen, as there are no listeners.
 		}
 
-		return as400;
+                //Determine if threads should be used in communication with the host servers
+                try{
+                    if(!useThreads)
+                        as400.setThreadUsed(useThreads);
+                }
+                catch(java.beans.PropertyVetoException e){
+                }
+
+                return as400;
 	}
 
 

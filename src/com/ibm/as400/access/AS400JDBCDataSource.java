@@ -3041,6 +3041,14 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         else
             properties_.setString(JDProperties.THREAD_USED, FALSE_);
 
+        try
+        {                                     
+            as400_.setThreadUsed(threadUsed);                       
+        }                                                            
+        catch (PropertyVetoException pve)                            
+        { /* Will never happen */                                    
+        }
+        
         changes_.firePropertyChange("threadUsed", oldValue, newValue);
 
         if (JDTrace.isTraceOn()) //@A8C
