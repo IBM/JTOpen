@@ -144,7 +144,7 @@ class SQLClob implements SQLData
       }
       else if (object instanceof Reader)
       {
-        if (length_ > 0)
+        if (length_ >= 0)
         {
           try
           {

@@ -145,7 +145,7 @@ class SQLClobLocator implements SQLLocator
     else if (object instanceof Reader)
     {
       int length = scale_; // hack to get the length into the set method
-      if (length > 0)
+      if (length >= 0)
       {
         try
         {
@@ -185,7 +185,7 @@ class SQLClobLocator implements SQLLocator
     else if (object instanceof InputStream)
     {
       int length = scale_; // hack to get the length into the set method
-      if (length > 0)
+      if (length >= 0)
       {
         InputStream stream = (InputStream)savedObject_;
         int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;

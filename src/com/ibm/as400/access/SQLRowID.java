@@ -14,7 +14,9 @@
 package com.ibm.as400.access;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -90,6 +92,100 @@ class SQLRowID implements SQLData
 
         else if(object instanceof byte[])
             value_ = (byte[])object;
+
+        else if(object instanceof InputStream)
+        {
+            //value_ = JDUtilities.streamToBytes((InputStream)object, scale);
+
+            int length = scale; // hack to get the length into the set method
+            if(length >= 0)
+            {
+                InputStream stream = (InputStream)object;
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                byte[] byteBuffer = new byte[blockSize];
+                try
+                {
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1 && totalBytesRead < length)
+                    {
+                        baos.write(byteBuffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+                        int bytesRemaining = length - totalBytesRead;
+                        if(bytesRemaining < blockSize)
+                        {
+                            blockSize = bytesRemaining;
+                        }
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                }
+                value_ = baos.toByteArray();
+                int objectLength = value_.length;
+                if(value_.length > 40)
+                {
+                    byte[] newValue = new byte[40];
+                    System.arraycopy(value_, 0, newValue, 0, 40);
+                    value_ = newValue;
+                }
+                truncated_ = objectLength - value_.length;
+            }
+            else
+            {
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
+
+        else if(object instanceof Reader)
+        {
+            // value_ = SQLBinary.stringToBytes(JDUtilities.readerToString((Reader)object, scale));
+
+            int length = scale; // hack to get the length into the set method
+            if(length >= 0)
+            {
+                try
+                {
+                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    HexReaderInputStream stream = new HexReaderInputStream((Reader)object);
+                    byte[] byteBuffer = new byte[blockSize];
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1 && totalBytesRead < length)
+                    {
+                        baos.write(byteBuffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+                        int bytesRemaining = length - totalBytesRead;
+                        if(bytesRemaining < blockSize)
+                        {
+                            blockSize = bytesRemaining;
+                        }
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+                    value_ = baos.toByteArray();
+                    int objectLength = value_.length;
+                    if(value_.length > 40)
+                    {
+                        byte[] newValue = new byte[40];
+                        System.arraycopy(value_, 0, newValue, 0, 40);
+                        value_ = newValue;
+                    }
+                    truncated_ = objectLength - value_.length;
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
+                }
+            }
+            else
+            {
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
             value_ = ((Blob)object).getBytes(1, (int)((Blob)object).length());

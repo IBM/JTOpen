@@ -118,7 +118,7 @@ final class SQLBlob implements SQLData
       else if (savedObject_ instanceof Reader)
       {
         int length = scale_; // hack to get the length into the set method
-        if (length > 0)
+        if (length >= 0)
         {
           try
           {
@@ -171,8 +171,7 @@ final class SQLBlob implements SQLData
       else if (object instanceof InputStream)
       {
         int length = scale_; // hack to get the length into the set method
-        if (length < 0) length = maxLength_;
-        if (length > 0)
+        if (length >= 0)
         {
           InputStream stream = (InputStream)object;
           ByteArrayOutputStream baos = new ByteArrayOutputStream();
