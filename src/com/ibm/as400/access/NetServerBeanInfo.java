@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 /**
 The NetServerBeanInfo class represents the bean information
 for the NetServer class.
+ @deprecated This class may be removed in a future release.
 **/
 public class NetServerBeanInfo 
 extends SimpleBeanInfo

@@ -23,6 +23,9 @@ import java.util.Vector;
 /**
  The NetServerShare class represents a NetServer share.
 
+ @deprecated This class has been replaced by the
+ {@link com.ibm.as400.access.ISeriesNetServerShare ISeriesNetServerShare}
+ class and may be removed in a future release.
  @see NetServer#listFileShares
  @see NetServer#listPrintShares
 **/

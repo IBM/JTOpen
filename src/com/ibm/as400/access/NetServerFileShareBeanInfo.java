@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 /**
 The NetServerFileShareBeanInfo class represents the bean information
 for the NetServerFileShare class.
+ @deprecated This class may be removed in a future release.
 **/
 public class NetServerFileShareBeanInfo 
 extends SimpleBeanInfo

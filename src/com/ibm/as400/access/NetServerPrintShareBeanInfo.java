@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 /**
 The NetServerPrintShareBeanInfo class represents the bean information
 for the NetServerPrintShare class.
+ @deprecated This class may be removed in a future release.
 **/
 public class NetServerPrintShareBeanInfo 
 extends SimpleBeanInfo
