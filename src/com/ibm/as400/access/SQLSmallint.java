@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ import java.util.Calendar;
 class SQLSmallint
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -127,10 +127,10 @@ implements SQLData
         else if (object instanceof Number) {
             value_ = ((Number) object).shortValue ();
 
-            // @E2D // Compute truncation.
-            // @E2D double doubleValue = ((Number) object).doubleValue ();
-            // @E2D if (doubleValue != value_)
-            // @E2D     truncated_ = Double.toString (doubleValue - value_).length () / 2;
+            // Compute truncation. @Wz put the following three lines back in
+            double doubleValue = ((Number) object).doubleValue ();
+            if (doubleValue != value_)
+               truncated_ = Double.toString (doubleValue - value_).length () / 2;
         }
 
         else if (object instanceof Boolean)
