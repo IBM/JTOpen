@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SequentialFile.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,28 +19,28 @@ import java.net.UnknownHostException;
 import java.io.Serializable;
 
 /**
- *The SequentialFile class represents an AS/400 physical or logical file.
+ *The SequentialFile class represents a physical or logical file on the server.
  *The SequentialFile class allows the user to do the following:
  *<ul>
- *<li>Create an AS/400 physical file by:
+ *<li>Create a physical file by:
  *<ul>
  *<li>Specifying a record length.
- *<li>Specifying an existing AS/400 DDS source file.
+ *<li>Specifying an existing DDS source file.
  *<li>Specifying a RecordFormat object that contains a description of the
  *    record format for the file.
  *</ul>
- *<li>Access the records in an AS/400 file sequentially or by record number.
- *<li>Write records to an AS/400 file sequentially.
- *<li>Update records in an AS/400 file sequentially or by record number.
- *<li>Lock an AS/400 file for different types of access.
- *<li>Use commitment control when accessing an AS/400 file.  The user can:
+ *<li>Access the records in a file sequentially or by record number.
+ *<li>Write records to a file sequentially.
+ *<li>Update records in a file sequentially or by record number.
+ *<li>Lock a file for different types of access.
+ *<li>Use commitment control when accessing a file.  The user can:
  *<ul>
  *<li>Start commitment control for the connection.
- *<li>Specify different commitment control lock levels for the individual AS/400
+ *<li>Specify different commitment control lock levels for the individual
  *    files being accessed.
  *<li>Commit and rollback transactions for the connection.
  *</ul>
- *<li>Delete an AS/400 physical or logical file or member.
+ *<li>Delete a physical or logical file or member.
  *</ul>
  *SequentialFile objects generate the following events:
  *<ul>
@@ -59,10 +59,7 @@ import java.io.Serializable;
 **/
 public class SequentialFile extends AS400File implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -81,7 +78,7 @@ public class SequentialFile extends AS400File implements Serializable
    * system and file name specified.
    *If the <i>name</i> for the file does not include a member, the
    *first member of the file will be used.
-   *@param system The AS/400 system to which to connect. The <i>system</i> cannot
+   *@param system The server to which to connect. The <i>system</i> cannot
    *be null.
    *@param name The integrated file system pathname of the file. The <i>name</i>
    *cannot be null.
@@ -95,11 +92,11 @@ public class SequentialFile extends AS400File implements Serializable
    *Deletes the record specified by record number.  The file must be open when
    *invoking this method.
    *@param recordNumber The record number of the record to be deleted.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void deleteRecord(int recordNumber)
     throws AS400Exception,
@@ -123,7 +120,7 @@ public class SequentialFile extends AS400File implements Serializable
    *by the object) and the file is opened for READ_ONLY, the record cache will
    *be filled with an initial set of records.<br>
    *The record format for the file must be set prior to calling this method.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the system to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -152,7 +149,7 @@ public class SequentialFile extends AS400File implements Serializable
    *which will cause a blocking factor to be calculated, there is the risk of
    *obtaining stale data when doing multiple read operations.
    *Invoke the refreshRecordCache() method prior to reading a record to cause the object
-   *to read from the AS/400 if this is a problem.<br>
+   *to read from the server if this is a problem.<br>
    *@param commitLockLevel Used to control record locking during a transaction if
    *commitment control has been started for the connection.
    *Valid values are:
@@ -165,13 +162,13 @@ public class SequentialFile extends AS400File implements Serializable
    *</ul>
    *The <i>commitLockLevel</i> is ignored if commitment control is not started for
    *the connection.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
 /*@C0D  public void open(int openType, int blockingFactor, int commitLockLevel)
     throws AS400Exception,
@@ -210,11 +207,11 @@ public class SequentialFile extends AS400File implements Serializable
    *this method.
    *@param recordNumber The record number of the record at which to position the
    *cursor.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursor(int recordNumber)
     throws AS400Exception,
@@ -233,11 +230,11 @@ public class SequentialFile extends AS400File implements Serializable
    *this method.
    *@param recordNumber The record number of the record after which to position the
    *           cursor.  The <i>recordNumber</i> must be greater than zero.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorAfter(int recordNumber)
     throws AS400Exception,
@@ -257,11 +254,11 @@ public class SequentialFile extends AS400File implements Serializable
    *this method.
    *@param recordNumber The record number of the record before which to position
    *           the cursor.  The <i>recordNumber</i> must be greater than zero.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBefore(int recordNumber)
     throws AS400Exception,
@@ -280,11 +277,11 @@ public class SequentialFile extends AS400File implements Serializable
    *@param recordNumber The record number of the record to be read.  The
    *<i>recordNumber</i> must be greater than zero.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(int recordNumber)
     throws AS400Exception,
@@ -303,11 +300,11 @@ public class SequentialFile extends AS400File implements Serializable
    *@param recordNumber record number of the record prior to the record to be read.
    *The <i>recordNumber</i> must be greater than zero.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readAfter(int recordNumber)
     throws AS400Exception,
@@ -324,13 +321,13 @@ public class SequentialFile extends AS400File implements Serializable
    *Reads all the records in the file. The file must be closed when invoking this method.
    *The record format for the file must have been set prior to invoking this method.
    *@return The records read.  If no records are read, an array of size zero is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public Record[] readAll()
     throws AS400Exception,
@@ -384,11 +381,11 @@ public class SequentialFile extends AS400File implements Serializable
    *@param recordNumber The record number of the record after the record to be read.
    *The <i>recordNumber</i> must be greater than zero.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readBefore(int recordNumber)
     throws AS400Exception,
@@ -410,7 +407,7 @@ public class SequentialFile extends AS400File implements Serializable
    *then continue on to restore the state (as necessary) of the remaining varaibles.
    *@param in The input stream from which to deserialize the object.
    *@exception ClassNotFoundException If the class being deserialized is not found.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
 
   private void readObject(ObjectInputStream in)
@@ -428,11 +425,11 @@ public class SequentialFile extends AS400File implements Serializable
    *@param recordNumber The record number of the record to update.
    *The <i>recordNumber</i> must be greater than zero.
    *@param record The record with which to update.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void update(int recordNumber, Record record)
     throws AS400Exception,

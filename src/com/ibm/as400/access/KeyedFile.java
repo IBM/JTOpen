@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: KeyedFile.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,28 +26,28 @@ import java.beans.PropertyVetoException;
 import java.math.BigDecimal;
 
 /**
- *The KeyedFile class represents an AS/400 physical or logical file.
+ *The KeyedFile class represents a physical or logical file on the server.
  *It allows the user to do the following:
  *<ul>
- *<li>Create an AS/400 physical file by:
+ *<li>Create a physical file by:
  *<ul>
  *<li>Specifying a record length.
- *<li>Specifying an existing AS/400 DDS source file.
+ *<li>Specifying an existing DDS source file.
  *<li>Specifying a RecordFormat object that contains a description of the
  *    record format for the file.
  *</ul>
- *<li>Access the records in an AS/400 file sequentially or by key.
- *<li>Write records to an AS/400 file sequentially or by key.
- *<li>Update records in an AS/400 file sequentially or by key.
- *<li>Lock an AS/400 file for different types of access.
- *<li>Use commitment control when accessing an AS/400 file.  The user can:
+ *<li>Access the records in a file sequentially or by key.
+ *<li>Write records to a file sequentially or by key.
+ *<li>Update records in a file sequentially or by key.
+ *<li>Lock a file for different types of access.
+ *<li>Use commitment control when accessing a file.  The user can:
  *<ul>
  *<li>Start commitment control for the connection.
- *<li>Specify different commitment control lock levels for the individual AS/400
+ *<li>Specify different commitment control lock levels for the individual
  *    files being accessed.
  *<li>Commit and rollback transactions for the connection.
  *</ul>
- *<li>Delete an AS/400 physical or logical file or member.
+ *<li>Delete a physical or logical file or member.
  *</ul>
  *KeyedFile objects generate the following events:
  *<ul>
@@ -66,7 +66,7 @@ import java.math.BigDecimal;
 **/
 public class KeyedFile extends AS400File implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -110,7 +110,7 @@ public class KeyedFile extends AS400File implements Serializable
    *Constructs a KeyedFile object. It uses the specified file.
    *If the <i>name</i> for the file does not include a member, the
    *first member of the file will be used.
-   *@param system The AS/400 system to which to connect. The <i>system</i> cannot
+   *@param system The server to which to connect. The <i>system</i> cannot
    *be null.
    *@param name The integrated file system pathname of the file. The <i>name</i>
    *cannot be null.
@@ -129,11 +129,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.  The number of elements in <i>key</i> cannot exceed the
    *number of key fields in the record format for this file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void deleteRecord(Object[] key)
     throws AS400Exception,
@@ -159,11 +159,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>. This number cannot exceed the
    *total number of key fields in the record format for this file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void deleteRecord(byte[] key, int numberOfKeyFields)
    throws AS400Exception,
@@ -187,7 +187,7 @@ public class KeyedFile extends AS400File implements Serializable
    *by the object) and the file is opened for READ_ONLY, the record cache will
    *be filled with an initial set of records.<br>
    *The record format for the file must be set prior to calling this method.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the system to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -216,7 +216,7 @@ public class KeyedFile extends AS400File implements Serializable
    *which will cause a blocking factor to be calculated, there is the risk of
    *obtaining stale data when doing multiple read operations.
    *Invoke the refreshRecordCache() method prior to reading a record to cause the object
-   *to read from the AS/400 if this is a problem.<br>
+   *to read from the server if this is a problem.<br>
    *@param commitLockLevel Used to control record locking during a transaction if
    *commitment control has been started for the connection.
    *Valid values are:
@@ -229,13 +229,13 @@ public class KeyedFile extends AS400File implements Serializable
    *</ul>
    *The <i>commitLockLevel</i> is ignored if commitment control is not started for
    *the connection.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
 /* @C0D  public void open(int openType, int blockingFactor, int commitLockLevel)
     throws AS400Exception,
@@ -276,11 +276,11 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void positionCursor(Object[] key)
     throws AS400Exception,
@@ -303,11 +303,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void positionCursor(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -344,11 +344,11 @@ public class KeyedFile extends AS400File implements Serializable
    *<li>KEY_GE<br>
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursor(Object[] key, int searchType)
     throws AS400Exception,
@@ -389,11 +389,11 @@ public class KeyedFile extends AS400File implements Serializable
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursor(byte[] key, int searchType, int numberOfKeyFields)
     throws AS400Exception,
@@ -418,11 +418,11 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorAfter(Object[] key)
     throws AS400Exception,
@@ -445,11 +445,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorAfter(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -470,11 +470,11 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBefore(Object[] key)
     throws AS400Exception,
@@ -497,11 +497,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBefore(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -523,11 +523,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(Object[] key)
     throws AS400Exception,
@@ -550,11 +550,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -591,11 +591,11 @@ public class KeyedFile extends AS400File implements Serializable
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(Object[] key, int searchType)
     throws AS400Exception,
@@ -639,11 +639,11 @@ public class KeyedFile extends AS400File implements Serializable
    *</ul>
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(byte[] key, int searchType, int numberOfKeyFields)
     throws AS400Exception,
@@ -669,11 +669,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readAfter(Object[] key)
     throws AS400Exception,
@@ -697,11 +697,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readAfter(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -718,13 +718,13 @@ public class KeyedFile extends AS400File implements Serializable
    *Reads all the records in the file. The file must be closed when invoking this method.
    *The record format for the file must have been set prior to invoking this method.
    *@return The records read.  If no records are read, an array of size zero is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public Record[] readAll()
     throws AS400Exception,
@@ -783,11 +783,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readBefore(Object[] key)
     throws AS400Exception,
@@ -811,11 +811,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readBefore(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -833,11 +833,11 @@ public class KeyedFile extends AS400File implements Serializable
    *The file must be open when invoking this method.  The file must be
    *positioned on an active record when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readNextEqual()
     throws AS400Exception,
@@ -856,11 +856,11 @@ public class KeyedFile extends AS400File implements Serializable
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readNextEqual(Object[] key)
     throws AS400Exception,
@@ -885,11 +885,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readNextEqual(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -928,11 +928,11 @@ public class KeyedFile extends AS400File implements Serializable
    * The file must be open when invoking this method.  The file must be
    *positioned on an active record when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readPreviousEqual()
     throws AS400Exception,
@@ -951,11 +951,11 @@ public class KeyedFile extends AS400File implements Serializable
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readPreviousEqual(Object[] key)
     throws AS400Exception,
@@ -980,11 +980,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readPreviousEqual(byte[] key, int numberOfKeyFields)
     throws AS400Exception,
@@ -1006,11 +1006,11 @@ public class KeyedFile extends AS400File implements Serializable
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@param record The record with which to update the existing record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void update(Object[] key, Record record)
     throws AS400Exception,
@@ -1039,11 +1039,11 @@ public class KeyedFile extends AS400File implements Serializable
    *are not supported.
    *@param record The record with which to update the existing record.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void update(byte[] key, Record record, int numberOfKeyFields)
     throws AS400Exception,
@@ -1087,11 +1087,11 @@ public class KeyedFile extends AS400File implements Serializable
    *<li>KEY_GE<br>
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void update(Object[] key, Record record, int searchType)
     throws AS400Exception,
@@ -1136,11 +1136,11 @@ public class KeyedFile extends AS400File implements Serializable
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void update(byte[] key, Record record, int searchType, int numberOfKeyFields)
     throws AS400Exception,
