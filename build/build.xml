@@ -110,7 +110,8 @@
 // 
 // Useful targets
 //
-//    all           - This is the default. Builds everything (compile, jar, zip, javadoc...),
+//    usage         - This is the default. Prints information on available targets.
+//    all           - Builds everything (compile, jar, zip, javadoc...),
 //                    assuming the source has been downloaded.
 //    clean         - Removes all built files and javadoc. Does not remove the /include
 //                    or /build subdirectories. This target is not a pre-requisite for any other
@@ -153,7 +154,7 @@
 ////////////////////////////////////////////////////////////////////////////-->
   
 
-<project name="JTOpen" basedir="." default="all">
+<project name="JTOpen" basedir="." default="usage">
   
 
 <!--///////////////////////////////////////////////////////////////////////////
@@ -340,18 +341,6 @@
       <available classname="java.nio.Buffer"/>
     </condition>
     
-    <condition property="jdk141Exists"> <!-- Need this for javadoc. -->
-      <or>
-        <and>
-          <os family="windows"/>
-          <contains string="${java.version}" substring="1.4.1"/>
-        </and>
-        <not>
-          <os family="windows"/>
-        </not>
-      </or>
-    </condition>
-    
     <condition property="servletJarExists">
       <available file="${include}/servlet.jar" type="file"/>
     </condition>
@@ -360,41 +349,13 @@
       <available file="${include}/midpapi.zip" type="file"/>
     </condition>
     
-    <condition property="preverifyExeExists">
-      <or>
-        <and>
-          <available file="${bin}/preverify.exe" type="file"/> <!-- Windows. -->
-          <os family="windows"/>
-        </and>
-        <available file="${bin}/preverify" type="file"/>     <!-- Linux/Unix. -->
-      </or>
-    </condition>
-      
-    <condition property="pcmlRuntimeExists">
+    <condition property="javadocIncludesExist">
       <and>
-        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
-        <available classname="com.ibm.as400.data.ProgramCallDocument"/>
+        <available file="${include}/servlet.jar" type="file"/>
+        <available file="${include}/midpapi.zip" type="file"/>
+        <available file="${include}/jui400.jar" type="file"/>
+        <available file="${include}/sslightx.zip" type="file"/>
       </and>
-    </condition>
-    
-    <condition property="cvsExeExists">
-      <or>
-        <and>
-          <os family="windows"/>
-          <available file="${bin}/cvs.exe" type="file"/> <!-- Windows. -->
-        </and>
-        <not>
-          <os family="windows"/>
-        </not>
-      </or>
-    </condition>        
-
-    <condition property="jui400JarExists">
-      <available file="${include}/jui400.jar" type="file"/>
-    </condition>
-    
-    <condition property="sslightxZipExists">
-      <available file="${include}/sslightx.zip" type="file"/>
     </condition>
   </target>
 
@@ -501,8 +462,19 @@
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="javadoc" depends="init,checkJavadocIncludes">
+    <condition property="jdk141Exists"> <!-- Need this for javadoc to work on Windows. -->
+      <or>
+        <and>
+          <os family="windows"/>
+          <contains string="${java.version}" substring="1.4.1"/>
+        </and>
+        <not>
+          <os family="windows"/>
+        </not>
+      </or>
+    </condition>
     <fail message="Not using JDK 1.4.1 or higher." unless="jdk141Exists"/>
-    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
+    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/> <!-- Sanity. -->
     <javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
              sourcepath="${source}:${source-contrib}:${source-micro}:${include}"
@@ -529,7 +501,7 @@
     </javadoc>
   </target>
 
-  <target name="checkJavadocIncludes" unless="servletJarExists,midpapiZipExists,jui400JarExists,sslightxZipExists">
+  <target name="checkJavadocIncludes" unless="javadocIncludesExist">
     <echo>
       WARNING: Generated javadoc will be missing some information.
       Can't find one of:
@@ -547,6 +519,15 @@
   <target name="micro" depends="init,jar-jt400Micro"/>
   
   <target name="micro-preverify" depends="init,compile-micro">
+    <condition property="preverifyExeExists">
+      <or>
+        <and>
+          <available file="${bin}/preverify.exe" type="file"/> <!-- Windows. -->
+          <os family="windows"/>
+        </and>
+        <available file="${bin}/preverify" type="file"/>     <!-- Linux/Unix. -->
+      </or>
+    </condition>
     <fail message="Can't find ${include}/midpapi.zip." unless="midpapiZipExists"/>
     <fail message="Can't find ${include}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
@@ -561,6 +542,12 @@
     // Target: pcml
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="pcml" depends="init">
+    <condition property="pcmlRuntimeExists">
+      <and>
+        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+        <available classname="com.ibm.as400.data.ProgramCallDocument" classpath="${output}:${include}:${source}"/>
+      </and>
+    </condition>
     <fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
     <taskdef name="pcml" classname="PCMLTask"/>
     <pcml srcdir="${source}"
@@ -580,7 +567,18 @@
     // Target: source
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="source" depends="init">
-    <fail message="Can't find ${bin}/cvs executable." unless="cvsExeExists"/>
+    <condition property="cvsExeExists">
+      <or>
+        <and>
+          <os family="windows"/>
+          <available resource="cvs.exe"/> <!-- Windows. -->
+        </and>
+        <not>
+          <os family="windows"/> <!-- Assume CVS is available. -->
+        </not>
+      </or>
+    </condition>        
+    <fail message="Can't find cvs executable." unless="cvsExeExists"/>
     <cvspass cvsroot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400" password="anonymous" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
              command="checkout -P -R -A" package="src" dest="${build}" passfile="mypasswd"/>
@@ -596,6 +594,43 @@
              command="checkout -P -R -A" package="license.html" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
              command="checkout -P -R -A" package="readme.html" dest="${build}" passfile="mypasswd"/>
+  </target>
+
+
+
+<!--///////////////////////////////////////////////////////////////////////////
+    // Target: usage
+    ///////////////////////////////////////////////////////////////////////////-->
+  <target name="usage">
+    <echo>
+Available Ant targets for the JTOpen build script include:
+
+  all
+  
+  clean, clean-dist, clean-javadoc, clean-output
+  
+  clean-source
+  
+  compile
+  
+  compile-micro
+  
+  init
+  
+  jar, jar-jt400, jar-jt400Micro, jar-jt400Native, jar-jt400Proxy, jar-jt400Servlet
+  
+  javadoc, checkJavadocIncludes
+  
+  micro, micro-preverify
+  
+  pcml
+  
+  source
+  
+  usage
+  
+  zip, zip-javadoc, zip-source
+    </echo>
   </target>
 
 
