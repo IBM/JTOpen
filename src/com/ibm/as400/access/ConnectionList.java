@@ -90,13 +90,15 @@ final class ConnectionList
    *  @param connect If true connect the specified service.
    *  @param secure  If true a secure AS400 object was requested.
    *  @param poolListeners The pool listeners to which events will be fired. 
+   *  @param socketProperties The socket properties to assign to the new AS400 object.
+   *  If null, this parameter is ignored.
    *  @return The PoolItem that was connected.
    *  @exception AS400SecurityException If a security error occured.
    *  @exception IOException If a communications error occured.
    *  @exception ConnectionPoolException If max connection limit is reached.
    **/
   private PoolItem createNewConnection(int service, boolean connect, boolean secure, 
-                                       ConnectionPoolEventSupport poolListeners, Locale locale, String password) //@B2C  //@B4C
+                                       ConnectionPoolEventSupport poolListeners, Locale locale, String password, SocketProperties socketProperties) //@B2C  //@B4C
   throws AS400SecurityException, IOException, ConnectionPoolException  //@A1C
   {     
     if (log_ != null)
@@ -124,7 +126,7 @@ final class ConnectionList
 
     boolean threadUse = properties_.isThreadUsed();
     // create a new connection
-    PoolItem sys = new PoolItem (systemName_, userID_, password, secure, locale, service, connect, threadUse);    //@B2C //@B4C
+    PoolItem sys = new PoolItem (systemName_, userID_, password, secure, locale, service, connect, threadUse, socketProperties);    //@B2C //@B4C
     //@B4D if (connect)
     //@B4D {
     //@B4D 	sys.getAS400Object().connectService(service);
@@ -231,12 +233,14 @@ final class ConnectionList
    *  @param secure  If true a secure AS400 object was requested.
    *  @param poolListeners The pool listeners to which events will be fired.
    *  @param locale The locale of the AS400 object.
+   *  @param socketProperties The socket properties to use if a new AS400 object is created.
+   *  If null, this parameter is ignored.
    *  @exception AS400SecurityException If a security error occured.
    *  @exception IOException If a communications error occured.
    *  @exception ConnectionPoolException If a connection pool error occured.
    *  @return The pool item.
    **/
-  PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, String password)    //@B2C //@B4C
+  PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, String password, SocketProperties socketProperties)    //@B2C //@B4C
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
@@ -279,7 +283,7 @@ final class ConnectionList
     if (poolItem == null)
     {
       // didn't find a suitable connection, create a new one
-      poolItem = createNewConnection (0, false, secure, poolListeners, locale, password); //@B2C //@B4C
+      poolItem = createNewConnection (0, false, secure, poolListeners, locale, password, socketProperties); //@B2C //@B4C
     }
 
     return poolItem;
@@ -292,12 +296,14 @@ final class ConnectionList
    *  @param service The AS400 service.
    *  @param secure  If true a secure AS400 object was requested.
    *  @param poolListeners The pool listeners to which events will be fired.
+   *  @param socketProperties The socket properties to use if a new AS400 object is created.
+   *  If null, this parameter is ignored.
    *  @exception AS400SecurityException If a security error occured.
    *  @exception IOException If a communications error occured.
    *  @exception ConnectionPoolException If a connection pool error occured.
    *  @return The pool item.
    **/
-  PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, String password)  //@B2C //@B4C 
+  PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, String password, SocketProperties socketProperties)  //@B2C //@B4C 
   throws AS400SecurityException, IOException, ConnectionPoolException
   {
     PoolItem poolItem = null;
@@ -369,7 +375,7 @@ final class ConnectionList
 
     if (poolItem == null)
     {
-      poolItem = createNewConnection(service, true, secure, poolListeners, locale, password);    //@B2C  //@B4C
+      poolItem = createNewConnection(service, true, secure, poolListeners, locale, password, socketProperties);    //@B2C  //@B4C
     }
 
     return poolItem;

@@ -25,7 +25,7 @@ import java.util.Locale;      //@B2A
   **/
 class PoolItem
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   private AS400 AS400object_; 
   private PoolItemProperties properties_;
@@ -44,10 +44,12 @@ class PoolItem
     *  @param service The service to connect to.
     *  @param connect Whether to connect to the service number.
     *  @param threadUse Whether threads should be used to connect to the server.
+    *  @param socketProperties The socket properties to assign to the new AS400 object.
+    *  If null, this parameter is ignored.
    *
    **/
   PoolItem(String systemName, String userID, String password, boolean secure, Locale locale, 
-           int service, boolean connect, boolean threadUse)  //@B4C
+           int service, boolean connect, boolean threadUse, SocketProperties socketProperties)  //@B4C
   throws AS400SecurityException, IOException  //@B4A
   {
     if (secure)
@@ -84,6 +86,10 @@ class PoolItem
         //Ignore                                    //@B4A    
       }                                               //@B4A
     }                                                   //@B4A
+    if (socketProperties != null)
+    {
+      AS400object_.setSocketProperties(socketProperties);
+    }
     if (connect)                                        //@B4A
     {
       //@B4A

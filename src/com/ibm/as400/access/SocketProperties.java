@@ -21,7 +21,7 @@ import java.io.Serializable;
  **/
 public class SocketProperties implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     
     boolean keepAliveSet_ = false;
     boolean keepAlive_ = false;
@@ -51,6 +51,33 @@ public class SocketProperties implements Serializable
         soTimeout_ = properties.soTimeout_;
         tcpNoDelaySet_ = properties.tcpNoDelaySet_;
         tcpNoDelay_ = properties.tcpNoDelay_;
+    }
+
+    /**
+     Indicates whether some other object is "equal to" this one.
+     SocketProperties objects are considered equal if all of their property values match.
+     @return  <tt>true</tt> if this object is equals the obj argument; false otherwise.
+     **/
+    public boolean equals(Object other)
+    {
+       try {
+         SocketProperties props = (SocketProperties)other;
+         if (keepAliveSet_         == props.keepAliveSet_ &&
+             keepAlive_            == props.keepAlive_ &&
+             receiveBufferSizeSet_ == props.receiveBufferSizeSet_ &&
+             receiveBufferSize_    == props.receiveBufferSize_ &&
+             sendBufferSizeSet_    == props.sendBufferSizeSet_ &&
+             sendBufferSize_       == props.sendBufferSize_ &&
+             soLingerSet_          == props.soLingerSet_ &&
+             soLinger_             == props.soLinger_ &&
+             soTimeoutSet_         == props.soTimeoutSet_ &&
+             soTimeout_            == props.soTimeout_ &&
+             tcpNoDelaySet_        == props.tcpNoDelaySet_ &&
+             tcpNoDelay_           == props.tcpNoDelay_)
+           return true;
+         else return false;
+      }
+      catch (Throwable e) { return false; }
     }
 
     /**

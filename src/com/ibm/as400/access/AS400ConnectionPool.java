@@ -95,6 +95,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   // by calling removeFromPool().
   private transient Hashtable removedAS400ConnectionPool_;  //@A6A
   private transient Log log_;
+  private SocketProperties socketProperties_;
 
   // Handles loading the appropriate resource bundle
 //@CRS  private static ResourceBundleLoader loader_;
@@ -203,63 +204,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   public void fill(String systemName, String userID, String password, int service, int numberOfConnections) 
   throws ConnectionPoolException
   {
-    if (numberOfConnections < 1)
-      throw new ExtendedIllegalArgumentException("numberOfConnections", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-    Vector newAS400Connections = new Vector();
-    if (Trace.isTraceOn()) //@A5A
-      Trace.log(Trace.INFORMATION, "fill() key before resolving= " + systemName + "/" + userID); //@A5A
-    systemName = AS400.resolveSystem(systemName);  //@A5A
-    userID = AS400.resolveUserId(userID);      //@A5A
-    String key = createKey(systemName, userID);
-    if (Trace.isTraceOn()) //@A5A
-      Trace.log(Trace.INFORMATION, "fill() key after resolving= " + key); //@A5A
-    try
-    {
-      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-      log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
-                               systemName, userID} ));
-      // create the specified number of connections
-      //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
-      for (int i = 0; i < numberOfConnections; i++)
-      {
-        newAS400Connections.addElement(getConnection(systemName, userID, service, true, false, null, password));  //@B3C add null locale  //@B4C
-      }
-      connections = (ConnectionList)as400ConnectionPool_.get(key);
-      for (int j = 0; j < numberOfConnections; j++)
-      {
-        connections.findElement((AS400)newAS400Connections.elementAt(j)).setInUse(false);
-      }   
-    }
-    catch (AS400SecurityException e)   //@A2C
-    {
-      // If exception occurs, stop creating connections, run maintenance thread, and 
-      // throw whatever exception was received on creation to user.
-      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-      for (int k = 0; k < newAS400Connections.size(); k++)
-      {
-        connections.findElement((AS400)newAS400Connections.elementAt(k)).setInUse(false); 
-      }
-      if (maintenance_ != null && maintenance_.isRunning())
-        cleanupConnections();
-      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));         
-      throw new ConnectionPoolException(e);
-    }
-    catch (IOException ie)                                  //@A2A
-    {
-      //@A2A
-      // If exception occurs, stop creating connections, run maintenance thread, and       //@A2A
-      // throw whatever exception was received on creation to user.                        //@A2A
-      ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);      //@A2A
-      for (int k = 0; k < newAS400Connections.size(); k++)                 //@A2A
-      {
-        //@A2A
-        connections.findElement((AS400)newAS400Connections.elementAt(k)).setInUse(false); //@A2A
-      }                                          //@A2A
-      if (maintenance_ != null && maintenance_.isRunning())                //@A2A
-        cleanupConnections();                               //@A2A
-      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));                       //@A2A
-      throw new ConnectionPoolException(ie);                         //@A2A
-    }                                           //@A2A
+    fill(systemName, userID, password, service, numberOfConnections, null);
   }
 
 
@@ -307,7 +252,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       {
         connections.findElement((AS400)newAS400Connections.elementAt(j)).setInUse(false);
       }
-      if (Trace.isTraceOn())
+      if (Trace.isTraceOn() && locale != null)
         Trace.log(Trace.INFORMATION, "created " + numberOfConnections + "with a locale");
     }
     catch (AS400SecurityException e)
@@ -774,11 +719,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     //Get a connection from the list
     if (connect)
     {
-      return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+      return connections.getConnection(service, secure, poolListeners_, locale, password, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C
     }
     else
     {
-      return connections.getConnection(secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+      return connections.getConnection(secure, poolListeners_, locale, password, socketProperties_).getAS400Object();  //@B3C add null locale  //@B4C
     }
 
   }
@@ -930,6 +875,23 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     //@B4D     throw new ConnectionPoolException(ie);
     //@B4D }
     throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
+  }
+
+
+
+  /**
+   Returns a copy of the socket properties that this AS400ConnectionPool specifies when it creates new AS400 objects, for example in <tt>fill()</tt>, <tt>getConnection()</tt>, or <tt>getSecureConnection()</tt>.
+   @return  The socket properties.  A null value indicates that this AS400ConnectionPool specifies no socket properties.
+    **/
+  public SocketProperties getSocketProperties()
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting socket properties.");
+    if (socketProperties_ == null) return null;
+    else {
+      SocketProperties socketProperties = new SocketProperties();
+      socketProperties.copyValues(socketProperties_);
+      return socketProperties;
+    }
   }
 
 
@@ -1257,6 +1219,19 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   public void setLog(Log log)
   {
     this.log_ = log;
+  }
+
+
+
+  /**
+   Sets the socket properties that this AS400ConnectionPool specifies when it creates new AS400 objects, for example in <tt>fill()</tt>, <tt>getConnection()</tt>, or <tt>getSecureConnection()</tt>.
+   <br>Note that <tt>properties</tt> will apply only to AS400 objects created <em>after</em> this method is called.  Any AS400 objects already in the pool are not affected.
+
+   @param properties  The socket properties.  If null, then this AS400ConnectionPool will specify no socket properties when it creates new AS400 objects.  That is, <tt>setSocketProperties(null)</tt> cancels the effects of any previous <tt>setSocketProperties()</tt>.
+    **/
+  public void setSocketProperties(SocketProperties properties)
+  {
+    socketProperties_ = properties;
   }
 
 }
