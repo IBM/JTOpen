@@ -135,8 +135,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
                   if (trace)
                      Trace.log(Trace.INFORMATION, poolConnection.toString());
 
-                  if ((!poolConnection.isInUse() && getMaxLifetime() !=0 && poolConnection.getLifeSpan() > getMaxLifetime()) ||          // inactive connections only.
-                      (getMaxInactivity() !=0 && poolConnection.getInactivityTime() > getMaxInactivity()) ) 
+                  if ((!poolConnection.isInUse() && getMaxLifetime() !=-1 && poolConnection.getLifeSpan() > getMaxLifetime()) ||   //@B1C       // inactive connections only.
+                      (getMaxInactivity() !=-1 && poolConnection.getInactivityTime() > getMaxInactivity()) )   //@B1C
                   {
                      if (trace) 
                         Trace.log(Trace.INFORMATION, "Removing expired connection from the pool.");
