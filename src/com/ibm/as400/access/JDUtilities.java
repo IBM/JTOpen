@@ -231,8 +231,12 @@ Reads an input stream and returns its data as a byte array.
             // I think this is strange since this means the length
             // parameter is essentially not needed.  I.e., we always
             // read the exact number of bytes in the stream.
-            if (actualLength != length)
-                JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+            //@KKC if (actualLength != length)
+            //@KKC    JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+
+            //@KKC throw an exception if length is greater than the actual length
+            if(actualLength < length)                                               //@KKC
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);          //@KKC
         }
         catch (IOException e) {
             JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);

@@ -1686,7 +1686,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             JDError.throwSQLException (this, JDError.EXC_BUFFER_LENGTH_INVALID);
 
         // @J0A added the code from setValue in this method because streams and readers are handled specially
-        /*    synchronized(internalLock_)
+            synchronized(internalLock_)         //@KKC Removed comment brace
             {
               checkOpen ();
         
@@ -1724,7 +1724,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 }
                 else
                 {
-                  sqlData.set (JDUtilities.streamToBytes(parameterValue, length), null, -1);
+                    sqlData.set (JDUtilities.streamToBytes(parameterValue, length), null, length);
                 }
         
                 testDataTruncation (parameterIndex, sqlData);
@@ -1735,8 +1735,8 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
               parameterSet_[parameterIndex-1] = true;
         
             }
-        */
-        setValue(parameterIndex, parameterValue, null, length);
+        //@KKC */
+        //@KKC setValue(parameterIndex, parameterValue, null, length);
         //@J0D setValue (parameterIndex,
         //@J0D           (parameterValue == null) ? null : JDUtilities.streamToBytes (parameterValue, length), // @B2C
         //@J0D           null, -1);
