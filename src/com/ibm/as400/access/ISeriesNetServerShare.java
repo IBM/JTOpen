@@ -22,6 +22,8 @@ import java.io.UnsupportedEncodingException;
 public abstract class ISeriesNetServerShare implements java.io.Serializable
 {
 
+  static final long serialVersionUID = 469818009548069269L;
+
   // Note: For efficiency, these attributes are not private, so they are directly accessible by the ISeriesNetServer class when composing and refreshing share objects.
   String name_;     // Note: This attribute has a getter but no setter.
   String description_;

@@ -66,6 +66,7 @@ String owner = javaProgram.getFileOwner();
 
 public class JavaProgram implements Serializable
 {
+    static final long serialVersionUID = -209990140140936884L;
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private boolean loaded_ = false; // Have we retrieved values from the system yet?

@@ -45,6 +45,7 @@ import java.io.*;
 **/
 public class ISeriesPrinter implements Serializable
 {
+  static final long serialVersionUID = -609299009457592116L;
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
   
   /**
