@@ -313,6 +313,13 @@ public class HTMLTableConverter extends StringConverter implements Serializable
                cell.setElement(new HTMLText(columnObject.toString()));
             }
 
+                if (metadata.getColumnAlignment(column) != null)                                       //@D5A
+                    cell.setHorizontalAlignment(metadata.getColumnAlignment(column));        //@D5A
+
+                if (metadata.getColumnDirection(column) != null)                                      //@D5A
+                    cell.setDirection(metadata.getColumnDirection(column));                       //@D5A
+
+
             // Add the column cell to the row.
             row.addColumn(cell);
          }
@@ -637,9 +644,6 @@ public class HTMLTableConverter extends StringConverter implements Serializable
 
       if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(oldSize), new Integer(size)); //@CRS
 
-      maxTableSize_ = size;
-
-      if (changes_ != null) changes_.firePropertyChange("size", new Integer(oldSize), new Integer(size)); //@CRS
    }
 
    /**

@@ -21,6 +21,16 @@ public interface RowMetaData
 {
 
    /**
+    *  Returns the horizontal alignment of the column data  specified by <i>columnIndex</i>.
+    *  For a list of values, see {@link com.ibm.as400.util.html.HTMLConstants HTMLConstants}.
+    *  @param columnIndex The column index (0-based).
+    *  @return The horizontal column alignment.    One of the following constants
+    *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+    *  @exception RowDataException If a row data error occurred.
+    **/
+    public abstract String getColumnAlignment(int columnIndex) throws RowDataException;           //@D5A
+
+    /**
    *  Returns the number of columns.
    *
    *  @return The number of columns.
@@ -29,6 +39,15 @@ public interface RowMetaData
    public abstract int getColumnCount() throws RowDataException;
 
    /**
+    *  Returns the direction of the column data  specified by <i>columnIndex</i>.
+    *  For a list of values, see {@link com.ibm.as400.util.html.HTMLConstants HTMLConstants}.
+    *  @param columnIndex The column index (0-based).
+    *  @return The direction.
+    *  @exception RowDataException If a row data error occurred.
+    **/
+    public abstract String getColumnDirection(int columnIndex) throws RowDataException;            //@D5A
+
+    /**
    *  Returns the display size in characters of the column specified by <i>columnIndex</i>.
    *
    *  @param columnIndex The column index (0-based).

@@ -16,6 +16,8 @@ package com.ibm.as400.util.servlet;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
+
+import com.ibm.as400.util.html.HTMLConstants;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -65,6 +67,8 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    transient private PropertyChangeSupport changes_; //@CRS
    transient private VetoableChangeSupport vetos_; //@CRS
 
+    private String[] columnAlignment_;  // The array of column alignments.  @D5A
+    private String[] columnDirection_;   // The array of column alignments.  @D5A
    /**
      Constructs a default SQLResultSetMetaData object.
    **/
@@ -114,6 +118,39 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
       vetos_.addVetoableChangeListener(listener);
    }
+
+
+    /**
+     *  Returns the alignment of the column specified by <i>columnIndex</i>.
+     *  @param columnIndex The column index (0-based).
+     *  @return The horizontal column alignment.  One of the following constants
+     *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     *  @exception RowDataException If a row data error occurs.
+     **/
+    public String getColumnAlignment(int columnIndex) throws RowDataException       //@D5A
+    {
+        // Validate the column parameter.
+        validateColumnIndex(columnIndex);
+
+        return columnAlignment_[columnIndex];
+    }
+
+
+    /**
+    *  Returns the direction of the column specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @return The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *  @exception RowDataException If a row data error occurs.
+    **/
+    public String getColumnDirection(int columnIndex) throws RowDataException       //@D5A
+    {
+        // Validate the column parameter.
+        validateColumnIndex(columnIndex);
+
+        return columnDirection_[columnIndex];
+    }
 
    /**
      Returns the number of columns in the result set.
@@ -458,6 +495,9 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          columnLabels_ = new String[getColumnCount()];
          for (int i=0; i< columnLabels_.length; i++)
             columnLabels_[i] = metadata_.getColumnLabel(i+1);
+
+            columnAlignment_ = new String[getColumnCount()];            //@D5A
+            columnDirection_ = new String[getColumnCount()];             //@D5A
       }
       catch (SQLException e)
       {
@@ -479,6 +519,46 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       isCached_ = false;      // Use metadata information instead of cache.
       }
    }
+
+
+    /**
+     *  Sets the specified horizontal <i>alignment</i> for the column data specified by <i>columnIndex</i>.
+     *  @param columnIndex The column index (0-based).
+     *  @param alignment The horizontal column alignment.  One of the following constants
+     *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     *  @exception RowDataException If a row data error occurs.
+     **/
+    public void setColumnAlignment(int columnIndex, String alignment) throws RowDataException        //@D5A
+    {
+        validateColumnIndex(columnIndex);
+
+        // If align is not one of the valid HTMLConstants, throw an exception.
+        if (alignment == null)
+            throw new NullPointerException("alignment");
+        else if ( !(alignment.equals(HTMLConstants.LEFT))  && !(alignment.equals(HTMLConstants.RIGHT)) && !(alignment.equals(HTMLConstants.CENTER)) && !(alignment.equals(HTMLConstants.JUSTIFY)) )
+            throw new ExtendedIllegalArgumentException("alignment", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        columnAlignment_[columnIndex] = alignment;
+    }
+
+    /**
+    *  Sets the specified <i>direction</i> for the column data specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @param dir The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    *  @exception RowDataException If a row data error occurs.
+    **/
+    public void setColumnDirection(int columnIndex, String dir) throws RowDataException         //@D5A
+    {
+        validateColumnIndex(columnIndex);
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        columnDirection_[columnIndex] = dir;
+    }
 
    /**
      Sets the specified <i>label</i> at the column specified by <i>columnIndex</i>.

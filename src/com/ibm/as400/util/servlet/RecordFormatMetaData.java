@@ -17,6 +17,8 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
 
+import com.ibm.as400.util.html.HTMLConstants;
+
 import com.ibm.as400.access.AS400Array;
 import com.ibm.as400.access.AS400DataType;
 import com.ibm.as400.access.AS400Bin2;             // Java Short
@@ -58,6 +60,10 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
 
    transient private PropertyChangeSupport changes_; //@CRS
    transient private VetoableChangeSupport vetos_; //@CRS
+
+    private String[] columnAlignment_;  // The array of column alignments.  @D5A
+    private String[] columnDirection_;   // The array of column alignments.  @D5A
+
 
    /**
    *  Constructs a default RecordFormatMetaData object.
@@ -106,6 +112,38 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
       if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
       vetos_.addVetoableChangeListener(listener);
    }
+
+
+    /**
+     *  Returns the alignment of the column specified by <i>columnIndex</i>.
+     *  @param columnIndex The column index (0-based).
+     *  @return The horizontal column alignment.  One of the following constants
+     *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     **/
+    public String getColumnAlignment(int columnIndex)      //@D5A
+    {
+        // Validate the column parameter.
+        validateColumnIndex(columnIndex);
+
+        return columnAlignment_[columnIndex];
+    }
+
+
+    /**
+    *  Returns the direction of the column specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @return The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public String getColumnDirection(int columnIndex)    //@D5A
+    {
+        // Validate the column parameter.
+        validateColumnIndex(columnIndex);
+
+        return columnDirection_[columnIndex];
+    }
+
 
    /**
    *  Returns the number of columns.
@@ -400,6 +438,57 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
 
       if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
    }
+
+
+
+    /**
+     *  Sets the specified horizontal <i>alignment</i> for the column data specified by <i>columnIndex</i>.
+     *  @param columnIndex The column index (0-based).
+     *  @param alignment The horizontal column alignment.  One of the following constants
+     *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     **/
+    public void setColumnAlignment(int columnIndex, String alignment)    //@D5A
+    {
+        // Validate that the record format is set.
+        validateRecordFormat("Attempting to set the column alignment");
+
+        // Validate the label parameter.
+        if (alignment == null)
+            throw new NullPointerException("alignment");
+
+        validateColumnIndex(columnIndex);
+
+        // If align is not one of the valid HTMLConstants, throw an exception.
+        if ( !(alignment.equals(HTMLConstants.LEFT))  && !(alignment.equals(HTMLConstants.RIGHT)) && !(alignment.equals(HTMLConstants.CENTER)) && !(alignment.equals(HTMLConstants.JUSTIFY)) )
+            throw new ExtendedIllegalArgumentException("alignment", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        columnAlignment_[columnIndex] = alignment;
+    }
+
+    /**
+    *  Sets the specified <i>direction</i> for the column data specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @param dir The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setColumnDirection(int columnIndex, String dir)         //@D5A
+    {
+        // Validate that the record format is set.
+        validateRecordFormat("Attempting to set the column directionl");
+
+        // Validate the label parameter.
+        if (dir == null)
+            throw new NullPointerException("dir");
+
+        validateColumnIndex(columnIndex);
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        columnDirection_[columnIndex] = dir;
+    }
 
    /**
    *  Sets the specified <i>label</i> at the column specified by <i>columnIndex</i>.

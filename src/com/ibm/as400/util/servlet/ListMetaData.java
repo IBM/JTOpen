@@ -16,6 +16,8 @@ package com.ibm.as400.util.servlet;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
+import com.ibm.as400.util.html.HTMLConstants;
+
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
@@ -44,6 +46,9 @@ public class ListMetaData implements RowMetaData, Serializable
    private String[] columnLabel_;      // The array of column labels.
    private int[] columnType_;          // The array of column types.
    private int[] columnSize_;          // The array of column sizes.
+
+    private String[] columnAlignment_;  // The array of column alignments.  @D5A
+    private String[] columnDirection_;   // The array of column alignments.  @D5A
 
    transient private PropertyChangeSupport changes_; //@CRS
    transient private VetoableChangeSupport vetos_; //@CRS
@@ -162,6 +167,37 @@ public class ListMetaData implements RowMetaData, Serializable
 
 
    /**
+    *  Returns the alignment of the column specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @return The horizontal column alignment.  One of the following constants
+    *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public String getColumnAlignment(int columnIndex)        //@D5A
+    {
+        // Validate the column parameter.
+        validateColumnIndex(columnIndex);
+
+        return columnAlignment_[columnIndex];
+    }
+
+
+    /**
+    *  Returns the direction of the column specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @return The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public String getColumnDirection(int columnIndex)        //@D5A
+    {
+        // Validate the column parameter.
+        validateColumnIndex(columnIndex);
+
+        return columnDirection_[columnIndex];
+    }
+
+
+    /**
    *  Returns the data type name of the column specified by <i>columnIndex</i>.
    *  @param columnIndex The column index (0-based).
    *  @return The column data type name.
@@ -265,6 +301,43 @@ public class ListMetaData implements RowMetaData, Serializable
       if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
    }
 
+    /**
+    *  Sets the specified horizontal <i>alignment</i> for the column data specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @param alignment The horizontal column alignment.  One of the following constants
+    *  defined in HTMLConstants:  LEFT, CENTER, RIGHT, or JUSTIFY.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setColumnAlignment(int columnIndex, String alignment)        //@D5A
+    {
+        validateColumnIndex(columnIndex);
+
+        // If align is not one of the valid HTMLConstants, throw an exception.
+        if (alignment == null)
+            throw new NullPointerException("alignment");
+        else if ( !(alignment.equals(HTMLConstants.LEFT))  && !(alignment.equals(HTMLConstants.RIGHT)) && !(alignment.equals(HTMLConstants.CENTER)) && !(alignment.equals(HTMLConstants.JUSTIFY)) )
+            throw new ExtendedIllegalArgumentException("alignment", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        columnAlignment_[columnIndex] = alignment;
+    }
+
+    /**
+    *  Sets the specified <i>direction</i> for the column data specified by <i>columnIndex</i>.
+    *  @param columnIndex The column index (0-based).
+    *  @param dir The column direction.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setColumnDirection(int columnIndex, String dir)         //@D5A
+    {
+        validateColumnIndex(columnIndex);
+
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        columnDirection_[columnIndex] = dir;
+    }
+
    /**
    *  Sets the specified <i>displaySize</i> for the column specified by <i>columnIndex</i>.
    *  @param columnIndex The column index (0-based).
@@ -344,6 +417,9 @@ public class ListMetaData implements RowMetaData, Serializable
       columnLabel_ = new String[columnCount_];
       columnType_ = new int[columnCount_];
       columnSize_ = new int[columnCount_];
+
+      columnAlignment_ = new String[columnCount_];        //@D5A
+      columnDirection_ = new String[columnCount_];         //@D4A
 
       if (changes_ != null) changes_.firePropertyChange("columns", new Integer(oldInt), new Integer(columns)); //@CRS
    }
