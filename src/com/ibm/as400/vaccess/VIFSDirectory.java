@@ -1329,13 +1329,14 @@ Listens for events and adjusts the children accordingly.
         {
             VObject object = event.getObject ();
 
-            // Forward this event to the event support first,
-            // so the the listener can handle it before we
-            // go and remove the object from our list.
-            objectEventSupport_.objectDeleted (event);
-
             if (object == VIFSDirectory.this) {     // @A1A
                 deleted_ = true;                    // @A1A
+
+                // Forward this event to the event support first,
+                // so the the listener can handle it before our parent
+                // goes and removes the object from its list.
+                objectEventSupport_.objectDeleted (event);
+
                 return;                             // @A1A
             }                                       // @A1A
 
