@@ -238,6 +238,14 @@ class SystemValueUtility
             value = new java.sql.Time(cal.getTime().getTime());
           }
 
+          //@C0 - Sometimes hex zeros get returned for the PNDSYSNAME
+          //      which shows up as square boxes in the visual system value components.
+          //      So we replace the hex zeros with Unicode spaces.
+          if (obj.name_.equals("PNDSYSNAME"))                 //@C0A
+          {                                                   //@C0A
+            value = ((String)value).replace((char)0x00, ' '); //@C0A
+          }                                                   //@C0A
+
           // Handle QLOCALE as a special case
           if (obj.name_.equals("QLOCALE"))
           {
