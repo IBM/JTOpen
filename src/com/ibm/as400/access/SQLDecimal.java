@@ -105,7 +105,7 @@ implements SQLData
             }
             catch(NumberFormatException e)
             {
-                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
             }
         }
 

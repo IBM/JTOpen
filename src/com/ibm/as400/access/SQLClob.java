@@ -175,9 +175,7 @@ final class SQLClob implements SQLData
             else if(object instanceof Clob)
             {
                 Clob clob = (Clob)object;
-                int max = length_ > 0 ? length_ : (int)clob.length();
-                if(max < 0) max = 0x7FFFFFFF;
-                value_ = clob.getSubString(1, max);
+                value_ = clob.getSubString(1, (int)clob.length());
             }
             else
             {
