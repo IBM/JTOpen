@@ -269,7 +269,7 @@ public class Permission
         }
         as400_ = as400;
         int separator;
-        path_ = fileName.trim(); //@A2C
+        path_ = fileName;
         separator = path_.lastIndexOf('/');
         name_ = path_.substring(separator+1);
         type_ = parseType(path_, pathMayStartWithIASP);              // @B6c
