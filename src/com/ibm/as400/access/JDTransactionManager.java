@@ -532,7 +532,10 @@ Set the auto-commit mode.
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
               request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
               request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
-              serverCommitMode_ = currentCommitMode_;
+              if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+                serverCommitMode_ = COMMIT_MODE_NONE_;
+              else
+                serverCommitMode_ = currentCommitMode_;
               reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
@@ -697,7 +700,11 @@ java.sql.Connection.TRANSACTION_* values.
               if (request != null) request.inUse_ = false;                                    //@KBA
               if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
-          serverCommitMode_ = currentCommitMode_;                                             //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
+
+          if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+              serverCommitMode_ = COMMIT_MODE_NONE_;
+          else
+              serverCommitMode_ = currentCommitMode_;                                            //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
   }
 
@@ -759,8 +766,7 @@ can not be called directly on this object.
               if (request != null) request.inUse_ = false;                                    //@KBA
               if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
-          
-          serverCommitMode_ = currentCommitMode_;                                             //@KBA
+            serverCommitMode_ = currentCommitMode_;                                             //@KBA
       }
     }
   }
