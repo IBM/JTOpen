@@ -164,6 +164,12 @@ final class SQLDBClobLocator implements SQLLocator
                         }
                         bytesRead = stream.read(byteBuffer, 0, blockSize);
                     }
+                    
+                    if(totalBytesRead < length)
+                    {
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    }
                 }
                 catch(IOException ie)
                 {
@@ -204,6 +210,12 @@ final class SQLDBClobLocator implements SQLLocator
                             blockSize = bytesRemaining;
                         }
                         bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+
+                    if(totalBytesRead < length)
+                    {
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
                 }
                 catch(IOException ie)

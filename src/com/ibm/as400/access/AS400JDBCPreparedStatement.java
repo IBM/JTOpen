@@ -630,7 +630,16 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                                     }
                                     catch(SQLException e)
                                     {
-                                        correctLength = sqlData.getPrecision();                     // @BAA
+                                        if(e.getSQLState().trim().equals("HY000"))      //AN INTERNAL DRIVER ERROR
+                                        {
+                                            //Check error to see if it was thrown from another error
+                                            if(e.getMessage().indexOf("Change Descriptor") != -1){
+                                                correctLength = sqlData.getPrecision();                     // @BAA
+                                            }
+                                            else
+                                                throw e;
+                                        }
+                                        else throw e;
                                     }                                                               // @BAA
 
                                     // If the length needed is larger than what was allocated in    // @BAA

@@ -106,7 +106,7 @@ implements SQLData
             if(temp.length > maxLength_)
             {
                 maxLength_ = temp.length;
-                JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Change Descriptor");
             }
             System.arraycopy(temp, 0, rawBytes, offset+2, temp.length);
 

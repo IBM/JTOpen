@@ -535,6 +535,55 @@ trace for debugging purposes.
     throw e2;
   }
 
+/**
+Throws an SQL exception based on an error in the
+error table and dumps an internal exception stack
+trace for debugging purposes.
+
+@param  thrower     The object that threw the exception.                                   
+@param  sqlState    The SQL State.
+@param  e           The internal exception.
+@param  m            A message for the exception
+
+@exception          SQLException    Always.
+**/
+  public static void throwSQLException (Object thrower, String sqlState, Exception e, String m)
+  throws SQLException
+  {
+
+    String reason = getReason(sqlState);                                                                                    
+    StringBuffer buffer = new StringBuffer(reason);                 
+    buffer.append(" (");                                                
+    String message = e.getMessage();                                
+    if (message != null)                                            
+      buffer.append(message);                                     
+    else                                                            
+      buffer.append(e.getClass());                                
+    buffer.append(", ");
+    buffer.append(m);
+    buffer.append(')');                                             
+
+    // The DB2 for i5/OS SQL CLI manual says that
+    // we should set the native error code to -99999
+    // when the driver generates the error.
+    //
+    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   
+
+    if (JDTrace.isTraceOn ())                                           
+    {                                                                   
+      String m2 = "Throwing exception. Original exception: ";          
+      JDTrace.logException(thrower, m2, e);                             
+                                                                       
+      m2 = "Throwing exception.  Actual exception: "                   
+           + buffer.toString()                      
+           + " sqlState: " + sqlState               
+           + " vendor code -99999";                 
+      JDTrace.logException(thrower, m2, e2);                            
+    }                                                                   
+
+    throw e2;
+  }
+
 
 /**
 Throws an SQL exception based on information

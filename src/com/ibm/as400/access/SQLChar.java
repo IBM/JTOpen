@@ -95,7 +95,7 @@ implements SQLData
         catch(CharConversionException e)
         {
             maxLength_ = ccsidConverter.stringToByteArray(value_, bidiConversionProperties).length;   //@KBC changed to use bidiConversionProperties_ instead of bidiStringType
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e, "Change Descriptor");
         }
     }
 
