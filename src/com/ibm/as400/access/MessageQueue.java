@@ -370,6 +370,22 @@ need replies.
 
 
   /**
+   * Closes the message list on the system when this object is garbage collected.
+  **/
+  protected void finalize() throws Throwable
+  {
+    try
+    {
+      close();
+    }
+    catch(Exception e)
+    {
+    }
+    super.finalize();
+  }
+
+
+  /**
     * Returns the status of help text formatting.  Possible values are:
     * <UL>
     * <LI>{@link com.ibm.as400.access.MessageFile#NO_FORMATTING MessageFile.NO_FORMATTING} - The help text is returned as a string of characters.
