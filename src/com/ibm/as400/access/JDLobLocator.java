@@ -109,8 +109,56 @@ Returns the locator handle.
   public long getLength()                                 // @C1A
   throws SQLException                                  // @C1A
   {                                                       // @C1A
-    if (length_ == -1)                                  // @C1A
-      retrieveData(0,0);                              // @C1A
+        if (length_ == -1) {                                // @C1A
+            // @H0D         retrieveData(0,0);              // @C1A
+            try                                                                                             //@H0A
+            {                                                                                               //@H0A
+                DBSQLRequestDS request = null;                                                              //@H0A
+                DBReplyRequestedDS reply = null;                                                            //@H0A
+                try                                                                                         //@H0A
+                {                                                                                           //@H0A
+                    request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_RETRIEVE_LOB_DATA,       //@H0A
+                                                         id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA        //@H0A
+                                                         + DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);      //@H0A
+                    request.setLOBLocatorHandle(handle_);                                                   //@H0A
+                    request.setRequestedSize(0);                                                            //@H0A
+                    request.setStartOffset(0);                                                              //@H0A
+                    request.setCompressionIndicator(dataCompression_ ? 0xF1 : 0xF0);                        //@H0A
+                    request.setReturnCurrentLengthIndicator(0xF1);                                          //@H0A
+                    if (columnIndex_ != -1)                                                                 //@H0A
+                    {                                                                                       //@H0A
+                        request.setColumnIndex(columnIndex_);                                               //@H0A
+                    }                                                                                       //@H0A
+                                                                                                            //@H0A
+                    reply = connection_.sendAndReceive(request, id_);                                       //@H0A
+                    int errorClass = reply.getErrorClass();                                                 //@H0A
+                    int returnCode = reply.getReturnCode();                                                 //@H0A
+                                                                                                            //@H0A
+                    if (errorClass != 0)                                                                    //@H0A
+                        JDError.throwSQLException (connection_, id_, errorClass, returnCode);               //@H0A
+                                                                                                            //@H0A
+                    length_ = reply.getCurrentLOBLength();                                                  //@H0A
+                                                                                                            //@H0A
+                    //    Adjust lengths if necessary.  The server returns the number                       //@H0A
+                    //    of characters but these routine work in bytes.  If the                            //@H0A
+                    //    clob is a dbclob then there are two bytes per characters                          //@H0A
+                    //    so multiple the lengths.                                                          //@H0A
+                    if (graphic_)                                                                           //@H0A
+                        length_ = length_ * 2;                                                              //@H0A
+                                                                                                            //@H0A
+                }                                                                                           //@H0A
+                finally                                                                                     //@H0A
+                {                                                                                           //@H0A
+                    if (request != null) request.inUse_ = false;                                            //@H0A
+                    if (reply != null) reply.inUse_ = false;                                                //@H0A
+                }                                                                                           //@H0A
+            }                                                                                               //@H0A
+            catch (DBDataStreamException e)                                                                 //@H0A
+            {                                                                                               //@H0A
+                JDError.throwSQLException (JDError.EXC_INTERNAL, e);                                        //@H0A
+                return -1;                                                                                  //@H0A
+            }                                                                                               //@H0A
+        }                                                                                                   //@H0A
     return length_;                                     // @C1A
   }                                                       // @C1A
 
@@ -122,7 +170,7 @@ Returns the locator handle.
   throws SQLException                                  
   {                                                      
     if (length_ == -1)
-      retrieveData(0,0);
+            length_ = getLength();
 
     if (graphic_)
       return length_ / 2;
@@ -208,8 +256,7 @@ Retrieves part of the contents of the lob.
   throws SQLException
   {
     // Validate the parameters.                                 // @A1A
-    if ((start < 0) || (start >= maxLength_)                    // @A1A
-        || (length < 0))                                        // @A1A
+        if ((start < 0) || (length < 0))                            // @A1A // @HOM
       JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); // @A1A
 
     // @C1D // The database flags an error if you pass in a 0              @A1A
@@ -235,6 +282,10 @@ Retrieves part of the contents of the lob.
       bytesToRead = bytesToRead / 2;         // @C4a 2
     }
 
+        // Validate the parameters.                                           //@H0A
+        if (startingOffset >= getLength())                                    //@H0A            
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);  //@H0A
+
     try
     {
       DBSQLRequestDS request = null; //@P0A
@@ -258,7 +309,7 @@ Retrieves part of the contents of the lob.
                 }
 
         if (JDTrace.isTraceOn ())
-          JDTrace.logInformation (connection_, "Retrieving lob data");
+                    JDTrace.logInformation (connection_, "Retrieving lob data from handle: " + handle_);
 
         reply = connection_.sendAndReceive (request, id_); //@P0C
         int errorClass = reply.getErrorClass();
@@ -372,7 +423,7 @@ Writes part of the contents of the lob.
         request.setLOBData (data);
 
         if (JDTrace.isTraceOn ())
-          JDTrace.logInformation (connection_, "Writing lob data");
+                    JDTrace.logInformation (connection_, "Writing lob data to handle: " + handle_ + " offset: " + start + " length: " + length);
 
         reply = connection_.sendAndReceive (request, id_); //@P0C
         int errorClass = reply.getErrorClass();
