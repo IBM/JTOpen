@@ -606,6 +606,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     AS400JDBCConnectionPoolDataSource old = dataSource_;
 
     dataSource_ = dataSource;
-    changes_.firePropertyChange(property, old, dataSource);
+    if(changes_ != null)                                       //@K1A
+        changes_.firePropertyChange(property, old, dataSource);
   }
 }
