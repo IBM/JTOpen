@@ -6405,13 +6405,17 @@ implements DatabaseMetaData
     public boolean supportsResultSetType (int resultSetType)
     throws SQLException
     {
-        // Validate the result set type.
-        if ((resultSetType != ResultSet.TYPE_FORWARD_ONLY)
-            && (resultSetType != ResultSet.TYPE_SCROLL_INSENSITIVE)
-            && (resultSetType != ResultSet.TYPE_SCROLL_SENSITIVE))
-            JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
-
-        return true;
+        switch(resultSetType)
+        {
+            case ResultSet.TYPE_FORWARD_ONLY:
+            case ResultSet.TYPE_SCROLL_SENSITIVE:
+                return true;
+            case ResultSet.TYPE_SCROLL_INSENSITIVE:
+                return false;
+            default:
+                JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
+                return false;
+        }
     }
 
 
