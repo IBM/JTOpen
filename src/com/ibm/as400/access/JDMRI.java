@@ -92,6 +92,12 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_TRANSACTION_ISOLATION", "transactionIsolation" },
       { "PROP_NAME_TRANSLATE_BINARY", "translateBinary" },
       { "PROP_NAME_USER", "user" },
+      { "PROP_NAME_KEEP_ALIVE", "keepAlive" },
+      { "PROP_NAME_RECEIVE_BUFFER_SIZE", "receiveBufferSize" },
+      { "PROP_NAME_SEND_BUFFER_SIZE", "sendBufferSize" },
+      { "PROP_NAME_SO_LINGER", "soLinger" },
+      { "PROP_NAME_SO_TIMEOUT", "soTimeout" },
+      { "PROP_NAME_TCP_NO_DELAY", "tcpNoDelay" },
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -150,6 +156,12 @@ public class JDMRI extends ListResourceBundle
       { "TRANSACTION_ISOLATION_DESC", "Specifies the default transaction isolation." },
       { "TRANSLATE_BINARY_DESC", "Specifies whether binary data is translated." },
       { "USER_DESC", "Specifies the user name for connecting to the server." },
+      { "KEEP_ALIVE_DESC", "Specifies the socket keep alive value to use when connecting to the server." },
+      { "RECEIVE_BUFFER_SIZE_DESC", "Specifies the socket receive buffer size to use when connecting to the server." },
+      { "SEND_BUFFER_SIZE_DESC", "Specifies the socket send buffer size to use when connecting to the server." },
+      { "SO_LINGER_DESC", "Specifies the socket linger value to use when connecting to the server." },
+      { "SO_TIMEOUT_DESC", "Specifies the socket timeout value to use when connecting to the server." },
+      { "TCP_NO_DELAY_DESC", "Specifies the socket TCP no delay value to use when connecting to the server." },
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
