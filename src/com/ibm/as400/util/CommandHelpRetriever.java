@@ -444,7 +444,7 @@ public class CommandHelpRetriever
     public synchronized String generateHTML(Command command) throws AS400Exception, AS400SecurityException,
     ErrorCompletingRequestException, IOException,
     InterruptedException, ObjectDoesNotExistException,
-    SAXNotRecognizedException, SAXNotSupportedException, SAXException,
+//    SAXNotRecognizedException, SAXNotSupportedException, SAXException,
     TransformerConfigurationException, TransformerException
     {
         if (command == null)
