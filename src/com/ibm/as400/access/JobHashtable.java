@@ -26,6 +26,7 @@ package com.ibm.as400.access;
 **/
 final class JobHashtable implements java.io.Serializable
 {
+  static final long serialVersionUID = 5L;
   private static final int HASH = 4;
   final Object[][] values_ = new Object[HASH][];
   final int[][] keys_ = new int[HASH][];

@@ -24,6 +24,7 @@ package com.ibm.as400.access;
 **/
 final class IntegerHashtable implements java.io.Serializable
 {
+  static final long serialVersionUID = 5L;
   private static final int HASH = 4;
   final int[][] values_ = new int[HASH][];
   final int[][] keys_ = new int[HASH][];

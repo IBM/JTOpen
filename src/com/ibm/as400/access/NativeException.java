@@ -17,6 +17,7 @@ class NativeException extends Exception
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
     byte[] data = null;
 
     NativeException(byte[] data)

@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 class SSTS0300Format extends SystemStatusFormat
 {
+  static final long serialVersionUID = 4L;
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
   SSTS0300Format(AS400 sys)

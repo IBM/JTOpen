@@ -27,6 +27,7 @@ public class TunnelProxyServer extends HttpServlet
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+  static final long serialVersionUID = 4L;
 	//each servlet will have a controller
 	private PSTunnelController    controller_;
 

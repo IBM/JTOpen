@@ -2024,7 +2024,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
 **/
 class QWHFDACPFormat extends RecordFormat
 {
-  private String x = Copyright.copyright;
+  static final long serialVersionUID = 4L;  // @B6A
 
   QWHFDACPFormat(int ccsid)
   {
@@ -2079,7 +2079,7 @@ class QWHFDACPFormat extends RecordFormat
 **/
 class QWHFDFMTFormat extends RecordFormat
 {
-  private String x = Copyright.copyright;
+  static final long serialVersionUID = 4L;  // @B6A
 
   QWHFDFMTFormat(int ccsid)
   {
@@ -2150,7 +2150,7 @@ class QWHFDFMTFormat extends RecordFormat
 **/
 class QWHDRFFDFormat extends RecordFormat
 {
-  private String x = Copyright.copyright;
+  static final long serialVersionUID = 4L;  // @B6A
 
   QWHDRFFDFormat(int ccsid)
   {
