@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: VNPMRI.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,11 +16,11 @@ package com.ibm.as400.vaccess;
 import java.util.*;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for the IBM Toolbox for Java.
 **/
 public class VNPMRI extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
    public Object[][] getContents()
    {
@@ -28,17 +28,6 @@ public class VNPMRI extends ListResourceBundle
    }
 
    private final static Object[][] resources= {
-           // #
-           // # 5769-SS1
-           // # (C) Copyright IBM Corp. 1997, 1998
-           // # All rights reserved.
-           // # US Government Users Restricted Rights -
-           // # Use, duplication, or disclosure restricted
-           // # by GSA ADP Schedule Contract with IBM Corp.
-           // #
-           // # Licensed Materials - Property of IBM
-           // #
-
            // #TRANNOTE Before you add a new resource, please make
            // #TRANNOTE sure you are not duplicating another.  The
            // #TRANNOTE goal is to keep the amount of translatable
