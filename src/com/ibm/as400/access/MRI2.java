@@ -925,6 +925,7 @@ public class MRI2 extends ListResourceBundle
       { "GENCMDDOC_NAME_LOWERCASE",          "name" },
       { "GENCMDDOC_NONE",                    "None" },
       { "GENCMDDOC_NOTES",                   "Notes" },
+      { "GENCMDDOC_OPTIONAL",                "Optional" },
       { "GENCMDDOC_PARAMETERS",              "Parameters" },
       { "GENCMDDOC_POSITIONAL",              "Positional" },
       { "GENCMDDOC_QUALIFIER",               "Qualifier" },
