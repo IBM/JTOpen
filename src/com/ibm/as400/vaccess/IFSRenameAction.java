@@ -133,6 +133,7 @@ Processes an editing stopped event.
                 + file_.getName () + "] to [" + newName + "].");
 
         workingEventSupport_.fireStartWorking ();
+        boolean firedStopWorking = false;
 
         try {
 
@@ -141,6 +142,11 @@ Processes an editing stopped event.
             // error event.
             if (file_.exists () == false) {
                 errorEventSupport_.fireError (new IOException (ResourceLoader.getText ("EXC_FILE_NOT_FOUND")));
+                // Firing the objectDeleted event causes listeners to stop listening;
+                // so fire the stop working event now, while they're still listening.
+                workingEventSupport_.fireStopWorking ();
+                firedStopWorking = true;
+
                 objectEventSupport_.fireObjectDeleted (object_);
             }
 
@@ -160,7 +166,9 @@ Processes an editing stopped event.
             errorEventSupport_.fireError (e);
         }
 
-        workingEventSupport_.fireStopWorking ();
+        if (!firedStopWorking) {
+          workingEventSupport_.fireStopWorking ();
+        }
     }
 
 
