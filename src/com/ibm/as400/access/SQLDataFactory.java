@@ -150,8 +150,13 @@ total number of digits.
         if (value instanceof Boolean)
             precision = 1;
 
-        else {
+        else 
+        {
             String toString = value.toString();
+            
+            if (toString.charAt(0) == '-')                                  // @F1a
+               toString = toString.substring(1);                            // @F1a
+            
             int length = toString.length();
 
             // We need to truncate any padding zeroes.  Without this,          @E2A
