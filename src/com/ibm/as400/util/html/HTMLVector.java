@@ -18,7 +18,7 @@ import java.util.Vector;
 /**
  * This Vector is used internally by the HTML classes for performance reasons.
 **/
-final class HTMLVector extends Vector
+public class HTMLVector extends Vector
 {
   /**
    * This returns the superclass's element data array, which may be longer
