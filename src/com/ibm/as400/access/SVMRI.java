@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: SVMRI.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SVMRI.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -16,42 +16,44 @@ package com.ibm.as400.access;
 import java.util.ListResourceBundle;
 
 /**
-Locale-specific objects for IBM Toolbox for Java.
-**/
+ Locale-specific objects for IBM Toolbox for Java.
+ **/
 public class SVMRI extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     public Object[][] getContents()
     {
         return resources;
     }
 
-    private static final Object[][] resources = {
-           // #TRANNOTE Before you add a new resource, please make
-           // #TRANNOTE sure you are not duplicating another.  The
-           // #TRANNOTE goal is to keep the amount of translatable
-           // #TRANNOTE text down.
-           // #TRANNOTE
-           // #TRANNOTE NOTE TO TRANSLATORS: The format of a line of MRI
-           // #TRANNOTE    is { "KEY", "value" },
-           // #TRANNOTE
-           // #TRANNOTE The key must be left alone so translate only the value.
-           // #TRANNOTE
-           // #TRANNOTE
+    private static final Object[][] resources =
+    {
+        // #TRANNOTE Before you add a new resource, please make
+        // #TRANNOTE sure you are not duplicating another.  The
+        // #TRANNOTE goal is to keep the amount of translatable
+        // #TRANNOTE text down.
+        // #TRANNOTE
+        // #TRANNOTE NOTE TO TRANSLATORS: The format of a line of MRI
+        // #TRANNOTE    is { "KEY", "value" },
+        // #TRANNOTE
+        // #TRANNOTE The key must be left alone so translate only the value.
+        // #TRANNOTE
+        // #TRANNOTE
 
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Text for system value's description.
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Each key starts a short identifier to descript system
-           // #TRANNOTE value, then a postfix _DES.
-           // #TRANNOTE
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Text for system value's description.
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Each key starts a short identifier to descript system
+        // #TRANNOTE value, then a postfix _DES.
+        // #TRANNOTE
         { "QABNORMSW_DES" , "Previous end of system indicator" },
         { "QACGLVL_DES" , "Accounting level" },
         { "QACTJOB_DES" , "Initial number of active jobs" },
         { "QADLACTJ_DES" , "Additional number of active jobs" },
         { "QADLSPLA_DES" , "Spooling control block additional storage" },
         { "QADLTOTJ_DES" , "Additional number of total jobs" },
+        { "QALWJOBITP_DES", "Allow jobs to be interrupted" },
         { "QALWOBJRST_DES" , "Allow object restore option" },
         { "QALWUSRDMN_DES" , "Allow user domain objects in libraries" },
         { "QASTLVL_DES" , "User assistance level" },
@@ -121,6 +123,7 @@ public class SVMRI extends ListResourceBundle
         { "QLMTDEVSSN_DES" , "Limit device sessions" },
         { "QLMTSECOFR_DES" , "Limit security officer device access" },
         { "QLOCALE_DES" , "Locale path name" },
+        { "QLOGOUTPUT_DES" , "Produce a job log" },
         { "QMAXACTLVL_DES" , "Maximum activity level of server" },
         { "QMAXJOB_DES" , "Maximum number of jobs" },              //@D2a
         { "QMAXSGNACN_DES" , "Action to take for failed signon attempts" },
@@ -234,13 +237,13 @@ public class SVMRI extends ListResourceBundle
         { "QTHDRSCAFN_DES", "Thread resources affinity" },      //@K1A
         { "QTHDRSCADJ_DES", "Thread resources adjustment" },    //@K1A
 
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Text for system values group's name.
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Each key starts with the prefix SYSTEM_VALUE_GROUP_, a short
-           // #TRANNOTE identifier to describe the system value group and
-           // #TRANNOTE a postfix _NAME.
-           // #TRANNOTE
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Text for system values group's name.
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Each key starts with the prefix SYSTEM_VALUE_GROUP_, a short
+        // #TRANNOTE identifier to describe the system value group and
+        // #TRANNOTE a postfix _NAME.
+        // #TRANNOTE
         { "SYSTEM_VALUE_GROUP_ALL_NAME" , "All" },
         { "SYSTEM_VALUE_GROUP_ALC_NAME" , "Allocation" },
         { "SYSTEM_VALUE_GROUP_DATTIM_NAME" , "Date and Time" },
@@ -253,12 +256,12 @@ public class SVMRI extends ListResourceBundle
         { "SYSTEM_VALUE_GROUP_NET_NAME" , "Network Attributes" },
 
         // #TRANNOTE #####################################################
-           // #TRANNOTE Text for system values group's description.
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Each key starts with the prefix SYSTEM_VALUE_GROUP_, a short
-           // #TRANNOTE identifier to describe the system value group and
-           // #TRANNOTE a postfix _DESC.
-           // #TRANNOTE
+        // #TRANNOTE Text for system values group's description.
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Each key starts with the prefix SYSTEM_VALUE_GROUP_, a short
+        // #TRANNOTE identifier to describe the system value group and
+        // #TRANNOTE a postfix _DESC.
+        // #TRANNOTE
 
         { "SYSTEM_VALUE_GROUP_ALL_DESC" , "All system values in the system" },
         { "SYSTEM_VALUE_GROUP_ALC_DESC" , "Allocation system values" },
@@ -271,16 +274,12 @@ public class SVMRI extends ListResourceBundle
         { "SYSTEM_VALUE_GROUP_SYSCTL_DESC" , "System control system values" },
         { "SYSTEM_VALUE_GROUP_NET_DESC" , "Network attributes of the system" },
 
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Text for system values various items
-           // #TRANNOTE #####################################################
-           // #TRANNOTE Each key starts with the prefix SYSTEM_VALUE_, and a
-           // #TRANNOTE description of the value.
-           // #TRANNOTE
-          { "SYSTEM_VALUE_USER_DEFINED" , "User Defined" }
-
-
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Text for system values various items
+        // #TRANNOTE #####################################################
+        // #TRANNOTE Each key starts with the prefix SYSTEM_VALUE_, and a
+        // #TRANNOTE description of the value.
+        // #TRANNOTE
+        { "SYSTEM_VALUE_USER_DEFINED" , "User Defined" }
     };
-
-
 }

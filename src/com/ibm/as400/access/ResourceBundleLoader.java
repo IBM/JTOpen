@@ -83,7 +83,7 @@ class ResourceBundleLoader
         if (systemValueResource_ == null) {
             throw resourceException_;
         }
-        return systemValueResource_.getString(textId);
+        return systemValueResource_.getString(textId).trim();
     }
 
     // Returns the system value MRI text for the specified Locale.
@@ -100,7 +100,7 @@ class ResourceBundleLoader
         if (systemValueResource_ == null) {
             throw resourceException_;
         }
-        return systemValueResource_.getString(textId);
+        return systemValueResource_.getString(textId).trim();
     }
 
     // Returns the text associated with the exception.

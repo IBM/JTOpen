@@ -16,20 +16,14 @@ package com.ibm.as400.access;
 import java.util.EventListener;
 
 /**
- * The SystemValueListener interface provides a listener interface for
- * receiving SystemValueEvents.
- *
- * @see SystemValueEvent
-**/
-public interface SystemValueListener
-       extends EventListener
+ The SystemValueListener interface provides a listener interface for receiving SystemValueEvents.
+ @see  SystemValueEvent
+ **/
+public interface SystemValueListener extends EventListener
 {
-
     /**
-     * Invoked when a server system value is changed by this object.
-     * @param event The event.
-     * 
-    **/
-    abstract public void systemValueChanged (SystemValueEvent event);
-
+     Invoked when a system value on the server is changed by this object.
+     @param  event  The system value changed event.
+     **/
+    abstract public void systemValueChanged(SystemValueEvent event);
 }

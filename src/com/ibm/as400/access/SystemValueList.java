@@ -1,803 +1,774 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: SystemValueList.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SystemValueList.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.util.Vector;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Locale; //@F0A
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
-import java.beans.PropertyVetoException;
-import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Vector;
 
-public class SystemValueList implements java.io.Serializable
+public class SystemValueList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
+    /**
+     Constant indicating the system value's group is *ALC (Allocation).
+     **/
+    public static final int GROUP_ALC = 0;
+    /**
+     Constant indicating the system value's group is *ALL (All).
+     **/
+    public static final int GROUP_ALL = 9;
+    /**
+     Constant indicating the system value's group is *DATTIM (Date and Time).
+     **/
+    public static final int GROUP_DATTIM = 1;
+    /**
+     Constant indicating the system value's group is *EDT (Editing).
+     **/
+    public static final int GROUP_EDT = 2;
+    /**
+     Constant indicating the system value's group is *LIBL (Library List).
+     **/
+    public static final int GROUP_LIBL = 3;
+    /**
+     Constant indicating the system value's group is *MSG (Message and Logging).
+     **/
+    public static final int GROUP_MSG = 4;
+    /**
+     Constant indicating the system value's group is *NET (Net Attribute).
+     **/
+    public static final int GROUP_NET = 8;
+    /**
+     Constant indicating the system value's group is *SEC (Security).
+     **/
+    public static final int GROUP_SEC = 5;
+    /**
+     Constant indicating the system value's group is *STG (Storage).
+     **/
+    public static final int GROUP_STG = 6;
+    /**
+     Constant indicating the system value's group is *SYSCTL (System control).
+     **/
+    public static final int GROUP_SYSCTL = 7;
 
-  /**
-   * Constant indicating the system value's type in AS400 is BINARY.
-  **/
-  static final char AS400TYPE_BINARY = 'B';
-  /**
-   * Constant indicating the system value's type in AS400 is CHAR.
-  **/
-  static final char AS400TYPE_CHAR = 'C';
+    /**
+     Constant indicating the returned system value type is String[].
+     **/
+    public static final int TYPE_ARRAY = 4;
+    /**
+     Constant indicating the returned system value type is Date.
+     **/
+    public static final int TYPE_DATE = 5;
+    /**
+     Constant indicating the returned system value type is BigDecimal.
+     **/
+    public static final int TYPE_DECIMAL = 2;
+    /**
+     Constant indicating the returned system value type is Integer.
+     **/
+    public static final int TYPE_INTEGER = 3;
+    /**
+     Constant indicating the returned system value type is String.
+     **/
+    public static final int TYPE_STRING = 1;
 
+    // Constant indicating the system value's type on the server is BINARY.
+    static final byte SERVER_TYPE_BINARY = (byte)0xC2;
+    // Constant indicating the system value's type on the server is CHAR.
+    static final byte SERVER_TYPE_CHAR = (byte)0xC3;
 
-  /**
-   * Constant indicating the system value's group is *ALC (Allocation).
-  **/
-  public static final int GROUP_ALC = 0;
-  /**
-   * Constant indicating the system value's group is *ALL (All).
-  **/
-  public static final int GROUP_ALL = 9;
-  /**
-   * Constant indicating the system value's group is *DATTIM (Date and Time).
-  **/
-  public static final int GROUP_DATTIM = 1;
-  /**
-   * Constant indicating the system value's group is *EDT (Editing).
-  **/
-  public static final int GROUP_EDT = 2;
-  /**
-   * Constant indicating the system value's group is *LIBL (Library List).
-  **/
-  public static final int GROUP_LIBL = 3;
-  /**
-   * Constant indicating the system value's group is *MSG (Message and Logging).
-  **/
-  public static final int GROUP_MSG = 4;
-  /**
-   * Constant indicating the system value's group is *NET (Net Attribute).
-  **/
-  public static final int GROUP_NET = 8;
-  /**
-   * Constant indicating the system value's group is *SEC (Security).
-  **/
-  public static final int GROUP_SEC = 5;
-  /**
-   * Constant indicating the system value's group is *STG (Storage).
-  **/
-  public static final int GROUP_STG = 6;
-  /**
-   * Constant indicating the system value's group is *SYSCTL (System control).
-  **/
-  public static final int GROUP_SYSCTL = 7;
+    // Constants for operating system VRM.
+    private static final int VRM420 = 0x00040200;
+    private static final int VRM430 = 0x00040300;
+    private static final int VRM440 = 0x00040400;
+    private static final int VRM510 = 0x00050100;
+    private static final int VRM520 = 0x00050200;
+    private static final int VRM530 = 0x00050300;
+    private static final int VRM540 = 0x00050400;
 
+    // The total number of groups.
+    private static final int GROUP_COUNT = 10;
 
-  /**
-   * Constant indicating the returned system value type is String[].
-  **/
-  public static final int TYPE_ARRAY = 4;
-  /**
-   * Constant indicating the returned system value type is Date.
-  **/
-  public static final int TYPE_DATE = 5;
-  /**
-   * Constant indicating the returned system value type is BigDecimal.
-  **/
-  public static final int TYPE_DECIMAL = 2;
-  /**
-   * Constant indicating the returned system value type is Integer.
-  **/
-  public static final int TYPE_INTEGER = 3;
-  /**
-   * Constant indicating the returned system value type is String.
-  **/
-  public static final int TYPE_STRING = 1;
+    // The MRI for the group names.
+    private static final String[] GROUP_NAMES = new String[]
+    {
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME"),
+    };
 
+    // The MRI for the group descriptions.
+    private static final String[] GROUP_DESCRIPTIONS = new String[]
+    {
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC"),
+        ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC"),
+    };
 
-
-  /**
-   * The total number of groups.
-  **/
-  static final int groupCount_ = 10;
-
-
-  /**
-    * The MRI for the group names.
-  **/
-  static final String[] groupNames_ = new String[]
-  {
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME")).trim(),
-  };
-
-  /**
-   * The MRI for the group descriptions.
-  **/
-  static final String[] groupDescriptions_ = new String[]
-  {
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC")).trim(),
-    ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC")).trim(),
-  };
-
-  private static Hashtable list_ = null; // The list of all SystemValueInfo objects
-  static Hashtable groups_ = null; // Provided for convenient lookup of system value groups
-
-  // Initialize the hashtables
-  static
-  {
+    // The list of all SystemValueInfo objects.
     // For V4R2, there are 125 system values and 35 network attributes.
     // For V4R3, there are an additional 5 system values.
     // For V4R4, there are 2 additional system values and 2 additional network attributes.
-    // @D2 For V5R1, there are 6 additional system values.
-    // @E0 For V5R2, there are 2 additional system values.
+    // For V5R1, there are 6 additional system values.
+    // For V5R2, there are 2 additional system values.
+    // For V5R3, there are 10 additional system values.
+    // For V5R4, there are 2 additional system values.
+    // There are at least 189 system values.
+    // The optimal hash size is 189/0.75 = 252.
+    private static Hashtable list = new Hashtable(252);
 
-    list_ = new Hashtable(177); // There are at least 177 system values @C1C @F1C
-    groups_ = new Hashtable(groupCount_); // There are 10 groups @D4C
-    Vector[] groupVector = new Vector[groupCount_]; // The group type is the index into this array of Vectors @D4C
-                                           // Each vector contains a list of system values that belong to that group.
-    // Do V4R2 system values
-    if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+    // Provided for convenient lookup of system value groups.
+    static Vector[] groups = { new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector() };
+
+    // Initialize the hashtables.
+    static
     {
-      Trace.log(Trace.DIAGNOSTIC, "Populating system value table...");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Populating system value table...");
+
+        // Network attributes.
+        SystemValueList.list.put("ALRBCKFP", new SystemValueInfo("ALRBCKFP", SERVER_TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRBCKFP_DES")));
+        SystemValueList.list.put("ALRCTLD", new SystemValueInfo("ALRCTLD", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRCTLD_DES")));
+        SystemValueList.list.put("ALRDFTFP", new SystemValueInfo("ALRDFTFP", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRDFTFP_DES")));
+        SystemValueList.list.put("ALRFTR", new SystemValueInfo("ALRFTR", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRFTR_DES")));
+        SystemValueList.list.put("ALRHLDCNT", new SystemValueInfo("ALRHLDCNT", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRHLDCNT_DES")));
+        SystemValueList.list.put("ALRLOGSTS", new SystemValueInfo("ALRLOGSTS", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRLOGSTS_DES")));
+        SystemValueList.list.put("ALRPRIFP", new SystemValueInfo("ALRPRIFP", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRPRIFP_DES")));
+        SystemValueList.list.put("ALRRQSFP", new SystemValueInfo("ALRRQSFP", SERVER_TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRRQSFP_DES")));
+        SystemValueList.list.put("ALRSTS", new SystemValueInfo("ALRSTS", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALRSTS_DES")));
+        SystemValueList.list.put("ALWANYNET", new SystemValueInfo("ALWANYNET", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALWANYNET_DES")));
+        SystemValueList.list.put("ALWHPRTWR", new SystemValueInfo("ALWHPRTWR", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALWHPRTWR_DES")));
+        SystemValueList.list.put("ALWVRTAPPN", new SystemValueInfo("ALWVRTAPPN", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("ALWVRTAPPN_DES")));
+        SystemValueList.list.put("DDMACC", new SystemValueInfo("DDMACC", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("DDMACC_DES")));
+        SystemValueList.list.put("DFTCNNLST", new SystemValueInfo("DFTCNNLST", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("DFTCNNLST_DES")));
+        SystemValueList.list.put("DFTMODE", new SystemValueInfo("DFTMODE", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("DFTMODE_DES")));
+        SystemValueList.list.put("DFTNETTYPE", new SystemValueInfo("DFTNETTYPE", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("DFTNETTYPE_DES")));
+        SystemValueList.list.put("DTACPR", new SystemValueInfo("DTACPR", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("DTACPR_DES")));
+        SystemValueList.list.put("DTACPRINM", new SystemValueInfo("DTACPRINM", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("DTACPRINM_DES")));
+        SystemValueList.list.put("HPRPTHTMR", new SystemValueInfo("HPRPTHTMR", SERVER_TYPE_CHAR, 10, 4, TYPE_ARRAY, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("HPRPTHTMR_DES")));
+        SystemValueList.list.put("JOBACN", new SystemValueInfo("JOBACN", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("JOBACN_DES")));
+        SystemValueList.list.put("LCLCPNAME", new SystemValueInfo("LCLCPNAME", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("LCLCPNAME_DES")));
+        SystemValueList.list.put("LCLLOCNAME", new SystemValueInfo("LCLLOCNAME", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("LCLLOCNAME_DES")));
+        SystemValueList.list.put("LCLNETID", new SystemValueInfo("LCLNETID", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("LCLNETID_DES")));
+        SystemValueList.list.put("MAXHOP", new SystemValueInfo("MAXHOP", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("MAXHOP_DES")));
+        SystemValueList.list.put("MAXINTSSN", new SystemValueInfo("MAXINTSSN", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("MAXINTSSN_DES")));
+        SystemValueList.list.put("MSGQ", new SystemValueInfo("MSGQ", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("MSGQ_DES")));
+        SystemValueList.list.put("NETSERVER", new SystemValueInfo("NETSERVER", SERVER_TYPE_CHAR, 17, 5, TYPE_ARRAY, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("NETSERVER_DES")));
+        SystemValueList.list.put("NODETYPE", new SystemValueInfo("NODETYPE", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("NODETYPE_DES")));
+        SystemValueList.list.put("NWSDOMAIN", new SystemValueInfo("NWSDOMAIN", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("NWSDOMAIN_DES")));
+        SystemValueList.list.put("OUTQ", new SystemValueInfo("OUTQ", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("OUTQ_DES")));
+        SystemValueList.list.put("PCSACC", new SystemValueInfo("PCSACC", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("PCSACC_DES")));
+        SystemValueList.list.put("PNDSYSNAME", new SystemValueInfo("PNDSYSNAME", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("PNDSYSNAME_DES"),true));
+        SystemValueList.list.put("RAR", new SystemValueInfo("RAR", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("RAR_DES")));
+        SystemValueList.list.put("SYSNAME", new SystemValueInfo("SYSNAME", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("SYSNAME_DES")));
+        SystemValueList.list.put("VRTAUTODEV", new SystemValueInfo("VRTAUTODEV", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, VRM420, ResourceBundleLoader.getSystemValueText("VRTAUTODEV_DES")));
+
+        // V4R4 network attributes.
+        SystemValueList.list.put("ALWADDCLU", new SystemValueInfo("ALWADDCLU", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, VRM440, ResourceBundleLoader.getSystemValueText("ALWADDCLU_DES")));
+        SystemValueList.list.put("MDMCNTRYID", new SystemValueInfo("MDMCNTRYID", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_NET, VRM440, ResourceBundleLoader.getSystemValueText("MDMCNTRYID_DES")));
+
+        // System values.
+        SystemValueList.list.put("QABNORMSW", new SystemValueInfo("QABNORMSW", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QABNORMSW_DES"), true));
+        SystemValueList.list.put("QACGLVL", new SystemValueInfo("QACGLVL", SERVER_TYPE_CHAR, 10, 8, TYPE_ARRAY, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QACGLVL_DES")));
+        SystemValueList.list.put("QACTJOB", new SystemValueInfo("QACTJOB", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QACTJOB_DES")));
+        SystemValueList.list.put("QADLACTJ", new SystemValueInfo("QADLACTJ", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QADLACTJ_DES")));
+        SystemValueList.list.put("QADLSPLA", new SystemValueInfo("QADLSPLA", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QADLSPLA_DES")));
+        SystemValueList.list.put("QADLTOTJ", new SystemValueInfo("QADLTOTJ", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QADLTOTJ_DES")));
+        SystemValueList.list.put("QALWOBJRST", new SystemValueInfo("QALWOBJRST", SERVER_TYPE_CHAR, 10, 15, TYPE_ARRAY, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QALWOBJRST_DES")));
+        SystemValueList.list.put("QALWUSRDMN", new SystemValueInfo("QALWUSRDMN", SERVER_TYPE_CHAR, 10, 50, TYPE_ARRAY, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QALWUSRDMN_DES")));
+        SystemValueList.list.put("QASTLVL", new SystemValueInfo("QASTLVL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QASTLVL_DES")));
+        SystemValueList.list.put("QATNPGM", new SystemValueInfo("QATNPGM", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QATNPGM_DES")));
+        SystemValueList.list.put("QAUDCTL", new SystemValueInfo("QAUDCTL", SERVER_TYPE_CHAR, 10, 5, TYPE_ARRAY, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QAUDCTL_DES")));
+        SystemValueList.list.put("QAUDENDACN", new SystemValueInfo("QAUDENDACN", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QAUDENDACN_DES")));
+        SystemValueList.list.put("QAUDFRCLVL", new SystemValueInfo("QAUDFRCLVL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QAUDFRCLVL_DES")));
+        SystemValueList.list.put("QAUDLVL", new SystemValueInfo("QAUDLVL", SERVER_TYPE_CHAR, 10, 16, TYPE_ARRAY, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QAUDLVL_DES")));
+        SystemValueList.list.put("QAUTOCFG", new SystemValueInfo("QAUTOCFG", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QAUTOCFG_DES")));
+        SystemValueList.list.put("QAUTORMT", new SystemValueInfo("QAUTORMT", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QAUTORMT_DES")));
+        SystemValueList.list.put("QAUTOSPRPT", new SystemValueInfo("QAUTOSPRPT", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QAUTOSPRPT_DES")));
+        SystemValueList.list.put("QAUTOVRT", new SystemValueInfo("QAUTOVRT", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QAUTOVRT_DES")));
+        SystemValueList.list.put("QBASACTLVL", new SystemValueInfo("QBASACTLVL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QBASACTLVL_DES")));
+        SystemValueList.list.put("QBASPOOL", new SystemValueInfo("QBASPOOL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QBASPOOL_DES")));
+        SystemValueList.list.put("QBOOKPATH", new SystemValueInfo("QBOOKPATH", SERVER_TYPE_CHAR, 63, 5, TYPE_ARRAY, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QBOOKPATH_DES")));
+        SystemValueList.list.put("QCCSID", new SystemValueInfo("QCCSID", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCCSID_DES")));
+        SystemValueList.list.put("QCENTURY", new SystemValueInfo("QCENTURY", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QCENTURY_DES")));
+        SystemValueList.list.put("QCHRID", new SystemValueInfo("QCHRID", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCHRID_DES")));
+        SystemValueList.list.put("QCMNARB", new SystemValueInfo("QCMNARB", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCMNARB_DES")));
+        SystemValueList.list.put("QCMNRCYLMT", new SystemValueInfo("QCMNRCYLMT", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCMNRCYLMT_DES")));
+        SystemValueList.list.put("QCNTRYID", new SystemValueInfo("QCNTRYID", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCNTRYID_DES")));
+        SystemValueList.list.put("QCONSOLE", new SystemValueInfo("QCONSOLE", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCONSOLE_DES"), true));
+        SystemValueList.list.put("QCRTAUT", new SystemValueInfo("QCRTAUT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QCRTAUT_DES")));
+        SystemValueList.list.put("QCRTOBJAUD", new SystemValueInfo("QCRTOBJAUD", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QCRTOBJAUD_DES")));
+        SystemValueList.list.put("QCTLSBSD", new SystemValueInfo("QCTLSBSD", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QCTLSBSD_DES")));
+        SystemValueList.list.put("QCURSYM", new SystemValueInfo("QCURSYM", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, VRM420, ResourceBundleLoader.getSystemValueText("QCURSYM_DES")));
+        SystemValueList.list.put("QDATE", new SystemValueInfo("QDATE", SERVER_TYPE_CHAR, 7, 1, TYPE_DATE, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QDATE_DES")));
+        SystemValueList.list.put("QDATFMT", new SystemValueInfo("QDATFMT", SERVER_TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_EDT, VRM420, ResourceBundleLoader.getSystemValueText("QDATFMT_DES")));
+        SystemValueList.list.put("QDATSEP", new SystemValueInfo("QDATSEP", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, VRM420, ResourceBundleLoader.getSystemValueText("QDATSEP_DES")));
+        SystemValueList.list.put("QDAY", new SystemValueInfo("QDAY", SERVER_TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QDAY_DES")));
+        SystemValueList.list.put("QDAYOFWEEK", new SystemValueInfo("QDAYOFWEEK", SERVER_TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QDAYOFWEEK_DES"), true));
+        SystemValueList.list.put("QDBRCVYWT", new SystemValueInfo("QDBRCVYWT", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QDBRCVYWT_DES")));
+        SystemValueList.list.put("QDECFMT", new SystemValueInfo("QDECFMT", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, VRM420, ResourceBundleLoader.getSystemValueText("QDECFMT_DES")));
+        SystemValueList.list.put("QDEVNAMING", new SystemValueInfo("QDEVNAMING", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QDEVNAMING_DES")));
+        SystemValueList.list.put("QDEVRCYACN", new SystemValueInfo("QDEVRCYACN", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QDEVRCYACN_DES")));
+        SystemValueList.list.put("QDSCJOBITV", new SystemValueInfo("QDSCJOBITV", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QDSCJOBITV_DES")));
+        SystemValueList.list.put("QDSPSGNINF", new SystemValueInfo("QDSPSGNINF", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QDSPSGNINF_DES")));
+        SystemValueList.list.put("QDYNPTYSCD", new SystemValueInfo("QDYNPTYSCD", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QDYNPTYSCD_DES")));
+        SystemValueList.list.put("QFRCCVNRST", new SystemValueInfo("QFRCCVNRST", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QFRCCVNRST_DES")));
+        SystemValueList.list.put("QHOUR", new SystemValueInfo("QHOUR", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QHOUR_DES")));
+        SystemValueList.list.put("QHSTLOGSIZ", new SystemValueInfo("QHSTLOGSIZ", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QHSTLOGSIZ_DES")));
+        SystemValueList.list.put("QIGC", new SystemValueInfo("QIGC", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QIGC_DES"), true));
+        SystemValueList.list.put("QIGCCDEFNT", new SystemValueInfo("QIGCCDEFNT", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QIGCCDEFNT_DES")));
+        SystemValueList.list.put("QINACTITV", new SystemValueInfo("QINACTITV", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QINACTITV_DES")));
+        SystemValueList.list.put("QINACTMSGQ", new SystemValueInfo("QINACTMSGQ", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QINACTMSGQ_DES")));
+        SystemValueList.list.put("QIPLDATTIM", new SystemValueInfo("QIPLDATTIM", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QIPLDATTIM_DES")));
+        SystemValueList.list.put("QIPLSTS", new SystemValueInfo("QIPLSTS", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QIPLSTS_DES"), true));
+        SystemValueList.list.put("QIPLTYPE", new SystemValueInfo("QIPLTYPE", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QIPLTYPE_DES")));
+        SystemValueList.list.put("QJOBMSGQFL", new SystemValueInfo("QJOBMSGQFL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QJOBMSGQFL_DES")));
+        SystemValueList.list.put("QJOBMSGQMX", new SystemValueInfo("QJOBMSGQMX", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QJOBMSGQMX_DES")));
+        SystemValueList.list.put("QJOBMSGQSZ", new SystemValueInfo("QJOBMSGQSZ", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QJOBMSGQSZ_DES")));
+        SystemValueList.list.put("QJOBMSGQTL", new SystemValueInfo("QJOBMSGQTL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QJOBMSGQTL_DES")));
+        SystemValueList.list.put("QJOBSPLA", new SystemValueInfo("QJOBSPLA", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QJOBSPLA_DES")));
+        SystemValueList.list.put("QKBDBUF", new SystemValueInfo("QKBDBUF", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QKBDBUF_DES")));
+        SystemValueList.list.put("QKBDTYPE", new SystemValueInfo("QKBDTYPE", SERVER_TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QKBDTYPE_DES")));
+        SystemValueList.list.put("QLANGID", new SystemValueInfo("QLANGID", SERVER_TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QLANGID_DES")));
+        SystemValueList.list.put("QLEAPADJ", new SystemValueInfo("QLEAPADJ", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QLEAPADJ_DES")));
+        SystemValueList.list.put("QLMTDEVSSN", new SystemValueInfo("QLMTDEVSSN", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QLMTDEVSSN_DES")));
+        SystemValueList.list.put("QLMTSECOFR", new SystemValueInfo("QLMTSECOFR", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QLMTSECOFR_DES")));
+        // This is size 2080 because of data returned on API. Actual size for path name is 1024 chars.
+        SystemValueList.list.put("QLOCALE", new SystemValueInfo("QLOCALE", SERVER_TYPE_CHAR, 2080, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QLOCALE_DES")));
+        SystemValueList.list.put("QMAXACTLVL", new SystemValueInfo("QMAXACTLVL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QMAXACTLVL_DES")));
+        SystemValueList.list.put("QMAXSGNACN", new SystemValueInfo("QMAXSGNACN", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QMAXSGNACN_DES")));
+        SystemValueList.list.put("QMAXSIGN", new SystemValueInfo("QMAXSIGN", SERVER_TYPE_CHAR, 6, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QMAXSIGN_DES")));
+        SystemValueList.list.put("QMCHPOOL", new SystemValueInfo("QMCHPOOL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QMCHPOOL_DES")));
+        SystemValueList.list.put("QMINUTE", new SystemValueInfo("QMINUTE", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QMINUTE_DES")));
+        SystemValueList.list.put("QMODEL", new SystemValueInfo("QMODEL", SERVER_TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QMODEL_DES"),true));
+        SystemValueList.list.put("QMONTH", new SystemValueInfo("QMONTH", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QMONTH_DES")));
+        SystemValueList.list.put("QPASTHRSVR", new SystemValueInfo("QPASTHRSVR", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QPASTHRSVR_DES")));
+        SystemValueList.list.put("QPFRADJ", new SystemValueInfo("QPFRADJ", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QPFRADJ_DES")));
+        SystemValueList.list.put("QPRBFTR", new SystemValueInfo("QPRBFTR", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QPRBFTR_DES")));
+        SystemValueList.list.put("QPRBHLDITV", new SystemValueInfo("QPRBHLDITV", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QPRBHLDITV_DES")));
+        SystemValueList.list.put("QPRTDEV", new SystemValueInfo("QPRTDEV", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QPRTDEV_DES")));
+        SystemValueList.list.put("QPRTKEYFMT", new SystemValueInfo("QPRTKEYFMT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QPRTKEYFMT_DES")));
+        SystemValueList.list.put("QPRTTXT", new SystemValueInfo("QPRTTXT", SERVER_TYPE_CHAR, 30, 1, TYPE_STRING, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QPRTTXT_DES")));
+        SystemValueList.list.put("QPWDEXPITV", new SystemValueInfo("QPWDEXPITV", SERVER_TYPE_CHAR, 6, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDEXPITV_DES")));
+        SystemValueList.list.put("QPWDLMTAJC", new SystemValueInfo("QPWDLMTAJC", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDLMTAJC_DES")));
+        SystemValueList.list.put("QPWDLMTCHR", new SystemValueInfo("QPWDLMTCHR", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDLMTCHR_DES")));
+        SystemValueList.list.put("QPWDLMTREP", new SystemValueInfo("QPWDLMTREP", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDLMTREP_DES")));
+        SystemValueList.list.put("QPWDMAXLEN", new SystemValueInfo("QPWDMAXLEN", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDMAXLEN_DES")));
+        SystemValueList.list.put("QPWDMINLEN", new SystemValueInfo("QPWDMINLEN", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDMINLEN_DES")));
+        SystemValueList.list.put("QPWDPOSDIF", new SystemValueInfo("QPWDPOSDIF", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDPOSDIF_DES")));
+        SystemValueList.list.put("QPWDRQDDGT", new SystemValueInfo("QPWDRQDDGT", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDRQDDGT_DES")));
+        SystemValueList.list.put("QPWDRQDDIF", new SystemValueInfo("QPWDRQDDIF", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDRQDDIF_DES")));
+        SystemValueList.list.put("QPWDVLDPGM", new SystemValueInfo("QPWDVLDPGM", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QPWDVLDPGM_DES")));
+        SystemValueList.list.put("QPWRDWNLMT", new SystemValueInfo("QPWRDWNLMT", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QPWRDWNLMT_DES")));
+        SystemValueList.list.put("QPWRRSTIPL", new SystemValueInfo("QPWRRSTIPL", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QPWRRSTIPL_DES")));
+        SystemValueList.list.put("QQRYDEGREE", new SystemValueInfo("QQRYDEGREE", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QQRYDEGREE_DES")));
+        SystemValueList.list.put("QQRYTIMLMT", new SystemValueInfo("QQRYTIMLMT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QQRYTIMLMT_DES")));
+        SystemValueList.list.put("QRCLSPLSTG", new SystemValueInfo("QRCLSPLSTG", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QRCLSPLSTG_DES")));
+        SystemValueList.list.put("QRETSVRSEC", new SystemValueInfo("QRETSVRSEC", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QRETSVRSEC_DES")));
+        SystemValueList.list.put("QRMTIPL", new SystemValueInfo("QRMTIPL", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QRMTIPL_DES")));
+        SystemValueList.list.put("QRMTSIGN", new SystemValueInfo("QRMTSIGN", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QRMTSIGN_DES")));
+        SystemValueList.list.put("QRMTSRVATR", new SystemValueInfo("QRMTSRVATR", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QRMTSRVATR_DES")));
+        SystemValueList.list.put("QSCPFCONS", new SystemValueInfo("QSCPFCONS", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSCPFCONS_DES")));
+        SystemValueList.list.put("QSECOND", new SystemValueInfo("QSECOND", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QSECOND_DES")));
+        SystemValueList.list.put("QSECURITY", new SystemValueInfo("QSECURITY", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QSECURITY_DES")));
+        SystemValueList.list.put("QSETJOBATR", new SystemValueInfo("QSETJOBATR", SERVER_TYPE_CHAR, 10, 16, TYPE_ARRAY, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSETJOBATR_DES")));
+        SystemValueList.list.put("QSFWERRLOG", new SystemValueInfo("QSFWERRLOG", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QSFWERRLOG_DES")));
+        SystemValueList.list.put("QSPCENV", new SystemValueInfo("QSPCENV", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSPCENV_DES")));
+        SystemValueList.list.put("QSRLNBR", new SystemValueInfo("QSRLNBR", SERVER_TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSRLNBR_DES"),true));
+        SystemValueList.list.put("QSRTSEQ", new SystemValueInfo("QSRTSEQ", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSRTSEQ_DES")));
+        SystemValueList.list.put("QSRVDMP", new SystemValueInfo("QSRVDMP", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QSRVDMP_DES")));
+        SystemValueList.list.put("QSTGLOWACN", new SystemValueInfo("QSTGLOWACN", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QSTGLOWACN_DES")));
+        SystemValueList.list.put("QSTGLOWLMT", new SystemValueInfo("QSTGLOWLMT", SERVER_TYPE_BINARY, 7, 4, 1, TYPE_DECIMAL, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QSTGLOWLMT_DES")));
+        SystemValueList.list.put("QSTRPRTWTR", new SystemValueInfo("QSTRPRTWTR", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSTRPRTWTR_DES"), true));
+        SystemValueList.list.put("QSTRUPPGM", new SystemValueInfo("QSTRUPPGM", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSTRUPPGM_DES")));
+        SystemValueList.list.put("QSTSMSG", new SystemValueInfo("QSTSMSG", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM420, ResourceBundleLoader.getSystemValueText("QSTSMSG_DES")));
+        SystemValueList.list.put("QSVRAUTITV", new SystemValueInfo("QSVRAUTITV", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QSVRAUTITV_DES")));
+        SystemValueList.list.put("QSYSLIBL", new SystemValueInfo("QSYSLIBL", SERVER_TYPE_CHAR, 10, 15, TYPE_ARRAY, GROUP_LIBL, VRM420, ResourceBundleLoader.getSystemValueText("QSYSLIBL_DES")));
+        SystemValueList.list.put("QTIME", new SystemValueInfo("QTIME", SERVER_TYPE_CHAR, 9, 1, TYPE_DATE, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QTIME_DES")));
+        SystemValueList.list.put("QTIMSEP", new SystemValueInfo("QTIMSEP", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, VRM420, ResourceBundleLoader.getSystemValueText("QTIMSEP_DES")));
+        SystemValueList.list.put("QTOTJOB", new SystemValueInfo("QTOTJOB", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, VRM420, ResourceBundleLoader.getSystemValueText("QTOTJOB_DES")));
+        SystemValueList.list.put("QTSEPOOL", new SystemValueInfo("QTSEPOOL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_STG, VRM420, ResourceBundleLoader.getSystemValueText("QTSEPOOL_DES")));
+        SystemValueList.list.put("QUPSDLYTIM", new SystemValueInfo("QUPSDLYTIM", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QUPSDLYTIM_DES")));
+        SystemValueList.list.put("QUPSMSGQ", new SystemValueInfo("QUPSMSGQ", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM420, ResourceBundleLoader.getSystemValueText("QUPSMSGQ_DES")));
+        SystemValueList.list.put("QUSEADPAUT", new SystemValueInfo("QUSEADPAUT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, VRM420, ResourceBundleLoader.getSystemValueText("QUSEADPAUT_DES")));
+        SystemValueList.list.put("QUSRLIBL", new SystemValueInfo("QUSRLIBL", SERVER_TYPE_CHAR, 10, 25, TYPE_ARRAY, GROUP_LIBL, VRM420, ResourceBundleLoader.getSystemValueText("QUSRLIBL_DES")));
+        SystemValueList.list.put("QUTCOFFSET", new SystemValueInfo("QUTCOFFSET", SERVER_TYPE_CHAR, 5, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QUTCOFFSET_DES")));
+        SystemValueList.list.put("QYEAR", new SystemValueInfo("QYEAR", SERVER_TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, VRM420, ResourceBundleLoader.getSystemValueText("QYEAR_DES")));
+
+        // V4R3 system values.
+        SystemValueList.list.put("QCHRIDCTL", new SystemValueInfo("QCHRIDCTL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM430, ResourceBundleLoader.getSystemValueText("QCHRIDCTL_DES")));
+        SystemValueList.list.put("QDYNPTYADJ", new SystemValueInfo("QDYNPTYADJ", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM430, ResourceBundleLoader.getSystemValueText("QDYNPTYADJ_DES")));
+        SystemValueList.list.put("QIGCFNTSIZ", new SystemValueInfo("QIGCFNTSIZ", SERVER_TYPE_BINARY, 4, 1, 1, TYPE_DECIMAL, GROUP_SYSCTL, VRM430, ResourceBundleLoader.getSystemValueText("QIGCFNTSIZ_DES")));
+        SystemValueList.list.put("QPRCMLTTSK", new SystemValueInfo("QPRCMLTTSK", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM430, ResourceBundleLoader.getSystemValueText("QPRCMLTTSK_DES")));
+        SystemValueList.list.put("QPRCFEAT", new SystemValueInfo("QPRCFEAT", SERVER_TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_SYSCTL, VRM430, ResourceBundleLoader.getSystemValueText("QPRCFEAT_DES"),true));
+
+        // V4R4 system values.
+        SystemValueList.list.put("QCFGMSGQ", new SystemValueInfo("QCFGMSGQ", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_MSG, VRM440, ResourceBundleLoader.getSystemValueText("QCFGMSGQ_DES")));
+        SystemValueList.list.put("QMLTTHDACN", new SystemValueInfo("QMLTTHDACN", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM440, ResourceBundleLoader.getSystemValueText("QMLTTHDACN_DES")));
+
+        SystemValueList.list.put("QMAXJOB",    new SystemValueInfo("QMAXJOB",    SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC,  VRM510, ResourceBundleLoader.getSystemValueText("QMAXJOB_DES")));
+        SystemValueList.list.put("QMAXSPLF",   new SystemValueInfo("QMAXSPLF",   SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC,  VRM510, ResourceBundleLoader.getSystemValueText("QMAXSPLF_DES")));
+        SystemValueList.list.put("QVFYOBJRST", new SystemValueInfo("QVFYOBJRST", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING,  GROUP_SEC,  VRM510, ResourceBundleLoader.getSystemValueText("QVFYOBJRST_DES")));
+        SystemValueList.list.put("QSHRMEMCTL", new SystemValueInfo("QSHRMEMCTL", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING,  GROUP_SEC,  VRM510, ResourceBundleLoader.getSystemValueText("QSHRMEMCTL_DES")));
+        SystemValueList.list.put("QLIBLCKLVL", new SystemValueInfo("QLIBLCKLVL", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING,  GROUP_LIBL, VRM510, ResourceBundleLoader.getSystemValueText("QLIBLCKLVL_DES")));
+        SystemValueList.list.put("QPWDLVL", new SystemValueInfo("QPWDLVL", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC,  VRM510, ResourceBundleLoader.getSystemValueText("QPWDLVL_DES")));
+
+        // V5R2 system values.
+        SystemValueList.list.put("QSPLFACN",   new SystemValueInfo("QSPLFACN", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, VRM520, ResourceBundleLoader.getSystemValueText("QSPLFACN_DES")));
+        SystemValueList.list.put("QDBFSTCCOL", new SystemValueInfo("QDBFSTCCOL", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, VRM520, ResourceBundleLoader.getSystemValueText("QDBFSTCCOL_DES")));
+
+        // V5R3 system values.
+        SystemValueList.list.put("QAUDLVL2",   new SystemValueInfo("QAUDLVL2", SERVER_TYPE_CHAR, 10, 99, TYPE_ARRAY, GROUP_SEC, VRM530, ResourceBundleLoader.getSystemValueText("QAUDLVL2_DES")));
+        SystemValueList.list.put("QDATETIME",   new SystemValueInfo("QDATETIME", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_DATTIM, VRM530, ResourceBundleLoader.getSystemValueText("QDATETIME_DES")));
+        SystemValueList.list.put("QENDJOBLMT",   new SystemValueInfo("QENDJOBLMT", SERVER_TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QENDJOBLMT_DES")));
+        SystemValueList.list.put("QSAVACCPTH",   new SystemValueInfo("QSAVACCPTH", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QSAVACCPTH_DES")));
+        SystemValueList.list.put("QSCANFS",   new SystemValueInfo("QSCANFS", SERVER_TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, VRM530, ResourceBundleLoader.getSystemValueText("QSCANFS_DES")));
+        SystemValueList.list.put("QSCANFSCTL",   new SystemValueInfo("QSCANFSCTL", SERVER_TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, VRM530, ResourceBundleLoader.getSystemValueText("QSCANFSCTL_DES")));
+        SystemValueList.list.put("QTIMADJ",   new SystemValueInfo("QTIMADJ", SERVER_TYPE_CHAR, 28, 1, TYPE_STRING, GROUP_DATTIM, VRM530, ResourceBundleLoader.getSystemValueText("QTIMADJ_DES")));
+        SystemValueList.list.put("QTIMZON",   new SystemValueInfo("QTIMZON", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_DATTIM, VRM530, ResourceBundleLoader.getSystemValueText("QTIMZON_DES")));
+        SystemValueList.list.put("QTHDRSCAFN", new SystemValueInfo("QTHDRSCAFN", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QTHDRSCAFN_DES")));
+        SystemValueList.list.put("QTHDRSCADJ", new SystemValueInfo("QTHDRSCADJ", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QTHDRSCADJ_DES")));
+
+        // V5R4 system values.
+        SystemValueList.list.put("QALWJOBITP", new SystemValueInfo("QALWJOBITP", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM540, ResourceBundleLoader.getSystemValueText("QALWJOBITP_DES")));
+        SystemValueList.list.put("QLOGOUTPUT", new SystemValueInfo("QLOGOUTPUT", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, VRM540, ResourceBundleLoader.getSystemValueText("QLOGOUTPUT_DES")));
+
+        // Populate the group vectors.
+        Enumeration enum = SystemValueList.list.elements();
+        while (enum.hasMoreElements())
+        {
+            SystemValueInfo obj = (SystemValueInfo)enum.nextElement();
+            SystemValueList.groups[obj.group_].addElement(obj);
+            SystemValueList.groups[GROUP_ALL].addElement(obj);
+        }
     }
 
-    int vrm320 = AS400.generateVRM(3, 2, 0);
-    int vrm420 = AS400.generateVRM(4, 2, 0);
-    int vrm430 = AS400.generateVRM(4, 3, 0);
-    int vrm440 = AS400.generateVRM(4, 4, 0); //@B0A
-    int vrm510 = AS400.generateVRM(5, 1, 0); //@D2a
-    int vrm520 = AS400.generateVRM(5, 2, 0); //@E0A
-    int vrm530 = AS400.generateVRM(5, 3, 0); //@F1A
+    // The server where the system value list is located.
+    private AS400 system_ = null;
+    // Flag indicating if a connection been made.
+    private boolean connected_ = false;
 
-    // network attributes
-    list_.put("ALRBCKFP", new SystemValueInfo("ALRBCKFP", AS400TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRBCKFP_DES")).trim()));
-    list_.put("ALRCTLD", new SystemValueInfo("ALRCTLD", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRCTLD_DES")).trim()));
-    list_.put("ALRDFTFP", new SystemValueInfo("ALRDFTFP", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRDFTFP_DES")).trim()));
-    list_.put("ALRFTR", new SystemValueInfo("ALRFTR", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRFTR_DES")).trim()));
-    list_.put("ALRHLDCNT", new SystemValueInfo("ALRHLDCNT", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRHLDCNT_DES")).trim()));
-    list_.put("ALRLOGSTS", new SystemValueInfo("ALRLOGSTS", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRLOGSTS_DES")).trim()));
-    list_.put("ALRPRIFP", new SystemValueInfo("ALRPRIFP", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRPRIFP_DES")).trim()));
-    list_.put("ALRRQSFP", new SystemValueInfo("ALRRQSFP", AS400TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRRQSFP_DES")).trim()));
-    list_.put("ALRSTS", new SystemValueInfo("ALRSTS", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRSTS_DES")).trim()));
-    list_.put("ALWANYNET", new SystemValueInfo("ALWANYNET", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALWANYNET_DES")).trim()));
-    list_.put("ALWHPRTWR", new SystemValueInfo("ALWHPRTWR", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALWHPRTWR_DES")).trim()));
-    list_.put("ALWVRTAPPN", new SystemValueInfo("ALWVRTAPPN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALWVRTAPPN_DES")).trim()));
-    list_.put("DDMACC", new SystemValueInfo("DDMACC", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("DDMACC_DES")).trim()));
-    list_.put("DFTCNNLST", new SystemValueInfo("DFTCNNLST", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("DFTCNNLST_DES")).trim()));
-    list_.put("DFTMODE", new SystemValueInfo("DFTMODE", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("DFTMODE_DES")).trim()));
-    list_.put("DFTNETTYPE", new SystemValueInfo("DFTNETTYPE", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("DFTNETTYPE_DES")).trim()));
-    list_.put("DTACPR", new SystemValueInfo("DTACPR", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("DTACPR_DES")).trim()));
-    list_.put("DTACPRINM", new SystemValueInfo("DTACPRINM", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("DTACPRINM_DES")).trim()));
-    list_.put("HPRPTHTMR", new SystemValueInfo("HPRPTHTMR", AS400TYPE_CHAR, 10, 4, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("HPRPTHTMR_DES")).trim()));
-    list_.put("JOBACN", new SystemValueInfo("JOBACN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("JOBACN_DES")).trim()));
-    list_.put("LCLCPNAME", new SystemValueInfo("LCLCPNAME", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("LCLCPNAME_DES")).trim()));
-    list_.put("LCLLOCNAME", new SystemValueInfo("LCLLOCNAME", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("LCLLOCNAME_DES")).trim()));
-    list_.put("LCLNETID", new SystemValueInfo("LCLNETID", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("LCLNETID_DES")).trim()));
-    list_.put("MAXHOP", new SystemValueInfo("MAXHOP", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("MAXHOP_DES")).trim()));
-    list_.put("MAXINTSSN", new SystemValueInfo("MAXINTSSN", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("MAXINTSSN_DES")).trim()));
-    list_.put("MSGQ", new SystemValueInfo("MSGQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("MSGQ_DES")).trim()));
-    list_.put("NETSERVER", new SystemValueInfo("NETSERVER", AS400TYPE_CHAR, 17, 5, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("NETSERVER_DES")).trim()));
-    list_.put("NODETYPE", new SystemValueInfo("NODETYPE", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("NODETYPE_DES")).trim()));
-    list_.put("NWSDOMAIN", new SystemValueInfo("NWSDOMAIN", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("NWSDOMAIN_DES")).trim()));
-    list_.put("OUTQ", new SystemValueInfo("OUTQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("OUTQ_DES")).trim()));
-    list_.put("PCSACC", new SystemValueInfo("PCSACC", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("PCSACC_DES")).trim()));
-    list_.put("PNDSYSNAME", new SystemValueInfo("PNDSYSNAME", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("PNDSYSNAME_DES")).trim(),true));
-    list_.put("RAR", new SystemValueInfo("RAR", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("RAR_DES")).trim()));
-    list_.put("SYSNAME", new SystemValueInfo("SYSNAME", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("SYSNAME_DES")).trim()));
-    list_.put("VRTAUTODEV", new SystemValueInfo("VRTAUTODEV", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("VRTAUTODEV_DES")).trim()));
+    // List of property change event bean listeners.
+    private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
+    // List of vetoable change event bean listeners.
+    private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
-    // V4R4 network attributes
-    list_.put("ALWADDCLU", new SystemValueInfo("ALWADDCLU", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_NET, vrm440, ((String)ResourceBundleLoader.getSystemValueText("ALWADDCLU_DES")).trim() )); //@B0A @D1c
-    list_.put("MDMCNTRYID", new SystemValueInfo("MDMCNTRYID", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_NET, vrm440, ((String)ResourceBundleLoader.getSystemValueText("MDMCNTRYID_DES")).trim())); //@B0A @D1c
-
-    // system values
-    list_.put("QABNORMSW", new SystemValueInfo("QABNORMSW", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QABNORMSW_DES")).trim(), true));
-    list_.put("QACGLVL", new SystemValueInfo("QACGLVL", AS400TYPE_CHAR, 10, 8, TYPE_ARRAY, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QACGLVL_DES")).trim()));
-    list_.put("QACTJOB", new SystemValueInfo("QACTJOB", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QACTJOB_DES")).trim()));
-    list_.put("QADLACTJ", new SystemValueInfo("QADLACTJ", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QADLACTJ_DES")).trim()));
-    list_.put("QADLSPLA", new SystemValueInfo("QADLSPLA", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QADLSPLA_DES")).trim()));
-    list_.put("QADLTOTJ", new SystemValueInfo("QADLTOTJ", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QADLTOTJ_DES")).trim()));
-    list_.put("QALWOBJRST", new SystemValueInfo("QALWOBJRST", AS400TYPE_CHAR, 10, 15, TYPE_ARRAY, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QALWOBJRST_DES")).trim()));
-    list_.put("QALWUSRDMN", new SystemValueInfo("QALWUSRDMN", AS400TYPE_CHAR, 10, 50, TYPE_ARRAY, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QALWUSRDMN_DES")).trim()));
-    list_.put("QASTLVL", new SystemValueInfo("QASTLVL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QASTLVL_DES")).trim()));
-    list_.put("QATNPGM", new SystemValueInfo("QATNPGM", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QATNPGM_DES")).trim()));
-    list_.put("QAUDCTL", new SystemValueInfo("QAUDCTL", AS400TYPE_CHAR, 10, 5, TYPE_ARRAY, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUDCTL_DES")).trim()));
-    list_.put("QAUDENDACN", new SystemValueInfo("QAUDENDACN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUDENDACN_DES")).trim()));
-    list_.put("QAUDFRCLVL", new SystemValueInfo("QAUDFRCLVL", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUDFRCLVL_DES")).trim()));
-    list_.put("QAUDLVL", new SystemValueInfo("QAUDLVL", AS400TYPE_CHAR, 10, 16, TYPE_ARRAY, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUDLVL_DES")).trim()));
-    list_.put("QAUTOCFG", new SystemValueInfo("QAUTOCFG", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUTOCFG_DES")).trim()));
-    list_.put("QAUTORMT", new SystemValueInfo("QAUTORMT", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUTORMT_DES")).trim()));
-    list_.put("QAUTOSPRPT", new SystemValueInfo("QAUTOSPRPT", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUTOSPRPT_DES")).trim()));
-    list_.put("QAUTOVRT", new SystemValueInfo("QAUTOVRT", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QAUTOVRT_DES")).trim()));
-    list_.put("QBASACTLVL", new SystemValueInfo("QBASACTLVL", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QBASACTLVL_DES")).trim()));
-    list_.put("QBASPOOL", new SystemValueInfo("QBASPOOL", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QBASPOOL_DES")).trim()));
-    list_.put("QBOOKPATH", new SystemValueInfo("QBOOKPATH", AS400TYPE_CHAR, 63, 5, TYPE_ARRAY, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QBOOKPATH_DES")).trim()));
-    list_.put("QCCSID", new SystemValueInfo("QCCSID", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCCSID_DES")).trim()));
-    list_.put("QCENTURY", new SystemValueInfo("QCENTURY", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCENTURY_DES")).trim()));
-    list_.put("QCHRID", new SystemValueInfo("QCHRID", AS400TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCHRID_DES")).trim()));
-    list_.put("QCMNARB", new SystemValueInfo("QCMNARB", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCMNARB_DES")).trim()));
-    list_.put("QCMNRCYLMT", new SystemValueInfo("QCMNRCYLMT", AS400TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCMNRCYLMT_DES")).trim()));
-    list_.put("QCNTRYID", new SystemValueInfo("QCNTRYID", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCNTRYID_DES")).trim()));
-    list_.put("QCONSOLE", new SystemValueInfo("QCONSOLE", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCONSOLE_DES")).trim(), true));
-    list_.put("QCRTAUT", new SystemValueInfo("QCRTAUT", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCRTAUT_DES")).trim()));
-    list_.put("QCRTOBJAUD", new SystemValueInfo("QCRTOBJAUD", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCRTOBJAUD_DES")).trim()));
-    list_.put("QCTLSBSD", new SystemValueInfo("QCTLSBSD", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCTLSBSD_DES")).trim()));
-    list_.put("QCURSYM", new SystemValueInfo("QCURSYM", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QCURSYM_DES")).trim()));
-    list_.put("QDATE", new SystemValueInfo("QDATE", AS400TYPE_CHAR, 7, 1, TYPE_DATE, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDATE_DES")).trim()));
-    list_.put("QDATFMT", new SystemValueInfo("QDATFMT", AS400TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_EDT, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDATFMT_DES")).trim()));
-    list_.put("QDATSEP", new SystemValueInfo("QDATSEP", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDATSEP_DES")).trim()));
-    list_.put("QDAY", new SystemValueInfo("QDAY", AS400TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDAY_DES")).trim()));
-    list_.put("QDAYOFWEEK", new SystemValueInfo("QDAYOFWEEK", AS400TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDAYOFWEEK_DES")).trim(), true));
-    list_.put("QDBRCVYWT", new SystemValueInfo("QDBRCVYWT", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDBRCVYWT_DES")).trim()));
-    list_.put("QDECFMT", new SystemValueInfo("QDECFMT", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDECFMT_DES")).trim()));
-    list_.put("QDEVNAMING", new SystemValueInfo("QDEVNAMING", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDEVNAMING_DES")).trim()));
-    list_.put("QDEVRCYACN", new SystemValueInfo("QDEVRCYACN", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDEVRCYACN_DES")).trim()));
-    list_.put("QDSCJOBITV", new SystemValueInfo("QDSCJOBITV", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDSCJOBITV_DES")).trim()));
-    list_.put("QDSPSGNINF", new SystemValueInfo("QDSPSGNINF", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDSPSGNINF_DES")).trim()));
-    list_.put("QDYNPTYSCD", new SystemValueInfo("QDYNPTYSCD", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QDYNPTYSCD_DES")).trim()));
-    list_.put("QFRCCVNRST", new SystemValueInfo("QFRCCVNRST", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QFRCCVNRST_DES")).trim()));
-    list_.put("QHOUR", new SystemValueInfo("QHOUR", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QHOUR_DES")).trim()));
-    list_.put("QHSTLOGSIZ", new SystemValueInfo("QHSTLOGSIZ", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QHSTLOGSIZ_DES")).trim()));
-    list_.put("QIGC", new SystemValueInfo("QIGC", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QIGC_DES")).trim(), true));
-    list_.put("QIGCCDEFNT", new SystemValueInfo("QIGCCDEFNT", AS400TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QIGCCDEFNT_DES")).trim()));
-    list_.put("QINACTITV", new SystemValueInfo("QINACTITV", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QINACTITV_DES")).trim()));
-    list_.put("QINACTMSGQ", new SystemValueInfo("QINACTMSGQ", AS400TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QINACTMSGQ_DES")).trim()));
-    list_.put("QIPLDATTIM", new SystemValueInfo("QIPLDATTIM", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QIPLDATTIM_DES")).trim()));
-    list_.put("QIPLSTS", new SystemValueInfo("QIPLSTS", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QIPLSTS_DES")).trim(), true));
-    list_.put("QIPLTYPE", new SystemValueInfo("QIPLTYPE", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QIPLTYPE_DES")).trim()));
-    list_.put("QJOBMSGQFL", new SystemValueInfo("QJOBMSGQFL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QJOBMSGQFL_DES")).trim()));
-    list_.put("QJOBMSGQMX", new SystemValueInfo("QJOBMSGQMX", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QJOBMSGQMX_DES")).trim()));
-    list_.put("QJOBMSGQSZ", new SystemValueInfo("QJOBMSGQSZ", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QJOBMSGQSZ_DES")).trim()));
-    list_.put("QJOBMSGQTL", new SystemValueInfo("QJOBMSGQTL", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QJOBMSGQTL_DES")).trim()));
-    list_.put("QJOBSPLA", new SystemValueInfo("QJOBSPLA", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QJOBSPLA_DES")).trim()));
-    list_.put("QKBDBUF", new SystemValueInfo("QKBDBUF", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QKBDBUF_DES")).trim()));
-    list_.put("QKBDTYPE", new SystemValueInfo("QKBDTYPE", AS400TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QKBDTYPE_DES")).trim()));
-    list_.put("QLANGID", new SystemValueInfo("QLANGID", AS400TYPE_CHAR, 3, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QLANGID_DES")).trim()));
-    list_.put("QLEAPADJ", new SystemValueInfo("QLEAPADJ", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QLEAPADJ_DES")).trim()));
-    list_.put("QLMTDEVSSN", new SystemValueInfo("QLMTDEVSSN", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QLMTDEVSSN_DES")).trim()));
-    list_.put("QLMTSECOFR", new SystemValueInfo("QLMTSECOFR", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QLMTSECOFR_DES")).trim()));
-    list_.put("QLOCALE", new SystemValueInfo("QLOCALE", AS400TYPE_CHAR, 2080, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QLOCALE_DES")).trim())); // This is size 2080 because of data returned on API. Actual size for path name is 1024 chars.
-    list_.put("QMAXACTLVL", new SystemValueInfo("QMAXACTLVL", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMAXACTLVL_DES")).trim()));
-    list_.put("QMAXSGNACN", new SystemValueInfo("QMAXSGNACN", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMAXSGNACN_DES")).trim()));
-    list_.put("QMAXSIGN", new SystemValueInfo("QMAXSIGN", AS400TYPE_CHAR, 6, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMAXSIGN_DES")).trim()));
-    list_.put("QMCHPOOL", new SystemValueInfo("QMCHPOOL", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMCHPOOL_DES")).trim()));
-    list_.put("QMINUTE", new SystemValueInfo("QMINUTE", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMINUTE_DES")).trim()));
-    list_.put("QMODEL", new SystemValueInfo("QMODEL", AS400TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMODEL_DES")).trim(),true));
-    list_.put("QMONTH", new SystemValueInfo("QMONTH", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QMONTH_DES")).trim()));
-    list_.put("QPASTHRSVR", new SystemValueInfo("QPASTHRSVR", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPASTHRSVR_DES")).trim()));
-    list_.put("QPFRADJ", new SystemValueInfo("QPFRADJ", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPFRADJ_DES")).trim()));
-    list_.put("QPRBFTR", new SystemValueInfo("QPRBFTR", AS400TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPRBFTR_DES")).trim()));
-    list_.put("QPRBHLDITV", new SystemValueInfo("QPRBHLDITV", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPRBHLDITV_DES")).trim()));
-    list_.put("QPRTDEV", new SystemValueInfo("QPRTDEV", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPRTDEV_DES")).trim()));
-    list_.put("QPRTKEYFMT", new SystemValueInfo("QPRTKEYFMT", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPRTKEYFMT_DES")).trim()));
-    list_.put("QPRTTXT", new SystemValueInfo("QPRTTXT", AS400TYPE_CHAR, 30, 1, TYPE_STRING, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPRTTXT_DES")).trim()));
-    list_.put("QPWDEXPITV", new SystemValueInfo("QPWDEXPITV", AS400TYPE_CHAR, 6, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDEXPITV_DES")).trim()));
-    list_.put("QPWDLMTAJC", new SystemValueInfo("QPWDLMTAJC", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDLMTAJC_DES")).trim()));
-    list_.put("QPWDLMTCHR", new SystemValueInfo("QPWDLMTCHR", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDLMTCHR_DES")).trim()));
-    list_.put("QPWDLMTREP", new SystemValueInfo("QPWDLMTREP", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDLMTREP_DES")).trim()));
-    list_.put("QPWDMAXLEN", new SystemValueInfo("QPWDMAXLEN", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDMAXLEN_DES")).trim()));
-    list_.put("QPWDMINLEN", new SystemValueInfo("QPWDMINLEN", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDMINLEN_DES")).trim()));
-    list_.put("QPWDPOSDIF", new SystemValueInfo("QPWDPOSDIF", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDPOSDIF_DES")).trim()));
-    list_.put("QPWDRQDDGT", new SystemValueInfo("QPWDRQDDGT", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDRQDDGT_DES")).trim()));
-    list_.put("QPWDRQDDIF", new SystemValueInfo("QPWDRQDDIF", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDRQDDIF_DES")).trim()));
-    list_.put("QPWDVLDPGM", new SystemValueInfo("QPWDVLDPGM", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWDVLDPGM_DES")).trim()));
-    list_.put("QPWRDWNLMT", new SystemValueInfo("QPWRDWNLMT", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWRDWNLMT_DES")).trim()));
-    list_.put("QPWRRSTIPL", new SystemValueInfo("QPWRRSTIPL", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QPWRRSTIPL_DES")).trim()));
-    list_.put("QQRYDEGREE", new SystemValueInfo("QQRYDEGREE", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QQRYDEGREE_DES")).trim()));
-    list_.put("QQRYTIMLMT", new SystemValueInfo("QQRYTIMLMT", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QQRYTIMLMT_DES")).trim()));
-    list_.put("QRCLSPLSTG", new SystemValueInfo("QRCLSPLSTG", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QRCLSPLSTG_DES")).trim()));
-    list_.put("QRETSVRSEC", new SystemValueInfo("QRETSVRSEC", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QRETSVRSEC_DES")).trim()));
-    list_.put("QRMTIPL", new SystemValueInfo("QRMTIPL", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QRMTIPL_DES")).trim()));
-    list_.put("QRMTSIGN", new SystemValueInfo("QRMTSIGN", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QRMTSIGN_DES")).trim()));
-    list_.put("QRMTSRVATR", new SystemValueInfo("QRMTSRVATR", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QRMTSRVATR_DES")).trim()));
-    list_.put("QSCPFCONS", new SystemValueInfo("QSCPFCONS", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSCPFCONS_DES")).trim()));
-    list_.put("QSECOND", new SystemValueInfo("QSECOND", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSECOND_DES")).trim()));
-    list_.put("QSECURITY", new SystemValueInfo("QSECURITY", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSECURITY_DES")).trim()));
-    list_.put("QSETJOBATR", new SystemValueInfo("QSETJOBATR", AS400TYPE_CHAR, 10, 16, TYPE_ARRAY, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSETJOBATR_DES")).trim()));
-    list_.put("QSFWERRLOG", new SystemValueInfo("QSFWERRLOG", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSFWERRLOG_DES")).trim()));
-    list_.put("QSPCENV", new SystemValueInfo("QSPCENV", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSPCENV_DES")).trim()));
-    list_.put("QSRLNBR", new SystemValueInfo("QSRLNBR", AS400TYPE_CHAR, 8, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSRLNBR_DES")).trim(),true));
-    list_.put("QSRTSEQ", new SystemValueInfo("QSRTSEQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSRTSEQ_DES")).trim()));
-    list_.put("QSRVDMP", new SystemValueInfo("QSRVDMP", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSRVDMP_DES")).trim()));
-    list_.put("QSTGLOWACN", new SystemValueInfo("QSTGLOWACN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSTGLOWACN_DES")).trim()));
-    list_.put("QSTGLOWLMT", new SystemValueInfo("QSTGLOWLMT", AS400TYPE_BINARY, 7, 4, 1, TYPE_DECIMAL, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSTGLOWLMT_DES")).trim()));
-    list_.put("QSTRPRTWTR", new SystemValueInfo("QSTRPRTWTR", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSTRPRTWTR_DES")).trim(), true));
-    list_.put("QSTRUPPGM", new SystemValueInfo("QSTRUPPGM", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSTRUPPGM_DES")).trim()));
-    list_.put("QSTSMSG", new SystemValueInfo("QSTSMSG", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_MSG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSTSMSG_DES")).trim()));
-    list_.put("QSVRAUTITV", new SystemValueInfo("QSVRAUTITV", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSVRAUTITV_DES")).trim()));
-    list_.put("QSYSLIBL", new SystemValueInfo("QSYSLIBL", AS400TYPE_CHAR, 10, 15, TYPE_ARRAY, GROUP_LIBL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QSYSLIBL_DES")).trim()));
-    list_.put("QTIME", new SystemValueInfo("QTIME", AS400TYPE_CHAR, 9, 1, TYPE_DATE, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QTIME_DES")).trim()));
-    list_.put("QTIMSEP", new SystemValueInfo("QTIMSEP", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_EDT, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QTIMSEP_DES")).trim()));
-    list_.put("QTOTJOB", new SystemValueInfo("QTOTJOB", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QTOTJOB_DES")).trim()));
-    list_.put("QTSEPOOL", new SystemValueInfo("QTSEPOOL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_STG, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QTSEPOOL_DES")).trim()));
-    list_.put("QUPSDLYTIM", new SystemValueInfo("QUPSDLYTIM", AS400TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QUPSDLYTIM_DES")).trim()));
-    list_.put("QUPSMSGQ", new SystemValueInfo("QUPSMSGQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QUPSMSGQ_DES")).trim()));
-    list_.put("QUSEADPAUT", new SystemValueInfo("QUSEADPAUT", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SEC, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QUSEADPAUT_DES")).trim()));
-    list_.put("QUSRLIBL", new SystemValueInfo("QUSRLIBL", AS400TYPE_CHAR, 10, 25, TYPE_ARRAY, GROUP_LIBL, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QUSRLIBL_DES")).trim()));
-    list_.put("QUTCOFFSET", new SystemValueInfo("QUTCOFFSET", AS400TYPE_CHAR, 5, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QUTCOFFSET_DES")).trim()));
-    list_.put("QYEAR", new SystemValueInfo("QYEAR", AS400TYPE_CHAR, 2, 1, TYPE_STRING, GROUP_DATTIM, vrm420, ((String)ResourceBundleLoader.getSystemValueText("QYEAR_DES")).trim()));
-
-    // V4R3 system values
-    list_.put("QCHRIDCTL", new SystemValueInfo("QCHRIDCTL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm430, ((String)ResourceBundleLoader.getSystemValueText("QCHRIDCTL_DES")).trim()));
-    list_.put("QDYNPTYADJ", new SystemValueInfo("QDYNPTYADJ", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm430, ((String)ResourceBundleLoader.getSystemValueText("QDYNPTYADJ_DES")).trim()));
-    list_.put("QIGCFNTSIZ", new SystemValueInfo("QIGCFNTSIZ", AS400TYPE_BINARY, 4, 1, 1, TYPE_DECIMAL, GROUP_SYSCTL, vrm430, ((String)ResourceBundleLoader.getSystemValueText("QIGCFNTSIZ_DES")).trim()));
-    list_.put("QPRCMLTTSK", new SystemValueInfo("QPRCMLTTSK", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm430, ((String)ResourceBundleLoader.getSystemValueText("QPRCMLTTSK_DES")).trim()));
-    list_.put("QPRCFEAT", new SystemValueInfo("QPRCFEAT", AS400TYPE_CHAR, 4, 1, TYPE_STRING, GROUP_SYSCTL, vrm430, ((String)ResourceBundleLoader.getSystemValueText("QPRCFEAT_DES")).trim(),true));
-
-    // V4R4 system values
-    list_.put("QCFGMSGQ", new SystemValueInfo("QCFGMSGQ", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_MSG, vrm440, ((String)ResourceBundleLoader.getSystemValueText("QCFGMSGQ_DES")).trim())); //@B0A D1C
-    list_.put("QMLTTHDACN", new SystemValueInfo("QMLTTHDACN", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm440, ((String)ResourceBundleLoader.getSystemValueText("QMLTTHDACN_DES")).trim())); //@B0A D1C
-
-    //@D5M
-    list_.put("QMAXJOB",    new SystemValueInfo("QMAXJOB",    AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QMAXJOB_DES")).trim()));     //@D2a
-    list_.put("QMAXSPLF",   new SystemValueInfo("QMAXSPLF",   AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_ALC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QMAXSPLF_DES")).trim()));    //@D2a
-    list_.put("QVFYOBJRST", new SystemValueInfo("QVFYOBJRST", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QVFYOBJRST_DES")).trim()));  //@D2a
-    list_.put("QSHRMEMCTL", new SystemValueInfo("QSHRMEMCTL", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QSHRMEMCTL_DES")).trim()));  //@D2a
-    list_.put("QLIBLCKLVL", new SystemValueInfo("QLIBLCKLVL", AS400TYPE_CHAR,   1, 1, TYPE_STRING,  GROUP_LIBL, vrm510, ((String)ResourceBundleLoader.getSystemValueText("QLIBLCKLVL_DES")).trim()));  //@D2a
-    list_.put("QPWDLVL",    new SystemValueInfo("QPWDLVL",    AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SEC,  vrm510, ((String)ResourceBundleLoader.getSystemValueText("QPWDLVL_DES")).trim()));     //@D2a
-
-    //@E0A
-    // V5R2 system values
-    list_.put("QSPLFACN",   new SystemValueInfo("QSPLFACN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, vrm520, ((String)ResourceBundleLoader.getSystemValueText("QSPLFACN_DES")).trim())); //@E0A
-    list_.put("QDBFSTCCOL", new SystemValueInfo("QDBFSTCCOL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm520, ((String)ResourceBundleLoader.getSystemValueText("QDBFSTCCOL_DES")).trim())); //@E0A
-
-    //@F1A
-    // V5R3 system values
-    list_.put("QAUDLVL2",   new SystemValueInfo("QAUDLVL2", AS400TYPE_CHAR, 10, 99, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QAUDLVL2_DES")).trim())); //@F1A
-    list_.put("QDATETIME",   new SystemValueInfo("QDATETIME", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QDATETIME_DES")).trim())); //@F1A
-    list_.put("QENDJOBLMT",   new SystemValueInfo("QENDJOBLMT", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QENDJOBLMT_DES")).trim())); //@F1A
-    list_.put("QSAVACCPTH",   new SystemValueInfo("QSAVACCPTH", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSAVACCPTH_DES")).trim())); //@F1A
-    list_.put("QSCANFS",   new SystemValueInfo("QSCANFS", AS400TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSCANFS_DES")).trim())); //@F1A
-    list_.put("QSCANFSCTL",   new SystemValueInfo("QSCANFSCTL", AS400TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSCANFSCTL_DES")).trim())); //@F1A
-    list_.put("QTIMADJ",   new SystemValueInfo("QTIMADJ", AS400TYPE_CHAR, 28, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTIMADJ_DES")).trim())); //@F1A
-    list_.put("QTIMZON",   new SystemValueInfo("QTIMZON", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTIMZON_DES")).trim())); //@F1A
-    list_.put("QTHDRSCAFN", new SystemValueInfo("QTHDRSCAFN", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTHDRSCAFN_DES")).trim()));  //@K1A
-    list_.put("QTHDRSCADJ", new SystemValueInfo("QTHDRSCADJ", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTHDRSCADJ_DES")).trim()));  //@K1A
-
-    // Create the group vectors
-    for (int i=0; i<groupVector.length; ++i) //@D4C
+    /**
+     Constructs a SystemValueList object.  It creates a default SystemValueList object.  The <i>system</i> property must be set before attempting a connection.
+     **/
+    public SystemValueList()
     {
-      groupVector[i] = new Vector();
-    }
-    Enumeration enum = list_.elements();
-    while (enum.hasMoreElements())
-    {
-      SystemValueInfo obj = (SystemValueInfo)enum.nextElement();
-      groupVector[obj.group_].addElement(obj);
-      groupVector[GROUP_ALL].addElement(obj); //@D3A
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SystemValueList object.");
     }
 
-    // Populate the group hashtable
-    for (int i=0; i<groupVector.length; ++i) //@D4C
+    /**
+     Constructs a SystemValueList object. It creates a SystemValueList instance that represents a list of system values on <i>system</i>.
+     @param  system  The server that contains the system values.
+     **/
+    public SystemValueList(AS400 system)
     {
-      groups_.put(getGroupName(i), groupVector[i]);
-    }
-  }   // end static initialization
-
-
-  private AS400 system_ = null;  // The iSeries server this SystemValueList belongs to.
-  private boolean connected_ = false; // Has a connection been made yet?
-
-  transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-  transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-
-
-  /**
-  Constructs a SystemValueList object.
-  It creates a default SystemValueList object. The <i>system</i> property
-  must be set before attempting a connection.
-  **/
-  public SystemValueList()
-  {
-  }
-
-
-  /**
-  Constructs a SystemValueList object.
-  It creates a SystemValueList instance that represents a list of system
-  values on <i>system</i>.
-    @param system The server that contains the system values.
-  **/
-  public SystemValueList(AS400 system)
-  {
-    if (system == null)
-    {
-      throw new NullPointerException("system");
-    }
-    system_ = system;
-  }
-
-
-  /**
-  Adds a PropertyChangeListener.
-    @see #removePropertyChangeListener
-    @param listener The PropertyChangeListener.
-  **/
-  public void addPropertyChangeListener(PropertyChangeListener listener)
-  {
-    if (listener == null) throw new NullPointerException("listener"); //@C1A
-    changes_.addPropertyChangeListener(listener);
-  }
-
-
-  /**
-  Adds the VetoableChangeListener.
-    @see #removeVetoableChangeListener
-    @param listener The VetoableChangeListener.
-  **/
-  public void addVetoableChangeListener(VetoableChangeListener listener)
-  {
-    if (listener == null) throw new NullPointerException("listener"); //@C1A
-    vetos_.addVetoableChangeListener(listener);
-  }
-
-
-  /**
-  Makes a connection to the server.
-  The <i>system</i> property must be set before a connection can be made.
-  **/
-  private void connect()
-      throws AS400SecurityException,
-             IOException,
-             UnknownHostException
-  {
-    if (system_ == null)
-    {
-      throw new ExtendedIllegalStateException("system",
-          ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SystemValueGroup object, system: " + system);
+        if (system == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+            throw new NullPointerException("system");
+        }
+        system_ = system;
     }
 
-    connected_ = true;
-  }
-
-
-  /**
-  Returns a set of SystemValue objects.
-  Returns the system values that belong to the system value
-  group specified by <i>group</i> and sorted by name.
-    @param group The system value group.
-    @return A Vector of SystemValue objects.
-    @exception AS400SecurityException If a security or authority error occurs.
-    @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-    @exception InterruptedException If this thread is interrupted.
-    @exception IOException If an error occurs while communicating with the server.
-    @exception ObjectDoesNotExistException If the server object does not exist.
-    @exception UnknownHostException If the server cannot be located.
-  **/
-  public Vector getGroup(int group)
-            throws AS400SecurityException,
-                   ErrorCompletingRequestException,
-                   InterruptedException,
-                   IOException,
-                   ObjectDoesNotExistException,
-                   UnknownHostException
-  {
-    if (!connected_)
-      connect();
-
-    if (group < 0 || group > GROUP_ALL)
+    /**
+     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this SystemValue.  It can be removed with removePropertyChangeListener.
+     @param  listener  The listener object.
+     **/
+    public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
+        if (listener == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            throw new NullPointerException("listener");
+        }
+        synchronized (this)
+        {
+            // If first add.
+            if (propertyChangeListeners_ == null)
+            {
+                propertyChangeListeners_ = new PropertyChangeSupport(this);
+            }
+            propertyChangeListeners_.addPropertyChangeListener(listener);
+        }
     }
 
-    // Call retrieve() to get the data from the server and
-    // create a Vector of corresponding SystemValue objects
-    // Get the group vector
-    Vector grp = (Vector)groups_.get(getGroupName(group));
-    Vector vec = SystemValueUtility.retrieve(system_, grp.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
-    return sort(vec);
-  }
-
-
-  /**
-  Returns the total number of possible groups.
-    @return The number of groups.
-  **/
-  public static int getGroupCount()
-  {
-    return groupCount_;
-  }
-
-  /**
-  Returns the description for the specified system value group.
-    @param group The system value group.
-    @return The description of the system value group.
-  **/
-  public static String getGroupDescription(int group)
-  {
-    if (group < 0 || group > GROUP_ALL)
+    /**
+     Adds a VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
+     @param  listener  The listener object.
+     **/
+    public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
+        if (listener == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            throw new NullPointerException("listener");
+        }
+        synchronized (this)
+        {
+            // If first add.
+            if (vetoableChangeListeners_ == null)
+            {
+                vetoableChangeListeners_ = new VetoableChangeSupport(this);
+            }
+            vetoableChangeListeners_.addVetoableChangeListener(listener);
+        }
     }
 
-    return groupDescriptions_[group];
-  }
-
-  //@F0A
-  /**
-  Returns the description for the specified system value group.
-    @param group The system value group.
-    @param locale The Locale used to load the appropriate language.
-    @return The description of the system value group.
-  **/
-  public static String getGroupDescription(int group, Locale locale)
-  {
-    if (group < 0 || group > GROUP_ALL)
+    // Makes a connection to the server.  The <i>system</i> property must be set before a connection can be made.
+    private void connect() throws AS400SecurityException, IOException
     {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-    if (locale == null) return groupDescriptions_[group];
-    switch(group)
-    {
-      case 0:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC", locale)).trim();
-      case 1:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_DESC", locale)).trim();
-      case 2:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC", locale)).trim();
-      case 3:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC", locale)).trim();
-      case 4:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC", locale)).trim();
-      case 5:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC", locale)).trim();
-      case 6:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC", locale)).trim();
-      case 7:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC", locale)).trim();
-      case 8:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC", locale)).trim();
-      case 9:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC", locale)).trim();
-      default:
-        break;
-    }
-    return groupDescriptions_[group];
-  }
+        if (system_ == null)
+        {
+            Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+            throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
 
-
-  /**
-  Returns the name of the specified system value group.
-    @param group The system value group.
-    @return The name of the system value group.
-  **/
-  public static String getGroupName(int group)
-  {
-    if (group < 0 || group > GROUP_ALL)
-    {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        connected_ = true;
     }
 
-    return groupNames_[group];
-  }
-
-
-  //@F0A
-  /**
-  Returns the name of the specified system value group.
-    @param group The system value group.
-    @param locale The Locale used to load the appropriate language.
-    @return The name of the system value group.
-  **/
-  public static String getGroupName(int group, Locale locale)
-  {
-    if (group < 0 || group > GROUP_ALL)
+    /**
+     Returns a set of SystemValue objects.  Returns the system values that belong to the system value group specified by <i>group</i> and sorted by name.
+     @param  group  The system value group.
+     @return  A Vector of SystemValue objects.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the server.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the server.
+     **/
+    public Vector getGroup(int group) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-      throw new ExtendedIllegalArgumentException("group",
-          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (!connected_) connect();
+
+        if (group < 0 || group > GROUP_ALL)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'group' is not valid:", group);
+            throw new ExtendedIllegalArgumentException("group", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        // Get the group vector.
+        Vector infos = SystemValueList.groups[group];
+
+        // QFRCCVNRST was in group SYSCTL in release V5R1M0 and below, and moved to group SEC in V5R2M0 and above.  By default we have it in group SEC, so if the server release is V5R1M0 or below, we fix up the group here.
+        if (system_.getVRM() <= VRM510)
+        {
+            switch (group)
+            {
+                case SystemValueList.GROUP_SEC:
+                    // Make a copy of the group and remove QFRCCVNRST.
+                    infos = (Vector)infos.clone();
+                    infos.removeElement(SystemValueList.lookup("QFRCCVNRST"));
+                    break;
+                case SystemValueList.GROUP_SYSCTL:
+                    // Make a copy of the group and add QFRCCVNRST.
+                    infos = (Vector)infos.clone();
+                    infos.addElement(SystemValueList.lookup("QFRCCVNRST"));
+                    break;
+            }
+        }
+
+        // Call retrieve() to get the data from the server and create a Vector of corresponding SystemValue objects.
+        return sort(SystemValueUtility.retrieve(system_, infos.elements(), getGroupName(group), getGroupDescription(group)));
     }
-    if (locale == null) return groupNames_[group];
-    switch(group)
+
+    /**
+     Returns the total number of possible groups.
+     @return  The number of groups.
+     **/
+    public static int getGroupCount()
     {
-      case 0:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME", locale)).trim();
-      case 1:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_NAME", locale)).trim();
-      case 2:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME", locale)).trim();
-      case 3:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME", locale)).trim();
-      case 4:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME", locale)).trim();
-      case 5:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME", locale)).trim();
-      case 6:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME", locale)).trim();
-      case 7:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME", locale)).trim();
-      case 8:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME", locale)).trim();
-      case 9:
-        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME", locale)).trim();
-      default:
-        break;
+        return GROUP_COUNT;
     }
-    return groupNames_[group];
-  }
 
-
-  /**
-  Returns the system.
-    @return The system.
-  **/
-  public AS400 getSystem()
-  {
-    return system_;
-  }
-
-
-  /**
-  Returns a SystemValueInfo object for the system value specified by <i>name</i>.
-    @param name The name of the system value.
-    @return The SystemValueInfo object corresponding to <i>name</i>.
-  **/
-  static SystemValueInfo lookup(String name)
-  {
-    SystemValueInfo obj = (SystemValueInfo)list_.get(name);
-    if (obj == null)
+    /**
+     Returns the description for the specified system value group.
+     @param  group  The system value group.
+     @return  The description of the system value group.
+     **/
+    public static String getGroupDescription(int group)
     {
-      throw new ExtendedIllegalArgumentException(name,
-          ExtendedIllegalArgumentException.FIELD_NOT_FOUND);
+        if (group < 0 || group > GROUP_ALL)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'group' is not valid:", group);
+            throw new ExtendedIllegalArgumentException("group", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        return GROUP_DESCRIPTIONS[group];
     }
-    return obj;
-  }
 
-  //@F0A
-  /**
-   * Returns the locale-specific description for a SystemValue.
-  **/
-  static String lookupDescription(SystemValueInfo info, Locale locale)
-  {
-    String name = info.name_.toUpperCase().trim();
-    return ((String)ResourceBundleLoader.getSystemValueText(name+"_DES", locale)).trim();
-  }
-
-
-
-  /**
-  Provided to initialize transient data if this object is de-serialized.
-  **/
-  private void readObject(java.io.ObjectInputStream in)
-      throws IOException, ClassNotFoundException
-  {
-    in.defaultReadObject();
-    changes_ = new PropertyChangeSupport(this);
-    vetos_ = new VetoableChangeSupport(this);
-  }
-
-
-  /**
-  Removes this listener from being notified when a bound property changes.
-    @see #addPropertyChangeListener
-    @param listener The PropertyChangeListener.
-  **/
-  public void removePropertyChangeListener(PropertyChangeListener listener)
-  {
-    if (listener == null) throw new NullPointerException("listener"); //@C1A
-    changes_.removePropertyChangeListener(listener);
-  }
-
-
-  /**
-  Removes this listener from being notified when a constrained property changes.
-    @see #addVetoableChangeListener
-    @param listener The VetoableChangeListener.
-  **/
-  public void removeVetoableChangeListener(VetoableChangeListener listener)
-  {
-    if (listener == null) throw new NullPointerException("listener"); //@C1A
-    vetos_.removeVetoableChangeListener(listener);
-  }
-
-
-  /**
-  Sets the system.
-    @param system The system.
-    @exception PropertyVetoException If the change is vetoed.
-  **/
-  public void setSystem(AS400 system) throws PropertyVetoException
-  {
-    if (system == null)
+    /**
+     Returns the description for the specified system value group.
+     @param  group  The system value group.
+     @param  locale  The Locale used to load the appropriate language.
+     @return  The description of the system value group.
+     **/
+    public static String getGroupDescription(int group, Locale locale)
     {
-      throw new NullPointerException("system");
+        if (group < 0 || group > GROUP_ALL)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'group' is not valid:", group);
+            throw new ExtendedIllegalArgumentException("group", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (locale == null) return GROUP_DESCRIPTIONS[group];
+        switch (group)
+        {
+            case 0: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC", locale);
+            case 1: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_DESC", locale);
+            case 2: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC", locale);
+            case 3: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC", locale);
+            case 4: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC", locale);
+            case 5: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC", locale);
+            case 6: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC", locale);
+            case 7: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC", locale);
+            case 8: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC", locale);
+            case 9: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC", locale);
+        }
+        return GROUP_DESCRIPTIONS[group];
     }
-    if (connected_)
-    {
-      throw new ExtendedIllegalStateException("system",
-          ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-    }
-    AS400 old = system_;
-    vetos_.fireVetoableChange("system", old, system);
-    system_ = system;
-    changes_.firePropertyChange("system", old, system_);
-  }
 
+    /**
+     Returns the name of the specified system value group.
+     @param  group  The system value group.
+     @return  The name of the system value group.
+     **/
+    public static String getGroupName(int group)
+    {
+        if (group < 0 || group > GROUP_ALL)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'group' is not valid:", group);
+            throw new ExtendedIllegalArgumentException("group", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
 
-  /**
-  Recursively sorts vectors of SystemValue objects by name.
-    @param vec The objects to sort.
-    @return The Vector of sorted objects.
-  **/
-  static Vector sort(Vector vec)
-  {
-    int len = vec.size();
-    if (len < 2)
-      return vec;
-    SystemValue middle = (SystemValue)vec.elementAt(len/2);
-    Vector lessthan = new Vector(len/2);
-    Vector equalto = new Vector(len/2);
-    Vector greaterthan = new Vector(len/2);
-    Enumeration enum = vec.elements();
-    while(enum.hasMoreElements())
-    {
-      SystemValue obj = (SystemValue)enum.nextElement();
-      int comparison = obj.getName().compareTo(middle.getName());
-      if (comparison < 0)
-        lessthan.addElement(obj);
-      else if (comparison > 0)
-        greaterthan.addElement(obj);
-      else
-        equalto.addElement(obj);
+        return GROUP_NAMES[group];
     }
-    lessthan.trimToSize();
-    equalto.trimToSize();
-    greaterthan.trimToSize();
-    Vector lefthalf = sort(lessthan);
-    Vector righthalf = sort(greaterthan);
-    Vector whole = new Vector(lefthalf.size()+righthalf.size()+equalto.size());
-    enum = lefthalf.elements();
-    while (enum.hasMoreElements())
+
+    /**
+     Returns the name of the specified system value group.
+     @param  group  The system value group.
+     @param  locale  The Locale used to load the appropriate language.
+     @return  The name of the system value group.
+     **/
+    public static String getGroupName(int group, Locale locale)
     {
-      whole.addElement(enum.nextElement());
+        if (group < 0 || group > GROUP_ALL)
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'group' is not valid:", group);
+            throw new ExtendedIllegalArgumentException("group", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (locale == null) return GROUP_NAMES[group];
+        switch (group)
+        {
+            case 0: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME", locale);
+            case 1: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_NAME", locale);
+            case 2: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME", locale);
+            case 3: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME", locale);
+            case 4: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME", locale);
+            case 5: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME", locale);
+            case 6: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME", locale);
+            case 7: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME", locale);
+            case 8: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME", locale);
+            case 9: return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME", locale);
+        }
+        return GROUP_NAMES[group];
     }
-    enum = equalto.elements();
-    while (enum.hasMoreElements())
+
+    /**
+     Returns the system object representing the server on which the system value list exists.
+     @return  The system object representing the server on which the system value list exists.  If the system has not been set, null is returned.
+     **/
+    public AS400 getSystem()
     {
-      whole.addElement(enum.nextElement());
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system: " + system_);
+        return system_;
     }
-    enum = righthalf.elements();
-    while (enum.hasMoreElements())
+
+    // Returns a SystemValueInfo object for the system value specified by <i>name</i>.
+    // @param  name  The name of the system value.
+    // @return  The SystemValueInfo object corresponding to <i>name</i>.
+    static SystemValueInfo lookup(String name)
     {
-      whole.addElement(enum.nextElement());
+        SystemValueInfo obj = (SystemValueInfo)SystemValueList.list.get(name);
+        if (obj == null)
+        {
+            Trace.log(Trace.ERROR, "System value was not found: " + name);
+            throw new ExtendedIllegalArgumentException(name, ExtendedIllegalArgumentException.FIELD_NOT_FOUND);
+        }
+        return obj;
     }
-    return whole;
-  }
+
+    // Returns the locale-specific description for a SystemValue.
+    static String lookupDescription(SystemValueInfo info, Locale locale)
+    {
+        return ResourceBundleLoader.getSystemValueText(info.name_.toUpperCase().trim() + "_DES", locale);
+    }
+
+    /**
+     Removes the PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
+     @param  listener  The listener object.
+     **/
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
+        if (listener == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            throw new NullPointerException("listener");
+        }
+        // If we have listeners.
+        if (propertyChangeListeners_ != null)
+        {
+            propertyChangeListeners_.removePropertyChangeListener(listener);
+        }
+    }
+
+    /**
+     Removes the VetoableChangeListener.  If the VetoableChangeListener is not on the list, nothing is done.
+     @param  listener  The listener object.
+     **/
+    public void removeVetoableChangeListener(VetoableChangeListener listener)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
+        if (listener == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
+            throw new NullPointerException("listener");
+        }
+        // If we have listeners.
+        if (vetoableChangeListeners_ != null)
+        {
+            vetoableChangeListeners_.removeVetoableChangeListener(listener);
+        }
+    }
+
+    /**
+     Sets the system object representing the server on which the system value list exists.
+     @param  system  The system object representing the server on which the system value list exists.
+     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     **/
+    public void setSystem(AS400 system) throws PropertyVetoException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system: " + system);
+
+        if (system == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+            throw new NullPointerException("system");
+        }
+        if (connected_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set property 'system' after connect.");
+            throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            system_ = system;
+        }
+        else
+        {
+            AS400 oldValue = system_;
+            AS400 newValue = system;
+
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("system", oldValue, newValue);
+            }
+            system_ = system;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("system", oldValue, newValue);
+            }
+        }
+    }
+
+    // Recursively sorts vectors of SystemValue objects by name.
+    // @param  vec  The objects to sort.
+    // @return  The Vector of sorted objects.
+    static Vector sort(Vector vec)
+    {
+        int len = vec.size();
+        if (len < 2) return vec;
+        SystemValue middle = (SystemValue)vec.elementAt(len / 2);
+        Vector lessthan = new Vector(len / 2);
+        Vector equalto = new Vector(len / 2);
+        Vector greaterthan = new Vector(len / 2);
+        Enumeration enum = vec.elements();
+        while (enum.hasMoreElements())
+        {
+            SystemValue obj = (SystemValue)enum.nextElement();
+            int comparison = obj.getName().compareTo(middle.getName());
+            if (comparison < 0) lessthan.addElement(obj);
+            else if (comparison > 0) greaterthan.addElement(obj);
+            else equalto.addElement(obj);
+        }
+        lessthan.trimToSize();
+        equalto.trimToSize();
+        greaterthan.trimToSize();
+        Vector lefthalf = sort(lessthan);
+        Vector righthalf = sort(greaterthan);
+        Vector whole = new Vector(lefthalf.size() + righthalf.size() + equalto.size());
+        enum = lefthalf.elements();
+        while (enum.hasMoreElements())
+        {
+            whole.addElement(enum.nextElement());
+        }
+        enum = equalto.elements();
+        while (enum.hasMoreElements())
+        {
+            whole.addElement(enum.nextElement());
+        }
+        enum = righthalf.elements();
+        while (enum.hasMoreElements())
+        {
+            whole.addElement(enum.nextElement());
+        }
+        return whole;
+    }
+
+/*    static String getName(Vector systemValues, int position)
+    {
+        return ((SystemValue)systemValues.elementAt(position)).info_.name_;
+    }*/
 }
-
-
-

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: SystemValueGroupBeanInfo.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SystemValueGroupBeanInfo.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -17,155 +17,129 @@ import java.awt.Image;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.EventSetDescriptor;
+import java.beans.IntrospectionException;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
-
+import java.beans.VetoableChangeListener;
 
 /**
- * The SystemValueGroupBeanInfo class provides bean information for the 
- * SystemValueGroup class. 
-**/
+ The SystemValueGroupBeanInfo class provides bean information for the SystemValueGroup class.
+ **/
 public class SystemValueGroupBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    /**
-     * The SystemValueGroup raw class.
-     */
-    private final static Class beanClass_ = SystemValueGroup.class;
+    // Class this bean info represents.
+    private static final Class BEAN_CLASS = SystemValueGroup.class;
 
-    // Handles loading the appropriate resource bundle
-//@A2D    private static ResourceBundleLoader loader_;
-
-    private static EventSetDescriptor[] events_;
-    private static PropertyDescriptor[] properties_;
+    private static EventSetDescriptor[] eventSetDescriptors;
+    private static PropertyDescriptor[] propertyDescriptors;
 
     static
     {
-      try
-      {
-        // EVENTS
+        try
+        {
+            EventSetDescriptor propertyChange = new EventSetDescriptor(BEAN_CLASS, "propertyChange", PropertyChangeListener.class, "propertyChange");
+            propertyChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_CHANGE"));
+            propertyChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_CHANGE"));
 
-        // Property change events
-        EventSetDescriptor changed = new EventSetDescriptor(beanClass_,
-                           "propertyChange",
-                           java.beans.PropertyChangeListener.class,
-                           "propertyChange");
-        changed.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_CHANGE")); //@A2C
-        changed.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_CHANGE")); //@A2C
+            EventSetDescriptor vetoableChange = new EventSetDescriptor(BEAN_CLASS, "vetoableChange", VetoableChangeListener.class, "vetoableChange");
+            vetoableChange.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_VETO"));
+            vetoableChange.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_VETO"));
 
-        // Vetoable change events
-        EventSetDescriptor veto = new EventSetDescriptor(beanClass_,
-                           "vetoableChange",
-                           java.beans.VetoableChangeListener.class,
-                           "vetoableChange");
-        veto.setDisplayName(ResourceBundleLoader.getText("EVT_NAME_PROPERTY_VETO")); //@A2C
-        veto.setShortDescription(ResourceBundleLoader.getText("EVT_DESC_PROPERTY_VETO")); //@A2C
+            eventSetDescriptors = new EventSetDescriptor[] { propertyChange, vetoableChange };
 
-        EventSetDescriptor[] events = {changed, veto};
-        events_ = events;
+            PropertyDescriptor system = new PropertyDescriptor("system", BEAN_CLASS);
+            system.setBound(true);
+            system.setConstrained(true);
+            system.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SYSTEM"));
+            system.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SYSTEM"));
 
+            PropertyDescriptor groupName = new PropertyDescriptor("groupName", BEAN_CLASS);
+            groupName.setBound(true);
+            groupName.setConstrained(true);
+            groupName.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_NAME"));
+            groupName.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_NAME"));
 
-        // PROPERTIES
+            PropertyDescriptor groupDescription = new PropertyDescriptor("groupDescription", BEAN_CLASS);
+            groupDescription.setBound(true);
+            groupDescription.setConstrained(true);
+            groupDescription.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_DESCRIPTION"));
+            groupDescription.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_DESCRIPTION"));
 
-        // System property
-        PropertyDescriptor system = new PropertyDescriptor("system", beanClass_);
-        system.setBound(true);
-        system.setConstrained(true);
-        system.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SYSTEM")); //@A2C
-        system.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SYSTEM")); //@A2C
-
-        PropertyDescriptor name = new PropertyDescriptor("groupName", beanClass_);
-        system.setBound(true);
-        system.setConstrained(true);
-        system.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_NAME")); //@A2C
-        system.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_NAME")); //@A2C
-
-        PropertyDescriptor description = new PropertyDescriptor("groupDescription", beanClass_);
-        system.setBound(true);
-        system.setConstrained(true);
-        system.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_DESCRIPTION")); //@A2C
-        system.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_DESCRIPTION")); //@A2C
-
-        properties_ = new PropertyDescriptor[] {system, name, description};
-      }
-      catch(Exception e)
-      {
-        throw new Error(e.toString());
-      }
+            propertyDescriptors = new PropertyDescriptor[] { system, groupName, groupDescription };
+        }
+        catch (IntrospectionException e)
+        {
+            Trace.log(Trace.ERROR, "Unexpected IntrospectionException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
     }
 
-
     /**
-     * Returns the bean descriptor.
-     * 
-     * @return The bean descriptor.
-    **/
-    public BeanDescriptor getBeanDescriptor ()
-    {
-      return new BeanDescriptor(beanClass_);
-    }
-
-
-    /**
-     * Returns the default event index.
-     * @return The default event index (always 1).
+     Returns the bean descriptor.
+     @return  The bean descriptor.
      **/
-    public int getDefaultEventIndex() 
+    public BeanDescriptor getBeanDescriptor()
     {
-      return 1; 
+        return new BeanDescriptor(BEAN_CLASS);
     }
 
-
     /**
-     * Returns the default property index.
-     * @return The default property index (always 0).
+     Returns the index of the default event.
+     @return  One (1), the index to the default event.
      **/
-    public int getDefaultPropertyIndex() 
+    public int getDefaultEventIndex()
     {
-      return 0; 
+        // The index for the "vetoableChange" event.
+        return 1;
     }
 
-
     /**
-     * Returns the descriptors for all events. 
-     * @return The descriptors for all events.
-     **/ 
-    public EventSetDescriptor[] getEventSetDescriptors() 
+     Returns the index of the default property.
+     @return  Zero (0), the index to the default property.
+     **/
+    public int getDefaultPropertyIndex()
     {
-      return events_;
+        // The index for the "system" property.
+        return 0;
     }
 
-
     /**
-     * Returns an Image for this bean's icon.
-     * @param  icon The desired icon size and color. 
-     * @return The Image for the icon.
-     */
-    public Image getIcon(int icon) 
+     Returns the descriptors for all events.
+     @return  The descriptors for all events.
+     **/
+    public EventSetDescriptor[] getEventSetDescriptors()
     {
-      Image image = null;
-      switch(icon)
-      {
-        case BeanInfo.ICON_MONO_16x16:
-        case BeanInfo.ICON_COLOR_16x16:
-          image = loadImage("SystemValueGroup16.gif");
-          break;
-        case BeanInfo.ICON_MONO_32x32:
-        case BeanInfo.ICON_COLOR_32x32:
-          image = loadImage("SystemValueGroup32.gif");
-          break;
-      }
-      return image;
+        return eventSetDescriptors;
     }
 
+    /**
+     Returns an Image for this bean's icon.
+     @param  icon  The desired icon size and color.
+     @return  The Image for the icon.
+     **/
+    public Image getIcon(int icon)
+    {
+        switch (icon)
+        {
+            case BeanInfo.ICON_MONO_16x16:
+            case BeanInfo.ICON_COLOR_16x16:
+                return loadImage("SystemValueGroup16.gif");
+            case BeanInfo.ICON_MONO_32x32:
+            case BeanInfo.ICON_COLOR_32x32:
+                return loadImage("SystemValueGroup32.gif");
+        }
+        return null;
+    }
 
     /**
-     * Returns the descriptors for all properties.
-     * @return The descriptors for all properties. 
+     Returns the descriptors for all properties.
+     @return  The descriptors for all properties.
      **/
     public PropertyDescriptor[] getPropertyDescriptors()
     {
-      return properties_;
+        return propertyDescriptors;
     }
 }
