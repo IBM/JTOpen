@@ -27,7 +27,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
 
 
-    static final long serialVersionUID = 4L;
+  static final long serialVersionUID = 4L;
 
 
 
@@ -40,11 +40,15 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   // DDM to process some file requests more quickly.  The declared file name is
   // determined upon construction and set when the file is opened.
   byte[] dclName_ = new byte[8];
+
   // Static variable used to ensure that each AS400File object has a unique
   // declared file name.
   static long nextDCLName_ = 1;
+
   // S38BUF data for force end of data calls.  Contain S38BUF LL, CP and value.
+  // @F1 - also use this for locking
   static private byte[] s38Buffer = {0x00, 0x05, (byte)0xD4, 0x05, 0x00};
+
   // Server
   AS400Server server_ = null;
 
@@ -88,7 +92,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // Send the close file data stream request
     if (discardReplys_)
     {
-      server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CLOSE(dclName_));
+      synchronized(server_) //@F1A
+      { //@F1A
+        server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CLOSE(dclName_));
+      } //@F1A
     }
     else
     {
@@ -162,70 +169,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception UnknownHostException If the AS/400 system cannot be located.
   **/
   public void connect()
-  throws AS400SecurityException,
-      ConnectionDroppedException,
-      IOException,
-      InterruptedException,
-      ServerStartupException,
-      UnknownHostException
+  throws AS400SecurityException, ConnectionDroppedException, IOException,
+         InterruptedException, ServerStartupException, UnknownHostException
   {
     server_ = system_.getConnection(AS400.RECORDACCESS, false); //@C0C @B5C
-
-//@C1 - In mod3, we don't support pre-V4R2 connections.
-//@C1D - begin deleted block
-/*
-
-    // Send the exchange attributes request and receive the reply if pre-V4R2 and haven't already
-    // connected.  If we are connecting to a V4R2 or later system, the exchange of attributes
-    // takes place within the AS400 object.
-    if (server_.getExchangeAttrReply() == null)
-    {
-      // First time exchange of attributes.  If we get here, we are connecting to a pre-v4r2 system.
-      try
-      { server_.sendExchangeAttrRequest(DDMRequestDataStream.getRequestEXCSAT("PREV4R2"));
-      }
-      catch(IOException e)
-      {
-        // Unable to exchange attributes.  Disconnect server and rethrow
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "IOException on EXCSAT for pre-v4r2 system.");
-        }
-        system_.disconnectServer(server_); //@C0C
-        server_ = null;
-        resetState();
-        throw e;
-      }
-      catch(InterruptedException e)
-      {
-        // Unable to exchange attributes.  Disconnect server and rethrow
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "InterruptedException on EXCSAT for pre-v4r2 system.");
-        }
-        system_.disconnectServer(server_); //@C0C
-        server_ = null;
-        resetState();
-        throw e;
-      }
-
-      DDMDataStream reply = (DDMDataStream)server_.getExchangeAttrReply();
-      if (reply.getCodePoint() != DDMTerm.EXCSATRD)
-      {
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "EXCSAT for pre-v4r2 system failed:", reply.data_);
-        }
-        // Exchange failed; disconnect service
-        system_.disconnectServer(server_); //@C0C
-        server_ = null;
-        resetState();
-        throw new InternalErrorException(InternalErrorException.UNKNOWN, reply.getCodePoint());
-      }
-    }
-*/
-//@C1D - end of deleted block
-
   }
 
 
@@ -270,14 +217,14 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception UnknownHostException If the AS/400 system cannot be located.
   **/
   public synchronized void createDDSSourceFile(RecordFormat recordFormat,
-                                                String altSeq,
-                                                String ccsid,
-                                                String order,
-                                                String ref,
-                                                boolean unique,
-                                                String format,
-                                                String text)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+                                               String altSeq,
+                                               String ccsid,
+                                               String order,
+                                               String ref,
+                                               boolean unique,
+                                               String format,
+                                               String text)
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     // Create the source physical file to hold the DDS source.  Note that we create the
     // file in library QTEMP.  Each AS400 job has its own QTEMP library which is created
@@ -466,20 +413,20 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         }
       }
 
-      // Create an array of records representing each line to be written
-      // to the file.
-      Record[] records = new Record[lines.size()];
-      for (int i = 0; i < records.length; ++i)
-      {
-        records[i] = srcRF.getNewRecord();
-        records[i].setField("SRCSEQ", new BigDecimal(i));
+    // Create an array of records representing each line to be written
+    // to the file.
+    Record[] records = new Record[lines.size()];
+    for (int i = 0; i < records.length; ++i)
+    {
+      records[i] = srcRF.getNewRecord();
+      records[i].setField("SRCSEQ", new BigDecimal(i));
 
-        records[i].setField("SRCDAT", new BigDecimal(i));
-        records[i].setField("SRCDTA", lines.elementAt(i));
-      }
+      records[i].setField("SRCDAT", new BigDecimal(i));
+      records[i].setField("SRCDTA", lines.elementAt(i));
+    }
 
-      // Open the DDS source file and write the records.  We will write all the records
-      // at one time, so we specify a blocking factor of records.length on the open().
+    // Open the DDS source file and write the records.  We will write all the records
+    // at one time, so we specify a blocking factor of records.length on the open().
     AS400FileImplRemote src = null; //@B5C @D0C 7/15/99
     try
     {
@@ -506,7 +453,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       // Close the file
       src.close();
     }
-    catch(Exception e)
+    catch (Exception e)
     { // log error and rethrow exception
       Trace.log(Trace.ERROR, "Unable to write records to DDS source file:"+e);
       try
@@ -516,7 +463,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           src.close();
         }
       }
-      catch(Exception e1)
+      catch (Exception e1)
       { // Ignore it; we will throw the original exception
       }
       if (e instanceof AS400Exception)
@@ -576,7 +523,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Vector replys = null;
     if (discardReplys_)
     {
-      server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CMD(cmd, system_)); //@C0C
+      synchronized(server_) //@F1A
+      { //@F1A
+        server_.sendAndDiscardReply(DDMRequestDataStream.getRequestS38CMD(cmd, system_)); //@C0C
+      } //@F1A
     }
     else
     {
@@ -912,16 +862,19 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Vector replys = null;
     try
     {
-      server_.send(req, id);  // Send the S38FEOD request
-      // Although the S38FEOD term description states that
-      // the S38BUF object is optional, it is not for our purposes.
-      // Create an empty S38BUF object to send after the S38FEOD
-      DDMObjectDataStream s38buf = new DDMObjectDataStream(11);
-      // The class contains static variable s38Buffer which is the S38BUF term with
-      // a value of 1 byte set to 0x00.
-      System.arraycopy(s38Buffer, 0, s38buf.data_, 6, 5);
-      // Send the S38BUF
-      replys = sendRequestAndReceiveReplies(s38buf, id);
+      synchronized(server_) //@F1A - both datastreams must be written atomically
+      { //@F1A
+        server_.send(req, id);  // Send the S38FEOD request
+        // Although the S38FEOD term description states that
+        // the S38BUF object is optional, it is not for our purposes.
+        // Create an empty S38BUF object to send after the S38FEOD
+        DDMObjectDataStream s38buf = new DDMObjectDataStream(11);
+        // The class contains static variable s38Buffer which is the S38BUF term with
+        // a value of 1 byte set to 0x00.
+        System.arraycopy(s38Buffer, 0, s38buf.data_, 6, 5);
+        // Send the S38BUF
+        replys = sendRequestAndReceiveReplies(s38buf, id);
+      } //@F1A
     }
     catch (ConnectionDroppedException e)
     {
@@ -1002,16 +955,19 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Vector replys = null;
     try
     {
-      server_.send(req, id);  // Send the S38FEOD request
-      // Although the S38FEOD term description states that
-      // the S38BUF object is optional, it is not for our purposes.
-      // Create an empty S38BUF object to send after the S38FEOD
-      DDMObjectDataStream s38buf = new DDMObjectDataStream(11);
-      // The class contains static variable s38Buffer which is the S38BUF term with
-      // a value of 1 byte set to 0x00.
-      System.arraycopy(s38Buffer, 0, s38buf.data_, 6, 5);
-      // Send the S38BUF
-      replys = sendRequestAndReceiveReplies(s38buf, id);
+      synchronized(server_) //@F1A - both datastreams must be written atomically
+      { //@F1A
+        server_.send(req, id);  // Send the S38FEOD request
+        // Although the S38FEOD term description states that
+        // the S38BUF object is optional, it is not for our purposes.
+        // Create an empty S38BUF object to send after the S38FEOD
+        DDMObjectDataStream s38buf = new DDMObjectDataStream(11);
+        // The class contains static variable s38Buffer which is the S38BUF term with
+        // a value of 1 byte set to 0x00.
+        System.arraycopy(s38Buffer, 0, s38buf.data_, 6, 5);
+        // Send the S38BUF
+        replys = sendRequestAndReceiveReplies(s38buf, id);
+      } //@F1A
     }
     catch (ConnectionDroppedException e)
     {
@@ -1843,29 +1799,6 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   }
 
 
-
-
-//@C1 - This method is not used anywhere.
-
-//  /**
-//   *Resets the state instance variables of this object to the appropriate
-//   *values for the file being closed.  This method is used to reset the
-//   *the state of the object when the connection has been ended abruptly.
-//  **/
-//@C1D - begin deleted block
-/*
-  void resetStateForReadObject()
-  {
-    dclName_ = new byte[8];
-
-    // Generate the declared file name for the object
-    setDCLName();
-
-    server_ = null;
-  }
-*/
-//@C1D - end deleted block
-
   /**
    *Rolls back any transactions since the last commit/rollback boundary.  Invoking this
    *method will cause all transactions under commitment control for this connection
@@ -1880,11 +1813,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception ServerStartupException If the AS/400 server cannot be started.
    *@exception UnknownHostException If the AS/400 system cannot be located.
   **/
-  public void rollback()
-  throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  public void rollback() throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     // Connect to the AS400.  Note: If we have already connected, that connection
     // will be used.
@@ -1925,41 +1854,17 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Vector sendRequestAndReceiveReplies(DDMDataStream req, int correlationId)
-  throws /* AS400Exception,*/
-      InterruptedException,
-      IOException
+    throws InterruptedException, IOException
   {
     DDMDataStream reply = null;
-    try
-    {
-      server_.send(req, correlationId);
-      reply = (DDMDataStream)server_.receive(correlationId);
-    }
-    catch (ConnectionDroppedException e)
-    {
-      // UConnection dropped.  Disconnect server and rethrow
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-      {
-        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-      }
-      system_.disconnectServer(server_);
-//@C1 - Setting the server_ object to null means that
-//      any operations on this AS400File object after the connection has been
-//      dropped will result in a NullPointerException. By leaving the server_ object
-//      around, any subsequent operations should also throw a ConnectionDroppedException.
-//@C1D      server_ = null;
-      resetState();
-      throw e;
-    }
-
-    // Receive all replies from the read into a vector.
-    Vector replys = new Vector();
-    while (reply.isChained())
-    {
-      replys.addElement(reply);
       try
       {
-        reply = (DDMDataStream)server_.receive(correlationId);
+        synchronized(server_) //@F1A - make sure all of our operations are atomic
+        { //@F1A - we are synchronized so we don't interrupt any other sends
+          // that are sensitive.
+          server_.send(req, correlationId);
+          reply = (DDMDataStream)server_.receive(correlationId);
+        } //@F1A
       }
       catch (ConnectionDroppedException e)
       {
@@ -1973,11 +1878,37 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 //      any operations on this AS400File object after the connection has been
 //      dropped will result in a NullPointerException. By leaving the server_ object
 //      around, any subsequent operations should also throw a ConnectionDroppedException.
-//@C1D        server_ = null;
+//@C1D      server_ = null;
         resetState();
         throw e;
       }
-    }
+
+      // Receive all replies from the read into a vector.
+      Vector replys = new Vector();
+      while (reply.isChained())
+      {
+        replys.addElement(reply);
+        try
+        {
+          reply = (DDMDataStream)server_.receive(correlationId);
+        }
+        catch (ConnectionDroppedException e)
+        {
+          // UConnection dropped.  Disconnect server and rethrow
+          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+          {
+            Trace.log(Trace.ERROR, "ConnectionDroppedException.");
+          }
+          system_.disconnectServer(server_);
+//@C1 - Setting the server_ object to null means that
+//      any operations on this AS400File object after the connection has been
+//      dropped will result in a NullPointerException. By leaving the server_ object
+//      around, any subsequent operations should also throw a ConnectionDroppedException.
+//@C1D        server_ = null;
+          resetState();
+          throw e;
+        }
+      }
     // Add the unchained reply to the vector of replys
     replys.addElement(reply);
     return replys;
@@ -1989,7 +1920,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *file object must be unique.  This method will generate a unique declared file
    *name.
   **/
-  /*@D2D protected*/public void setDCLName()
+  public void setDCLName()
   {
     // Convert nextDCLName_ to a Long and then to a string
     String nextDCLNameAsString = Long.toString(nextDCLName_++);
@@ -2046,24 +1977,30 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // Because we are updating, there will only be one item in dataToSend
     DDMObjectDataStream[] dataToSend =
         DDMObjectDataStream.getObjectS38BUF(records, openFeedback_);
-    try
-    {
-      server_.send(req, correlationId);
-    }
-    catch (ConnectionDroppedException e)
-    {
-      // UConnection dropped.  Disconnect server and rethrow
-      Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-      system_.disconnectServer(server_);
+
+    Vector replys = null; //@F1A
+
+    synchronized(server_) //@F1A - both datastreams must be written atomically
+    { //@F1A
+      try
+      {
+        server_.send(req, correlationId);
+        replys = sendRequestAndReceiveReplies(dataToSend[0], correlationId); //@F1M
+      }
+      catch (ConnectionDroppedException e)
+      {
+        // UConnection dropped.  Disconnect server and rethrow
+        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
+        system_.disconnectServer(server_);
 //@C1 - Setting the server_ object to null means that
 //      any operations on this AS400File object after the connection has been
 //      dropped will result in a NullPointerException. By leaving the server_ object
 //      around, any subsequent operations should also throw a ConnectionDroppedException.
 //@C1D      server_ = null;
-      resetState();
-      throw e;
-    }
-    Vector replys = sendRequestAndReceiveReplies(dataToSend[0], correlationId);
+        resetState();
+        throw e;
+      }
+    } //@F1A
     // Reply expected: S38IOFB
     if (((DDMDataStream)replys.elementAt(0)).getCodePoint() == DDMTerm.S38IOFB)
     {
@@ -2164,23 +2101,26 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // occurs when the blocking factor is less than the number records to be written.
     // In that case we do multiple of S38PUTMs of blocking factor number of records.
     Vector replys;
-    for (int i = 0; i < dataToSend.length; ++i)
-    { // For each S38BUF object, send the S38PUTM followed by the S38BUF
-      server_.send(req, correlationId);
-      replys = sendRequestAndReceiveReplies(dataToSend[i], correlationId);
-      // Reply expected: S38IOFB
-      if (((DDMDataStream)replys.elementAt(0)).getCodePoint() == DDMTerm.S38IOFB)
-      {
-        if (replys.size() != 1)
+    synchronized(server_) //@F1A - both datastreams must be written atomically
+    { //@F1A
+      for (int i = 0; i < dataToSend.length; ++i)
+      { // For each S38BUF object, send the S38PUTM followed by the S38BUF
+        server_.send(req, correlationId);
+        replys = sendRequestAndReceiveReplies(dataToSend[i], correlationId);
+        // Reply expected: S38IOFB
+        if (((DDMDataStream)replys.elementAt(0)).getCodePoint() == DDMTerm.S38IOFB)
         {
-          handleErrorReply(replys, 1);
+          if (replys.size() != 1)
+          {
+            handleErrorReply(replys, 1);
+          }
+        }
+        else
+        { // Error occurred
+          handleErrorReply(replys, 0);
         }
       }
-      else
-      { // Error occurred
-        handleErrorReply(replys, 0);
-      }
-    }
+    } //@F1A
   }
 
   // @B1A
