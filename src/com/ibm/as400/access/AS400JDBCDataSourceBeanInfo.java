@@ -501,11 +501,18 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             autoCommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTO_COMMIT"));                //@KBA
             autoCommit.setShortDescription(AS400JDBCDriver.getResource("AUTO_COMMIT_DESC"));                //@KBA
 
+            //@K94 - added support for holding a cursor across rollbacks
+            PropertyDescriptor rollbackCursorHold = new PropertyDescriptor("rollbackCursorHold", beanClass, "isRollbackCursorHold", "setRollbackCursorHold");    //@K94
+            rollbackCursorHold.setBound(true);  //@K94
+            rollbackCursorHold.setConstrained(false);   //@K94
+            rollbackCursorHold.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ROLLBACK_CURSOR_HOLD"));   //@K94
+            rollbackCursorHold.setShortDescription(AS400JDBCDriver.getResource("ROLLBACK_CURSOR_HOLD_DESC"));   //@K94
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94
         }
         catch(Exception e)
         {

@@ -2792,6 +2792,11 @@ public class AS400JDBCStatement implements Statement
     void markCursorClosed(boolean isRollback)    //@F4C
     throws SQLException    //@F2A
     {
+        // @K94 - See if the user requested to hold cursors after a rollback
+        boolean rollbackCursorHold = connection_.getProperties().getBoolean(JDProperties.ROLLBACK_CURSOR_HOLD); //@K94
+        if(rollbackCursorHold)     //@K94
+            isRollback = false;    //@K94
+
         // @F4 Added a check of statement level holdability because the user can specify the 
         // @F4 holdability of a specific statement (as a different value than the connection
         // @F4 holdability) with JDBC 3.0 support.  If this was called from Connection.rollback(),

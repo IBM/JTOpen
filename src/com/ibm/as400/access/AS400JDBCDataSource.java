@@ -1391,6 +1391,17 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.PROMPT);
     }
 
+    //@K94
+    /**
+    *  Indicates whether the cursor is held after a rollback.
+    *  @return true if the cursor is held; false otherwise.
+    *  The default value is false.
+    **/
+    public boolean isRollbackCursorHold()
+    {
+        return properties_.getBoolean(JDProperties.ROLLBACK_CURSOR_HOLD);
+    }
+
     //@KBL
     /**
     *  Indicates whether statements remain open until a transaction boundary when autocommit is off and they
@@ -2754,6 +2765,28 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + remarks);  //@A8C
+    }
+
+    //@K94
+    /**
+    *  Sets whether the cursor is held after a rollback.
+    *  @param cursorHold true if the cursor is held; false otherwise.  The default value is false.
+    **/
+    public void setRollbackCursorHold(boolean cursorHold)
+    {
+        String property = "rollbackCursorHold";
+        Boolean oldHold = new Boolean(isRollbackCursorHold());
+        Boolean newHold = new Boolean(cursorHold);
+
+        if (cursorHold)
+            properties_.setString(JDProperties.ROLLBACK_CURSOR_HOLD, TRUE_);
+        else
+            properties_.setString(JDProperties.ROLLBACK_CURSOR_HOLD, FALSE_);
+
+        changes_.firePropertyChange(property, oldHold, newHold);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + cursorHold);  
     }
 
     /**
