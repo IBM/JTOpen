@@ -402,7 +402,11 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
     {
       if (m_rootNode == null)
       {
-        m_rootNode = (RfmlDocument) newNode;
+        try { m_rootNode = (RfmlDocument) newNode; }
+        catch (ClassCastException e) {
+          Trace.log(Trace.ERROR, "Source document is not a well-formed RFML document.");
+          throw e;
+        }
         m_currentNode = newNode;
       }
       else
