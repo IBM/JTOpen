@@ -665,9 +665,7 @@ public class AS400JDBCStatement implements Statement
                     else if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)                                               //@K1A
                     {                                                                                                    //@K1A
                         //Determine if user set cursor sensitivity property                                              //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))                //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);            //@K1A        Option 4
-                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))         //@K1A
+                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))              //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);          //@K1A        Option 5
                         else                                                                                             //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);           //@K1A        Option 0
@@ -677,20 +675,12 @@ public class AS400JDBCStatement implements Statement
                         //Determine if user set cursor sensitivity property                                              //@K1A
                         if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))               //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);               //@K1A        Option 1
-                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))         //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);              //@K1A        Option 2
                         else                                                                                             //@K1A
                             request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);                //@K1A        Option 3
                     }                                                                                                    //@K1A
                     else        //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@K1A
-                    {                                                                                                    //@K1A
-                        //Determine if user set cursor sensitivity property                                              //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))                //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);                //@K1A        Option 3
-                        else if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))          //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);               //@K1A        Option 1
-                        else                                                                                             //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);              //@K1A        Option 2
+                    {                                           
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);                  //@K1A        Option 2
                     }                                                                                                    //@K1A
 
                     // Check server level before sending new code point
