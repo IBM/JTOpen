@@ -87,7 +87,6 @@ abstract class ConversionMaps
 //    encodingCcsid_.put("UnicodeLittleUnmarked", 13488); //@B0A
     encodingCcsid_.put("UTF8",          "1208");
     encodingCcsid_.put("UTF-16BE",      "1200"); // @C1A
-    encodingCcsid_.put("UTF-16BE",      "17584"); // iSeries doesn't support this, but other people use it.
 
     encodingCcsid_.put("Big5",      "950");
 //    encodingCcsid_.put("Big5 HKSCS", ???); //@B0A: Big5 with Hong Kong extensions
@@ -262,6 +261,8 @@ abstract class ConversionMaps
       Object key = keys.nextElement();
       ccsidEncoding_.put(encodingCcsid_.get(key), key);
     }
+    
+    ccsidEncoding_.put("17584", "UTF-16BE"); // iSeries doesn't support this, but other people use it.
     
     // Any other ccsids that are used for which we know no encoding will
     // have their encoding set to equal their ccsid.
