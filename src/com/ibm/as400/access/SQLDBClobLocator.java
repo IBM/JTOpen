@@ -225,7 +225,7 @@ class SQLDBClobLocator implements SQLLocator
         int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
         if (length < blockSize) blockSize = length;
         int position = 1;
-        Clob thisClob = toClob();
+        AS400JDBCClobLocator thisClob = (AS400JDBCClobLocator)toClob();
         while (position <= length)
         {
           String substring = clob.getSubString(position, blockSize);

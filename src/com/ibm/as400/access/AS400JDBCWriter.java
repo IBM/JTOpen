@@ -34,18 +34,22 @@ class AS400JDBCWriter extends Writer
 
   private boolean closed_ = false;   // is the stream closed?
   private long position_;      // position from which the user wanted us to start writing
-  private Clob clob_;
+  private AS400JDBCClob clob_; // We have separate vars for clob and locator to remove build dependency on JDBC 3.0.
+  private AS400JDBCClobLocator locator_;
 
 
-  /*
-  Construct an AS400JDBCLobWriter object.  
-  */
-  AS400JDBCWriter(Clob clob, long positionToStartWriting) 
+  AS400JDBCWriter(AS400JDBCClob clob, long positionToStartWriting) 
   {
     clob_ = clob;
     position_ = positionToStartWriting;
   }
 
+
+  AS400JDBCWriter(AS400JDBCClobLocator locator, long positionToStartWriting) 
+  {
+    locator_ = locator;
+    position_ = positionToStartWriting;
+  }
 
 
   /*
@@ -144,7 +148,7 @@ class AS400JDBCWriter extends Writer
   @param len       The number of bytes the user wants written to the writer
                    from the byte array they passed in.  
   */
-  public void write(String str, int off, int len) throws IOException
+  public synchronized void write(String str, int off, int len) throws IOException
   {
     if (str == null) throw new NullPointerException("str");
     if ((off < 0) || (off > len)) throw new ExtendedIllegalArgumentException("off", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -154,7 +158,8 @@ class AS400JDBCWriter extends Writer
 
     try
     {
-      clob_.setString(position_, str, off, len);
+      if (clob_ != null) clob_.setString(position_, str, off, len);
+      else locator_.setString(position_, str, off, len);
       position_ += len;
     }
     catch (SQLException e)
