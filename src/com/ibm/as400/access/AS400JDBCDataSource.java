@@ -99,12 +99,21 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
     private static final int MAX_THRESHOLD = 16777216;                  // Maximum threshold (bytes). @A3C, @A4A
 
+    // socket options to store away in JNDI
+    private static final String SOCKET_KEEP_ALIVE = "soKeepAlive"; // @F1A
+    private static final String SOCKET_RECEIVE_BUFFER_SIZE = "soReceiveBufferSize"; // @F1A
+    private static final String SOCKET_SEND_BUFFER_SIZE = "soSendBufferSize"; // @F1A
+    private static final String SOCKET_LINGER = "soLinger"; // @F1A
+    private static final String SOCKET_TIMEOUT = "soTimeout"; // @F1A
+    private static final String SOCKET_TCP_NO_DELAY = "soTCPNoDelay"; // @F1A
+
     // Data source properties.
     transient private AS400 as400_;                           // AS400 object used to store and encrypt the password.
     // @J2d private String databaseName_ = "";                // Database name. @A6C
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
     private JDProperties properties_;                         // OS/400 connection properties.
+    private SocketProperties sockProps_;                      // OS/400 socket properties @F1A
     transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
     transient private EventLog log_;       //@C7c
 
@@ -180,6 +189,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         initializeTransient();
         properties_ = new JDProperties(null, null);
+        sockProps_ = new SocketProperties();
     }
 
     /**
@@ -290,6 +300,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         properties_ = new JDProperties(null, null);
 
         Properties properties = new Properties();
+        sockProps_ = new SocketProperties();
 
         Enumeration list = reference.getAll();
         while (list.hasMoreElements())
@@ -321,6 +332,24 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
                 savePasswordWhenSerialized_ = value.equals(TRUE_) ? true : false;
             } else if (property.equals(SECURE) || property.equals(KEY_RING_NAME) || property.equals(KEY_RING_PASSWORD)) {
                 // do nothing for these keys, they have already been handled
+            }
+            else if (property.equals(SOCKET_KEEP_ALIVE)) {
+                sockProps_.setKeepAlive((value.equals(TRUE_)? true : false));
+            }
+            else if (property.equals(SOCKET_RECEIVE_BUFFER_SIZE)) {
+                sockProps_.setReceiveBufferSize(Integer.parseInt(value));
+            }
+            else if (property.equals(SOCKET_SEND_BUFFER_SIZE)) {
+                sockProps_.setSendBufferSize(Integer.parseInt(value));
+            }
+            else if (property.equals(SOCKET_LINGER)) {
+                sockProps_.setSoLinger(Integer.parseInt(value));
+            }
+            else if (property.equals(SOCKET_TIMEOUT)) {
+                sockProps_.setSoTimeout(Integer.parseInt(value));
+            }
+            else if (property.equals(SOCKET_TCP_NO_DELAY)) {
+                sockProps_.setTcpNoDelay((value.equals(TRUE_)? true : false));
             }
             else
             {
@@ -817,6 +846,14 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             if (propertyList[i].value != null)
                 ref.add(new StringRefAddr(propertyList[i].name, propertyList[i].value));
         }
+
+        // Add the Socket options
+        if (sockProps_.keepAliveSet_) ref.add(new StringRefAddr(SOCKET_KEEP_ALIVE, (sockProps_.keepAlive_ ? "true" : "false")));
+        if (sockProps_.receiveBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_RECEIVE_BUFFER_SIZE, Integer.toString(sockProps_.receiveBufferSize_)));
+        if (sockProps_.sendBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_SEND_BUFFER_SIZE, Integer.toString(sockProps_.sendBufferSize_)));
+        if (sockProps_.soLingerSet_) ref.add(new StringRefAddr(SOCKET_LINGER, Integer.toString(sockProps_.soLinger_)));
+        if (sockProps_.soTimeoutSet_) ref.add(new StringRefAddr(SOCKET_TIMEOUT, Integer.toString(sockProps_.soTimeout_)));
+        if (sockProps_.tcpNoDelaySet_) ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, (sockProps_.tcpNoDelay_ ? "true" : "false")));
 
         // Add the data source properties.  (unique constant identifiers for storing in JNDI).
         if (getDatabaseName() != null)
@@ -2968,6 +3005,134 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         logProperty ("user", as400_.getUserId());
     }
+
+    // @F1A Added the below methods to set socket options
+    /**
+    * Gets the socket keepalive option.
+    * @return The value of the socket keepalive option.
+    **/
+    public boolean getKeepAlive()
+    {
+        return sockProps_.getKeepAlive();
+    }
+
+    /**
+    * Gets the socket receive buffer size option.  NOTE: This does not get
+    * the actual receive buffer size, only the option which is used as a hint
+    * by the underlying socket code.
+    * @return The value of the socket receive buffer size option.
+    **/
+    public int getReceiveBufferSize()
+    {
+        return sockProps_.getReceiveBufferSize();
+    }
+
+    /**
+    * Gets the socket send buffer size option.  NOTE: This does not get
+    * the actual send buffer size, only the option which is used as a hint
+    * by the underlying socket code.
+    * @return The value of the socket send buffer size option.
+    **/
+    public int getSendBufferSize()
+    {
+        return sockProps_.getSendBufferSize();
+    }
+
+    /**
+    * Gets the socket linger option in seconds.
+    * @return The value of the socket linger option.
+    **/
+    public int getSoLinger()
+    {
+        return sockProps_.getSoLinger();
+    }
+
+    /**
+    * Gets the socket timeout option in milliseconds.
+    * @return The value of the socket timeout option.
+    **/
+    public int getSoTimeout()
+    {
+        return sockProps_.getSoTimeout();
+    }
+
+    /**
+    * Gets the socket TCP no delay option.
+    * @return The value of the socket TCP no delay option.
+    **/
+    public boolean getTcpNoDelay()
+    {
+        return sockProps_.getTcpNoDelay();
+    }
+
+    /**
+    * This property allows the turning on of socket keep alive.
+    * @param keepAlive The keepalive option value.
+    **/
+    public void setKeepAlive(boolean keepAlive)
+    {
+        sockProps_.setKeepAlive(keepAlive);
+    }
+
+    /**
+    * This property sets the receive buffer size socket option to the
+    * specified value. The receive buffer size option is used as a hint
+    * for the size to set the underlying network I/O buffers. Increasing
+    * the receive buffer size can increase the performance of network
+    * I/O for high-volume connection, while decreasing it can help reduce
+    * the backlog of incoming data.  This value must be greater than 0.
+    * @param size The socket receive buffer size option value.
+    **/
+    public void setReceiveBufferSize(int size)
+    {
+        sockProps_.setReceiveBufferSize(size);
+    }
+
+    /**
+    * This property sets the send buffer size socket option to the
+    * specified value. The send buffer size option is used by the
+    * platform's networking code as a hint for the size to set the
+    * underlying network I/O buffers.  This value must be greater
+    * than 0.
+    * @param size The socket send buffer size option value.
+    **/
+    public void setSendBufferSize(int size)
+    {
+        sockProps_.setSendBufferSize(size);
+    }
+
+    /**
+    * This property allows the turning on of socket linger with the
+    * specified linger time in seconds.  The maxium value for this
+    * property is platform specific.
+    * @param seconds The socket linger option value.
+    **/
+    public void setSoLinger(int seconds)
+    {
+        sockProps_.setSoLinger(seconds);
+    }
+
+    /**
+    * This property enables/disables socket timeout with the
+    * specified value in milliseconds.  A timeout value must be
+    * greater than zero, a value of zero for this property indicates
+    * infinite timeout.
+    * @param milliseconds The socket timeout option value.
+    **/
+    public void setSoTimeout(int milliseconds)
+    {
+        sockProps_.setSoTimeout(milliseconds);
+    }
+
+    /**
+    * This property allows the turning on of the TCP no delay socket option.
+    * @param noDelay The socket TCP no delay option value.
+    **/
+    public void setTcpNoDelay(boolean noDelay)
+    {
+        sockProps_.setTcpNoDelay(noDelay);
+    }
+    // @F1A End of new socket option methods
 
     /**
     *  Validates the property value.
