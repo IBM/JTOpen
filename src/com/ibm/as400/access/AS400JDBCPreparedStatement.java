@@ -217,22 +217,39 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 // If an input parameter is not set, we throw an exception.
                 if(!parameterSet_[i]) JDError.throwSQLException(this, JDError.EXC_PARAMETER_COUNT_MISMATCH);
 
+                //@KBA Need to check for locators even if the parameter is null
+                //  If we don't check for locators and the first row had locator fields that are all null, the LOCATOR_FOUND
+                //  flag was not being set.  This meant that we thought we could batch when executeBatch() was called.  We cannot
+                //  batch when locators are being used.  
+                SQLData sqlData = parameterRow_.getSQLData(i+1);    //@KBA  
                 // Save the parameter in the array.  If it's null, just leave it null.
                 if(!parameterNulls_[i])
                 {
-                  SQLData sqlData = parameterRow_.getSQLData(i+1);
+                  //@KBD  SQLData sqlData = parameterRow_.getSQLData(i+1);
                   parameters[i] = sqlData.getObject();
-                  if(containsLocator_ == LOCATOR_UNKNOWN)
-                  {
-                    int sqlType = sqlData.getSQLType();
-                    if (sqlType == SQLData.CLOB_LOCATOR ||
-                        sqlType == SQLData.BLOB_LOCATOR ||
-                        sqlType == SQLData.DBCLOB_LOCATOR)
-                    {
-                      containsLocator_ = LOCATOR_FOUND;
-                    }
-                  }
+                  //@KBD  if(containsLocator_ == LOCATOR_UNKNOWN)
+                  //@KBD  { 
+                  //@KBD    int sqlType = sqlData.getSQLType();
+                  //@KBD    if (sqlType == SQLData.CLOB_LOCATOR ||
+                  //@KBD        sqlType == SQLData.BLOB_LOCATOR ||
+                  //@KBD        sqlType == SQLData.DBCLOB_LOCATOR)
+                  //@KBD    {
+                  //@KBD      containsLocator_ = LOCATOR_FOUND;
+                  //@KBD    }
+                  //@KBD  }
                 }
+
+                //@KBA check to see if the parameter is a locator field
+                if(containsLocator_ == LOCATOR_UNKNOWN)             //@KBA
+                {                                                   //@KBA
+                    int sqlType = sqlData.getSQLType();             //@KBA
+                    if (sqlType == SQLData.CLOB_LOCATOR ||          //@KBA
+                        sqlType == SQLData.BLOB_LOCATOR ||          //@KBA
+                        sqlType == SQLData.DBCLOB_LOCATOR)          //@KBA
+                    {                                               //@KBA
+                        containsLocator_ = LOCATOR_FOUND;           //@KBA
+                    }                                               //@KBA
+                }                                                   //@KBA
             }
             if(containsLocator_ == LOCATOR_UNKNOWN) containsLocator_ = LOCATOR_NOT_FOUND;
 
