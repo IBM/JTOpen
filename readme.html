@@ -1,15 +1,16 @@
 <HTML>
+<!-- TBD: Scan for occurrences of V5R2 -->
 <HEAD>
 <TITLE>JTOpen README</TITLE>
 </HEAD>
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen Version</H2>
 <PRE>
-Copyright (C) 1997-2003 International Business Machines Corporation and
+Copyright (C) 1997-2004 International Business Machines Corporation and
 others. All rights reserved.
 
 File: README
-Last updated: April 4, 2003
+Last updated: March 11, 2004
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -62,20 +63,24 @@ V4R4        5769JC1 V4R2M0  V4R2 and up     V4R2 and up
 V4R5        5769JC1 V4R5M0  V4R3 and up     V4R2 and up
 V5R1        5722JC1 V5R1M0  V4R4 and up     V4R3 and up
 V5R2        5722JC1 V5R2M0  V4R5 and up     V4R5 and up
+V5R3(*)     5722JC1 V5R3M0  V5R1 and up     V5R1 and up
 JTOpen 1.x  Not applicable  Not applicable  V4R3 and up
 JTOpen 2.x  Not applicable  Not applicable  V4R4 and up
 JTOpen 3.x  Not applicable  Not applicable  V4R5 and up
 JTOpen 4.x  Not applicable  Not applicable  V5R1 and up
 
+(*) Note: Toolbox release V5R3 is equivalent to JTOpen 4.3.
+
+
 Newer versions of the Toolbox are backwards-compatible with earlier
 versions. Upgrading to a newer version is usually recommended, with the one
-main exception being that, starting in V4R4, the Toolbox is only supported 
+main exception being that the Toolbox is only supported 
 for connection to servers running either of the two prior releases of OS/400.
 
 
 <HR><A NAME="why"><H3>Why Open Source?</H3></A>
 
-We are pursuing making the Toolbox code open source for the
+We have chosen to make the Toolbox code open source for the
 following reasons:
 
 1. To obtain new functions and features from the Toolbox user community.
@@ -92,11 +97,11 @@ following reasons:
 
 <HR><A NAME="diff"><H3>Differences between JTOpen and the Toolbox LPP</H3></A>
 
-1. The initial release of the source code for JTOpen uses the V4R5
+1. The initial release of the source code for JTOpen used the V4R5
    Toolbox codebase. That is, the Java code in the open source repository
-   is the same code that is used to build the V4R5 Toolbox LPP. JTOpen 2.0x
+   is the same code that was used to build the V4R5 Toolbox LPP. JTOpen 2.0x
    uses the V5R1 Toolbox as its codebase. The latest release of JTOpen
-   (JTOpen 3.x) uses the V5R2 Toolbox as its codebase.
+   (JTOpen 4.x) uses the V5R3 Toolbox as its codebase.
 
 2. When bugs are reported, fixes will be committed to JTOpen as soon as
    they are realized. When applicable, these same fixes will be committed
@@ -168,33 +173,41 @@ JTOpen is comprised of the following files:
 
 Jar file          Contents
 --------          --------
+
 jtStubs.jar       As of JTOpen 4.0 and JDK 1.4, this jar file is no longer required.
+
 src.zip           This is a zip file of all the source files in the repository. It is
                   not a Java jar file. The src.zip file has been replaced by the JTOpen
                   downloads available on the <A HREF="http://www-124.ibm.com/developerworks/downloads/?group_id=29&recent_only=1">JTOpen developerWorks project site</A>.
+
 doc.zip           This is a zip file of the javadoc (in HTML format) for the JTOpen
                   source files. It is not a Java jar file. The doc.zip file has been
                   replaced by the JTOpen downloads available on the
                   <A HREF="http://www-124.ibm.com/developerworks/downloads/?group_id=29&recent_only=1">JTOpen developerWorks project site</A>.
+
 jt400.jar         This is the main JTOpen jar file. It contains almost all open
                   source code (except for the few Toolbox classes that could
                   not be open-sourced), including the previously disparate
                   utilities package, and the JDBC driver.
+
 jt400Micro.jar    This contains the ToolboxME (Micro Edition) classes for
                   use on a handheld device.
+
 jt400Native.jar   Previously known as jt400Access.zip, this jar does not
                   contain the vaccess package. It does contain the native
                   optimization classes necessary for running performance-enhanced
                   applications on the OS/400 JVM.
+
 jt400Proxy.jar    This jar contains just the classes needed to run a client
                   application using the Toolbox proxy server. It is
                   especially useful in environments where a smaller jar
                   is needed.
+
 jt400Servlet.jar  This jar contains the html and servlet packages.
+
                   
 The first three files are available through the JTOpen web site
-located at <A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400">http://oss.software.ibm.com/developerworks/opensource/jt400</A>. But
-due to export regulations, the other jar files can only be downloaded from
+located at <A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400">http://oss.software.ibm.com/developerworks/opensource/jt400</A>. Due to export regulations, the other jar files can only be downloaded from
 the official Toolbox web site downloads page:
 <A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox/downloads.htm">http://www.ibm.com/servers/eserver/iseries/toolbox/downloads.htm</A>.
 
@@ -234,36 +247,51 @@ Instructions for building all or part of the JTOpen source code:
 <A NAME="toolbox"><H4><U>Using the Toolbox LPP</U></H4></A>
 For those interested in the Toolbox LPP version of this software:
 
-The V5R2 Toolbox LPP ships the following files, which are available
+The V5R3 Toolbox LPP ships the following files, which are available
 for download off of the official Toolbox web site at
 <A HREF="http://www.ibm.com/servers/eserver/iseries/toolbox">http://www.ibm.com/servers/eserver/iseries/toolbox</A>.
 
 Jar file           Contents
 --------           --------
+
 jt400.jar          Contains the access, data (PCML), resource, vaccess,
                    and security packages.
+
 jt400Access.zip    Contains the access, data, resource, security, HTML, and servlet
                    packages, along with Toolbox native optimization classes used
                    when running directly on the OS/400 JVM.
+
 jt400Proxy.jar     Contains proxy classes for the access package. Useful for
                    applets or environments where a small jar file is needed. A middle
                    tier machine running the Toolbox ProxyServer is required to forward
                    proxy client requests to the backend server.
+
 jt400Servlet.jar   Contains the HTML and servlet packages.
+
 utilities package  Contains various helper applications for the Toolbox,
                    such as JarMaker and AS400ToolboxInstaller.
+
 data400.jar        Contains the PCML runtime package as provided by
-                   Operations Navigator.
+		   Operations Navigator.
+
 jui400.jar         Contains the PDML runtime packages as provided by
                    the Graphical Toolbox.
+
 uitools.jar        Contains the GUI Builder packages as provided by the
                    Graphical Toolbox.
+
 util400.jar        Contains various utilities.
+
 x4j400.jar         Contains the IBM XML Parser for Java.
+
 composer.jar       Contains XSL stylesheet composer classes.
+
 reportwriter.jar   Contains XSL report processor classes.
+
 outputwriters.jar  Contains PDF, PCL, and font classes.
+
 tes.jar            Contains the iSeries Graphical Debugger.
+
 
 Instructions for using the Toolbox LPP:
 1. Download the Toolbox and extract the jar file(s) you wish to use. This
