@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Hashtable;
-import java.util.Vector;
 
 final class AS400ThreadedServer extends AS400Server implements Runnable
 {
@@ -41,14 +40,10 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
   private RuntimeException unlikelyException_ = null; //@P0A
 
   private DataStream exchangeAttrReply_ = null;
-  //@P0D private Vector replyList_ = new Vector(5);
-  //@P0D private Vector discardList_ = new Vector();
-  
-  //@P0A - Vectors are slow, but Object arrays are big, so we 
-  // implement our own hashtables to compromise.
+
+    // Vectors are slow, but Object arrays are big, so we implement our own hashtables to compromise.
   private final ReplyList replyList_ = new ReplyList();
 
-  //@P1A
   private final class DataStreamCollection
   {
     DataStream[] chain_;
@@ -76,7 +71,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
       }
       int hash = ds.getCorrelation() % 16;
       
-      //@P1C - Use the collection object for synchronization to prevent bottlenecks.
+            // Use the collection object for synchronization to prevent bottlenecks.
       DataStreamCollection coll = streams_[hash];
       if (coll == null)
       {
@@ -107,7 +102,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
       int hash = correlation % 16;
       DataStreamCollection coll = streams_[hash];
       if (coll == null) return null;
-      //@P1C - Use the collection object for synchronization to prevent bottlenecks.
+            // Use the collection object for synchronization to prevent bottlenecks.
       synchronized(coll)
       {
         DataStream[] chain = coll.chain_;
@@ -116,13 +111,12 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
           if (chain[i] != null && chain[i].getCorrelation() == correlation)
           {
             DataStream ds = chain[i];
-            //@P1A  Move up the remaining entries because chained replies have the
-            //@P1A  same correlation ID and need to remain in chronological order
+                        // Move up the remaining entries because chained replies have the same correlation ID and need to remain in chronological order.
             if (i+1 < chain.length)
             {
               System.arraycopy(chain, i+1, chain, i, chain.length-i-1);
             }
-            //@P1A  Set last element to null.
+                        // Set last element to null.
             chain[chain.length-1] = null;
             return ds;
           }
@@ -132,7 +126,6 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     }
   };
 
-  
   private final DiscardList discardList_ = new DiscardList();
 
   private final class DiscardList
@@ -184,12 +177,9 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     }
   }
 
-
   private int lastCorrelationId_ = 0;
   private final Object correlationIdLock_ = new Object(); //@P0C
   private final Object receiveLock_ = new Object(); //@P0C
-
-
 
   AS400ThreadedServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString) throws IOException
   {
@@ -208,13 +198,13 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     readDaemon_.start();
   }
 
-  // Print is the only thing that uses this.
+    // Print is the only service that uses this method.
   final void addInstanceReplyStream(DataStream replyStream)
   {
     instanceReplyStreams_.put(replyStream, replyStream);
   }
 
-  // Print is the only thing that uses this.
+    // Print is the only service that uses this method.
   final void clearInstanceReplyStreams()
   {
     instanceReplyStreams_.clear();
@@ -258,6 +248,15 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     {
       if (Trace.traceOn_) Trace.log(Trace.ERROR, "Socket close failed.", e); //@P0A
     }
+    // Wait for thread to end.  This is necessary to help socket descriptor from being reused.
+    try
+    {
+        readDaemon_.join();
+    }
+    catch (InterruptedException e)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Thread join failed:", e);
+    }
   }
   
   final DataStream getExchangeAttrReply()
@@ -284,14 +283,14 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
   {
     synchronized (correlationIdLock_)
     {
-      if (++lastCorrelationId_ == 0) lastCorrelationId_ = 1; //@P0C - don't allow 0 as a valid correlation ID
-      return lastCorrelationId_; //@P0C
+            // Don't allow 0 as a valid correlation ID.
+            if (++lastCorrelationId_ == 0) lastCorrelationId_ = 1;
+            return lastCorrelationId_;
     }
   }
 
   final DataStream receive(int correlationId) throws IOException, InterruptedException
   {
-    //@P0C - changed this method
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server.receive");
     synchronized (receiveLock_)
     {
@@ -321,7 +320,6 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
   public void run()
   {
-    //@P0C - changed this method
     while (readDaemonException_ == null && unlikelyException_ == null)
     {
       try
