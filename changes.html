@@ -9,7 +9,7 @@ Copyright (C) 1997-2004 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: April 22, 2004
+Last updated: June 30, 2004
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -26,12 +26,45 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#44">Fixes and enhancements in JTOpen 4.4</A><BR>
 <A HREF="#43_1">Fixes and enhancements in JTOpen 4.3.1</A><BR>
 <A HREF="#43">Fixes and enhancements in JTOpen 4.3</A><BR>
 <A HREF="#42">Fixes and enhancements in JTOpen 4.2</A><BR>
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="44">Fixes and enhancements in JTOpen 4.4</A></H3>
+<PRE>
+- CommandHelpRetriever: Use relative column widths on syntax summary table.
+- Connection: Decoupled JDBC and DDM from AS400 object, to improve effectiveness of AS400ToolboxJarMaker.
+- Connection pools: Added getSystemNames(), getUsers(system), and getConnectedUsers(system).
+- Connection pools: Fixed JTOpen Bug 3384.  (AS400ConnectionPool unnecessarily creates objects)
+- Connection pools: Fixed JTOpen Bug 3863.  (NullPointerException when connection returned to pool)
+- Data conversion: Fixed tables for CCSIDs 424, 862, 1200.
+- Data conversion: Added ability to return Double objects instead of BigDecimal objects on toObject() calls.
+- Data conversion: Allow BidiStringType.None as valid value.
+- Data queue: Fixed proxy delete() method.
+- Documentation: Various javadoc fixes, additions, and enhancements.
+- IFS: Fixed JTOpen Bug 3722. (ClassCastException in IFSFileDescriptorImplRemote)
+- IFS: Added IFSFile methods setPatternMatching(), getPatternMatching().
+- JDBC: Miscellaneous minor enhancements.
+- JDBC: Fixed JTOpen Bug 3605.  (Cleanup after failed creation of prepared stmt)
+- JDBC: Fixed JTOpen Bug 3655.  (AS400JDBCConnectionPool.fill())
+- JDBC: Fixed JTOpen Bug 3801.  (Check for null values from DatabaseMetaData.getTables())
+- JDBC: Fixed JTOpen Bug 3818.  (Normalize DATE milliseconds)
+- JDBC: Additional tracing activation method.
+- JDBC: Performance improvement in SQL statement parsing.
+- JDBC: Return "" for base table name if no column descriptors are returned.
+- List: Check the 'list status indicator' returned by QGY* API's.
+- Message queue: Fixed RMessageQueue string buffer problem.
+- NetServer: Added getters to ISeriesNetServer for pending attribute values.
+- PCML: Added ProgramCallDocument.getProgramCall().
+- RLA: Performance improvements.
+- RFML: Fixed JTOpen Bug 3953.  (Deserializing RecordFormatDocument)
+- System values: Improved handling of invalid QDATE values.
+</PRE>
 
 <HR>
 <H3><A NAME="43_1">Fixes and enhancements in JTOpen 4.3.1</A></H3>
