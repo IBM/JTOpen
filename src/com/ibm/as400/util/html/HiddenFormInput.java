@@ -28,13 +28,12 @@ public class HiddenFormInput extends FormInput
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    
     /**
     *  Constructs a HiddenFormInput object.
     **/
     public HiddenFormInput()
     {
-       super();
+        super();
 
     }
 
@@ -64,14 +63,13 @@ public class HiddenFormInput extends FormInput
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating HiddenFormInput tag...");
+        //@C1D
 
         if (getName() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<input type=\"hidden\"");

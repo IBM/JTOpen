@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLServlet.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ import java.beans.PropertyChangeListener;
 **/
 public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializable   // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     private String name_;
@@ -85,8 +85,8 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLServlet()
     {
-       super();
-       list_ = new Vector();
+        super();
+        list_ = new Vector();
 
     }
 
@@ -98,11 +98,11 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLServlet(String name)
     {
-       super();
+        super();
 
-       setName(name);
+        setName(name);
 
-       list_ = new Vector();
+        list_ = new Vector();
     }
 
 
@@ -114,12 +114,12 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLServlet(String name, String location)
     {
-       super();
+        super();
 
-       setName(name);
-       setLocation(location);
+        setName(name);
+        setLocation(location);
 
-       list_ = new Vector();
+        list_ = new Vector();
 
     }
 
@@ -131,11 +131,10 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public void addParameter(HTMLParameter param)                                   //$A2C
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Adding HTMLParameter to servlet.");
+        //@B1D
 
         if (param == null)
-           throw new NullPointerException("param");
+            throw new NullPointerException("param");
 
         // add parameter to the list
         list_.addElement(param);
@@ -154,23 +153,22 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLParameter addParameter(String name, String value)                      //$A2C
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Adding HTMLParameter to servlet.");
+        //@B1D
 
-       if (name == null)
-          throw new NullPointerException("name");
-       if (value == null)
-          throw new NullPointerException("value");
+        if (name == null)
+            throw new NullPointerException("name");
+        if (value == null)
+            throw new NullPointerException("value");
 
-       //Create the HTMLParameter from the values passed in
-       HTMLParameter param = new HTMLParameter(name,value);
+        //Create the HTMLParameter from the values passed in
+        HTMLParameter param = new HTMLParameter(name,value);
 
-       // Add the HTMLParameter to the group.
-       list_.addElement(param);
+        // Add the HTMLParameter to the group.
+        list_.addElement(param);
 
-       fireElementEvent(ElementEvent.ELEMENT_ADDED);
+        fireElementEvent(ElementEvent.ELEMENT_ADDED);
 
-       return param;
+        return param;
     }
 
 
@@ -185,28 +183,31 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
      *
      * @param listener The ElementListener.
     **/
-    public void addElementListener(ElementListener listener) {
-       if (listener == null)
-          throw new NullPointerException ("listener");
-       elementListeners.addElement(listener);
+    public void addElementListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        elementListeners.addElement(listener);
     }
 
 
 
-    
-   /**
-    *  Fires the element event.
-    **/
-    private void fireElementEvent(int evt) {
+
+    /**
+     *  Fires the element event.
+     **/
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -247,14 +248,13 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLServlet tag...");
+        //@B1D
 
-        if(name_ == null)
+        if (name_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting servlet name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting servlet name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<servlet");
@@ -263,16 +263,16 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
 
         if (location_ != null)
         {
-           s.append(" codebase=\"");
-           s.append(getLocation());
-           s.append("\"");
-           s.append(getAttributeString());       // @Z1A
-           s.append(">\n");
+            s.append(" codebase=\"");
+            s.append(getLocation());
+            s.append("\"");
+            s.append(getAttributeString());       // @Z1A
+            s.append(">\n");
         }
         else
         {
-           s.append(getAttributeString());       // @Z1A
-           s.append(">\n");
+            s.append(getAttributeString());       // @Z1A
+            s.append(">\n");
         }
 
         // add parameters to the servlet tag
@@ -295,7 +295,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -310,13 +310,12 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     public void removeParameter(HTMLParameter param)                                 //$A2C
     {
         if (param == null)
-           throw new NullPointerException("param");
+            throw new NullPointerException("param");
 
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Removing HTMLParameter from the servlet.");
+        //@B1D
 
         if (list_.removeElement(param))
-           fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
 
@@ -328,32 +327,32 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
      *
      * @param listener The ElementListener.
     **/
-    public void removeElementListener(ElementListener listener) {
-       if (listener == null)
-          throw new NullPointerException ("listener");
-       elementListeners.removeElement(listener);
+    public void removeElementListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        elementListeners.removeElement(listener);
     }
 
 
-    
-   /**
-    *  Sets the location for the servlet source.  It can refer to a remote location from which
-    *  the servlet should be loaded.  The default location is assumed to be local.
-    *
-    *  @param location The location.
-    **/
+
+    /**
+     *  Sets the location for the servlet source.  It can refer to a remote location from which
+     *  the servlet should be loaded.  The default location is assumed to be local.
+     *
+     *  @param location The location.
+     **/
     public void setLocation(String location)
     {
         if (location == null)
-          throw new NullPointerException("location");
+            throw new NullPointerException("location");
 
         if (location.length() == 0 )
         {
-           throw new ExtendedIllegalArgumentException("location", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("location", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting servlet location.");
+        //@B1D
 
         String old = location_;
 
@@ -371,21 +370,20 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     **/
     public void setName(String name)
     {
-       if (name == null)
-          throw new NullPointerException("name");
+        if (name == null)
+            throw new NullPointerException("name");
 
-       if (name.length() == 0)
-          throw new ExtendedIllegalArgumentException("name",
-                            ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        if (name.length() == 0)
+            throw new ExtendedIllegalArgumentException("name",
+                                                       ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting servlet name.");
+        //@B1D
 
-       String old = name_;
+        String old = name_;
 
-       name_ = name;
+        name_ = name;
 
-       changes_.firePropertyChange("name", old, name );
+        changes_.firePropertyChange("name", old, name );
     }
 
 
@@ -397,21 +395,20 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
      **/
     public void setText(String text)
     {
-       if (text == null)
-         throw new NullPointerException("text");
+        if (text == null)
+            throw new NullPointerException("text");
 
-       if (text.length() == 0)
-          throw new ExtendedIllegalArgumentException("text",
-                            ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        if (text.length() == 0)
+            throw new ExtendedIllegalArgumentException("text",
+                                                       ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Setting servlet alternate text.");
+        //@B1D
 
-       String old = text_;
+        String old = text_;
 
-       text_ = text;
+        text_ = text;
 
-       changes_.firePropertyChange("text", old, text );
+        changes_.firePropertyChange("text", old, text );
     }
 
 

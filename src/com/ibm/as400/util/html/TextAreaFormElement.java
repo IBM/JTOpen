@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: TextAreaFormElement.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ import java.beans.PropertyVetoException;
 **/
 public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Serializable   // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private String name_;            // The text area name.
     private int rows_;               // Number of visible text lines.
@@ -73,13 +73,14 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     **/
     public TextAreaFormElement(String name)
     {
-       this();
-       try {
-          setName(name);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        this();
+        try
+        {
+            setName(name);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     /**
@@ -92,17 +93,18 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     public TextAreaFormElement(String name, int rows, int cols)
     {
         super();
-        try {
-           setName(name);
-           setRows(rows);
-           setColumns(cols);
+        try
+        {
+            setName(name);
+            setRows(rows);
+            setColumns(cols);
         }
         catch (PropertyVetoException e)
         {
         }
     }
 
-    
+
     /**
     Adds the VetoableChangeListener.  The specified VetoableChangeListener's
     <b>vetoableChange</b> method will be called each time the value of any
@@ -112,9 +114,9 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       vetos_.addVetoableChangeListener(listener);
+        vetos_.addVetoableChangeListener(listener);
     }
 
     /** 
@@ -143,23 +145,22 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" dir=\"");
-          buffer.append(dir_);
-          buffer.append("\"");
+        if ((dir_ != null) && (dir_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" dir=\"");
+            buffer.append(dir_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
 
-    
+
     /**
     *  Returns the <i>language</i> of the input element.
     *  @return The language of the input element.
@@ -176,19 +177,18 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     **/                                                                               
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" lang=\"");
-          buffer.append(lang_);
-          buffer.append("\"");
+        if ((lang_ != null) && (lang_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" lang=\"");
+            buffer.append(lang_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
     /**
@@ -216,14 +216,13 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating TextAreaFormElement tag...");
+        //@C1D
 
         if (name_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<textarea");
@@ -248,8 +247,8 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         if (text_ != null)
         {
-           s.append(text_);
-           s.append("\n");
+            s.append(text_);
+            s.append("\n");
         }
 
         s.append("</textarea>");
@@ -270,16 +269,16 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          //$A1A
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
 
         changes_ = new PropertyChangeSupport(this);
         vetos_ = new VetoableChangeSupport(this);
     }
-    
-    
- 
+
+
+
     /**
     Removes the VetoableChangeListener from the internal list.
     If the VetoableChangeListener is not on the list, nothing is done.
@@ -288,9 +287,9 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       vetos_.removeVetoableChangeListener(listener);
+        vetos_.removeVetoableChangeListener(listener);
     }
 
     /**
@@ -300,10 +299,10 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setColumns(int cols)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (cols < 0)
-           throw new ExtendedIllegalArgumentException("cols", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("cols", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = cols_;
 
@@ -325,15 +324,15 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setDirection(String dir)                                     //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {   
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
-        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -353,10 +352,10 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setLanguage(String lang)                                      //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {   
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
         vetos_.fireVetoableChange("lang", old, lang );
@@ -365,7 +364,7 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         changes_.firePropertyChange("lang", old, lang );
     }
-    
+
     /**
     *  Sets the control name of the text area.
     *  @param name The control name.
@@ -373,10 +372,10 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setName(String name)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (name == null)
-           throw new NullPointerException("name");
+            throw new NullPointerException("name");
 
         String old = name_;
 
@@ -394,10 +393,10 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setRows(int rows)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (rows < 0)
-           throw new ExtendedIllegalArgumentException("rows", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("rows", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = rows_;
 
@@ -415,10 +414,10 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setText(String text)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (text == null)
-           throw new NullPointerException("text");
+            throw new NullPointerException("text");
 
         String old = text_;
 

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: SelectFormElement.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,63 +68,65 @@ import java.beans.PropertyVetoException;
 **/
 public class SelectFormElement extends HTMLTagAttributes implements java.io.Serializable    // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-   private String name_;           // The select element name.
-   private int size_;              // The number of visible choices.
-   private boolean multiple_;      // Whether multiple selections can be made.
-   private boolean optionSelected_;// Whether a option is marked as selected.
+    private String name_;           // The select element name.
+    private int size_;              // The number of visible choices.
+    private boolean multiple_;      // Whether multiple selections can be made.
+    private boolean optionSelected_;// Whether a option is marked as selected.
 
-   private String lang_;        // The primary language used to display the tags contents.  //$B1A
-   private String dir_;         // The direction of the text interpretation.                //$B1A
+    private String lang_;        // The primary language used to display the tags contents.  //$B1A
+    private String dir_;         // The direction of the text interpretation.                //$B1A
 
-   private Vector list_;           // List of options.
+    private Vector list_;           // List of options.
 
 
-   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-   transient private Vector elementListeners = new Vector();     // The list of element listeners
+    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private Vector elementListeners = new Vector();     // The list of element listeners
 
-   /**
-   *  Constructs a default SelectFormElement object.
-   **/
-   public SelectFormElement()
-   {
-      super();
-      size_ = 0;
-      multiple_ = false;
-      list_ = new Vector();
-   }
-
-   /**
-   *  Constructs a SelectFormElement with the specified control <i>name</i>.
-   *  @param name The control name of the select element.
-   **/
-   public SelectFormElement(String name)
-   {
-      this();
-      try {
-         setName(name);
-      }
-      catch (PropertyVetoException e)
-      {
-      }
-   }
-
-   /**
-    Adds an addElementListener.
-    The specified addElementListeners <b>elementAdded</b> method will
-    be called each time a radioforminput is added to the group.
-    The addElementListener object is added to a list of addElementListeners
-    managed by this RadioFormInputGroup. It can be removed with removeElementListener.
-
-    @see #removeElementListener
-
-    @param listener The ElementListener.
+    /**
+    *  Constructs a default SelectFormElement object.
     **/
-    public void addElementListener(ElementListener listener) {
-       if (listener == null)
-          throw new NullPointerException ("listener");
-       elementListeners.addElement(listener);
+    public SelectFormElement()
+    {
+        super();
+        size_ = 0;
+        multiple_ = false;
+        list_ = new Vector();
+    }
+
+    /**
+    *  Constructs a SelectFormElement with the specified control <i>name</i>.
+    *  @param name The control name of the select element.
+    **/
+    public SelectFormElement(String name)
+    {
+        this();
+        try
+        {
+            setName(name);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
+    }
+
+    /**
+     Adds an addElementListener.
+     The specified addElementListeners <b>elementAdded</b> method will
+     be called each time a radioforminput is added to the group.
+     The addElementListener object is added to a list of addElementListeners
+     managed by this RadioFormInputGroup. It can be removed with removeElementListener.
+ 
+     @see #removeElementListener
+ 
+     @param listener The ElementListener.
+     **/
+    public void addElementListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        elementListeners.addElement(listener);
     }
 
 
@@ -132,105 +134,105 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
    *  Adds an option to the select form element.
    *  @param option The select option.
    **/
-   public void addOption(SelectOption option)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding SelectOption to the SelectFormElement.");
+    public void addOption(SelectOption option)
+    {
+        //@C1D
 
-      if (option == null)
-         throw new NullPointerException("option");
+        if (option == null)
+            throw new NullPointerException("option");
 
-      if ((option.isSelected()) && (optionSelected_))
-      {
-         Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
-         throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
-      else if ((option.isSelected()) && !(optionSelected_))
-         optionSelected_ = true;
-      list_.addElement(option);
+        if ((option.isSelected()) && (optionSelected_))
+        {
+            Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
+            throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        else if ((option.isSelected()) && !(optionSelected_))
+            optionSelected_ = true;
+        list_.addElement(option);
 
-      fireElementEvent(ElementEvent.ELEMENT_ADDED);
-   }
+        fireElementEvent(ElementEvent.ELEMENT_ADDED);
+    }
 
-   /**
-   *  Adds an option with the specified viewable <i>text</i> and initial input
-   *  <i>value</i> to the select form element.
-   *  @param text The viewable option text.
-   *  @param value The option input value.
-   *
-   *  @return A SelectOption object.
-   **/
-   public SelectOption addOption(String text, String value)
-   {
-      return addOption(text, value, false);
-
-   }
-
-   /**
-   *  Adds an option with the specified viewable <i>text</i>, initial input <i>value</i>,
-   *  and initial <i>selected</i> value to the select form element.  Only one option can be
-   *  <i>selected</i> in the select form element at a time.
-   *  @param text The viewable option text.
-   *  @param value The option input value.
-   *  @param selected true if the option defaults as being selected; false otherwise.
-   *
-   *  @return A SelectOption object.
-   **/
-   public SelectOption addOption(String text, String value, boolean selected)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding option to the SelectFormElement.");
-
-      if (text == null)
-         throw new NullPointerException("text");
-
-      if (value == null)
-         throw new NullPointerException("value");
-
-      if ((selected) && (optionSelected_))
-      {
-         Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
-         throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
-      else if ((selected) && !(optionSelected_))
-         optionSelected_ = true;
-
-      SelectOption option = new SelectOption(text, value, selected);
-      list_.addElement(option);
-
-      fireElementEvent(ElementEvent.ELEMENT_ADDED);
-
-      return option;
-   }
-
-   
-   /**
-   Adds the VetoableChangeListener.  The specified VetoableChangeListener's
-   <b>vetoableChange</b> method will be called each time the value of any
-   constrained property is changed.
-     @see #removeVetoableChangeListener
-     @param listener The VetoableChangeListener.
-   **/
-   public void addVetoableChangeListener(VetoableChangeListener listener)
-   {
-      if (listener == null)
-            throw new NullPointerException ("listener");
-      vetos_.addVetoableChangeListener(listener);
-   }
-
-   /**
-    *  Fires the element event.
+    /**
+    *  Adds an option with the specified viewable <i>text</i> and initial input
+    *  <i>value</i> to the select form element.
+    *  @param text The viewable option text.
+    *  @param value The option input value.
+    *
+    *  @return A SelectOption object.
     **/
-    private void fireElementEvent(int evt) {
+    public SelectOption addOption(String text, String value)
+    {
+        return addOption(text, value, false);
+
+    }
+
+    /**
+    *  Adds an option with the specified viewable <i>text</i>, initial input <i>value</i>,
+    *  and initial <i>selected</i> value to the select form element.  Only one option can be
+    *  <i>selected</i> in the select form element at a time.
+    *  @param text The viewable option text.
+    *  @param value The option input value.
+    *  @param selected true if the option defaults as being selected; false otherwise.
+    *
+    *  @return A SelectOption object.
+    **/
+    public SelectOption addOption(String text, String value, boolean selected)
+    {
+        //@C1D
+
+        if (text == null)
+            throw new NullPointerException("text");
+
+        if (value == null)
+            throw new NullPointerException("value");
+
+        if ((selected) && (optionSelected_))
+        {
+            Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
+            throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        else if ((selected) && !(optionSelected_))
+            optionSelected_ = true;
+
+        SelectOption option = new SelectOption(text, value, selected);
+        list_.addElement(option);
+
+        fireElementEvent(ElementEvent.ELEMENT_ADDED);
+
+        return option;
+    }
+
+
+    /**
+    Adds the VetoableChangeListener.  The specified VetoableChangeListener's
+    <b>vetoableChange</b> method will be called each time the value of any
+    constrained property is changed.
+      @see #removeVetoableChangeListener
+      @param listener The VetoableChangeListener.
+    **/
+    public void addVetoableChangeListener(VetoableChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        vetos_.addVetoableChangeListener(listener);
+    }
+
+    /**
+     *  Fires the element event.
+     **/
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -254,119 +256,120 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         return lang_;
     }
 
-   /**
-   *  Returns the control name of the select element.
-   *  @return The control name.
-   **/
-   public String getName()
-   {
-      return name_;
-   }
-
-   /**
-   *  Returns the number of elements in the option layout.
-   *  @return The number of elements.
-   **/
-   public int getOptionCount()
-   {
-      return list_.size();
-   }
-
-   /**
-   *  Returns the number of visible options.
-   *  @return The number of options.
-   **/
-   public int getSize()
-   {
-      return size_;
-   }
-
-
-   /**
-   *  Returns the select form element tag.
-   *  @return The tag.
-   **/
-   public String getTag()
-   {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Generating SelectFormElement tag...");
-
-       if (name_ == null)
-       {
-          Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-          throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
-       }
-
-       StringBuffer s = new StringBuffer("<select");
-
-       s.append(" name=\"");
-       s.append(name_);
-       s.append("\"");
-
-       if (size_ > 0)
-       {
-          s.append(" size=\"");
-          s.append(size_);
-          s.append("\"");
-       }
-
-       if (multiple_)
-           s.append(" multiple=\"multiple\"");
-
-       if ((lang_ != null) && (lang_.length() > 0))                            //$B1A
-       {                                                                       //$B1A
-          if (Trace.isTraceOn())                                               //$B1A
-             Trace.log(Trace.INFORMATION, "   Using language attribute.");     //$B1A
-                                                                               //$B1A
-          s.append(" lang=\"");                                                //$B1A
-          s.append(lang_);                                                     //$B1A
-          s.append("\"");                                                      //$B1A
-       }                                                                       //$B1A
-
-       if ((dir_ != null) && (dir_.length() > 0))                              //$B1A
-       {                                                                       //$B1A
-          if (Trace.isTraceOn())                                               //$B1A
-             Trace.log(Trace.INFORMATION, "   Using direction attribute.");    //$B1A
-                                                                               //$B1A
-          s.append(" dir=\"");                                                 //$B1A
-          s.append(dir_);                                                      //$B1A
-          s.append("\"");                                                      //$B1A
-       }                                                                       //$B1A
-
-       s.append(getAttributeString());                                         // @Z1A
-       s.append(">\n");
-
-       optionSelected_ = false;
-
-       for (int i=0; i<getOptionCount(); i++)
-       {
-           SelectOption option = (SelectOption)list_.elementAt(i);
-
-           s.append(option.getTag());
-           s.append("\n");
-       }
-
-       s.append("</select>");
-
-       return s.toString();
-   }
-
-   /**
-   *  Indicates if the user can make multiple selections.
-   *  @return true if multiple selections are allowed; false otherwise.
-   **/
-   public boolean isMultiple()
-   {
-      return multiple_;
-   }
-
-
-   /**
-    *  Deserializes and initializes transient data.
+    /**
+    *  Returns the control name of the select element.
+    *  @return The control name.
     **/
+    public String getName()
+    {
+        return name_;
+    }
+
+    /**
+    *  Returns the number of elements in the option layout.
+    *  @return The number of elements.
+    **/
+    public int getOptionCount()
+    {
+        return list_.size();
+    }
+
+    /**
+    *  Returns the number of visible options.
+    *  @return The number of options.
+    **/
+    public int getSize()
+    {
+        return size_;
+    }
+
+
+    /**
+    *  Returns the select form element tag.
+    *  @return The tag.
+    **/
+    public String getTag()
+    {
+        //@C1D
+
+        if (name_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
+
+        StringBuffer s = new StringBuffer("<select");
+
+        s.append(" name=\"");
+        s.append(name_);
+        s.append("\"");
+
+        if (size_ > 0)
+        {
+            s.append(" size=\"");
+            s.append(size_);
+            s.append("\"");
+        }
+
+        if (multiple_)
+            s.append(" multiple=\"multiple\"");
+
+        if ((lang_ != null) && (lang_.length() > 0))                            //$B1A
+        {
+            //$B1A
+            if (Trace.isTraceOn())                                               //$B1A
+                Trace.log(Trace.INFORMATION, "   Using language attribute.");     //$B1A
+                                                                                  //$B1A
+            s.append(" lang=\"");                                                //$B1A
+            s.append(lang_);                                                     //$B1A
+            s.append("\"");                                                      //$B1A
+        }                                                                       //$B1A
+
+        if ((dir_ != null) && (dir_.length() > 0))                              //$B1A
+        {
+            //$B1A
+            if (Trace.isTraceOn())                                               //$B1A
+                Trace.log(Trace.INFORMATION, "   Using direction attribute.");    //$B1A
+                                                                                  //$B1A
+            s.append(" dir=\"");                                                 //$B1A
+            s.append(dir_);                                                      //$B1A
+            s.append("\"");                                                      //$B1A
+        }                                                                       //$B1A
+
+        s.append(getAttributeString());                                         // @Z1A
+        s.append(">\n");
+
+        optionSelected_ = false;
+
+        for (int i=0; i<getOptionCount(); i++)
+        {
+            SelectOption option = (SelectOption)list_.elementAt(i);
+
+            s.append(option.getTag());
+            s.append("\n");
+        }
+
+        s.append("</select>");
+
+        return s.toString();
+    }
+
+    /**
+    *  Indicates if the user can make multiple selections.
+    *  @return true if multiple selections are allowed; false otherwise.
+    **/
+    public boolean isMultiple()
+    {
+        return multiple_;
+    }
+
+
+    /**
+     *  Deserializes and initializes transient data.
+     **/
     private void readObject(java.io.ObjectInputStream in)          //$A1A
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
 
@@ -381,18 +384,17 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     **/
     public void removeOption(SelectOption option)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Removing SelectOption from the SelectFormElement.");
+        //@C1D
 
         if (option == null)
-           throw new NullPointerException("option");
+            throw new NullPointerException("option");
 
         // if removing the option that is selected, reset the optionSelected_ flag.
         if (option.isSelected())
-           optionSelected_ = false;
+            optionSelected_ = false;
 
         if (list_.removeElement(option))
-           fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
     /**
@@ -403,47 +405,48 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
 
     @param listener The ElementListener.
     **/
-    public void removeElementListener(ElementListener listener) {
-       if (listener == null)
-          throw new NullPointerException ("listener");
-       elementListeners.removeElement(listener);
+    public void removeElementListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        elementListeners.removeElement(listener);
     }
 
-   
-
-   /**
-   Removes the VetoableChangeListener from the internal list.
-   If the VetoableChangeListener is not on the list, nothing is done.
-     @see #addVetoableChangeListener
-     @param listener The VetoableChangeListener.
-   **/
-   public void removeVetoableChangeListener(VetoableChangeListener listener)
-   {
-      if (listener == null)
-            throw new NullPointerException ("listener");
-      vetos_.removeVetoableChangeListener(listener);
-   }
 
 
-   /**
-    *  Sets the <i>direction</i> of the text interpretation.
-    *  @param dir The direction.  One of the following constants
-    *  defined in HTMLConstants:  LTR or RTL.
-    *
-    *  @see com.ibm.as400.util.html.HTMLConstants
-    *
-    *  @exception PropertyVetoException If a change is vetoed.
+    /**
+    Removes the VetoableChangeListener from the internal list.
+    If the VetoableChangeListener is not on the list, nothing is done.
+      @see #addVetoableChangeListener
+      @param listener The VetoableChangeListener.
     **/
+    public void removeVetoableChangeListener(VetoableChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        vetos_.removeVetoableChangeListener(listener);
+    }
+
+
+    /**
+     *  Sets the <i>direction</i> of the text interpretation.
+     *  @param dir The direction.  One of the following constants
+     *  defined in HTMLConstants:  LTR or RTL.
+     *
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     *
+     *  @exception PropertyVetoException If a change is vetoed.
+     **/
     public void setDirection(String dir)                                     //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -463,10 +466,10 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setLanguage(String lang)                                      //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
         vetos_.fireVetoableChange("lang", old, lang );
@@ -477,72 +480,71 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     }
 
 
-   /**
-   *  Sets whether the user can make multiple selections.
-   *  @param multiple true if multiple selections are allowed; false otherwise.
-   *
-   *  @exception PropertyVetoException If a change is vetoed.
-   **/
-   public void setMultiple(boolean multiple)
-      throws PropertyVetoException
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Allow multiple selections by user.");
+    /**
+    *  Sets whether the user can make multiple selections.
+    *  @param multiple true if multiple selections are allowed; false otherwise.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setMultiple(boolean multiple)
+    throws PropertyVetoException
+    {
+        //@C1D
 
-      boolean old = multiple_;
-      vetos_.fireVetoableChange("multiple", new Boolean(old), new Boolean(multiple) );
+        boolean old = multiple_;
+        vetos_.fireVetoableChange("multiple", new Boolean(old), new Boolean(multiple) );
 
-      multiple_ = multiple;
+        multiple_ = multiple;
 
-      changes_.firePropertyChange("multiple", new Boolean(old), new Boolean(multiple) );
-   }
+        changes_.firePropertyChange("multiple", new Boolean(old), new Boolean(multiple) );
+    }
 
-   /**
-   *  Sets the control name of the select element.
-   *  @param The control name.
-   *
-   *  @exception PropertyVetoException If a change is vetoed.
-   **/
-   public void setName(String name)
-      throws PropertyVetoException
-   {
-      if (name == null)
-         throw new NullPointerException("name");
+    /**
+    *  Sets the control name of the select element.
+    *  @param The control name.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setName(String name)
+    throws PropertyVetoException
+    {
+        if (name == null)
+            throw new NullPointerException("name");
 
-      String old = name_;
-      vetos_.fireVetoableChange("name", old, name );
+        String old = name_;
+        vetos_.fireVetoableChange("name", old, name );
 
-      name_ = name;
+        name_ = name;
 
-      changes_.firePropertyChange("name", old, name );
-   }
+        changes_.firePropertyChange("name", old, name );
+    }
 
-   /**
-   *  Sets the number of visible options.
-   *  @param size The number of options.
-   *
-   *  @exception PropertyVetoException If a change is vetoed.
-   **/
-   public void setSize(int size)
-      throws PropertyVetoException
-   {
-      if (size < 0)
-         throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    /**
+    *  Sets the number of visible options.
+    *  @param size The number of options.
+    *
+    *  @exception PropertyVetoException If a change is vetoed.
+    **/
+    public void setSize(int size)
+    throws PropertyVetoException
+    {
+        if (size < 0)
+            throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      int old = size_;
-      vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) );
+        int old = size_;
+        vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) );
 
-      size_ = size;
+        size_ = size;
 
-      changes_.firePropertyChange("size", new Integer(old), new Integer(size) );
-   }
+        changes_.firePropertyChange("size", new Integer(old), new Integer(size) );
+    }
 
-   /**
-   *  Returns the String representation of the select form element tag.
-   *  @return The tag.
-   **/
-   public String toString()
-   {
-      return getTag();
-   }
+    /**
+    *  Returns the String representation of the select form element tag.
+    *  @return The tag.
+    **/
+    public String toString()
+    {
+        return getTag();
+    }
 }

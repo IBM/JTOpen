@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLParameter.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ import java.beans.PropertyChangeListener;
 **/
 public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializable     // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    
+
     private String name_;
     private String value_;
 
@@ -57,11 +57,11 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
     **/
     public HTMLParameter()
     {
-       super();
-       
+        super();
+
     }          
 
-    
+
     /**
     *  Constructs an HTMLParameter object with the specified <i>name</i> and <i>value</i>.
     *
@@ -70,14 +70,14 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
     **/
     public HTMLParameter(String name, String value)
     {
-       super();
+        super();
 
-       setName(name);
-       setValue(value);
+        setName(name);
+        setValue(value);
     }
 
 
-    
+
     /**
      *  Returns the name of the parameter.
      *  @return The name.
@@ -96,7 +96,7 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
     {
         return value_;
     }
-    
+
 
     /**
     *  Returns the tag for the HTML parameter.
@@ -104,23 +104,22 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLParameter tag...");
+        //@B1D
 
-        if(name_ == null)
+        if (name_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting HTML parameter name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting HTML parameter name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
-        
-        if(value_ == null)
+
+        if (value_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting HTML parameter value.");
-           throw new ExtendedIllegalStateException(
-               "value", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting HTML parameter value.");
+            throw new ExtendedIllegalStateException(
+                                                   "value", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
-        
+
         StringBuffer s = new StringBuffer("<param");
 
         s.append(" name=\"");
@@ -142,34 +141,33 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
     }
 
 
-    
-   /**
-    *  Sets the name of the parameter.
-    *
-    *  @param name The name.
-    **/             
+
+    /**
+     *  Sets the name of the parameter.
+     *
+     *  @param name The name.
+     **/             
     public void setName(String name)
     {
         if (name == null)
-          throw new NullPointerException("name");
+            throw new NullPointerException("name");
 
-        if (name.length() == 0 ) 
+        if (name.length() == 0 )
         {
-           throw new ExtendedIllegalArgumentException("name", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("name", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting HTML parameter name.");
-        
+        //@B1D
+
         String old = name_;
-        
+
         name_ = name;
 
         changes_.firePropertyChange("name", old, name );
@@ -184,20 +182,19 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
      **/
     public void setValue(String value)
     {
-       if (value == null)
-         throw new NullPointerException("value");
+        if (value == null)
+            throw new NullPointerException("value");
 
-       if (value.length() == 0)
-          throw new ExtendedIllegalArgumentException("value", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-       
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Setting HTML parameter value.");
+        if (value.length() == 0)
+            throw new ExtendedIllegalArgumentException("value", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-       String old = value_;
-       
-       value_ = value;
+        //@B1D
 
-       changes_.firePropertyChange("value", old, value );
+        String old = value_;
+
+        value_ = value;
+
+        changes_.firePropertyChange("value", old, value );
     }
 
 

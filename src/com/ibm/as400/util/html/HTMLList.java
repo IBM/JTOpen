@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ import java.beans.PropertyChangeListener;
 **/
 public abstract class HTMLList extends HTMLTagAttributes implements java.io.Serializable     // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private boolean compact_ = false;
     private Vector listItems_;
@@ -55,8 +55,8 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     public HTMLList()
     {
-       super();
-       listItems_ = new Vector();
+        super();
+        listItems_ = new Vector();
     }
 
 
@@ -66,9 +66,9 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     public HTMLList(Vector itemList)
     {
-       super();
+        super();
 
-       setItems(itemList);
+        setItems(itemList);
     }
 
 
@@ -78,15 +78,14 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
      **/
     public void addListItem(HTMLListItem item)
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Adding HTMLListItem to the HTMLList.");
+        //@C1D
 
-       if (item == null)
-          throw new NullPointerException("item");
+        if (item == null)
+            throw new NullPointerException("item");
 
-       listItems_.addElement(item);
+        listItems_.addElement(item);
 
-       fireElementEvent(ElementEvent.ELEMENT_ADDED);
+        fireElementEvent(ElementEvent.ELEMENT_ADDED);
     }
 
 
@@ -96,15 +95,14 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
      **/
     public void addList(HTMLList list)
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Adding List to the HTMLList.");
+        //@C1D
 
-       if (list == null)
-          throw new NullPointerException("list");
+        if (list == null)
+            throw new NullPointerException("list");
 
-       listItems_.addElement(list);
+        listItems_.addElement(list);
 
-       fireElementEvent(ElementEvent.ELEMENT_ADDED);
+        fireElementEvent(ElementEvent.ELEMENT_ADDED);
     }
 
 
@@ -115,27 +113,29 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     public void addListItemElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.addElement(listener);
+        elementListeners.addElement(listener);
     }
 
-    
+
 
     /**
     *  Fires the element event.
     **/
-    private void fireElementEvent(int evt) {
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -156,19 +156,18 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" dir=\"");
-          buffer.append(dir_);
-          buffer.append("\"");
+        if ((dir_ != null) && (dir_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" dir=\"");
+            buffer.append(dir_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
 
@@ -226,19 +225,18 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" lang=\"");
-          buffer.append(lang_);
-          buffer.append("\"");
+        if ((lang_ != null) && (lang_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" lang=\"");
+            buffer.append(lang_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
 
@@ -256,7 +254,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -270,14 +268,13 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
      **/
     public void removeListItem(HTMLListItem item)
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Removing HTMLListItem from the HTMLList.");
+        //@C1D
 
-       if (item == null)
-          throw new NullPointerException("item");
+        if (item == null)
+            throw new NullPointerException("item");
 
-       if (listItems_.removeElement(item))
-          fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+        if (listItems_.removeElement(item))
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
 
@@ -287,14 +284,13 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
      **/
     public void removeList(HTMLList list)
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Removing List from the HTMLList.");
+        //@C1D
 
-       if (list == null)
-          throw new NullPointerException("list");
+        if (list == null)
+            throw new NullPointerException("list");
 
-       if (listItems_.removeElement(list))
-          fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+        if (listItems_.removeElement(list))
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
 
@@ -305,14 +301,14 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
      **/
     public void removeListItemElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.removeElement(listener);
+        elementListeners.removeElement(listener);
     }
 
 
-    
+
     /**
     *  Sets whether the list is initialized to being compact.  The <i>compact</i> attribute
     *  instructs the browser to reduce the space occupied by the list.
@@ -321,14 +317,13 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     public void setCompact(boolean compact)
     {
-       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   List being initialized to compact.");
+        //@C1D
 
-       boolean old = compact_;
+        boolean old = compact_;
 
-       compact_ = compact;
+        compact_ = compact;
 
-       changes_.firePropertyChange("compact", new Boolean(old), new Boolean(compact) );
+        changes_.firePropertyChange("compact", new Boolean(old), new Boolean(compact) );
     }
 
 
@@ -343,11 +338,11 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     public void setDirection(String dir)                                     //$B1A
     {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         String old = dir_;
 
@@ -365,17 +360,16 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     public void setItems(Vector itemList)
     {
-       if (itemList == null)
-          throw new NullPointerException("items");
+        if (itemList == null)
+            throw new NullPointerException("items");
 
-       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting the list of items.");
+        //@C1D
 
-       Vector old = listItems_;
+        Vector old = listItems_;
 
-       listItems_ = itemList;
+        listItems_ = itemList;
 
-       changes_.firePropertyChange("items", old, itemList );
+        changes_.firePropertyChange("items", old, itemList );
     }
 
 
@@ -388,7 +382,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     public void setLanguage(String lang)                                      //$B1A
     {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: ToggleFormInput.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ import java.beans.PropertyVetoException;
 **/
 public abstract class ToggleFormInput extends FormInput
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private boolean checked_ = false;        // If initializes to being checked.
     private String label_;
@@ -49,13 +49,14 @@ public abstract class ToggleFormInput extends FormInput
     **/
     public ToggleFormInput(String label)
     {
-       super();
-       try {
-          setLabel(label);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        super();
+        try
+        {
+            setLabel(label);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     /**
@@ -66,13 +67,14 @@ public abstract class ToggleFormInput extends FormInput
     **/
     public ToggleFormInput(String label, boolean checked)
     {
-       this(label);
-       try {
-          setChecked(checked);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        this(label);
+        try
+        {
+            setChecked(checked);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     /**
@@ -93,7 +95,7 @@ public abstract class ToggleFormInput extends FormInput
     **/
     public String getLabel()
     {
-       return label_;
+        return label_;
     }
 
     /**
@@ -102,10 +104,10 @@ public abstract class ToggleFormInput extends FormInput
     **/
     public boolean isChecked()
     {
-       return checked_;
+        return checked_;
     }
 
- 
+
     /**
     *  Sets whether the toggle is initialized to being checked.
     *  @param checked true if initialized to checked; false otherwise.  The default is false.
@@ -113,17 +115,16 @@ public abstract class ToggleFormInput extends FormInput
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setChecked(boolean checked)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Toggle being initialized to checked.");
+        //@A1D
 
-       boolean old = checked_;
-       vetos_.fireVetoableChange("checked", new Boolean(old), new Boolean(checked) );
-       
-       checked_ = checked;
+        boolean old = checked_;
+        vetos_.fireVetoableChange("checked", new Boolean(old), new Boolean(checked) );
 
-       changes_.firePropertyChange("checked", new Boolean(old), new Boolean(checked) );
+        checked_ = checked;
+
+        changes_.firePropertyChange("checked", new Boolean(old), new Boolean(checked) );
     }
 
     /**
@@ -133,16 +134,16 @@ public abstract class ToggleFormInput extends FormInput
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setLabel(String label)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (label == null)
-          throw new NullPointerException("label");
+        if (label == null)
+            throw new NullPointerException("label");
 
-       String old = label_;
-       vetos_.fireVetoableChange("label", old, label );
+        String old = label_;
+        vetos_.fireVetoableChange("label", old, label );
 
-       label_ = label;
+        label_ = label;
 
-       changes_.firePropertyChange("label", old, label );
+        changes_.firePropertyChange("label", old, label );
     }
 }

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: ImageFormInput.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ import java.beans.PropertyVetoException;
 **/
 public class ImageFormInput extends FormInput implements HTMLConstants
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private int height_ = 0;                  // The image height.
     private int width_ = 0;                   // The image width.
@@ -44,14 +44,14 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     private String source_;                   // The image source URL.
 
 
-    
+
     /**
     *  Constructs a default ImageFormInput object.
     **/
     public ImageFormInput()
     {
-       super();
-       align_ = TOP;                    // default alignment
+        super();
+        align_ = TOP;                    // default alignment
 
     }
 
@@ -61,8 +61,8 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public ImageFormInput(String name)
     {
-       super(name);                     // default alignment
-       align_ = TOP;
+        super(name);                     // default alignment
+        align_ = TOP;
     }
 
     /**
@@ -73,14 +73,15 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public ImageFormInput(String name, String source)
     {
-       super(name);
-       align_ = TOP;              // default alignment
-       try {
-          setSource(source);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        super(name);
+        align_ = TOP;              // default alignment
+        try
+        {
+            setSource(source);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     /**
@@ -93,7 +94,7 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public String getAlignment()
     {
-       return align_;
+        return align_;
     }
 
     /**
@@ -102,34 +103,33 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     private String getAttributeTag()
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving attribute tag.");
+        //@C1D
 
-       StringBuffer s = new StringBuffer("");
+        StringBuffer s = new StringBuffer("");
 
-       if ((source_ != null) && (source_.length() > 0))
-          s.append(" src=\"" + source_ + "\"");    
+        if ((source_ != null) && (source_.length() > 0))
+            s.append(" src=\"" + source_ + "\"");
 
-       s.append(" align=\"");
-       s.append(align_);
-       s.append("\"");
+        s.append(" align=\"");
+        s.append(align_);
+        s.append("\"");
 
-       if (height_ > 0)
-       {
-          if (Trace.isTraceOn())
-             Trace.log(Trace.INFORMATION, "   Using height attribute tag.");
+        if (height_ > 0)
+        {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.INFORMATION, "   Using height attribute tag.");
 
-          s.append(" height=\"" + height_ + "\"");    
-       }
-       if (width_ > 0)
-       {
-          if (Trace.isTraceOn())
-             Trace.log(Trace.INFORMATION, "   Using width attribute tag.");
+            s.append(" height=\"" + height_ + "\"");    
+        }
+        if (width_ > 0)
+        {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.INFORMATION, "   Using width attribute tag.");
 
-          s.append(" width=\"" + width_ + "\"");    
-       }
+            s.append(" width=\"" + width_ + "\"");    
+        }
 
-       return s.toString();
+        return s.toString();
     }
 
     /**
@@ -138,7 +138,7 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public int getHeight()
     {
-       return height_;
+        return height_;
     }
 
     /**
@@ -147,7 +147,7 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public String getSource()
     {
-       return source_;
+        return source_;
     }
 
     /**
@@ -156,20 +156,19 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating ImageFormInput tag...");
+        //@C1D
 
         if (getName() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
         if (getSource() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting source.");
-           throw new ExtendedIllegalStateException(
-               "source", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting source.");
+            throw new ExtendedIllegalStateException(
+                                                   "source", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<input type=\"image\"");
@@ -191,10 +190,10 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     **/
     public int getWidth()
     {
-       return width_;
+        return width_;
     }
 
-  
+
     /**
     *  Sets the alignment of the text following the image.  The default
     *  alignment is <i>top</i>.
@@ -206,25 +205,25 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     *  @see com.ibm.as400.util.html.HTMLConstants
     **/
     public void setAlignment(String align)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {  
-       if (align == null)
-          throw new NullPointerException("align");
-       
-       // If align is not one of the valid HTMLConstants, throw an exception.
-       if ( !(align.equals(BASELINE))  && !(align.equals(BOTTOM)) && !(align.equals(ABSBOTTOM)) && 
-            !(align.equals(LEFT))      && !(align.equals(RIGHT))  && !(align.equals(MIDDLE))    && 
-            !(align.equals(ABSMIDDLE)) && !(align.equals(TOP))    && !(align.equals(TEXTTOP)) ) 
-       {
-          throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
-       
-       String old = align_;
-       vetos_.fireVetoableChange("align", old, align);
+        if (align == null)
+            throw new NullPointerException("align");
 
-       align_ = align;
+        // If align is not one of the valid HTMLConstants, throw an exception.
+        if ( !(align.equals(BASELINE))  && !(align.equals(BOTTOM)) && !(align.equals(ABSBOTTOM)) && 
+             !(align.equals(LEFT))      && !(align.equals(RIGHT))  && !(align.equals(MIDDLE))    && 
+             !(align.equals(ABSMIDDLE)) && !(align.equals(TOP))    && !(align.equals(TEXTTOP)) )
+        {
+            throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
 
-       changes_.firePropertyChange("align", old, align);
+        String old = align_;
+        vetos_.fireVetoableChange("align", old, align);
+
+        align_ = align;
+
+        changes_.firePropertyChange("align", old, align);
     }
 
     /**
@@ -234,17 +233,17 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setHeight(int height)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (height < 0 )
-           throw new ExtendedIllegalArgumentException("height", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        if (height < 0 )
+            throw new ExtendedIllegalArgumentException("height", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-       int old = height_;
-       vetos_.fireVetoableChange("height", new Integer(old), new Integer(height) );
+        int old = height_;
+        vetos_.fireVetoableChange("height", new Integer(old), new Integer(height) );
 
-       height_ = height;
+        height_ = height;
 
-       changes_.firePropertyChange("height", new Integer(old), new Integer(height) );
+        changes_.firePropertyChange("height", new Integer(old), new Integer(height) );
     }
 
     /**
@@ -254,23 +253,23 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setSource(String source)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (source == null)
-          throw new NullPointerException("source");
+        if (source == null)
+            throw new NullPointerException("source");
 
-       if (source.length() == 0)
-          throw new ExtendedIllegalArgumentException("source", 
-                            ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (source.length() == 0)
+            throw new ExtendedIllegalArgumentException("source", 
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
-       String old = source_;
-       vetos_.fireVetoableChange("source", old, source );
+        String old = source_;
+        vetos_.fireVetoableChange("source", old, source );
 
-       source_ = source;
+        source_ = source;
 
-       changes_.firePropertyChange("source", old, source );
+        changes_.firePropertyChange("source", old, source );
     }
-    
+
     /**
     *  Sets the width of the image in pixels.
     *  @param width The width.
@@ -278,17 +277,17 @@ public class ImageFormInput extends FormInput implements HTMLConstants
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setWidth(int width)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (width < 0)
-          throw new ExtendedIllegalArgumentException("width", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        if (width < 0)
+            throw new ExtendedIllegalArgumentException("width", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-       int old = width_;
-       vetos_.fireVetoableChange("width", new Integer(old), new Integer(width) );
+        int old = width_;
+        vetos_.fireVetoableChange("width", new Integer(old), new Integer(width) );
 
-       width_ = width;
+        width_ = width;
 
-       changes_.firePropertyChange("width", new Integer(old), new Integer(width) );
+        changes_.firePropertyChange("width", new Integer(old), new Integer(width) );
     }
 
 }

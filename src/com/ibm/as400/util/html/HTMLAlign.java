@@ -78,7 +78,7 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     public HTMLAlign()
     {
-       super();
+        super();
 
     }
 
@@ -121,11 +121,10 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     public void addItem(HTMLTagElement data)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Adding element to the alignment group.");
+        //@C1D
 
         if (data == null)
-           throw new NullPointerException("data");
+            throw new NullPointerException("data");
 
         list_.addElement(data);
 
@@ -140,27 +139,29 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     public void addItemElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.addElement(listener);
+        elementListeners.addElement(listener);
     }
 
 
-    
-   /**
-    *  Fires the element event.
-    **/
-    private void fireElementEvent(int evt) {
+
+    /**
+     *  Fires the element event.
+     **/
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -191,13 +192,12 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-          return " dir=\"" + dir_ + "\"";
-       else
-          return "";
+        if ((dir_ != null) && (dir_.length() > 0))
+            return " dir=\"" + dir_ + "\"";
+        else
+            return "";
     }
 
 
@@ -217,13 +217,12 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-          return " lang=\"" + lang_ + "\"";
-       else
-          return "";
+        if ((lang_ != null) && (lang_.length() > 0))
+            return " lang=\"" + lang_ + "\"";
+        else
+            return "";
     }
 
 
@@ -233,26 +232,25 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLAlign tag...");
+        //@C1D
 
-        if(list_.isEmpty())
+        if (list_.isEmpty())
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before adding items to list.");
-           throw new ExtendedIllegalStateException(
-               "data", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before adding items to list.");
+            throw new ExtendedIllegalStateException(
+                                                   "data", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("");
 
         if (align_ != null)
         {
-          if(align_.equals(HTMLConstants.LEFT))
-             s.append("<div align=\"left\"");                                         //$B1C
-          else if(align_.equals(HTMLConstants.RIGHT))
-             s.append("<div align=\"right\"");                                        //$B1C
-          else if(align_.equals(HTMLConstants.CENTER))
-             s.append("<div align=\"center\"");                                       //$B1C
+            if (align_.equals(HTMLConstants.LEFT))
+                s.append("<div align=\"left\"");                                         //$B1C
+            else if (align_.equals(HTMLConstants.RIGHT))
+                s.append("<div align=\"right\"");                                        //$B1C
+            else if (align_.equals(HTMLConstants.CENTER))
+                s.append("<div align=\"center\"");                                       //$B1C
         }
 
         s.append(getLanguageAttributeTag());                                          //$B1A
@@ -281,10 +279,10 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
      **/
     public void removeItemElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.removeElement(listener);
+        elementListeners.removeElement(listener);
     }
 
 
@@ -292,7 +290,7 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -307,38 +305,37 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     **/
     public void removeItem(HTMLTagElement data)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Removing element from alignment group.");
+        //@C1D
 
         if (data == null)
-           throw new NullPointerException("data");
+            throw new NullPointerException("data");
 
-        if(list_.removeElement(data))
-           fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+        if (list_.removeElement(data))
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
 
-    
-   /**
-    *  Sets the horizontal alignment for a block of HTML.  The default is left alignment.
-    *  @param align The alignment.  One of the following constants
-    *  defined in HTMLConstants:  LEFT, RIGHT, or CENTER.
-    *
-    *  @see com.ibm.as400.util.html.HTMLConstants
-    **/
+
+    /**
+     *  Sets the horizontal alignment for a block of HTML.  The default is left alignment.
+     *  @param align The alignment.  One of the following constants
+     *  defined in HTMLConstants:  LEFT, RIGHT, or CENTER.
+     *
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     **/
     public void setAlign(String align)
     {
         if (align == null)
-          throw new NullPointerException("align");
+            throw new NullPointerException("align");
 
         // If align is not one of the valid HTMLConstants, throw an exception.
         if ( !(align.equals(HTMLConstants.LEFT))  && !(align.equals(HTMLConstants.RIGHT)) && !(align.equals(HTMLConstants.CENTER)) )
         {
-           throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting alignment for <div>.");
+            Trace.log(Trace.INFORMATION, "   Setting alignment for <div>.");
 
         String old = align_;
 
@@ -360,12 +357,12 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     public void setDirection(String dir)                                     //$B1A
     {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -385,7 +382,7 @@ public class HTMLAlign extends HTMLTagAttributes implements java.io.Serializable
     public void setLanguage(String lang)                                      //$B1A
     {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 

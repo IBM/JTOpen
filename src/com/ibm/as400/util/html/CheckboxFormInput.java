@@ -32,7 +32,6 @@ public class CheckboxFormInput extends ToggleFormInput
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    
     /**
     *  Constructs a default CheckboxFormInput object.
     **/
@@ -50,7 +49,7 @@ public class CheckboxFormInput extends ToggleFormInput
     **/
     public CheckboxFormInput(String label, boolean checked)
     {
-       super(label, checked);              
+        super(label, checked);              
     }
 
     /**
@@ -63,14 +62,15 @@ public class CheckboxFormInput extends ToggleFormInput
     **/
     public CheckboxFormInput(String name, String value, String label, boolean checked)
     {
-       super(label, checked);
-       try {
-          setName(name);
-          setValue(value);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        super(label, checked);
+        try
+        {
+            setName(name);
+            setValue(value);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     /**
@@ -79,26 +79,24 @@ public class CheckboxFormInput extends ToggleFormInput
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating CheckboxFormInput tag...");
 
         if (getName() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
         if (getValue() == null)
-        {  
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting value.");
-           throw new ExtendedIllegalStateException(
-               "value", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        {
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting value.");
+            throw new ExtendedIllegalStateException(
+                                                   "value", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
         if (getLabel() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting label.");
-           throw new ExtendedIllegalStateException(
-               "label", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting label.");
+            throw new ExtendedIllegalStateException(
+                                                   "label", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<input type=\"checkbox\"");

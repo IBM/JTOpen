@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: TextFormInput.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,11 +35,11 @@ import java.beans.PropertyVetoException;
 **/
 public class TextFormInput extends FormInput
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private int maxLength_;    // The maximum length of the text field.
 
-    
+
     /**
     *  Constructs a default TextFormInput object.  There is no initial
     *  limit on the maximum number of characters permitted in the text 
@@ -47,8 +47,8 @@ public class TextFormInput extends FormInput
     **/
     public TextFormInput()
     {
-       super();
-       maxLength_ = -1;             // no limit
+        super();
+        maxLength_ = -1;             // no limit
 
     }
 
@@ -88,7 +88,7 @@ public class TextFormInput extends FormInput
     {
         return maxLength_;
     }
-               
+
     /**
     *  Returns the max length attribute tag.
     *  @return The tag.
@@ -107,14 +107,13 @@ public class TextFormInput extends FormInput
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating TextFormInput tag...");
+        //@C1D
 
         if (getName() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<input type=\"text\"");
@@ -131,7 +130,7 @@ public class TextFormInput extends FormInput
         return s.toString();
     }
 
- 
+
     /**
     *  Sets the maximum number of characters permitted in the text field.
     *  @param length The maximum length.
@@ -139,10 +138,10 @@ public class TextFormInput extends FormInput
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setMaxLength(int length)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (length < 0)
-           throw new ExtendedIllegalArgumentException("maxLength", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("maxLength", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = maxLength_;
         vetos_.fireVetoableChange("maxLength", new Integer(old), new Integer(length) );

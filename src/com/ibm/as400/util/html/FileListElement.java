@@ -578,8 +578,7 @@ public class FileListElement implements java.io.Serializable
         //if (system_ == null)
         //    throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Creating FileListElement list...");
+        // @C1D
 
         StringBuffer buffer = new StringBuffer();
 
@@ -600,9 +599,6 @@ public class FileListElement implements java.io.Serializable
             }
         }
 
-        if (Trace.isTraceOn())                                                                     // @B1A
-            Trace.log(Trace.INFORMATION, "FileList path: " + path);               // @B1A
-
         try
         {
             File file;                                                                // @A7A
@@ -617,7 +613,7 @@ public class FileListElement implements java.io.Serializable
                 file = new File(path);                                                // @A7A
 
             if (Trace.isTraceOn())                                                   // @A6A
-                Trace.log(Trace.INFORMATION, "   FileListElement path: " + path);     // @A6A
+                Trace.log(Trace.INFORMATION, "FileListElement path: " + path);     // @A6A  @C1C
 
             // Create a table converter object.
             HTMLTableConverter conv = new HTMLTableConverter();
@@ -821,8 +817,7 @@ public class FileListElement implements java.io.Serializable
 
             if (rowData.length() > 0)                                                   // @A6C
             {
-                if (Trace.isTraceOn())
-                    Trace.log(Trace.INFORMATION, "Generating FileListElement table...");
+                // @C1D
 
                 String[] Table = conv.convert(rowData);
                 buffer.append(Table[0]);

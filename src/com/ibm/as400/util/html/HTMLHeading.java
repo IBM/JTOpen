@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLHeading.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,9 +43,9 @@ import java.beans.PropertyChangeListener;
 **/
 public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializable           // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    
+
     private int level_;
     private String text_;
     private String align_;                                      // @B3C
@@ -62,9 +62,9 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLHeading()
     {
-       super();
-       
-       setLevel(1);
+        super();
+
+        setLevel(1);
     }
 
 
@@ -75,9 +75,9 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLHeading(int level)
     {
-       super();
+        super();
 
-       setLevel(level);
+        setLevel(level);
     }
 
 
@@ -89,10 +89,10 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLHeading(int level, String text)
     {
-       super();
+        super();
 
-       setLevel(level);
-       setText(text);
+        setLevel(level);
+        setText(text);
     }
 
 
@@ -106,11 +106,11 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     public HTMLHeading(int level, String text, String align)
     {
-       super();
+        super();
 
-       setLevel(level);
-       setText(text);
-       setAlign(align);
+        setLevel(level);
+        setText(text);
+        setAlign(align);
     }
 
 
@@ -140,13 +140,12 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@B4D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-          return " dir=\"" + dir_ + "\"";
-       else
-          return "";
+        if ((dir_ != null) && (dir_.length() > 0))
+            return " dir=\"" + dir_ + "\"";
+        else
+            return "";
     }
 
 
@@ -166,13 +165,12 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/                                                                               
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@B4D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-          return " lang=\"" + lang_ + "\"";
-       else
-          return "";
+        if ((lang_ != null) && (lang_.length() > 0))
+            return " lang=\"" + lang_ + "\"";
+        else
+            return "";
     }
 
 
@@ -184,7 +182,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     {
         return level_;
     }
-    
+
 
     /**
      *  Returns the text of the header.
@@ -194,7 +192,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     {
         return text_;
     }
-    
+
 
     /**
     *  Returns the tag for the HTML heading.
@@ -202,26 +200,25 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLHeading tag...");
+        //@B4D
 
-        if(text_ == null)
+        if (text_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting heading text.");
-           throw new ExtendedIllegalStateException(
-               "text", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting heading text.");
+            throw new ExtendedIllegalStateException(
+                                                   "text", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
-        
+
         StringBuffer s = new StringBuffer("<h" + Integer.toString(level_));
 
         if (align_ != null)
-        {                                    
-          if(align_.equals(HTMLConstants.LEFT))
-             s.append(" align=\"left\"");
-          else if(align_.equals(HTMLConstants.RIGHT))
-             s.append(" align=\"right\"");
-          else if(align_.equals(HTMLConstants.CENTER))
-             s.append(" align=\"center\"");
+        {
+            if (align_.equals(HTMLConstants.LEFT))
+                s.append(" align=\"left\"");
+            else if (align_.equals(HTMLConstants.RIGHT))
+                s.append(" align=\"right\"");
+            else if (align_.equals(HTMLConstants.CENTER))
+                s.append(" align=\"center\"");
         }
 
         s.append(getLanguageAttributeTag());                                          //$B1A
@@ -230,10 +227,10 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
         s.append(getAttributeString());                                               // @Z1A
 
         s.append(">" + text_ + "</h");
-        
+
         if (level_ > 0)
-           s.append(Integer.toString(level_));
-         
+            s.append(Integer.toString(level_));
+
         s.append(">");
 
         return s.toString();
@@ -244,7 +241,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -262,19 +259,18 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     public void setAlign(String align)
     {
         if (align == null)
-          throw new NullPointerException("align");
+            throw new NullPointerException("align");
 
         // If align is not one of the valid HTMLConstants, throw an exception.
-        if ( !(align.equals(HTMLConstants.LEFT))  && !(align.equals(HTMLConstants.RIGHT)) && !(align.equals(HTMLConstants.CENTER)) ) 
+        if ( !(align.equals(HTMLConstants.LEFT))  && !(align.equals(HTMLConstants.RIGHT)) && !(align.equals(HTMLConstants.CENTER)) )
         {
-           throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting header alignment.");
-        
+        //@B4D
+
         String old = align_;
-        
+
         align_ = align;
 
         changes_.firePropertyChange("align", old, align );
@@ -290,14 +286,14 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     *  @see com.ibm.as400.util.html.HTMLConstants
     **/
     public void setDirection(String dir)                                     //$B1A
-    {   
+    {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
-        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -315,9 +311,9 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     *
     **/
     public void setLanguage(String lang)                                      //$B1A
-    {   
+    {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 
@@ -339,17 +335,16 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     **/
     public void setLevel(int level)
     {
-       if (level < 1 || level > 6)
-          throw new ExtendedIllegalArgumentException("level", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        if (level < 1 || level > 6)
+            throw new ExtendedIllegalArgumentException("level", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting heading level.");
+        //@B4D
 
-       int old = level_;
+        int old = level_;
 
-       level_ = level;
+        level_ = level;
 
-       changes_.firePropertyChange("level", new Integer(old), new Integer(level) );
+        changes_.firePropertyChange("level", new Integer(old), new Integer(level) );
     }
 
 
@@ -361,21 +356,20 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
      **/
     public void setText(String text)
     {
-       if (text == null)
-         throw new NullPointerException("text");
+        if (text == null)
+            throw new NullPointerException("text");
 
-       if (text.length() == 0)
-          throw new ExtendedIllegalArgumentException("text", 
-                            ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-       
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Setting header text.");
+        if (text.length() == 0)
+            throw new ExtendedIllegalArgumentException("text", 
+                                                       ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-       String old = text_;
+        //@B4D
 
-       text_ = text;
+        String old = text_;
 
-       changes_.firePropertyChange("text", old, text );
+        text_ = text;
+
+        changes_.firePropertyChange("text", old, text );
     }
 
 

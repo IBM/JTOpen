@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: UnorderedList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ import java.beans.PropertyChangeSupport;
 **/
 public class UnorderedList extends HTMLList
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    
+
     private String type_;       //The labeling scheme used to display the list <ul>.
 
 
@@ -68,10 +68,10 @@ public class UnorderedList extends HTMLList
     **/
     public UnorderedList()
     {
-       super();
+        super();
     }
 
-    
+
     /**
     *  Constructs a UnorderedList object with the specified labeling <i>type</i>.
     *  @param type The labeling scheme used to display the list.  One of the following 
@@ -83,32 +83,31 @@ public class UnorderedList extends HTMLList
 
         setType(type);
     }
-    
-    
+
+
     /**
     *  Returns the attribute tag.
     *  @return The tag.
     **/
     private String getTypeAttributeTag()
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving type attribute tag.");
+        //@C1D
 
-       StringBuffer s = new StringBuffer("");
+        StringBuffer s = new StringBuffer("");
 
-       if (type_ != null)
-       {                                    
-          if(type_.equals(HTMLConstants.DISC))
-             s.append(" type=\"disc\"");
-          else if(type_.equals(HTMLConstants.SQUARE))
-             s.append(" type=\"square\"");
-          else if(type_.equals(HTMLConstants.CIRCLE))
-             s.append(" type=\"circle\"");
-          
-          return s.toString();
-       }
-       else
-          return "";
+        if (type_ != null)
+        {
+            if (type_.equals(HTMLConstants.DISC))
+                s.append(" type=\"disc\"");
+            else if (type_.equals(HTMLConstants.SQUARE))
+                s.append(" type=\"square\"");
+            else if (type_.equals(HTMLConstants.CIRCLE))
+                s.append(" type=\"circle\"");
+
+            return s.toString();
+        }
+        else
+            return "";
 
     }
 
@@ -129,18 +128,17 @@ public class UnorderedList extends HTMLList
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating UnorderedList tag...");
+        //@C1D
 
-        if(getItems().isEmpty())
+        if (getItems().isEmpty())
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting items in list.");
-           throw new ExtendedIllegalStateException(
-               "items", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting items in list.");
+            throw new ExtendedIllegalStateException(
+                                                   "items", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<ul");
-        
+
         s.append(getTypeAttributeTag());
 
         if (isCompact())
@@ -162,12 +160,12 @@ public class UnorderedList extends HTMLList
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
     }
-    
+
 
 
     /**
@@ -181,22 +179,22 @@ public class UnorderedList extends HTMLList
     public void setType(String type)
     {
         if (type == null)
-         throw new NullPointerException("type");
+            throw new NullPointerException("type");
 
         // If type is not one of the valid HTMLConstants, throw an exception.
-        if ( !(type.equals(HTMLConstants.DISC))  && !(type.equals(HTMLConstants.CIRCLE)) && !(type.equals(HTMLConstants.SQUARE)) ) 
+        if ( !(type.equals(HTMLConstants.DISC))  && !(type.equals(HTMLConstants.CIRCLE)) && !(type.equals(HTMLConstants.SQUARE)) )
         {
-           throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting labeling type for <ul>.");
-        
+            Trace.log(Trace.INFORMATION, "   Setting labeling type for <ul>.");
+
         String old = type_;
-        
+
         type_ = type;
 
         changes_.firePropertyChange("type", old, type );
     }
-    
+
 }

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLTable.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,1180 +79,1170 @@ import java.io.Serializable;
 **/
 public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-   private Vector rows_;                           // The table rows.
-   private HTMLTableCaption caption_;              // The table caption.
-   private Vector headerTag_;                      // The table header.
+    private Vector rows_;                           // The table rows.
+    private HTMLTableCaption caption_;              // The table caption.
+    private Vector headerTag_;                      // The table header.
 
-   private String alignment_;                      // The table horizontal alignment.
-   private int borderWidth_ = 0;                   // The table border.
-   private int cellPadding_ = -1;                  // The global table cell padding.
-   private int cellSpacing_ = -1;                  // The global table cell spacing.
-   private int width_ = 0;                         // The table width.
+    private String alignment_;                      // The table horizontal alignment.
+    private int borderWidth_ = 0;                   // The table border.
+    private int cellPadding_ = -1;                  // The global table cell padding.   // @C1C
+    private int cellSpacing_ = -1;                  // The global table cell spacing.   // @C1C
+    private int width_ = 0;                         // The table width.
 
-   private boolean headerInUse_ = true;            // Indicates if the column headers are used.
-   private boolean widthPercent_ = false;          // Indicates if the table width is in percent.
+    private boolean headerInUse_ = true;            // Indicates if the column headers are used.
+    private boolean widthPercent_ = false;          // Indicates if the table width is in percent.
 
-   private String lang_;        // The primary language used to display the tags contents.  //$B1A
-   private String dir_;         // The direction of the text interpretation.                //$B1A
+    private String lang_;        // The primary language used to display the tags contents.  //$B1A
+    private String dir_;         // The direction of the text interpretation.                //$B1A
 
-   transient private Vector rowListeners_ = new Vector();         // The list of row listeners.
-   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private Vector rowListeners_ = new Vector();         // The list of row listeners.
+    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
-   /**
-   *  Constructs a default HTMLTable object.
-   **/
-   public HTMLTable()
-   {
-      rows_ = new Vector();
+    /**
+    *  Constructs a default HTMLTable object.
+    **/
+    public HTMLTable()
+    {
+        rows_ = new Vector();
 
-   }
+    }
 
-   /**
-   *  Constructs an HTMLTable object with the specified <i>rows</i>.
-   *  @param rows An array of HTMLTableRow objects.
-   **/
-   public HTMLTable(HTMLTableRow[] rows)
-   {
-      this();
+    /**
+    *  Constructs an HTMLTable object with the specified <i>rows</i>.
+    *  @param rows An array of HTMLTableRow objects.
+    **/
+    public HTMLTable(HTMLTableRow[] rows)
+    {
+        this();
 
-      if (rows == null)
-         throw new NullPointerException("rows");
+        if (rows == null)
+            throw new NullPointerException("rows");
 
-      // Add the rows.
-      for (int i=0; i < rows.length; i++)
-         addRow(rows[i]);
-   }
+        // Add the rows.
+        for (int i=0; i < rows.length; i++)
+            addRow(rows[i]);
+    }
 
-   /**
-   *  Adds a column to the end of the table.
-   *  @param column An array of HTMLTableCell objects containing the data.
-   **/
-   public void addColumn(HTMLTableCell[] column)
-   {
-      // Validate the column parameter.
-      if (column == null)
-         throw new NullPointerException("column");
+    /**
+    *  Adds a column to the end of the table.
+    *  @param column An array of HTMLTableCell objects containing the data.
+    **/
+    public void addColumn(HTMLTableCell[] column)
+    {
+        // Validate the column parameter.
+        if (column == null)
+            throw new NullPointerException("column");
 
-      HTMLTableRow row;
-      int size = rows_.size();
+        HTMLTableRow row;
+        int size = rows_.size();
 
-      synchronized (rows_)
-      {
-         // Add new rows to an empty table.
-         if (size == 0)
-         {
-            for (int i=0; i< column.length; i++)
+        synchronized (rows_)
+        {
+            // Add new rows to an empty table.
+            if (size == 0)
             {
-               row = new HTMLTableRow();
-               row.addColumn(column[i]);
-               rows_.addElement(row);
+                for (int i=0; i< column.length; i++)
+                {
+                    row = new HTMLTableRow();
+                    row.addColumn(column[i]);
+                    rows_.addElement(row);
+                }
             }
-         }
-         // Validate the column length.
-         else if (column.length != size)
-         {
-            throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-         }
-         // Add the columns.
-         else
-         {
+            // Validate the column length.
+            else if (column.length != size)
+            {
+                throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            }
+            // Add the columns.
+            else
+            {
+                for (int i=0; i< size; i++)
+                {
+                    row = (HTMLTableRow)rows_.elementAt(i);
+                    row.addColumn(column[i]);
+                }
+            }
+        }
+    }
+
+    /**
+    *  Adds a column header to the end of the table header.
+    *  @param header The column header.
+    **/
+    public void addColumnHeader(String header)
+    {
+        addColumnHeader(new HTMLTableHeader(new HTMLText(header)));
+    }
+
+    /**
+    *  Adds a column header to the end of the table header.
+    *  @param header The column header.
+    **/
+    public void addColumnHeader(HTMLTableHeader header)
+    {
+        if (header == null)
+            throw new NullPointerException("header");
+
+        // Verify that the header's HTMLTagElement is set.
+        if (header.getElement() == null)
+        {
+            Trace.log(Trace.ERROR, "The HTMLTableHeader's element attribute is invalid.");
+            throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        if (headerTag_ == null)
+            headerTag_ = new Vector();
+
+        headerTag_.addElement(header);
+    }
+
+    /**
+    *  Adds a row to the end of the table.
+    *  @param row An HTMLTableRow object containing the row data.
+    **/
+    public void addRow(HTMLTableRow row)          // @B2C
+    {
+        //@C2D
+
+        if (row == null)
+            throw new NullPointerException("row");
+
+        rows_.addElement(row);
+        fireAdded();            // Fire the row added event.
+    }
+
+
+
+    /**
+    *  Adds an ElementListener for the rows.
+    *  The ElementListener object is added to an internal list of RowListeners;
+    *  it can be removed with removeRowListener.
+    *    @see #removeRowListener
+    *    @param listener The ElementListener.
+    **/
+    public void addRowListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        rowListeners_.addElement(listener);
+    }
+
+    /**
+    *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
+    *  method is called each time the value of any constrained property is changed.
+    *  @see #removeVetoableChangeListener
+    *  @param listener The VetoableChangeListener.
+    **/
+    public void addVetoableChangeListener(VetoableChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        vetos_.addVetoableChangeListener(listener);
+    }
+
+    /**
+    *  Fires a ELEMENT_ADDED event.
+    **/
+    private void fireAdded()
+    {
+        Vector targets = (Vector) rowListeners_.clone();
+        ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_ADDED);
+        for (int i=0; i<targets.size(); i++)
+        {
+            ElementListener target = (ElementListener)targets.elementAt(i);
+            target.elementAdded(event);
+        }
+    }
+
+    /**
+    *  Fires a ELEMENT_CHANGED event.
+    **/
+    private void fireChanged()
+    {
+        Vector targets = (Vector) rowListeners_.clone();
+        ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_CHANGED);
+        for (int i=0; i<targets.size(); i++)
+        {
+            ElementListener target = (ElementListener)targets.elementAt(i);
+            target.elementChanged(event);
+        }
+    }
+
+    /**
+    *  Fires a ELEMENT_REMOVED event.
+    **/
+    private void fireRemoved()
+    {
+        Vector targets = (Vector) rowListeners_.clone();
+        ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_REMOVED);
+        for (int i=0; i< targets.size(); i++)
+        {
+            ElementListener target = (ElementListener)targets.elementAt(i);
+            target.elementRemoved(event);
+        }
+    }
+
+    /**
+    *  Returns the table horizontal alignment.
+    *  @return The table alignment.
+    **/
+    public String getAlignment()
+    {
+        return alignment_;
+    }
+
+    /**
+    *  Returns the border width.  A value of zero indicates no border.
+    *  @return The border width.
+    **/
+    public int getBorderWidth()
+    {
+        return borderWidth_;
+    }
+
+    /**
+    *  Returns the table caption.
+    *  @return An HTMLTableCaption object containing the table caption.
+    **/
+    public HTMLTableCaption getCaption()
+    {
+        return caption_;
+    }
+
+    /**
+    *  Returns the global table cell padding.  The cell padding is the spacing
+    *  between data in a table cell and the border of the cell.
+    *  @return The cell padding.
+    **/
+    public int getCellPadding()
+    {
+        return cellPadding_;
+    }
+
+    /**
+    *  Returns the global table cell spacing.
+    *  The cell spacing is the spacing between the cells.
+    *  @return The cell spacing.
+    **/
+    public int getCellSpacing()
+    {
+        return cellSpacing_;
+    }
+
+    /**
+    *  Returns a column in the table as an array of HTMLTableCell objects.
+    *  @param columnIndex The index of the table column (0-based).
+    *  @return An array of HTMLTableCell objects.
+    **/
+    public HTMLTableCell[] getColumn(int columnIndex)
+    {
+        // Validate the table is valid.
+        if (rows_.size() == 0)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get a column before adding a row to the table.");
+            throw new ExtendedIllegalStateException("rows", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        // Get the cells.
+        HTMLTableCell[] list = new HTMLTableCell[rows_.size()];
+        HTMLTableRow row;
+        int size = rows_.size();
+        for (int i=0; i< size; i++)
+        {
+            row = (HTMLTableRow)rows_.elementAt(i);
+            list[i] = row.getColumn(columnIndex);               // columnIndex parameter validation done here.
+        }
+        return list;
+    }
+
+    /**
+    *  Returns the table header tag for the specified <i>columnIndex</i>.
+    *  @param columnIndex The index of the column header (0-based).
+    *  @return The table header tag.
+    **/
+    public HTMLTableHeader getColumnHeader(int columnIndex)
+    {
+        if (columnIndex < 0 || columnIndex >= headerTag_.size())
+            throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+        return(HTMLTableHeader)headerTag_.elementAt(columnIndex);
+    }
+
+    /**
+     *  Returns the <i>direction</i> of the text interpretation.
+     *  @return The direction of the text.
+     **/
+    public String getDirection()                               //$B1A
+    {
+        return dir_;
+    }
+
+
+    /**
+    *  Returns the direction attribute tag.
+    *  @return The direction tag.
+    **/
+    String getDirectionAttributeTag()                                                 //$B1A
+    {
+        //@C2D
+
+        if ((dir_ != null) && (dir_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" dir=\"");
+            buffer.append(dir_);
+            buffer.append("\"");
+
+            return buffer.toString();
+        }
+        else
+            return "";
+    }
+
+    /**
+    *  Returns the table end tag.
+    *  @return The tag.
+    **/
+    private String getEndTableTag()
+    {
+        return "</table>\n";
+    }
+
+    /**
+    *  Returns the table column header tags.
+    *  @return The header tags or null if the header is not set.
+    **/
+    public HTMLTableHeader[] getHeader()
+    {
+        if (headerTag_ == null)
+            return null;
+        else
+        {
+            HTMLTableHeader[] list = new HTMLTableHeader[headerTag_.size()];
+            headerTag_.copyInto(list);
+            return list;
+        }
+    }
+
+    /**
+    *  Returns the HTML tag for the table column headers.
+    *  @return The HTML table header tag or an empty String
+    *  if the header is not set.
+    **/
+    public String getHeaderTag()
+    {
+        if (headerTag_ == null)
+            return "";
+        else
+        {
+            StringBuffer tag = new StringBuffer();
+            tag.append("<tr>\n");
+
+            HTMLTableHeader colHeader;
+            int size = headerTag_.size();
+
             for (int i=0; i< size; i++)
             {
-               row = (HTMLTableRow)rows_.elementAt(i);
-               row.addColumn(column[i]);
+                colHeader = (HTMLTableHeader)headerTag_.elementAt(i);
+                tag.append(colHeader.getTag());
             }
-         }
-      }
-   }
+            tag.append("</tr>\n");
+            return new String(tag);
+        }
+    }
 
-   /**
-   *  Adds a column header to the end of the table header.
-   *  @param header The column header.
-   **/
-   public void addColumnHeader(String header)
-   {
-      addColumnHeader(new HTMLTableHeader(new HTMLText(header)));
-   }
+    /**
+     *  Returns the <i>language</i> of the caption.
+     *  @return The language of the caption.
+     **/
+    public String getLanguage()                                //$B1A
+    {
+        return lang_;
+    }
 
-   /**
-   *  Adds a column header to the end of the table header.
-   *  @param header The column header.
-   **/
-   public void addColumnHeader(HTMLTableHeader header)
-   {
-      if (header == null)
-         throw new NullPointerException("header");
 
-      // Verify that the header's HTMLTagElement is set.
-      if (header.getElement() == null)
-      {
-         Trace.log(Trace.ERROR, "The HTMLTableHeader's element attribute is invalid.");
-         throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
-
-      if (headerTag_ == null)
-         headerTag_ = new Vector();
-
-      headerTag_.addElement(header);
-   }
-
-   /**
-   *  Adds a row to the end of the table.
-   *  @param row An HTMLTableRow object containing the row data.
-   **/
-   public void addRow(HTMLTableRow row)          // @B2C
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding a row to the HTMLTable.");
-
-      if (row == null)
-         throw new NullPointerException("row");
-
-      rows_.addElement(row);
-      fireAdded();            // Fire the row added event.
-   }
-
-   
-
-   /**
-   *  Adds an ElementListener for the rows.
-   *  The ElementListener object is added to an internal list of RowListeners;
-   *  it can be removed with removeRowListener.
-   *    @see #removeRowListener
-   *    @param listener The ElementListener.
-   **/
-   public void addRowListener(ElementListener listener)
-   {
-      if (listener == null)
-         throw new NullPointerException("listener");
-      rowListeners_.addElement(listener);
-   }
-
-   /**
-   *  Adds the VetoableChangeListener.  The specified VetoableChangeListener's <b>vetoableChange</b>
-   *  method is called each time the value of any constrained property is changed.
-   *  @see #removeVetoableChangeListener
-   *  @param listener The VetoableChangeListener.
-   **/
-   public void addVetoableChangeListener(VetoableChangeListener listener)
-   {
-      if (listener == null)
-         throw new NullPointerException("listener");
-      vetos_.addVetoableChangeListener(listener);
-   }
-
-   /**
-   *  Fires a ELEMENT_ADDED event.
-   **/
-   private void fireAdded()
-   {
-      Vector targets = (Vector) rowListeners_.clone();
-      ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_ADDED);
-      for (int i=0; i<targets.size(); i++)
-      {
-         ElementListener target = (ElementListener)targets.elementAt(i);
-         target.elementAdded(event);
-      }
-   }
-
-   /**
-   *  Fires a ELEMENT_CHANGED event.
-   **/
-   private void fireChanged()
-   {
-      Vector targets = (Vector) rowListeners_.clone();
-      ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_CHANGED);
-      for (int i=0; i<targets.size(); i++)
-      {
-         ElementListener target = (ElementListener)targets.elementAt(i);
-         target.elementChanged(event);
-      }
-   }
-
-   /**
-   *  Fires a ELEMENT_REMOVED event.
-   **/
-   private void fireRemoved()
-   {
-      Vector targets = (Vector) rowListeners_.clone();
-      ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_REMOVED);
-      for (int i=0; i< targets.size(); i++)
-      {
-         ElementListener target = (ElementListener)targets.elementAt(i);
-         target.elementRemoved(event);
-      }
-   }
-
-   /**
-   *  Returns the table horizontal alignment.
-   *  @return The table alignment.
-   **/
-   public String getAlignment()
-   {
-      return alignment_;
-   }
-
-   /**
-   *  Returns the border width.  A value of zero indicates no border.
-   *  @return The border width.
-   **/
-   public int getBorderWidth()
-   {
-      return borderWidth_;
-   }
-
-   /**
-   *  Returns the table caption.
-   *  @return An HTMLTableCaption object containing the table caption.
-   **/
-   public HTMLTableCaption getCaption()
-   {
-      return caption_;
-   }
-
-   /**
-   *  Returns the global table cell padding.  The cell padding is the spacing
-   *  between data in a table cell and the border of the cell.
-   *  @return The cell padding.
-   **/
-   public int getCellPadding()
-   {
-      return cellPadding_;
-   }
-
-   /**
-   *  Returns the global table cell spacing.
-   *  The cell spacing is the spacing between the cells.
-   *  @return The cell spacing.
-   **/
-   public int getCellSpacing()
-   {
-      return cellSpacing_;
-   }
-
-   /**
-   *  Returns a column in the table as an array of HTMLTableCell objects.
-   *  @param columnIndex The index of the table column (0-based).
-   *  @return An array of HTMLTableCell objects.
-   **/
-   public HTMLTableCell[] getColumn(int columnIndex)
-   {
-      // Validate the table is valid.
-      if (rows_.size() == 0)
-      {
-         Trace.log(Trace.ERROR, "Attempting to get a column before adding a row to the table.");
-         throw new ExtendedIllegalStateException("rows", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-
-      // Get the cells.
-      HTMLTableCell[] list = new HTMLTableCell[rows_.size()];
-      HTMLTableRow row;
-      int size = rows_.size();
-      for (int i=0; i< size; i++)
-      {
-         row = (HTMLTableRow)rows_.elementAt(i);
-         list[i] = row.getColumn(columnIndex);               // columnIndex parameter validation done here.
-      }
-      return list;
-   }
-
-   /**
-   *  Returns the table header tag for the specified <i>columnIndex</i>.
-   *  @param columnIndex The index of the column header (0-based).
-   *  @return The table header tag.
-   **/
-   public HTMLTableHeader getColumnHeader(int columnIndex)
-   {
-      if (columnIndex < 0 || columnIndex >= headerTag_.size())
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-
-      return(HTMLTableHeader)headerTag_.elementAt(columnIndex);
-   }
-
-   /**
-    *  Returns the <i>direction</i> of the text interpretation.
-    *  @return The direction of the text.
+    /**
+    *  Returns the language attribute tag.
+    *  @return The language tag.
     **/
-   public String getDirection()                               //$B1A
-   {
-      return dir_;
-   }
+    String getLanguageAttributeTag()                                                  //$B1A
+    {
+        //@C2D
 
+        if ((lang_ != null) && (lang_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" lang=\"");
+            buffer.append(lang_);
+            buffer.append("\"");
 
-   /**
-   *  Returns the direction attribute tag.
-   *  @return The direction tag.
-   **/
-   String getDirectionAttributeTag()                                                 //$B1A
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+            return buffer.toString();
+        }
+        else
+            return "";
+    }
 
-      if ((dir_ != null) && (dir_.length() > 0))
-      {
-         StringBuffer buffer = new StringBuffer(" dir=\"");
-         buffer.append(dir_);
-         buffer.append("\"");
-
-         return buffer.toString();
-      }
-      else
-         return "";
-   }
-
-   /**
-   *  Returns the table end tag.
-   *  @return The tag.
-   **/
-   private String getEndTableTag()
-   {
-      return "</table>\n";
-   }
-
-   /**
-   *  Returns the table column header tags.
-   *  @return The header tags or null if the header is not set.
-   **/
-   public HTMLTableHeader[] getHeader()
-   {
-      if (headerTag_ == null)
-         return null;
-      else
-      {
-         HTMLTableHeader[] list = new HTMLTableHeader[headerTag_.size()];
-         headerTag_.copyInto(list);
-         return list;
-      }
-   }
-
-   /**
-   *  Returns the HTML tag for the table column headers.
-   *  @return The HTML table header tag or an empty String
-   *  if the header is not set.
-   **/
-   public String getHeaderTag()
-   {
-      if (headerTag_ == null)
-         return "";
-      else
-      {
-         StringBuffer tag = new StringBuffer();
-         tag.append("<tr>\n");
-
-         HTMLTableHeader colHeader;
-         int size = headerTag_.size();
-
-         for (int i=0; i< size; i++)
-         {
-            colHeader = (HTMLTableHeader)headerTag_.elementAt(i);
-            tag.append(colHeader.getTag());
-         }
-         tag.append("</tr>\n");
-         return new String(tag);
-      }
-   }
-
-   /**
-    *  Returns the <i>language</i> of the caption.
-    *  @return The language of the caption.
+    /**
+    *  Returns the number of rows in the table.
+    *  @return The number of rows.
     **/
-   public String getLanguage()                                //$B1A
-   {
-      return lang_;
-   }
+    public int getRowCount()
+    {
+        return rows_.size();
+    }
 
+    /**
+    *  Returns the HTMLTableRow object for the specified <i>rowIndex</i>.
+    *  @param rowIndex The index of the table row (0-based).
+    *  @return The table row object.
+    **/
+    public HTMLTableRow getRow(int rowIndex)
+    {
+        if (rowIndex < 0 || rowIndex >= rows_.size())
+            throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-   /**
-   *  Returns the language attribute tag.
-   *  @return The language tag.
-   **/
-   String getLanguageAttributeTag()                                                  //$B1A
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        return(HTMLTableRow)rows_.elementAt(rowIndex);
+    }
 
-      if ((lang_ != null) && (lang_.length() > 0))
-      {
-         StringBuffer buffer = new StringBuffer(" lang=\"");
-         buffer.append(lang_);
-         buffer.append("\"");
+    /**
+    *  Returns the start table tag.
+    *  @return The tag.
+    **/
+    private String getStartTableTag()
+    {
+        //@C2D
 
-         return buffer.toString();
-      }
-      else
-         return "";
-   }
+        StringBuffer tag = new StringBuffer("<table");
 
-   /**
-   *  Returns the number of rows in the table.
-   *  @return The number of rows.
-   **/
-   public int getRowCount()
-   {
-      return rows_.size();
-   }
+        if (alignment_ != null)
+        {
+            tag.append(" align=\"");
+            tag.append(alignment_);
+            tag.append("\"");
+        }
+        if (borderWidth_ > 0)
+        {
+            tag.append(" border=\"");
+            tag.append(borderWidth_);
+            tag.append("\"");
+        }
+        if (cellPadding_ >= 0)                // @C1C
+        {
+            tag.append(" cellpadding=\"");
+            tag.append(cellPadding_);
+            tag.append("\"");
+        }
+        if (cellSpacing_ >= 0)                // @C1C
+        {
+            tag.append(" cellspacing=\"");      
+            tag.append(cellSpacing_);
+            tag.append("\"");
+        }
+        if (width_ > 0)
+        {
+            tag.append(" width=\"");
+            tag.append(width_);
 
-   /**
-   *  Returns the HTMLTableRow object for the specified <i>rowIndex</i>.
-   *  @param rowIndex The index of the table row (0-based).
-   *  @return The table row object.
-   **/
-   public HTMLTableRow getRow(int rowIndex)
-   {
-      if (rowIndex < 0 || rowIndex >= rows_.size())
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            if (widthPercent_)
+                tag.append("%");
+            tag.append("\"");
+        }
 
-      return(HTMLTableRow)rows_.elementAt(rowIndex);
-   }
+        tag.append(getLanguageAttributeTag());        //$B1A
+        tag.append(getDirectionAttributeTag());       //$B1A
+        tag.append(getAttributeString());             // @Z1A
 
-   /**
-   *  Returns the start table tag.
-   *  @return The tag.
-   **/
-   private String getStartTableTag()
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Retrieving table start tag.");
+        tag.append(">\n");
 
-      StringBuffer tag = new StringBuffer("<table");
+        if (caption_ != null)
+            tag.append(caption_.getTag());
 
-      if (alignment_ != null)
-      {
-         tag.append(" align=\"");
-         tag.append(alignment_);
-         tag.append("\"");
-      }
-      if (borderWidth_ > 0)
-      {
-         tag.append(" border=\"");
-         tag.append(borderWidth_);
-         tag.append("\"");
-      }
-      if (cellPadding_ >= 0)                // @C1C
-      {
-         tag.append(" cellpadding=\"");
-         tag.append(cellPadding_);
-         tag.append("\"");
-      }
-      if (cellSpacing_ >= 0)                // @C1C
-      {
-         tag.append(" cellspacing=\"");      
-         tag.append(cellSpacing_);
-         tag.append("\"");
-      }
-      if (width_ > 0)
-      {
-         tag.append(" width=\"");
-         tag.append(width_);
+        return new String(tag);
+    }
 
-         if (widthPercent_)
-            tag.append("%");
-         tag.append("\"");
-      }
+    /**
+    *  Returns the HTML table tag.
+    *  @return The tag.
+    **/
+    public String getTag()
+    {
+        //@C2D
 
-      tag.append(getLanguageAttributeTag());        //$B1A
-      tag.append(getDirectionAttributeTag());       //$B1A
-      tag.append(getAttributeString());             // @Z1A
+        StringBuffer tag = new StringBuffer(getStartTableTag());
 
-      tag.append(">\n");
-
-      if (caption_ != null)
-         tag.append(caption_.getTag());
-
-      return new String(tag);
-   }
-
-   /**
-   *  Returns the HTML table tag.
-   *  @return The tag.
-   **/
-   public String getTag()
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLTable tag...");
-
-      StringBuffer tag = new StringBuffer(getStartTableTag());
-
-      // Add the column headers.
-      if (headerInUse_)
-      {
-         if (rows_.size() > 0)
-         {
-            // Verify that the header is set.
-            if (headerTag_ == null)
+        // Add the column headers.
+        if (headerInUse_)
+        {
+            if (rows_.size() > 0)
             {
-               Trace.log(Trace.ERROR, "Attempting to get the table tag before setting the table header.");
-               throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+                // Verify that the header is set.
+                if (headerTag_ == null)
+                {
+                    Trace.log(Trace.ERROR, "Attempting to get the table tag before setting the table header.");
+                    throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+                }
+
+                int hdrSize = headerTag_.size();
+
+                for (int i=0; i<rows_.size(); ++i)                                                               // @B2A
+                {
+                    // @B2A
+                    // Verify that the table header size greater or equal to the number of columns in a row.      // @B2C
+                    if (hdrSize < ((HTMLTableRow)rows_.elementAt(i)).getColumnCount() )                           // @B2C
+                    {
+                        Trace.log(Trace.ERROR, "Attempting to get the table tag when the length of the table header is invalid.");
+                        throw new ExtendedIllegalArgumentException("header or row " + i, ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+                    }
+                }
             }
-            
-            int hdrSize = headerTag_.size();
+            tag.append(getHeaderTag());
+        }
 
-            for (int i=0; i<rows_.size(); ++i)                                                               // @B2A
-            {                                                                                                // @B2A
-               // Verify that the table header size greater or equal to the number of columns in a row.      // @B2C
-               if (hdrSize < ((HTMLTableRow)rows_.elementAt(i)).getColumnCount() )                           // @B2C
-               {
-                  Trace.log(Trace.ERROR, "Attempting to get the table tag when the length of the table header is invalid.");
-                  throw new ExtendedIllegalArgumentException("header or row " + i, ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-               }
+        // Add the rows.
+        HTMLTableRow row;
+        int size = rows_.size();
+        for (int i=0; i< size; i++)
+        {
+            row = (HTMLTableRow)rows_.elementAt(i);
+            tag.append(row.getTag());
+        }
+        tag.append(getEndTableTag());
+
+        return new String(tag);
+    }
+
+    /**
+    *  Returns the table width in pixels or percent.
+    *  @return The table width.
+    *  @see #isWidthInPercent
+    **/
+    public int getWidth()
+    {
+        return width_;
+    }
+
+
+
+    /**
+    *  Indicates if the table column header should be used.
+    *  @return true if column header should be used; false otherwise.
+    **/
+    public boolean isHeaderInUse()
+    {
+        return headerInUse_;
+    }
+
+    /**
+    *  Indicates if the table width is in percent or pixels.
+    *  @return true if percent, false if pixels.
+    *  @see #getWidth
+    **/
+    public boolean isWidthInPercent()
+    {
+        return widthPercent_;
+    }
+
+    /**
+    *  Deserializes and initializes transient data.
+    **/
+    private void readObject(java.io.ObjectInputStream in)
+    throws java.io.IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
+
+        rowListeners_ = new Vector();
+        changes_ = new PropertyChangeSupport(this);
+        vetos_ = new VetoableChangeSupport(this);
+    }
+
+    /**
+    *  Removes all the rows from the table.
+    **/
+    public void removeAllRows()
+    {
+        //@C2D
+
+        rows_.removeAllElements();
+        fireRemoved();
+    }
+
+    /**
+    *  Removes a column from the table at the specified <i>columnIndex</i>.
+    *  If the column header exists it is also removed.
+    *  @param columnIndex The index of the column to be removed (0-based).
+    **/
+    public void removeColumn(int columnIndex)
+    {
+        // Validate the columnIndex parameter.
+        if (rows_.size() == 0)
+        {
+            Trace.log(Trace.ERROR, "Attempting to remove a column before adding a row to the table.");
+            throw new ExtendedIllegalStateException("rows", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        HTMLTableRow row;
+        synchronized (rows_)
+        {
+            int size = rows_.size();
+            for (int i=0; i< size; i++)
+            {
+                row = (HTMLTableRow)rows_.elementAt(i);
+                row.removeColumn( (HTMLTableCell)row.getColumn(columnIndex) );
             }
-         }
-         tag.append(getHeaderTag());
-      }
+            // Remove the column header.
+            if (headerTag_ != null && columnIndex < headerTag_.size())
+                removeColumnHeader(columnIndex);
+        }
+    }
 
-      // Add the rows.
-      HTMLTableRow row;
-      int size = rows_.size();
-      for (int i=0; i< size; i++)
-      {
-         row = (HTMLTableRow)rows_.elementAt(i);
-         tag.append(row.getTag());
-      }
-      tag.append(getEndTableTag());
+    /**
+    *  Removes the column header at the specified <i>columnIndex</i>.
+    *  @param columnIndex The index of the column header to be removed (0-based).
+    **/
+    public void removeColumnHeader(int columnIndex)
+    {
+        // Verify that the column header list exists.
+        if (headerTag_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to remove a column header before adding the header list to the table.");
+            throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        if (columnIndex < 0 || columnIndex >= headerTag_.size())
+            throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      return new String(tag);
-   }
+        headerTag_.removeElementAt(columnIndex);
+    }
 
-   /**
-   *  Returns the table width in pixels or percent.
-   *  @return The table width.
-   *  @see #isWidthInPercent
-   **/
-   public int getWidth()
-   {
-      return width_;
-   }
+    /**
+    *  Removes a column header from the table header.
+    *  @param header The column header.
+    **/
+    public void removeColumnHeader(HTMLTableHeader header)
+    {
+        // Verify that the column header list exists.
+        if (headerTag_ == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to remove a column header before adding the header list to the table.");
+            throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
 
-   
+        if (header == null)
+            throw new NullPointerException("header");
 
-   /**
-   *  Indicates if the table column header should be used.
-   *  @return true if column header should be used; false otherwise.
-   **/
-   public boolean isHeaderInUse()
-   {
-      return headerInUse_;
-   }
+        if (!headerTag_.removeElement(header))
+            throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
 
-   /**
-   *  Indicates if the table width is in percent or pixels.
-   *  @return true if percent, false if pixels.
-   *  @see #getWidth
-   **/
-   public boolean isWidthInPercent()
-   {
-      return widthPercent_;
-   }
+    /**
+    *  Removes the row from the table.
+    *  @param row An HTMLTableRow object containing the row data.
+    **/
+    public void removeRow(HTMLTableRow row)
+    {
+        //@C2D
 
-   /**
-   *  Deserializes and initializes transient data.
-   **/
-   private void readObject(java.io.ObjectInputStream in)
-   throws java.io.IOException, ClassNotFoundException
-   {
-      in.defaultReadObject();
+        // Validate the row parameter.
+        if (row == null)
+            throw new NullPointerException("row");
 
-      rowListeners_ = new Vector();
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
-   }
+        // Verify the table is not empty.
+        if (rows_.size() == 0)
+        {
+            Trace.log(Trace.ERROR, "Attempting to remove a row when the table is empty.");
+            throw new ExtendedIllegalStateException("rows", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
 
-   /**
-   *  Removes all the rows from the table.
-   **/
-   public void removeAllRows()
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Removing all rows from HTMLTable.");
+        // Remove the row and notify the listeners.
+        if (rows_.removeElement(row))
+            fireRemoved();
+    }
 
-      rows_.removeAllElements();
-      fireRemoved();
-   }
+    /**
+    *  Removes the row at the specified <i>rowIndex</i>.
+    *  @param rowIndex The index of the row to be removed (0-based).
+    **/
+    public void removeRow(int rowIndex)
+    {
+        //@C2D
 
-   /**
-   *  Removes a column from the table at the specified <i>columnIndex</i>.
-   *  If the column header exists it is also removed.
-   *  @param columnIndex The index of the column to be removed (0-based).
-   **/
-   public void removeColumn(int columnIndex)
-   {
-      // Validate the columnIndex parameter.
-      if (rows_.size() == 0)
-      {
-         Trace.log(Trace.ERROR, "Attempting to remove a column before adding a row to the table.");
-         throw new ExtendedIllegalStateException("rows", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
+        // Validate the rowIndex parameter.
+        if (rowIndex < 0 || rowIndex >= rows_.size())
+            throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      HTMLTableRow row;
-      synchronized (rows_)
-      {
-         int size = rows_.size();
-         for (int i=0; i< size; i++)
-         {
-            row = (HTMLTableRow)rows_.elementAt(i);
-            row.removeColumn( (HTMLTableCell)row.getColumn(columnIndex) );
-         }
-         // Remove the column header.
-         if (headerTag_ != null && columnIndex < headerTag_.size())
-            removeColumnHeader(columnIndex);
-      }
-   }
+        // Remove the row and notify the listeners.
+        rows_.removeElementAt(rowIndex);
+        fireRemoved();
+    }
 
-   /**
-   *  Removes the column header at the specified <i>columnIndex</i>.
-   *  @param columnIndex The index of the column header to be removed (0-based).
-   **/
-   public void removeColumnHeader(int columnIndex)
-   {
-      // Verify that the column header list exists.
-      if (headerTag_ == null)
-      {
-         Trace.log(Trace.ERROR, "Attempting to remove a column header before adding the header list to the table.");
-         throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      if (columnIndex < 0 || columnIndex >= headerTag_.size())
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      headerTag_.removeElementAt(columnIndex);
-   }
 
-   /**
-   *  Removes a column header from the table header.
-   *  @param header The column header.
-   **/
-   public void removeColumnHeader(HTMLTableHeader header)
-   {
-      // Verify that the column header list exists.
-      if (headerTag_ == null)
-      {
-         Trace.log(Trace.ERROR, "Attempting to remove a column header before adding the header list to the table.");
-         throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
+    /**
+    *  Removes this row ElementListener from the internal list.
+    *  If the ElementListener is not on the list, nothing is done.
+    *  @see #addRowListener
+    *  @param listener The ElementListener.
+    **/
+    public void removeRowListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        rowListeners_.removeElement(listener);
+    }
 
-      if (header == null)
-         throw new NullPointerException("header");
+    /**
+    *  Removes the VetoableChangeListener from the internal list.
+    *  If the VetoableChangeListener is not on the list, nothing is done.
+    *  @see #addVetoableChangeListener
+    *  @param listener The VetoableChangeListener.
+    **/
+    public void removeVetoableChangeListener(VetoableChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        vetos_.removeVetoableChangeListener(listener);
+    }
 
-      if (!headerTag_.removeElement(header))
-         throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-   }
+    /**
+    *  Sets the table horizontal alignment.  The default value is LEFT.
+    *  @param alignment The table alignment.  One of the following constants
+    *  defined in HTMLConstants:  LEFT, CENTER, or RIGHT.
+    *  @exception PropertyVetoException If the change is vetoed.
+    *  @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setAlignment(String alignment) throws PropertyVetoException
+    {
+        if (alignment == null)
+        {
+            throw new NullPointerException("alignment");
+        }
+        else if (alignment.equalsIgnoreCase(LEFT) ||
+                 alignment.equalsIgnoreCase(CENTER) ||
+                 alignment.equalsIgnoreCase(RIGHT))
+        {
+            String old = alignment_;
+            vetos_.fireVetoableChange("alignment", old, alignment );
 
-   /**
-   *  Removes the row from the table.
-   *  @param row An HTMLTableRow object containing the row data.
-   **/
-   public void removeRow(HTMLTableRow row)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Removing a row from the HTMLTable.");
+            alignment_ = alignment;
 
-      // Validate the row parameter.
-      if (row == null)
-         throw new NullPointerException("row");
+            changes_.firePropertyChange("alignment", old, alignment );
+        }
+        else
+        {
+            throw new ExtendedIllegalArgumentException("alignment", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+    }
 
-      // Verify the table is not empty.
-      if (rows_.size() == 0)
-      {
-         Trace.log(Trace.ERROR, "Attempting to remove a row when the table is empty.");
-         throw new ExtendedIllegalStateException("rows", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
+    /**
+    *  Sets the border width in pixels.  A value of zero indicates no border.
+    *  The default value is zero.
+    *  @param borderWidth The border width.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setBorderWidth(int borderWidth) throws PropertyVetoException
+    {
+        if (borderWidth < 0)
+            throw new ExtendedIllegalArgumentException("borderWidth", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Remove the row and notify the listeners.
-      if (rows_.removeElement(row))
-         fireRemoved();
-   }
+        Integer oldWidth = new Integer(borderWidth_);
+        Integer newWidth = new Integer(borderWidth);
 
-   /**
-   *  Removes the row at the specified <i>rowIndex</i>.
-   *  @param rowIndex The index of the row to be removed (0-based).
-   **/
-   public void removeRow(int rowIndex)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Removing a row from the HTMLTable.");
+        vetos_.fireVetoableChange("borderWidth", oldWidth, newWidth);
 
-      // Validate the rowIndex parameter.
-      if (rowIndex < 0 || rowIndex >= rows_.size())
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        borderWidth_ = borderWidth;
 
-      // Remove the row and notify the listeners.
-      rows_.removeElementAt(rowIndex);
-      fireRemoved();
-   }
+        changes_.firePropertyChange("borderWidth", oldWidth, newWidth);
+    }
 
-   
+    /**
+    *  Sets the table caption.
+    *  @param caption The table caption.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setCaption(String caption) throws PropertyVetoException
+    {
+        setCaption(new HTMLTableCaption(new HTMLText(caption)));
+    }
 
-   /**
-   *  Removes this row ElementListener from the internal list.
-   *  If the ElementListener is not on the list, nothing is done.
-   *  @see #addRowListener
-   *  @param listener The ElementListener.
-   **/
-   public void removeRowListener(ElementListener listener)
-   {
-      if (listener == null)
-         throw new NullPointerException("listener");
-      rowListeners_.removeElement(listener);
-   }
+    /**
+    *  Sets the table caption.
+    *  @param caption An HTMLTableCaption object containing the table caption.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setCaption(HTMLTableCaption caption) throws PropertyVetoException
+    {
+        if (caption == null)
+            throw new NullPointerException("caption");
 
-   /**
-   *  Removes the VetoableChangeListener from the internal list.
-   *  If the VetoableChangeListener is not on the list, nothing is done.
-   *  @see #addVetoableChangeListener
-   *  @param listener The VetoableChangeListener.
-   **/
-   public void removeVetoableChangeListener(VetoableChangeListener listener)
-   {
-      if (listener == null)
-         throw new NullPointerException("listener");
-      vetos_.removeVetoableChangeListener(listener);
-   }
+        HTMLTableCaption old = caption_;
+        vetos_.fireVetoableChange("caption", old, caption );
 
-   /**
-   *  Sets the table horizontal alignment.  The default value is LEFT.
-   *  @param alignment The table alignment.  One of the following constants
-   *  defined in HTMLConstants:  LEFT, CENTER, or RIGHT.
-   *  @exception PropertyVetoException If the change is vetoed.
-   *  @see com.ibm.as400.util.html.HTMLConstants
-   **/
-   public void setAlignment(String alignment) throws PropertyVetoException
-   {
-      if (alignment == null)
-      {
-         throw new NullPointerException("alignment");
-      }
-      else if (alignment.equalsIgnoreCase(LEFT) ||
-               alignment.equalsIgnoreCase(CENTER) ||
-               alignment.equalsIgnoreCase(RIGHT))
-      {
-         String old = alignment_;
-         vetos_.fireVetoableChange("alignment", old, alignment );
+        caption_ = caption;
 
-         alignment_ = alignment;
+        changes_.firePropertyChange("caption", old, caption );
+    }
 
-         changes_.firePropertyChange("alignment", old, alignment );
-      }
-      else
-      {
-         throw new ExtendedIllegalArgumentException("alignment", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
-   }
+    /**
+    *  Sets the global table cell padding.  The cell padding is the spacing between
+    *  data in a table cell and the border of the cell.
+    *  The default value is -1 (browser default used).                     
+    *  @param cellPadding The cell padding.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setCellPadding(int cellPadding) throws PropertyVetoException
+    {
+        if (cellPadding < -1)                                               // @C1C
+            throw new ExtendedIllegalArgumentException("cellPadding", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-   /**
-   *  Sets the border width in pixels.  A value of zero indicates no border.
-   *  The default value is zero.
-   *  @param borderWidth The border width.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setBorderWidth(int borderWidth) throws PropertyVetoException
-   {
-      if (borderWidth < 0)
-         throw new ExtendedIllegalArgumentException("borderWidth", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        Integer oldPadding = new Integer(cellPadding_);
+        Integer newPadding = new Integer(cellPadding);
 
-      Integer oldWidth = new Integer(borderWidth_);
-      Integer newWidth = new Integer(borderWidth);
+        vetos_.fireVetoableChange("cellPadding", oldPadding, newPadding);
 
-      vetos_.fireVetoableChange("borderWidth", oldWidth, newWidth);
+        cellPadding_ = cellPadding;
 
-      borderWidth_ = borderWidth;
+        changes_.firePropertyChange("cellPadding", oldPadding, newPadding);
+    }
 
-      changes_.firePropertyChange("borderWidth", oldWidth, newWidth);
-   }
+    /**
+    *  Sets the global table cell spacing.
+    *  The cell spacing is the spacing between the cells.
+    *  The default value is -1 (browser default used).                      
+    *  @param cellSpacing The cell spacing.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setCellSpacing(int cellSpacing) throws PropertyVetoException
+    {
+        if (cellSpacing < -1)                                                // @C1C
+            throw new ExtendedIllegalArgumentException("cellSpacing", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-   /**
-   *  Sets the table caption.
-   *  @param caption The table caption.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setCaption(String caption) throws PropertyVetoException
-   {
-      setCaption(new HTMLTableCaption(new HTMLText(caption)));
-   }
+        Integer oldSpacing = new Integer(cellSpacing_);
+        Integer newSpacing = new Integer(cellSpacing);
 
-   /**
-   *  Sets the table caption.
-   *  @param caption An HTMLTableCaption object containing the table caption.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setCaption(HTMLTableCaption caption) throws PropertyVetoException
-   {
-      if (caption == null)
-         throw new NullPointerException("caption");
+        vetos_.fireVetoableChange("cellSpacing", oldSpacing, newSpacing);
 
-      HTMLTableCaption old = caption_;
-      vetos_.fireVetoableChange("caption", old, caption );
+        cellSpacing_ = cellSpacing;
 
-      caption_ = caption;
+        changes_.firePropertyChange("cellSpacing", oldSpacing, newSpacing);
+    }
 
-      changes_.firePropertyChange("caption", old, caption );
-   }
+    /**
+    *  Sets a column in the table at the specified <i>columnIndex</i>.
+    *  @param column An array of HTMLTableCell objects containing the column data.
+    *  @param columnIndex The index of the column (0-based).
+    **/
+    public void setColumn(HTMLTableCell[] column, int columnIndex)
+    {
+        // Validate the column parameter.
+        if (column == null)
+            throw new NullPointerException("column");
 
-   // @C1C
-   /**
-   *  Sets the global table cell padding.  The cell padding is the spacing between
-   *  data in a table cell and the border of the cell.
-   *  The default value is -1 (browser default used).                     
-   *  @param cellPadding The cell padding.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setCellPadding(int cellPadding) throws PropertyVetoException
-   {
-      if (cellPadding < -1)                                               // @C1C
-         throw new ExtendedIllegalArgumentException("cellPadding", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        int size = rows_.size();
 
-      Integer oldPadding = new Integer(cellPadding_);
-      Integer newPadding = new Integer(cellPadding);
+        // Add the rows if table is empty.
+        if (size == 0)
+        {
+            addColumn(column);
+            return;
+        }
+        else if (column.length != size)
+        {
+            throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
 
-      vetos_.fireVetoableChange("cellPadding", oldPadding, newPadding);
+        // Validate the columnIndex parameter.
+        if (columnIndex < 0 || columnIndex > ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
+            throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      cellPadding_ = cellPadding;
+        // Update the table rows.
+        HTMLTableRow row;
+        synchronized (rows_)
+        {
+            for (int i=0; i< size; i++)
+            {
+                row = (HTMLTableRow)rows_.elementAt(i);
+                row.setColumn(column[i], columnIndex);
+            }
+        }
+    }
 
-      changes_.firePropertyChange("cellPadding", oldPadding, newPadding);
-   }
+    /**
+    *  Sets the table column header tag.
+    *  @param header The table column header.
+    *  @param columnIndex The index of the column to be changed (0-based).
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setColumnHeader(String header, int columnIndex) throws PropertyVetoException
+    {
+        setColumnHeader(new HTMLTableHeader(new HTMLText(header)), columnIndex);
+    }
 
-   // @C1C
-   /**
-   *  Sets the global table cell spacing.
-   *  The cell spacing is the spacing between the cells.
-   *  The default value is -1 (browser default used).                      
-   *  @param cellSpacing The cell spacing.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setCellSpacing(int cellSpacing) throws PropertyVetoException
-   {
-      if (cellSpacing < -1)                                                // @C1C
-         throw new ExtendedIllegalArgumentException("cellSpacing", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    /**
+    *  Sets the table column header tag at the specified <i>columnIndex</i>.
+    *  @param header The table column header.
+    *  @param columnIndex The index of the column to be changed (0-based).
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setColumnHeader(HTMLTableHeader header, int columnIndex) throws PropertyVetoException
+    {
+        // Validate the header parameter.
+        if (header == null)
+            throw new NullPointerException("header");
 
-      Integer oldSpacing = new Integer(cellSpacing_);
-      Integer newSpacing = new Integer(cellSpacing);
+        // Validate that the header tag exists.
+        if (headerTag_ == null)
+        {
+            if (columnIndex == 0)
+            {
+                addColumnHeader(header);
+                return;
+            }
+            else
+            {
+                Trace.log(Trace.ERROR, "Attempting to change a column header before adding a column header to the table.");
+                throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+            }
+        }
 
-      vetos_.fireVetoableChange("cellSpacing", oldSpacing, newSpacing);
+        // Verify that the header's HTMLTagElement is set.
+        if (header.getElement() == null)
+        {
+            Trace.log(Trace.ERROR, "The HTMLTableHeader's element attribute is invalid.");
+            throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
 
-      cellSpacing_ = cellSpacing;
+        // Validate the columnIndex parameter.
+        if (columnIndex < 0 || columnIndex > headerTag_.size())
+            throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      changes_.firePropertyChange("cellSpacing", oldSpacing, newSpacing);
-   }
-
-   /**
-   *  Sets a column in the table at the specified <i>columnIndex</i>.
-   *  @param column An array of HTMLTableCell objects containing the column data.
-   *  @param columnIndex The index of the column (0-based).
-   **/
-   public void setColumn(HTMLTableCell[] column, int columnIndex)
-   {
-      // Validate the column parameter.
-      if (column == null)
-         throw new NullPointerException("column");
-
-      int size = rows_.size();
-
-      // Add the rows if table is empty.
-      if (size == 0)
-      {
-         addColumn(column);
-         return;
-      }
-      else if (column.length != size)
-      {
-         throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-      }
-
-      // Validate the columnIndex parameter.
-      if (columnIndex < 0 || columnIndex > ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-
-      // Update the table rows.
-      HTMLTableRow row;
-      synchronized (rows_)
-      {
-         for (int i=0; i< size; i++)
-         {
-            row = (HTMLTableRow)rows_.elementAt(i);
-            row.setColumn(column[i], columnIndex);
-         }
-      }
-   }
-
-   /**
-   *  Sets the table column header tag.
-   *  @param header The table column header.
-   *  @param columnIndex The index of the column to be changed (0-based).
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setColumnHeader(String header, int columnIndex) throws PropertyVetoException
-   {
-      setColumnHeader(new HTMLTableHeader(new HTMLText(header)), columnIndex);
-   }
-
-   /**
-   *  Sets the table column header tag at the specified <i>columnIndex</i>.
-   *  @param header The table column header.
-   *  @param columnIndex The index of the column to be changed (0-based).
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setColumnHeader(HTMLTableHeader header, int columnIndex) throws PropertyVetoException
-   {
-      // Validate the header parameter.
-      if (header == null)
-         throw new NullPointerException("header");
-
-      // Validate that the header tag exists.
-      if (headerTag_ == null)
-      {
-         if (columnIndex == 0)
-         {
+        else if (columnIndex == headerTag_.size())
+        {
             addColumnHeader(header);
             return;
-         }
-         else
-         {
-            Trace.log(Trace.ERROR, "Attempting to change a column header before adding a column header to the table.");
-            throw new ExtendedIllegalStateException("header", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-         }
-      }
+        }
+        else
+        {
+            Vector old = headerTag_;
+            vetos_.fireVetoableChange("header", old, headerTag_);
 
-      // Verify that the header's HTMLTagElement is set.
-      if (header.getElement() == null)
-      {
-         Trace.log(Trace.ERROR, "The HTMLTableHeader's element attribute is invalid.");
-         throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
+            headerTag_.setElementAt(header, columnIndex);
 
-      // Validate the columnIndex parameter.
-      if (columnIndex < 0 || columnIndex > headerTag_.size())
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            changes_.firePropertyChange("header", old, headerTag_);
+        }
+    }
 
-      else if (columnIndex == headerTag_.size())
-      {
-         addColumnHeader(header);
-         return;
-      }
-      else
-      {
-         Vector old = headerTag_;
-         vetos_.fireVetoableChange("header", old, headerTag_);
+    /**
+     *  Sets the <i>direction</i> of the text interpretation.
+     *  @param dir The direction.  One of the following constants
+     *  defined in HTMLConstants:  LTR or RTL.
+     *
+     *  @see com.ibm.as400.util.html.HTMLConstants
+     *
+     *  @exception PropertyVetoException If a change is vetoed.
+     **/
+    public void setDirection(String dir)                                     //$B1A
+    throws PropertyVetoException
+    {
+        if (dir == null)
+            throw new NullPointerException("dir");
 
-         headerTag_.setElementAt(header, columnIndex);
+        // If direction is not one of the valid HTMLConstants, throw an exception.
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+        {
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
 
-         changes_.firePropertyChange("header", old, headerTag_);
-      }
-   }
+        String old = dir_;
+        vetos_.fireVetoableChange("dir", old, dir );
 
-   /**
-    *  Sets the <i>direction</i> of the text interpretation.
-    *  @param dir The direction.  One of the following constants
-    *  defined in HTMLConstants:  LTR or RTL.
-    *
-    *  @see com.ibm.as400.util.html.HTMLConstants
-    *
-    *  @exception PropertyVetoException If a change is vetoed.
+        dir_ = dir;
+
+        changes_.firePropertyChange("dir", old, dir );
+    }
+
+    /**
+    *  Sets the table column headers.
+    *  @param header The column headers.
+    *  @exception PropertyVetoException If the change is vetoed.
+    *  @see #setHeaderInUse
     **/
-   public void setDirection(String dir)                                     //$B1A
-   throws PropertyVetoException
-   {
-      if (dir == null)
-         throw new NullPointerException("dir");
+    public void setHeader(HTMLTableHeader[] header) throws PropertyVetoException
+    {
+        if (header == null)
+            throw new NullPointerException("header");
 
-      // If direction is not one of the valid HTMLConstants, throw an exception.
-      if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
-      {
-         throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-      }
+        // Verify that the header size matches the number of columns in a row.
+        if ((!rows_.isEmpty()) && header.length != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
+            throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-      String old = dir_;
-      vetos_.fireVetoableChange("dir", old, dir );
+        Vector old = headerTag_;
+        vetos_.fireVetoableChange("header", old, header );
 
-      dir_ = dir;
+        headerTag_ = new Vector();
+        for (int i=0; i< header.length; i++)
+            headerTag_.addElement(header[i]);
 
-      changes_.firePropertyChange("dir", old, dir );
-   }
+        changes_.firePropertyChange("header", old, header );
+    }
 
-   /**
-   *  Sets the table column headers.
-   *  @param header The column headers.
-   *  @exception PropertyVetoException If the change is vetoed.
-   *  @see #setHeaderInUse
-   **/
-   public void setHeader(HTMLTableHeader[] header) throws PropertyVetoException
-   {
-      if (header == null)
-         throw new NullPointerException("header");
-
-      // Verify that the header size matches the number of columns in a row.
-      if ((!rows_.isEmpty()) && header.length != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
-         throw new ExtendedIllegalArgumentException("header", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-
-      Vector old = headerTag_;
-      vetos_.fireVetoableChange("header", old, header );
-
-      headerTag_ = new Vector();
-      for (int i=0; i< header.length; i++)
-         headerTag_.addElement(header[i]);
-
-      changes_.firePropertyChange("header", old, header );
-   }
-
-   /**
-   *  Sets the table column headers.
-   *  @param header The column headers.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setHeader(String[] header) throws PropertyVetoException
-   {
-      if (header == null)
-         throw new NullPointerException("header");
-
-      // Create an array of HTMLTableHeader objects.
-      HTMLTableHeader[] tableHeader = new HTMLTableHeader[header.length];
-      for (int column=0; column < header.length; column++)
-         tableHeader[column] = new HTMLTableHeader(new HTMLText(header[column]));
-
-      setHeader(tableHeader);
-   }
-
-   /**
-   *  Sets if table column headers should be used.  The default value is true.
-   *  @param headerInUse true if the column headers should be used; false otherwise.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setHeaderInUse(boolean headerInUse) throws PropertyVetoException
-   {
-      Boolean oldUse = new Boolean(headerInUse_);
-      Boolean newUse = new Boolean(headerInUse);
-
-      vetos_.fireVetoableChange("useHeader", oldUse, newUse);
-
-      headerInUse_ = headerInUse;
-
-      changes_.firePropertyChange("useHeader", oldUse, newUse);
-   }
-
-   /**
-    *  Sets the <i>language</i> of the caption.
-    *  @param lang The language.  Example language tags include:
-    *  en and en-US.
-    *
-    *  @exception PropertyVetoException If a change is vetoed.
+    /**
+    *  Sets the table column headers.
+    *  @param header The column headers.
+    *  @exception PropertyVetoException If the change is vetoed.
     **/
-   public void setLanguage(String lang)                                      //$B1A
-   throws PropertyVetoException
-   {
-      if (lang == null)
-         throw new NullPointerException("lang");
+    public void setHeader(String[] header) throws PropertyVetoException
+    {
+        if (header == null)
+            throw new NullPointerException("header");
 
-      String old = lang_;
-      vetos_.fireVetoableChange("lang", old, lang );
+        // Create an array of HTMLTableHeader objects.
+        HTMLTableHeader[] tableHeader = new HTMLTableHeader[header.length];
+        for (int column=0; column < header.length; column++)
+            tableHeader[column] = new HTMLTableHeader(new HTMLText(header[column]));
 
-      lang_ = lang;
+        setHeader(tableHeader);
+    }
 
-      changes_.firePropertyChange("lang", old, lang );
-   }
+    /**
+    *  Sets if table column headers should be used.  The default value is true.
+    *  @param headerInUse true if the column headers should be used; false otherwise.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setHeaderInUse(boolean headerInUse) throws PropertyVetoException
+    {
+        Boolean oldUse = new Boolean(headerInUse_);
+        Boolean newUse = new Boolean(headerInUse);
 
-   /**
-   *  Sets the table row at the specified <i>rowIndex</i>.
-   *  @param row An HTMLTableRow object with the row data.
-   *  @param rowIndex The index of the row (0-based).
-   **/
-   public void setRow(HTMLTableRow row, int rowIndex)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Changing a row in the HTMLTable.");
+        vetos_.fireVetoableChange("useHeader", oldUse, newUse);
 
-      // Validate the row parameter.
-      if (row == null)
-         throw new NullPointerException("row");
+        headerInUse_ = headerInUse;
 
-      // Validate the rowIndex parameter.
-      if (rowIndex < 0 || rowIndex > rows_.size())
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        changes_.firePropertyChange("useHeader", oldUse, newUse);
+    }
 
-      // Set the row.
-      if (rowIndex == rows_.size())
-         addRow(row);
-      else
-      {
-         // Validate the number of columns in the row.
-         if (row.getColumnCount() != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
-            throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+    /**
+     *  Sets the <i>language</i> of the caption.
+     *  @param lang The language.  Example language tags include:
+     *  en and en-US.
+     *
+     *  @exception PropertyVetoException If a change is vetoed.
+     **/
+    public void setLanguage(String lang)                                      //$B1A
+    throws PropertyVetoException
+    {
+        if (lang == null)
+            throw new NullPointerException("lang");
 
-         rows_.setElementAt(row, rowIndex);
-         // Notify the listeners.
-         fireChanged();
-      }
-   }
+        String old = lang_;
+        vetos_.fireVetoableChange("lang", old, lang );
 
-   /**
-   *  Sets the table width.  The default width unit is pixels.
-   *  @param width The table width.
-   *  @exception PropertyVetoException If the change is vetoed.
-   *  @see #setWidthInPercent
-   **/
-   public void setWidth(int width) throws PropertyVetoException
-   {
-      if (width < 0)
-         throw new ExtendedIllegalArgumentException("width", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        lang_ = lang;
 
-      Integer oldWidth = new Integer(width_);
-      Integer newWidth = new Integer(width);
+        changes_.firePropertyChange("lang", old, lang );
+    }
 
-      vetos_.fireVetoableChange("width", oldWidth, newWidth);
+    /**
+    *  Sets the table row at the specified <i>rowIndex</i>.
+    *  @param row An HTMLTableRow object with the row data.
+    *  @param rowIndex The index of the row (0-based).
+    **/
+    public void setRow(HTMLTableRow row, int rowIndex)
+    {
+        //@C2D
 
-      width_ = width;
+        // Validate the row parameter.
+        if (row == null)
+            throw new NullPointerException("row");
 
-      changes_.firePropertyChange("width", oldWidth, newWidth);
-   }
+        // Validate the rowIndex parameter.
+        if (rowIndex < 0 || rowIndex > rows_.size())
+            throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-   /**
-   *  Sets the table width in percent or pixels.
-   *  @param width The table width.
-   *  @param widthInPercent true if width is specified as a percent; false if width is specified in pixels.
-   *  @exception PropertyVetoException If the change is vetoed.
-   **/
-   public void setWidth(int width, boolean widthInPercent) throws PropertyVetoException
-   {
-      int oldWidth = width_;
+        // Set the row.
+        if (rowIndex == rows_.size())
+            addRow(row);
+        else
+        {
+            // Validate the number of columns in the row.
+            if (row.getColumnCount() != ((HTMLTableRow)rows_.elementAt(0)).getColumnCount())
+                throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-      setWidth(width);
+            rows_.setElementAt(row, rowIndex);
+            // Notify the listeners.
+            fireChanged();
+        }
+    }
 
-      try
-      {
-         setWidthInPercent(widthInPercent);
-      }
-      catch (PropertyVetoException e)
-      {
-         // restore the original width.
-         width_ = oldWidth;
-         throw new PropertyVetoException("widthInPercent", e.getPropertyChangeEvent());
-      }
-   }
+    /**
+    *  Sets the table width.  The default width unit is pixels.
+    *  @param width The table width.
+    *  @exception PropertyVetoException If the change is vetoed.
+    *  @see #setWidthInPercent
+    **/
+    public void setWidth(int width) throws PropertyVetoException
+    {
+        if (width < 0)
+            throw new ExtendedIllegalArgumentException("width", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-   /**
-   *  Sets the table width unit in percent or pixels.  The default is false.
-   *  @param widthInPercent true if width is specified as a percent; false if width is specified in pixels.
-   *  @exception PropertyVetoException If the change is vetoed.
-   *  @see #setWidth
-   **/
-   public void setWidthInPercent(boolean widthInPercent) throws PropertyVetoException
-   {
-      Boolean oldValue = new Boolean(widthPercent_);
-      Boolean newValue = new Boolean(widthInPercent);
+        Integer oldWidth = new Integer(width_);
+        Integer newWidth = new Integer(width);
 
-      vetos_.fireVetoableChange("widthInPercent", oldValue, newValue);
+        vetos_.fireVetoableChange("width", oldWidth, newWidth);
 
-      widthPercent_ = widthInPercent;
+        width_ = width;
 
-      changes_.firePropertyChange("widthInPercent", oldValue, newValue);
-   }
+        changes_.firePropertyChange("width", oldWidth, newWidth);
+    }
 
-   /**
-   *  Returns the HTML table tag.
-   *  @return The tag.
-   **/
-   public String toString()
-   {
-      return getTag();
-   }
+    /**
+    *  Sets the table width in percent or pixels.
+    *  @param width The table width.
+    *  @param widthInPercent true if width is specified as a percent; false if width is specified in pixels.
+    *  @exception PropertyVetoException If the change is vetoed.
+    **/
+    public void setWidth(int width, boolean widthInPercent) throws PropertyVetoException
+    {
+        int oldWidth = width_;
+
+        setWidth(width);
+
+        try
+        {
+            setWidthInPercent(widthInPercent);
+        }
+        catch (PropertyVetoException e)
+        {
+            // restore the original width.
+            width_ = oldWidth;
+            throw new PropertyVetoException("widthInPercent", e.getPropertyChangeEvent());
+        }
+    }
+
+    /**
+    *  Sets the table width unit in percent or pixels.  The default is false.
+    *  @param widthInPercent true if width is specified as a percent; false if width is specified in pixels.
+    *  @exception PropertyVetoException If the change is vetoed.
+    *  @see #setWidth
+    **/
+    public void setWidthInPercent(boolean widthInPercent) throws PropertyVetoException
+    {
+        Boolean oldValue = new Boolean(widthPercent_);
+        Boolean newValue = new Boolean(widthInPercent);
+
+        vetos_.fireVetoableChange("widthInPercent", oldValue, newValue);
+
+        widthPercent_ = widthInPercent;
+
+        changes_.firePropertyChange("widthInPercent", oldValue, newValue);
+    }
+
+    /**
+    *  Returns the HTML table tag.
+    *  @return The tag.
+    **/
+    public String toString()
+    {
+        return getTag();
+    }
 }
 
 

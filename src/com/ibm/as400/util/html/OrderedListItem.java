@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: OrderedListItem.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ import java.beans.PropertyChangeSupport;
 **/
 public class OrderedListItem extends HTMLListItem
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private String type_;      //The labeling scheme used to display the ordered list item <li>
 
@@ -66,7 +66,7 @@ public class OrderedListItem extends HTMLListItem
     **/
     public OrderedListItem()
     {
-       super();
+        super();
     }
 
 
@@ -81,7 +81,7 @@ public class OrderedListItem extends HTMLListItem
         setItemData(data);
     }
 
-    
+
     /**
     *  Returns the type of the order labeling.
     *  @return The type.
@@ -91,7 +91,7 @@ public class OrderedListItem extends HTMLListItem
         return type_;
     }
 
-    
+
     /**
     *  Returns the number for the current list item
     *  @return The number.
@@ -108,32 +108,31 @@ public class OrderedListItem extends HTMLListItem
     **/
     String getTypeAttribute()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Retrieving type attribute tag.");
+        //@B1D
 
         StringBuffer s = new StringBuffer("");
 
         if (type_ != null)
-        {                                    
-          if(type_.equals(HTMLConstants.NUMBERS))
-             s.append(" type=\"1\"");
-          else if(type_.equals(HTMLConstants.CAPITALS))
-             s.append(" type=\"A\"");
-          else if(type_.equals(HTMLConstants.LOWER_CASE))
-             s.append(" type=\"a\"");
-          else if(type_.equals(HTMLConstants.LARGE_ROMAN))
-             s.append(" type=\"I\"");
-          else if(type_.equals(HTMLConstants.SMALL_ROMAN))
-             s.append(" type=\"i\"");
+        {
+            if (type_.equals(HTMLConstants.NUMBERS))
+                s.append(" type=\"1\"");
+            else if (type_.equals(HTMLConstants.CAPITALS))
+                s.append(" type=\"A\"");
+            else if (type_.equals(HTMLConstants.LOWER_CASE))
+                s.append(" type=\"a\"");
+            else if (type_.equals(HTMLConstants.LARGE_ROMAN))
+                s.append(" type=\"I\"");
+            else if (type_.equals(HTMLConstants.SMALL_ROMAN))
+                s.append(" type=\"i\"");
         }
-        
+
         if (value_ > 0)
         {
-           s.append(" value=\"");
-           s.append(Integer.toString(value_));
-           s.append("\"");
+            s.append(" value=\"");
+            s.append(Integer.toString(value_));
+            s.append("\"");
         }
-        
+
         return s.toString();
     }
 
@@ -142,7 +141,7 @@ public class OrderedListItem extends HTMLListItem
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -160,21 +159,21 @@ public class OrderedListItem extends HTMLListItem
     public void setType(String type)
     {
         if (type == null)
-         throw new NullPointerException("type");
+            throw new NullPointerException("type");
 
         // If type is not one of the valid HTMLConstants, throw an exception.
         if ( !(type.equals(HTMLConstants.NUMBERS))  && !(type.equals(HTMLConstants.CAPITALS)) 
              && !(type.equals(HTMLConstants.LOWER_CASE)) && !(type.equals(HTMLConstants.LARGE_ROMAN)) 
-             && !(type.equals(HTMLConstants.SMALL_ROMAN)) ) 
+             && !(type.equals(HTMLConstants.SMALL_ROMAN)) )
         {
-           throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting order labeling type for <ol>.");
-        
+            Trace.log(Trace.INFORMATION, "   Setting order labeling type for <ol>.");
+
         String old = type_;
-        
+
         type_ = type;
 
         changes_.firePropertyChange("type", old, type );
@@ -191,11 +190,11 @@ public class OrderedListItem extends HTMLListItem
      **/
     public void setValue(int value)
     {
-        if (value < 0) 
-           throw new ExtendedIllegalArgumentException("value", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        if (value < 0)
+            throw new ExtendedIllegalArgumentException("value", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting current <li> number for <ol>.");
+            Trace.log(Trace.INFORMATION, "   Setting current <li> number for <ol>.");
 
         int old = value_;
 

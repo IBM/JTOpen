@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: ResetFormInput.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,15 +25,15 @@ import com.ibm.as400.access.Trace;
 **/
 public class ResetFormInput extends FormInput
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    
+
     /**
     *  Constructs a default ResetFormInput object.
     **/
     public ResetFormInput()
     {
-       super();
+        super();
 
     }
 
@@ -63,8 +63,7 @@ public class ResetFormInput extends FormInput
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating ResetFormInput tag...");
+        //@C1D
 
         StringBuffer s = new StringBuffer("<input type=\"reset\"");
 

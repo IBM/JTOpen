@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLMeta.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ import java.beans.PropertyChangeListener;
 **/
 public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable      // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private String content_;
     private String name_;
@@ -62,7 +62,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public HTMLMeta()
     {
-       super();
+        super();
     }
 
 
@@ -74,10 +74,10 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public HTMLMeta(String HttpEquiv, String content)
     {
-       super();
-       
-       setHttpEquiv(HttpEquiv);
-       setContent(content);
+        super();
+
+        setHttpEquiv(HttpEquiv);
+        setContent(content);
     }
 
 
@@ -90,15 +90,15 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public HTMLMeta(String HttpEquiv, String content, String url)
     {
-       super();
-       
-       setHttpEquiv(HttpEquiv);
-       setContent(content);
-       setUrl(url);
+        super();
+
+        setHttpEquiv(HttpEquiv);
+        setContent(content);
+        setUrl(url);
     }
 
 
-    
+
     /**
     *  Returns the <i>content</i> of the HTMLMeta tag.
     *  @return The value of a named property.
@@ -108,7 +108,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
         return content_;
     }
 
-    
+
     /**
     *  Returns the <i>direction</i> of the text interpretation.
     *  @return The direction of the text.
@@ -125,13 +125,12 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     **/
     String getDirectionAttributeTag()                                                 
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-          return " dir=\"" + dir_ + "\"";
-       else
-          return "";
+        if ((dir_ != null) && (dir_.length() > 0))
+            return " dir=\"" + dir_ + "\"";
+        else
+            return "";
     }
 
 
@@ -161,13 +160,12 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     **/                                                                               
     String getLanguageAttributeTag()                                                  
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-          return " lang=\"" + lang_ + "\"";
-       else
-          return "";
+        if ((lang_ != null) && (lang_.length() > 0))
+            return " lang=\"" + lang_ + "\"";
+        else
+            return "";
     }
 
 
@@ -190,58 +188,57 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
         return url_;
     }
 
-    
+
     /**
     *  Returns the tag for the HTML heading.
     *  @return The tag.
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLMeta tag...");
+        //@C1D
 
-        if(content_ == null)
+        if (content_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting meta content.");
-           throw new ExtendedIllegalStateException(
-               "content", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting meta content.");
+            throw new ExtendedIllegalStateException(
+                                                   "content", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         if (name_ == null && HttpEquiv_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name or http-equiv attributes.");
-           throw new ExtendedIllegalStateException("name/HttpEquiv", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name or http-equiv attributes.");
+            throw new ExtendedIllegalStateException("name/HttpEquiv", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
-        
-        
+
+
         StringBuffer s = new StringBuffer("<meta");
-        
+
         if (HttpEquiv_ != null)
         {
-           s.append(" http-equiv=\"");
-           s.append(HttpEquiv_);
-           s.append("\"");
+            s.append(" http-equiv=\"");
+            s.append(HttpEquiv_);
+            s.append("\"");
         }
         else
         {
-           s.append(" name=\"");
-           s.append(name_);
-           s.append("\"");
+            s.append(" name=\"");
+            s.append(name_);
+            s.append("\"");
         }
 
         if (url_ != null)
-        {   
-           s.append(" content=\"");
-           s.append(content_);
-           s.append("; URL=");
-           s.append(url_);
-           s.append("\"");
+        {
+            s.append(" content=\"");
+            s.append(content_);
+            s.append("; URL=");
+            s.append(url_);
+            s.append("\"");
         }
         else
         {
-           s.append(" content=\"");
-           s.append(content_);
-           s.append("\"");
+            s.append(" content=\"");
+            s.append(content_);
+            s.append("\"");
         }
 
         s.append(getLanguageAttributeTag());                                          
@@ -249,7 +246,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
         s.append(getAttributeString());            // @Z1A
 
         s.append(" />\n");
-        
+
         return s.toString();
     }
 
@@ -258,22 +255,22 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
     }
 
 
-    
+
     /**
     *  Sets the <i>content</i> of the meta information.
     *  @param content The value for a named property.
     **/
     public void setContent(String content)                                     
-    {   
+    {
         if (content == null)
-           throw new NullPointerException("content");
+            throw new NullPointerException("content");
 
         String old = content_;
 
@@ -282,7 +279,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
         changes_.firePropertyChange("content", old, content );
     }
 
-    
+
     /**
     *  Sets the <i>direction</i> of the text interpretation.
     *  @param dir The direction.  One of the following constants
@@ -291,14 +288,14 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     *  @see com.ibm.as400.util.html.HTMLConstants
     **/
     public void setDirection(String dir)                                     
-    {   
+    {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
-        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -315,9 +312,9 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     *  @param HttpEquiv The HTTP-EQUIV meta information.
     **/
     public void setHttpEquiv(String HttpEquiv)                                     
-    {   
+    {
         if (HttpEquiv == null)
-           throw new NullPointerException("HttpEquiv");
+            throw new NullPointerException("HttpEquiv");
 
         String old = HttpEquiv_;
 
@@ -334,9 +331,9 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     *  en and en-US.
     **/
     public void setLanguage(String lang)                                      
-    {   
+    {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 
@@ -354,9 +351,9 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     *  @param name The name of a property.
     **/
     public void setName(String name)                                      
-    {   
+    {
         if (name == null)
-           throw new NullPointerException("name");
+            throw new NullPointerException("name");
 
         String old = name_;
 
@@ -373,9 +370,9 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     *  @param url The URL to reload.
     **/
     public void setUrl(String url)                                      
-    {   
+    {
         if (url == null)
-           throw new NullPointerException("url");
+            throw new NullPointerException("url");
 
         String old = url_;
 
@@ -384,7 +381,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
         changes_.firePropertyChange("url", old, url );
     }
 
-    
+
     /**
     *  Returns a String representation for the HTMLMeta tag.
     *  @return The tag.

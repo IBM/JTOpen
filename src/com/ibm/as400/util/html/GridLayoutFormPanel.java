@@ -90,8 +90,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     public GridLayoutFormPanel(int columns)
     {
         super();
-        try {
-           setColumns(columns);
+        try
+        {
+            setColumns(columns);
         }
         catch (PropertyVetoException e)
         {
@@ -109,9 +110,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       changes_.addPropertyChangeListener(listener);
+        changes_.addPropertyChangeListener(listener);
     }
 
 
@@ -126,9 +127,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       vetos_.addVetoableChangeListener(listener);
+        vetos_.addVetoableChangeListener(listener);
     }
 
     /**
@@ -137,7 +138,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     public int getColumns()
     {
-       return columns_;
+        return columns_;
     }
 
 
@@ -157,13 +158,12 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-          return " dir=\"" + dir_ + "\"";
-       else
-          return "";
+        if ((dir_ != null) && (dir_.length() > 0))
+            return " dir=\"" + dir_ + "\"";
+        else
+            return "";
     }
 
 
@@ -183,13 +183,12 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-          return " lang=\"" + lang_ + "\"";
-       else
-          return "";
+        if ((lang_ != null) && (lang_.length() > 0))
+            return " lang=\"" + lang_ + "\"";
+        else
+            return "";
     }
 
 
@@ -199,8 +198,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Generating GridLayoutFormPanel tag...");
+        //@C1D
 
         StringBuffer s = new StringBuffer("<table border=\"0\"");                     //$B1C
 
@@ -246,9 +244,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-      changes_.removePropertyChangeListener(listener);
+        changes_.removePropertyChangeListener(listener);
     }
 
 
@@ -261,9 +259,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       vetos_.removeVetoableChangeListener(listener);
+        vetos_.removeVetoableChangeListener(listener);
     }
 
     /**
@@ -273,17 +271,17 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setColumns(int columns)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (columns < 0)
-          throw new ExtendedIllegalArgumentException("columns", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        if (columns < 0)
+            throw new ExtendedIllegalArgumentException("columns", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-       int old = columns_;
-       vetos_.fireVetoableChange("columns", new Integer(old), new Integer(columns) );
+        int old = columns_;
+        vetos_.fireVetoableChange("columns", new Integer(old), new Integer(columns) );
 
-       columns_ = columns;
+        columns_ = columns;
 
-       changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) );
+        changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) );
     }
 
     /**
@@ -296,15 +294,15 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setDirection(String dir)                                     //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -324,10 +322,10 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setLanguage(String lang)                                      //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
         vetos_.fireVetoableChange("lang", old, lang );

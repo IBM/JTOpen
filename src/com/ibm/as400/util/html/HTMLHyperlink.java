@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLHyperlink.java
 //                                                                             
@@ -207,8 +207,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
         if ((dir_ != null) && (dir_.length() > 0))
             return " dir=\"" + dir_ + "\"";
@@ -233,8 +232,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     **/                                                                               
     String getLanguageAttributeTag()                                                  //$B1A
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
         if ((lang_ != null) && (lang_.length() > 0))
             return " lang=\"" + lang_ + "\"";
@@ -348,8 +346,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     **/
     public String getTag(String text, String name, String link, Properties properties)                         //$B2A
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Generating HTMLHyperlink tag...");
+        //@C1D
 
         // Verify that the link has been set.
         if (link == null)

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLHead.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ import java.beans.PropertyChangeListener;
 **/
 public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable     // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private String title_;       // The title to use for HTML document.
     private String lang_;        // The primary language used to display the tags contents.
@@ -76,7 +76,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public HTMLHead()
     {
-       super();
+        super();
     }
 
 
@@ -116,11 +116,10 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public void addMetaInformation(HTMLMeta meta)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Adding meta information to HTMLHead.");
+        //@B1D
 
         if (meta == null)
-           throw new NullPointerException("meta");
+            throw new NullPointerException("meta");
 
         list_.addElement(meta);
 
@@ -135,26 +134,28 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public void addMetaInformationElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.addElement(listener);
+        elementListeners.addElement(listener);
     }
 
 
     /**
     *  Fires the element event.
     **/
-    private void fireElementEvent(int evt) {
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -175,13 +176,12 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     String getDirectionAttributeTag()
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@B1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-          return " dir=\"" + dir_ + "\"";
-       else
-          return "";
+        if ((dir_ != null) && (dir_.length() > 0))
+            return " dir=\"" + dir_ + "\"";
+        else
+            return "";
     }
 
 
@@ -201,13 +201,12 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     String getLanguageAttributeTag()
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@B1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-          return " lang=\"" + lang_ + "\"";
-       else
-          return "";
+        if ((lang_ != null) && (lang_.length() > 0))
+            return " lang=\"" + lang_ + "\"";
+        else
+            return "";
     }
 
 
@@ -217,14 +216,13 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLHead tag...");
+        //@B1D
 
         if (title_ == null && list_.isEmpty())
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting the title or adding meta information to the head.");
-           throw new ExtendedIllegalStateException(
-               "title/meta", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting the title or adding meta information to the head.");
+            throw new ExtendedIllegalStateException(
+                                                   "title/meta", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("");
@@ -243,12 +241,12 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
         if (title_ != null)
         {
-           s.append("<title" );
-           s.append(getLanguageAttributeTag());
-           s.append(getDirectionAttributeTag());
-           s.append(">");
-           s.append(title_);
-           s.append("</title>\n");
+            s.append("<title" );
+            s.append(getLanguageAttributeTag());
+            s.append(getDirectionAttributeTag());
+            s.append(">");
+            s.append(title_);
+            s.append("</title>\n");
         }
 
         s.append("</head>\n");
@@ -274,10 +272,10 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
      **/
     public void removeMetaInformationElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.removeElement(listener);
+        elementListeners.removeElement(listener);
     }
 
 
@@ -285,7 +283,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -300,18 +298,17 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     public void removeMetaInformation(HTMLMeta meta)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Removing meta information from HTMLHead.");
+        //@B1D
 
         if (meta == null)
-           throw new NullPointerException("meta");
+            throw new NullPointerException("meta");
 
-        if(list_.removeElement(meta))
-           fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+        if (list_.removeElement(meta))
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
 
-    
+
     /**
     *  Sets the <i>direction</i> of the text interpretation.  Setting the direction
     *  will add the dir attribute to both the <i>head</i> tag and the
@@ -326,12 +323,12 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     public void setDirection(String dir)
     {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -354,7 +351,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     public void setLanguage(String lang)
     {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 
@@ -371,13 +368,13 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     public void setTitle(String title)
     {
         if (title == null)
-           throw new NullPointerException("title");
+            throw new NullPointerException("title");
 
         if (title.length() == 0)
-          throw new ExtendedIllegalArgumentException("title", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("title", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting title for <head>.");
+            Trace.log(Trace.INFORMATION, "   Setting title for <head>.");
 
         String old = title_;
 

@@ -59,8 +59,9 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     public FormInput(String name)
     {
         this();
-        try {
-           setName(name);
+        try
+        {
+            setName(name);
         }
         catch (PropertyVetoException e)
         {
@@ -76,8 +77,9 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     public FormInput(String name, String value)
     {
         this(name);
-        try {
-           setValue(value);
+        try
+        {
+            setValue(value);
         }
         catch (PropertyVetoException e)
         {
@@ -85,7 +87,7 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     }
 
 
-    
+
     /**
      * Adds the VetoableChangeListener.  The specified VetoableChangeListener's
      * <b>vetoableChange</b> method will be called each time the value of any
@@ -97,9 +99,9 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-      if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-      vetos_.addVetoableChangeListener(listener);
+        vetos_.addVetoableChangeListener(listener);
     }
 
 
@@ -136,7 +138,7 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     *  @return The initial value.
     **/
     public String getValue()
-    {   
+    {
         return value_;
     }
 
@@ -157,19 +159,18 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" dir=\"");
-          buffer.append(dir_);
-          buffer.append("\"");
-          
-          return buffer.toString();
-       }
-       else
-          return "";
+        if ((dir_ != null) && (dir_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" dir=\"");
+            buffer.append(dir_);
+            buffer.append("\"");
+
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
 
@@ -179,41 +180,39 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     **/                                                                               
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" lang=\"");
-          buffer.append(lang_);
-          buffer.append("\"");
+        if ((lang_ != null) && (lang_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" lang=\"");
+            buffer.append(lang_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
-    
+
     /**
     *  Returns the name attribute tag.
     *  @return The name tag.
     **/
     String getNameAttributeTag()
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving name attribute tag.");
+        //@C1D
 
-       if ((name_ != null) && (name_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" name=\"");
-          buffer.append(name_);
-          buffer.append("\"");
+        if ((name_ != null) && (name_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" name=\"");
+            buffer.append(name_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
     /**
@@ -222,19 +221,18 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     **/
     String getSizeAttributeTag()
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving size attribute tag.");
+        //@C1D
 
-       if (size_ > 0)
-       {
-          StringBuffer buffer = new StringBuffer(" size=\"");
-          buffer.append(size_);
-          buffer.append("\"");
+        if (size_ > 0)
+        {
+            StringBuffer buffer = new StringBuffer(" size=\"");
+            buffer.append(size_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
     /**
@@ -244,32 +242,31 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     **/
     String getValueAttributeTag(boolean encode)
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving value attribute tag.");
-       
-       if ((value_ != null) && (value_.length() > 0))
-       {
-          if (Trace.isTraceOn())
-             Trace.log(Trace.DIAGNOSTIC, "   URL value needs Encoding: " + encode);
+        //@C1D
 
-          if (encode) 
-             value_ = URLEncoder.encode(value_);
+        if ((value_ != null) && (value_.length() > 0))
+        {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.DIAGNOSTIC, "   URL value needs Encoding: " + encode);
 
-          StringBuffer buffer = new StringBuffer(" value=\"");
-          buffer.append(value_);
-          buffer.append("\"");
+            if (encode)
+                value_ = URLEncoder.encode(value_);
 
-          return buffer.toString();
-       }
-       else 
-          return "";
+            StringBuffer buffer = new StringBuffer(" value=\"");
+            buffer.append(value_);
+            buffer.append("\"");
+
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
     /**
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          //$A1A
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
 
@@ -277,8 +274,8 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
         vetos_ = new VetoableChangeSupport(this);
     }
 
-    
- 
+
+
     /**
     Removes the VetoableChangeListener from the internal list.
     If the VetoableChangeListener is not on the list, nothing is done.
@@ -287,9 +284,9 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       vetos_.removeVetoableChangeListener(listener);
+        vetos_.removeVetoableChangeListener(listener);
     }
 
 
@@ -303,15 +300,15 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setDirection(String dir)                                     //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {   
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
-        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -331,10 +328,10 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setLanguage(String lang)                                      //$B1A
-         throws PropertyVetoException
+    throws PropertyVetoException
     {   
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
         vetos_.fireVetoableChange("lang", old, lang );
@@ -351,11 +348,11 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setName(String name)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {   
         if (name == null)
-           throw new NullPointerException("name");
-        
+            throw new NullPointerException("name");
+
         String old = name_;
         vetos_.fireVetoableChange("name", old, name );
 
@@ -373,10 +370,10 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setSize(int size)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
         if (size < 0)
-           throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = size_;
         vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) );
@@ -393,10 +390,10 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setValue(String value)
-         throws PropertyVetoException
+    throws PropertyVetoException
     {   
         if (value == null)
-           throw new NullPointerException("value");
+            throw new NullPointerException("value");
 
         String old = value_;
         vetos_.fireVetoableChange("value", old, value );

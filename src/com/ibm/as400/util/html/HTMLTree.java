@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLTree.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,491 +169,488 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 **/
 public class HTMLTree implements HTMLTagElement, java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-  private Vector branches_;
-  private HttpServletRequest request_;
-  private boolean sort_ = true;            // @A1A
-  transient private Collator  collator_;      // @A1A   @B2C
+    private Vector branches_;
+    private HttpServletRequest request_;
+    private boolean sort_ = true;            // @A1A
+    transient private Collator  collator_;      // @A1A   @B2C
 
-  transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-  transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+    transient private Vector elementListeners = new Vector();      // The list of element listeners
 
 
-  /**
-   *  Constructs a default HTMLTree object.
-   **/
-  public HTMLTree()
-  {
-    super();
-
-    // @B2A
-    // If the locale is Korean, then this throws
-    // an ArrayIndexOutOfBoundsException.  This is
-    // a bug in the JDK.  The workarond in that case
-    // is just to use String.compareTo().
-    try                                                                            // @B2A
+    /**
+     *  Constructs a default HTMLTree object.
+     **/
+    public HTMLTree()
     {
-      collator_ = Collator.getInstance ();                           // @B2A
-      collator_.setStrength (Collator.PRIMARY);                // @B2A
-    }
-    catch (Exception e)                                                    // @B2A
-    {
-      collator_ = null;                                                      // @B2A
-    }
-
-    branches_ = new Vector();
-  }
-
-
-  /**
-   *  Constructs an HTMLTree object with the specified HttpServletRequest.
-   *  The request is the mechanism used to provide continuity while expanding
-   *  and collapsing the tree.
-   **/
-  public HTMLTree(HttpServletRequest request)
-  {
-    this();
-    setHttpServletRequest(request);
-  }
-
-
-  /**
-   *  Adds an HTMLTreeElement to the tree.
-   *
-   *  @param element The HTMLTreeElement.
-   **/
-  public void addElement(HTMLTreeElement element)
-  {
-    if (element == null)
-      throw new NullPointerException("element");
-
-    if (Trace.isTraceOn())
-      Trace.log(Trace.INFORMATION, "Adding HTMLTreeElement to the tree.");
-
-    branches_.addElement(element);
-
-    fireElementEvent(ElementEvent.ELEMENT_ADDED);
-  }
-
-
-  /**
-    * Adds an addElementListener.
-    * The specified addElementListeners <b>elementAdded</b> method will
-    * be called each time a RadioFormInput is added to the group.
-    * The addElementListener object is added to a list of addElementListeners
-    * managed by this RadioFormInputGroup. It can be removed with removeElementListener.
-    *
-    * @see #removeElementListener
-    *
-    * @param listener The ElementListener.
-   **/
-  public void addElementListener(ElementListener listener)
-  {
-    if (listener == null)
-      throw new NullPointerException ("listener");
-    elementListeners.addElement(listener);
-  }
-
-  /**
-  *  Adds a PropertyChangeListener.  The specified
-  *  PropertyChangeListener's <b>propertyChange</b>
-  *  method is called each time the value of any
-  *  bound property is changed.
-  *
-  *  @see #removePropertyChangeListener
-  *  @param listener The PropertyChangeListener.
- **/
-  public void addPropertyChangeListener(PropertyChangeListener listener)
-  {
-    if (listener == null)
-      throw new NullPointerException("listener");
-    changes_.addPropertyChangeListener(listener);
-  }
-
-
-  /**
-  *  Deserializes and initializes transient data.
-  **/
-  private void readObject(java.io.ObjectInputStream in)
-  throws java.io.IOException, ClassNotFoundException
-  {
-    // @B2A
-    // If the locale is Korean, then this throws
-    // an ArrayIndexOutOfBoundsException.  This is
-    // a bug in the JDK.  The workarond in that case
-    // is just to use String.compareTo().
-    try                                                                            // @B2A
-    {
-      collator_ = Collator.getInstance ();                           // @B2A
-      collator_.setStrength (Collator.PRIMARY);                // @B2A
-    }
-    catch (Exception e)                                                    // @B2A
-    {
-      collator_ = null;                                                      // @B2A
-    }
-
-    in.defaultReadObject();
-
-    changes_ = new PropertyChangeSupport(this);
-    elementListeners = new Vector();
-  }
-
-
-  /**
-   *  Removes an HTMLTreeElement from the tree.
-   *
-   *  @param element The HTMLTreeElement.
-   **/
-  public void removeElement(HTMLTreeElement element)
-  {
-    if (element == null)
-      throw new NullPointerException("element");
-
-    if (Trace.isTraceOn())
-      Trace.log(Trace.INFORMATION, "Removing HTMLTreeElement from the tree.");
-
-    if (branches_.removeElement(element))
-      fireElementEvent(ElementEvent.ELEMENT_REMOVED);
-  }
-
-
-  /**
-    * Removes this ElementListener from the internal list.
-    * If the ElementListener is not on the list, nothing is done.
-    *
-    * @see #addElementListener
-    *
-    * @param listener The ElementListener.
-   **/
-  public void removeElementListener(ElementListener listener)
-  {
-    if (listener == null)
-      throw new NullPointerException ("listener");
-    elementListeners.removeElement(listener);
-  }
-
-
-  /**
-  *  Removes the PropertyChangeListener from the internal list.
-  *  If the PropertyChangeListener is not on the list, nothing is done.
-  *
-  *  @see #addPropertyChangeListener
-  *  @param listener The PropertyChangeListener.
- **/
-  public void removePropertyChangeListener(PropertyChangeListener listener)
-  {
-    if (listener == null)
-      throw new NullPointerException("listener");
-    changes_.removePropertyChangeListener(listener);
-  }
-
-
-  /**
-  *  Fires the element event.
-  **/
-  private void fireElementEvent(int evt)
-  {
-    Vector targets;
-    targets = (Vector) elementListeners.clone();
-    ElementEvent elementEvt = new ElementEvent(this, evt);
-    for (int i = 0; i < targets.size(); i++)
-    {
-      ElementListener target = (ElementListener)targets.elementAt(i);
-      if (evt == ElementEvent.ELEMENT_ADDED)
-        target.elementAdded(elementEvt);
-      else if (evt == ElementEvent.ELEMENT_REMOVED)
-        target.elementRemoved(elementEvt);
-    }
-  }
-
-
-  /**
-   *  Returns the HttpServletRequest.
-   *
-   *  @return The request.
-   **/
-  public HttpServletRequest getHttpServletRequest()
-  {
-    return request_;
-  }
-
-
-  /**
-   *  Returns the Collator.
-   *
-   *  @return The collator.
-   **/
-  public Collator getCollator()                // @B2A
-  {
-    return collator_;
-  }
-
-
-  /**
-   *  Returns the HTMLTree tag.
-   *
-   *  @return The tag.
-   **/
-  public String getTag()
-  {
-    if (Trace.isTraceOn())
-      Trace.log(Trace.INFORMATION, "Generating HTMLTree tag...");
-
-    if (request_ == null)
-      throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET );
-
-    // Get the hashcode parameter from the HTTP request.
-    String hcStr = request_.getParameter("hashcode");                          // @B1C
-
-    StringBuffer buf1 = new StringBuffer("<table cellpadding=\"0\" cellspacing=\"3\">\n");
-
-
-    if (sort_)                          // @A1A
-      branches_ = sort(collator_, branches_);     // @A1A  @B2C
-
-    for (int i=0; i<branches_.size(); i++)
-    {
-      HTMLTreeElement node = (HTMLTreeElement)branches_.elementAt(i);
-
-      // expand/contract tree
-      if (hcStr != null)
-      {
-        int hc = Integer.parseInt(hcStr);
-        node.selected(hc);
-      }
-
-      buf1.append(node.getTag());
-    }
-
-    buf1.append("</table>\n");
-
-
-    return buf1.toString();
-  }
-
-
-  /**
-   *  Sets the <i>collator</i>.  The collator allows the tree to perform
-   *  locale-sensitive String comparisons when sorting the tree elements. 
-   *
-   *  @param collator The Collator.
-   **/
-  public void setCollator(Collator collator)           // @B2A
-  {
-    if (collator == null)
-      throw new NullPointerException("collator");
-
-    Collator old = collator_;
-
-    collator_ = collator;
-
-    changes_.firePropertyChange("collator", old, collator_);
-  }
-
-
-  /**
-   *  Sets the Http servlet <i>request</i>.  The request is the mechanism
-   *  used to provide continuity while expanding and collapsing the tree.
-   *
-   *  @param request The Http servlet request.
-   **/
-  public void setHttpServletRequest(HttpServletRequest request)
-  {
-    if (request == null)
-      throw new NullPointerException("request");
-
-    HttpServletRequest old = request_;
-
-    request_ = request;
-
-    changes_.firePropertyChange("request", old, request_);
-  }
-
-
-  /**
-    *  Sorts the elements within the HTMLTree.
-    *
-    *  @param sort true if the elements are sorted; false otherwise.
-    *              The default is true.
-    **/
-  public void sort(boolean sort)                                                  // @A1A
-  {
-    sort_ = sort;
-  }
-
-
-  /**
-   *  Sorts a vector of objects.
-   *
-   *  @param  collaotr The Collator, or null if the default Collator should be used.
-   *  @param  objects The objects.
-   *
-   *  @return The sorted Vector.
-   **/
-  static Vector sort (Collator collator, Vector list)                                                // @A1A  @B2C
-  {
-    heapSort(collator, list);                                                                             // @B2A
-
-    return list;
-  }
-
-
-  /**
-  *  Sorts an array of objects.
-  *
-  *  @param  collaotr The Collator, or null if the default Collator should be used.
-  *  @param  objects The objects.
-  **/
-  static void sort2 (Collator collator, Object[] objects)                                            // @A1A       @B2C
-  {
-    Vector v = new Vector();                                                                             // @B2C
-
-    for (int i=0; i<objects.length; i++)                                                                 // @B2C
-    {
-      // @B2C                
-      v.addElement(objects[i]);                                                                        // @B2C
-    }                                                                                                              // @B2C
-
-    heapSort(collator, v);                                                                                 // @B2C
-
-    v.copyInto(objects);                                                                                   // @B2C
-  }
-
-
-  /**
-   *  Method used to perform a heap sort,
-   *  which is faster than a quick sort and 
-   *  a bubble sort.
-   *
-   *  @param collator The collator.
-   *  @param sortlist The list to sort.
-   **/
-  private static void heapSort(Collator collator, Vector sortlist)                             // @B2A
-  {
-    int numberOfEntries = sortlist.size();
-    int i;
-    Object temp = null;
-
-    if (numberOfEntries > 0)
-    {
-      // convert table list map into a heap
-      for (i = (numberOfEntries/2); i != 0; i--)
-      {
-        adjustList(collator, sortlist,i,numberOfEntries);
-      }
-
-      // sort table list
-      for (i = (numberOfEntries - 1); i != 0; i--)
-      {
-        // swap first and last entries in heap to get largest remaining
-        // table name correctly placed
-        temp = sortlist.elementAt(i);
-        sortlist.setElementAt(sortlist.elementAt(0),i);
-        sortlist.setElementAt(temp,0);
-
-        // create new heap with the remaining nodes
-        adjustList(collator, sortlist,1,i);
-      }
-    }
-
-  }
-
-
-  /**
-   *  Utility routine used by heap sort
-   **/
-  private static void adjustList(Collator collator, Vector sortlist, int rootIndex, int maxIndex)          // @B2A
-  {
-    Object rootItem = sortlist.elementAt(rootIndex-1);
-    int j = rootIndex * 2;
-    Object itemAtJ = null;
-    Object itemAtJLess1 = null;
-    boolean done = false;
-
-    // traverse tree
-    while ((j <= maxIndex) && (done == false))
-    {
-      itemAtJLess1 = sortlist.elementAt(j-1);   
-
-      if (j < maxIndex)
-      {
-        itemAtJ = sortlist.elementAt(j);
-
-        // find greater table name of left and right child
-        if (sortCompare(collator, itemAtJLess1, itemAtJ) < 0)
+        super();
+
+        // @B2A
+        // If the locale is Korean, then this throws
+        // an ArrayIndexOutOfBoundsException.  This is
+        // a bug in the JDK.  The workarond in that case
+        // is just to use String.compareTo().
+        try                                                                            // @B2A
         {
-          j++; 
-          itemAtJLess1 = itemAtJ;
+            collator_ = Collator.getInstance ();                           // @B2A
+            collator_.setStrength (Collator.PRIMARY);                // @B2A
         }
-      }
+        catch (Exception e)                                                    // @B2A
+        {
+            collator_ = null;                                                      // @B2A
+        }
 
-      // if root table name is greater than max child
-      if (sortCompare(collator, rootItem, itemAtJLess1) >= 0)
-        done = true;
-
-      // root table name less than max child
-      else
-      {
-        // move max child up tree
-        sortlist.setElementAt(sortlist.elementAt(j-1),(j/2)-1);
-        // move to next level
-        j = j * 2;
-      }
+        branches_ = new Vector();
     }
 
-    // place original root in proper place
-    sortlist.setElementAt(rootItem,(j/2)-1);
-  }
+
+    /**
+     *  Constructs an HTMLTree object with the specified HttpServletRequest.
+     *  The request is the mechanism used to provide continuity while expanding
+     *  and collapsing the tree.
+     **/
+    public HTMLTree(HttpServletRequest request)
+    {
+        this();
+        setHttpServletRequest(request);
+    }
 
 
-  /** 
-   *  Compares two objects for the sort.
-   *
-   *  @param  objectI             The ith object.
-   *  @param  objectJ             The jth object.
-   *  @return  a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater
-   *                than the second.     
+    /**
+     *  Adds an HTMLTreeElement to the tree.
+     *
+     *  @param element The HTMLTreeElement.
+     **/
+    public void addElement(HTMLTreeElement element)
+    {
+        if (element == null)
+            throw new NullPointerException("element");
+
+        //@B3D
+
+        branches_.addElement(element);
+
+        fireElementEvent(ElementEvent.ELEMENT_ADDED);
+    }
+
+
+    /**
+      * Adds an addElementListener.
+      * The specified addElementListeners <b>elementAdded</b> method will
+      * be called each time a RadioFormInput is added to the group.
+      * The addElementListener object is added to a list of addElementListeners
+      * managed by this RadioFormInputGroup. It can be removed with removeElementListener.
+      *
+      * @see #removeElementListener
+      *
+      * @param listener The ElementListener.
+     **/
+    public void addElementListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        elementListeners.addElement(listener);
+    }
+
+    /**
+    *  Adds a PropertyChangeListener.  The specified
+    *  PropertyChangeListener's <b>propertyChange</b>
+    *  method is called each time the value of any
+    *  bound property is changed.
+    *
+    *  @see #removePropertyChangeListener
+    *  @param listener The PropertyChangeListener.
    **/
-  private static int sortCompare (Collator collator, Object objectI, Object objectJ)             // @A1A
-  {
-    Object valueI;
-    Object valueJ;
-
-    // When the object is a HTMLTreeElement or FileTreeElement the
-    // sort must be done against the name or viewable text
-    // of the element otherwise nothing will be sorted properly.
-    if (objectI instanceof FileTreeElement)
-    {                                                                                                           // @B2C
-      valueI = ((FileTreeElement)objectI).getFile().getName();
-      valueJ = ((FileTreeElement)objectJ).getFile().getName();
-    }
-    else if (objectI instanceof HTMLTreeElement)                                            // @B2C
+    public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-      valueI = ((HTMLTreeElement)objectI).getText();
-      valueJ = ((HTMLTreeElement)objectJ).getText();
+        if (listener == null)
+            throw new NullPointerException("listener");
+        changes_.addPropertyChangeListener(listener);
     }
-    else
+
+
+    /**
+    *  Deserializes and initializes transient data.
+    **/
+    private void readObject(java.io.ObjectInputStream in)
+    throws java.io.IOException, ClassNotFoundException
     {
-      valueI = objectI.toString();
-      valueJ = objectJ.toString();
+        // @B2A
+        // If the locale is Korean, then this throws
+        // an ArrayIndexOutOfBoundsException.  This is
+        // a bug in the JDK.  The workarond in that case
+        // is just to use String.compareTo().
+        try                                                                            // @B2A
+        {
+            collator_ = Collator.getInstance ();                           // @B2A
+            collator_.setStrength (Collator.PRIMARY);                // @B2A
+        }
+        catch (Exception e)                                                    // @B2A
+        {
+            collator_ = null;                                                      // @B2A
+        }
+
+        in.defaultReadObject();
+
+        changes_ = new PropertyChangeSupport(this);
+        elementListeners = new Vector();
     }
 
-    // Check for nulls.
-    if (valueI == null)
-      valueI = "";
-    if (valueJ == null)
-      valueJ = "";
 
-    int comparison = 0;
+    /**
+     *  Removes an HTMLTreeElement from the tree.
+     *
+     *  @param element The HTMLTreeElement.
+     **/
+    public void removeElement(HTMLTreeElement element)
+    {
+        if (element == null)
+            throw new NullPointerException("element");
 
-    // If they are equal, then use the next column.
-    if (collator != null)   // Otherwise, do the comparison using this column.
-      comparison = collator.compare (valueI.toString(), valueJ.toString());         // @B2C
-    else
-      comparison = valueI.toString().compareTo(valueJ.toString());                   // @B2C
+        //@B3D
 
-    // Return the value.
-    return comparison;
-  }
+        if (branches_.removeElement(element))
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+    }
+
+
+    /**
+      * Removes this ElementListener from the internal list.
+      * If the ElementListener is not on the list, nothing is done.
+      *
+      * @see #addElementListener
+      *
+      * @param listener The ElementListener.
+     **/
+    public void removeElementListener(ElementListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        elementListeners.removeElement(listener);
+    }
+
+
+    /**
+    *  Removes the PropertyChangeListener from the internal list.
+    *  If the PropertyChangeListener is not on the list, nothing is done.
+    *
+    *  @see #addPropertyChangeListener
+    *  @param listener The PropertyChangeListener.
+   **/
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        changes_.removePropertyChangeListener(listener);
+    }
+
+
+    /**
+    *  Fires the element event.
+    **/
+    private void fireElementEvent(int evt)
+    {
+        Vector targets;
+        targets = (Vector) elementListeners.clone();
+        ElementEvent elementEvt = new ElementEvent(this, evt);
+        for (int i = 0; i < targets.size(); i++)
+        {
+            ElementListener target = (ElementListener)targets.elementAt(i);
+            if (evt == ElementEvent.ELEMENT_ADDED)
+                target.elementAdded(elementEvt);
+            else if (evt == ElementEvent.ELEMENT_REMOVED)
+                target.elementRemoved(elementEvt);
+        }
+    }
+
+
+    /**
+     *  Returns the HttpServletRequest.
+     *
+     *  @return The request.
+     **/
+    public HttpServletRequest getHttpServletRequest()
+    {
+        return request_;
+    }
+
+
+    /**
+     *  Returns the Collator.
+     *
+     *  @return The collator.
+     **/
+    public Collator getCollator()                // @B2A
+    {
+        return collator_;
+    }
+
+
+    /**
+     *  Returns the HTMLTree tag.
+     *
+     *  @return The tag.
+     **/
+    public String getTag()
+    {
+        //@B3D
+
+        if (request_ == null)
+            throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+
+        // Get the hashcode parameter from the HTTP request.
+        String hcStr = request_.getParameter("hashcode");                          // @B1C
+
+        StringBuffer buf1 = new StringBuffer("<table cellpadding=\"0\" cellspacing=\"3\">\n");
+
+
+        if (sort_)                          // @A1A
+            branches_ = sort(collator_, branches_);     // @A1A  @B2C
+
+        for (int i=0; i<branches_.size(); i++)
+        {
+            HTMLTreeElement node = (HTMLTreeElement)branches_.elementAt(i);
+
+            // expand/contract tree
+            if (hcStr != null)
+            {
+                int hc = Integer.parseInt(hcStr);
+                node.selected(hc);
+            }
+
+            buf1.append(node.getTag());
+        }
+
+        buf1.append("</table>\n");
+
+
+        return buf1.toString();
+    }
+
+
+    /**
+     *  Sets the <i>collator</i>.  The collator allows the tree to perform
+     *  locale-sensitive String comparisons when sorting the tree elements. 
+     *
+     *  @param collator The Collator.
+     **/
+    public void setCollator(Collator collator)           // @B2A
+    {
+        if (collator == null)
+            throw new NullPointerException("collator");
+
+        Collator old = collator_;
+
+        collator_ = collator;
+
+        changes_.firePropertyChange("collator", old, collator_);
+    }
+
+
+    /**
+     *  Sets the Http servlet <i>request</i>.  The request is the mechanism
+     *  used to provide continuity while expanding and collapsing the tree.
+     *
+     *  @param request The Http servlet request.
+     **/
+    public void setHttpServletRequest(HttpServletRequest request)
+    {
+        if (request == null)
+            throw new NullPointerException("request");
+
+        HttpServletRequest old = request_;
+
+        request_ = request;
+
+        changes_.firePropertyChange("request", old, request_);
+    }
+
+
+    /**
+      *  Sorts the elements within the HTMLTree.
+      *
+      *  @param sort true if the elements are sorted; false otherwise.
+      *              The default is true.
+      **/
+    public void sort(boolean sort)                                                  // @A1A
+    {
+        sort_ = sort;
+    }
+
+
+    /**
+     *  Sorts a vector of objects.
+     *
+     *  @param  collaotr The Collator, or null if the default Collator should be used.
+     *  @param  objects The objects.
+     *
+     *  @return The sorted Vector.
+     **/
+    static Vector sort (Collator collator, Vector list)                                                // @A1A  @B2C
+    {
+        heapSort(collator, list);                                                                             // @B2A
+
+        return list;
+    }
+
+
+    /**
+    *  Sorts an array of objects.
+    *
+    *  @param  collaotr The Collator, or null if the default Collator should be used.
+    *  @param  objects The objects.
+    **/
+    static void sort2 (Collator collator, Object[] objects)                                            // @A1A       @B2C
+    {
+        Vector v = new Vector();                                                                             // @B2C
+
+        for (int i=0; i<objects.length; i++)                                                                 // @B2C
+        {
+            // @B2C                
+            v.addElement(objects[i]);                                                                        // @B2C
+        }                                                                                                              // @B2C
+
+        heapSort(collator, v);                                                                                 // @B2C
+
+        v.copyInto(objects);                                                                                   // @B2C
+    }
+
+
+    /**
+     *  Method used to perform a heap sort,
+     *  which is faster than a quick sort and 
+     *  a bubble sort.
+     *
+     *  @param collator The collator.
+     *  @param sortlist The list to sort.
+     **/
+    private static void heapSort(Collator collator, Vector sortlist)                             // @B2A
+    {
+        int numberOfEntries = sortlist.size();
+        int i;
+        Object temp = null;
+
+        if (numberOfEntries > 0)
+        {
+            // convert table list map into a heap
+            for (i = (numberOfEntries/2); i != 0; i--)
+            {
+                adjustList(collator, sortlist,i,numberOfEntries);
+            }
+
+            // sort table list
+            for (i = (numberOfEntries - 1); i != 0; i--)
+            {
+                // swap first and last entries in heap to get largest remaining
+                // table name correctly placed
+                temp = sortlist.elementAt(i);
+                sortlist.setElementAt(sortlist.elementAt(0),i);
+                sortlist.setElementAt(temp,0);
+
+                // create new heap with the remaining nodes
+                adjustList(collator, sortlist,1,i);
+            }
+        }
+
+    }
+
+
+    /**
+     *  Utility routine used by heap sort
+     **/
+    private static void adjustList(Collator collator, Vector sortlist, int rootIndex, int maxIndex)          // @B2A
+    {
+        Object rootItem = sortlist.elementAt(rootIndex-1);
+        int j = rootIndex * 2;
+        Object itemAtJ = null;
+        Object itemAtJLess1 = null;
+        boolean done = false;
+
+        // traverse tree
+        while ((j <= maxIndex) && (done == false))
+        {
+            itemAtJLess1 = sortlist.elementAt(j-1);   
+
+            if (j < maxIndex)
+            {
+                itemAtJ = sortlist.elementAt(j);
+
+                // find greater table name of left and right child
+                if (sortCompare(collator, itemAtJLess1, itemAtJ) < 0)
+                {
+                    j++; 
+                    itemAtJLess1 = itemAtJ;
+                }
+            }
+
+            // if root table name is greater than max child
+            if (sortCompare(collator, rootItem, itemAtJLess1) >= 0)
+                done = true;
+
+            // root table name less than max child
+            else
+            {
+                // move max child up tree
+                sortlist.setElementAt(sortlist.elementAt(j-1),(j/2)-1);
+                // move to next level
+                j = j * 2;
+            }
+        }
+
+        // place original root in proper place
+        sortlist.setElementAt(rootItem,(j/2)-1);
+    }
+
+
+    /** 
+     *  Compares two objects for the sort.
+     *
+     *  @param  objectI             The ith object.
+     *  @param  objectJ             The jth object.
+     *  @return  a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater
+     *                than the second.     
+     **/
+    private static int sortCompare (Collator collator, Object objectI, Object objectJ)             // @A1A
+    {
+        Object valueI;
+        Object valueJ;
+
+        // When the object is a HTMLTreeElement or FileTreeElement the
+        // sort must be done against the name or viewable text
+        // of the element otherwise nothing will be sorted properly.
+        if (objectI instanceof FileTreeElement)
+        {                                                                                                           // @B2C
+            valueI = ((FileTreeElement)objectI).getFile().getName();
+            valueJ = ((FileTreeElement)objectJ).getFile().getName();
+        }
+        else if (objectI instanceof HTMLTreeElement)                                            // @B2C
+        {
+            valueI = ((HTMLTreeElement)objectI).getText();
+            valueJ = ((HTMLTreeElement)objectJ).getText();
+        }
+        else
+        {
+            valueI = objectI.toString();
+            valueJ = objectJ.toString();
+        }
+
+        // Check for nulls.
+        if (valueI == null)
+            valueI = "";
+        if (valueJ == null)
+            valueJ = "";
+
+        int comparison = 0;
+
+        // If they are equal, then use the next column.
+        if (collator != null)   // Otherwise, do the comparison using this column.
+            comparison = collator.compare (valueI.toString(), valueJ.toString());         // @B2C
+        else
+            comparison = valueI.toString().compareTo(valueJ.toString());                   // @B2C
+
+        // Return the value.
+        return comparison;
+    }
 }

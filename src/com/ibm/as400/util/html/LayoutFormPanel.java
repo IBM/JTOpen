@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: LayoutFormPanel.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ import java.beans.VetoableChangeSupport;
 **/
 public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private Vector list;         // The list of form elements.
     private int cols;            // The number of columns in the layout.
@@ -57,11 +57,10 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     public void addElement(HTMLTagElement element)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Adding HTMLTagElement to the panel.");
+        //@B1D
 
         if (element == null)
-           throw new NullPointerException("element");
+            throw new NullPointerException("element");
 
         list.addElement(element);
 
@@ -77,25 +76,27 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     public void addElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners_.addElement(listener);
+        elementListeners_.addElement(listener);
     }
 
     /**
     *  Fires the element event.
     **/
-    private void fireElementEvent(int evt) {
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners_.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -106,7 +107,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     HTMLTagElement getElement(int index)
     {
-       return (HTMLTagElement)list.elementAt(index);
+        return(HTMLTagElement)list.elementAt(index);
     }
 
     /**
@@ -115,7 +116,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     public int getSize()
     {
-       return list.size();
+        return list.size();
     }
 
 
@@ -123,7 +124,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          //$A1A
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
 
@@ -138,14 +139,13 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     public void removeElement(HTMLTagElement element)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Removing HTMLTag Element from the panel.");
+        //@B1D
 
         if (element == null)
-           throw new NullPointerException("element");
+            throw new NullPointerException("element");
 
         if (list.removeElement(element))
-           fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
     /**
@@ -156,9 +156,9 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     public void removeElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
-       elementListeners_.removeElement(listener);
+        if (listener == null)
+            throw new NullPointerException("listener");
+        elementListeners_.removeElement(listener);
     }
 
     /**

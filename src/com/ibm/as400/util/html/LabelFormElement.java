@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: LabelFormElement.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ import java.beans.PropertyVetoException;
 **/
 public class LabelFormElement implements HTMLTagElement, java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private String label_;
 
@@ -54,12 +54,13 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     **/
     public LabelFormElement(String label)
     {
-       try {
-          setLabel(label);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        try
+        {
+            setLabel(label);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
 
@@ -74,13 +75,13 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       changes_.addPropertyChangeListener(listener);
+        changes_.addPropertyChangeListener(listener);
     }
 
 
-    
+
     /**
      * Adds the VetoableChangeListener.  The specified VetoableChangeListener's
      * <b>vetoableChange</b> method will be called each time the value of any
@@ -92,9 +93,9 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-       vetos_.addVetoableChangeListener(listener);
+        vetos_.addVetoableChangeListener(listener);
     }
 
     /**
@@ -103,7 +104,7 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     **/
     public String getLabel()
     {
-       return label_;
+        return label_;
     }
 
     /**
@@ -112,14 +113,13 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating LabelFormElement tag...");
+        //@B1D
 
         if (label_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting label.");
-           throw new ExtendedIllegalStateException(
-               "label", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting label.");
+            throw new ExtendedIllegalStateException(
+                                                   "label", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         return label_;
@@ -129,7 +129,7 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          //$A1A
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
 
@@ -148,13 +148,13 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
-       if (listener == null)
+        if (listener == null)
             throw new NullPointerException ("listener");
-      changes_.removePropertyChangeListener(listener);
+        changes_.removePropertyChangeListener(listener);
     }
 
-    
- 
+
+
     /**
      * Removes the VetoableChangeListener from the internal list.
      * If the VetoableChangeListener is not on the list, nothing is done.
@@ -164,9 +164,9 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-       if (listener == null)
-            throw new NullPointerException ("listener"); 
-       vetos_.removeVetoableChangeListener(listener);
+        if (listener == null)
+            throw new NullPointerException ("listener");
+        vetos_.removeVetoableChangeListener(listener);
     }
 
     /**
@@ -176,17 +176,17 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     *  @exception PropertyVetoException If a change is vetoed.
     **/
     public void setLabel(String label)
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (label == null)
-          throw new NullPointerException("label");
+        if (label == null)
+            throw new NullPointerException("label");
 
-       String old = label_;
-       vetos_.fireVetoableChange("label", old, label );
+        String old = label_;
+        vetos_.fireVetoableChange("label", old, label );
 
-       label_ = label;
+        label_ = label;
 
-       changes_.firePropertyChange("label", old, label );
+        changes_.firePropertyChange("label", old, label );
     }
 
     /**

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: URLEncoder.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ import java.util.StringTokenizer;
 **/
 public class URLEncoder 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     /**
@@ -69,8 +69,7 @@ public class URLEncoder
         if (url == null)                                                        //$B1A
             throw new NullPointerException("url");                //$B1A
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "   Preparing to encode URL string.");
+        //@C3A
 
         if (encodePath)                                                         // @B2A
             return java.net.URLEncoder.encode(url);                 // @B2A

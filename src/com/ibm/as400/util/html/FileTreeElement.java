@@ -307,8 +307,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
    **/
   public void selected(int hashcode)
   {
-    if (Trace.isTraceOn())
-      Trace.log(Trace.INFORMATION, "   FileTreeElement has been selected.");
+    // @C1D
 
     if (hashcode == this.hashCode())
     {
@@ -414,9 +413,6 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
             }                                                                                               // @B1A
             else                                                                                            // @B1A
               sl.setPathInfo(files[i].getAbsolutePath().replace('\\','/'));      // @A2C @A3C
-
-            if (Trace.isTraceOn())                                                                          // @B1A
-              Trace.log(Trace.INFORMATION, "FileTree path Info: " + sl.getPathInfo());                    // @B1A
 
             try
             {

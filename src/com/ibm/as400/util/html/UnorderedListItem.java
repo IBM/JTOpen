@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: UnorderedListItem.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ import java.beans.PropertyChangeSupport;
 **/
 public class UnorderedListItem extends HTMLListItem
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private String type_;           //The labeling scheme used to display the unordered list item <li>.
 
@@ -62,7 +62,7 @@ public class UnorderedListItem extends HTMLListItem
     **/
     public UnorderedListItem()
     {
-       super();
+        super();
     }
 
 
@@ -76,7 +76,7 @@ public class UnorderedListItem extends HTMLListItem
 
         setItemData(data);
     }  
-    
+
 
     /**
     *  Returns the type attribute.
@@ -84,23 +84,22 @@ public class UnorderedListItem extends HTMLListItem
     **/
     String getTypeAttribute()
     {
-       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Retrieving type attribute tag.");
+        //@B1D
 
-       StringBuffer s = new StringBuffer("");
+        StringBuffer s = new StringBuffer("");
 
-       if (type_ != null)
-       {                                    
-          if(type_.equals(HTMLConstants.DISC))
-             s.append(" type=\"disc\"");
-          else if(type_.equals(HTMLConstants.SQUARE))
-             s.append(" type=\"square\"");
-          else if(type_.equals(HTMLConstants.CIRCLE))
-             s.append(" type=\"circle\"");
-          return new String(s);
-       }
-       else
-          return "";
+        if (type_ != null)
+        {
+            if (type_.equals(HTMLConstants.DISC))
+                s.append(" type=\"disc\"");
+            else if (type_.equals(HTMLConstants.SQUARE))
+                s.append(" type=\"square\"");
+            else if (type_.equals(HTMLConstants.CIRCLE))
+                s.append(" type=\"circle\"");
+            return new String(s);
+        }
+        else
+            return "";
 
     }
 
@@ -119,12 +118,12 @@ public class UnorderedListItem extends HTMLListItem
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
     }
-    
+
 
 
     /**
@@ -140,19 +139,19 @@ public class UnorderedListItem extends HTMLListItem
     public void setType(String type)
     {
         if (type == null)
-         throw new NullPointerException("type");
-       
+            throw new NullPointerException("type");
+
         // If type is not one of the valid HTMLConstants, throw an exception.
-        if ( !(type.equals(HTMLConstants.DISC))  && !(type.equals(HTMLConstants.CIRCLE)) && !(type.equals(HTMLConstants.SQUARE)) ) 
+        if ( !(type.equals(HTMLConstants.DISC))  && !(type.equals(HTMLConstants.CIRCLE)) && !(type.equals(HTMLConstants.SQUARE)) )
         {
-           throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-        
+
         if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting labeling type for <li>.");
+            Trace.log(Trace.INFORMATION, "   Setting labeling type for <li>.");
 
         String old = type_;
-        
+
         type_ = type;
 
         changes_.firePropertyChange("type", old, type );

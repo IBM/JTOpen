@@ -28,51 +28,47 @@ public class FileFormInput extends FormInput
 {   
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   
-   /**
-   *  Constructs a default FileFormInput object.
-   **/
-   public FileFormInput()
-   {        
-      super();
+    /**
+    *  Constructs a default FileFormInput object.
+    **/
+    public FileFormInput()
+    {
+        super();
 
-   }
+    }
 
-   /**
-   *  Constructs a FileFormInput object with the specified control <i>name</i>.
-   *  @param name The control name of the input field.
-   **/
-   public FileFormInput(String name)
-   {
-       super(name);
-   }
+    /**
+    *  Constructs a FileFormInput object with the specified control <i>name</i>.
+    *  @param name The control name of the input field.
+    **/
+    public FileFormInput(String name)
+    {
+        super(name);
+    }
 
-   /**
-   *  Returns the tag for the file form input type.
-   *  @return The tag.
-   **/
-   public String getTag()
-   {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Generating FileFormInput tag...");
+    /**
+    *  Returns the tag for the file form input type.
+    *  @return The tag.
+    **/
+    public String getTag()
+    {
+        if (getName() == null)
+        {
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+        }
 
-       if (getName() == null)
-       {
-          Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-          throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
-       }
+        StringBuffer s = new StringBuffer("<input type=\"file\"");
 
-       StringBuffer s = new StringBuffer("<input type=\"file\"");
+        s.append(getNameAttributeTag());
+        s.append(getValueAttributeTag(true));
+        s.append(getSizeAttributeTag());
+        s.append(getLanguageAttributeTag());                                      //$B1A
+        s.append(getDirectionAttributeTag());                                     //$B1A
+        s.append(getAttributeString());                                           // @Z1A
+        s.append(" />");
 
-       s.append(getNameAttributeTag());
-       s.append(getValueAttributeTag(true));
-       s.append(getSizeAttributeTag());
-       s.append(getLanguageAttributeTag());                                      //$B1A
-       s.append(getDirectionAttributeTag());                                     //$B1A
-       s.append(getAttributeString());                                           // @Z1A
-       s.append(" />");
-
-       return s.toString();
-   }
+        return s.toString();
+    }
 }

@@ -95,11 +95,8 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public void addItem(HTMLTagElement data)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Adding element to the BidiOrdering.");
-
         if (data == null)
-           throw new NullPointerException("data");
+            throw new NullPointerException("data");
 
         list_.addElement(data);
 
@@ -114,11 +111,8 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public void addItem(String data)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Adding element to the BidiOrdering.");
-
         if (data == null)
-           throw new NullPointerException("data");
+            throw new NullPointerException("data");
 
         list_.addElement(new HTMLText(data));
 
@@ -133,37 +127,39 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public void addItemElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.addElement(listener);
+        elementListeners.addElement(listener);
     }
 
 
-    
+
     /**
      *  This method is used to remove all elements contained
      *  within the BidiOrdering list.
      **/
     void clear()
     {
-       list_.removeAllElements();
+        list_.removeAllElements();
     }
 
 
     /**
     *  Fires the element event.
     **/
-    private void fireElementEvent(int evt) {
+    private void fireElementEvent(int evt)
+    {
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
-        for (int i = 0; i < targets.size(); i++) {
+        for (int i = 0; i < targets.size(); i++)
+        {
             ElementListener target = (ElementListener)targets.elementAt(i);
             if (evt == ElementEvent.ELEMENT_ADDED)
-               target.elementAdded(elementEvt);
+                target.elementAdded(elementEvt);
             else if (evt == ElementEvent.ELEMENT_REMOVED)
-               target.elementRemoved(elementEvt);
+                target.elementRemoved(elementEvt);
         }
     }
 
@@ -194,7 +190,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public Vector getItems()
     {
-       return list_;
+        return list_;
     }
 
 
@@ -204,28 +200,25 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating BidiOrdering tag...");
-
         // the direction is the only required tag
         if (dir_ == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting direction.");
-           throw new ExtendedIllegalStateException(
-               "dir", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting direction.");
+            throw new ExtendedIllegalStateException(
+                                                   "dir", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
-        if(list_.isEmpty())
+        if (list_.isEmpty())
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before adding items to list.");
-           throw new ExtendedIllegalStateException(
-               "data", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before adding items to list.");
+            throw new ExtendedIllegalStateException(
+                                                   "data", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("\n<bdo");
 
         if (lang_ != null)
-           s.append(" lang=\"" + lang_ + "\"");
+            s.append(" lang=\"" + lang_ + "\"");
 
         s.append(" dir=\"" + dir_ + "\"");
         s.append(getAttributeString());           // @Z1A
@@ -250,14 +243,11 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     public void removeItem(HTMLTagElement data)
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Removing element from alignment group.");
-
         if (data == null)
-           throw new NullPointerException("data");
+            throw new NullPointerException("data");
 
-        if(list_.removeElement(data))
-           fireElementEvent(ElementEvent.ELEMENT_REMOVED);
+        if (list_.removeElement(data))
+            fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
 
@@ -268,10 +258,10 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
      **/
     public void removeItemElementListener(ElementListener listener)
     {
-       if (listener == null)
-          throw new NullPointerException("listener");
+        if (listener == null)
+            throw new NullPointerException("listener");
 
-       elementListeners.removeElement(listener);
+        elementListeners.removeElement(listener);
     }
 
 
@@ -279,7 +269,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
 
@@ -288,7 +278,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
         elementListeners = new Vector();
     }
 
-    
+
 
     /**
     *  Sets the <i>direction</i> of the text interpretation.
@@ -301,12 +291,12 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     public void setDirection(String dir)
     {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
         if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
         {
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         String old = dir_;
@@ -326,7 +316,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     public void setLanguage(String lang)
     {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 

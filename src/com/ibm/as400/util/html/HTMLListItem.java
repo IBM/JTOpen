@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: HTMLListItem.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,15 +32,15 @@ import java.beans.PropertyChangeListener;
 **/
 abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.Serializable // @Z1C
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    
+
     private HTMLTagElement listData_;     // Data being added to the list item
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
-    
+
 
     /**
     *  Returns the type attribute.
@@ -53,7 +53,7 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     *  Deserializes and initializes transient data.
     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -76,19 +76,18 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     **/
     String getDirectionAttributeTag()                                                 //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tag.");
+        //@C1D
 
-       if ((dir_ != null) && (dir_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" dir=\"");
-          buffer.append(dir_);
-          buffer.append("\"");
+        if ((dir_ != null) && (dir_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" dir=\"");
+            buffer.append(dir_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
 
@@ -118,19 +117,18 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     **/                                                                               
     String getLanguageAttributeTag()                                                  //$B1A
     {
-       if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
+        //@C1D
 
-       if ((lang_ != null) && (lang_.length() > 0))
-       {
-          StringBuffer buffer = new StringBuffer(" lang=\"");
-          buffer.append(lang_);
-          buffer.append("\"");
+        if ((lang_ != null) && (lang_.length() > 0))
+        {
+            StringBuffer buffer = new StringBuffer(" lang=\"");
+            buffer.append(lang_);
+            buffer.append("\"");
 
-          return buffer.toString();
-       }
-       else
-          return "";
+            return buffer.toString();
+        }
+        else
+            return "";
     }
 
 
@@ -140,24 +138,23 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     **/
     public String getTag()
     {
-       if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Generating HTMLListItem tag....");
+        //@C1D
 
-       StringBuffer s = new StringBuffer("<li");
-       
-       s.append(getTypeAttribute());
-       s.append(getLanguageAttributeTag());                                          //$B1A
-       s.append(getDirectionAttributeTag());                                         //$B1A
-       s.append(getAttributeString());                                               // @Z1A
-       s.append(">");
-       s.append(listData_.getTag());
-       s.append("</li>\n");
+        StringBuffer s = new StringBuffer("<li");
 
-       return s.toString();
+        s.append(getTypeAttribute());
+        s.append(getLanguageAttributeTag());                                          //$B1A
+        s.append(getDirectionAttributeTag());                                         //$B1A
+        s.append(getAttributeString());                                               // @Z1A
+        s.append(">");
+        s.append(listData_.getTag());
+        s.append("</li>\n");
+
+        return s.toString();
     }
 
 
-    
+
     /**
     *  Sets the <i>direction</i> of the text interpretation.
     *  @param dir The direction.  One of the following constants
@@ -167,13 +164,13 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     *
     **/
     public void setDirection(String dir)                                     //$B1A
-    {   
+    {
         if (dir == null)
-           throw new NullPointerException("dir");
+            throw new NullPointerException("dir");
 
         // If direction is not one of the valid HTMLConstants, throw an exception.
-        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) ) 
-           throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if ( !(dir.equals(HTMLConstants.LTR))  && !(dir.equals(HTMLConstants.RTL)) )
+            throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         String old = dir_;
 
@@ -182,7 +179,7 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
         changes_.firePropertyChange("dir", old, dir );
     }
 
-    
+
     /**
      *  Sets the item data in the HTMLListItem.
      *
@@ -191,14 +188,13 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
      **/
     public void setItemData(HTMLTagElement data)
     {
-        if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "   Setting HTMLListItem data.");
+        //@C1D
 
         if (data == null)
-         throw new NullPointerException("data");
-        
+            throw new NullPointerException("data");
+
         HTMLTagElement old = listData_;
-        
+
         listData_ = data;
 
         changes_.firePropertyChange("data", old, data );
@@ -212,9 +208,9 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     *
     **/
     public void setLanguage(String lang)                                      //$B1A
-    {   
+    {
         if (lang == null)
-           throw new NullPointerException("lang");
+            throw new NullPointerException("lang");
 
         String old = lang_;
 

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: RadioFormInput.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -34,15 +34,15 @@ import java.beans.PropertyVetoException;
 **/
 public class RadioFormInput extends ToggleFormInput
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    
+
     /**
     *  Constructs a default RadioFormInput object.
     **/
     public RadioFormInput()
     {
-       super();
+        super();
 
     }
 
@@ -54,7 +54,7 @@ public class RadioFormInput extends ToggleFormInput
     **/
     public RadioFormInput(String label, boolean checked)
     {
-       super(label, checked);
+        super(label, checked);
     }
 
     /**
@@ -67,14 +67,15 @@ public class RadioFormInput extends ToggleFormInput
     **/
     public RadioFormInput(String name, String value, String label, boolean checked)
     {
-       super(label, checked);
-       try {
-          setName(name);
-          setValue(value);
-       }
-       catch (PropertyVetoException e)
-       {
-       }
+        super(label, checked);
+        try
+        {
+            setName(name);
+            setValue(value);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
     /**
@@ -83,26 +84,25 @@ public class RadioFormInput extends ToggleFormInput
     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating RadioFormInput tag...");
+        //@C1D
 
         if (getName() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
         if (getValue() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting value.");
-           throw new ExtendedIllegalStateException(
-               "value", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting value.");
+            throw new ExtendedIllegalStateException(
+                                                   "value", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
         if (getLabel() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting label.");
-           throw new ExtendedIllegalStateException(
-               "label", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting label.");
+            throw new ExtendedIllegalStateException(
+                                                   "label", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<input type=\"radio\"");

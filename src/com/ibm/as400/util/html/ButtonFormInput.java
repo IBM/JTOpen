@@ -59,7 +59,7 @@ public class ButtonFormInput extends FormInput
     *  Constructs a default ButtonFormInput object.
     **/
     public ButtonFormInput()
-    {   
+    {
         super();
 
     }
@@ -94,14 +94,14 @@ public class ButtonFormInput extends FormInput
      **/
     public ButtonFormInput(String name, String value, String action)                  //$A1A
     {
-       super(name, value);
-       try
-       {
-          setAction(action);
-       }
-       catch(PropertyVetoException e)
-       {
-       }
+        super(name, value);
+        try
+        {
+            setAction(action);
+        }
+        catch (PropertyVetoException e)
+        {
+        }
     }
 
 
@@ -111,24 +111,21 @@ public class ButtonFormInput extends FormInput
      **/
     public String getAction()                                      //$A1A
     {
-      return action_;
+        return action_;
     }
 
 
-   /**
-    *  Returns the tag for the button form input type.
-    *  @return The tag.
-    **/
+    /**
+     *  Returns the tag for the button form input type.
+     *  @return The tag.
+     **/
     public String getTag()
     {
-        if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "Generating ButtonFormInput tag...");
-
         if (getName() == null)
         {
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
-           throw new ExtendedIllegalStateException(
-               "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting name.");
+            throw new ExtendedIllegalStateException(
+                                                   "name", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
 
         StringBuffer s = new StringBuffer("<input type=\"button\"");
@@ -141,18 +138,20 @@ public class ButtonFormInput extends FormInput
         s.append(getAttributeString());                                               // @Z1A
 
         if (getAction() == null)                                                      //$A1A
-        {                                                                             //$A1A
-           Trace.log(Trace.ERROR, "Attempting to get tag before setting action.");    //$A1A
-           throw new ExtendedIllegalStateException(                                   //$A1A
-                        "action", ExtendedIllegalStateException.PROPERTY_NOT_SET);    //$A1A
+        {
+            //$A1A
+            Trace.log(Trace.ERROR, "Attempting to get tag before setting action.");    //$A1A
+            throw new ExtendedIllegalStateException(                                   //$A1A
+                                                                                       "action", ExtendedIllegalStateException.PROPERTY_NOT_SET);    //$A1A
         }                                                                             //$A1A
         else                                                                          //$A1A
-        {                                                                             //$A1A
-           s.append(" onclick=\"");                                                   //$A1A
-           s.append(action_);                                                         //$A1A
-           s.append("\"");                                                            //$A1A
+        {
+            //$A1A
+            s.append(" onclick=\"");                                                   //$A1A
+            s.append(action_);                                                         //$A1A
+            s.append("\"");                                                            //$A1A
         }                                                                             //$A1A
-        
+
         s.append(" />");
 
         return s.toString();
@@ -168,22 +167,22 @@ public class ButtonFormInput extends FormInput
      *  @exception PropertyVetoException If a change is vetoed.
      **/
     public void setAction(String action)                                 //$A1A
-      throws PropertyVetoException
+    throws PropertyVetoException
     {
-       if (action == null) 
-          throw new NullPointerException("action");
+        if (action == null)
+            throw new NullPointerException("action");
 
-       if (action.length() == 0)
-          throw new ExtendedIllegalArgumentException("action", 
-                            ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (action.length() == 0)
+            throw new ExtendedIllegalArgumentException("action", 
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
-       String old = action_;
+        String old = action_;
 
-       vetos_.fireVetoableChange("action", old, action);
+        vetos_.fireVetoableChange("action", old, action);
 
-       action_ = action;
+        action_ = action;
 
-       changes_.firePropertyChange("action", old, action);
+        changes_.firePropertyChange("action", old, action);
 
     }
 }
