@@ -470,7 +470,7 @@
       </xsl:if>  
       
       <!-- Determine the position of the Parm element as defined in the original XML -->
-      <xsl:variable name="ParmPos" select="count(preceding-sibling::*)+1"/>
+      <xsl:variable name="ParmPos" select="count(preceding-sibling::Parm)+1"/>
       <!-- if MAXPOS >= ParmPos, output parameter positional number  -->
       <xsl:if test="number(../@MaxPos) >= number($ParmPos)">
         <xsl:text/>, <xsl:value-of select="$_POSITIONAL"/>&nbsp;<xsl:value-of select="number($ParmPos)"/>
