@@ -140,95 +140,89 @@ abstract class ConvTableMixedMap extends ConvTable
     for (int srcPos = 0; srcPos < src.length; ++srcPos)
     {
       char curChar = src[srcPos];
-      if (inSBMode)
+      
+      //@F0 - There is no concept of mode context when converting a String to a byte array.
+      //@F0 - The table we look at first is only based on the current character in the String.
+      
+      if ((curChar & 0xFF00) == 0x0000 || curChar == euro_)
       {
-        // In single byte mode. Look for character in single byte table.
-        //@F0C - We only look in the single byte table first if we the upper byte is 0x00 or
-        //       if the character is the Euro (0x20AC).
-        if ((curChar & 0xFF00) == 0x0000 || curChar == euro_) //@F0A
+        // Use single-byte table first.
+        sbLookup = sbTable_.fromUnicode_[curChar];
+        if (sbLookup == sbSubChar_ && curChar != sbSubUnic_)
         {
-          sbLookup = sbTable_.fromUnicode_[curChar];
-          if (sbLookup == sbSubChar_ && curChar != sbSubUnic_) //@E4C
-          {
-            // Character wasn't in single byte table. Check double byte table.
-            dbLookup = dbTable_.fromUnicode_[curChar];
-            if (dbLookup == dbSubChar_ && curChar != dbSubUnic_) //@E4C
-            {
-              // Character wasn't in the double byte table either, so use substitution character.
-              dest[destPos++] = sbSubChar_;
-            }
-            else
-            {
-              // Character found in double byte table. Shift out of single byte mode.
-              inSBMode = false;
-              dest[destPos++] = shiftOut_;
-              dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
-              dest[destPos++] = (byte)(0x00FF & dbLookup);
-            }
-          }
-          else
-          {
-            // Character found in single byte table.
-            dest[destPos++] = sbLookup;
-          }
-        }
-        else //@F0A
-        {
-          //@F0 - Character must be a double-byte character (and not the Euro)...
+          // Character wasn't in single-byte table. Check double-byte table next.
           dbLookup = dbTable_.fromUnicode_[curChar];
-          if (dbLookup == dbSubChar_ && curChar != dbSubUnic_)
+          if (dbLookup == dbSubChar_)
           {
-            //@F0 - Check the single byte table last.
-            sbLookup = sbTable_.fromUnicode_[curChar];
-            if (sbLookup == sbSubChar_ && curChar != sbSubUnic_)
+            // Character wasn't in the double-byte table either, so use single-byte substitution character.
+            if (!inSBMode)
             {
-              //@F0 - Assume double-byte mode for the substitution character.
-              inSBMode = false;
-              dest[destPos++] = shiftOut_;
-              dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
-              dest[destPos++] = (byte)(0x00FF & dbLookup);
+              inSBMode = true;
+              dest[destPos++] = shiftIn_;
             }
-            else
-            {
-              //@F0 - Interestingly, we found a single-byte conversion.
-              dest[destPos++] = sbLookup;
-            }
+            dest[destPos++] = sbSubChar_;
           }
           else
           {
-            //@F0 - Found a double-byte conversion.
-            inSBMode = false;
-            dest[destPos++] = shiftOut_;
+            // Character found in double-byte table.
+            if (inSBMode)
+            {
+              inSBMode = false;
+              dest[destPos++] = shiftOut_;
+            }
             dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
             dest[destPos++] = (byte)(0x00FF & dbLookup);
           }
-        }  
+        }
+        else
+        {
+          // Character found in single-byte table.
+          if (!inSBMode)
+          {
+            inSBMode = true;
+            dest[destPos++] = shiftIn_;
+          }
+          dest[destPos++] = sbLookup;
+        }
       }
       else
       {
-        // In double byte mode. Look for character in double byte table.
+        // Use double-byte table first.
         dbLookup = dbTable_.fromUnicode_[curChar];
-        if (dbLookup == dbSubChar_ && curChar != dbSubUnic_) //@E4C
+        if (dbLookup == dbSubChar_ && curChar != dbSubUnic_)
         {
-          // Character wasn't in the double byte table. Check single byte table.
+          // Character wasn't in double-byte table. Check single-byte table next.
           sbLookup = sbTable_.fromUnicode_[curChar];
-          if (sbLookup == sbSubChar_ && curChar != sbSubUnic_) //@E4C
+          if (sbLookup == sbSubChar_)
           {
-            // Character wasn't in single byte table either, so use substitution character.
+            // Character wasn't in the single-byte table either, so use double-byte substitution character.
+            if (inSBMode)
+            {
+              inSBMode = false;
+              dest[destPos++] = shiftOut_;
+            }
             dest[destPos++] = (byte)((0xFFFF & dbSubChar_) >>> 8);
             dest[destPos++] = (byte)(0x00FF & dbSubChar_);
           }
           else
           {
-            // Character found in single byte table. Shift in to single byte mode.
-            inSBMode = true;
-            dest[destPos++] = shiftIn_;
+            // Character found in single-byte table.
+            if (!inSBMode)
+            {
+              inSBMode = true;
+              dest[destPos++] = shiftIn_;
+            }
             dest[destPos++] = sbLookup;
           }
         }
         else
         {
-          // Character found in double byte table.
+          // Character found in double-byte table.
+          if (inSBMode)
+          {
+            inSBMode = false;
+            dest[destPos++] = shiftOut_;
+          }
           dest[destPos++] = (byte)((0xFFFF & dbLookup) >>> 8);
           dest[destPos++] = (byte)(0x00FF & dbLookup);
         }
