@@ -13,7 +13,10 @@ import javax.security.auth.Destroyable;
 import javax.security.auth.DestroyFailedException;
 
 /**
- * Represents an identity token.
+ Represents an identity token.
+ Identity tokens may be submitted to {@link com.ibm.as400.access.AS400#AS400(String,IdentityToken) AS400()} or {@link com.ibm.as400.access.AS400#setIdentityToken(IdentityToken) setIdentityToken()}
+ to authenticate to an iSeries or AS/400 server.
+ <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for OS/400 V5R2 and V5R1.</i>
  **/
 public final class IdentityToken implements Serializable, Destroyable {
 
