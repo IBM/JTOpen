@@ -352,7 +352,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
   throws java.io.IOException, ClassNotFoundException
   {
     in.defaultReadObject();
-    changes_ = new PropertyChangeSupport(this);
+    //@P2D changes_ = new PropertyChangeSupport(this);
   }
 
 
@@ -531,7 +531,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
     file_ = file;
 
-    changes_.firePropertyChange("file", old, file_);
+    if (changes_ != null) changes_.firePropertyChange("file", old, file_); //@P2C
   }
 
 
@@ -549,7 +549,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
                                                                                                           // @B1A
     shareName_ = new StringBuffer(shareName);                                                             // @B1A
                                                                                                           // @B1A
-    changes_.firePropertyChange("shareName", old==null ? null : old.toString(), shareName_.toString());   // @B1A
+    if (changes_ != null) changes_.firePropertyChange("shareName", old==null ? null : old.toString(), shareName_.toString());   // @B1A @P2C
   }
 
 
@@ -570,7 +570,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     if (Trace.isTraceOn())                                                                                // @B1A
       Trace.log(Trace.INFORMATION, "FileTree sharePath: " + sharePath_);                                // @B1A
                                                                                                         // @B1A
-    changes_.firePropertyChange("sharePath", old==null ? null : old.toString(), sharePath_.toString());   // @B1A
+    if (changes_ != null) changes_.firePropertyChange("sharePath", old==null ? null : old.toString(), sharePath_.toString());   // @B1A @P2C
   }
 
 

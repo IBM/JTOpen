@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,9 +88,9 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 **/
 public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-    private Vector branches_ = new Vector();
+    private HTMLVector branches_; //@P2C
 
     private boolean        expanded_    = false;
     private HTMLHyperlink  textUrl_     = null;
@@ -106,8 +106,8 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     private static final String std = new String("<td>\n");     // The start table definition tag.              // @B2C
     private static final String etd = new String("</td>\n");    // The end table definition tag.              // @B2C
 
-    transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient PropertyChangeSupport changes_; //@P2C
+    transient private Vector elementListeners_; // The list of element listeners @P2C
 
 
     /**
@@ -130,7 +130,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
             collator_ = null;                                                      // @B2A
         }
 
-        branches_ = new Vector();
+        branches_ = new HTMLVector(); //@P2C
     }
 
 
@@ -182,7 +182,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         branches_.addElement(element);
 
-        fireElementEvent(ElementEvent.ELEMENT_ADDED);
+        if (elementListeners_ != null) fireElementEvent(ElementEvent.ELEMENT_ADDED); //@P2C
     }
 
 
@@ -201,7 +201,8 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        elementListeners.addElement(listener);
+        if (elementListeners_ == null) elementListeners_ = new Vector(); //@P2A
+        elementListeners_.addElement(listener);
     }
 
 
@@ -218,6 +219,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@P2A
         changes_.addPropertyChangeListener(listener);
     }
 
@@ -228,7 +230,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     private void fireElementEvent(int evt)
     {
         Vector targets;
-        targets = (Vector) elementListeners.clone();
+        targets = (Vector) elementListeners_.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
         for (int i = 0; i < targets.size(); i++)
         {
@@ -448,22 +450,21 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
             if (isExpanded())
             {
-                buf.append("<tr><td>&nbsp;</td><td>\n");
+                buf.append("<tr><td>&nbsp;</td><td>\n<table cellpadding=\"0\" cellspacing=\"3\">\n"); //@P2C
 
-                buf.append("<table cellpadding=\"0\" cellspacing=\"3\">\n");
+                if (sort_) HTMLTree.sort(collator_, branches_);       // @A1A  // @B2C @P2C
 
-                if (sort_)                                     // @A1A
-                    branches_ = HTMLTree.sort(collator_, branches_);       // @A1A  // @B2C
-
-                for (int i=0; i<branches_.size(); i++)
+                int size = branches_.getCount(); //@P2A
+                Object[] data = branches_.getData(); //@P2A
+                for (int i=0; i<size; i++) //@P2C
                 {
-                    HTMLTreeElement node = (HTMLTreeElement)branches_.elementAt(i);
+                    HTMLTreeElement node = (HTMLTreeElement)data[i]; //@P2C
 
                     buf.append(node.getTag());
                 }
 
-                buf.append("</table>\n");
-                buf.append("</tr>\n");
+                buf.append("</table>\n</tr>\n"); //@P2C
+                //@P2D buf.append("</tr>\n");
             }
         }
 
@@ -527,8 +528,8 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        elementListeners = new Vector();
+        //@P2D changes_ = new PropertyChangeSupport(this);
+        //@P2D elementListeners_ = new Vector();
     }
 
 
@@ -542,7 +543,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
         if (element == null)
             throw new NullPointerException("element");
 
-        if (branches_.removeElement(element))
+        if (branches_.removeElement(element) && elementListeners_ != null) //@P2C
             fireElementEvent(ElementEvent.ELEMENT_REMOVED);
     }
 
@@ -559,7 +560,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        elementListeners.removeElement(listener);
+        if (elementListeners_ != null) elementListeners_.removeElement(listener); //@P2C
     }
 
 
@@ -574,7 +575,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        changes_.removePropertyChangeListener(listener);
+        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@P2C
     }
 
 
@@ -594,13 +595,15 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
                 expanded_ = !expanded_;
 
-                changes_.firePropertyChange("selected", new Boolean(old), new Boolean(expanded_));
+                if (changes_ != null) changes_.firePropertyChange("selected", new Boolean(old), new Boolean(expanded_)); //@P2C
             }
             else
             {
-                for (int i=0; i<branches_.size(); i++)
+                int size = branches_.getCount(); //@P2A
+                Object[] data = branches_.getData(); //@P2A
+                for (int i=0; i<size; i++) //@P2C
                 {
-                    HTMLTreeElement node = (HTMLTreeElement)branches_.elementAt(i);
+                    HTMLTreeElement node = (HTMLTreeElement)data[i]; //@P2C
                     node.selected(hashcode);
                 }
             }
@@ -668,7 +671,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         expanded_ = expanded;
 
-        changes_.firePropertyChange("expanded", new Boolean(old), new Boolean(expanded_));
+        if (changes_ != null) changes_.firePropertyChange("expanded", new Boolean(old), new Boolean(expanded_)); //@P2C
     }
 
 
@@ -687,12 +690,14 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         iconUrl_ = iconUrl;
 
-        changes_.firePropertyChange("url", old, iconUrl);
+        if (changes_ != null) changes_.firePropertyChange("url", old, iconUrl); //@P2C
 
-        for (int i=0; i<branches_.size(); i++)
+        int size = branches_.getCount(); //@P2A
+        Object[] data = branches_.getData(); //@P2A
+        for (int i=0; i<size; i++) //@P2C
         {
             HTMLHyperlink l = null;
-            HTMLTreeElement node = (HTMLTreeElement)branches_.elementAt(i);
+            HTMLTreeElement node = (HTMLTreeElement)data[i]; //@P2C
             if (iconUrl instanceof ServletHyperlink)
                 l = (ServletHyperlink)iconUrl.clone();
             else
@@ -717,7 +722,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         elementData_ = element;
 
-        changes_.firePropertyChange("element", old, elementData_ );
+        if (changes_ != null) changes_.firePropertyChange("element", old, elementData_ ); //@P2C
     }
 
 
@@ -735,7 +740,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         elementData_ = new HTMLText(text);
 
-        changes_.firePropertyChange("text", old, elementData_ );
+        if (changes_ != null) changes_.firePropertyChange("text", old, elementData_ ); //@P2C
     }
 
 
@@ -754,7 +759,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         textUrl_ = textUrl;
 
-        changes_.firePropertyChange("url", old, textUrl );
+        if (changes_ != null) changes_.firePropertyChange("url", old, textUrl ); //@P2C
 
         setText(textUrl);
     }
