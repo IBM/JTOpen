@@ -131,17 +131,17 @@ implements Connection //@A5A
   * 
   *  @exception SQLException If an error occurs.
   **/
-  public void close () throws SQLException
+  public synchronized void close() throws SQLException
   {
-    // Avoid recursion.
-    if (connection_ == null)
-      return;
+    if (connection_ == null) return;
 
     // Rollback and close the open statements.
     connection_.pseudoClose();
 
     // notify the pooled connection.
     pooledConnection_.fireConnectionCloseEvent(new ConnectionEvent(pooledConnection_));
+
+    connection_ = null;
   }
 
   /**
