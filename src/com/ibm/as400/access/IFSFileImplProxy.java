@@ -361,6 +361,21 @@ implements IFSFileImpl
       return ProxyClientConnection.rethrow (e);
   }
 
+  public boolean setCCSID(int ccsid)
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethod (pxId_, "setCCSID",
+                                     new Class[] { Integer.TYPE },
+                                     new Object[] { new Integer(ccsid) })
+        .getReturnValueBoolean();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setFixedAttributes(int attributes)
     throws IOException
