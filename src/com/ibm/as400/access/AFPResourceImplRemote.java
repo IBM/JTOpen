@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AFPResourceImplRemote.java
 //                                                                             
@@ -14,9 +14,9 @@
 package com.ibm.as400.access;
 
 /**
- * The AFPResource class represents an AS/400 AFP resource.
+ * The AFPResource class represents a server AFP resource.
  * An instance of this class can be used to manipulate an individual
- * AS/400 AFP resource.
+ * i5/OS AFP resource.
  *
  * See <a href="{@docRoot}/com/ibm/as400/access/doc-files/AFPResourceAttrs.html">AFP Resource Attributes</a> for
  * valid attributes.

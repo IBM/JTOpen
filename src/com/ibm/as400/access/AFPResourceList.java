@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AFPResourceList.java
 //                                                                             
@@ -17,14 +17,14 @@ import java.util.Vector;
 import java.beans.PropertyVetoException;
 
 /**
-  * The AFPResourceList class is used to build a list of AS/400 AFP resource objects of type AFPResource.
+  * The AFPResourceList class is used to build a list of i5/OS AFP resource objects of type AFPResource.
   * The list can be filtered by library and resource name,
   * by resource type and by spooled file (list only resources
   * used by a particular spooled file).  In addition,
   * font resources may be filtered by pel density.
   *
-  * To list and use AFP resources, your AS/400 must
-  * be at V3R7 or later.
+  * To list and use AFP resources, your server must
+  * be at OS/400 V3R7 or later.
   *
   *@see AFPResource
   **/
@@ -44,7 +44,7 @@ implements java.io.Serializable
     private static final String SPOOLED_FILE_FILTER = "spooledFileFilter";
 
     /**
-     * Constructs an AFPResourceList. The AS/400 system must be set
+     * Constructs an AFPResourceList. The system must be set
      * later. This constructor is provide for visual application builders
      * that support JavaBeans. It is not intended for use by
      * application programmers.
@@ -65,7 +65,7 @@ implements java.io.Serializable
      * criteria will list all resources in the system library list.
      * Use the various setXxxxFilter methods to override the defaults.
      *
-     * @param system The AS/400 on which the AFP resources exist.
+     * @param system The server on which the AFP resources exist.
      **/
     public AFPResourceList(AS400 system)
     {

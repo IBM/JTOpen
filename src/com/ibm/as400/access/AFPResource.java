@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AFPResource.java
 //                                                                             
@@ -17,9 +17,9 @@ import java.io.IOException;
 import java.beans.PropertyVetoException;
 
 /**
- * The AFPResource class represents an AS/400 AFP resource.
+ * The AFPResource class represents a server AFP resource.
  * An instance of this class can be used to manipulate an individual
- * AS/400 AFP resource.
+ * i5/OS AFP resource.
  *
  * See <a href="doc-files/AFPResourceAttrs.html">AFP Resource Attributes</a> for
  * valid attributes.
@@ -53,7 +53,7 @@ implements java.io.Serializable
 
 
     /**
-     * Constructs an AFPResource object. The AS/400 system and the
+     * Constructs an AFPResource object. The system and the
      * integrated file system name of the AFP resource must be set
      * later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
@@ -75,10 +75,10 @@ implements java.io.Serializable
     /**
      * Constructs an AFPResource object. It uses the system and
      * resource name that identify it on that system.
-     * The AS/400 referenced by <i>system</i> must be at V3R7 or later to
+     * The server referenced by <i>system</i> must be at V3R7 or later to
      * support using AFP resources.
      *
-     * @param system The AS/400 on which this AFP resource exists.
+     * @param system The server on which this AFP resource exists.
      * @param resourceName The integrated file system name of the AFP resource. The format of
      * the resource string must be in the format of "/QSYS.LIB/libname.LIB/resourcename.type".
      * Valid values for <i>type</i> include FNTRSC, FORMDF, OVL, PAGSEG, and PAGDFN.
@@ -134,13 +134,13 @@ implements java.io.Serializable
       *
       * @return The input stream object that can be used to read the contents
       *         of this AFP resource.
-      * @exception AS400Exception If the AS/400 system returns an error message.
+      * @exception AS400Exception If the system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request completed.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported because
-      *                                         the AS/400 system is not at the correct level.
+      *                                         the system is not at the correct level.
       **/
     public PrintObjectInputStream getInputStream()
         throws AS400Exception,

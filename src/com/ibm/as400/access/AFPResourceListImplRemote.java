@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AFPResourceListImplRemote.java
 //                                                                             
@@ -14,14 +14,14 @@
 package com.ibm.as400.access;
 
 /**
-  * The AFPResourceList class is used to build a list of AS/400 AFP resource objects of type AFPResource.
+  * The AFPResourceList class is used to build a list of i5/OS AFP resource objects of type AFPResource.
   * The list can be filtered by library and resource name,
   * by resource type and by spooled file (list only resources
   * used by a particular spooled file).  In addition,
   * font resources may be filtered by pel density.
   *
-  * To list and use AFP resources, your AS/400 must
-  * be at V3R7 or later.
+  * To list and use AFP resources, your server must
+  * be at OS/400 V3R7 or later.
   *
   *@see AFPResource
   **/
@@ -31,8 +31,6 @@ class AFPResourceListImplRemote extends PrintObjectListImplRemote
 // @A5D implements AFPResourceListImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private String x = Copyright.copyright;     // @A1C - Copyright change 
 
     /** Font pel density of NONE, removes pel density filter. **/
     // private static final int PELDENSITYNONE = 0;
