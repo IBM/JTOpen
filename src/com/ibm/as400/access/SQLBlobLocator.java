@@ -246,7 +246,7 @@ final class SQLBlobLocator implements SQLLocator
             truncated_ = (bytes.length > maxLength_ ? bytes.length-maxLength_ : 0);
         }
         else if(!(object instanceof String) &&
-                !(object instanceof Blob) &&
+                (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Blob)) &&
                 !(object instanceof Reader) &&
                 !(object instanceof InputStream))
         {

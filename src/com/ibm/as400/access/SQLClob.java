@@ -111,7 +111,7 @@ final class SQLClob implements SQLData
             String s = (String)object;
             truncated_ = (s.length() > maxLength_ ? s.length()-maxLength_ : 0);
         }
-        else if(!(object instanceof Clob) &&
+        else if((JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Clob)) &&
                 !(object instanceof Reader))
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -172,7 +172,7 @@ final class SQLClob implements SQLData
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            else if(object instanceof Clob)
+            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
             {
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());

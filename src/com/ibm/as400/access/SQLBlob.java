@@ -77,7 +77,7 @@ final class SQLBlob implements SQLData
             truncated_ = (bytes.length > maxLength_ ? bytes.length-maxLength_ : 0);
         }
         else if(!(object instanceof String) &&
-                !(object instanceof Blob) &&
+                (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Blob)) &&
                 !(object instanceof Reader) &&
                 !(object instanceof InputStream))
         {
@@ -164,7 +164,7 @@ final class SQLBlob implements SQLData
                     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            else if(object instanceof Blob)
+            else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
             {
                 Blob blob = (Blob) object;
                 int blobLength = (int)blob.length();
