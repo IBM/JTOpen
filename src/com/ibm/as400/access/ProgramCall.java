@@ -299,7 +299,7 @@ public class ProgramCall implements Serializable
                     impl_ = (RemoteCommandImpl)AS400.loadImpl("com.ibm.as400.access.RemoteCommandImplNative");
                     if (impl_ != null) return;
                 }*/
-                Trace.log( Trace.ERROR, "Attempt to connect to command server before setting system." );
+                Trace.log(Trace.ERROR, "Attempt to connect to command server before setting system." );
                 throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
 

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: AS400StrSvrDS.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  AS400StrSvrDS.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,7 +19,7 @@ import java.io.OutputStream;
 // A class representing a "start server" request data stream.
 class AS400StrSvrDS extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     AS400StrSvrDS(int serverId, byte[] userIDbytes, byte[] authenticationBytes, int byteType)
     {
@@ -35,14 +35,14 @@ class AS400StrSvrDS extends ClientAccessDataStream
         setTemplateLen(2);
         setReqRepID(0x7002);
 
-        data_[20] = (byteType == 0) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == 1) ? (byte)0x05 : (byte)0x02;
+        data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN) ? (byte)0x06 : (byte)0x02;
         data_[21] = 0x01;  // Send reply true.
 
         // Set password or authentication token.
         //   LL
         set32bit(6 + authenticationBytes.length, 22);
         //   CP
-        if (byteType == 0)
+        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD)
         {
             set16bit(0x1105, 26);
         }
@@ -67,7 +67,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending start server request..."); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending start server request...");
         super.write(out);
     }
 }

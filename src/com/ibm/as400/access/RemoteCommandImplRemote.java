@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: RemoteCommandImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  RemoteCommandImplRemote.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 2000-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,13 +18,13 @@ import java.io.IOException;
 // The RemoteCommandImplRemote class is the remote implementation of CommandCall and ProgramCall.
 class RemoteCommandImplRemote implements RemoteCommandImpl
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 2000-2003 International Business Machines Corporation and others.";
 
     AS400ImplRemote system_;
     ConverterImplRemote converter_;
     boolean ccsidIsUserOveride_ = false;  // Flag to say don't override ccsid in open().
     private AS400Server server_;
-    AS400Message[] messageList_  = new AS400Message[0];
+    AS400Message[] messageList_ = new AS400Message[0];
     int serverDataStreamLevel_ = 0;
 
     static
@@ -39,7 +39,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // Set needed impl properties.
     public void setSystem(AS400Impl system) throws IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting up remote command implementation object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting up remote command implementation object.");
         system_ = (AS400ImplRemote)system;
         // Check if user has set a ccsid we should use instead of the command server job CCSID.
         int ccsid = system_.getUserOverrideCcsid();
@@ -54,11 +54,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // @return  Information about the job in which the command/program would be run.  This is a String consisting of a 10-character simple job name, a 10-character user name, and a 6-character job number.
     public String getJobInfo(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting job infomation from implementation object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job infomation from implementation object.");
         // Connect to server.
         open(threadSafety);
 
-        // Set up the parameter list for the program that we will use to get the Job information (QWCRTVCA).
+        // Set up the parameter list for the program that we will use to get the job information (QWCRTVCA).
         ProgramParameter[] parameterList = new ProgramParameter[6];
 
         // First parameter:  receiver variable - output - char(*).
@@ -110,7 +110,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
         // Get the data returned from the program.
         dataReceived = parameterList[0].getOutputData();
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Job information retrieved:", dataReceived);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job information retrieved:", dataReceived);
 
         // Examine the "job name" field.  26 bytes starting at offset 20.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
         return converter_.byteArrayToString(dataReceived, 20, 26);
@@ -119,7 +119,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // Return message list to public object.
     public AS400Message[] getMessageList()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message list from implementation object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message list from implementation object.");
         return messageList_;
     }
 
@@ -127,14 +127,14 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // @return  This method always returns false for this class.
     public boolean isCommandThreadSafe(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Remote implementation object returns false for command thread safety.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Remote implementation object returns false for command thread safety.");
         return false;  // Only the ImplNative will ever return true.
     }
 
     // Connects to the server.
     protected void open(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Remote implementation object open.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Remote implementation object open.");
         // Connect to server.
         server_ = system_.getConnection(AS400.COMMAND, false);
 
@@ -178,7 +178,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     public boolean runCommand(String command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running command: " + command);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running command: " + command);
 
         // Connect to server.
         open(threadSafety);
@@ -190,7 +190,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     public boolean runCommand(byte[] command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running command:", command);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running command:", command);
 
         // Connect to server.
         open(threadSafety);
@@ -232,7 +232,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running program: " + library + "/" + name);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running program: " + library + "/" + name);
 
         // Connect to server
         open(threadSafety);
@@ -293,7 +293,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 
     public byte[] runServiceProgram(String library, String name, String procedureName, int returnValueFormat, ProgramParameter[] serviceParameterList, boolean threadSafety, int procedureNameCCSID, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Remote implementation running service program: " + library + "/" + name + " procedure name: " + procedureName);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Remote implementation running service program: " + library + "/" + name + " procedure name: " + procedureName);
 
         // Connect to server.
         open(threadSafety);
@@ -368,7 +368,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
     private void processReturnCode(int rc) throws ErrorCompletingRequestException
     {
-        if (Trace.isTraceOn())
+        if (Trace.traceOn_)
         {
             byte[] rcBytes = new byte[2];
             BinaryConverter.unsignedShortToByteArray(rc, rcBytes, 0);
@@ -376,14 +376,14 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         }
         switch (rc)
         {
-                // The following is the list of return codes the RMTCMD/RMTPGMCALL server sends to the client application in the request replies:
+            // The following is the list of return codes the RMTCMD/RMTPGMCALL server sends to the client application in the request replies:
             case 0x0000:  // Request processed successfully.
-                if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Request processed successfully.");
+                if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Request processed successfully.");
                 return;
 
-                // Initial allocate & exchange attribute return codes:
+            // Initial allocate & exchange attribute return codes:
             case 0x0100:  // Limited user.
-                if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Limited user.");
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "Limited user.");
                 return;
             case 0x0101:  // Invalid exchange attributes request.
                 Trace.log(Trace.ERROR, "Exchange attributes request not valid.");
@@ -399,22 +399,22 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 throw new InternalErrorException(InternalErrorException.VRM_NOT_VALID);
 
             case 0x0104:  // Invalid CCSID.
-                if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "CCSID not valid.");
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "CCSID not valid.");
                 return;
             case 0x0105:  // Invalid NLV, default to primary NLV:  NLV must consist of the characters 0-9.
-                if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "NLV not valid");
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "NLV not valid");
                 return;
             case 0x0106:  // NLV not installed, default to primary NLV:  The NLV may not be supported or it may not be installed on the system.
-                if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "NLV not installed.");
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "NLV not installed.");
                 return;
             case 0x0107:  // Error retrieving product information.  Can't validate NLV.
-                if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Error retrieving product information, cannot validate NLV.");
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "Error retrieving product information, cannot validate NLV.");
                 return;
             case 0x0108:  // Error trying to add NLV library to system library list:  One possible reason for failure is the user may not be authorized to CHGSYSLIBL command.
-                if (Trace.isTraceOn()) Trace.log(Trace.WARNING, "Error adding NLV library to system library list.");
+                if (Trace.traceOn_) Trace.log(Trace.WARNING, "Error adding NLV library to system library list.");
                 return;
 
-                // Return codes for all requests:  These are return codes that can result from processing any type of requests (exchange attributes, RMTCMD, RMTPGMCALL, & end).
+            // Return codes for all requests:  These are return codes that can result from processing any type of requests (exchange attributes, RMTCMD, RMTPGMCALL, & end).
             case 0x0200:  // Unable to process request.  An error occured on the receive data.
             case 0x0201:  // Invalid LL.
             case 0x0202:  // Invalid server ID.
@@ -428,7 +428,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 system_.disconnectServer(server_);
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
 
-                // Return codes common to RMTCMD & RMTPGMCALL requests:
+            // Return codes common to RMTCMD & RMTPGMCALL requests:
             case 0x0300:  // Process exit point error.  Error occurred when trying to retrieve the exit point for user exit program processing.  This can occur when the user exit program cannot be resolved.
                 Trace.log(Trace.ERROR, "Process exit point error.");
                 system_.disconnectServer(server_);
@@ -448,17 +448,17 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 system_.disconnectServer(server_);
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_DENIED_REQUEST);
 
-                // RMTCMD specific return codes:
+            // RMTCMD specific return codes:
             case 0x0400:  // Command failed.  Messages returned.
-                if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Error calling the command.");
+                if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Error calling the command.");
                 return;
 
-                // RMTPGMCALL specific return codes:
+            // RMTPGMCALL specific return codes:
             case 0x0500:  // An error occured when resolving to the program to call.
-                if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Could not resolve program.");
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Could not resolve program.");
                 return;
             case 0x0501:  // An error occured when calling the program.
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error calling the program.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Error calling the program.");
                 return;
 
             default:

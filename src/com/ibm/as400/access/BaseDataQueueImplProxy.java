@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: BaseDataQueueImplProxy.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BaseDataQueueImplProxy.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 // Proxy implementation of data queues.
 class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     BaseDataQueueImplProxy()
     {
@@ -36,20 +36,6 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
         catch (InvocationTargetException e)
         {
             throw ProxyClientConnection.rethrow1(e);
-        }
-    }
-
-    // Proxy implementation of connect.
-    public void processConnect() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
-    {
-        try
-        {
-            connection_.callMethod(pxId_, "processConnect");
-        }
-        catch (InvocationTargetException e)
-        {
-            // Throw an appropriate exception.
-            throw ProxyClientConnection.rethrow5(e);
         }
     }
 

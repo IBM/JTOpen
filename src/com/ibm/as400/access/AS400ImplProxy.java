@@ -221,7 +221,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Locale.class, SocketProperties.class }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), locale, socketProperties });
+            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Locale.class, SocketProperties.class }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), locale, socketProperties } );
         }
         catch (InvocationTargetException e)
         {

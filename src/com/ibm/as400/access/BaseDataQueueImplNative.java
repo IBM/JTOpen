@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: BaseDataQueueImplNative.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BaseDataQueueImplNative.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2000 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,7 +18,7 @@ import java.io.IOException;
 // Native implementation of data queues
 class BaseDataQueueImplNative implements BaseDataQueueImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static
     {
@@ -33,7 +33,7 @@ class BaseDataQueueImplNative implements BaseDataQueueImpl
     byte[] libBytes;
     byte[] qnameBytes;
 
-    // Set needed impl properties
+    // Set needed impl properties.
     public void setSystemAndPath(AS400Impl system, String path, String name, String library) throws IOException
     {
         system_ = (AS400ImplRemote)system;
@@ -44,11 +44,6 @@ class BaseDataQueueImplNative implements BaseDataQueueImpl
         conv = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
         libBytes = conv.stringToByteArray(library);
         qnameBytes = conv.stringToByteArray(name);
-    }
-
-    // Native implementation of connect
-    public void processConnect()
-    {
     }
 
     // Native implementation of clear

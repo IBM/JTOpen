@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 2000-2003 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ import java.beans.SimpleBeanInfo;
  **/
 public class EnvironmentVariableListBeanInfo extends SimpleBeanInfo
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 2000-2003 International Business Machines Corporation and others.";
 
     // Class this bean info represents.
     private static final Class BEAN_CLASS = EnvironmentVariableList.class;

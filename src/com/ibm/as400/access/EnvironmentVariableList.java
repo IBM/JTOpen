@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 2000-2003 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ import java.util.Vector;
 // * There is currently no API to get a list of job-level environment variables.  This is not available since C programs can get the list via the ENVIRON environment variable.
 public class EnvironmentVariableList implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 2000-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 

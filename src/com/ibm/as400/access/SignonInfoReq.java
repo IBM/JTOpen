@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
-// Filename: SignonInfoReq.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  SignonInfoReq.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,7 +18,7 @@ import java.io.OutputStream;
 
 class SignonInfoReq extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int byteType)
     {
@@ -33,7 +33,7 @@ class SignonInfoReq extends ClientAccessDataStream
         setReqRepID(0x7004);
 
         // Password's always encrypted.
-        data_[20] = (byteType == 0) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == 1) ? (byte)0x05 : (byte)0x02;
+        data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN) ? (byte)0x06 : (byte)0x02;
 
         // Client CCSID.
         //   LL
@@ -47,7 +47,7 @@ class SignonInfoReq extends ClientAccessDataStream
         //   LL
         set32bit(6 + authenticationBytes.length, 31);
         //   CP
-        if (byteType == 0)
+        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD)
         {
             set16bit(0x1105, 35);
         }

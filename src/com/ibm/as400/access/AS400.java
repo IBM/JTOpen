@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: AS400.java
+// Filename:  AS400.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
 // Copyright (C) 1997-2003 International Business Machines Corporation and
-// others. All rights reserved.
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +32,7 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import com.ibm.as400.security.auth.AuthenticationToken;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
@@ -49,7 +50,7 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 public class AS400 implements Serializable
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    
+
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
 
@@ -104,6 +105,23 @@ public class AS400 implements Serializable
      Constant indicating the authentication scheme is profile token.
      **/
     public static final int AUTHENTICATION_SCHEME_PROFILE_TOKEN = 2;
+    /**
+     Constant indicating the authentication scheme is authentication token.
+     **/
+    public static final int AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN = 3;
+
+    /**
+     Constant indicating that the JGSS framework must be used when no password or profile token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
+     **/
+    public static final int GSS_OPTION_MANDATORY = 0;
+    /**
+     Constant indicating that the JGSS framework will be attempted when no password or profile token is set.  An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present a sign-on dialog or use the current user profile information.  This option is the default.
+     **/
+    public static final int GSS_OPTION_FALLBACK = 1;
+    /**
+     Constant indicating that the JGSS framework will not be used when no password or profile token is set.  An object set to this option will only present a sign-on dialog or use the current user profile information.
+     **/
+    public static final int GSS_OPTION_NONE = 2;
 
     // Determine if we are running on an iSeries server.
     static boolean onAS400 = false;
@@ -155,6 +173,8 @@ public class AS400 implements Serializable
     private transient int byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
+    // How to use the GSS framework.
+    int gssOption_ = GSS_OPTION_FALLBACK;
 
     // Proxy server system name.
     private transient String proxyServer_ = "";
@@ -262,6 +282,33 @@ public class AS400 implements Serializable
         construct();
         systemName_ = resolveSystem(systemName);
         userId_ = userId.toUpperCase();
+        proxyServer_ = resolveProxyServer(proxyServer_);
+    }
+
+    /**
+     Constructs an AS400 object.  It uses the specified system name and authentication token.
+     @param  systemName  The name of the server.  Use localhost to access data locally.
+     @param  authenticationToken  The authentication token to use to authenticate to the server.
+     **/
+    public AS400(String systemName, AuthenticationToken authenticationToken)
+    {
+        super();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with authentication token, system name: '" + systemName + "'");
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "authentication token: " + authenticationToken);
+        if (systemName == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
+            throw new NullPointerException("systemName");
+        }
+        if (authenticationToken == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'authenticationToken' is null.");
+            throw new NullPointerException("authenticationToken");
+        }
+        construct();
+        systemName_ = resolveSystem(systemName);
+        bytes_ = store(authenticationToken.toBytes());
+        byteType_ = AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN;
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -1006,6 +1053,7 @@ public class AS400 implements Serializable
      <br>   AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
      <br>   AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
      <br>   AUTHENTICATION_SCHEME_PROFILE_TOKEN - profile tokens are used.
+     <br>   AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN - authentication tokens are used.
      @return  The authentication scheme in use for this object.
      **/
     public int getAuthenticationScheme()
@@ -1078,6 +1126,31 @@ public class AS400 implements Serializable
         String defaultUser = (String)AS400.defaultUsers.get(resolveSystem(systemName));
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Default user: " + defaultUser);
         return defaultUser;
+    }
+
+    /**
+     Returns the GSS name string.  This method will only return the information provided on the setGSSName() method.
+     @return  The GSS name string, or an empty string ("") if not set.
+     **/
+    public String getGSSName()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS name: " + gssName_);
+        return gssName_;
+    }
+
+    /**
+     Returns the option for how the JGSS framework will be used.
+     @return  A constant indicating how the JGSS framework will be used.  Valid values are:
+     <ul>
+     <li>AS400.GSS_OPTION_MANDATORY
+     <li>AS400.GSS_OPTION_FALLBACK
+     <li>AS400.GSS_OPTION_NONE
+     </ul>
+     **/
+    public int getGSSOption()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS option:", gssOption_);
+        return gssOption_;
     }
 
     // Get underlying AS400Impl object.
@@ -1608,16 +1681,6 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID: " + userId_);
         userId_ = resolveUserId(userId_, byteType_);
         return userId_;
-    }
-
-    /**
-     Returns the GSS name string.  This method will only return the information provided on the setGSSName() method.
-     @return  The GSS name string, or an empty string ("") if not set.
-     **/
-    public String getGSSName()
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS name: " + gssName_);
-        return gssName_;
     }
 
     /**
@@ -2541,6 +2604,28 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
     }
 
+    /**
+     Sets or resets the authentication token for this object.  Using this method will clear any set password.
+     @param  authenticationToken  The authentication token.
+     **/
+    public void setAuthenticationToken(AuthenticationToken authenticationToken)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting authentication token.");
+
+        if (authenticationToken == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'authenticationToken' is null.");
+            throw new NullPointerException("authenticationToken");
+        }
+
+        synchronized (this)
+        {
+            bytes_ = store(authenticationToken.toBytes());
+            byteType_ = AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN;
+            signonInfo_ = null;
+        }
+    }
+
     // Store information in password cache.
     private static void setCacheEntry(String systemName, String userId, byte[] bytes)
     {
@@ -2639,37 +2724,6 @@ public class AS400 implements Serializable
         // Already have a default user, fail the op.
         if (Trace.traceOn_) Trace.log(Trace.WARNING, "Default user already set, set default user failed.");
         return false;
-    }
-
-    /**
-     Constant indicating that the JGSS framework must be used when no password or profile token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
-     **/
-    public static final int GSS_OPTION_MANDATORY = 0;
-    /**
-     Constant indicating that the JGSS framework will be attempted when no password or profile token is set.  An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present a sign-on dialog or use the current user profile information.  This option is the default.
-     **/
-    public static final int GSS_OPTION_FALLBACK = 1;
-    /**
-     Constant indicating that the JGSS framework will not be used when no password or profile token is set.  An object set to this option will only present a sign-on dialog or use the current user profile information.
-     **/
-    public static final int GSS_OPTION_NONE = 2;
-
-    // How to use the GSS framework.
-    int gssOption_ = GSS_OPTION_FALLBACK;
-
-    /**
-     Returns the option for how the JGSS framework will be used.
-     @return  A constant indicating how the JGSS framework will be used.  Valid values are:
-     <ul>
-     <li>AS400.GSS_OPTION_MANDATORY
-     <li>AS400.GSS_OPTION_FALLBACK
-     <li>AS400.GSS_OPTION_NONE
-     </ul>
-     **/
-    public int getGSSOption()
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS option:", gssOption_);
-        return gssOption_;
     }
 
     /**

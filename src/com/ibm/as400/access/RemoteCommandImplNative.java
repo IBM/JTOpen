@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1999-2003 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
 class RemoteCommandImplNative extends RemoteCommandImplRemote
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1999-2003 International Business Machines Corporation and others.";
 
     // Load the service program.
     static
@@ -97,7 +97,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         try
         {
             // Retrieve command information.  Failure is returned as a message list.
-            if(!runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
+            if (!runProgram("QSYS", "QCDRCMDI", parameterList, true, AS400Message.MESSAGE_OPTION_UP_TO_10))
             {
                 Trace.log(Trace.ERROR, "Unable to retrieve command information.");
                 String id = messageList_[messageList_.length - 1].getID();
@@ -126,7 +126,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
         // Get the data returned from the program.
         byte[] dataReceived = parameterList[0].getOutputData();
-        if (Trace.isTraceOn())
+        if (Trace.traceOn_)
         {
             Trace.log(Trace.DIAGNOSTIC, "Command information retrieved:", dataReceived);
 
@@ -157,16 +157,16 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         switch (dataReceived[333] & 0x0F)
         {
             case 0:
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command not threadsafe: " + cmdLibAndName);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command not threadsafe: " + cmdLibAndName);
                 return false;
             case 1:
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command threadsafe: " + cmdLibAndName);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command threadsafe: " + cmdLibAndName);
                 return true;
             case 2:
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Conditionally threadsafe: " + cmdLibAndName);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Conditionally threadsafe: " + cmdLibAndName);
                 return false;
         }
-        if (Trace.isTraceOn()) Trace.log(Trace.ERROR, "Invalid threadsafe indicator: " + cmdLibAndName);
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Invalid threadsafe indicator: " + cmdLibAndName);
         return false;  // Assume the command is not thread-safe.
     }
 
@@ -174,10 +174,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @return  true if command is successful; false otherwise.
     public boolean runCommand(String command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
         if (!threadSafety)
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
             return super.runCommand(command, false, messageCount);
         }
         open(true);
@@ -188,10 +188,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // @return  true if command is successful; false otherwise.
     public boolean runCommand(byte[] command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Native implementation running command:", command);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command:", command);
         if (!threadSafety)
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
             return super.runCommand(command, false, messageCount);
         }
 
@@ -207,13 +207,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
         try
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Invoking native method.");
+            if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
             if (AS400.nativeVRM.vrm_ < 0x00050300)
             {
                 try
                 {
                     byte[] replyBytes = runCommandNative(commandBytes);
-                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                     if (replyBytes == null) replyBytes = new byte[0];
 
@@ -232,7 +232,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                 try
                 {
                     byte[] replyBytes = runCommandNativeV5R3(commandBytes, messageCount);
-                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                     // Get info from reply.
                     messageList_ = RemoteCommandImplNative.parseMessagesV5R3(replyBytes, converter_);
@@ -254,10 +254,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // Run the program.
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
+        if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
         if (!threadSafety)
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Sending program to super class.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending program to super class.");
             return super.runProgram(library, name, parameterList, false, messageCount);
         }
         // Run the program on-thread.
@@ -291,7 +291,6 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                     // Server does not allow null parameters.
                     parameterUsage = ProgramParameter.INPUT;
                 }
-
                 BinaryConverter.intToByteArray(parameterMaxLength, programParameterStructure, i * 10);
                 BinaryConverter.unsignedShortToByteArray(parameterUsage, programParameterStructure, i * 10 + 4);
                 BinaryConverter.intToByteArray(offset, programParameterStructure, i * 10 + 6);
@@ -313,7 +312,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                 offset += parameterMaxLength;
             }
 
-            if (Trace.isTraceOn())
+            if (Trace.traceOn_)
             {
                 Trace.log(Trace.DIAGNOSTIC, "Program name bytes:", programNameBuffer);
                 Trace.log(Trace.DIAGNOSTIC, "Program parameter bytes:", programParameterStructure);
@@ -325,9 +324,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             try
             {
                 // Call native method.
-                if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Invoking native method.");
+                if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
                 byte[] replyBytes = runProgramNative(programNameBuffer, programParameterStructure, programParameters);
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                 // Reset the message list.
                 messageList_ = new AS400Message[0];
@@ -409,7 +408,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                 offset += parameterList[i].getMaxLength();
             }
 
-            if (Trace.isTraceOn())
+            if (Trace.traceOn_)
             {
                 Trace.log(Trace.DIAGNOSTIC, "Program name bytes:", nameBytes);
                 Trace.log(Trace.DIAGNOSTIC, "Program library bytes:", libraryBytes);
@@ -423,9 +422,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             try
             {
                 // Call native method.
-                if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Invoking native method.");
+                if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
                 byte[] replyBytes = runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageCount);
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                 // Reset the message list.
                 messageList_ = new AS400Message[0];

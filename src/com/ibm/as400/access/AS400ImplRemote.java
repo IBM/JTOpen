@@ -1160,7 +1160,7 @@ class AS400ImplRemote implements AS400Impl
                 throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
             }
         }
-        if (byteType_ == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
+        if (byteType_ == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN || byteType_ == AS400.AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN)
         {
             return decode(adder_, mask_, bytes_);
         }

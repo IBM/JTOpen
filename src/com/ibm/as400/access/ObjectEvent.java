@@ -20,11 +20,20 @@ import java.util.EventObject;
  **/
 public class ObjectEvent extends EventObject
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
+
+    // The object closed event ID.
+    static final int OBJECT_CLOSED = 0;
+
+    // The object created event ID.
+    static final int OBJECT_CREATED = 1;
+
+    // The object deleted event ID.
+    static final int OBJECT_DELETED = 2;
+
+    // The object opened event ID.
+    static final int OBJECT_OPENED = 3;
 
 
     /**

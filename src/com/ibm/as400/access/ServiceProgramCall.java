@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: ServiceProgramCall.java
+// Filename:  ServiceProgramCall.java
 //
-// The source code contained herein is licensed under the IBM Public License   
+// The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2000 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 1998-2003 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ import java.io.IOException;
  <li>The return value must be void or numeric.  This class does not support calling service programs that return a pointer.
  <li>Parameters can be "pass by reference" or "pass by value".
  <ul>
- <li>When pass by reference the data is copied from Java storage to server storage, then a pointer to the server storage is passed to the service program.
+ <li>When pass by reference, the data is copied from Java storage to server storage, then a pointer to the server storage is passed to the service program.
  <li>Up to four bytes can be passed by value.  Parameters longer than four bytes must be passed by reference which may require a change to the service program.
  </ul>
  </ul>
@@ -78,12 +78,10 @@ import java.io.IOException;
  *        System.out.println("Result is: " + i);
  *    }
  </pre>
- @see  ProgramParameter
- @see  ProgramCall
  **/
 public class ServiceProgramCall extends ProgramCall
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1998-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -167,11 +165,11 @@ public class ServiceProgramCall extends ProgramCall
      @param  system  The server which contains the program.
      @param  serviceProgram  The program name as a fully qualified name in the integrated file system.
      @param  procedureName  The procedure in the service program to call.
-     @param  returnValueFormat  The format of the returned data. The value must be one of the following:
-     <UL>
-     <LI>NO_RETURN_VALUE  The procedure does not return a value.
-     <LI>RETURN_INTEGER  The procedure returns an integer.
-     </UL>
+     @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
+     <ul>
+     <li>NO_RETURN_VALUE  The procedure does not return a value.
+     <li>RETURN_INTEGER  The procedure returns an integer.
+     </ul>
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      **/
     public ServiceProgramCall(AS400 system, String serviceProgram, String procedureName, int returnValueFormat, ProgramParameter[] parameterList)
@@ -304,7 +302,7 @@ public class ServiceProgramCall extends ProgramCall
             }
         }
 
-        // The SRVPGM API we call will return an MCH3401 if the Object or Library do not exist.  We need to monitor the message list for that return code and throw an ObjectDoesNotExistException.  Unfortunately we do not know if it is the object or the library that does not exist.
+        // The SRVPGM API we call will return an MCH3401 if the object or library do not exist.  We need to monitor the message list for that return code and throw an ObjectDoesNotExistException.  Unfortunately we do not know if it is the object or the library that does not exist.
         if (messageList_.length != 0)
         {
             if (messageList_[0].getID().startsWith("MCH3401"))
@@ -341,11 +339,11 @@ public class ServiceProgramCall extends ProgramCall
      @param  system  The server which contains the program.
      @param  serviceProgram  The program name as a fully qualified name in the integrated file system.
      @param  procedureName  The procedure in the service program to call.
-     @param  returnValueFormat  The format of the returned data. The value must be one of the following:
-     <UL>
-     <LI>NO_RETURN_VALUE  The procedure does not return a value.
-     <LI>RETURN_INTEGER  The procedure returns an integer.
-     </UL>
+     @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
+     <ul>
+     <li>NO_RETURN_VALUE  The procedure does not return a value.
+     <li>RETURN_INTEGER  The procedure returns an integer.
+     </ul>
      @param  parameterList  A list of up to 7 parameters with which to call the program.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -453,11 +451,11 @@ public class ServiceProgramCall extends ProgramCall
 
     /**
      Sets the format of the returned data.
-     @param  returnValueFormat  The format of the returned data. The value must be one of the following:
-     <UL>
-     <LI>NO_RETURN_VALUE  The procedure does not return a value.
-     <LI>RETURN_INTEGER  The procedure returns an integer.
-     </UL>
+     @param  returnValueFormat  The format of the returned data.  The value must be one of the following:
+     <ul>
+     <li>NO_RETURN_VALUE  The procedure does not return a value.
+     <li>RETURN_INTEGER  The procedure returns an integer.
+     </ul>
      @exception  PropertyVetoException  If a change for the value of returnValueFormat is vetoed.
      **/
     public void setReturnValueFormat(int returnValueFormat) throws PropertyVetoException

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: BaseDataQueueImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  BaseDataQueueImplRemote.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -17,7 +17,7 @@ import java.io.IOException;
 
 class BaseDataQueueImplRemote implements BaseDataQueueImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // Identify all data queue reply data streams.
     static
@@ -38,9 +38,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Set needed implementation properties.
     public void setSystemAndPath(AS400Impl system, String path, String name, String library) throws IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting up implementation object: " + path);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting up implementation object: " + path);
         system_ = (AS400ImplRemote)system;
         path_ = path;
+
         converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
         converter_.stringToByteArray(name, queueNameBytes_);
         converter_.stringToByteArray(library, libraryBytes_);
@@ -94,7 +95,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Remote implementation of clear, if key is null, do non-keyed clear.
     public void processClear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Processing clear: " + path_);
+        // Connect to the data queue server.
+        processConnect();
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing clear: " + path_);
         DQClearDataStream request = new DQClearDataStream(queueNameBytes_, libraryBytes_, key);
 
         try
@@ -127,7 +131,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Remote implementation of create, keyLength == 0 means non-keyed queue.
     public void processCreate(int maxEntryLength, String authority, boolean saveSenderInformation, boolean FIFO, int keyLength, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Processing create: " + path_);
+        // Connect to the data queue server.
+        processConnect();
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing create: " + path_);
         byte[] descBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
         converter_.stringToByteArray(description, descBytes);
 
@@ -168,7 +175,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Remote implementaion of delete.
     public void processDelete() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Processing delete: " + path_);
+        // Connect to the data queue server.
+        processConnect();
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing delete: " + path_);
         DQDeleteDataStream request = new DQDeleteDataStream(queueNameBytes_, libraryBytes_);
 
         try
@@ -201,7 +211,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Remote implementation of read for data queues, key == null means non-keyed queue, boolean peek determines peek or read, returns the entry read, or null if no entries on the queue.
     public DQReceiveRecord processRead(String search, int wait, boolean peek, byte[] key, boolean saveSenderInformation) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Processing read: " + path_);
+        // Connect to the data queue server.
+        processConnect();
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing read: " + path_);
         byte[] searchBytes = (key == null) ? new byte[2] : converter_.stringToByteArray(search);
         DQReadDataStream request = new DQReadDataStream(queueNameBytes_, libraryBytes_, searchBytes, wait, peek, key);
 
@@ -249,7 +262,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Remote implementation for retrieve attributes, keyed is false for non-keyed queues
     public DQQueryRecord processRetrieveAttrs(boolean keyed) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Processing retrieve attributes: " + path_);
+        // Connect to the data queue server.
+        processConnect();
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing retrieve attributes: " + path_);
         DataStream request = new DQRequestAttributesDataStream(queueNameBytes_, libraryBytes_);
 
         try
@@ -315,7 +331,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     // Remote implementation for write, key is null for non-keyed queues.
     public void processWrite(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Processing write: " + path_);
+        // Connect to the data queue server.
+        processConnect();
+
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing write: " + path_);
         DQWriteDataStream request = new DQWriteDataStream(queueNameBytes_, libraryBytes_, key, data);
 
         try

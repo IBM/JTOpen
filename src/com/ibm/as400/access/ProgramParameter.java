@@ -105,7 +105,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs ProgramParameter object. A parameter that is both an input and an output parameter is created, since both data passed to the program and the amount of data returned from the program are passed on this constructor.
+     Constructs ProgramParameter object.  A parameter that is both an input and an output parameter is created, since both data passed to the program and the amount of data returned from the program are passed on this constructor.
      @param  inputData  Parameter data passed to the program.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
