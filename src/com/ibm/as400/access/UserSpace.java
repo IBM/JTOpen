@@ -56,6 +56,21 @@ public class UserSpace
    **/
    public final static int FORCE_SYNCHRONOUS = 2;
 
+   /**
+    * Constant representing the default domain for the user space. The QALWUSRDMN system value
+    * is used to determine the domain.
+   **/
+   public final static String DOMAIN_DEFAULT = "*DEFAULT";
+
+   /** 
+    * Constant indicating the domain for the user space is *USER.
+   **/
+   public final static String DOMAIN_USER = "*USER";
+
+   /**
+    * Constant indicating the domain for the user space is *SYSTEM.
+   **/
+   public final static String DOMAIN_SYSTEM = "*SYSTEM";
 
    /**
      Variables
@@ -283,15 +298,19 @@ public class UserSpace
                  ObjectDoesNotExistException          // $B1
 
    {
-      create("*DEFAULT", length, replace, extendedAttribute, initialValue, textDescription, authority);
+      create(DOMAIN_DEFAULT, length, replace, extendedAttribute, initialValue, textDescription, authority);
    }
 
    /**
      Creates the user space.
 
         @param domain  The domain into which the user space is created.
-            Valid value are: *DEFAULT, *USER, or *SYSTEM.
-            *DEFAULT uses the allow user domain system value to determine if *USER or *SYSTEM will be used.
+            Valid value are: 
+            <UL>
+            <LI>{@link #DOMAIN_DEFAULT DOMAIN_DEFAULT}
+            <LI>{@link #DOMAIN_USER DOMAIN_USER}
+            <LI>{@link #DOMAIN_SYSTEM DOMAIN_SYSTEM}
+            </UL>
         @param length  The initial size (in bytes) of the user space.
               Valid values are 1 through 16,776,704.
         @param replace The value indicating if an existing user space is to be replaced.
@@ -334,7 +353,7 @@ public class UserSpace
           throw new NullPointerException("domain");
       }
       //if (domain.length() == 0 || domain.length() > 10)
-      if (!domain.equals("*DEFAULT") && !domain.equals("*USE") && !domain.equals("*SYSTEM"))  //$C0C
+      if (!domain.equals(DOMAIN_DEFAULT) && !domain.equals(DOMAIN_USER) && !domain.equals(DOMAIN_SYSTEM))  //$C0C
       {
           Trace.log(Trace.ERROR, "Parameter 'domain' is not valid.");
           throw new ExtendedIllegalArgumentException("domain",
