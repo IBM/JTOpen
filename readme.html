@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen Version</H2>
 <PRE>
-Copyright (C) 1997-2001 International Business Machines Corporation and
+Copyright (C) 1997-2002 International Business Machines Corporation and
 others. All rights reserved.
 
 File: README
-Last updated: August 21, 2001
+Last updated: February 7, 2002
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -91,8 +91,9 @@ following reasons:
 
 1. The initial release of the source code for JTOpen uses the Mod 3
    Toolbox codebase. That is, the Java code in the open source repository
-   is the same code that is used to build the Mod 3 Toolbox LPP. The latest
-   release of JTOpen (JTOpen 2.0x) uses the Mod 4 Toolbox as its codebase.
+   is the same code that is used to build the Mod 3 Toolbox LPP. JTOpen 2.0x
+   uses the Mod 4 Toolbox as its codebase. The latest release of JTOpen
+   (JTOpen 3.0x) uses the Mod 5 Toolbox as its codebase.
 
 2. When bugs are reported, fixes will be committed to JTOpen as soon as
    they are realized. When applicable, these same fixes will be committed
@@ -180,11 +181,12 @@ jt400.jar         This is the open source version of the LPP jt400.jar. It
                   Toolbox code is submitted as open source, it replaces
                   the LPP code in this jar file.
 jt400Micro.jar    This contains the ToolboxME (Micro Edition) classes for
-                  use in a handheld device.
-jt400Native.jar   The open source version of the LPP jt400Native.jar. This
-                  jar does not contain the vaccess package. It does
-                  contain the native optimization classes necessary for
-                  running performance-enhanced applications on the OS/400 JVM.
+                  use on a handheld device.
+jt400Native.jar   The open source version of the LPP jt400Native.jar or
+                  jt400Access.zip. This jar does not contain the vaccess
+                  package. It does contain the native optimization classes
+                  necessary for running performance-enhanced applications
+                  on the OS/400 JVM.
 jt400Proxy.jar    The open source version of the LPP jt400Proxy.jar. This
                   jar contains just the classes needed to run a client
                   application using the Toolbox proxy server. It is
@@ -239,10 +241,15 @@ for download off of the official Toolbox web site at
 
 Jar file           Contents
 --------           --------
-jt400.jar          Contains the access, vaccess, and security packages.
-jt400Access.jar    Contains just the access package.
+jt400.jar          Contains the access, data (PCML), resource, vaccess,
+                   and security packages.
+jt400Access.zip    Contains the access, data, resource, security, HTML, and servlet
+                   packages, along with Toolbox native optimization classes used
+                   when running directly on the OS/400 JVM.
 jt400Proxy.jar     Contains proxy classes for the access package. Useful for
-                   applets or environments where a small jar file is needed.
+                   applets or environments where a small jar file is needed. A middle
+                   tier machine running the Toolbox ProxyServer is required to forward
+                   proxy client requests to the backend server.
 jt400Servlet.jar   Contains the HTML and servlet packages.
 utilities package  Contains various helper applications for the Toolbox,
                    such as JarMaker and AS400ToolboxInstaller.
@@ -253,7 +260,7 @@ jui400.jar         Contains the PDML runtime packages as provided by
 uitools.jar        Contains the GUI Builder packages as provided by the
                    Graphical Toolbox.
 util400.jar        Contains various utilities.
-x4j400.jar         This is the IBM XML Parser for Java.
+x4j400.jar         Contains the IBM XML Parser for Java.
 composer.jar       Contains XSL stylesheet composer classes.
 reportwriter.jar   Contains XSL report processor classes.
 outputwriters.jar  Contains PDF, PCL, and font classes.
