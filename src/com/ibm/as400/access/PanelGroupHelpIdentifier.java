@@ -24,6 +24,8 @@ package com.ibm.as400.access;
 **/
 public class PanelGroupHelpIdentifier
 {
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  
   /**
    * Constant indicating that the keyword specified for this help identifier and
    * panel group was not correct.
