@@ -812,7 +812,7 @@ ResultSet.CONCUR_READ_ONLY.
      * <p><B>This method is not supported.  An SQLException is always thrown. </B>
      *
      * @param  sql     The SQL statement.                                  
-     * @parm   columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
+     * @param  columnIndexes An array of column indexes indicating the columns that should be returned from the inserted row or rows.
      * @return         An SQLException is always thrown. This method is not supported.
      * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
      * @since Modification 5
@@ -912,7 +912,7 @@ ResultSet.CONCUR_READ_ONLY.
      * <p><B>This method is not supported.  An SQLException is always thrown. </B>
      *
      * @param  sql     The SQL statement.                                  
-     * @parm   columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
+     * @param  columnNames An array of column names indicating the columns that should be returned from the inserted row or rows.
      * @return         An SQLException is always thrown. This method is not supported.
      * @exception      java.sql.SQLException - Always thrown because the Toolbox JDBC driver does does not support this method.
      * @since Modification 5

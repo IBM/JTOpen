@@ -354,7 +354,7 @@ public class ReaderInputStream extends InputStream
    * Reads bytes into the specified array. If close() is called prior to calling
    * this method, an exception will be thrown.
    * @param buffer The destination buffer.
-   * @retrun The number of bytes read, or -1 if the end of the stream has been reached.
+   * @return The number of bytes read, or -1 if the end of the stream has been reached.
    * @exception IOException If an I/O exception occurs.
   **/
   public synchronized int read(byte[] buffer) throws IOException

@@ -444,7 +444,7 @@ public class DirectoryEntry
 
   /**
    * Returns organization unit 1.
-   * @retun The organization unit.
+   * @return The organization unit.
   **/
   public String getOrganizationUnit1()
   {
@@ -454,7 +454,7 @@ public class DirectoryEntry
 
   /**
    * Returns organization unit 1.
-   * @retun The organization unit.
+   * @return The organization unit.
   **/
   public String getOrganizationUnit2()
   {
@@ -464,7 +464,7 @@ public class DirectoryEntry
 
   /**
    * Returns organization unit 1.
-   * @retun The organization unit.
+   * @return The organization unit.
   **/
   public String getOrganizationUnit3()
   {
@@ -474,7 +474,7 @@ public class DirectoryEntry
 
   /**
    * Returns organization unit 1.
-   * @retun The organization unit.
+   * @return The organization unit.
   **/
   public String getOrganizationUnit4()
   {

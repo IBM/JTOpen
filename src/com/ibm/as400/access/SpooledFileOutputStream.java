@@ -294,8 +294,6 @@ public class SpooledFileOutputStream extends OutputStream
       *                          spooled file.  The output queue must reside on
       *                          the same AS400 system that the spooled file
       *                          is being created.
-      * @return An output stream that can be used to write data into the spooled
-      *         file and to close the spooled file.
       * @exception AS400Exception If the AS/400 system returns an error message.
       * @exception AS400SecurityException If a security or authority error occurs.
       * @exception ErrorCompletingRequestException If an error occurs before the request is completed.

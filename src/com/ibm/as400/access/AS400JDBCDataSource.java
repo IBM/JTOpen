@@ -2892,7 +2892,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Sets the OS/400 time separator used in time literals within SQL statements.
     *  This property has no effect unless the time format property is set to "hms".
-    *  @parm timeSeparator The time separator.
+    *  @param timeSeparator The time separator.
     *  <p>Valid values include:
     *  <ul>
     *    <li> ":" (colon)
@@ -3235,7 +3235,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Sets the minimum divide scale property.  This property ensures the scale
     * of the result of decimal division is never less than its specified value.
-    * @parm scale The minimum divide scale.
+    * @param scale The minimum divide scale.
     **/
     public void setMinimumDivideScale(int scale)
     {
@@ -3258,7 +3258,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Sets the maximum precision property. This property indicates the 
     * maximum decimal precision the server should use.
-    * @parm precision The maximum precision.
+    * @param precision The maximum precision.
     **/
     public void setMaximumPrecision(int precision)
     {
@@ -3281,7 +3281,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     * Sets the maximum scale property.  This property indicates the
     * maximum decimal scale the server should use.
-    * @parm scale The maximum scale.
+    * @param scale The maximum scale.
     **/
     public void setMaximumScale(int scale)
     {

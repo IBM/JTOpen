@@ -324,7 +324,7 @@ implements VObject, Serializable
     /**
      * Returns true if the modify action is allowed, false otherwise.
      *
-     * @returns true if the modify action is allowed, false otherwise.
+     * @return true if the modify action is allowed, false otherwise.
     **/
     public boolean isAllowModify()
     {

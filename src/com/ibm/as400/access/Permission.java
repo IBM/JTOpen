@@ -329,7 +329,7 @@ public class Permission
     /**
      * Adds an authorized user. The user added will have "*EXCLUDE" authorities 
      * on the object.
-     * @userProfileName The authorized user profile name.
+     * @param userProfileName The authorized user profile name.
      *
     **/
     public void addAuthorizedUser(String userProfileName)
@@ -853,7 +853,7 @@ public class Permission
 
     /**
      * Removes an authorized user.
-     * @userProfileName The authorized user profile name.
+     * @param userProfileName The authorized user profile name.
      *
     **/
     public void removeAuthorizedUser(String userProfileName)
@@ -894,7 +894,7 @@ public class Permission
    
     /**
      * Removes a user permission.
-     * @permission The UserPermission object.
+     * @param permission The UserPermission object.
      *
     **/
     public void removeUserPermission(UserPermission permission)

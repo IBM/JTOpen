@@ -490,7 +490,7 @@ implements java.io.Serializable
     }// @B3A #2
      /**
      * Returns the time of spooled file creation.
-     * @returns The time of the spooled file creation.
+     * @return The time of the spooled file creation.
      **/
     public String getCreateTime()
     {
