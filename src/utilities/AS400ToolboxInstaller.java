@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ToolboxInstaller.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ import java.net.URL;
 import java.net.MalformedURLException;
 /**
  * <p>The AS400ToolboxInstaller class is used to
- * install, update, compare, and uninstall the AS/400 Toolbox for Java
+ * install, update, compare, and uninstall the IBM Toolbox for Java
  * packages.  Note that this class writes to the local file system,
  * so it may fail if used in an applet.
  *
@@ -160,7 +160,7 @@ import java.net.MalformedURLException;
  *
 **/
 public class AS400ToolboxInstaller {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 private static final int INSTALL = 0;   // when installing      @A2a
@@ -425,12 +425,12 @@ private static void copyFile(String targetFile, URL sourceURL)
 
 
 /**
-Returns the names of all the AS/400 Toolbox for Java packages.
+Returns the names of all the IBM Toolbox for Java packages.
 
 @param     source      The directory in which the Toolbox exists.
 
 @return    The vector of Strings which contain the names of all the
-           packages in the AS/400 Toolbox for Java.
+           packages in the IBM Toolbox for Java.
 
 @exception IOException If the package list file cannot be found.
 **/
@@ -452,13 +452,13 @@ private static Vector getAllPackageNames(String source)
 
 
 /**
-Returns the names of all the AS/400 Toolbox for Java packages installed
+Returns the names of all the IBM Toolbox for Java packages installed
 on the source.
 
 @param     source      The location of the Toolbox.
 
 @return    The vector of Strings which contain the names of all the
-           packages in the AS/400 Toolbox for Java.
+           packages in the IBM Toolbox for Java.
 
 @exception IOException If the package list file cannot be found.
 **/
@@ -548,7 +548,7 @@ public static Vector getUnexpandedFiles()
 
 
 /**
-Installs/updates an AS/400 Toolbox for Java package.
+Installs/updates an IBM Toolbox for Java package.
 If the package is already installed,
 it will be updated if needed.  This method just copies files, it will
 not modify the CLASSPATH, or expand any 'zipped' files.
@@ -558,7 +558,7 @@ AS400ToolboxInstaller.install("ACCESS", "C:\\java\\", sourceURL);
 </pre>
 
 @param     packageName The package which to install.
-                       "*ALL" can be used to install all the AS/400
+                       "*ALL" can be used to install all the IBM
                        Toolbox for Java packages.
 @param     targetPath  The path in which to install.  The directory will be
                        created if it does not exist.
@@ -1045,7 +1045,7 @@ AS400ToolboxInstaller.isUpdateNeeded("ACCESS", "C:\\java\\", sourceURL);
 </pre>
 
 @param     packageName The package which will be checked.
-                       "*ALL" can be used to check all the AS/400
+                       "*ALL" can be used to check all the IBM
                        Toolbox for Java packages.
 @param     targetPath  The path in which the package is installed.
 @param     source      The URL which contains the location which contains the
@@ -1929,7 +1929,7 @@ AS400ToolboxInstaller.unInstall("ACCESS", "C:\\java\\");
 </pre>
 
 @param     packageName The package to remove.
-                       "*ALL" can be used to remove all the AS/400
+                       "*ALL" can be used to remove all the IBM
                        Toolbox for Java packages.
 @param     targetPath  The path from which to remove the package.
 
