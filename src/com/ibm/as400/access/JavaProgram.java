@@ -28,7 +28,7 @@ In the context of this discussion, a "Java program" is the OS/400 or i5/OS execu
 Using the JavaProgram class, you can obtain the following information about an OS/400 or i5/OS Java program:
 <ul>
 <li>Adopted authority profile</li>
-<li>File change cate</li>
+<li>File change date</li>
 <li>File owner</li>
 <li>Java program creation date</li>
 <li>Release program was created for</li>
@@ -67,7 +67,6 @@ String owner = javaProgram.getFileOwner();
 public class JavaProgram implements Serializable
 {
     static final long serialVersionUID = -209990140140936884L;
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private boolean loaded_ = false; // Have we retrieved values from the system yet?
     
@@ -524,7 +523,8 @@ public class JavaProgram implements Serializable
         parms[14] = new ProgramParameter(BinaryConverter.intToByteArray(0));    // error code
 
         ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QJVAMAT.PGM", parms);
-        pc.setThreadSafe(false);
+        // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
+        //pc.setThreadSafe(false);
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());

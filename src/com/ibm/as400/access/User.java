@@ -33,8 +33,6 @@ import java.util.Calendar;
  **/
 public class User implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 5L;
 
     // These need to be in this order so we can easily reference them from the code that parses the API return information in loadUserInformation().
@@ -1781,7 +1779,10 @@ public class User implements Serializable
         }
 
         CommandCall cmd = new CommandCall(system_, "QSYS/CHGUSRPRF USRPRF(" + name_ + ") " + parameters);
-        cmd.setThreadSafe(false);
+        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
+        {
+          cmd.setThreadSafe(false);
+        }
 
         if (!cmd.run())
         {
@@ -1807,7 +1808,10 @@ public class User implements Serializable
         }
 
         CommandCall cmd = new CommandCall(system_, "QSYS/CHGUSRAUD USRPRF(" + name_ + ") " + parameters);
-        cmd.setThreadSafe(false);
+        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
+        {
+          cmd.setThreadSafe(false);
+        }
 
         if (!cmd.run())
         {

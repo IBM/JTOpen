@@ -27,8 +27,6 @@ import java.util.Locale;
 **/
 public class PTF
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
   private AS400 system_;
   private String productID_;
   private String returnedProductID_; // Product ID that comes back on the API call.
@@ -1426,7 +1424,8 @@ public class PTF
     parms[4] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // error code
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QPZRTVFX.PGM", parms);
-    pc.setThreadSafe(false);
+    // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
+    //pc.setThreadSafe(false);
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());

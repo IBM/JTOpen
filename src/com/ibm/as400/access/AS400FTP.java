@@ -86,11 +86,6 @@ public class AS400FTP
              extends FTP
              implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -913,7 +908,10 @@ public class AS400FTP
                   Trace.log(Trace.DIAGNOSTIC,"command string " + command);
 
                try { c.setCommand(command); } catch (PropertyVetoException pve) {}
-               c.setThreadSafe(false);  // CRTSAVF is not threadsafe.  @A1A
+               if (!CommandCall.isThreadSafetyPropertySet()) // property not set
+               {
+                 c.setThreadSafe(false);  // CRTSAVF is not threadsafe.  @A1A
+               }
 
                try
                {

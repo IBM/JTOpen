@@ -46,8 +46,6 @@ import java.io.UnsupportedEncodingException;
  **/
 public class SystemPool
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
   private static final boolean DEBUG = false;
 
 
@@ -366,7 +364,8 @@ public class SystemPool
         parmList[11] = new ProgramParameter(bin4.toBytes(obj));
 
         ProgramCall pgm = new ProgramCall(system_);
-        pgm.setThreadSafe(false);  // QUSCHGPA isn't threadsafe.   @B2A @B3C
+        // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
+        //pgm.setThreadSafe(false);  // QUSCHGPA isn't threadsafe.   @B2A @B3C
 
         try
         {
@@ -1210,7 +1209,8 @@ public class SystemPool
     parmList[4] = new ProgramParameter(errorInfo, 0);
 
     ProgramCall pgm = new ProgramCall(system_);
-    pgm.setThreadSafe(false);  // QWCRSSTS isn't threadsafe.     @B2A @B3C
+    // Assumption of thread-safety defaults to false, or to the value of the "threadSafe" system property (if it has been set).
+    //pgm.setThreadSafe(false);  // QWCRSSTS isn't threadsafe.     @B2A @B3C
     try
     {
       pgm.setProgram(prgName.getPath(), parmList);

@@ -144,10 +144,6 @@ import java.util.Vector;
 
 public class JavaApplicationCall implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
 
     // The variables represent the default standard in, standard out, and standard err port.
@@ -903,7 +899,10 @@ public class JavaApplicationCall implements Serializable
         openSocketsThread_.start();
 
         command_ = new CommandCall(getSystem());
-        command_.setThreadSafe(false); // JAVA cmd isn't threadsafe.  @A1A
+        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
+        {
+          command_.setThreadSafe(false); // JAVA cmd isn't threadsafe.  @A1A
+        }
         // Construct commandstring
         // 1.  CLASS
         // 2.  PARM

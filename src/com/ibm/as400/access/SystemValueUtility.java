@@ -24,7 +24,6 @@ import java.util.Vector;
 // Contains static methods for setting and getting system values from the server.  Used by the SystemValue, SystemValueGroup, and SystemValueList classes.
 class SystemValueUtility
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     // Parses the data stream returned by the Program Call.  Extracts the system value information tables from the data stream.
     // @return  A Vector of Java objects corresponding to the values retrieved from the data stream.
@@ -258,7 +257,10 @@ class SystemValueUtility
         };
 
         ProgramCall prog = new ProgramCall(system, isNetA ? "/QSYS.LIB/QWCRNETA.PGM" : "/QSYS.LIB/QWCRSVAL.PGM", parameters);
-        prog.setThreadSafe(true);
+        if (!ProgramCall.isThreadSafetyPropertySet()) // property not set
+        {
+          prog.setThreadSafe(true);  // this API is known to be thread-safe
+        }
         if (!prog.run())
         {
             throw new AS400Exception(prog.getMessageList());
@@ -402,7 +404,10 @@ class SystemValueUtility
 
         CommandCall cmd = new CommandCall(system, command);
         // Neither CHGSYSVAL nor CHGNETA is threadsafe.
-        cmd.setThreadSafe(false);
+        if (!CommandCall.isThreadSafetyPropertySet()) // property not set
+        {
+          cmd.setThreadSafe(false);
+        }
 
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Running system value command: " + command);
 
