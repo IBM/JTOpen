@@ -33,6 +33,8 @@ public class AS400PackedDecimal implements AS400DataType
     private int scale;
     private static final long defaultValue = 0;
 
+    private boolean useDouble_ = false;
+
     /**
      * Constructs an AS400PackedDecimal object.
      * @param numDigits The number of digits in the packed decimal number.  It must be greater than or equal to one and less than or equal to thirty-one.
@@ -115,6 +117,29 @@ public class AS400PackedDecimal implements AS400DataType
     public int getNumberOfDecimalPositions()
     {
      return this.scale;
+    }
+
+    /**
+     * Indicates if a {@link java.lang.Double Double} object or a
+     * {@link java.math.BigDecimal BigDecimal} object will be returned
+     * on a call to {@link #toObject toObject()}.
+     * @return true if a Double will be returned, false if a BigDecimal
+     * will be returned.  The default is false.
+    **/
+    public boolean isUseDouble()
+    {
+      return useDouble_;
+    }
+
+    /**
+     * Sets whether to return a {@link java.lang.Double Double} object or a
+     * {@link java.math.BigDecimal BigDecimal} object on a call to
+     * {@link #toObject toObject()}.
+     * @see com.ibm.as400.access.AS400ZonedDecimal#setUseDouble
+    **/
+    public void setUseDouble(boolean b)
+    {
+      useDouble_ = b;
     }
 
     /**
@@ -456,6 +481,8 @@ public class AS400PackedDecimal implements AS400DataType
      **/
     public Object toObject(byte[] as400Value, int offset)
     {
+      if (useDouble_) return new Double(toDouble(as400Value, offset));
+
      // Check offset to prevent bogus NumberFormatException message
      if (offset < 0)
      {
