@@ -98,6 +98,22 @@ attributes. The tables organize the properties into the following categories:</P
       &quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;true&quot;</TD>
   </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2"><a name="cursorsensitivity">&quot;cursor sensitivity&quot;</a></TD>
+    <TD HEADERS="t2"><p></p>Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:</p>
+	<ul>
+	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java program requests from the database.</li>
+	<li>ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.</li>
+	</ul>
+	<p>This property is ignored when connecting to systems running V5R1 and earlier versions of OS/400.</p>
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;&quot; (Use the ResultSet Type to determine the cursor sensitivity)<BR>
+      &quot;asensitive&quot;<BR>
+	  &quot;sensitive&quot;<BR>
+	  &quot;insensitive&quot;</TD>
+    <TD HEADERS="t5">&quot;&quot;</TD>
+  </TR>
   <TR VALIGN="TOP">
     <TD HEADERS="cat2"><a name="databasename">&quot;database 
       name&quot;</a></TD>
@@ -177,6 +193,48 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t5">&quot;*LIBL&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;maximum precision&quot;</TD>
+    <TD HEADERS="t2">Specifies the maximum decimal precision the database should use.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;31&quot;<BR>
+      &quot;63&quot; <BR>
+    </TD>
+    <TD HEADERS="t5">&quot;31&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;maximum scale&quot;</TD>
+    <TD HEADERS="t2">Specifies the maximum scale the database should use.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;0&quot;-&quot;63&quot; <BR>
+    </TD>
+    <TD HEADERS="t5">&quot;31&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;minimum divide scale&quot;</TD>
+    <TD HEADERS="t2">Specifies the minimum scale value for the result of decimal division.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">  &quot;0&quot;<BR>
+	&quot;1&quot;<BR>
+	&quot;2&quot; <BR>
+	&quot;3&quot; <BR>
+	&quot;4&quot; <BR>
+	&quot;5&quot; <BR>
+	&quot;6&quot; <BR>
+	&quot;7&quot; <BR>
+	&quot;8&quot; <BR>
+	&quot;9&quot; <BR>
+    </TD>
+    <TD HEADERS="t5">&quot;0&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;package ccsid&quot;</TD>
+    <TD HEADERS="t2">Specifies the character encoding to use for the SQL package and any statements sent to the server.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;1200&quot; (UCS-2)<BR>
+      &quot;13488&quot; (UTF-16)<BR>
+    <TD HEADERS="t5">&quot;13488&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat2">&quot;transaction isolation&quot;</TD>
     <TD HEADERS="t2">Specifies the default transaction isolation.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
@@ -186,6 +244,15 @@ attributes. The tables organize the properties into the following categories:</P
       &quot;repeatable read&quot;<BR>
       &quot;serializable&quot;</TD>
     <TD HEADERS="t5">&quot;read uncommitted&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;translate hex&quot;</TD>
+    <TD HEADERS="t2">Specifies how hexadecimal literals are interpreted.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;character&quot; (Interpret hexadecimal literals as character data)<BR>
+      &quot;binary&quot; (Interpret hexadecimal literals as binary data)<BR>
+    </TD>
+    <TD HEADERS="t5">&quot;character&quot;</TD>
   </TR>
 </TABLE>
 
@@ -381,7 +448,7 @@ attributes. The tables organize the properties into the following categories:</P
       but will only download LOB data as it is needed.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;0&quot; - &quot;16777216&quot;</TD>
-    <TD HEADERS="t5">&quot;0&quot;</TD>
+    <TD HEADERS="t5">&quot;32768&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;package&quot;</TD>
@@ -462,6 +529,14 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t4">&quot;true&quot;<BR>
       &quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;qaqqinilib&quot;</TD>
+    <TD HEADERS="t2">Specifies a QAQQINI library name.  Used to specify the library that contains the qaqqini file to use.  A qaqqini file contains all of the attributes that can potentially impact the performance of the DB2 UDB for iSeries database engine.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;QAQQINI library name&quot;<BR>
+    </TD>
+    <TD HEADERS="t5">(server default)</TD>
   </TR>
 </TABLE>
 
@@ -740,6 +815,29 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t4">&quot;true&quot;<BR>
       &quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;toolbox trace&quot;</TD>
+    <TD HEADERS="t2">Specifies what category of a toolbox trace to log. Trace 
+      messages are useful for debugging programs that call JDBC. However, there 
+      is a performance penalty associated with logging trace messages, so this 
+      property should only be set for debugging. Trace messages 
+      are logged to System.out.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;&quot;<BR>
+	&quot;none&quot;<BR>
+	&quot;datastream&quot; (log data flow between the local host and the remote system)<BR>
+	&quot;diagnostic&quot; (log object state information)<BR>
+	&quot;error&quot; (log errors that cause an exception)<BR>
+	&quot;information&quot; (used to track the flow of control through the code)<BR>
+	&quot;warning&quot; (log errors that are recoverable)<BR>
+	&quot;conversion&quot; (log character set conversions between Unicode and native code pages)<BR>
+	&quot;proxy&quot; (log data flow between the client and the proxy server)<BR>
+	&quot;pcml&quot; (used to determine how PCML interprets the data that is sent to and from the server)<BR>
+	&quot;jdbc&quot; (log jdbc information)<BR>
+	&quot;all&quot; (log all categories)<BR>
+	&quot;thread&quot; (log thread information)<BR>
+    <TD HEADERS="t5">&quot;&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat6">&quot;trace&quot;</TD>
