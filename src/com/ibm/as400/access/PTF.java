@@ -59,6 +59,7 @@ public class PTF
 
   private boolean loaded_ = false;
   private boolean partiallyLoaded_ = false;
+  private boolean partiallyLoadedGroup_ = false;     //@K1A
   private boolean loaded200_ = false;
   private boolean loaded300_ = false;
   private boolean loaded500_ = false;
@@ -386,6 +387,32 @@ public class PTF
     partiallyLoaded_ = true;
   }
 
+  //@K1A
+  /**
+   * Package scope constructor used by PTFGroup.getPTFs().
+  **/
+  PTF(AS400 system, String ptfID, String productID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
+      String minimumLevel, String maximumLevel, String loadedStatus, int iplAction, String actionPending, String actionRequired,
+      String coverLetterStatus, String onOrderStatus, String saveFileStatus, String saveFileName, String saveFileLibraryName,
+      String supersededByPTFId, String latestSupersedingPTFId, String productStatus)
+  {
+    this(system, productID, ptfID, ptfReleaseLevel, ptfProductOption, ptfProductLoad);
+    //currently no getters for 'Save file library name', 'latest superseding ptf', 'product status'
+    loadedStatus_ = loadedStatus;
+    saveFileExists_ = saveFileStatus.equals("0") ? false : true;
+    hasCoverLetter_ = coverLetterStatus.equals("0") ? false : true;
+    ptfOnOrder_ = onOrderStatus.equals("0") ? false : true;
+    iplAction_ = iplAction;
+    actionPending_ = actionPending.equals("0") ? false : true;
+    actionRequired_ = actionRequired;
+    minimumLevel_ = minimumLevel;
+    maximumLevel_ = maximumLevel;
+    saveFile_ = saveFileName;
+    supersedingPTF_ = supersededByPTFId;
+    partiallyLoadedGroup_ = true;
+
+  }
+
   
   /**
    * Returns the action required to make this PTF active when it is applied.
@@ -406,7 +433,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return actionRequired_;
   }
 
@@ -594,7 +621,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return iplAction_;
   }
 
@@ -666,7 +693,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return loadedStatus_;
   }
 
@@ -763,7 +790,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return maximumLevel_;
   }
 
@@ -785,7 +812,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return minimumLevel_;
   }
 
@@ -860,7 +887,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);  //@K1C
     return ptfProductOption_;
   }
 
@@ -1082,7 +1109,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return hasCoverLetter_;
   }
 
@@ -1099,7 +1126,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return saveFileExists_;
   }
 
@@ -1122,7 +1149,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);      //@K1C
     return actionPending_;
   }
 
@@ -1229,7 +1256,7 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh(100);
+    if (!loaded_ && !partiallyLoaded_ && !partiallyLoadedGroup_) refresh(100);          //@K1C
     return ptfOnOrder_;
   }
 
