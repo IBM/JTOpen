@@ -37,7 +37,7 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_3812SCS      = 0x011F;  // AT_3812SCS
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0109">Accounting code</A>. **/
     public static final int ATTR_ACCOUNT_CODE = 0x0109;  // AT_ACCOUNT_CODE
-    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY261">ACIF processed"</A>. **/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY261">ACIF processing"</A>. **/
            static final int ATTR_ACIF         = 0x013B;  // AT_ACIF
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1">Advanced function printing</A>. **/
     public static final int ATTR_AFP          = 0x000A;  // AT_AFP
@@ -1494,6 +1494,7 @@ abstract public class PrintObject implements java.io.Serializable
         case 0x0105: return "ATTR_PUBINF_LOCATION";
         case 0x00FF: return "ATTR_RMTLOCNAME";
         case 0x005D: return "ATTR_RMTPRTQ";
+        case 0x00DF: return "AT_READ_BUFFERS_SEQ";
         case 0x005F: return "ATTR_RECLENGTH";
         case 0x00C2: return "ATTR_REDUCE";
         case 0x0060: return "ATTR_RMTSYSTEM";
