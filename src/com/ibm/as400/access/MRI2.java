@@ -116,6 +116,7 @@ public class MRI2 extends ListResourceBundle
       { "EXC_CERTIFICATE_NOT_FOUND", "Certificate was not found." },
       { "EXC_CERTIFICATE_NOT_VALID", "Certificate or certificate type is not valid." },
       { "EXC_MAX_CONN_REACHED", "Maximum configured number of connections has been reached." }, //@F2A
+      { "EXC_CONFLICT_POOL_SIZES", "The minimum and maximum number of connections do not agree." }, //@B0A
 
 
            // #TRANNOTE #####################################################
@@ -392,6 +393,24 @@ public class MRI2 extends ListResourceBundle
       { "PROP_DESC_CP_RUN_MAINTENANCE", "Specifies whether the maintenance daemon is used."},
       { "PROP_DESC_CP_THREAD_USED", "Specifies whether threads is used."},       // @E5
 
+      // #TRANNOTE The properties for ConnectionPoolDataSource. @B0A
+      { "PROP_NAME_CPDS_INIT_POOL_SIZE", "initialPoolSize"},
+      { "PROP_DESC_CPDS_INIT_POOL_SIZE", "The initial number of connections in the pool."},
+      { "PROP_NAME_CPDS_MAX_IDLE_TIME", "maxIdleTime"},
+      { "PROP_DESC_CPDS_MAX_IDLE_TIME", "The maximum amount of time a connection can be idle."},
+      { "PROP_NAME_CPDS_MAX_POOL_SIZE", "maxPoolSize"},
+      { "PROP_DESC_CPDS_MAX_POOL_SIZE", "The maximum number of connections in the pool."},
+
+      // #TRANNOTE Statement caching is not supported this way (yet)
+      //           so we don't need this MRI.
+      //      { "PROP_NAME_CPDS_MAX_STATEMENTS", "maxStatements"},
+      //      { "PROP_DESC_CPDS_MAX_STATEMENTS", "The maximum number of statements any one pooled connection can have."},
+      { "PROP_NAME_CPDS_MIN_POOL_SIZE", "minPoolSize"},
+      { "PROP_DESC_CPDS_MIN_POOL_SIZE", "The minium number of available connections in the pool."},
+      { "PROP_NAME_CPDS_PROP_CYCLE", "propertyCycle"},
+      { "PROP_DESC_CPDS_PROP_CYCLE", "The cleanup time interval for the connection pool."},
+
+
       { "PROP_NAME_SAVE_FILE_PUBLIC_AUTHORITY", "saveFilePublicAuthority" },
       { "PROP_DESC_SAVE_FILE_PUBLIC_AUTHORITY", "Authority value for *PUBLIC." },
       { "CREATE_SAVE_FILE_FAILED", "The CRTSAVFIL command failed: " },
@@ -607,6 +626,7 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_IGCDCT",                      "DBCS conversion dictionary" },
       { "TYPE_IGCSRT",                      "DBCS sort table" },
       { "TYPE_IGCTBL",                      "DBCS font table" },
+      { "TYPE_IMGCLG",                      "Optical image catalog" },                     // @M2a
       { "TYPE_IPXD",                        "Internetwork packet exchange description" },
       { "TYPE_JOBD",                        "Job description" },
       { "TYPE_JOBQ",                        "Job queue" },
@@ -774,6 +794,8 @@ public class MRI2 extends ListResourceBundle
          // #TRANNOTE The properties of NetServer.
       { "NETSERVER_ALLOW_SYSTEM_NAME_NAME",            "Allow system name" },
       { "NETSERVER_ALLOW_SYSTEM_NAME_PENDING_NAME",    "Allow system name (pending)" },
+      { "NETSERVER_AUTHENTICATION_METHOD_NAME",        "Authentication method" }, // @F8A
+      { "NETSERVER_AUTHENTICATION_METHOD_PENDING_NAME", "Authentication method (pending)" }, // @F8A
       { "NETSERVER_AUTOSTART_NAME",                    "Autostart" },
       { "NETSERVER_BROWSING_INTERVAL_NAME",            "Browsing interval" },
       { "NETSERVER_BROWSING_INTERVAL_PENDING_NAME",    "Browsing interval (pending)" },
@@ -856,6 +878,7 @@ public class MRI2 extends ListResourceBundle
       // #TRANNOTE The following are error and informational (verbose) messages.
       // #TRANNOTE ################################################################
       { "ME_ALREADY_LISTENING",          "An active server is already listening to port &0." },
+      { "ME_CONNECTION_ACCEPTED",        "&0 accepted connection requested by &1 as connection &2." },
       { "ME_JDBC_DRIVER_NOT_REGISTERED", "JDBC driver not registered: &0"},
       { "ME_JDBC_DRIVER_REGISTERED",     "Registered JDBC driver: &0."},             
       { "ME_OPTION_NOT_VALID",           "Option not valid: &0" },
@@ -873,7 +896,67 @@ public class MRI2 extends ListResourceBundle
 
       { "ME_PCML_LOADING", "Loading new PCML document: &0"},
       { "ME_PCML_ERROR", "Error loading PCML." },
-      { "ME_PCML_CACHE", "Using previously cached PCML document: &0"}
+      { "ME_PCML_CACHE", "Using previously cached PCML document: &0"},
+
+      // @M3A
+      // #TRANNOTE ################################################################
+      // #TRANNOTE The following are MRI strings for the command documentation generator utility.
+      // #TRANNOTE ################################################################
+      { "GENCMDDOC_ALLOW_ALL",         "All environments (*ALL)" },
+      { "GENCMDDOC_ALLOW_COMPILED_CL_OR_REXX1", "Compiled CL or interpreted REXX (*BPGM *IPGM *BMOD *IMOD *BREXX *IREXX)" },
+      { "GENCMDDOC_ALLOW_COMPILED_CL_OR_REXX2", "Compiled CL program or interpreted REXX (*BPGM *IPGM *BREXX *IREXX)" },
+      { "GENCMDDOC_ALLOW_INTERACTIVE1",      "Interactive environments (*INTERACT *IPGM *IMOD *IREXX *EXEC)" },
+      { "GENCMDDOC_ALLOW_INTERACTIVE2",      "Interactive environments (*INTERACT *IPGM *IREXX *EXEC)" },
+      { "GENCMDDOC_ALLOW_JOB_BATCH",         "Batch job (*BATCH)" },
+      { "GENCMDDOC_ALLOW_JOB_INTERACTIVE",   "Interactive job (*INTERACT)" },
+      { "GENCMDDOC_ALLOW_MODULE_BATCH",      "Batch ILE CL module (*BMOD)" },
+      { "GENCMDDOC_ALLOW_MODULE_INTERACTIVE", "Interactive ILE CL module (*IMOD)" },
+      { "GENCMDDOC_ALLOW_PROGRAM_BATCH",     "Batch program (*BPGM)" },
+      { "GENCMDDOC_ALLOW_PROGRAM_INTERACTIVE", "Interactive program (*IPGM)" },
+      { "GENCMDDOC_ALLOW_REXX_BATCH",        "Batch REXX procedure (*BREXX)" },
+      { "GENCMDDOC_ALLOW_REXX_INTERACTIVE",  "Interactive REXX procedure (*IREXX)" },
+      { "GENCMDDOC_ALLOW_USING_COMMAND_API", "Using QCMDEXEC, QCAEXEC, or QCAPCMD API (*EXEC)" },
+      { "GENCMDDOC_CHOICES",                 "Choices" },
+      { "GENCMDDOC_ELEMENT",                 "Element" },
+      { "GENCMDDOC_ERRORS",                  "Error messages" },
+      { "GENCMDDOC_EXAMPLES",                "Examples" },
+      { "GENCMDDOC_KEY",                     "Key" },
+      { "GENCMDDOC_KEYWORD",                 "Keyword" },
+      { "GENCMDDOC_NAME_LOWERCASE",          "name" },
+      { "GENCMDDOC_NONE",                    "None" },
+      { "GENCMDDOC_NOTES",                   "Notes" },
+      { "GENCMDDOC_PARAMETERS",              "Parameters" },
+      { "GENCMDDOC_POSITIONAL",              "Positional" },
+      { "GENCMDDOC_QUALIFIER",               "Qualifier" },
+      { "GENCMDDOC_REQUIRED",                "Required" },
+      { "GENCMDDOC_THREADSAFE",              "Threadsafe" },
+      { "GENCMDDOC_THREADSAFE_CONDITIONAL",  "Conditional" },
+      { "GENCMDDOC_TOP_OF_PAGE",             "Top" },
+      { "GENCMDDOC_TYPE_CL_VARIABLE_NAME",   "CL variable name" },
+      { "GENCMDDOC_TYPE_COMMAND_STRING",     "Command string" },
+      { "GENCMDDOC_TYPE_COMMUNICATIONS_NAME", "Communications name" },
+      { "GENCMDDOC_TYPE_DATE",               "Date" },
+      { "GENCMDDOC_TYPE_DECIMAL_NUMBER",     "Decimal number" },
+      { "GENCMDDOC_TYPE_ELEMENT_LIST",       "Element list" },
+      { "GENCMDDOC_TYPE_GENERIC_NAME",       "Generic name" },
+      { "GENCMDDOC_TYPE_INTEGER",            "Integer" },
+      { "GENCMDDOC_TYPE_NOT_RESTRICTED",     "Not restricted" },
+      { "GENCMDDOC_TYPE_PATH_NAME",          "Path name" },
+      { "GENCMDDOC_TYPE_QUALIFIED_JOB_NAME", "Qualified job name" },
+      { "GENCMDDOC_TYPE_QUALIFIED_OBJECT_NAME", "Qualified object name" },
+      { "GENCMDDOC_TYPE_QUALIFIER_LIST",     "Qualifier list" },
+      { "GENCMDDOC_TYPE_SIMPLE_NAME",        "Simple name" },
+      { "GENCMDDOC_TYPE_TIME",               "Time" },
+      { "GENCMDDOC_TYPE_VALUE_LOGICAL",      "Logical value" },
+      { "GENCMDDOC_TYPE_VALUE_CHARACTER",    "Character value" },
+      { "GENCMDDOC_TYPE_VALUE_HEX",          "Hexadecimal value" },
+      { "GENCMDDOC_TYPE_UNSIGNED_INTEGER",   "Unsigned integer" },
+      { "GENCMDDOC_UNKNOWN",                 "Unknown" },
+      { "GENCMDDOC_VALUES_OTHER",            "Other values" },
+      { "GENCMDDOC_VALUES_OTHER_REPEAT",     "Other values (up to &1 repetitions)" },
+      { "GENCMDDOC_VALUES_REPEAT",           "Values (up to &1 repetitions)" },
+      { "GENCMDDOC_VALUES_SINGLE",           "Single values" },
+      { "GENCMDDOC_WHERE_ALLOWED_TO_RUN",    "Where allowed to run" }
 
    };
 
