@@ -51,52 +51,82 @@ import java.awt.*;
 import com.ibm.as400.vaccess.*;
 
 /**
-The AS400JDBCDataSourcePane class represents a set of tabs that contain
-property values for a JDBC data source.  Changes made to the pane are
-applied to the data source when <i> applyChanges() </i> is called.
-
-<pre>
-
-// Create a data source.
-AS400JDBCDataSource myDataSource = new AS400JDBCDataSource();
-<br>
-// Create a window to hold the pane and an OK button.
-JFrame frame = new JFrame ("JDBC Data Source Properties");
-<br>
-// Create a data source pane.
-dataSourcePane = new AS400JDBCDataSourcePane(myDataSource);
-<br>
-// Create an OK button
-JButton okButton = new JButton("OK");
-<br>
-// Add an ActionListener to the OK button.  When OK is 
-// pressed, applyChanges() will be called to commit any
-// changes to the data source.
-okButton.addActionListener(new ActionListener()
-{    
-    public void actionPerformed(ActionEvent ev)
-    {
-      // Apply all changes made on the data source pane
-      // to the data source.  If all changes are applied
-      // successfully, get the data source from the pane.
-      if (AS400JDBCDataSourcePaneTest.myPane.applyChanges())
-        myDataSource = myPane.getDataSource();
-    }
-});
-<br>
-// Setup the frame to show the pane and OK button.
-frame.getContentPane ().setLayout (new BorderLayout ());
-frame.getContentPane ().add ("Center", dataSourcePane);
-frame.getContentPane ().add ("South", okButton);
-<br>
-// Pack the frame.
-frame.pack ();
-<br>
-//Display the pane and OK button.
-frame.show ();
-<br>
-</pre>
-*/
+ * The AS400JDBCDataSourcePane class represents a set of tabs that contain
+ * property values for a JDBC data source.  Changes made to the pane are
+ * applied to the data source when <i> applyChanges() </i> is called.
+ * 
+ * <P>For example:
+ * <pre>
+ * import com.ibm.as400.access.*;                       
+ * import com.ibm.as400.vaccess.*;                       
+ * import javax.swing.*;
+ * import java.awt.*;
+ * import java.awt.event.*;
+ * 
+ * public class DataSourceGUIExample
+ * {                                              
+ *    static AS400JDBCDataSourcePane dataSourcePane = null;
+ *    static AS400JDBCDataSource     myDataSource   = null;
+ *    
+ *    public static void main(String[] args)
+ *    {
+ *       // Like other Java classes the Toolbox classes throw 
+ *       // exceptions when something goes wrong.  These must be 
+ *       // caught by programs that use the Toolbox.
+ *       try                                           
+ *       {
+ *       
+ *          // Create a data source.
+ *          myDataSource = new AS400JDBCDataSource();
+ * 
+ *          // Create a window to hold the pane and an OK button.
+ *          JFrame frame = new JFrame ("JDBC Data Source Properties");
+ * 
+ *          // Create a data source pane.
+ *          dataSourcePane = new AS400JDBCDataSourcePane(myDataSource);
+ * 
+ *          // Create an OK button
+ *          JButton okButton = new JButton("OK");
+ * 
+ *          // Add an ActionListener to the OK button.  When OK is 
+ *          // pressed, applyChanges() will be called to commit any
+ *          // changes to the data source.
+ *          okButton.addActionListener(new ActionListener()
+ *             {    
+ *                public void actionPerformed(ActionEvent ev)
+ *                {
+ *                   // Copy all changes made on the data source pane
+ *                   // to the data source.  
+ *                   if (dataSourcePane.applyChanges())
+ *                   {
+ *                      System.out.println("ok pressed");
+ *                      myDataSource = dataSourcePane.getDataSource();
+ *                      System.out.println(myDataSource.getServerName());
+ *                   }   
+ *                }
+ *             }
+ *          );
+ *        
+ *          // Setup the frame to show the pane and OK button.
+ *          frame.getContentPane ().setLayout (new BorderLayout ());
+ *          frame.getContentPane ().add ("Center", dataSourcePane);
+ *          frame.getContentPane ().add ("South", okButton);
+ *        
+ *          // Pack the frame.
+ *          frame.pack ();
+ *        
+ *          //Display the pane and OK button.
+ *          frame.show ();
+ *       }
+ *       catch (Exception e)
+ *       {
+ *          e.printStackTrace();
+ *       }   
+ *    }   
+ * }       
+ * 
+ * </pre>
+**/
 
 public class AS400JDBCDataSourcePane
 extends JComponent
