@@ -685,6 +685,7 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_OVL",                         "Overlay" },
       { "TYPE_PAGDFN",                      "Page definition" },
       { "TYPE_PAGSEG",                      "Page segment" },
+      { "TYPE_PDFMAP",                      "PDF map" },    //@K1A
       { "TYPE_PDG",                         "Print descriptor group" },
       { "TYPE_PGM",                         "Program" },
       { "TYPE_PGM_ASM38",                   "Assembler (S/38)" },
@@ -770,6 +771,7 @@ public class MRI2 extends ListResourceBundle
       { "TYPE_SYMLNK",                      "Symbolic link" },
       { "TYPE_S36",                         "S/36 environment configuration" },             // @F6C
       { "TYPE_TBL",                         "Table" },
+      { "TYPE_TIMZON",                      "Time zone description" },                      //@K1A
       { "TYPE_USRIDX",                      "User index" },
       { "TYPE_USRPRF",                      "User profile" },
       { "TYPE_USRQ",                        "User queue" },

@@ -125,6 +125,7 @@ public class QSYSObjectTypeTable
         add("OVL");
         add("PAGDFN");
         add("PAGSEG");
+        add("PDFMAP");  //@K1A
         add("PDG");
         add("PGM", new String[] { "", "ASM38", "BAS", "BAS38", "C", "CBL", "CBLLE", "CBL36", "CBL38",
                                   "CLE", "CLLE", "CLP", "CLP38", "CPPLE", "CSP", "DFU", "DFUEXC",
@@ -156,6 +157,7 @@ public class QSYSObjectTypeTable
         add("SYMLNK");
         add("S36");
         add("TBL");
+        add("TIMZON");  //@K1A
         add("USRIDX");
         add("USRPRF");
         add("USRQ");
