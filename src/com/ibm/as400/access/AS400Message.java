@@ -29,7 +29,7 @@ import java.util.GregorianCalendar;
  **/
 public class AS400Message implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -144,7 +144,7 @@ public class AS400Message implements Serializable
     // Constructs an AS400Message object.
     AS400Message()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400Message object.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400Message object.");
     }
 
     // Constructs an AS400Message object.
@@ -152,7 +152,7 @@ public class AS400Message implements Serializable
     // @param  text  The message text.
     AS400Message(String id, String text)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400Message object, ID: " + id + " text: " + text);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400Message object, ID: " + id + " text: " + text);
         id_ = id;
         text_ = text;
     }
@@ -251,7 +251,7 @@ public class AS400Message implements Serializable
      **/
     public Calendar getDate()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting date: " + date_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting date: " + date_);
         if (date_ == null && (dateSent_ != null || timeSent_ != null)) //@G0C
         {
           setDate(); //@G0C
@@ -265,7 +265,7 @@ public class AS400Message implements Serializable
      **/
     public String getDefaultReply()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting default reply: " + defaultReply_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting default reply: " + defaultReply_);
         return defaultReply_;
     }
 
@@ -275,7 +275,7 @@ public class AS400Message implements Serializable
      **/
     public String getFileName()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message file name: " + fileName_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message file name: " + fileName_);
         return fileName_;
     }
 
@@ -292,7 +292,7 @@ public class AS400Message implements Serializable
      **/
     public String getHelp()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message help: " + help_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message help: " + help_);
         return help_;
     }
 
@@ -302,7 +302,7 @@ public class AS400Message implements Serializable
      **/
     public String getID()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message ID: " + id_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message ID: " + id_);
         return id_;
     }
 
@@ -312,7 +312,7 @@ public class AS400Message implements Serializable
      **/
     public String getLibraryName()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message file library: " + libraryName_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message file library: " + libraryName_);
         return libraryName_;
     }
 
@@ -322,8 +322,8 @@ public class AS400Message implements Serializable
      **/
     public String getPath()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message file path, file name: " + fileName_ + " library: " + libraryName_);
-        if ((fileName_ == null) || (libraryName_ == null))
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message file path, file name: " + fileName_ + " library: " + libraryName_);
+        if (fileName_ == null || libraryName_ == null || fileName_.length() == 0 || libraryName_.length() == 0)
         {
             return null;
         }
@@ -336,7 +336,7 @@ public class AS400Message implements Serializable
      **/
     public int getSeverity()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message severity:", severity_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message severity:", severity_);
         return severity_;
     }
 
@@ -346,7 +346,7 @@ public class AS400Message implements Serializable
      **/
     public byte[] getSubstitutionData()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message substitution data:", substitutionData_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message substitution data:", substitutionData_);
         return substitutionData_;
     }
 
@@ -356,7 +356,7 @@ public class AS400Message implements Serializable
      **/
     public String getText()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message text: " + text_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message text: " + text_);
         return text_;
     }
 
@@ -382,7 +382,7 @@ public class AS400Message implements Serializable
      **/
     public int getType()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message type:", type_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting message type:", type_);
         return type_;
     }
 
@@ -418,10 +418,10 @@ public class AS400Message implements Serializable
      **/
     public void load(int helpTextFormatting) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading additional message information.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading additional message information.");
         if (messageLoaded_)
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Repeat message load not necessary.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Repeat message load not necessary.");
             return;
         }
 
@@ -452,22 +452,22 @@ public class AS400Message implements Serializable
             // Set message field that are not already set.
             if (defaultReply_ == null)
             {
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting default reply: " + retrievedMessage.defaultReply_);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting default reply: " + retrievedMessage.defaultReply_);
                 defaultReply_ = retrievedMessage.defaultReply_;
             }
             if (severity_ == -1)
             {
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message severity:", retrievedMessage.severity_);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message severity:", retrievedMessage.severity_);
                 severity_ = retrievedMessage.severity_;
             }
             if (text_ == null)
             {
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + retrievedMessage.text_);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + retrievedMessage.text_);
                 text_ = retrievedMessage.text_;
             }
             if (help_ == null)
             {
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
                 help_ = retrievedMessage.help_;
             }
             messageLoaded_ = true;  // Set flag to not go to AS/400 again.
@@ -510,7 +510,7 @@ public class AS400Message implements Serializable
       }
       dateSent_ = null;
       timeSent_ = null;
-      if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
     }
 
 
@@ -519,11 +519,11 @@ public class AS400Message implements Serializable
     // @param  timeSent  The time sent.
     void setDate(String dateSent, String timeSent)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting date, date: " + dateSent + " time: " + timeSent);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting date, date: " + dateSent + " time: " + timeSent);
       dateSent_ = dateSent; //@G0A
       timeSent_ = timeSent; //@G0A
       //@G0D  date_ = new GregorianCalendar(Integer.parseInt(dateSent.substring(0, 3)) + 1900 /* year */, Integer.parseInt(dateSent.substring(3, 5)) - 1 /* month is zero based in Calendar class */, Integer.parseInt(dateSent.substring(5, 7)) /* day */, Integer.parseInt(timeSent.substring(0, 2)) /* hour */, Integer.parseInt(timeSent.substring(2, 4)) /* minute */, Integer.parseInt(timeSent.substring(4, 6)) /* second */);
-      //@G0D  if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
+      //@G0D  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
     }
 
 
@@ -531,7 +531,7 @@ public class AS400Message implements Serializable
     // @param  defaultReply  The default reply.
     void setDefaultReply(String defaultReply)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting default reply: " + defaultReply);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting default reply: " + defaultReply);
         defaultReply_ = defaultReply;
     }
 
@@ -539,7 +539,7 @@ public class AS400Message implements Serializable
     // @param  fileName  The message file name.
     void setFileName(String fileName)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message file name: " + fileName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message file name: " + fileName);
         fileName_ = fileName;
     }
 
@@ -547,7 +547,7 @@ public class AS400Message implements Serializable
     // @param  help  The message help.
     void setHelp(String help)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + help);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + help);
         help_ = help;
     }
 
@@ -555,7 +555,7 @@ public class AS400Message implements Serializable
     // @param  messageID  The message ID.
     void setID(String id)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message ID: " + id);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message ID: " + id);
         id_ = id;
     }
 
@@ -563,7 +563,7 @@ public class AS400Message implements Serializable
     // @param  messageFileLibrary  The message file library.
     void setLibraryName(String libraryName)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message file library: " + libraryName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message file library: " + libraryName);
         libraryName_ = libraryName;
     }
 
@@ -571,7 +571,7 @@ public class AS400Message implements Serializable
     // @param  messageSeverity  The message severity. Valid values are between 0 and 99.
     void setSeverity(int severity)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message severity:", severity);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message severity:", severity);
         severity_ = severity;
     }
 
@@ -579,7 +579,7 @@ public class AS400Message implements Serializable
     // @param  substitutionData  The substitution data.
     void setSubstitutionData(byte[] substitutionData)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message substitution data:", substitutionData);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message substitution data:", substitutionData);
         substitutionData_ = substitutionData;
     }
 
@@ -587,7 +587,7 @@ public class AS400Message implements Serializable
     // @param  system  The AS/400 system.
     void setSystem(AS400 system)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message file system: " + system);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message file system: " + system);
         system_ = system;
     }
 
@@ -595,7 +595,7 @@ public class AS400Message implements Serializable
     // @param  text  The message text.
     void setText(String text)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + text);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + text);
         text_ = text;
     }
 
@@ -603,7 +603,7 @@ public class AS400Message implements Serializable
     // @param  type  The message type.
     void setType(int type)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message type:", type);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting message type:", type);
         type_ = type;
     }
 
