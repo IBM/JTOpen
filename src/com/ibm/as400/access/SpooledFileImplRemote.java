@@ -30,7 +30,6 @@ import java.io.IOException;
  * @see PrintObjectTransformedInputStream
  **/
 
-/* @A2C - Changed to implement java.io.Serializable */
 class SpooledFileImplRemote extends PrintObjectImplRemote
 implements SpooledFileImpl
 {
@@ -41,8 +40,8 @@ implements SpooledFileImpl
     private static final int CMD_SEND_NET = 1;
     private static final int CMD_SEND_TCP = 2;
 
-    transient NPCPMsgHandle cpMsgHandle_ = null;    /* @A2C - Changed to transient */
-    transient boolean       fMsgRetrieved_ = false; /* @A2C - Changed to transient */
+    transient NPCPMsgHandle cpMsgHandle_ = null;
+    transient boolean       fMsgRetrieved_ = false;
 
     // We have decide that spooled files are too transient to
     // be JavaBeans
@@ -89,8 +88,8 @@ implements SpooledFileImpl
                 retrieveMessage(null, null);
             }
 
-            NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-            NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+            NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+            NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
             NPSystem  npSystem = NPSystem.getSystem(getSystem());
             NPCPAttribute  cpCPFMessage = new NPCPAttribute();
             NPCPAttribute  cpMsgReply = new NPCPAttribute();
@@ -194,7 +193,6 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSSISO);      // DBCS SI/SO positioning
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DDS);           // DDS
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DECIMAL_FMT);   // Decimal format
-            
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DOUBLEWIDE);    // Double wide characters
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DRAWERCHANGE);  // Drawer change
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);        // Print on both sides (duplex)
@@ -285,15 +283,20 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RESTART);       // where to restart printing at
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLCHAR);       // character to replace unprintables with
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLUNPRT);      // replace unprintable characters
-            
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES);  // Saddle stitch number of staples
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // Saddle stitch reference edge
-                //      attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);  sad stich info offset
+            //attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);  sad stich info offset
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);          // whether to save after printing or not
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE_COMMAND);  // Save command
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE_DEVICE);   // Save device
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVEFILE);      // Save file name 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVEFILELIB);   // Save file library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE_LABEL);    // Save label 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE_SEQUENCE_NUMBER);  // Save sequence number
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE_VOLUME_FORMAT);    // Save volume format
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE_VOLUME_ID);// Save volume ID 
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCHEDULE);      // File available (schedule)
-            
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // allow separator page to be printed
-            
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_AUTH_METHOD);     // Spooled file authentication method
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_CREATOR);         // Spooled file creator
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_RESTORED_DATE);   // Spooled file restored date 
@@ -311,7 +314,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // System where output was created
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM);   // System driver program
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // Time spooled file was opened at
-    //        attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);     ending time which spooled file was created
+            //attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);     ending time which spooled file was created
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // Time writer began processing file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE);  // Time writer finished processing file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TRC1403);       // Trc for 1403
@@ -331,8 +334,6 @@ implements SpooledFileImpl
     }
 
 
-
-    // @C6A - (added method)
     /**
      * Creates a copy of the spooled file this object represents.  The
      * new spooled file is created on the specified output queue.
@@ -422,8 +423,8 @@ implements SpooledFileImpl
              IOException,
              InterruptedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);   // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem  npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -450,7 +451,8 @@ implements SpooledFileImpl
            cpMsgHandle_ = new NPCPMsgHandle();
         }
     }
-// @D2A  retrieve only one attribute
+    
+//@D2A  retrieve only one attribute
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
         if (!fAttrIDsToRtvBuilt_) {
@@ -506,14 +508,14 @@ implements SpooledFileImpl
         NPCPAttribute  cpMessage = new NPCPAttribute();
 
         // set which attributes we want to retrieve
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTEXT);  // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTYPE);  // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGHELP);  // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGREPLY); // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGID);    // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGSEV);   // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_DATE);     // @A3A -added PrintObject.
-        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_TIME);     // @A3A -added PrintObject.
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTEXT);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTYPE);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGHELP);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGREPLY);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGID);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGSEV);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_DATE);
+        cpAttrsToRetrieve.addAttrID(PrintObject.ATTR_TIME);
 
         // call to synchoronized method to make the request.  This
         // serves 2 purposes:
@@ -522,13 +524,13 @@ implements SpooledFileImpl
         retrieveMessage(cpAttrsToRetrieve, cpMessage);
 
         // create an AS400 Message and set appropriate values
-        msg = new AS400Message(cpMessage.getStringValue(PrintObject.ATTR_MSGID),    // @A3A -added PrintObject.
-                               cpMessage.getStringValue(PrintObject.ATTR_MSGTEXT)); // @A3A -added PrintObject.
-        msg.setDate(cpMessage.getStringValue(PrintObject.ATTR_DATE),cpMessage.getStringValue(PrintObject.ATTR_TIME)); // @A3A -added PrintObject.
-        msg.setDefaultReply(cpMessage.getStringValue(PrintObject.ATTR_MSGREPLY));   // @A3A -added PrintObject.
-        msg.setHelp(cpMessage.getStringValue(PrintObject.ATTR_MSGHELP));            // @A3A -added PrintObject.
-        msg.setSeverity((cpMessage.getIntValue(PrintObject.ATTR_MSGSEV)).intValue());   // @A3A -added PrintObject.
-        msg.setType(Integer.parseInt(cpMessage.getStringValue(PrintObject.ATTR_MSGTYPE))); // @C2A -added
+        msg = new AS400Message(cpMessage.getStringValue(PrintObject.ATTR_MSGID),
+                               cpMessage.getStringValue(PrintObject.ATTR_MSGTEXT));
+        msg.setDate(cpMessage.getStringValue(PrintObject.ATTR_DATE),cpMessage.getStringValue(PrintObject.ATTR_TIME));
+        msg.setDefaultReply(cpMessage.getStringValue(PrintObject.ATTR_MSGREPLY));
+        msg.setHelp(cpMessage.getStringValue(PrintObject.ATTR_MSGHELP));
+        msg.setSeverity((cpMessage.getIntValue(PrintObject.ATTR_MSGSEV)).intValue());
+        msg.setType(Integer.parseInt(cpMessage.getStringValue(PrintObject.ATTR_MSGTYPE)));
 
         return msg;
     } // getMessage
@@ -562,8 +564,8 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -574,7 +576,7 @@ implements SpooledFileImpl
         if (holdType != null)
         {
             NPCPAttribute cpAttr = new NPCPAttribute();
-            cpAttr.setAttrValue(PrintObject.ATTR_HOLDTYPE, holdType);   // @A3A -added PrintObject.
+            cpAttr.setAttrValue(PrintObject.ATTR_HOLDTYPE, holdType);
             sendDS.addCodePoint(cpAttr);
         }
 
@@ -604,7 +606,7 @@ implements SpooledFileImpl
      * @exception RequestNotSupportedException If the requested function is not supported because the
      *                                         system is not at the correct level.
      **/
-    public void move(SpooledFileImpl targetSpooledFile) // @A4C
+    public void move(SpooledFileImpl targetSpooledFile)
       throws AS400Exception,
              AS400SecurityException,
              ErrorCompletingRequestException,
@@ -612,14 +614,14 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
             NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
         // make a copy of the target spooled file ID codepoint so we can
         // change its ID
-        NPCPIDSplF tgtSplfID = new NPCPIDSplF((NPCPIDSplF)((SpooledFileImplRemote)targetSpooledFile).getIDCodePoint()); // @A4C
+        NPCPIDSplF tgtSplfID = new NPCPIDSplF((NPCPIDSplF)((SpooledFileImplRemote)targetSpooledFile).getIDCodePoint());
 
         // must change the ID of the target splf ID from a SPOOLED_FILE_ID codepoint
         // to a TARGET_SPOOLED_FILE_ID codpoint
@@ -654,7 +656,7 @@ implements SpooledFileImpl
      * @exception RequestNotSupportedException If the requested function is not supported because the
      *                                          system is not at the correct level.
      **/
-    public void move(OutputQueueImpl targetOutputQueue)  // @A4C
+    public void move(OutputQueueImpl targetOutputQueue)
       throws AS400Exception,
              AS400SecurityException,
              ErrorCompletingRequestException,
@@ -662,12 +664,12 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
-        NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)targetOutputQueue).getIDCodePoint();  // @A4C
+        NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)targetOutputQueue).getIDCodePoint();
 
         sendDS.setAction(NPDataStream.MOVE);
         sendDS.addCodePoint(getIDCodePoint());
@@ -701,8 +703,8 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -738,8 +740,8 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem  npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -767,8 +769,8 @@ implements SpooledFileImpl
              IOException,
              InterruptedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);   // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         if (cpMessage == null)
@@ -793,14 +795,14 @@ implements SpooledFileImpl
             NPCPAttributeIDList cpGenAttrsToRetrieve = new NPCPAttributeIDList();
 
             // set which attributes we want to retrieve
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTEXT);   // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTYPE);   // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGHELP);   // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGREPLY);  // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGID);     // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGSEV);    // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_DATE);      // @A3A -added PrintObject.
-            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_TIME);      // @A3A -added PrintObject.
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTEXT);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGTYPE);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGHELP);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGREPLY);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGID);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_MSGSEV);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_DATE);
+            cpGenAttrsToRetrieve.addAttrID(PrintObject.ATTR_TIME);
             sendDS.addCodePoint(cpGenAttrsToRetrieve);
             }
         else
@@ -877,8 +879,8 @@ implements SpooledFileImpl
              IOException,
              InterruptedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -961,8 +963,8 @@ implements SpooledFileImpl
              IOException,
              InterruptedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);   // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -981,7 +983,7 @@ implements SpooledFileImpl
             cpSendOptions = new NPCPAttribute();
         }
         // set the type of send we want to do here (2=SNDTCPSPLF)
-        cpSendOptions.setAttrValue(PrintObject.ATTR_SPLFSENDCMD, CMD_SEND_TCP);  // @A3A -added PrintObject.
+        cpSendOptions.setAttrValue(PrintObject.ATTR_SPLFSENDCMD, CMD_SEND_TCP);
 
         sendDS.setAction(NPDataStream.SEND);
         sendDS.addCodePoint(getIDCodePoint());
@@ -1024,8 +1026,8 @@ implements SpooledFileImpl
             throw new NullPointerException("attributes");
         }
 
-        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);   // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE); // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute  cpCPFMessage = new NPCPAttribute();
