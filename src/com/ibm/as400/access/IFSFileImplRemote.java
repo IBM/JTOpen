@@ -216,7 +216,10 @@ implements IFSFileImpl
          break;
       case IFSListAttrsRep.AS400_OBJECT:
          // AS/400 libraries and database files look like directories
-         answer = (name.endsWith(".LIB") || name.endsWith(".FILE")); //B1C Changed path_ to name
+         String nameUpper = name.toUpperCase();         // @C2a
+         answer = (nameUpper.endsWith(".LIB") ||
+                   nameUpper.endsWith(".FILE")); //B1C Changed path_ to name
+                   //@C2c
                    //@B1D Removed code that checked for file separators
                    //|| path_.endsWith(".LIB" + IFSFile.separator) ||
                    //path_.endsWith(".FILE" + IFSFile.separator));
@@ -248,7 +251,10 @@ implements IFSFileImpl
          break;
       case IFSListAttrsRep.AS400_OBJECT:
          //AS/400 libraries and database files look like directories.
-         answer = !(name.endsWith(".LIB") || name.endsWith(".FILE")); //B1C Changed path_ to name
+         String nameUpper = name.toUpperCase();         // @C2a
+         answer = !(nameUpper.endsWith(".LIB") ||
+                    nameUpper.endsWith(".FILE")); //B1C Changed path_ to name
+                  //@C2c
                   //@B1D Removed code that checked for file separators
                   //|| path_.endsWith(".LIB" + IFSFile.separator) ||
                   //path_.endsWith(".FILE" + IFSFile.separator));
