@@ -5231,25 +5231,30 @@ public class AS400JDBCResultSet implements ResultSet
 
             // Prepare the statement and set the parameters.
             PreparedStatement updateStatement = connection_.prepareStatement (buffer.toString ());
-            for(int i = 0, columnsSet2 = 0; i < columnCount_; ++i)
-            {
-                if(updateSet_[i] == true)
+            try{
+                for(int i = 0, columnsSet2 = 0; i < columnCount_; ++i)
                 {
-                    Object columnValue = updateRow_.getSQLData (i+1).getObject ();
-                    if(updateNulls_[i] == true)
-                        updateStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
-                    else
-                        updateStatement.setObject (++columnsSet2, columnValue);                    
+                    if(updateSet_[i] == true)
+                    {
+                        Object columnValue = updateRow_.getSQLData (i+1).getObject ();
+                        if(updateNulls_[i] == true)
+                            updateStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
+                        else
+                            updateStatement.setObject (++columnsSet2, columnValue);                    
+                    }
                 }
-            }
 
-            // Execute and close the statement.  Dispatch the warnings,
-            // if any.
-            updateStatement.executeUpdate ();
-            SQLWarning warnings = updateStatement.getWarnings ();
-            if(warnings != null)
-                postWarning (warnings); // The whole link gets added.
-            updateStatement.close ();
+                // Execute and close the statement.  Dispatch the warnings,
+                // if any.
+                updateStatement.executeUpdate ();
+                SQLWarning warnings = updateStatement.getWarnings ();
+                if(warnings != null)
+                    postWarning (warnings); // The whole link gets added.
+            }
+            finally{
+                //Always close the statement - Fix for JTOpen Bug 4148
+                updateStatement.close ();
+            }
 
             rowCache_.flush ();
         }
