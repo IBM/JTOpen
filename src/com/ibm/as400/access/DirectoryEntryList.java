@@ -301,7 +301,7 @@ public class DirectoryEntryList
       String val = (String)selectionValues_.get(selectionID);
       totalSelectionLength += val.length();
     }
-    byte[] request = new byte[110+(numValues*28)+totalSelectionLength];
+    byte[] request = new byte[130+(numValues*28)+totalSelectionLength];
 
     // CCSID of data input = 0 (default to job CCSID)
     // character set of data input (ignored unless CCSID is -1)
@@ -313,11 +313,11 @@ public class DirectoryEntryList
     request[19] = (byte)0xF0; // continuation handle ('0' for the first search)
     conv.stringToByteArray("                ", request, 20, 16); // resource handle (blank for the first search)
     conv.stringToByteArray("SREQ0101", request, 36, 8); // format name of the search request array
-    BinaryConverter.intToByteArray(110, request, 44); // offset to search request array
+    BinaryConverter.intToByteArray(130, request, 44); // offset to search request array
     BinaryConverter.intToByteArray(numValues, request, 48); // number of elements in search request array
     conv.stringToByteArray("SREQ0103", request, 52, 8); // format name of array of fields to return
     BinaryConverter.intToByteArray(100, request, 60); // offset to array of fields to return
-    BinaryConverter.intToByteArray(1, request, 64); // number of elements in fields to return array
+    BinaryConverter.intToByteArray(3, request, 64); // number of elements in fields to return array
     conv.stringToByteArray("SRCV0101", request, 68, 8); // format name of array of users to return
     BinaryConverter.intToByteArray(0xFFFF, request, 76); // number of elements in array of users. Note: Fix this so we can chain.
     conv.stringToByteArray("SRCV0112", request, 80, 8); // format name of array of fields for each user
@@ -326,8 +326,10 @@ public class DirectoryEntryList
     conv.stringToByteArray("   ", request, 97, 3); // reserved
     // Array of fields to return:
     text10.toBytes("*SYSDIR", request, 100); // special value of fields to be returned (SREQ0103)
+    text10.toBytes("*SMTP", request, 110);
+    text10.toBytes("*ORNAME", request, 120);
     // Search request array:
-    int offset = 110;
+    int offset = 130;
     
     // Do the key first, then the rest of the selection criteria.
     if (keyValue_ != null)
@@ -395,7 +397,6 @@ public class DirectoryEntryList
       }
       data = parms[0].getOutputData();
       numReturned = BinaryConverter.byteArrayToInt(data, 0);
-      System.out.println(numReturned+","+bufferSize);
     }
     int orderArrayOffset = BinaryConverter.byteArrayToInt(data, 4);
     int userArrayOffset = BinaryConverter.byteArrayToInt(data, 8);

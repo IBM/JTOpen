@@ -38,6 +38,17 @@ public class DirectoryEntry
     values_ = values;
   }
 
+
+  /**
+   * Returns the administration domain.
+   * @return The administration domain.
+  **/
+  public String getAdministrationDomain()
+  {
+    return values_[39].trim();
+  }
+
+
   /**
    * Returns the building.
    * @return The building.
@@ -79,6 +90,16 @@ public class DirectoryEntry
 
 
   /**
+   * Returns the country.
+   * @return The country.
+  **/
+  public String getCountry()
+  {
+    return values_[38].trim();
+  }
+
+
+  /**
    * Returns the department.
    * @return The department.
   **/
@@ -101,6 +122,86 @@ public class DirectoryEntry
   public String getDLOOwner()
   {
     return values_[35].trim();
+  }
+
+
+  /**
+   * Returns the type of domain-defined attribute 1.
+   * @return The type.
+  **/
+  public String getDomainDefinedAttributeType1()
+  {
+    return values_[50].trim();
+  }
+
+
+  /**
+   * Returns the type of domain-defined attribute 2.
+   * @return The type.
+  **/
+  public String getDomainDefinedAttributeType2()
+  {
+    return values_[52].trim();
+  }
+
+
+  /**
+   * Returns the type of domain-defined attribute 3.
+   * @return The type.
+  **/
+  public String getDomainDefinedAttributeType3()
+  {
+    return values_[54].trim();
+  }
+
+
+  /**
+   * Returns the type of domain-defined attribute 4.
+   * @return The type.
+  **/
+  public String getDomainDefinedAttributeType4()
+  {
+    return values_[56].trim();
+  }
+
+
+  /**
+   * Returns the value of domain-defined attribute 1.
+   * @return The value.
+  **/
+  public String getDomainDefinedAttributeValue1()
+  {
+    return values_[51].trim();
+  }
+
+
+  /**
+   * Returns the value of domain-defined attribute 2.
+   * @return The value.
+  **/
+  public String getDomainDefinedAttributeValue2()
+  {
+    return values_[53].trim();
+  }
+
+
+  /**
+   * Returns the value of domain-defined attribute 3.
+   * @return The value.
+  **/
+  public String getDomainDefinedAttributeValue3()
+  {
+    return values_[55].trim();
+  }
+
+
+  /**
+   * Returns the value of domain-defined attribute 4.
+   * @return The value.
+  **/
+  public String getDomainDefinedAttributeValue4()
+  {
+    return values_[57].trim();
   }
 
 
@@ -131,6 +232,36 @@ public class DirectoryEntry
   public String getFullName()
   {
     return values_[14].trim();
+  }
+
+
+  /**
+   * Returns the generation qualifier.
+   * @return The generation qualifier.
+  **/
+  public String getGenerationQualifier()
+  {
+    return values_[45].trim();
+  }
+
+
+  /**
+   * Returns the given name.
+   * @return The given name.
+  **/
+  public String getGivenName()
+  {
+    return values_[43].trim();
+  }
+
+
+  /**
+   * Returns the initials.
+   * @return The initials.
+  **/
+  public String getInitials()
+  {
+    return values_[44].trim();
   }
 
 
@@ -302,13 +433,63 @@ public class DirectoryEntry
 
 
   /**
+   * Returns the organization.
+   * @return The organization.
+  **/
+  public String getOrganization()
+  {
+    return values_[41].trim();
+  }
+
+
+  /**
+   * Returns organization unit 1.
+   * @retun The organization unit.
+  **/
+  public String getOrganizationUnit1()
+  {
+    return values_[46].trim();
+  }
+
+
+  /**
+   * Returns organization unit 1.
+   * @retun The organization unit.
+  **/
+  public String getOrganizationUnit2()
+  {
+    return values_[47].trim();
+  }
+
+
+  /**
+   * Returns organization unit 1.
+   * @retun The organization unit.
+  **/
+  public String getOrganizationUnit3()
+  {
+    return values_[48].trim();
+  }
+
+
+  /**
+   * Returns organization unit 1.
+   * @retun The organization unit.
+  **/
+  public String getOrganizationUnit4()
+  {
+    return values_[49].trim();
+  }
+
+
+  /**
    * Returns the paper representation of the X.400 O/R name,
    * if one exists.
    * @return The X.400 O/R name.
   **/
   public String getORName()
   {
-    return values_.length > 37 ? values_[37].trim() : "";
+    return values_[37].trim();
   }
 
 
@@ -403,6 +584,16 @@ public class DirectoryEntry
 
 
   /**
+   * Returns the private management domain.
+   * @return The private management domain.
+  **/
+  public String getPrivateManagementDomain()
+  {
+    return values_[40].trim();
+  }
+
+
+  /**
    * Returns the SMTP domain, if one exists. Either the SMTP domain
    * or route can exist, not both.
    * @return The SMTP domain.
@@ -410,7 +601,7 @@ public class DirectoryEntry
   **/
   public String getSMTPDomain()
   {
-    return values_.length > 39 ? values_[39].trim() : "";
+    return values_[59].trim();
   }
 
 
@@ -422,7 +613,7 @@ public class DirectoryEntry
   **/
   public String getSMTPRoute()
   {
-    return values_.length > 40 ? values_[40].trim() : "";
+    return values_[60].trim();
   }
 
 
@@ -432,7 +623,17 @@ public class DirectoryEntry
   **/
   public String getSMTPUserID()
   {
-    return values_.length > 38 ? values_[38].trim() : "";
+    return values_[58].trim();
+  }
+
+
+  /**
+   * Returns the surname.
+   * @return The surname.
+  **/
+  public String getSurname()
+  {
+    return values_[42].trim();
   }
 
 
