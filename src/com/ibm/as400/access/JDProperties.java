@@ -372,6 +372,7 @@ class JDProperties implements Serializable
     static final String              TRACE_TOOLBOX_ALL           = "all";            // @K1A
     static final String              TRACE_TOOLBOX_THREAD        = "thread";         // @K1A
     static final String              TRACE_TOOLBOX_NONE          = NONE_;            // @K1A
+    static final String              TRACE_TOOLBOX_NOT_SET       = EMPTY_;
 
 
     // Static data.
@@ -942,7 +943,7 @@ class JDProperties implements Serializable
         dpi_[i].choices[9]  = TRACE_TOOLBOX_JDBC;
         dpi_[i].choices[10] = TRACE_TOOLBOX_ALL;
         dpi_[i].choices[11] = TRACE_TOOLBOX_THREAD;
-        defaults_[i]        = TRACE_TOOLBOX_NONE;
+        defaults_[i]        = TRACE_TOOLBOX_NOT_SET;
 
         // Transaction isolation.
         i = TRANSACTION_ISOLATION;
@@ -1357,7 +1358,7 @@ class JDProperties implements Serializable
     static String isToolboxTraceSet (Properties urlProperties, Properties info)
     {
         if(getProperty (urlProperties, info, TRACE_TOOLBOX_) == null)
-            return TRACE_TOOLBOX_NONE;
+            return TRACE_TOOLBOX_NOT_SET;
         else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_DATASTREAM))
             return TRACE_TOOLBOX_DATASTREAM;
         else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_DIAGNOSTIC))
@@ -1380,8 +1381,10 @@ class JDProperties implements Serializable
             return TRACE_TOOLBOX_ALL;
         else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_THREAD))
             return TRACE_TOOLBOX_THREAD;
-        else 
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_NONE))
             return TRACE_TOOLBOX_NONE;
+        else 
+            return TRACE_TOOLBOX_NOT_SET;
     }
 
 
