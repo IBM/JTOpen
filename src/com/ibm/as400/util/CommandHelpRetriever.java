@@ -480,6 +480,13 @@ public class CommandHelpRetriever
    * Portions of the resulting HTML will contain strings that were translated using
    * the {@link java.util.Locale Locale} specified on the {@link com.ibm.as400.access.AS400 AS400}
    * object for the given {@link com.ibm.as400.access.Command Command}.
+   *
+   * <p>Note: While the String being returned is a typical UTF-16 Java String, the contents
+   * of the String is an HTML file with a META tag that defines the charset as UTF-8.
+   * Applications that use the String returned by this method should then be sure to convert
+   * the contents to UTF-8 bytes, or replace the charset tag inside the HTML with whichever
+   * encoding the application chooses to convert to. See {@link #generateHTMLBytes generateHTMLBytes()}.
+   *
    * @param command The command.
    * @return An HTML string consisting of the help documentation for the command.
    * @see java.util.Locale
@@ -504,6 +511,13 @@ public class CommandHelpRetriever
    * Portions of the resulting HTML will contain strings that were translated using
    * the {@link java.util.Locale Locale} specified on the {@link com.ibm.as400.access.AS400 AS400}
    * object for the given {@link com.ibm.as400.access.Command Command}.
+   *
+   * <p>Note: While the String being returned is a typical UTF-16 Java String, the contents
+   * of the String is an HTML file with a META tag that defines the charset as UTF-8.
+   * Applications that use the String returned by this method should then be sure to convert
+   * the contents to UTF-8 bytes, or replace the charset tag inside the HTML with whichever
+   * encoding the application chooses to convert to. See {@link #generateHTMLBytes generateHTMLBytes()}.
+   *
    * @param command The command.
    * @param panelGroup The panel group used to generate the help text, instead of the Command's defined panel group.
    * @return An HTML string consisting of the help documentation for the command.
@@ -525,6 +539,36 @@ public class CommandHelpRetriever
       throw new NullPointerException("panelGroup");
 
     return generate(command, panelGroup);
+  }
+
+  /**
+   * Generates IBM-formatted command help documentation for the specified CL command.
+   * Portions of the resulting HTML will contain strings that were translated using
+   * the {@link java.util.Locale Locale} specified on the {@link com.ibm.as400.access.AS400 AS400}
+   * object for the given {@link com.ibm.as400.access.Command Command}.
+   *
+   * <p>Note: The byte array returned by this method has already been encoded in UTF-8 in order to
+   * match the charset tag within the HTML document.
+   *
+   * @param command The command.
+   * @param panelGroup The panel group used to generate the help text. Specify null to use the Command's defined panel group.
+   * @return An HTML document encoded in UTF-8 bytes, consisting of the help documentation for the command.
+   * @see java.util.Locale
+   * @see com.ibm.as400.access.AS400
+   * @see com.ibm.as400.access.Command
+   * @see com.ibm.as400.access.PanelGroup
+  **/
+  public synchronized byte[] generateHTMLBytes(Command command, PanelGroup panelGroup) throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException,
+  SAXException,
+  ParserConfigurationException, 
+  TransformerConfigurationException, TransformerException
+  {
+    if (command == null)
+      throw new NullPointerException("command");
+
+    return generate(command, panelGroup).getBytes("UTF-8");
   }
 
   /**
