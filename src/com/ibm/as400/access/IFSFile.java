@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -1048,7 +1048,7 @@ public class IFSFile
 
 
   /**
-   Determines the amount of unused storage space in the file system.
+   Determines the amount of unused storage space that is available to the user.
    @return The number of bytes of storage available.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1061,18 +1061,18 @@ public class IFSFile
   public long getFreeSpace()
     throws IOException
   {
-    if (impl_ == null)
     try
     {
-      chooseImpl();
+      if (impl_ == null)
+        chooseImpl();
+
+      return impl_.getFreeSpace();
     }
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
-
-    return impl_.getFreeSpace();
   }
 
   IFSFileImpl getImpl()

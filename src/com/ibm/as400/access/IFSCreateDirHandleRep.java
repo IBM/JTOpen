@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
-// Filename: IFSQuerySpaceReq.java
+// Filename: IFSCreateDirHandleRep.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
+// Copyright (C) 2004-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,30 +19,42 @@ import java.io.InputStream;
 
 
 /**
-Query available file system space request.
+Create Working Directory Handle reply.
 **/
-class IFSQuerySpaceReq extends IFSDataStreamReq
+class IFSCreateDirHandleRep extends IFSDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 2004-2004 International Business Machines Corporation and others.";
 
   private static final int WORKING_DIR_HANDLE_OFFSET = 22;
-  private static final int TEMPLATE_LENGTH = 6;
-
 
 /**
-Construct a query file system space request.
-@parm handle The working directory handle.
+Get the working directory handle.
+@return the working directory handle.
 **/
-  IFSQuerySpaceReq(int handle)
+  int getHandle()
   {
-    super(20 + TEMPLATE_LENGTH);
-    setLength(data_.length);
-    setTemplateLen(TEMPLATE_LENGTH);
-    setReqRepID(0x0015);
-    set32bit(handle, WORKING_DIR_HANDLE_OFFSET);
+    return get32bit(WORKING_DIR_HANDLE_OFFSET);
   }
 
+/**
+Generate a new instance of this type.
+@return a reference to the new instance
+**/
+  public Object getNewDataStream()
+  {
+    return new IFSCreateDirHandleRep();
+  }
+
+/**
+Generates a hash code for this data stream.
+@return the hash code
+**/
+  public int hashCode()
+  {
+    return 0x8006;
+  }
 }
+
 
 
 

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,7 @@ implements IFSFileImpl
     // AS400 server's reply data stream hash table.
     AS400Server.addReplyStream(new IFSListAttrsRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSOpenRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSCreateDirHandleRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSQuerySpaceRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
   }
@@ -394,10 +395,8 @@ implements IFSFileImpl
 
    **/
   public long getFreeSpace()
-    throws IOException
+    throws IOException, AS400SecurityException
   {
-    long freeSpace = 0L;
-
     // Ensure that we are connected to the server.
     try
     {
@@ -408,12 +407,21 @@ implements IFSFileImpl
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
-    // Query the available space.
+    // The File Server team advises us to make two queries:
+    // First query the space available to the user (within the user profile's "Maximum Storage Allowed" limit).
+    // Then query the total space available in the file system.
+    // The smaller of the two values is what we should then report to the application.
+
+    long freeSpaceForUser = 0L;  // free space available to the user profile
+    long freeSpaceInFileSystem = 0L; // actual total free space in file system
+
+    // First, query the free space available to the user within their limit.
+
     ClientAccessDataStream ds = null;
     try
     {
       // Issue a query space request.
-      IFSQuerySpaceReq req = new IFSQuerySpaceReq(true);
+      IFSQuerySpaceReq req = new IFSQuerySpaceReq(0);  // 0 indicates "return attributes for user"
       ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
     }
     catch(ConnectionDroppedException e)
@@ -431,7 +439,7 @@ implements IFSFileImpl
     int rc = 0;
     if (ds instanceof IFSQuerySpaceRep)
     {
-      freeSpace = ((IFSQuerySpaceRep) ds).getFreeSpace();
+      freeSpaceForUser = ((IFSQuerySpaceRep) ds).getFreeSpace();
     }
     else if (ds instanceof IFSReturnCodeRep)
     {
@@ -452,7 +460,114 @@ implements IFSFileImpl
                                InternalErrorException.DATA_STREAM_UNKNOWN);
     }
 
-    return freeSpace;
+    if (Trace.traceOn_) {
+      if (freeSpaceForUser == IFSQuerySpaceRep.NO_MAX) {
+        Trace.log(Trace.DIAGNOSTIC, "MaxStorage appears to be set to *NOMAX");
+      }
+      else {
+        Trace.log(Trace.DIAGNOSTIC, "MaxStorage does not appear to be set to *NOMAX");
+      }
+    }
+
+
+    // Now prepare to issue second query, to determine the total actual free space in the file system.
+
+    // To query the file system, we need to specify a "working directory handle" to the directory.  Get a handle.
+    String path = fd_.path_;
+    if (isDirectory() != IFSReturnCodeRep.SUCCESS) {
+      path = IFSFile.getParent(fd_.path_);
+    }
+    byte[] pathname = fd_.getConverter().stringToByteArray(path);
+    ds = null;
+    try
+    {
+      // Issue a Create Working Directory Handle request.
+      IFSCreateDirHandleReq req = new IFSCreateDirHandleReq(pathname, fd_.preferredServerCCSID_);
+      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      throw new InterruptedIOException(e.getMessage());
+    }
+
+    // Verify the reply.
+    rc = 0;
+    int dirHandle = 0;
+    if (ds instanceof IFSCreateDirHandleRep)
+    {
+      dirHandle = ((IFSCreateDirHandleRep) ds).getHandle();
+    }
+    else if (ds instanceof IFSReturnCodeRep)
+    {
+      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+      }
+      throw new ExtendedIOException(rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream ",
+                ds.getReqRepID());
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+
+
+    // Query the actual total available space in the file system.
+    ds = null;
+    try
+    {
+      // Issue a query space request.
+      IFSQuerySpaceReq req = new IFSQuerySpaceReq(dirHandle);
+      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      throw new InterruptedIOException(e.getMessage());
+    }
+
+    // Verify the reply.
+    rc = 0;
+    if (ds instanceof IFSQuerySpaceRep)
+    {
+      freeSpaceInFileSystem = ((IFSQuerySpaceRep) ds).getFreeSpace();
+    }
+    else if (ds instanceof IFSReturnCodeRep)
+    {
+      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+      }
+      throw new ExtendedIOException(rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream ",
+                ds.getReqRepID());
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+
+    return Math.min(freeSpaceForUser, freeSpaceInFileSystem);
   }
 
 

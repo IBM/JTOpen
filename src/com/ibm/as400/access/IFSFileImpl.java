@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ interface IFSFileImpl
   int  delete() throws IOException, AS400SecurityException;
   int  exists() throws IOException, AS400SecurityException;
 
-  long getFreeSpace() throws IOException;
+  long getFreeSpace() throws IOException, AS400SecurityException;
   int getCCSID() throws IOException, AS400SecurityException;            //@A2a
   long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
   String getSubtype() throws IOException, AS400SecurityException;      //@B5a

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,8 @@ Query available file system space reply.
 **/
 class IFSQuerySpaceRep extends IFSDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  static final long NO_MAX = Long.MAX_VALUE;  // indicates user has no maximum storage limit
 
   private static final int UNIT_SIZE_OFFSET = 22;
   private static final int TOTAL_SPACE_OFFSET = 26;
@@ -44,28 +45,16 @@ Generate a new instance of this type.
   }
 
 /**
-Determine the file system capacity (in bytes).
-@return the total number of bytes the file system can store
-**/
-  long getCapacity()
-  {
-    return ((long) get32bit( UNIT_SIZE_OFFSET) *
-            (long) get32bit( TOTAL_SPACE_OFFSET));
-  }
-
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-/**
 Determine the unused space in the file system (in bytes).
+Returns NO_MAX if the user profile has a "maximum storage allowed" setting of *NOMAX.
+(The File Server returns a bogus value in the Space Available field in that case.)
 @return the number of unused bytes in the file system
 **/
   long getFreeSpace()
   {
-    return ((long) get32bit( UNIT_SIZE_OFFSET) *
+    long totalSpace = (long)get32bit(TOTAL_SPACE_OFFSET);
+    if (totalSpace == 0x7FFFFFFFL) return NO_MAX;  // special value indicates no maximum storage limit
+    else return ((long) get32bit( UNIT_SIZE_OFFSET) *
             (long) get32bit( SPACE_AVAILABLE_OFFSET));
   }
 

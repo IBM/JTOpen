@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ implements IFSFileImpl
   }
 
   public long getFreeSpace()
-    throws IOException
+    throws IOException, AS400SecurityException
   {
     try {
       return connection_.callMethod (pxId_, "getFreeSpace").getReturnValueLong();
