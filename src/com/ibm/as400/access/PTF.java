@@ -31,6 +31,7 @@ public class PTF
 
   private AS400 system_;
   private String productID_;
+  private String returnedProductID_; // Product ID that comes back on the API call.
   private boolean actionPending_;
   private String actionRequired_;
   private boolean hasCoverLetter_;
@@ -45,6 +46,7 @@ public class PTF
   private String ptfID_;
   private boolean isPTFReleased_;
   private String ptfReleaseLevel_;
+  private String returnedReleaseLevel_; // Release level that comes back on the API call.
   private boolean saveFileExists_;
   private Date statusDate_;
 
@@ -775,6 +777,7 @@ public class PTF
   **/
   public String getProductID()
   {
+    if (productID_ == PRODUCT_ID_ONLY) return returnedProductID_;
     return productID_;
   }
 
@@ -807,6 +810,7 @@ public class PTF
   **/
   public String getReleaseLevel()
   {
+    if (ptfReleaseLevel_ == PRODUCT_RELEASE_ONLY) return returnedReleaseLevel_;
     return ptfReleaseLevel_;
   }
 
@@ -1220,6 +1224,8 @@ public class PTF
       refresh(whichFormat);
       return;
     }
+    returnedProductID_ = conv.byteArrayToString(output, 12, 7);
+    returnedReleaseLevel_ = conv.byteArrayToString(output, 26, 6);
     ptfProductOption_ = conv.byteArrayToString(output, 32, 4);
     ptfProductLoad_ = conv.byteArrayToString(output, 36, 4);
     loadedStatus_ = conv.byteArrayToString(output, 40, 1);
