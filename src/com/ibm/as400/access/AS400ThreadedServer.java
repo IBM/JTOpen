@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ import java.util.Vector;
 
 final class AS400ThreadedServer extends AS400Server implements Runnable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   private static int threadCount = 0;
 
@@ -48,9 +48,19 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
   // implement our own hashtables to compromise.
   private final ReplyList replyList_ = new ReplyList();
 
+  //@P1A
+  private final class DataStreamCollection
+  {
+    DataStream[] chain_;
+    DataStreamCollection(DataStream ds)
+    {
+      chain_ = new DataStream[] { ds };
+    }
+  };
+
   private final class ReplyList
   {
-    final DataStream[][] streams_ = new DataStream[16][];
+    final DataStreamCollection[] streams_ = new DataStreamCollection[16];
 
     final void add(DataStream ds)
     {
@@ -65,18 +75,17 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         return;
       }
       int hash = ds.getCorrelation() % 16;
-      DataStream[] chain;
-      synchronized(streams_)
+      
+      //@P1C - Use the collection object for synchronization to prevent bottlenecks.
+      DataStreamCollection coll = streams_[hash];
+      if (coll == null)
       {
-        chain = streams_[hash];
-        if (chain == null)
-        {
-          chain = new DataStream[] { ds };
-          streams_[hash] = chain;
-          return;
-        }
-        synchronized(chain)
-        {
+        streams_[hash] = new DataStreamCollection(ds);
+        return;
+      }
+      synchronized(coll)
+      {
+        DataStream[] chain = coll.chain_;
           int max = chain.length;
           for (int i=0; i<max; ++i)
           {
@@ -89,24 +98,32 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
           DataStream[] newChain = new DataStream[max*2];
           System.arraycopy(chain, 0, newChain, 0, max);
           newChain[max] = ds;
-          streams_[hash] = newChain;
-        }
+        coll.chain_ = newChain;
       }
     }
     
     final DataStream remove(int correlation)
     {
       int hash = correlation % 16;
-      DataStream[] chain = streams_[hash];
-      if (chain == null) return null;
-      synchronized(chain)
+      DataStreamCollection coll = streams_[hash];
+      if (coll == null) return null;
+      //@P1C - Use the collection object for synchronization to prevent bottlenecks.
+      synchronized(coll)
       {
+        DataStream[] chain = coll.chain_;
         for (int i=0; i<chain.length; ++i)
         {
           if (chain[i] != null && chain[i].getCorrelation() == correlation)
           {
             DataStream ds = chain[i];
-            chain[i] = null;
+            //@P1A  Move up the remaining entries because chained replies have the
+            //@P1A  same correlation ID and need to remain in chronological order
+            if (i+1 < chain.length)
+            {
+              System.arraycopy(chain, i+1, chain, i, chain.length-i-1);
+            }
+            //@P1A  Set last element to null.
+            chain[chain.length-1] = null;
             return ds;
           }
         }
