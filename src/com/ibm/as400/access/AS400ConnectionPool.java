@@ -97,6 +97,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   private transient Hashtable removedAS400ConnectionPool_;  //@A6A
   private transient Log log_;
   private SocketProperties socketProperties_;
+  private transient long lastRun_=0;     //@D1A Last time cleanupConnections() was called.  Added for fix to JTOpen Bug #3863
 
   // Handles loading the appropriate resource bundle
 //@CRS  private static ResourceBundleLoader loader_;
@@ -142,6 +143,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.MAINTENANCE_THREAD_RUN);
       poolListeners_.fireMaintenanceThreadRun(poolEvent);
     }
+    lastRun_ = System.currentTimeMillis();     //@D1A
   }        
 
 
@@ -1192,7 +1194,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
     //If running single-threaded and cleanup interval has elapsed, run cleanup
     if (!isThreadUsed() && isRunMaintenance() && 
-        System.currentTimeMillis() - maintenance_.getLastTime() > getCleanupInterval())
+        ((System.currentTimeMillis() - lastRun_) > getCleanupInterval()))  //@D1C replace maintenance_.getLastTime() with lastRun_ 
     {
       cleanupConnections();
     }
