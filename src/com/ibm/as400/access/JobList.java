@@ -458,17 +458,31 @@ public class JobList implements Serializable
    * <P>
    * @param attribute The job attribute to retrieve.
    * Possible values are all job attributes contained in the {@link com.ibm.as400.access.Job Job} class,
-   * excluding the following:
+   * <b>excluding</b> the following:
    * <UL>
+   * <LI>Job.CLIENT_IP_ADDRESS
    * <LI>Job.CURRENT_LIBRARY
    * <LI>Job.CURRENT_LIBRARY_EXISTENCE
-   * <LI>Job.INTERNAL_JOB_ID
+   * <LI>Job.ELAPSED_CPU_PERCENT_USED
+   * <LI>Job.ELAPSED_CPU_PERCENT_USED_FOR_DATABASE
+   * <LI>Job.ELAPSED_CPU_TIME_USED
+   * <LI>Job.ELAPSED_CPU_TIME_USED_FOR_DATABASE
+   * <LI>Job.ELAPSED_DISK_IO
+   * <LI>Job.ELAPSED_DISK_IO_ASYNCH
+   * <LI>Job.ELAPSED_DISK_IO_SYNCH
+   * <LI>Job.ELAPSED_INTERACTIVE_RESPONSE_TIME
+   * <LI>Job.ELAPSED_INTERACTIVE_TRANSACTIONS
+   * <LI>Job.ELAPSED_LOCK_WAIT_TIME
+   * <LI>Job.ELAPSED_PAGE_FAULTS
+   * <LI>Job.ELAPSED_TIME
    * <LI>Job.PRODUCT_LIBRARIES
    * <LI>Job.SUBMITTED_BY_JOB_NUMBER
    * <LI>Job.SUBMITTED_BY_USER
    * <LI>Job.SYSTEM_LIBRARY_LIST
    * <LI>Job.USER_LIBRARY_LIST
    * </UL>
+   * To retrieve any of the ELAPSED statistics, use the {@link com.ibm.as400.access.Job#resetStatistics Job.resetStatistics()} and
+   * {@link com.ibm.as400.access.Job#loadStatistics Job.loadStatistics()} methods.
    * @see #clearJobAttributesToRetrieve
    * @see com.ibm.as400.access.Job
   **/
@@ -487,21 +501,40 @@ public class JobList implements Serializable
       case Job.JOB_TYPE:
       case Job.JOB_SUBTYPE:
       case Job.JOB_STATUS:
+      case Job.INTERNAL_JOB_ID:
+      case Job.INTERNAL_JOB_IDENTIFIER:
         return;
       // These cannot be retrieved this way. You have to make another call to the QUSRJOBI API to get them.
       case Job.CURRENT_LIBRARY:
       case Job.CURRENT_LIBRARY_EXISTENCE:
+      case Job.ELAPSED_CPU_PERCENT_USED:
+      case Job.ELAPSED_CPU_PERCENT_USED_FOR_DATABASE:
+      case Job.ELAPSED_CPU_TIME_USED:
+      case Job.ELAPSED_CPU_TIME_USED_FOR_DATABASE:
+      case Job.ELAPSED_DISK_IO:
+      case Job.ELAPSED_DISK_IO_ASYNCH:
+      case Job.ELAPSED_DISK_IO_SYNCH:
+      case Job.ELAPSED_INTERACTIVE_RESPONSE_TIME:
+      case Job.ELAPSED_INTERACTIVE_TRANSACTIONS:
+      case Job.ELAPSED_LOCK_WAIT_TIME:
+      case Job.ELAPSED_PAGE_FAULTS:
+      case Job.ELAPSED_TIME:
       case Job.PRODUCT_LIBRARIES:
       case Job.SUBMITTED_BY_JOB_NUMBER:
       case Job.SUBMITTED_BY_USER:
       case Job.SYSTEM_LIBRARY_LIST:
       case Job.USER_LIBRARY_LIST:
-      case Job.INTERNAL_JOB_ID:
         throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       // The date and time have different key values for getting and setting.
       case Job.SCHEDULE_DATE:
       case Job.SCHEDULE_TIME:
         attribute = Job.SCHEDULE_DATE_GETTER;
+        break;
+      case Job.INSTANCE:
+      case Job.LOCATION_NAME:
+      case Job.NETWORK_ID:
+      case Job.SEQUENCE_NUMBER:
+        attribute = Job.UNIT_OF_WORK_ID;
         break;
       default:
         break;
@@ -678,11 +711,23 @@ public class JobList implements Serializable
    * To start over with a new set of job attributes to sort on, call {@link #clearJobAttributesToSortOn clearJobAttributesToSortOn()}.
    * @param attribute The job attribute on which to sort.
    * Possible values are all job attributes contained in the {@link com.ibm.as400.access.Job Job} class,
-   * excluding the following:
+   * <b>excluding</b> the following:
    * <UL>
+   * <LI>Job.CLIENT_IP_ADDRESS
    * <LI>Job.CURRENT_LIBRARY
    * <LI>Job.CURRENT_LIBRARY_EXISTENCE
-   * <LI>Job.INTERNAL_JOB_ID
+   * <LI>Job.ELAPSED_CPU_PERCENT_USED
+   * <LI>Job.ELAPSED_CPU_PERCENT_USED_FOR_DATABASE
+   * <LI>Job.ELAPSED_CPU_TIME_USED
+   * <LI>Job.ELAPSED_CPU_TIME_USED_FOR_DATABASE
+   * <LI>Job.ELAPSED_DISK_IO
+   * <LI>Job.ELAPSED_DISK_IO_ASYNCH
+   * <LI>Job.ELAPSED_DISK_IO_SYNCH
+   * <LI>Job.ELAPSED_INTERACTIVE_RESPONSE_TIME
+   * <LI>Job.ELAPSED_INTERACTIVE_TRANSACTIONS
+   * <LI>Job.ELAPSED_LOCK_WAIT_TIME
+   * <LI>Job.ELAPSED_PAGE_FAULTS
+   * <LI>Job.ELAPSED_TIME
    * <LI>Job.PRODUCT_LIBRARIES
    * <LI>Job.SUBMITTED_BY_JOB_NUMBER
    * <LI>Job.SUBMITTED_BY_USER
@@ -704,18 +749,29 @@ public class JobList implements Serializable
       // These cannot be retrieved this way. You have to make another call to the QUSRJOBI API to get them.
       case Job.CURRENT_LIBRARY:
       case Job.CURRENT_LIBRARY_EXISTENCE:
+      case Job.ELAPSED_CPU_PERCENT_USED:
+      case Job.ELAPSED_CPU_PERCENT_USED_FOR_DATABASE:
+      case Job.ELAPSED_CPU_TIME_USED:
+      case Job.ELAPSED_CPU_TIME_USED_FOR_DATABASE:
+      case Job.ELAPSED_DISK_IO:
+      case Job.ELAPSED_DISK_IO_ASYNCH:
+      case Job.ELAPSED_DISK_IO_SYNCH:
+      case Job.ELAPSED_INTERACTIVE_RESPONSE_TIME:
+      case Job.ELAPSED_INTERACTIVE_TRANSACTIONS:
+      case Job.ELAPSED_LOCK_WAIT_TIME:
+      case Job.ELAPSED_PAGE_FAULTS:
+      case Job.ELAPSED_TIME:
       case Job.PRODUCT_LIBRARIES:
       case Job.SUBMITTED_BY_JOB_NUMBER:
       case Job.SUBMITTED_BY_USER:
       case Job.SYSTEM_LIBRARY_LIST:
       case Job.USER_LIBRARY_LIST:
-      case Job.INTERNAL_JOB_ID:
         throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       // The date and time have different key values for getting and setting.
-      case Job.SCHEDULE_DATE:
-      case Job.SCHEDULE_TIME:
-        attribute = Job.SCHEDULE_DATE_GETTER;
-        break;
+//      case Job.SCHEDULE_DATE:
+//      case Job.SCHEDULE_TIME:
+//        attribute = Job.SCHEDULE_DATE_GETTER;
+//        break;
       default:
         break;
     }
@@ -1498,6 +1554,7 @@ if it has not already been called.
             fieldLength = 6;
             break;
           case Job.INTERNAL_JOB_ID:
+          case Job.INTERNAL_JOB_IDENTIFIER:
             fieldStartingPosition = 27;
             fieldLength = 16;
             break;
