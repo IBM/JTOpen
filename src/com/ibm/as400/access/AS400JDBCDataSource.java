@@ -270,6 +270,24 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getString(JDProperties.ACCESS);
     }
 
+    // @C9 new method
+    /**
+    *  Returns what behaviors of the Toolbox JDBC driver have been overridden.
+    *  Multiple behaviors can be overridden in combination by adding 
+    *  the constants and passing that sum on the setBehaviorOverride() method.  
+    *  @return The behaviors that have been overridden. 
+    *  <p>The return value is a combination of the following:
+    *  <ul>
+    *  <li>1 - Do not throw an exception if Statement.executeQuery() or
+    *          PreparedStatement.executeQuery() do not return a result set.
+    *          Instead, return null for the result set.
+    *  </ul>
+    *
+    **/
+    public int getBehaviorOverride()
+    {
+        return properties_.getInt(JDProperties.BEHAVIOR_OVERRIDE);
+    }
 
     //@B2A
     /**
@@ -417,9 +435,33 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return connection;
     }
 
+    //@C8A
+    /**
+    *  Returns the value of the cursor sensitivity property.  If the resultSetType is 
+    *  ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE, the value of this property
+    *  will control what cursor sensitivity is requested from the database.  If the resultSetType
+    *  is ResultSet.TYPE_SCROLL_INSENSITIVE, this property will be ignored.
+    *  @return The cursor sensitivity.  
+    *  <p>Valid values include:
+    *  <ul>
+    *    <li> "asensitive"
+    *    <li> "insensitive"
+    *    <li> "sensitive"
+    *  </ul>
+    *  The default is "asensitive".
+    *
+    *  This property is ignored when connecting to systems
+    *  running V5R1 and earlier versions of OS/400.   
+    **/
+    public String getCursorSensitivity()
+    {
+        return properties_.getString(JDProperties.CURSOR_SENSITIVITY);      
+    }
+
+
     /**
     *  Returns the database name property.  For more information see
-    *  the documention for the setDatabaseName() method in this class.
+    *  the documentation for the setDatabaseName() method in this class.
     *  @return The database name.
     **/
     public String getDatabaseName()
@@ -1281,6 +1323,44 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
 
+    // @C9 new method
+    /**                                                               
+    *  Sets the Toolbox JDBC Driver behaviors to override.  Multiple
+    *  behaviors can be changed in combination by adding
+    *  the constants and passing that sum on the this method. 
+    *  @param behaviors The driver behaviors to override.
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>1 - Do not throw an exception if Statement.executeQuery() or
+    *          PreparedStatement.executeQuery() do not return a result set.
+    *          Instead, return null for the result set.
+    *  </ul>
+    *
+    *  Carefully consider the result of overriding the default behavior of the
+    *  driver.  For example, setting the value of this property to 1 means
+    *  the driver will no longer thrown an exception even though the JDBC 3.0
+    *  specification states throwing an exception is the correct behavior.  
+    *  Be sure your application correctly handles the altered behavior.  
+    *
+    **/
+    public void setBehaviorOverride(int behaviors)
+    {
+        String property = "behaviorOverride";
+
+        Integer oldValue = new Integer(getBehaviorOverride());
+        Integer newValue = new Integer(behaviors);
+
+        properties_.setString(JDProperties.BEHAVIOR_OVERRIDE, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) //@A8C
+            JDTrace.logInformation (this, property + ": " + behaviors);
+    }
+
+
+
+
     //@B2A
     /**
      *  Sets the output string type of bidi data, as defined by the CDRA (Character Data
@@ -1391,6 +1471,42 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + blockSize);  //@A8C
     }
+
+
+    //@C8A
+    /**
+    *  Sets the cursor sensitivity to be requested from the database.  If the resultSetType is 
+    *  ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE, the value of this property
+    *  will control what cursor sensitivity is requested from the database.  If the resultSetType
+    *  is ResultSet.TYPE_SCROLL_INSENSITIVE, this property will be ignored.
+    *
+    *  <p>Valid values include:
+    *  <ul>
+    *    <li> "asensitive"
+    *    <li> "insensitive"
+    *    <li> "sensitive"
+    *  </ul>
+    *  The default is "asensitive".
+    *
+    *  This property is ignored when connecting to systems
+    *  running V5R1 and earlier versions of OS/400. 
+    **/
+    public void setCursorSensitivity(String cursorSensitivity)
+    {
+        String property = "cursorSensitivity";
+
+        String oldCursorSensitivity = getCursorSensitivity();
+        String newCursorSensitivity = cursorSensitivity;
+
+        validateProperty(property, newCursorSensitivity, JDProperties.CURSOR_SENSITIVITY);
+
+        properties_.setString(JDProperties.CURSOR_SENSITIVITY, cursorSensitivity);
+        changes_.firePropertyChange(property, oldCursorSensitivity, newCursorSensitivity);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + cursorSensitivity);
+    }
+
 
     /**
     *  Sets whether the cursor is held.

@@ -1010,8 +1010,12 @@ implements PreparedStatement
             commonExecute (sqlStatement_, resultRow_);
             executed_ = true;
 
+            if ((behaviorOverride_ & 1) == 0)                                  // @H4a
+            {                                                                  // @H4a
             if (resultSet_ == null)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+            }                                                                  // @H4a
+                   
             return resultSet_;
         }
     }

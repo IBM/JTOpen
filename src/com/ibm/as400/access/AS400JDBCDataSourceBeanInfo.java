@@ -61,6 +61,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        access.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ACCESS"));
        access.setShortDescription(AS400JDBCDriver.getResource("ACCESS_DESC"));
 
+            PropertyDescriptor behaviorOverride = new PropertyDescriptor("behaviorOverride", beanClass, "getBehaviorOverride", "setBehaviorOverride"); // @J7A
+            behaviorOverride.setBound(true);                                                                                     // @J7A
+            behaviorOverride.setConstrained(false);                                                                              // @J7A
+            behaviorOverride.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_BEHAVIOR_OVERRIDE"));                         // @J7A
+            behaviorOverride.setShortDescription(AS400JDBCDriver.getResource("BEHAVIOR_OVERRIDE_DESC"));                         // @J7A
+
        PropertyDescriptor bidiStringType = new PropertyDescriptor("bidiStringType", beanClass, "getBidiStringType", "setBidiStringType"); // @A3A
        bidiStringType.setBound(true);                                                                                       // @A3A
        bidiStringType.setConstrained(false);                                                                                // @A3A
@@ -90,6 +96,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        cursorHold.setConstrained(false);
        cursorHold.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CURSOR_HOLD"));
        cursorHold.setShortDescription(AS400JDBCDriver.getResource("CURSOR_HOLD_DESC"));
+
+            PropertyDescriptor cursorSensitivity = new PropertyDescriptor("cursorSensitivity", beanClass, "getCursorSensitivity", "setCursorSensitivity"); // @J6A
+            cursorSensitivity.setBound(true);                                                                                     // @J6A
+            cursorSensitivity.setConstrained(false);                                                                              // @J6A
+            cursorSensitivity.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_CURSOR_SENSITIVITY"));                         // @J6A
+            cursorSensitivity.setShortDescription(AS400JDBCDriver.getResource("CURSOR_SENSITIVITY_DESC"));                         // @J6A
 
        PropertyDescriptor databaseName = new PropertyDescriptor("databaseName", beanClass, "getDatabaseName", "setDatabaseName");
        databaseName.setBound(true);
@@ -362,7 +374,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        user.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USER"));
        user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
 
-       properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C
+            properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
           decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
           packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
           sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user };                                                            //@j1c

@@ -38,11 +38,13 @@ public class JDMRI extends ListResourceBundle
 
            // #TRANNOTE JDBC property names.                               // @E2
       { "PROP_NAME_ACCESS", "access" },
+      { "PROP_NAME_BEHAVIOR_OVERRIDE", "behaviorOverride" },    // @J5A
       { "PROP_NAME_BIDI_STRING_TYPE", "bidiStringType" },       //@E6A
       { "PROP_NAME_BIG_DECIMAL", "bigDecimal" },
       { "PROP_NAME_BLOCK_CRITERIA", "blockCriteria" },
       { "PROP_NAME_BLOCK_SIZE", "blockSize" },
       { "PROP_NAME_CURSOR_HOLD", "cursorHold"},
+      { "PROP_NAME_CURSOR_SENSITIVITY", "cursorSensitivity" },    // @J4A
       { "PROP_NAME_DATABASE_NAME", "databaseName" },
       { "PROP_NAME_DATA_COMPRESSION", "dataCompression" },
       { "PROP_NAME_DATASOURCE_NAME", "dataSourceName" },
@@ -93,11 +95,13 @@ public class JDMRI extends ListResourceBundle
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
+      { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
       { "BIDI_STRING_TYPE_DESC", "Specifies the output string type of bidi data."}, //@E6A
       { "BIG_DECIMAL_DESC", "Specifies whether an intermediate java.math.BigDecimal object is used for packed and zoned decimal conversions." }, // @E0A
       { "BLOCK_CRITERIA_DESC", "Specifies the criteria for retrieving data from the server in blocks of records." },
       { "BLOCK_SIZE_DESC", "Specifies the block size (in kilobytes) to retrieve from the server and cache on the client." },
       { "CURSOR_HOLD_DESC", "Specifies whether to hold the cursor across transactions." },      // @E2
+      { "CURSOR_SENSITIVITY_DESC", "Specifies the cursor sensitivity to request from the database." },     //@J4A
       { "DATABASE_NAME_DESC", "Specifies the name of the database." },      // @E2
       { "DATA_COMPRESSION_DESC", "Specifies whether result set data is compressed." },   // @D2A
       { "DATASOURCE_NAME_DESC", "Specifies the name of the data source." },      // @E2

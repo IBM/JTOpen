@@ -119,7 +119,7 @@ implements Statement
     JDTransactionManager    transactionManager_;    // private protected
     int                     updateCount_;           // private protected
     private     String                  packageCriteria_;             // @A1A
-
+    int                     behaviorOverride_ = 0;  // @F9a
 
 
     /**
@@ -215,6 +215,12 @@ implements Statement
             connection.setCheckStatementHoldability(true);                        //@F4A
         }                                                                         //@F4A
 
+        try                                                                        // @F9a
+        {                                                                          // @F9a
+           behaviorOverride_ = connection_.getProperties().getInt(JDProperties.BEHAVIOR_OVERRIDE); // @F9a
+        }                                                                          // @F9a
+        catch (Throwable t) {}                                                     // @F9a
+                                                           
         // Trace messages.
         if (JDTrace.isTraceOn())
         {
@@ -228,6 +234,7 @@ implements Statement
             JDTrace.logProperty (this, "Result set concurrency", resultSetConcurrency_);
             JDTrace.logProperty (this, "Result set holdability", resultSetHoldability_);  //@F4A
             JDTrace.logProperty (this, "Result set type", resultSetType_);
+            JDTrace.logProperty (this, "Behavior Override", behaviorOverride_);   // @F9a
             String cursorAsString = JDTrace.objectToString(cursor_);                                      // @J33a
             JDTrace.logInformation(this, "Data to correlate statement with cursor " + cursorAsString);    // @J33a
         }
@@ -612,10 +619,39 @@ implements Statement
                                                                       fetchFirstBlock ? resultRow.getRowLength() : 0));
                     }
 
+                    //@F8 If we are pre-V5R2, the user set the resultSetType to "TYPE_SCROLL_INSENSITIVE", or
+                    //@F8 the user did not change from the default of the "cursor sensitivity" property,  
+                    //@F8 send what we always have.
+                    //@F8 Change in a future release to send CURSOR_SCROLLABLE_INSENSITIVE and 
+                    //@F8 CURSOR_NOT_SCROLLABLE_INSENSITIVE if resultSetType_ == 
+                    //@F8 ResultSet.TYPE_SCROLL_INSENSITIVE to v5r1 or later hosts.
+                    String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY); //@F8A
+                    if ((connection_.getVRM() < JDUtilities.vrm520)                                                    //@F8A
+                        || (resultSetType_ == ResultSet.TYPE_SCROLL_INSENSITIVE)                                       //@F8A
+                        || (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE)))           //@F8A
+                    {
                     if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
-                        request.setScrollableCursorFlag (0);
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);
                     else
-                        request.setScrollableCursorFlag (1);
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); 
+                    }
+                    //@F8 If we are V5R2 or later, send new numbers based on what the user
+                    //@F8 set in "cursor sensitivity" property                                                      //@F8A
+                    else if (resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)
+                    {
+                        if (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))     //@F8A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);  //@F8A
+                        else  //else property set to sensitive                                                   //@F8A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);    //@F8A
+                    }
+                    //@F8 Else, resultSetType_ is ResultSet.TYPE_CURSOR_SENSITIVE
+                    else
+                    {
+                        if (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))      //@F8A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_INSENSITIVE);       //@F8A
+                        else  //else property set to sensitive                                                    //@F8A
+                            request.setScrollableCursorFlag(DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);          //@F8A
+                    }
 
                     // Check server level before sending new code point
                     if (connection_.getVRM() >= JDUtilities.vrm520)                                    // @G4A
@@ -1642,8 +1678,12 @@ implements Statement
             JDServerRow resultRow = commonPrepare (sqlStatement);
             commonExecute (sqlStatement, resultRow);
 
+            if ((behaviorOverride_ & 1) == 0)                                  // @F9a
+            {                                                                  // @F9a
             if (resultSet_ == null)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+            }
+                                                                               // @F9a
             return resultSet_;
         }
     }
