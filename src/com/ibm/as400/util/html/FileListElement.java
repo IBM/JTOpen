@@ -28,6 +28,8 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 
 
 import com.ibm.as400.util.servlet.ListRowData;
+import com.ibm.as400.util.servlet.HTMLTableConverter;
+import com.ibm.as400.util.servlet.RowDataException;
 
 /**
 *  The FileListElement class represents the contents of an Integrated File System directory.
