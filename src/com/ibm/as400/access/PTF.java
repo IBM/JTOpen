@@ -563,8 +563,8 @@ public class PTF
    * Possible values are:
    * <UL>
    * <LI>{@link #PTF_TYPE_DELAYED PTF_TYPE_DELAYED}
-   * <LI>(@link #PTF_TYPE_IMMEDIATE PTF_TYPE_IMMEDIATE}
-   * <LI>(@link #PTF_TYPE_UNKNOWN PTF_TYPE_UNKNOWN}
+   * <LI>{@link #PTF_TYPE_IMMEDIATE PTF_TYPE_IMMEDIATE}
+   * <LI>{@link #PTF_TYPE_UNKNOWN PTF_TYPE_UNKNOWN}
    * </UL>
    * @return The type of PTF. This indicates if an IPL is required to apply the PTF.
   **/
