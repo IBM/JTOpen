@@ -1655,10 +1655,12 @@ expect a reply.
     catch (ConnectionDroppedException e)
     {                               // @C1A
       server_ = null;                                                  // @D8
+      request.freeCommunicationsBuffer();                              // @EMa
       JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
     }                                                                    // @C1A
     catch (Exception e)
     {
+      request.freeCommunicationsBuffer();                              // @EMa
       JDError.throwSQLException (JDError.EXC_INTERNAL, e);
     }
   }
@@ -1872,10 +1874,12 @@ corresponding reply from the server.
     catch (ConnectionDroppedException e)
     {                              // @C1A
       server_ = null;                                                  // @D8
+      request.freeCommunicationsBuffer();                              // @EMa
       JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
     }                                                                   // @C1A
     catch (Exception e)
     {
+      request.freeCommunicationsBuffer();                              // @EMa
       JDError.throwSQLException (JDError.EXC_INTERNAL, e);
     }
 
@@ -2410,6 +2414,7 @@ Sets the server attributes.
         else
           JDTrace.logInformation (this, "Using original datastreams");
       }
+
 
 
       // Send the request and process the reply.
