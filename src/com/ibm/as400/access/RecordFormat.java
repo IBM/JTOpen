@@ -250,6 +250,7 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("listener");
     }
+    if (changes_ == null) changes_ = new PropertyChangeSupport(this);
     changes_.addPropertyChangeListener(listener);
   }
 
@@ -264,6 +265,7 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("listener");
     }
+    if (rdListeners_ == null) rdListeners_ = new Vector();
     rdListeners_.addElement(listener); //@B0C
 //@B0D    currentRecordDescriptionListeners_ = (Vector)recordDescriptionListeners_.clone();
   }
@@ -281,6 +283,7 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("listener");
     }
+    if (vetos_ == null) vetos_ = new VetoableChangeSupport(this);
     vetos_.addVetoableChangeListener(listener); //@B0C
 //@B0D    currentVetoListeners_ = (Vector)vetoListeners_.clone();
   }
@@ -294,6 +297,7 @@ public class RecordFormat implements Serializable
   **/
   private void fireEvent(int index)
   {
+    if (rdListeners_ == null) return;
     Vector targets = (Vector)rdListeners_.clone();
     RecordDescriptionEvent event = new RecordDescriptionEvent(this, index);
     for (int i=0; i<targets.size(); ++i)
@@ -792,9 +796,9 @@ public class RecordFormat implements Serializable
   **/
   private void initializeTransient()
   {
-    rdListeners_ = new Vector();
-    vetos_ = new VetoableChangeSupport(this);
-    changes_ = new PropertyChangeSupport(this);
+//    rdListeners_ = new Vector();
+//    vetos_ = new VetoableChangeSupport(this);
+//    changes_ = new PropertyChangeSupport(this);
   }
 
 
@@ -830,7 +834,7 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("listener");
     }
-    changes_.removePropertyChangeListener(listener);
+    if (changes_ != null) changes_.removePropertyChangeListener(listener);
   }
 
   /**
@@ -845,7 +849,7 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("listener");
     }
-    rdListeners_.removeElement(listener); //@B0C
+    if (rdListeners_ != null) rdListeners_.removeElement(listener); //@B0C
 //@B0D    currentRecordDescriptionListeners_ = (Vector)recordDescriptionListeners_.clone();
   }
 
@@ -861,7 +865,7 @@ public class RecordFormat implements Serializable
     {
       throw new NullPointerException("listener");
     }
-    vetos_.removeVetoableChangeListener(listener); //@B0C
+    if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@B0C
 //@B0D    currentVetoListeners_ = (Vector)vetoListeners_.clone();
   }
 
@@ -977,9 +981,9 @@ public class RecordFormat implements Serializable
     //@B0D: removed old veto-listener code block
 
     String old = name_;
-    vetos_.fireVetoableChange("name", old, name.toUpperCase()); //@B0A
+    if (vetos_ != null) vetos_.fireVetoableChange("name", old, name.toUpperCase()); //@B0A
     name_ = name.toUpperCase();
-    changes_.firePropertyChange("name", old, name_);
+    if (changes_ != null) changes_.firePropertyChange("name", old, name_);
   }
 
   /**
