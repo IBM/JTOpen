@@ -39,9 +39,9 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     private int cols;            // The number of columns in the layout.
 
 
-    transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-    transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-    transient Vector elementListeners_ = new Vector();     // The list of element listeners.
+    transient PropertyChangeSupport changes_; //@CRS
+    transient VetoableChangeSupport vetos_; //@CRS
+    transient Vector elementListeners_;     // The list of element listeners. @CRS
 
     /**
     *  Constructs a default LayoutFormPanel.
@@ -78,7 +78,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     {
         if (listener == null)
             throw new NullPointerException("listener");
-
+        if (elementListeners_ == null) elementListeners_ = new Vector(); //@CRS
         elementListeners_.addElement(listener);
     }
 
@@ -87,6 +87,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners_ == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners_.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -128,9 +129,9 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
-        elementListeners_ = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
+        //@CRS elementListeners_ = new Vector();
     }
 
     /**
@@ -158,7 +159,7 @@ public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Seriali
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        elementListeners_.removeElement(listener);
+        if (elementListeners_ != null) elementListeners_.removeElement(listener); //@CRS
     }
 
     /**

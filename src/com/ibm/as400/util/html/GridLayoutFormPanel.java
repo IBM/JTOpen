@@ -17,9 +17,7 @@ import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 
 import java.util.Vector;
-import java.beans.PropertyChangeListener;
-import java.beans.VetoableChangeListener;
-import java.beans.PropertyVetoException;
+import java.beans.*;
 
 /**
 *  The GridLayoutFormPanel class represents a grid layout of HTML form elements.
@@ -116,6 +114,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
         changes_.addPropertyChangeListener(listener);
     }
 
@@ -133,6 +132,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -331,7 +331,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        changes_.removePropertyChangeListener(listener);
+        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
     }
 
 
@@ -346,7 +346,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
     /**
@@ -432,13 +432,13 @@ public class GridLayoutFormPanel extends LayoutFormPanel
             throw new ExtendedIllegalArgumentException("columns", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = columns_;
-        vetos_.fireVetoableChange("columns", new Integer(old), new Integer(columns) );
+        if (vetos_ != null) vetos_.fireVetoableChange("columns", new Integer(old), new Integer(columns) ); //@CRS
 
         columns_ = columns;
         columnDir_ = new String[columns_]; // Don't preserve the old direction info.
         columnAlign_ = new String[columns_]; // Don't preserve the old alignment info.
 
-        changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) );
+        if (changes_ != null) changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) ); //@CRS
     }
 
     /**
@@ -463,11 +463,11 @@ public class GridLayoutFormPanel extends LayoutFormPanel
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -485,10 +485,10 @@ public class GridLayoutFormPanel extends LayoutFormPanel
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 }

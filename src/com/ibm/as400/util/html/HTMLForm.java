@@ -108,8 +108,8 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
 
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private VetoableChangeSupport vetos_; //@CRS
+    transient private Vector elementListeners;      // The list of element listeners @CRS
 
     /**
     *  Constructs a default HTMLForm object.
@@ -163,6 +163,7 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
         if (listener == null)
             throw new NullPointerException("listener");
 
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -179,6 +180,7 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -187,6 +189,7 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
      **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -380,9 +383,9 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
-        elementListeners = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
+        //@CRS elementListeners = new Vector();
     }
 
     /**
@@ -411,7 +414,7 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
         if (listener == null)
             throw new NullPointerException("listener");
 
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -426,7 +429,7 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
 
@@ -452,11 +455,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -473,11 +476,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
             throw new NullPointerException("parameterList");
 
         Properties old = parms_;
-        vetos_.fireVetoableChange("parameterList", old, parameterList );
+        if (vetos_ != null) vetos_.fireVetoableChange("parameterList", old, parameterList ); //@CRS
 
         parms_ = parameterList;
 
-        changes_.firePropertyChange("parameterList", old, parameterList );
+        if (changes_ != null) changes_.firePropertyChange("parameterList", old, parameterList ); //@CRS
     }
 
 
@@ -495,11 +498,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 
@@ -516,11 +519,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
             throw new ExtendedIllegalArgumentException("method", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = method_;
-        vetos_.fireVetoableChange("method", new Integer(old), new Integer(method) );
+        if (vetos_ != null) vetos_.fireVetoableChange("method", new Integer(old), new Integer(method) ); //@CRS
 
         method_ = method;
 
-        changes_.firePropertyChange("method", new Integer(old), new Integer(method) );
+        if (changes_ != null) changes_.firePropertyChange("method", new Integer(old), new Integer(method) ); //@CRS
     }
 
     /**
@@ -539,11 +542,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
             throw new NullPointerException("target");
 
         String old = target_;
-        vetos_.fireVetoableChange("target", old, target );
+        if (vetos_ != null) vetos_.fireVetoableChange("target", old, target ); //@CRS
 
         target_ = target;
 
-        changes_.firePropertyChange("target", old, target );
+        if (changes_ != null) changes_.firePropertyChange("target", old, target ); //@CRS
     }
 
     /**
@@ -559,11 +562,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
             throw new NullPointerException("url");
 
         String old = url_;
-        vetos_.fireVetoableChange("url", old, url );
+        if (vetos_ != null) vetos_.fireVetoableChange("url", old, url ); //@CRS
 
         url_ = url;
 
-        changes_.firePropertyChange("url", old, url );
+        if (changes_ != null) changes_.firePropertyChange("url", old, url ); //@CRS
     }
 
     /**

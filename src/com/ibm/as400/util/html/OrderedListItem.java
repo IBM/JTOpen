@@ -144,7 +144,7 @@ public class OrderedListItem extends HTMLListItem
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -176,7 +176,7 @@ public class OrderedListItem extends HTMLListItem
 
         type_ = type;
 
-        changes_.firePropertyChange("type", old, type );
+        if (changes_ != null) changes_.firePropertyChange("type", old, type ); //@CRS
     }
 
 
@@ -200,7 +200,7 @@ public class OrderedListItem extends HTMLListItem
 
         value_ = value;
 
-        changes_.firePropertyChange("value", new Integer(old), new Integer(value) );
+        if (changes_ != null) changes_.firePropertyChange("value", new Integer(old), new Integer(value) ); //@CRS
 
     }
 }

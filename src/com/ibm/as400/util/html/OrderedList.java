@@ -208,7 +208,7 @@ public class OrderedList extends HTMLList
 
         type_ = type;
 
-        changes_.firePropertyChange("type", old, type );
+        if (changes_ != null) changes_.firePropertyChange("type", old, type ); //@CRS
     }
 
 
@@ -219,7 +219,7 @@ public class OrderedList extends HTMLList
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -243,7 +243,7 @@ public class OrderedList extends HTMLList
 
         start_ = start;
 
-        changes_.firePropertyChange("start", new Integer(old), new Integer(start) );
+        if (changes_ != null) changes_.firePropertyChange("start", new Integer(old), new Integer(start) ); //@CRS
     }
 
 

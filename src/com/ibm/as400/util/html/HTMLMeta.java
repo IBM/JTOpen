@@ -258,7 +258,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -276,7 +276,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
 
         content_ = content;
 
-        changes_.firePropertyChange("content", old, content );
+        if (changes_ != null) changes_.firePropertyChange("content", old, content ); //@CRS
     }
 
 
@@ -302,7 +302,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -320,7 +320,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
 
         HttpEquiv_ = HttpEquiv;
 
-        changes_.firePropertyChange("HttpEquiv", old, HttpEquiv );
+        if (changes_ != null) changes_.firePropertyChange("HttpEquiv", old, HttpEquiv ); //@CRS
     }
 
 
@@ -339,7 +339,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 
@@ -359,7 +359,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }
 
 
@@ -378,7 +378,7 @@ public class HTMLMeta extends HTMLTagAttributes implements java.io.Serializable 
 
         url_ = url;
 
-        changes_.firePropertyChange("url", old, url );
+        if (changes_ != null) changes_.firePropertyChange("url", old, url ); //@CRS
     }
 
 

@@ -75,8 +75,8 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
-    transient private Vector columnListeners_ = new Vector();;      // The list of column listeners.
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private Vector columnListeners_;      // The list of column listeners. @CRS
+    transient private VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Constructs a default HTMLTableRow object.
@@ -129,6 +129,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (columnListeners_ == null) columnListeners_ = new Vector(); //@CRS
         columnListeners_.addElement(listener);
     }
 
@@ -143,6 +144,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -151,6 +153,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     **/
     private void fireAdded()
     {
+      if (columnListeners_ == null) return; //@CRS
         Vector targets = (Vector) columnListeners_.clone();
         ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_ADDED);
         for (int i=0; i<targets.size(); i++)
@@ -165,6 +168,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     **/
     private void fireChanged()
     {
+      if (columnListeners_ == null) return; //@CRS
         Vector targets = (Vector) columnListeners_.clone();
         ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_CHANGED);
         for (int i=0; i<targets.size(); i++)
@@ -179,6 +183,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     **/
     private void fireRemoved()
     {
+      if (columnListeners_ == null) return; //@CRS
         Vector targets = (Vector) columnListeners_.clone();
         ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_REMOVED);
         for (int i=0; i<targets.size(); i++)
@@ -376,9 +381,9 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
-        columnListeners_ = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
+        //@CRS columnListeners_ = new Vector();
     }
 
     /**
@@ -432,7 +437,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        columnListeners_.removeElement(listener);
+        if (columnListeners_ != null) columnListeners_.removeElement(listener); //@CRS
     }
 
 
@@ -447,7 +452,7 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
     /**
@@ -499,11 +504,11 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -525,11 +530,11 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
                  alignment.equalsIgnoreCase(RIGHT))
         {
             String old = hAlign_;
-            vetos_.fireVetoableChange("alignment", old, alignment );
+            if (vetos_ != null) vetos_.fireVetoableChange("alignment", old, alignment ); //@CRS
 
             hAlign_ = alignment;
 
-            changes_.firePropertyChange("alignment", old, alignment );
+            if (changes_ != null) changes_.firePropertyChange("alignment", old, alignment ); //@CRS
         }
         else
         {
@@ -552,11 +557,11 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
     /**
@@ -578,11 +583,11 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
                  alignment.equalsIgnoreCase(BASELINE))
         {
             String old = vAlign_;
-            vetos_.fireVetoableChange("alignment", old, alignment );
+            if (vetos_ != null) vetos_.fireVetoableChange("alignment", old, alignment ); //@CRS
 
             vAlign_ = alignment;
 
-            changes_.firePropertyChange("alignment", old, alignment );
+            if (changes_ != null) changes_.firePropertyChange("alignment", old, alignment ); //@CRS
         }
         else
         {

@@ -120,11 +120,11 @@ public abstract class ToggleFormInput extends FormInput
         //@A1D
 
         boolean old = checked_;
-        vetos_.fireVetoableChange("checked", new Boolean(old), new Boolean(checked) );
+        if (vetos_ != null) vetos_.fireVetoableChange("checked", new Boolean(old), new Boolean(checked) ); //@CRS
 
         checked_ = checked;
 
-        changes_.firePropertyChange("checked", new Boolean(old), new Boolean(checked) );
+        if (changes_ != null) changes_.firePropertyChange("checked", new Boolean(old), new Boolean(checked) ); //@CRS
     }
 
     /**
@@ -140,10 +140,10 @@ public abstract class ToggleFormInput extends FormInput
             throw new NullPointerException("label");
 
         String old = label_;
-        vetos_.fireVetoableChange("label", old, label );
+        if (vetos_ != null) vetos_.fireVetoableChange("label", old, label ); //@CRS
 
         label_ = label;
 
-        changes_.firePropertyChange("label", old, label );
+        if (changes_ != null) changes_.firePropertyChange("label", old, label ); //@CRS
     }
 }

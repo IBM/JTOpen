@@ -47,7 +47,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private Vector elementListeners;      // The list of element listeners @CRS
 
 
     /**
@@ -116,6 +116,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
         if (listener == null)
             throw new NullPointerException("listener");
 
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -126,6 +127,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -257,8 +259,8 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
-        elementListeners = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS elementListeners = new Vector();
     }
 
 
@@ -304,7 +306,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
         if (listener == null)
             throw new NullPointerException("listener");
 
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -323,7 +325,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
 
         compact_ = compact;
 
-        changes_.firePropertyChange("compact", new Boolean(old), new Boolean(compact) );
+        if (changes_ != null) changes_.firePropertyChange("compact", new Boolean(old), new Boolean(compact) ); //@CRS
     }
 
 
@@ -348,7 +350,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -369,7 +371,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
 
         listItems_ = itemList;
 
-        changes_.firePropertyChange("items", old, itemList );
+        if (changes_ != null) changes_.firePropertyChange("items", old, itemList ); //@CRS
     }
 
 
@@ -388,7 +390,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 

@@ -76,7 +76,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
-    transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Creates a default HTMLHyperlink object.
@@ -140,6 +140,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -429,8 +430,8 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
 
@@ -445,7 +446,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
 
@@ -471,11 +472,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -493,11 +494,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 
@@ -516,7 +517,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
 
         location_ = location;
 
-        changes_.firePropertyChange("location", old, location);
+        if (changes_ != null) changes_.firePropertyChange("location", old, location); //@CRS
     }
 
 
@@ -531,11 +532,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("link");
 
         String old = link_;
-        vetos_.fireVetoableChange("link", old, link );
+        if (vetos_ != null) vetos_.fireVetoableChange("link", old, link ); //@CRS
 
         link_ = link;
 
-        changes_.firePropertyChange("link", old, link );
+        if (changes_ != null) changes_.firePropertyChange("link", old, link ); //@CRS
     }
 
     /**
@@ -549,11 +550,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("name");
 
         String old = bookmarkName_;
-        vetos_.fireVetoableChange("name", old, name);
+        if (vetos_ != null) vetos_.fireVetoableChange("name", old, name); //@CRS
 
         bookmarkName_ = name;      
 
-        changes_.firePropertyChange("name", old, name); 
+        if (changes_ != null) changes_.firePropertyChange("name", old, name); //@CRS
     }
 
     /**
@@ -569,11 +570,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("properties");
 
         Properties old = properties_;
-        vetos_.fireVetoableChange("properties", old, properties);
+        if (vetos_ != null) vetos_.fireVetoableChange("properties", old, properties); //@CRS
 
         properties_ = properties;
 
-        changes_.firePropertyChange("properties", old, properties);
+        if (changes_ != null) changes_.firePropertyChange("properties", old, properties); //@CRS
     }
 
     /**
@@ -590,11 +591,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("target");
 
         String old = target_;
-        vetos_.fireVetoableChange("target", old, target);
+        if (vetos_ != null) vetos_.fireVetoableChange("target", old, target); //@CRS
 
         target_ = target;
 
-        changes_.firePropertyChange("target", old, target);
+        if (changes_ != null) changes_.firePropertyChange("target", old, target); //@CRS
     }
 
     /**
@@ -609,11 +610,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("text");
 
         String old = text_;
-        vetos_.fireVetoableChange("text", old, text);
+        if (vetos_ != null) vetos_.fireVetoableChange("text", old, text); //@CRS
 
         text_ = text;
 
-        changes_.firePropertyChange("text", old, text);
+        if (changes_ != null) changes_.firePropertyChange("text", old, text); //@CRS
     }
 
     /**
@@ -627,11 +628,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
             throw new NullPointerException("title");
 
         String old = title_;
-        vetos_.fireVetoableChange("title", old, title);
+        if (vetos_ != null) vetos_.fireVetoableChange("title", old, title); //@CRS
 
         title_ = title;
 
-        changes_.firePropertyChange("title", old, title);
+        if (changes_ != null) changes_.firePropertyChange("title", old, title); //@CRS
     }
 
     /**

@@ -144,10 +144,10 @@ public class TextFormInput extends FormInput
             throw new ExtendedIllegalArgumentException("maxLength", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = maxLength_;
-        vetos_.fireVetoableChange("maxLength", new Integer(old), new Integer(length) );
+        if (vetos_ != null) vetos_.fireVetoableChange("maxLength", new Integer(old), new Integer(length) ); //@CRS
 
         maxLength_ = length;
 
-        changes_.firePropertyChange("maxLength", new Integer(old), new Integer(length) );
+        if (changes_ != null) changes_.firePropertyChange("maxLength", new Integer(old), new Integer(length) ); //@CRS
     }
 }

@@ -68,7 +68,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
     private Vector list_ = new Vector();
 
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private Vector elementListeners;      // The list of element listeners @CRS
 
 
     /**
@@ -137,6 +137,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
         if (listener == null)
             throw new NullPointerException("listener");
 
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -146,6 +147,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -275,7 +277,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
         if (listener == null)
             throw new NullPointerException("listener");
 
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -286,8 +288,8 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
-        elementListeners = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS elementListeners = new Vector();
     }
 
 
@@ -335,7 +337,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -357,7 +359,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
     /**
@@ -380,7 +382,7 @@ public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable 
 
         title_ = title;
 
-        changes_.firePropertyChange("title", old, title );
+        if (changes_ != null) changes_.firePropertyChange("title", old, title ); //@CRS
 
     }
 

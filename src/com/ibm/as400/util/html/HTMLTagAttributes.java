@@ -33,7 +33,7 @@ public abstract class HTMLTagAttributes implements HTMLTagElement, java.io.Seria
 
     private Properties attributes_;      // The additional html tag attributes.
     
-    transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+    transient PropertyChangeSupport changes_; //@CRS
     
 
     /**
@@ -58,6 +58,7 @@ public abstract class HTMLTagAttributes implements HTMLTagElement, java.io.Seria
     {
       if (listener == null)
            throw new NullPointerException ("listener");
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
       changes_.addPropertyChangeListener(listener);
     }
 
@@ -110,7 +111,7 @@ public abstract class HTMLTagAttributes implements HTMLTagElement, java.io.Seria
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -126,7 +127,7 @@ public abstract class HTMLTagAttributes implements HTMLTagElement, java.io.Seria
     {
        if (listener == null)
             throw new NullPointerException ("listener");
-       changes_.removePropertyChangeListener(listener);
+       if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
     }
 
 
@@ -144,7 +145,7 @@ public abstract class HTMLTagAttributes implements HTMLTagElement, java.io.Seria
        
        attributes_ = attributes;
 
-       changes_.firePropertyChange("attributes", old, attributes_ );
+       if (changes_ != null) changes_.firePropertyChange("attributes", old, attributes_ ); //@CRS
     }
 }
 

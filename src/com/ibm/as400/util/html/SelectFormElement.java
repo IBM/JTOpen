@@ -81,8 +81,8 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     private Vector list_;           // List of options.
 
 
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-    transient private Vector elementListeners = new Vector();     // The list of element listeners
+    transient private VetoableChangeSupport vetos_; //@CRS
+    transient private Vector elementListeners;     // The list of element listeners @CRS
 
     /**
     *  Constructs a default SelectFormElement object.
@@ -126,6 +126,7 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -215,6 +216,7 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -223,6 +225,7 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
      **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -373,9 +376,9 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
-        elementListeners = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
+        //@CRS elementListeners = new Vector();
     }
 
     /**
@@ -409,7 +412,7 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -424,7 +427,7 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
 
@@ -450,11 +453,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -472,11 +475,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 
@@ -492,11 +495,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         //@C1D
 
         boolean old = multiple_;
-        vetos_.fireVetoableChange("multiple", new Boolean(old), new Boolean(multiple) );
+        if (vetos_ != null) vetos_.fireVetoableChange("multiple", new Boolean(old), new Boolean(multiple) ); //@CRS
 
         multiple_ = multiple;
 
-        changes_.firePropertyChange("multiple", new Boolean(old), new Boolean(multiple) );
+        if (changes_ != null) changes_.firePropertyChange("multiple", new Boolean(old), new Boolean(multiple) ); //@CRS
     }
 
     /**
@@ -512,11 +515,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
             throw new NullPointerException("name");
 
         String old = name_;
-        vetos_.fireVetoableChange("name", old, name );
+        if (vetos_ != null) vetos_.fireVetoableChange("name", old, name ); //@CRS
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }
 
     /**
@@ -532,11 +535,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
             throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = size_;
-        vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) );
+        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) ); //@CRS
 
         size_ = size;
 
-        changes_.firePropertyChange("size", new Integer(old), new Integer(size) );
+        if (changes_ != null) changes_.firePropertyChange("size", new Integer(old), new Integer(size) ); //@CRS
     }
 
     /**

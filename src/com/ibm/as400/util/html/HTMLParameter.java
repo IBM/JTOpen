@@ -144,7 +144,7 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -170,7 +170,7 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
 
     }
 
@@ -194,7 +194,7 @@ public class HTMLParameter extends HTMLTagAttributes implements java.io.Serializ
 
         value_ = value;
 
-        changes_.firePropertyChange("value", old, value );
+        if (changes_ != null) changes_.firePropertyChange("value", old, value ); //@CRS
     }
 
 

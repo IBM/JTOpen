@@ -286,7 +286,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -316,7 +316,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         align_ = align;
 
-        changes_.firePropertyChange("align", old, align );
+        if (changes_ != null) changes_.firePropertyChange("align", old, align ); //@CRS
     }
 
 
@@ -335,7 +335,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         alt_ = alt;
 
-        changes_.firePropertyChange("alt", old, alt );
+        if (changes_ != null) changes_.firePropertyChange("alt", old, alt ); //@CRS
     }
 
 
@@ -353,7 +353,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         border_ = border;
 
-        changes_.firePropertyChange("border", new Integer(old), new Integer(border) );
+        if (changes_ != null) changes_.firePropertyChange("border", new Integer(old), new Integer(border) ); //@CRS
     }
 
 
@@ -371,7 +371,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         height_ = height;
 
-        changes_.firePropertyChange("height", new Integer(old), new Integer(height) );
+        if (changes_ != null) changes_.firePropertyChange("height", new Integer(old), new Integer(height) ); //@CRS
     }
 
 
@@ -389,7 +389,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         hspace_ = hspace;
 
-        changes_.firePropertyChange("hspace", new Integer(old), new Integer(hspace) );
+        if (changes_ != null) changes_.firePropertyChange("hspace", new Integer(old), new Integer(hspace) ); //@CRS
     }
 
 
@@ -407,7 +407,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }   
 
 
@@ -425,7 +425,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         source_ = source;
 
-        changes_.firePropertyChange("source", old, source );
+        if (changes_ != null) changes_.firePropertyChange("source", old, source ); //@CRS
     }
     
 
@@ -443,7 +443,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         vspace_ = vspace;
 
-        changes_.firePropertyChange("vspace", new Integer(old), new Integer(vspace) );
+        if (changes_ != null) changes_.firePropertyChange("vspace", new Integer(old), new Integer(vspace) ); //@CRS
     }
     
 
@@ -461,7 +461,7 @@ public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.
 
         width_ = width;
 
-        changes_.firePropertyChange("width", new Integer(old), new Integer(width) );
+        if (changes_ != null) changes_.firePropertyChange("width", new Integer(old), new Integer(width) ); //@CRS
     }
 
     /**

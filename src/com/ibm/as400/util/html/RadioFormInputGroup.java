@@ -76,8 +76,8 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     private boolean groupCheck_ = false; // Indicates if group has radioforminput checked  $A1A
 
 
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private VetoableChangeSupport vetos_; //@CRS
+    transient private Vector elementListeners;      // The list of element listeners @CRS
 
     /**
     *  Constructs a default RadioFormInputGroup object.
@@ -219,6 +219,7 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -238,6 +239,7 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -246,6 +248,7 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -327,9 +330,9 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
-        elementListeners = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
+        //@CRS elementListeners = new Vector();
     }
 
     /**
@@ -363,7 +366,7 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -380,7 +383,7 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
 
@@ -398,11 +401,11 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
 
         String old = name_;
 
-        vetos_.fireVetoableChange("name", old, name );
+        if (vetos_ != null) vetos_.fireVetoableChange("name", old, name ); //@CRS
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }
 
 
@@ -416,14 +419,15 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     public void setVerticalAlignment(boolean verticalAlignment)                        //$A3A
     throws PropertyVetoException
     {
-        Boolean oldAlign = new Boolean(useVertAlign_);
-        Boolean newAlign = new Boolean(verticalAlignment);
+        //@CRS Boolean oldAlign = new Boolean(useVertAlign_);
+        //@CRS Boolean newAlign = new Boolean(verticalAlignment);
+      boolean oldAlign = useVertAlign_; //@CRS
 
-        vetos_.fireVetoableChange("verticalAlignment", oldAlign, newAlign);
+        if (vetos_ != null) vetos_.fireVetoableChange("verticalAlignment", new Boolean(oldAlign), new Boolean(verticalAlignment)); //@CRS
 
         useVertAlign_ = verticalAlignment;
 
-        changes_.firePropertyChange("verticalAlignment", oldAlign, newAlign);
+        if (changes_ != null) changes_.firePropertyChange("verticalAlignment", new Boolean(oldAlign), new Boolean(verticalAlignment)); //@CRS
 
     }
 

@@ -79,7 +79,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
   private static ResourceBundleLoader_h loader_;
 
 
-  transient private Vector elementListeners = new Vector();       // The list of element listeners
+  transient private Vector elementListeners;       // The list of element listeners @CRS
 
 
 
@@ -233,6 +233,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
   {
     if (listener == null)
       throw new NullPointerException ("listener");
+    if (elementListeners == null) elementListeners = new Vector(); //@CRS
     elementListeners.addElement(listener);
   }
 
@@ -243,6 +244,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
    **/
   private void fireElementEvent(int evt)
   {
+    if (elementListeners == null) return;
     Vector targets;
     targets = (Vector) elementListeners.clone();
     ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -382,8 +384,8 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
   throws java.io.IOException, ClassNotFoundException
   {
     in.defaultReadObject();
-    changes_ = new PropertyChangeSupport(this);
-    elementListeners = new Vector();
+    //@CRS changes_ = new PropertyChangeSupport(this);
+    //@CRS elementListeners = new Vector();
   }
 
 
@@ -415,7 +417,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
   {
     if (listener == null)
       throw new NullPointerException ("listener");
-    elementListeners.removeElement(listener);
+    if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
   }
 
 
@@ -442,7 +444,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     codebase_ = codebase;
 
-    changes_.firePropertyChange("codebase", old, codebase );
+    if (changes_ != null) changes_.firePropertyChange("codebase", old, codebase ); //@CRS
 
   }
 
@@ -467,7 +469,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     archive_ = archive;
 
-    changes_.firePropertyChange("archive", old, archive );
+    if (changes_ != null) changes_.firePropertyChange("archive", old, archive ); //@CRS
   }
 
 
@@ -490,7 +492,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     code_ = code;
 
-    changes_.firePropertyChange("code", old, code );
+    if (changes_ != null) changes_.firePropertyChange("code", old, code ); //@CRS
   }
 
 
@@ -510,7 +512,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     height_ = height;
 
-    changes_.firePropertyChange("height", new Integer(old), new Integer(height) );
+    if (changes_ != null) changes_.firePropertyChange("height", new Integer(old), new Integer(height) ); //@CRS
   }
 
 
@@ -535,7 +537,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     text_ = text;
 
-    changes_.firePropertyChange("text", old, text );
+    if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
   }
 
 
@@ -555,7 +557,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     width_ = width;
 
-    changes_.firePropertyChange("width", new Integer(old), new Integer(width) );
+    if (changes_ != null) changes_.firePropertyChange("width", new Integer(old), new Integer(width) ); //@CRS
   }
 
 

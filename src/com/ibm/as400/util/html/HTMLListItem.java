@@ -56,7 +56,7 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -176,7 +176,7 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -197,7 +197,7 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
 
         listData_ = data;
 
-        changes_.firePropertyChange("data", old, data );
+        if (changes_ != null) changes_.firePropertyChange("data", old, data ); //@CRS
     }
 
 
@@ -216,7 +216,7 @@ abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 

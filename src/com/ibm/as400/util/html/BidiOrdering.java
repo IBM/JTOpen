@@ -52,7 +52,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
 
     private Vector list_ = new Vector();
 
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private Vector elementListeners;      // The list of element listeners @CRS
 
 
     /**
@@ -130,6 +130,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
         if (listener == null)
             throw new NullPointerException("listener");
 
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -150,6 +151,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return; //@CRS
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -261,7 +263,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
         if (listener == null)
             throw new NullPointerException("listener");
 
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -273,9 +275,9 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
 
-        elementListeners = new Vector();
+        //@CRS elementListeners = new Vector();
     }
 
 
@@ -303,7 +305,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -322,7 +324,7 @@ public class BidiOrdering extends HTMLTagAttributes implements java.io.Serializa
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 

@@ -55,7 +55,7 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
 
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Constructs a default TextAreaFormElement object.
@@ -116,6 +116,7 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -271,8 +272,8 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
 
@@ -287,7 +288,7 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
     /**
@@ -304,11 +305,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         int old = cols_;
 
-        vetos_.fireVetoableChange("cols", new Integer(old), new Integer(cols) );
+        if (vetos_ != null) vetos_.fireVetoableChange("cols", new Integer(old), new Integer(cols) ); //@CRS
 
         cols_ = cols;
 
-        changes_.firePropertyChange("cols", new Integer(old), new Integer(cols) );
+        if (changes_ != null) changes_.firePropertyChange("cols", new Integer(old), new Integer(cols) ); //@CRS
     }
 
 
@@ -334,11 +335,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -356,11 +357,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
     /**
@@ -377,11 +378,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         String old = name_;
 
-        vetos_.fireVetoableChange("name", old, name );
+        if (vetos_ != null) vetos_.fireVetoableChange("name", old, name ); //@CRS
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }
 
     /**
@@ -398,11 +399,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         int old = rows_;
 
-        vetos_.fireVetoableChange("rows", new Integer(old), new Integer(rows) );
+        if (vetos_ != null) vetos_.fireVetoableChange("rows", new Integer(old), new Integer(rows) ); //@CRS
 
         rows_ = rows;
 
-        changes_.firePropertyChange("rows", new Integer(old), new Integer(rows) );
+        if (changes_ != null) changes_.firePropertyChange("rows", new Integer(old), new Integer(rows) ); //@CRS
     }
 
     /**
@@ -419,11 +420,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         String old = text_;
 
-        vetos_.fireVetoableChange("text", old, text );
+        if (vetos_ != null) vetos_.fireVetoableChange("text", old, text ); //@CRS
 
         text_ = text;
 
-        changes_.firePropertyChange("text", old, text );
+        if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
     }
 
     /**

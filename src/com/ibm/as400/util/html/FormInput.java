@@ -42,7 +42,7 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
 
-    transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Constructs a default FormInput object.
@@ -101,6 +101,7 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -270,8 +271,8 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
 
@@ -286,7 +287,7 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
 
@@ -312,11 +313,11 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -334,11 +335,11 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
     /**
@@ -354,11 +355,11 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
             throw new NullPointerException("name");
 
         String old = name_;
-        vetos_.fireVetoableChange("name", old, name );
+        if (vetos_ != null) vetos_.fireVetoableChange("name", old, name ); //@CRS
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }
 
     /**
@@ -376,11 +377,11 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
             throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = size_;
-        vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) );
+        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) ); //@CRS
 
         size_ = size;
 
-        changes_.firePropertyChange("size", new Integer(old), new Integer(size) );
+        if (changes_ != null) changes_.firePropertyChange("size", new Integer(old), new Integer(size) ); //@CRS
     }
 
     /**
@@ -396,11 +397,11 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
             throw new NullPointerException("value");
 
         String old = value_;
-        vetos_.fireVetoableChange("value", old, value );
+        if (vetos_ != null) vetos_.fireVetoableChange("value", old, value ); //@CRS
 
         value_ = value;
 
-        changes_.firePropertyChange("value", old, value );
+        if (changes_ != null) changes_.firePropertyChange("value", old, value ); //@CRS
     }
 
 

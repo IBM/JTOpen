@@ -244,7 +244,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -273,7 +273,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
         align_ = align;
 
-        changes_.firePropertyChange("align", old, align );
+        if (changes_ != null) changes_.firePropertyChange("align", old, align ); //@CRS
 
     }
 
@@ -300,7 +300,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -319,7 +319,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 
@@ -344,7 +344,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
         level_ = level;
 
-        changes_.firePropertyChange("level", new Integer(old), new Integer(level) );
+        if (changes_ != null) changes_.firePropertyChange("level", new Integer(old), new Integer(level) ); //@CRS
     }
 
 
@@ -369,7 +369,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
         text_ = text;
 
-        changes_.firePropertyChange("text", old, text );
+        if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
     }
 
 

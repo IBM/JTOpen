@@ -76,7 +76,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     private static ResourceBundleLoader_h loader_;
 
 
-    transient private Vector elementListeners = new Vector();      // The list of element listeners
+    transient private Vector elementListeners;      // The list of element listeners @CRS
 
 
 
@@ -187,6 +187,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (elementListeners == null) elementListeners = new Vector(); //@CRS
         elementListeners.addElement(listener);
     }
 
@@ -198,6 +199,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
      **/
     private void fireElementEvent(int evt)
     {
+      if (elementListeners == null) return;
         Vector targets;
         targets = (Vector) elementListeners.clone();
         ElementEvent elementEvt = new ElementEvent(this, evt);
@@ -298,8 +300,8 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
-        elementListeners = new Vector();
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS elementListeners = new Vector();
     }
 
 
@@ -331,7 +333,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        elementListeners.removeElement(listener);
+        if (elementListeners != null) elementListeners.removeElement(listener); //@CRS
     }
 
 
@@ -358,7 +360,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
 
         location_ = location;
 
-        changes_.firePropertyChange("location", old, location );
+        if (changes_ != null) changes_.firePropertyChange("location", old, location ); //@CRS
 
     }
 
@@ -383,7 +385,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
 
         name_ = name;
 
-        changes_.firePropertyChange("name", old, name );
+        if (changes_ != null) changes_.firePropertyChange("name", old, name ); //@CRS
     }
 
 
@@ -408,7 +410,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
 
         text_ = text;
 
-        changes_.firePropertyChange("text", old, text );
+        if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
     }
 
 

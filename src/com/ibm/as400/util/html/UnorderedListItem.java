@@ -121,7 +121,7 @@ public class UnorderedListItem extends HTMLListItem
     throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -147,13 +147,13 @@ public class UnorderedListItem extends HTMLListItem
             throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "   Setting labeling type for <li>.");
+        //@CRS if (Trace.isTraceOn())
+        //@CRS    Trace.log(Trace.INFORMATION, "   Setting labeling type for <li>.");
 
         String old = type_;
 
         type_ = type;
 
-        changes_.firePropertyChange("type", old, type );
+        if (changes_ != null) changes_.firePropertyChange("type", old, type ); //@CRS
     }
 }

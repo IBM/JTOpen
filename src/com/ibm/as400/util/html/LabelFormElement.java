@@ -38,8 +38,8 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     private String label_;
 
 
-    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private PropertyChangeSupport changes_; //@CRS
+    transient private VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Constructs a default LabelFormElement object.
@@ -77,6 +77,7 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
         changes_.addPropertyChangeListener(listener);
     }
 
@@ -95,6 +96,7 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException ("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -133,8 +135,8 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
 
@@ -150,7 +152,7 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        changes_.removePropertyChangeListener(listener);
+        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
     }
 
 
@@ -166,7 +168,7 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException ("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
     /**
@@ -182,11 +184,11 @@ public class LabelFormElement implements HTMLTagElement, java.io.Serializable
             throw new NullPointerException("label");
 
         String old = label_;
-        vetos_.fireVetoableChange("label", old, label );
+        if (vetos_ != null) vetos_.fireVetoableChange("label", old, label ); //@CRS
 
         label_ = label;
 
-        changes_.firePropertyChange("label", old, label );
+        if (changes_ != null) changes_.firePropertyChange("label", old, label ); //@CRS
     }
 
     /**

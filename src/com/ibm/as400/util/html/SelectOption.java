@@ -61,7 +61,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
 
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Constructs a default SelectOption object.
@@ -124,6 +124,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     {
        if (listener == null)
             throw new NullPointerException ("listener");
+       if (vetos_ == null) vetos_ = new VetoableChangeSupport(this);
        vetos_.addVetoableChangeListener(listener);
     }
 
@@ -253,8 +254,8 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
     
@@ -268,7 +269,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     {
        if (listener == null)
             throw new NullPointerException ("listener");
-       changes_.removePropertyChangeListener(listener);
+       if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
     }
  
  
@@ -282,7 +283,7 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
     {
        if (listener == null)
             throw new NullPointerException ("listener"); 
-       vetos_.removeVetoableChangeListener(listener);
+       if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
 
@@ -308,11 +309,11 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -330,11 +331,11 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
            throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
 
@@ -351,11 +352,11 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
 
         boolean old = selected_;
 
-        vetos_.fireVetoableChange("selected", new Boolean(old), new Boolean(selected) );
+        if (vetos_ != null) vetos_.fireVetoableChange("selected", new Boolean(old), new Boolean(selected) ); //@CRS
 
         selected_ = selected;
 
-        changes_.firePropertyChange("selected", new Boolean(old), new Boolean(selected) );
+        if (changes_ != null) changes_.firePropertyChange("selected", new Boolean(old), new Boolean(selected) ); //@CRS
     }
     
     /**
@@ -372,11 +373,11 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
 
         String old = text_;
 
-        vetos_.fireVetoableChange("text", old, text );
+        if (vetos_ != null) vetos_.fireVetoableChange("text", old, text ); //@CRS
 
         text_ = text;
 
-        changes_.firePropertyChange("text", old, text );
+        if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
     }
 
     /**
@@ -393,11 +394,11 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
 
         String old = value_;
 
-        vetos_.fireVetoableChange("value", old, value );
+        if (vetos_ != null) vetos_.fireVetoableChange("value", old, value ); //@CRS
 
         value_ = value;
 
-        changes_.firePropertyChange("value", old, value );
+        if (changes_ != null) changes_.firePropertyChange("value", old, value ); //@CRS
     }
 
     /**

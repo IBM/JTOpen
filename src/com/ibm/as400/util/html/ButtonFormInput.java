@@ -178,11 +178,11 @@ public class ButtonFormInput extends FormInput
 
         String old = action_;
 
-        vetos_.fireVetoableChange("action", old, action);
+        if (vetos_ != null) vetos_.fireVetoableChange("action", old, action); //@CRS
 
         action_ = action;
 
-        changes_.firePropertyChange("action", old, action);
+        if (changes_ != null) changes_.firePropertyChange("action", old, action); //@CRS
 
     }
 }

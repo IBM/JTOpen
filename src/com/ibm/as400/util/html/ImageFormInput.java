@@ -219,11 +219,11 @@ public class ImageFormInput extends FormInput implements HTMLConstants
         }
 
         String old = align_;
-        vetos_.fireVetoableChange("align", old, align);
+        if (vetos_ != null) vetos_.fireVetoableChange("align", old, align); //@CRS
 
         align_ = align;
 
-        changes_.firePropertyChange("align", old, align);
+        if (changes_ != null) changes_.firePropertyChange("align", old, align); //@CRS
     }
 
     /**
@@ -239,11 +239,11 @@ public class ImageFormInput extends FormInput implements HTMLConstants
             throw new ExtendedIllegalArgumentException("height", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = height_;
-        vetos_.fireVetoableChange("height", new Integer(old), new Integer(height) );
+        if (vetos_ != null) vetos_.fireVetoableChange("height", new Integer(old), new Integer(height) ); //@CRS
 
         height_ = height;
 
-        changes_.firePropertyChange("height", new Integer(old), new Integer(height) );
+        if (changes_ != null) changes_.firePropertyChange("height", new Integer(old), new Integer(height) ); //@CRS
     }
 
     /**
@@ -263,11 +263,11 @@ public class ImageFormInput extends FormInput implements HTMLConstants
                                                        ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         String old = source_;
-        vetos_.fireVetoableChange("source", old, source );
+        if (vetos_ != null) vetos_.fireVetoableChange("source", old, source ); //@CRS
 
         source_ = source;
 
-        changes_.firePropertyChange("source", old, source );
+        if (changes_ != null) changes_.firePropertyChange("source", old, source ); //@CRS
     }
 
     /**
@@ -283,11 +283,11 @@ public class ImageFormInput extends FormInput implements HTMLConstants
             throw new ExtendedIllegalArgumentException("width", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = width_;
-        vetos_.fireVetoableChange("width", new Integer(old), new Integer(width) );
+        if (vetos_ != null) vetos_.fireVetoableChange("width", new Integer(old), new Integer(width) ); //@CRS
 
         width_ = width;
 
-        changes_.firePropertyChange("width", new Integer(old), new Integer(width) );
+        if (changes_ != null) changes_.firePropertyChange("width", new Integer(old), new Integer(width) ); //@CRS
     }
 
 }

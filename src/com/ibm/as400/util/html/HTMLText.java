@@ -63,7 +63,7 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
 
-    transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+    transient private VetoableChangeSupport vetos_; //@CRS
 
     /**
     *  Constructs a default HTMLText object.
@@ -102,6 +102,7 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -493,8 +494,8 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
 
@@ -509,7 +510,7 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
     /**
@@ -531,11 +532,11 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
                  alignment.equalsIgnoreCase(JUSTIFY))
         {
             String old = alignment_;
-            vetos_.fireVetoableChange("alignment", old, alignment );
+            if (vetos_ != null) vetos_.fireVetoableChange("alignment", old, alignment ); //@CRS
 
             alignment_ = alignment;
 
-            changes_.firePropertyChange("alignment", old, alignment );
+            if (changes_ != null) changes_.firePropertyChange("alignment", old, alignment ); //@CRS
 
         }
         else
@@ -553,14 +554,15 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     **/
     public void setBold(boolean bold) throws PropertyVetoException
     {
-        Boolean oldBold = new Boolean(bold_);
-        Boolean newBold = new Boolean(bold);
+        //@CRS Boolean oldBold = new Boolean(bold_);
+        //@CRS Boolean newBold = new Boolean(bold);
+      boolean oldBold = bold_; //@CRS
 
-        vetos_.fireVetoableChange("bold", oldBold, newBold);
+        if (vetos_ != null) vetos_.fireVetoableChange("bold", new Boolean(oldBold), new Boolean(bold)); //@CRS
 
         bold_ = bold;
 
-        changes_.firePropertyChange("bold", oldBold, newBold);
+        if (changes_ != null) changes_.firePropertyChange("bold", new Boolean(oldBold), new Boolean(bold)); //@CRS
     }
 
     /**
@@ -574,11 +576,11 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     {      
         Color oldColor = color_;
 
-        vetos_.fireVetoableChange("color", oldColor, color);
+        if (vetos_ != null) vetos_.fireVetoableChange("color", oldColor, color); //@CRS
 
         color_ = color;
 
-        changes_.firePropertyChange("color", oldColor, color);
+        if (changes_ != null) changes_.firePropertyChange("color", oldColor, color); //@CRS
     }
 
     /**
@@ -603,11 +605,11 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         }
 
         String old = dir_;
-        vetos_.fireVetoableChange("dir", old, dir );
+        if (vetos_ != null) vetos_.fireVetoableChange("dir", old, dir ); //@CRS
 
         dir_ = dir;
 
-        changes_.firePropertyChange("dir", old, dir );
+        if (changes_ != null) changes_.firePropertyChange("dir", old, dir ); //@CRS
     }
 
 
@@ -619,14 +621,15 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     **/
     public void setFixed(boolean fixed) throws PropertyVetoException
     {
-        Boolean oldFixed = new Boolean(fixed_);
-        Boolean newFixed = new Boolean(fixed);
+        //@CRS Boolean oldFixed = new Boolean(fixed_);
+        //@CRS Boolean newFixed = new Boolean(fixed);
+      boolean oldFixed = fixed_; //@CRS
 
-        vetos_.fireVetoableChange("fixed", oldFixed, newFixed);
+        if (vetos_ != null) vetos_.fireVetoableChange("fixed", new Boolean(oldFixed), new Boolean(fixed)); //@CRS
 
         fixed_ = fixed;
 
-        changes_.firePropertyChange("fixed", oldFixed, newFixed);
+        if (changes_ != null) changes_.firePropertyChange("fixed", new Boolean(oldFixed), new Boolean(fixed)); //@CRS
     }
 
     /**
@@ -636,14 +639,15 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     **/
     public void setItalic(boolean italic) throws PropertyVetoException
     {
-        Boolean oldItalic = new Boolean(italic_);
-        Boolean newItalic = new Boolean(italic);
+        //@CRS Boolean oldItalic = new Boolean(italic_);
+        //@CRS Boolean newItalic = new Boolean(italic);
+      boolean oldItalic = italic_; //@CRS
 
-        vetos_.fireVetoableChange("italic", oldItalic, newItalic);
+        if (vetos_ != null) vetos_.fireVetoableChange("italic", new Boolean(oldItalic), new Boolean(italic)); //@CRS
 
         italic_ = italic;
 
-        changes_.firePropertyChange("italic", oldItalic, newItalic);
+        if (changes_ != null) changes_.firePropertyChange("italic", new Boolean(oldItalic), new Boolean(italic)); //@CRS
     }
 
     /**
@@ -660,11 +664,11 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
             throw new NullPointerException("lang");
 
         String old = lang_;
-        vetos_.fireVetoableChange("lang", old, lang );
+        if (vetos_ != null) vetos_.fireVetoableChange("lang", old, lang ); //@CRS
 
         lang_ = lang;
 
-        changes_.firePropertyChange("lang", old, lang );
+        if (changes_ != null) changes_.firePropertyChange("lang", old, lang ); //@CRS
     }
 
     /**
@@ -678,14 +682,15 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         if (size < 0 || size > 7)
             throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-        Integer oldSize = new Integer(size_);
-        Integer newSize = new Integer(size);
+        //@CRS Integer oldSize = new Integer(size_);
+        //@CRS Integer newSize = new Integer(size);
+        int oldSize = size_; //@CRS
 
-        vetos_.fireVetoableChange("size", oldSize, newSize );
+        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(oldSize), new Integer(size) ); //@CRS
 
         size_ = size;       
 
-        changes_.firePropertyChange("size", oldSize, newSize );
+        if (changes_ != null) changes_.firePropertyChange("size", new Integer(oldSize), new Integer(size) ); //@CRS
     }
 
     /**
@@ -699,11 +704,11 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
             throw new NullPointerException("text");
 
         String old = text_;
-        vetos_.fireVetoableChange("text", old, text );
+        if (vetos_ != null) vetos_.fireVetoableChange("text", old, text ); //@CRS
 
         text_ = text;
 
-        changes_.firePropertyChange("text", old, text );
+        if (changes_ != null) changes_.firePropertyChange("text", old, text ); //@CRS
     }
 
     /**
@@ -713,14 +718,15 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
     **/
     public void setUnderscore(boolean underscore) throws PropertyVetoException
     {
-        Boolean oldUnderscore = new Boolean(underscore_);
-        Boolean newUnderscore = new Boolean(underscore);
+        //@CRS Boolean oldUnderscore = new Boolean(underscore_);
+        //@CRS Boolean newUnderscore = new Boolean(underscore);
+        boolean oldUnderscore = underscore_; //@CRS
 
-        vetos_.fireVetoableChange("underscore", oldUnderscore, newUnderscore);
+        if (vetos_ != null) vetos_.fireVetoableChange("underscore", new Boolean(oldUnderscore), new Boolean(underscore)); //@CRS
 
         underscore_ = underscore;
 
-        changes_.firePropertyChange("underscore", oldUnderscore, newUnderscore);
+        if (changes_ != null) changes_.firePropertyChange("underscore", new Boolean(oldUnderscore), new Boolean(underscore)); //@CRS
     }
 
     /**
