@@ -102,13 +102,13 @@ public class MEServer implements Runnable
 
     // Private data.
     private Socket socket_;
-    //private DataInputStream input_;
     private MicroDataInputStream input_;
-    //private DataOutputStream output_;
     private MicroDataOutputStream output_;
     private com.ibm.as400.access.AS400 system_;
     private com.ibm.as400.access.CommandCall cc_;
     private Connection connection_;
+
+    private Service service_;
 
     // increment datastream level whenever a client/server datastream change is made.
     private static final int DATASTREAM_LEVEL = 0;  
@@ -153,9 +153,7 @@ public class MEServer implements Runnable
     private MEServer(Socket s) throws IOException
     {
         socket_ = s;
-        //input_ = new DataInputStream(socket_.getInputStream());
         input_ = new MicroDataInputStream( new BufferedInputStream( socket_.getInputStream() ) );
-        //output_ = new DataOutputStream(socket_.getOutputStream());
         output_ = new MicroDataOutputStream( new BufferedOutputStream( socket_.getOutputStream() ) );
     }
 
@@ -282,14 +280,14 @@ public class MEServer implements Runnable
                 Trace.log (Trace.ERROR, "Error closing SQL Result Set.", e);
         }
     }
-    
-    
+
+
     // Unscramble some bytes.
     private static byte[] decode(byte[] adder, byte[] mask, byte[] bytes)
     {
         int length = bytes.length;
         byte[] buf = new byte[length];
-        
+
         for (int i = 0; i < length; ++i)
         {
             buf[i] = (byte)(mask[i % mask.length] ^ bytes[i]);
@@ -342,7 +340,7 @@ public class MEServer implements Runnable
 
             return;
         }
-        
+
         int numReplies = 0;
         AS400Message[] messages = cc_.getMessageList();
 
@@ -354,6 +352,7 @@ public class MEServer implements Runnable
             Trace.log(Trace.PROXY, "Number of messages returned from ToolboxME CommandCall: " + numReplies);
 
         output_.writeInt(numReplies);
+        output_.flush();
 
         for (int i=0; i<numReplies; ++i)
         {
@@ -401,7 +400,7 @@ public class MEServer implements Runnable
 
             return;
         }
-        catch (ErrorCompletingRequestException ecr)                                                         
+        catch (ErrorCompletingRequestException ecr)
         {
             output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
             output_.flush();
@@ -492,7 +491,7 @@ public class MEServer implements Runnable
                 dq.write(data);
             }
         }
-        catch (ErrorCompletingRequestException ecr)                                                         
+        catch (ErrorCompletingRequestException ecr)
         {
             output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
             output_.flush();
@@ -501,7 +500,7 @@ public class MEServer implements Runnable
 
             return;
         }
-        catch (ExtendedIllegalArgumentException ecr)                                                         
+        catch (ExtendedIllegalArgumentException ecr)
         {
             output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
             output_.flush();
@@ -576,7 +575,7 @@ public class MEServer implements Runnable
 
         // Read in the number of parameters the user is setting.
         int numParmsToSet = input_.readInt(); 
-        
+
         if (Trace.isTraceOn())
             Trace.log(Trace.PROXY, "Number of PCML input Parms:" + numParmsToSet);
 
@@ -686,7 +685,7 @@ public class MEServer implements Runnable
                     verbose_.println( pe.getLocalizedMessage() );
                 sendException( pe );
             }
-            
+
             return;
         }
     }
@@ -779,7 +778,7 @@ public class MEServer implements Runnable
 
             return null;
         }
-        catch (MissingResourceException mre)          
+        catch (MissingResourceException mre)
         {
             if (pcml == null)
                 verbose_.println( ResourceBundleLoader_m.getText("ME_PCML_ERROR") );
@@ -956,7 +955,7 @@ public class MEServer implements Runnable
     }
 
 
-     // Get clear password bytes back.
+    // Get clear password bytes back.
     private static String resolve(byte[] info)
     {
         byte[] adder = new byte[MEConstants.ADDER_LENGTH];
@@ -1041,9 +1040,46 @@ public class MEServer implements Runnable
                 case MEConstants.RS_PREVIOUS:
                 case MEConstants.RS_RELATIVE:
                 case MEConstants.RS_UPDATE_ROW:
-                    ClientHandler jdbcHandler = new ClientHandler(socket_, input_, output_, cmd);
-                    jdbcHandler.start();
-                    jdbc = true;
+                    
+                    if (service_ == null)
+                        service_ = new JdbcMeService();
+                    service_.setDataStreams(input_, output_);
+
+                    try
+                    {
+                        if (Trace.isTraceOn())
+                            Trace.log(Trace.PROXY, "Trying service com.ibm.as400.micro.JdbcMeService for Function id " + Integer.toHexString(cmd));
+
+                        if (service_.acceptsRequest(cmd))
+                            break;   // maybe throw exception
+
+                        if (Trace.isTraceOn())
+                            Trace.log(Trace.PROXY, "Servicing function id " + Integer.toHexString(cmd));
+
+                        // Request the function execution.
+
+                        service_.handleRequest(cmd);
+
+                        if (Trace.isTraceOn())
+                            Trace.log(Trace.PROXY, "Service complete");
+
+
+                        // Always flush the buffer at the end of the request.
+                        output_.flush();
+
+                        // TODO:  A resource cleanup call for each service is needed here...
+
+                    }
+                    catch (EOFException eof)
+                    {
+                        if (Trace.isTraceOn())
+                            Trace.log(Trace.ERROR, "EOF: Client disconnected", eof);
+                    }
+                    catch (IOException ioe)
+                    {
+                        if (Trace.isTraceOn())
+                            Trace.log(Trace.ERROR, "IOException detected - finally block handles cleanup.", ioe);
+                    }
                     break;
                 case MEConstants.DISCONNECT:
                     if (Trace.isTraceOn())
@@ -1067,10 +1103,7 @@ public class MEServer implements Runnable
             stop(e.getMessage());
         }
 
-        // We don't want to close the socket if we are performing JDBC since we
-        // hand it off to the JdbcMe ClientHandler class.
-        if (!jdbc)
-            close();
+        close();
     }
 
 
@@ -1098,12 +1131,12 @@ public class MEServer implements Runnable
 
         // Tell them what our datastream level is.
         output_.writeInt(DATASTREAM_LEVEL);
-        
+
         // Generate, hold, and send them our seed.
         byte[] remoteSeed = nextBytes(new Random(), MEConstants.MASK_LENGTH);
         output_.writeBytes(remoteSeed);
         output_.flush();
-        
+
         String serverName = input_.readUTF();
         String userid = input_.readUTF();
 
@@ -1111,7 +1144,7 @@ public class MEServer implements Runnable
         byte[] bytes = new byte[numBytes];
 
         input_.readBytes(bytes); // Note: This value is both twiddled and encoded.            
-        
+
         // Disconnect if we were previously signed on.
         // We only allow one AS400 object per thread/connection.
         if (system_ != null)
@@ -1262,7 +1295,7 @@ public class MEServer implements Runnable
             if (rc == ExtendedIllegalArgumentException.LENGTH_NOT_VALID)
                 output_.writeInt(MEException.LENGTH_NOT_VALID);
             else
-            output_.writeInt(MEException.PARAMETER_VALUE_NOT_VALID);
+                output_.writeInt(MEException.PARAMETER_VALUE_NOT_VALID);
             output_.writeUTF( e.getMessage() );
         }
         else if (e instanceof ExtendedIllegalStateException)
@@ -1270,7 +1303,7 @@ public class MEServer implements Runnable
             output_.writeInt(MEException.PROPERTY_NOT_SET);
             output_.writeUTF( e.getMessage() );
         }
-        else if (e instanceof ErrorCompletingRequestException)                  
+        else if (e instanceof ErrorCompletingRequestException)
         {
             int rc = ((ErrorCompletingRequestException)e).getReturnCode();
 
@@ -1278,7 +1311,6 @@ public class MEServer implements Runnable
                 output_.writeInt(MEException.LENGTH_NOT_VALID);
             else
                 output_.writeInt(MEException.UNKNOWN);
-            output_.writeInt(MEException.PROPERTY_NOT_SET);
             output_.writeUTF( e.getMessage() );
         }
         else if (e instanceof ConnectionDroppedException)
