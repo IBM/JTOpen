@@ -1428,7 +1428,12 @@ Sets an input parameter to SQL NULL.
     {               
         // @BBD if (sqlType != parameterRow_.getSQLData (parameterIndex).getType ())
         // @BBD     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-        testSQLType(sqlType, parameterIndex);                                               // @BBA
+
+        // @D8 ignore the type supplied by the user.  We are checking it
+        // only to rigidly follow the JDBC spec.  Ignoring the type
+        // will make us a friendlier driver.
+        //
+        // @D8d testSQLType(sqlType, parameterIndex);                                               // @BBA
 
         setValue (parameterIndex, null, null, -1);
     }
@@ -1512,7 +1517,12 @@ this to a value with the specified SQL type.
 
         // @BBD if (sqlType != parameterRow_.getSQLData (parameterIndex).getType ())
         // @BBD     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-        testSQLType(sqlType, parameterIndex);                                               // @BBA
+
+        // @D8 ignore the type supplied by the user.  We are checking it
+        // only to rigidly follow the JDBC spec.  Ignoring the type
+        // will make us a friendlier driver.
+        //
+        // @D8d testSQLType(sqlType, parameterIndex);                                               // @BBA
 
         setValue (parameterIndex, parameterValue, Calendar.getInstance (), -1);
     }
@@ -1550,7 +1560,12 @@ this to a value with the specified SQL type.
 
         // @BBD if (sqlType != parameterRow_.getSQLData (parameterIndex).getType ())
         // @BBD     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-        testSQLType(sqlType, parameterIndex);                                               // @BBA
+
+        // @D8 ignore the type supplied by the user.  We are checking it
+        // only to rigidly follow the JDBC spec.  Ignoring the type
+        // will make us a friendlier driver.
+        //
+        // @D8d testSQLType(sqlType, parameterIndex);                                               // @BBA
 
         if (scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);

@@ -958,11 +958,16 @@ it was set.
             // Check that the type is the same as what came back in
             // the parameter row format.
             int expectedType = parameterRow_.getSQLData (parameterIndex).getType();
-            if (sqlType != expectedType)
-                JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+
+            // @D8 ignore the type supplied by the user.  We are checking it
+            // only to rigidly follow the JDBC spec.  Ignoring the type
+            // will make us a friendlier driver.
+
+            // @D8d if (sqlType != expectedType)
+            // @D8d    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
     
             // Register the parameter.
-            registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (sqlType,
+            registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (expectedType,  // @E8c @D8c
                 0, scale+1, scale, settings_, connection_.getVRM());                // @D0C
         }
     }
