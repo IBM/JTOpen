@@ -1,0 +1,57 @@
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: AS400Impl.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+package com.ibm.as400.access;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Locale;
+
+import com.ibm.as400.security.auth.ProfileTokenCredential;
+
+// AS400Impl defines the implementation interface for the AS400 object.
+interface AS400Impl
+{
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    // Hook AS400 object up with connection events generated in ImplRemote.
+    void addConnectionListener(ConnectionListener listener);
+    // Map from CCSID to encoding string.
+    String ccsidToEncoding(int ccsid);
+    // Change password.
+    SignonInfo changePassword(String systemName, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
+    // Connect to service.
+    void connect(int service) throws AS400SecurityException, IOException;
+    // Disconnect from service.
+    void disconnect(int service);
+    // Exchange seeds with remote implementation.
+    byte[] exchangeSeed(byte[] proxySeed);
+    // Get the jobs with which we are connected.
+    String[] getJobs(int service);
+    // Sets the raw bytes for the provided profile token.
+    void generateProfileToken(ProfileTokenCredential profileToken, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException, InterruptedException;
+    // Get the port for a service.
+    int getServicePort(String systemName, int service);
+    // Check service connection.
+    boolean isConnected(int service);
+    // Load converter into converter pool.
+    void newConverter(int ccsid) throws UnsupportedEncodingException;
+    // Remove the connection event dispatcher.
+    void removeConnectionListener(ConnectionListener listener);
+    // Set the port for a service.
+    void setServicePort(String systemName, int service, int port);
+    // Set the service ports to their default values.
+    void setServicePortsToDefault(String systemName);
+    // Set significant instance variables into implementation object.
+    void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties);
+    // Sign-on to system.
+    SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException;
+}
