@@ -98,6 +98,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final String FALSE_ = "false";
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
     private static final int MAX_THRESHOLD = 16777216;                  // Maximum threshold (bytes). @A3C, @A4A
+    private static final int MAX_SCALE = 63;                            // Maximum decimal scale
 
     // socket options to store away in JNDI
     private static final String SOCKET_KEEP_ALIVE = "soKeepAlive"; // @F1A
@@ -3132,6 +3133,141 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         sockProps_.setTcpNoDelay(noDelay);
     }
+
+    // added support for sending statements in UTF-16 and storing them in a UTF-16 package
+    /**
+    * Gets the package CCSID property, which indicates the
+    * CCSID in which statements are sent to the server and
+    * also the CCSID of the package they are stored in.
+    * @return The value of the package CCSID property.
+    **/
+    public int getPackageCCSID()
+    {
+        return properties_.getInt(JDProperties.PACKAGE_CCSID);
+    }
+
+    /**
+    * Sets the package CCSID property, which indicates the
+    * CCSID in which statements are sent to the server and
+    * also the CCSID of the package they are stored in.
+    * @param ccsid The package CCSID.
+    **/
+    public void setPackageCCSID(int ccsid)
+    {
+        String property = "packageCCSID";
+
+        Integer oldPackageCCSID = new Integer(getPackageCCSID());
+        Integer newPackageCCSID = new Integer(ccsid);
+
+        validateProperty(property, newPackageCCSID.toString(), JDProperties.PACKAGE_CCSID);
+
+        properties_.setString(JDProperties.PACKAGE_CCSID, newPackageCCSID.toString());
+
+        changes_.firePropertyChange(property, oldPackageCCSID, newPackageCCSID);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + ccsid);
+    }
+
+    // added support for 63 digit decimal precision
+    /**
+    * Gets the minimum divide scale property.  This property ensures the scale
+    * of the result of decimal division is never less than its specified value.
+    * @return The minimum divide scale.
+    **/
+    public int getMinimumDivideScale()
+    {
+        return properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
+    }
+
+    /**
+    * Gets the maximum precision property. This property indicates the 
+    * maximum decimal precision the server should use.
+    * @return The maximum precision.
+    **/
+    public int getMaximumPrecision()
+    {
+        return properties_.getInt(JDProperties.MAXIMUM_PRECISION);
+    }
+
+    /**
+    * Gets the maximum scale property.  This property indicates the
+    * maximum decimal scale the server should use.
+    * @return The maximum scale.
+    **/
+    public int getMaximumScale()
+    {
+        return properties_.getInt(JDProperties.MAXIMUM_SCALE);
+    }
+
+    /**
+    * Sets the minimum divide scale property.  This property ensures the scale
+    * of the result of decimal division is never less than its specified value.
+    * @parm scale The minimum divide scale.
+    **/
+    public void setMinimumDivideScale(int scale)
+    {
+        String property = "minimumDivideScale";
+
+        Integer oldValue = new Integer(getMinimumDivideScale());
+        Integer newValue = new Integer(scale);
+
+        validateProperty(property, newValue.toString(), JDProperties.MINIMUM_DIVIDE_SCALE);
+
+        properties_.setString(JDProperties.MINIMUM_DIVIDE_SCALE, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + scale);
+    }
+
+    /**
+    * Sets the maximum precision property. This property indicates the 
+    * maximum decimal precision the server should use.
+    * @parm precision The maximum precision.
+    **/
+    public void setMaximumPrecision(int precision)
+    {
+        String property = "maximumPrecision";
+
+        Integer oldValue = new Integer(getMaximumPrecision());
+        Integer newValue = new Integer(precision);
+
+        validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_PRECISION);
+
+        properties_.setString(JDProperties.MAXIMUM_PRECISION, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + precision);
+    }
+
+    /**
+    * Sets the maximum scale property.  This property indicates the
+    * maximum decimal scale the server should use.
+    * @parm scale The maximum scale.
+    **/
+    public void setMaximumScale(int scale)
+    {
+        String property = "maximumScale";
+
+        Integer oldValue = new Integer(getMaximumScale());
+        Integer newValue = new Integer(scale);
+
+        // validate the new value
+        if(scale < 0 || scale > MAX_SCALE)
+            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        properties_.setString(JDProperties.MAXIMUM_SCALE, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + scale);
+    }
+
     // @F1A End of new socket option methods
 
     /**

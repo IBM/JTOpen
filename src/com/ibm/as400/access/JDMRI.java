@@ -98,6 +98,10 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_SO_LINGER", "soLinger" },
       { "PROP_NAME_SO_TIMEOUT", "soTimeout" },
       { "PROP_NAME_TCP_NO_DELAY", "tcpNoDelay" },
+      { "PROP_NAME_PACKAGE_CCSID", "packageCCSID" },
+      { "PROP_NAME_MINIMUM_DIVIDE_SCALE", "minimumDivideScale" },
+      { "PROP_NAME_MAXIMUM_PRECISION", "maximumPrecision" },
+      { "PROP_NAME_MAXIMUM_SCALE", "maximumScale" },
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -162,6 +166,10 @@ public class JDMRI extends ListResourceBundle
       { "SO_LINGER_DESC", "Specifies the socket linger value to use when connecting to the server." },
       { "SO_TIMEOUT_DESC", "Specifies the socket timeout value to use when connecting to the server." },
       { "TCP_NO_DELAY_DESC", "Specifies the socket TCP no delay value to use when connecting to the server." },
+      { "PACKAGE_CCSID_DESC", "Specifies the character encoding to use for the SQL package and sending statements to the server." },
+      { "MINIMUM_DIVIDE_SCALE_DESC", "Specifies the minimum scale value for the result of decimal division." },
+      { "MAXIMUM_PRECISION_DESC", "Specifies the maximum decimal precision the database should use." },
+      { "MAXIMUM_SCALE_DESC", "Specifies the maximum scale the database should use." },
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

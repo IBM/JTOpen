@@ -403,7 +403,27 @@ extends DBBaseRequestDS
         addParameter (0x3821, (byte) value);
     }
 
+    /**
+     * Sets the 63 digit decimal precision parameters in the datastream.
+     * @param maximumDecimalPrecision The maximum decimal precision the server should use.
+     * @param maximumDecimalScale     The maximum decimal scale the server should use.
+     * @param minimumDivideScale      The minimum scale the server should use for decimal division.
+     * @exception DBDataStreamException If there is not enough space left in the data byte array.
+     **/
+    void setDecimalPrecisionIndicators(int maximumDecimalPrecision, int maximumDecimalScale, int minimumDivideScale)
+    throws DBDataStreamException
+    {
+        // build the 6 byte value from its parts
+        byte[] value = new byte[6];
+        value[0] = (byte)(maximumDecimalPrecision >>> 8);
+	value[1] = (byte)maximumDecimalPrecision;
+        value[2] = (byte)(maximumDecimalScale >>> 8);
+        value[3] = (byte)maximumDecimalScale;
+        value[4] = (byte)(minimumDivideScale >>> 8);
+        value[5] = (byte)minimumDivideScale;
 
+        addParameter(0x3827, value);
+    }
 
 }
 

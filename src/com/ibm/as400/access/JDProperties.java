@@ -120,10 +120,14 @@ class JDProperties implements Serializable {
     static final int              EXTENDED_METADATA       = 48;   // @F5A
     static final int              CURSOR_SENSITIVITY      = 49;   // @F6A
     static final int              BEHAVIOR_OVERRIDE       = 50;   // @F7A
+    static final int              PACKAGE_CCSID           = 51;   // support sending SQL to server in UTF-16 and storing it in a UTF-16 package
+    static final int              MINIMUM_DIVIDE_SCALE    = 52;   // support 63 digit decimal precision
+    static final int              MAXIMUM_PRECISION       = 53;
+    static final int              MAXIMUM_SCALE           = 54;
 
                                                                 // @W2 always add to the end of the array!
 
-     private static final int    NUMBER_OF_ATTRIBUTES_ = 51;    // @A0C @C1C @A3A @D0C @E0C
+     private static final int    NUMBER_OF_ATTRIBUTES_ = 55;    // @A0C @C1C @A3A @D0C @E0C
                                                                 // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                 // @W1c @j1c @J2c @F5C @F6C @F7c
 
@@ -155,6 +159,9 @@ class JDProperties implements Serializable {
     private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
     private static final String LIBRARIES_              = "libraries";
     private static final String LOB_THRESHOLD_          = "lob threshold";
+    private static final String MAXIMUM_PRECISION_      = "maximum precision";
+    private static final String MAXIMUM_SCALE_          = "maximum scale";
+    private static final String MINIMUM_DIVIDE_SCALE_   = "minimum divide scale";
     private static final String NAMING_                 = "naming";
     private static final String PACKAGE_                = "package";
     private static final String PACKAGE_ADD_            = "package add";
@@ -182,6 +189,7 @@ class JDProperties implements Serializable {
     private static final String TRACE_SERVER_           = "server trace";        // @j1a
     private static final String TRANSACTION_ISOLATION_  = "transaction isolation";
     private static final String TRANSLATE_BINARY_       = "translate binary";
+    private static final String PACKAGE_CCSID_          = "package ccsid";
     private static final String USER_                   = "user";
 
 
@@ -322,6 +330,26 @@ class JDProperties implements Serializable {
    static final String              BIDI_STRING_TYPE_ST10       = "10";             // @E9A
    static final String              BIDI_STRING_TYPE_ST11       = "11";             // @E9A
 
+   static final String              PACKAGE_CCSID_UCS2          = "13488";          // support sending SQL statements in UTF-16
+   static final String              PACKAGE_CCSID_UTF16         = "1200";           // and consequently storing them in package in that CCSID
+
+   
+   static final String              MINIMUM_DIVIDE_SCALE_0      = "0";              // support 63 digit decimal precision
+   static final String              MINIMUM_DIVIDE_SCALE_1      = "1";
+   static final String              MINIMUM_DIVIDE_SCALE_2      = "2";
+   static final String              MINIMUM_DIVIDE_SCALE_3      = "3";
+   static final String              MINIMUM_DIVIDE_SCALE_4      = "4";
+   static final String              MINIMUM_DIVIDE_SCALE_5      = "5";
+   static final String              MINIMUM_DIVIDE_SCALE_6      = "6";
+   static final String              MINIMUM_DIVIDE_SCALE_7      = "7";
+   static final String              MINIMUM_DIVIDE_SCALE_8      = "8";
+   static final String              MINIMUM_DIVIDE_SCALE_9      = "9";
+
+   static final String              MAXIMUM_PRECISION_31        = "31";
+   static final String              MAXIMUM_PRECISION_63        = "63";
+
+   static final String              MAXIMUM_SCALE_31            = "31";
+   
 
 
     // Static data.
@@ -904,6 +932,49 @@ Static initializer.
           dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
+        // Support sending statements in UTF-16 and storing them in a UTF-16 package
+        i = PACKAGE_CCSID;
+        dpi_[i] = new DriverPropertyInfo(PACKAGE_CCSID_, "");
+        dpi_[i].description = "PACKAGE_CCSID_DESC";
+        dpi_[i].required = false;
+        dpi_[i].choices = new String[2];
+        dpi_[i].choices[0] = PACKAGE_CCSID_UCS2;
+        dpi_[i].choices[1] = PACKAGE_CCSID_UTF16;
+        defaults_[i] = PACKAGE_CCSID_UCS2;
+
+        // 63 digit decimal precision
+        i = MINIMUM_DIVIDE_SCALE;
+        dpi_[i] = new DriverPropertyInfo(MINIMUM_DIVIDE_SCALE_, "");
+        dpi_[i].description = "MINIMUM_DIVIDE_SCALE_DESC";
+        dpi_[i].required = false;
+        dpi_[i].choices = new String[10];
+        dpi_[i].choices[0] = MINIMUM_DIVIDE_SCALE_0;
+        dpi_[i].choices[1] = MINIMUM_DIVIDE_SCALE_1;
+        dpi_[i].choices[2] = MINIMUM_DIVIDE_SCALE_2;
+        dpi_[i].choices[3] = MINIMUM_DIVIDE_SCALE_3;
+        dpi_[i].choices[4] = MINIMUM_DIVIDE_SCALE_4;
+        dpi_[i].choices[5] = MINIMUM_DIVIDE_SCALE_5;
+        dpi_[i].choices[6] = MINIMUM_DIVIDE_SCALE_6;
+        dpi_[i].choices[7] = MINIMUM_DIVIDE_SCALE_7;
+        dpi_[i].choices[8] = MINIMUM_DIVIDE_SCALE_8;
+        dpi_[i].choices[8] = MINIMUM_DIVIDE_SCALE_9;
+        defaults_[i] = MINIMUM_DIVIDE_SCALE_0;
+
+        i = MAXIMUM_PRECISION;
+        dpi_[i] = new DriverPropertyInfo(MAXIMUM_PRECISION_, "");
+        dpi_[i].description = "MAXIMUM_PRECISION_DESC";
+        dpi_[i].required = false;
+        dpi_[i].choices = new String[2];
+        dpi_[i].choices[0] = MAXIMUM_PRECISION_31;
+        dpi_[i].choices[1] = MAXIMUM_PRECISION_63;
+        defaults_[i] = MAXIMUM_PRECISION_31;
+
+        i = MAXIMUM_SCALE;
+        dpi_[i] = new DriverPropertyInfo(MAXIMUM_SCALE_, "");
+        dpi_[i].description = "MAXIMUM_SCALE_DESC";
+        dpi_[i].required = false;
+        dpi_[i].choices = new String[0];
+        defaults_[i] = MAXIMUM_SCALE_31;
     }
 
 
@@ -1151,6 +1222,7 @@ properties.
             value = urlProperties.getProperty (propertyName);
         if ((value == null) && (info != null))
             value = info.getProperty (propertyName);
+
         return value;
     }
 

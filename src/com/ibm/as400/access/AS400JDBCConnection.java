@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
+import java.sql.DriverPropertyInfo;
+
 
 
 /**
@@ -1924,7 +1926,7 @@ implements Connection
 
             try
             {
-                preV5R1 = getSystem().getVRM() <= AS400.generateVRM(4, 5, 0);
+                preV5R1 = getSystem().getVRM() <= JDUtilities.vrm450;
             }
             catch (Exception e)
             {
@@ -2793,7 +2795,7 @@ implements Connection
             boolean SQLNaming = properties_.getString(JDProperties.NAMING).equals(JDProperties.NAMING_SQL);
             try
             {
-                preV5R1 = getSystem().getVRM() <= AS400.generateVRM(4, 5, 0);
+                preV5R1 = getSystem().getVRM() <= JDUtilities.vrm450;
             }
             catch (Exception e)
             {
@@ -3016,7 +3018,12 @@ implements Connection
                 // @E2D // should always use the server job's CCSID.
 
                 // Set the client CCSID to Unicode.                             // @E2A
-                request.setClientCCSID(13488);                                  // @E2A
+                // as of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
+                // will cause our statement to flow in 1200 and our package to be 1200
+                if(vrm_ >= JDUtilities.vrm530 && properties_.getInt(JDProperties.PACKAGE_CCSID) == 1200) 
+                    request.setClientCCSID(1200);
+                else
+                    request.setClientCCSID(13488);
 
                 // This language feature code is used to tell the
                 // server what language to send error messages in.
@@ -3090,7 +3097,7 @@ implements Connection
                 // Otherwise, use the old-style data compression.                          @ECA
                 if (properties_.getBoolean(JDProperties.DATA_COMPRESSION))
                 {            // @ECA
-                    if (vrm_ >= AS400.generateVRM(5, 1, 0))
+                    if (vrm_ >= JDUtilities.vrm510)
                     {                           // @ECA
                         dataCompression_ = DATA_COMPRESSION_RLE_;                       // @ECA
                         request.setDataCompressionOption(0);                            // @ECA
@@ -3131,7 +3138,7 @@ implements Connection
                 request.setPackageAddStatementAllowed (properties_.getBoolean (JDProperties.PACKAGE_ADD) ? 1 : 0);
 
                 // If the server is at V4R4 or later, then set some more attributes.
-                if (vrm_ >= AS400.generateVRM (4, 4, 0))
+                if (vrm_ >= JDUtilities.vrm440)
                 {                  // @D0C @E9C
                     // @E9D || (FORCE_EXTENDED_FORMATS_)) {
 
@@ -3163,6 +3170,21 @@ implements Connection
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
                 }                                                            // @J3a
+
+                // added support for 63 digit decimal precision
+                if(vrm_ >= JDUtilities.vrm530)
+                {
+                    int maximumPrecision = properties_.getInt(JDProperties.MAXIMUM_PRECISION);
+                    int maximumScale = properties_.getInt(JDProperties.MAXIMUM_SCALE);
+                    int minimumDivideScale = properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
+                    
+                    // validate the maximum scale parameter because it can be any value from 0 to 63
+                    if(maximumScale < 0 || maximumScale > 63)
+                        maximumScale = 31;
+
+                    request.setDecimalPrecisionIndicators(maximumPrecision, maximumScale, minimumDivideScale);
+
+                }
 
 
                 if (JDTrace.isTraceOn ())

@@ -38,6 +38,8 @@ class JDUtilities
     static final int vrm520 = AS400.generateVRM(5, 2, 0);           // @J2a @J3a   
     static final int vrm510 = AS400.generateVRM(5, 1, 0);           //      @J31a
     static final int vrm450 = AS400.generateVRM(4, 5, 0);           // @G0A
+    static final int vrm440 = AS400.generateVRM(4, 4, 0);
+    static final int vrm430 = AS400.generateVRM(4, 3, 0);
                  
     static int JDBCLevel_ = 10;                                     // @J4a         
      
