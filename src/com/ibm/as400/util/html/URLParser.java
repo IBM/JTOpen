@@ -91,6 +91,49 @@ public class URLParser
 	}
 	
 
+    /*  @B1A
+    According to the JSDK, HttpServletRequest.getServletPath() should
+    return the path to the servlet as a root relative path so that it
+    can be used to generate self-referencing URLs.  This is equivalent
+    to the CGI environment variable SCRIPT_NAME.  However, some webservers
+    only return the servlet name preceded by a slash (/) when your
+    appliation server has a path other than slash (/) configured.
+    (Note that the only application server that can have slash (/)
+    for a path is the default application server.)
+    
+    request.getServletPath();
+    
+    should return: /servlet/name vs. /name
+    
+    What follows is a circumvention to accomplish the same thing.
+    
+    The following code strips the path information from the
+    request URI.  
+    */
+
+    /**
+     *  Returns the URI from the specified <i>request</i>.
+     *
+     *  @param request The HttpServletRequest.
+     *  
+     *  @return The URI.
+     **/
+    public static String getURI(HttpServletRequest request)           // @B1A
+    {                                                                 // @B1A
+        if (request == null)                                          // @B1A
+            throw new NullPointerException("request");                // @B1A
+                                                                      // @B1A
+        String uri = request.getRequestURI();                         // @B1A
+                                                                      // @B1A
+        String pathInfo = request.getPathInfo();                      // @B1A
+                                                                      // @B1A
+        if (pathInfo != null)                                         // @B1A
+            uri = uri.substring( 0, uri.lastIndexOf(pathInfo));       // @B1A
+                                                                      // @B1A
+        return uri;                                                   // @B1A
+    }                                                                 // @B1A
+
+
    /**
     *  Returns the reference, also known as the "anchor".
     *  @return The reference.

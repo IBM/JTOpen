@@ -68,7 +68,33 @@ public class FileListRenderer
         if (request == null)
             throw new NullPointerException("request");
 
-        uri_ = request.getServletPath();                     
+
+        /* @B2A
+           According to the JSDK, HttpServletRequest.getServletPath() should
+           return the path to the servlet as a root relative path so that it
+           can be used to generate self-referencing URLs.  This is equivalent
+           to the CGI environment variable SCRIPT_NAME.  However, some webservers
+           only return the servlet name preceded by a slash (/) when your
+           appliation server has a path other than slash (/) configured.
+           (Note that the only application server that can have slash (/)
+           for a path is the default application server.)
+           
+           request.getServletPath();
+    
+           should return: /servlet/name vs. /name
+    
+           What follows is a circumvention to accomplish the same thing.
+    
+           The following code strips the path information from the
+           request URI.  
+        */
+        uri_ = request.getRequestURI();                               // @B2A
+                                                                      // @B2A
+        String pathInfo = request.getPathInfo();                      // @B2A
+                                                                      // @B2A
+        if (pathInfo != null)                                         // @B2A
+            uri_ = uri_.substring( 0, uri_.lastIndexOf(pathInfo));    // @B2A
+                                                                      // @B2A
         reqPath_ = request.getPathInfo();                    
     }
 
