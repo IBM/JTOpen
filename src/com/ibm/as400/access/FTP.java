@@ -535,7 +535,33 @@ public class FTP
         if (Trace.isTraceOn())
            Trace.log(Trace.DIAGNOSTIC,"entering dir(), (note, no exit dir() entry)");
 
-        return list(true);
+        return list(true, null);                    // @D4c
+    }
+
+
+
+
+
+
+// ---------------------------------------------------------------------------
+// @D4 new method
+   /**
+    * Lists the contents of the current directory.  File name and
+    * attributes are returned for each entry in the directory.
+    * A zero length array is returned if the directory is empty or
+    * if no files meet the search criteria.
+    *   @return The contents of the directory as an array of Strings.
+    *   @param criteria The search criteria.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public String[] dir(String criteria)
+                    throws IOException
+    {
+        if (Trace.isTraceOn())
+           Trace.log(Trace.DIAGNOSTIC,"entering dir(), (note, no exit dir() entry)");
+
+        return list(true, criteria);                // @D4c
     }
 
 
@@ -1219,7 +1245,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    synchronized String[] list(boolean details)
+    synchronized String[] list(boolean details, String criteria)    // @D4c
         throws IOException
     {
         if (Trace.isTraceOn())
@@ -1312,14 +1338,21 @@ public class FTP
      // dataSocket.setTcpNoDelay(true);
      // dataSocket.setSoLinger(true, 60);
 
+        String FTPCommand;                                      // @D4a
+
         if (details)
         {
-          issueCommand("LIST");
+          FTPCommand = "LIST";                                  // @D4c
         }
         else
         {
-          issueCommand("NLST");
+          FTPCommand = "NLST";                                  // @D4c
         }
+
+        if (criteria != null)                                   // @D4a
+           FTPCommand = FTPCommand + " " + criteria;            // @D4a
+
+        issueCommand(FTPCommand);                               // @D4c
 
         String[] result = new String[0];
 
@@ -1400,7 +1433,29 @@ public class FTP
         if (Trace.isTraceOn())
            Trace.log(Trace.DIAGNOSTIC,"entering ls(), (no leaving entry)");
 
-        return list(false);
+        return list(false, null);                                 // @D4c
+    }
+
+
+
+
+// ---------------------------------------------------------------------------
+// @D4 new method
+   /**
+    * Lists the contents of the current working directory.  If the directory
+    * is empty or no files match the search criteria, an empty list is returned.
+    *   @return The contents of the directory as an array of Strings.
+    *   @param criteria The search criteria.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public String[] ls(String criteria)
+                    throws IOException
+    {
+        if (Trace.isTraceOn())
+           Trace.log(Trace.DIAGNOSTIC,"entering ls(), (no leaving entry)");
+
+        return list(false, criteria);
     }
 
 

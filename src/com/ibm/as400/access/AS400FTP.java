@@ -298,6 +298,34 @@ public class AS400FTP
 
 
 
+// ---------------------------------------------------------------------------
+// @d4 new method
+   /**
+    * Lists the contents of the current directory.  File name and
+    * attributes are returned for each entry in the directory.
+    * A zero length array is returned if the directory is empty
+    * or if no files match the search criteria.
+    *   @return The contents of the directory as an array of Strings.
+    *   @param criteria The search criteria.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public String[] dir(String criteria)
+                    throws IOException
+    {
+
+        if (connect())
+           return super.dir(criteria);
+        else
+           return new String[0];
+    }
+
+
+
+
+
+
+
 
 
 
@@ -504,6 +532,36 @@ public class AS400FTP
        else
           return new String[0];
     }
+
+
+
+
+
+
+
+
+
+
+// ---------------------------------------------------------------------------
+// @d4 new method
+   /**
+    * Lists the contents of the current directory.  If the directory
+    * is empty or no files match the search criteria, an empty list is returned.
+    *   @return The contents of the directory as an array of Strings.
+    *   @param criteria The search criteria.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public String[] ls(String criteria)
+                    throws IOException
+    {
+       if (connect())
+          return super.ls(criteria);
+       else
+          return new String[0];
+    }
+
+
 
 
 
