@@ -370,7 +370,13 @@ class BidiShape
 
         //Convert the characters from FE to 06 range
         if ((str06[idx] >= 0xFE70) && (str06[idx] <= 0xFEF4 ))
-          str06[idx] = (char)(convertFEto06 [ (str06[idx] - 0xFE70) ] ) ;
+        {
+            //This change fix NULL pointer exception with IBMJDK 1.4
+            //IBMJDK1.4 cann't resolve casting correctly
+            int newCharValue=str06[idx] - 0xFE70;//AR-Change
+            str06[idx] = (char)(convertFEto06 [ newCharValue ] ) ;//AR-Change
+//AR-Change            str06[idx] = (char)(convertFEto06 [ (str06[idx] - 0xFE70) ] ) ;
+        }
 
       }
 //BD20a end
@@ -396,7 +402,9 @@ class BidiShape
         {
            {
 //@BD2D             str06.setCharAt (trgIdx, (char)(convertFEto06 [ (inputChar - 0xFE70) ] ) );
-             str06[idx] = (char)(convertFEto06 [ (inputChar - 0xFE70) ] ) ;  //@BD2A //@BD19c
+             int newInputChar=inputChar - 0xFE70;//AR-Change
+             str06[idx] = (char)(convertFEto06 [ newInputChar ] ) ;//AR-Change
+//AR-Change             str06[idx] = (char)(convertFEto06 [ (inputChar - 0xFE70) ] ) ;  //@BD2A //@BD19c
            }
         }else
         {
