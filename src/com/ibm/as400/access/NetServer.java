@@ -913,25 +913,6 @@ extends ChangeableResource
   }
 
   /**
-   Lists print server shares currently associated with the NetServer.
-   The returned ResourceList contains NetServerPrintShare objects.
-   @param shareName Name of shares to list.  Can include wildcard ("*").
-   @return  Information about the specified print shares.
-
-   @exception ResourceException  If an error occurs.
-   @see NetServerPrintShare
-   **/
-  public ResourceList listPrintShares(String shareName)
-    throws ResourceException
-  {
-    if (! isConnectionEstablished()) {
-      establishConnection();
-    }
-
-    return NetServerPrintShare.list(getSystem(), shareName);
-  }
-
-  /**
    Lists all session connections currently associated with the NetServer.
    The returned ResourceList contains NetServerConnection objects.
    @return  Information about all current session connections.
