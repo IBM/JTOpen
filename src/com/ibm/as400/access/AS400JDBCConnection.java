@@ -2114,9 +2114,6 @@ implements Connection
 
         String SQLCommand = "ROLLBACK TO SAVEPOINT " + sp.getName();
 
-        if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_TRUE)
-            SQLCommand = SQLCommand + " ON ROLLBACK RETAIN CURSORS";
-
         processSavepointRequest(SQLCommand);
 
         sp.setStatus(AS400JDBCSavepoint.CLOSED);                  
