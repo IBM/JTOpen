@@ -1663,6 +1663,18 @@ public class AS400 implements Serializable
     }
 
     /**
+     Returns a copy of the socket options object.
+     @return  The socket options object.
+     **/
+    public SocketProperties getSocketProperties()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting socket properties.");
+        SocketProperties socketProperties = new SocketProperties();
+        socketProperties.copyValues(socketProperties_);
+        return socketProperties;
+    }
+
+    /**
      Returns the name of the system.  The system name is provided on the constructor or may have been provided by the user at the sign-on prompt.
      @return  The name of the system, or an empty string ("") if not set.
      **/
@@ -3016,7 +3028,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Set of socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the server has been established.
+     Sets the socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the server has been established.
      @param  socketProperties  The set of socket options to set.  The options are copied from this object, not shared.
      **/
     public void setSocketProperties(SocketProperties socketProperties)
