@@ -5,19 +5,19 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2004 International Business Machines Corporation and
+Copyright (C) 1997-2005 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: October 25, 2004
-<!-- cvs log -rJTOpen_4_5_1:JTOpen_4_6 -N -d >2004-09-14 -->
+Last updated: February 22, 2005
+<!-- cvs log -rJTOpen_4_6:JTOpen_4_7 -N -d >2004-10-26 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
 enhancements provided by the open source community. JTOpen, which is governed
 by the IBM Public License, as well as its Java source code, is contained in the
 open source repository located off of:
-<A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400">http://oss.software.ibm.com/developerworks/opensource/jt400</A>.
+<A HREF="http://jt400.sourceforge.net/">http://jt400.sourceforge.net/</A>.
 
 The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program
 Product "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") which is
@@ -27,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#47">Fixes and enhancements in JTOpen 4.7</A><BR>
 <A HREF="#46">Fixes and enhancements in JTOpen 4.6</A><BR>
 <A HREF="#45_1">Fixes and enhancements in JTOpen 4.5.1</A><BR>
 <A HREF="#45">Fixes and enhancements in JTOpen 4.5</A><BR>
@@ -37,6 +38,46 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="47">Fixes and enhancements in JTOpen 4.7</A></H3>
+<PRE>
+- <i>Various:</i> Deleted unnecessary static "Copyright" string.
+- <i>Various:</i> Javadoc updates, including those reported by Jack Woehr.
+- Print: Add ATTR_AUTOEND to attribute list.
+- JDBC: Make sure serverCommitMode_ always maps to the JDBC isolation level.
+- JDBC: Fixed JTOpen Bug 4034. Use job CCSID if column label CCSID is 65535.
+- Security: CPF3C3C message from ProfileTokenCredential.
+- RFML: Fixed ArrayIndexOutOfBoundsException in RecordFormatDocument.toByteArray().
+- JDBC: Added support for variable length field compression.
+- JDBC: Check for null SocketProperties before setting it on the AS400 object.
+- Permission: Preserve leading/trailing blanks in filename.
+- Subsystem: Added Subsystem class.
+- IFS: Deprecated confusing IFSRandomAccessFile constructor, added a better one.
+- Print: Clarified that certain attributes are only available when a Writer is active to the Printer.
+- JDBC: Added a connect method.
+- JDBC: Return column name from data format when there is no column label.
+- Connection: Added pluggable signon handler (SignonHandler).
+- JDBC: Fixed JTOpen Bug 4121.  See if command contains "SELECT" after uppercasing.
+- Print: Added getInputStream() that takes a PrintParameterList as a parameter.
+- Print: Added ATTR_AUTOEND as valid to retrieve.
+- RFML: Relocated excess-input check in setValues().
+- Print: Method getAttributeName(): Add AT_READ_BUFFERS_SEQ.
+- Message queue: Retrieve user's message queue instead of assuming default path.
+- RLA: Enable authentication to DDM server with a profile token.
+- JDBC: Send new isolation level for XA transactions.
+- JavaApplicationCall: Added getCommandCall().
+- JDBC: Do not resend isolation level if it is same as current value.
+- ObjectDescription: Added new method getValueAsString().
+- RFML: Improved error message when RFML doc is missing header.
+- Job: Fixed JTOpen bug 1143395. Update max library list size.
+- Job: Throw exception when read-only value is specified on setValue().
+- Connection: Attempt to detect and warn if multiple Toolbox versions on path.
+- Connection: Added SecureAS400 constructor that takes a profile token.
+- JDBC: Fixed JTOpen Bug 4148. Always close PreparedStatement used to update row.
+- JDBC: Throw SQLException when convert to raw bytes, except in some cases.
+- JDBC: Output DISTINCT for TYPE_NAME of distinct column in DatabaseMetaData.getColumns().
+</PRE>
 
 <HR>
 <H3><A NAME="46">Fixes and enhancements in JTOpen 4.6</A></H3>
