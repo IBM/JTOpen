@@ -55,5 +55,5 @@ interface AS400Impl
     // Set significant instance variables into implementation object.
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties);
     // Sign-on to system.
-    SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName) throws AS400SecurityException, IOException;
+    SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException;
 }

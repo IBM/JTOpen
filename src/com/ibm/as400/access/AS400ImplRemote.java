@@ -326,7 +326,7 @@ class AS400ImplRemote implements AS400Impl
                 byte[] tempSeed = new byte[9];
                 AS400.rng.nextBytes(tempSeed);
 
-                SignonInfo returnInfo = signon(systemName, userId, encode(tempSeed, exchangeSeed(tempSeed), BinaryConverter.charArrayToByteArray(newPassword)), 0, gssName_);
+                SignonInfo returnInfo = signon(systemName, userId, encode(tempSeed, exchangeSeed(tempSeed), BinaryConverter.charArrayToByteArray(newPassword)), 0, gssName_, 1);
                 if (needToDisconnect) signonDisconnect();
                 return returnInfo;
             }
@@ -1164,6 +1164,24 @@ class AS400ImplRemote implements AS400Impl
         {
             return decode(adder_, mask_, bytes_);
         }
+        try
+        {
+            // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
+            if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
+            {
+                // Try for Kerberos.
+                bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                byteType_ = AS400.AUTHENTICATION_SCHEME_GSS_TOKEN;
+            }
+        }
+        catch (Throwable e)
+        {
+            Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+            if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
+            {
+                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+            }
+        }
 
         byte[] encryptedPassword = null;
 
@@ -1681,12 +1699,14 @@ class AS400ImplRemote implements AS400Impl
         socketProperties_ = socketProperties;
     }
 
+    int gssOption_;
     // Exchange sign-on flows with sign-on server.
-    public SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName) throws AS400SecurityException, IOException
+    public SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
     {
         systemName_ = systemName;
         userId_ = userId;
         gssName_ = gssName;
+        gssOption_ = gssOption;
 
         if (bytes != null)
         {

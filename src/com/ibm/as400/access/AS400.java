@@ -1097,6 +1097,16 @@ public class AS400 implements Serializable
         return locale_;
     }
 
+    // Returns the job CCSID.
+    int getJobCcsid() throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job CCSID.");
+        chooseImpl();
+        signon(false);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID: " + signonInfo_.serverCCSID);
+        return signonInfo_.serverCCSID;
+    }
+
     /**
      Returns the encoding that corresponds to the job CCSID of the server.
      @return  The encoding.
@@ -1252,6 +1262,24 @@ public class AS400 implements Serializable
             throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
         }
         // If the password is not set and we are not using Kerberos.
+        try
+        {
+            // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
+            if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
+            {
+                // Try for Kerberos.
+                bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+            }
+        }
+        catch (Throwable e)
+        {
+            Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+            if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
+            {
+                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+            }
+        }
         if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
@@ -1305,6 +1333,24 @@ public class AS400 implements Serializable
             throw new AS400SecurityException(AS400SecurityException.SYSTEM_LEVEL_NOT_CORRECT);
         }
         // If the password is not set and we are not using Kerberos.
+        try
+        {
+            // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
+            if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
+            {
+                // Try for Kerberos.
+                bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+            }
+        }
+        catch (Throwable e)
+        {
+            Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+            if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
+            {
+                throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+            }
+        }
         if (bytes_ == null && byteType_ != AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             Trace.log(Trace.ERROR, "Password is null.");
@@ -2484,12 +2530,12 @@ public class AS400 implements Serializable
         // If using GSS tokens.
         if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            signonInfo_ = impl_.signon(systemName_, userId_, bytes_, byteType_, gssName_);
+            signonInfo_ = impl_.signon(systemName_, userId_, bytes_, byteType_, gssName_, gssOption_);
             bytes_ = null;  // GSSToken is single use only.
         }
         else
         {
-            signonInfo_ = impl_.signon(systemName_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_, gssName_);
+            signonInfo_ = impl_.signon(systemName_, userId_, encode(proxySeed, remoteSeed, resolve(bytes_)), byteType_, gssName_, gssOption_);
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
@@ -2593,6 +2639,57 @@ public class AS400 implements Serializable
         // Already have a default user, fail the op.
         if (Trace.traceOn_) Trace.log(Trace.WARNING, "Default user already set, set default user failed.");
         return false;
+    }
+
+    /**
+     Constant indicating that the JGSS framework must be used when no password or profile token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
+     **/
+    public static final int GSS_OPTION_MANDATORY = 0;
+    /**
+     Constant indicating that the JGSS framework will be attempted when no password or profile token is set.  An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present a sign-on dialog or use the current user profile information.  This option is the default.
+     **/
+    public static final int GSS_OPTION_FALLBACK = 1;
+    /**
+     Constant indicating that the JGSS framework will not be used when no password or profile token is set.  An object set to this option will only present a sign-on dialog or use the current user profile information.
+     **/
+    public static final int GSS_OPTION_NONE = 2;
+
+    // How to use the GSS framework.
+    int gssOption_ = GSS_OPTION_FALLBACK;
+
+    /**
+     Returns the option for how the JGSS framework will be used.
+     @return  A constant indicating how the JGSS framework will be used.  Valid values are:
+     <ul>
+     <li>AS400.GSS_OPTION_MANDATORY
+     <li>AS400.GSS_OPTION_FALLBACK
+     <li>AS400.GSS_OPTION_NONE
+     </ul>
+     **/
+    public int getGSSOption()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting GSS option:", gssOption_);
+        return gssOption_;
+    }
+
+    /**
+     Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the server.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on an iSeries server, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
+     @param  gssOption  A constant indicating how GSS will be used.  Valid values are:
+     <ul>
+     <li>AS400.GSS_OPTION_MANDATORY
+     <li>AS400.GSS_OPTION_FALLBACK
+     <li>AS400.GSS_OPTION_NONE
+     </ul>
+     **/
+    public void setGSSOption(int gssOption)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS option:", gssOption);
+        if (gssOption < 0 || gssOption > 2)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'gssOption' is not valid.");
+            throw new ExtendedIllegalArgumentException("gssOption (" + gssOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        gssOption_ = gssOption;
     }
 
     /**
@@ -3140,8 +3237,8 @@ public class AS400 implements Serializable
 
             try
             {
-                // If the system name is set, we're not using proxy, and the password is not set.
-                if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null)
+                // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
+                if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE && !canUseNativeOptimizations())
                 {
                     // Try for Kerberos.
                     bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
@@ -3151,6 +3248,10 @@ public class AS400 implements Serializable
             catch (Throwable e)
             {
                 Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+                if (gssOption_ == AS400.GSS_OPTION_MANDATORY)
+                {
+                    throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE);
+                }
             }
 
             // If we can use the prompts, use them, else go right to server flows.

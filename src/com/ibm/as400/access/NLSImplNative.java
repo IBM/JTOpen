@@ -79,6 +79,6 @@ class NLSImplNative extends NLSImpl
      }
      @B0D*/
 
-    private native int ccsidNative() throws NativeException;
+    native int ccsidNative() throws NativeException;
     //@B0D    private native byte[] tableNative(int fromCCSID, int toCCSID) throws NativeException;
 }
