@@ -6,7 +6,7 @@ package com.ibm.as400.access;
  is *ATR and the "file attributes" parameter is *SAVF.
  This combination returns attributes specific to save files.
 
- @see AS400FileRecordDescriptionImplRemote.getSavefileAttributes()
+ @see AS400FileRecordDescriptionImplRemote#getSavefileAttributes
  **/
 class SaveFileAttrFormat extends RecordFormat
 {
