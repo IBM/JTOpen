@@ -16,8 +16,6 @@ package java.sql;
 /**
  * The class that defines the constants that are used to identify generic SQL types, called JDBC types. The actual
  *  type constant values are equivalent to those in XOPEN. 
- *
- *  This class is never instantiated. 
  **/
 public class Types
 {

@@ -26,9 +26,9 @@ import java.io.*;
  *  <p>Applications make connection requests to the DriverManager, which dispatches 
  *  them to the appropriate driver.  This driver accepts connection requests
  *  for databases specified by the URLs that match the following syntax:
- *
- *  jdbc:as400://<em>server-name</em>/<em>default-schema</em>;meserver=<server>[:port]<em>other properties</em>;
- *
+ *  <pre>
+ *  jdbc:as400://<em>server-name</em>/<em>default-schema</em>;meserver=&lt;server&gt;[:port];<em>[other properties]</em>;
+ *  </pre>
  *  Additionally, for the JdbcMe driver, if the port is unspecified, the port number 3470 is used.
  *
  *  <p>The driver uses the specified server name to connect

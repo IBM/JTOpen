@@ -21,23 +21,24 @@ import java.sql.*;
  * An offline data repository that represents a
  * a data store that is generic, regardless of
  * J2ME profile and JVM details.
- *
+ * <p>
  * Note that the index of the first record in a
  * JdbcMeOfflineData object is 0, not 1 as in the MIDP
  * implementation of RecordStore.
- *
- * For example.
+ * <p>
+ * For example.<br><pre>
  *  MIDP - The 'name' is a unique string of up to 32
  *         unique characters identifying a
  *         javax.microedition.rms.RecordStore object
  *         the offline data object returned, then
  *         encapsulates the RecordStore object.
- *
+ * 
  *  PALM - The 'name' is effectively just a visual
  *         key, while the offline data is uniquely
  *         identified by the 'dbCreator' and the
  *         'dbType' parameters.
- */
+ *  </pre>
+ **/
 abstract public class JdbcMeOfflineData
 {
     private final static int       J2ME_UNKNOWN = 0;

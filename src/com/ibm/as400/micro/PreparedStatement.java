@@ -15,10 +15,10 @@ package java.sql;
 
 /**
  *  An object that represents a precompiled SQL statement. 
- *
+ *  <p>
  *  A SQL statement is precompiled and stored in a PreparedStatement object. This object can then be used to
  *  efficiently execute this statement multiple times. 
- *
+ *  <p>
  *  <b>Note:</b> PreparedStatements are currently not supported.
  **/
 public interface PreparedStatement extends Statement

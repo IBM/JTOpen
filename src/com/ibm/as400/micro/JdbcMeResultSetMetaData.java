@@ -18,8 +18,10 @@ import java.sql.*;
 /**
  * JdbcMeResultSetMetaData implements the java.sql.ResultSetMetaData
  * interface as provided for a Java 2 Micro-Edition device.
- * Since Java 2 Micro-Edition does not include java.sql,
- * the java.sql package is also part of this driver.
+ *  
+ *  <p><b>Note:</b> Since Java 2 Micro-Edition does not include java.sql,
+ *  JdbcMeResultSetMetaData implements the java.sql package that is also part 
+ *  of this driver.
  **/
 public class JdbcMeResultSetMetaData implements ResultSetMetaData 
 {

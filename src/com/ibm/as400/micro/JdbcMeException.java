@@ -16,10 +16,11 @@ package com.ibm.as400.micro;
 import java.sql.*;
 
 /**
- * JdbcMeException extends the java.sql.Exception
- * class as provided for a Java 2 Micro-Edition device.
- * Since Java 2 Micro-Edition does not include java.sql,
- * the java.sql package is also part of this driver.
+ *  JdbcMeException extends the java.sql.SQLException
+ *  class as provided for a Java 2 Micro-Edition device.
+ * 
+ *  <p><b>Note:</b> Since Java 2 Micro-Edition does not include java.sql,
+ *  the java.sql package is also part of this driver.
  **/
 public class JdbcMeException extends SQLException 
 {

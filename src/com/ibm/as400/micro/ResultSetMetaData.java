@@ -23,8 +23,7 @@ package java.sql;
  *      ResultSet rs = stmt.executeQuery("SELECT a, b, c FROM TABLE2");
  *      ResultSetMetaData rsmd = rs.getMetaData();
  *      int numberOfColumns = rsmd.getColumnCount();
- *      
- *  </pre>
+ *   </pre>
  *
  *  <b>Note:</b>This class contains the smallest useful set of methods and data from java.sql.ResultSetMetaData
  */

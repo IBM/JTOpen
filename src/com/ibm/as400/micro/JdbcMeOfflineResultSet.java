@@ -22,8 +22,9 @@ import java.io.*;
  * over the top of an existing MIDP Record Store or a Palm
  * OS database.
  *
- * Since Java 2 Micro-Edition does not include java.sql,
- * the java.sql package is also part of this driver.
+ *  <p><b>Note:</b> Since Java 2 Micro-Edition does not include java.sql,
+ *  JdbcMeOfflineResultSet implements the java.sql package that is also part 
+ *  of this driver.
  **/
 public class JdbcMeOfflineResultSet implements ResultSet
 {

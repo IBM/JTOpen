@@ -15,14 +15,14 @@ package java.sql;
 
 /**
  *  An exception that provides information on a database access error or other errors. 
- * 
+ *  <p>
  *  Each SQLException provides several kinds of information: 
  *  <ul>
  *    <li>a string describing the error. This is used as the Java Exception message, available via the method getMesage. 
  *    <li>a "SQLstate" string, which follows the XOPEN SQLstate conventions. The values of the SQLState string
  *         are described in the XOPEN SQL spec. 
  *  </ul>
- */
+ **/
 public class SQLException extends Exception
 {
     private String sqlState_;

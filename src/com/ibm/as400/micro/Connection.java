@@ -16,14 +16,14 @@ package java.sql;
 /**
  *  A connection (session) with a specific database. Within the context of a Connection, SQL statements are
  *  executed and results are returned. 
- *
+ *  <p>
  *  A Connection's database is able to provide information describing its tables, its supported SQL grammar, its
  *  stored procedures, the capabilities of this connection, and so on. This information is obtained with the
  *  getMetaData method. 
- *
+ *  <p>
  *  <b>Note:</b> By default the Connection automatically commits changes after executing each statement. If auto commit
  *  has been disabled, the method commit must be called explicitly; otherwise, database changes will not be saved.
- *
+ *  <p>
  *  This class contains the smallest useful set of methods and data from java.sql.Connectio for a wireless device.
  **/
 public interface Connection
