@@ -20,12 +20,7 @@ Store cached attributes.
 **/
 class IFSCachedAttributes implements Serializable 
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
-
-    static final long serialVersionUID = 4L;
-
+  static final long serialVersionUID = 4L;
 
   static final int FA_READONLY  = 0x01;                               
   static final int FA_HIDDEN    = 0x02;                              
@@ -35,10 +30,11 @@ class IFSCachedAttributes implements Serializable
   int fixedAttributes_;
   boolean isDirectory_;
   boolean isFile_;
+  boolean isSymbolicLink_;
   long modificationDate_;
   String name_;
   int objectType_;
-  String path_;
+  String parent_;  // path of directory
   long size_;                   // @A1c
   byte[] restartID_;            // @C3a
 
@@ -47,7 +43,7 @@ Construct listCachedAttributes object from a list of attributes.
 **/
   IFSCachedAttributes(long accessDate, long creationDate, int fixedAttributes, 
                       long modificationDate, int objectType, long size, 
-                      String name, String path, boolean isDirectory, boolean isFile, byte[] restartID) // @A1c @C3c
+                      String name, String parent, boolean isDirectory, boolean isFile, byte[] restartID, boolean isSymbolicLink) // @A1c @C3c
   {
     accessDate_ = accessDate;
     creationDate_ = creationDate;
@@ -57,9 +53,10 @@ Construct listCachedAttributes object from a list of attributes.
     modificationDate_ = modificationDate;
     name_ =  name;
     objectType_ = objectType;
-    path_ = path;
+    parent_ = parent;
     size_ = size;
     restartID_ = restartID;  // @C3a
+    isSymbolicLink_ = isSymbolicLink;
   }
 
 /**
@@ -95,7 +92,7 @@ Return isDir_
   }
 
 /**
-Return fixed attributes.
+Return isFile_
 **/
   boolean getIsFile()
   {
@@ -127,11 +124,11 @@ Return object type.
   }
 
 /**
-Return path.
+Return path of parent directory.
 **/
-  String getPath()
+  String getParent()
   {
-      return path_;
+      return parent_;
   }
 
 // @C3a
@@ -150,4 +147,13 @@ Return size.
   {
       return size_;
   }
+
+/**
+Return isSymbolicLink_
+**/
+  boolean isSymbolicLink()
+  {
+      return isSymbolicLink_;
+  }
+
 }

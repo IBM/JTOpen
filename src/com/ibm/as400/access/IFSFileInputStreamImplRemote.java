@@ -28,9 +28,6 @@ import java.io.UnsupportedEncodingException;
 class IFSFileInputStreamImplRemote extends InputStream
 implements IFSFileInputStreamImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
   private IFSFileDescriptorImplRemote fd_; // file info
 
   // Variables needed by subclass IFSTextFileOutputStream:
@@ -71,10 +68,8 @@ implements IFSFileInputStreamImpl
     // Ensure that the file is open.
     open();
 
-    // Determine the file size.
-    long fileSize = getFileSize();                   // @B8c
-
-    return ((int)(fileSize - fd_.getFileOffset()));  // @B8c
+    // Bytes available = (file size) minus (current cursor position).
+    return ((int)(getFileSize() - fd_.getFileOffset()));  // @B8c
   }
 
   /**
@@ -207,7 +202,7 @@ implements IFSFileInputStreamImpl
       Trace.log(Trace.ERROR, "No reply available.");
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
-    size = reply.getSize();
+    size = reply.getSize(fd_.serverDatastreamLevel_);
 
     return size;
   }
@@ -430,8 +425,6 @@ implements IFSFileInputStreamImpl
   {
     // Assume the argument has been validated by the public class.
 
-    if (DEBUG)
-      System.out.println("DEBUG: IFSFileInputStreamImplRemote.readText("+length+")");  // @B2A
     String data = "";
 
     // Ensure that the file is open.
@@ -468,8 +461,7 @@ implements IFSFileInputStreamImpl
               Trace.log(Trace.DIAGNOSTIC, "Received multiple replies " +
                         "from ListAttributes request.");
             //((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDataStreamLevel_); // @B2A @B6d
-            ((IFSListAttrsRep)ds).setFD(fd_);             // @B6a
-            fileCCSID = ((IFSListAttrsRep) ds).getCCSID();
+            fileCCSID = ((IFSListAttrsRep) ds).getCCSID(fd_.serverDatastreamLevel_);
             if (DEBUG)
               System.out.println("DEBUG: IFSFileInputStreamImplRemote.readText(): " +
                                  "Reported CCSID for file is " + fileCCSID);  // @B2A

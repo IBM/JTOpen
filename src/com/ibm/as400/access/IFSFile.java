@@ -88,12 +88,7 @@ import java.util.Vector;
 public class IFSFile
   implements java.io.Serializable, Comparable            // @B9c
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
-
-    static final long serialVersionUID = 4L;
-
+  static final long serialVersionUID = 4L;
 
   /**
    The integrated file system path separator string used to separate paths in a path list.
@@ -129,6 +124,7 @@ public class IFSFile
   transient private IFSCachedAttributes cachedAttributes_;//@A7A
   private boolean isDirectory_; //@A7A
   private boolean isFile_; //@A7A
+  private boolean isSymbolicLink_;
 
   /**
    Constructs an IFSFile object.
@@ -312,7 +308,7 @@ public class IFSFile
 
     initializeTransient();
 
-    String directory = attributes.getPath();  //@D2C - Use IFSCachedAttributes
+    String directory = attributes.getParent();  //@D2C - Use IFSCachedAttributes
     String name = attributes.getName();  //@D2C - Use IFSCachedAttributes
 
     // Build the file's full path name.  Prepend a separator character
@@ -343,6 +339,7 @@ public class IFSFile
     //symbolic link.
     isDirectory_ = attributes.getIsDirectory();
     isFile_ = attributes.getIsFile();
+    isSymbolicLink_ = attributes.isSymbolicLink();
   }
 
 
@@ -389,7 +386,7 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    return impl_.canRead0();
+    return impl_.canRead();
   }
 
 
@@ -428,7 +425,7 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    return impl_.canWrite0();
+    return impl_.canWrite();
   }
 
   /**
@@ -533,8 +530,57 @@ public class IFSFile
   }
 
 
+  /**
+   * Copies this file or directory to the specified file or directory
+   * on the server.
+   * If the destination file already exists, it is overwritten.
+   * If this IFSFile represents a directory:
+   * <ul>
+   * <li> The destination directory must be nonexistent, otherwise an exception is thrown.
+   * <li> The entire directory (including all of its contents and subdirectories) is copied.
+   * </ul>
+   * @param path The destination path to copy this IFSFile to.
+   * <br>If the server is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
+   * @return true if the copy succeeded (or at least one file of a source
+   * directory's contents was copied); false otherwise.
+  **/
+  public boolean copyTo(String path) throws IOException, AS400SecurityException, ObjectAlreadyExistsException
+  {
+    return copyTo(path, true);
+  }
 
 
+  /**
+   * Copies this file or directory to the specified file or directory
+   * on the server.
+   * If the destination file already exists:
+   * <ul>
+   * <li> If <i>replace</i> is true, the destination file is overwritten.
+   * <li> If <i>replace</i> is false, an exception is thrown.
+   * </ul>
+   * If this IFSFile represents a directory:
+   * <ul>
+   * <li> The destination directory must be nonexistent, otherwise an exception is thrown.
+   * <li> The entire directory (including all of its contents and subdirectories) is copied.
+   * </ul>
+   * @param path The destination path to copy this IFSFile to.
+   * <br>Note: If the server is V5R2 or earlier: If the current object is a file (rather than a directory), the destination path must also specify a file (rather than a directory), otherwise the copy may fail.
+   * @param replace true to overwrite the destination if it already exists, false otherwise.
+   * <br>Note: If the server is V5R2 or earlier, this parameter has no effect; that is, the destination is always overwritten.
+   * @return true if the copy succeeded (or at least one file of a source
+   * directory's contents was copied); false otherwise.
+  **/
+  // Note: Don't make this method public for now.  The limitations of the 'replace'
+  // option are too complex, in terms of what the File Server can do for us.
+  // Wait until we have better support from the File Server.
+  boolean copyTo(String path, boolean replace) throws IOException, AS400SecurityException, ObjectAlreadyExistsException
+  {
+    if (path == null) throw new NullPointerException("path");
+    if (impl_ == null) chooseImpl();
+    return impl_.copyTo(path, replace);
+  }
+    
+    
 //internal created method.  It throws a security exception.
   long created0()                                               //@D3a
     throws IOException, AS400SecurityException                  //@D3a
@@ -549,7 +595,7 @@ public class IFSFile
        if (impl_ == null)                                       //@D3a
          chooseImpl();                                          //@D3a
                                                                 //@D3a
-       return impl_.created0();                                 //@D3a
+       return impl_.created();                                 //@D3a
     }                                                           //@D3a
   }                                                             //@D3a
 
@@ -632,7 +678,7 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    int rc = impl_.delete0();
+    int rc = impl_.delete();
 
     // Verify that the request was successful.
     if (rc == IFSReturnCodeRep.SUCCESS)
@@ -888,7 +934,7 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    return impl_.exists0();
+    return impl_.exists();
   }
 
   /**
@@ -1307,7 +1353,7 @@ public class IFSFile
        if (impl_ == null)
          chooseImpl();
 
-       return impl_.isDirectory0();
+       return impl_.isDirectory();
     }
   }
 
@@ -1360,7 +1406,7 @@ public class IFSFile
        if (impl_ == null)
          chooseImpl();
 
-       return impl_.isFile0();
+       return impl_.isFile();
     }
   }
 
@@ -1429,6 +1475,38 @@ public class IFSFile
     }
   }
 
+  /**
+   Determines if the integrated file system object represented by this object is a
+   symbolic link.<br>
+   A file is "normal" if it is not a directory or a container of other objects. <br>
+   Note: Both {@link #isDirectory() isDirectory} and {@link #isFile() isFile} resolve symbolic links to their ultimate destination.  For example, if this object represents a symbolic link on the server, that resolves to a file object, then isSymbolicLink() will return true, isFile() will return true, and isDirectory() will return false. 
+   <br>Note: If the server is V5R2 or earlier, this method always returns false, regardless of whether the server object is a link or not.
+
+   @return true if the specified file exists and is a symbolic link; false otherwise.
+   <br>If the server is V5R2 or earlier, this method always returns false.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+
+   **/
+  public boolean isSymbolicLink()
+    throws IOException, AS400SecurityException
+  {
+    if (cachedAttributes_ != null) {
+       return isSymbolicLink_;
+    }
+    else
+    {
+       if (impl_ == null)
+         chooseImpl();
+
+       return impl_.isSymbolicLink();
+    }
+  }
+
 
   /**
    Determines if the integrated file system object represented by this object is read only.
@@ -1479,7 +1557,7 @@ public class IFSFile
        if (impl_ == null)                                       //@D3a
          chooseImpl();                                          //@D3a
                                                                 //@D3a
-       return impl_.lastAccessed0();                            //@D3a
+       return impl_.lastAccessed();                            //@D3a
     }                                                           //@D3a
   }                                                             //@D3a
 
@@ -1532,7 +1610,7 @@ public class IFSFile
        if (impl_ == null)
          chooseImpl();
 
-       return impl_.lastModified0();
+       return impl_.lastModified();
     }
   }
 
@@ -1581,7 +1659,7 @@ public class IFSFile
        if (impl_ == null)
          chooseImpl();
 
-       return impl_.length0();
+       return impl_.length();
     }
   }
 
@@ -1848,7 +1926,7 @@ public class IFSFile
   public IFSFile[] listFiles()
     throws IOException
   {
-    return listFiles("*");
+    return listFiles((IFSFileFilter)null, "*");
   }
 
 
@@ -1879,6 +1957,89 @@ public class IFSFile
     throws IOException
   {
     return listFiles(filter, "*");
+  }
+
+
+  //@A7A Added function to return an array of files in a directory.
+  /**
+   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter,String) list} method, but attribute information may become inconsistent with the server.  
+
+   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
+   <pre>
+   IFSFile file = new IFSFile(system, "/QSYS.LIB");
+   IFSFile[] libraries = file.listFiles(filter, "*");
+   </pre>
+
+   @param filter A file object filter.
+   @param pattern The pattern that all filenames must match. Acceptable
+   characters are wildcards (*) and
+   question marks (?).
+   @return An array of object names in the directory that satisfy the filter
+   and pattern. This list does not include the current directory or the parent
+   directory.  If this object does not represent a directory,  or the directory is not accessible, null is returned.
+   If this object represents an empty directory, or the filter or pattern does
+   not match any files, an empty object array is returned. The IFSFile object
+   passed to the filter object has cached file attribute information.  Maintaining
+   references to these IFSFile objects after the list operation increases the
+   chances that their file attribute information will not be valid.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+
+   **/
+  public IFSFile[] listFiles(IFSFileFilter filter, String pattern)
+    throws IOException
+  {
+    // Validate arguments.  Note that we tolerate a null-valued 'filter'.
+    if (pattern == null)
+      throw new NullPointerException("pattern");
+
+    try
+    {
+      return listFiles0(filter, pattern, -1, (String)null, (byte[])null);                             // @D4C @C3C
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      // return null;  // @B6d
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
+    }
+  }
+
+
+  //@A7A Added function to return an array of files in a directory.
+  /**
+   Lists the integrated file system objects in the directory represented by this object that match <i>pattern</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(String) list} method, but attribute information may become inconsistent with the server.  
+
+   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
+   <pre>
+   IFSFile file = new IFSFile(system, "/QSYS.LIB");
+   IFSFile[] libraries = file.listFiles("*");
+   </pre>
+
+   @param pattern The pattern that all filenames must match. Acceptable characters
+   are wildcards (*) and
+   question marks (?).
+   @return An array of object names in the directory that match the pattern. This
+   list does not include the current directory or the parent directory.  If this
+   object does not represent a directory,  or the directory is not accessible, null is returned. If this object
+   represents an empty directory, or the pattern does not match any files,
+   an empty object array is returned.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+
+   **/
+  public IFSFile[] listFiles(String pattern)
+    throws IOException
+  {
+    return listFiles((IFSFileFilter)null, pattern);
   }
 
   //@A7A Added function to return an array of files in a directory.
@@ -1935,10 +2096,10 @@ public class IFSFile
     }
     IFSCachedAttributes[] fileAttributeList; //@C3C
     if (restartName != null) {
-      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, maxGetCount, restartName); //@D2C @D4C
+      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, directory, maxGetCount, restartName); //@D2C @D4C
     }
     else {
-      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, maxGetCount, restartID); //@C3a
+      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, directory, maxGetCount, restartID); //@C3a
     }
 
     // Add the name for each reply that matches the filter to the array
@@ -1989,89 +2150,6 @@ public class IFSFile
   }
 
 
-  //@A7A Added function to return an array of files in a directory.
-  /**
-   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter,String) list} method, but attribute information may become inconsistent with the server.  
-
-   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
-   <pre>
-   IFSFile file = new IFSFile(system, "/QSYS.LIB");
-   IFSFile[] libraries = file.listFiles(filter, "*");
-   </pre>
-
-   @param filter A file object filter.
-   @param pattern The pattern that all filenames must match. Acceptable
-   characters are wildcards (*) and
-   question marks (?).
-   @return An array of object names in the directory that satisfy the filter
-   and pattern. This list does not include the current directory or the parent
-   directory.  If this object does not represent a directory,  or the directory is not accessible, null is returned.
-   If this object represents an empty directory, or the filter or pattern does
-   not match any files, an empty object array is returned. The IFSFile object
-   passed to the filter object has cached file attribute information.  Maintaining
-   references to these IFSFile objects after the list operation increases the
-   chances that their file attribute information will not be valid.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
-
-   **/
-  public IFSFile[] listFiles(IFSFileFilter filter, String pattern)
-    throws IOException
-  {
-    // Validate arguments.  Note that we tolerate a null-valued 'filter'.
-    if (pattern == null)
-      throw new NullPointerException("pattern");
-
-    try
-    {
-      return listFiles0(filter, pattern, -1, (String)null);                             // @D4C @C3C
-    }
-    catch (AS400SecurityException e)
-    {
-      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
-      // return null;  // @B6d
-      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED); // @B6a
-    }
-  }
-
-
-  //@A7A Added function to return an array of files in a directory.
-  /**
-   Lists the integrated file system objects in the directory represented by this object that match <i>pattern</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(String) list} method, but attribute information may become inconsistent with the server.  
-
-   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
-   <pre>
-   IFSFile file = new IFSFile(system, "/QSYS.LIB");
-   IFSFile[] libraries = file.listFiles("*");
-   </pre>
-
-   @param pattern The pattern that all filenames must match. Acceptable characters
-   are wildcards (*) and
-   question marks (?).
-   @return An array of object names in the directory that match the pattern. This
-   list does not include the current directory or the parent directory.  If this
-   object does not represent a directory,  or the directory is not accessible, null is returned. If this object
-   represents an empty directory, or the pattern does not match any files,
-   an empty object array is returned.
-
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the server.
-   @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the server cannot be started.
-   @exception UnknownHostException If the server cannot be located.
-
-   **/
-  public IFSFile[] listFiles(String pattern)
-    throws IOException
-  {
-    return listFiles(null, pattern);
-  }
-
-
 //internal mkdir that returns return codes and throws exceptions.
   int mkdir0(String directory)
     throws IOException, AS400SecurityException
@@ -2081,7 +2159,7 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    return impl_.mkdir0(directory);
+    return impl_.mkdir(directory);
   }
 
   /** Creates an integrated file system directory whose path name is
@@ -2120,7 +2198,7 @@ public class IFSFile
     if (impl_ == null)
       chooseImpl();
 
-    return impl_.mkdirs0();
+    return impl_.mkdirs();
   }
 
   /**
@@ -2227,7 +2305,7 @@ public class IFSFile
     vetos_.fireVetoableChange("path", path_, file.getAbsolutePath());
 
     // Rename the file.
-    int rc = impl_.renameTo0(file.getImpl());
+    int rc = impl_.renameTo(file.getImpl());
 
     if (rc == IFSReturnCodeRep.SUCCESS)
     {

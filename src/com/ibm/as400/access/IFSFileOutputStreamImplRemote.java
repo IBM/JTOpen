@@ -29,9 +29,6 @@ class IFSFileOutputStreamImplRemote
 extends OutputStream
 implements IFSFileOutputStreamImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
   private boolean append_ = false;
   private IFSFileDescriptorImplRemote fd_; // file info
 
@@ -456,7 +453,7 @@ implements IFSFileOutputStreamImpl
         // Get the file information.
         IFSListAttrsRep rep = (IFSListAttrsRep) ds;
 
-        fd_.setFileOffset((int)rep.getSize());                // @B7c
+        fd_.setFileOffset((int)rep.getSize(fd_.serverDatastreamLevel_));                // @B7c
       }
       else if (ds instanceof IFSReturnCodeRep)
       {
@@ -536,8 +533,7 @@ implements IFSFileOutputStreamImpl
                 Trace.log(Trace.DIAGNOSTIC, "Received multiple replies " +
                           "from ListAttributes request.");
               //((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDatastreamLevel_); // @B2A @B6d
-              ((IFSListAttrsRep)ds).setFD(fd_);             // @B6a
-              fileCCSID = ((IFSListAttrsRep) ds).getCCSID();
+              fileCCSID = ((IFSListAttrsRep) ds).getCCSID(fd_.serverDatastreamLevel_);
               if (DEBUG)
                 System.out.println("DEBUG: IFSFileOutputStreamImplRemote.writeText(): " +
                                    "Reported CCSID for file is " + fileCCSID);  // @B2A

@@ -26,9 +26,6 @@ import java.net.UnknownHostException;
 class IFSRandomAccessFileImplRemote
 implements IFSRandomAccessFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
   private int existenceOption_;
   private IFSFileDescriptorImplRemote fd_;
   private String mode_ = "";
@@ -47,9 +44,9 @@ implements IFSRandomAccessFileImpl
   {
     // Add all byte stream reply data streams of interest to the
     // AS400 server's reply data stream hash table.
-    AS400Server.addReplyStream(new IFSCloseRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSExchangeAttrRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSLockBytesRep(), AS400.FILE);
+//  AS400Server.addReplyStream(new IFSCloseRep(), AS400.FILE);
+//  AS400Server.addReplyStream(new IFSExchangeAttrRep(), AS400.FILE);
+//  AS400Server.addReplyStream(new IFSLockBytesRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSListAttrsRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSOpenRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
@@ -229,7 +226,7 @@ implements IFSRandomAccessFileImpl
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
-    return reply.getSize();                                      // @A3c
+    return reply.getSize(fd_.serverDatastreamLevel_);                  // @A3c
   }
 
 

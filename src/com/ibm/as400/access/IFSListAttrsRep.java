@@ -22,8 +22,6 @@ List file attributes reply.
 **/
 class IFSListAttrsRep extends IFSDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
   static final int FILE = 1;
   static final int DIRECTORY = 2;
   static final int SYMBOLIC_LINK = 3;
@@ -57,9 +55,11 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int NAME_CCSID_OFFSET = 73;
   private static final int CHECKOUT_CCSID_OFFSET = 75;
   private static final int RESTART_ID_OFFSET = 77;
-  private static final int FILE_NAME_LL_OFFSET = 81;
-  private static final int FILE_NAME_CP_OFFSET = 85;
-  private static final int FILE_NAME_OFFSET = 87;
+  // Note: Offets of fields beyond this point depend on the server datastream level (DSL).
+  private static final int OPTIONAL_SECTION_OFFSET_OLD = 81; // if DSL < 8
+  private static final int OPTIONAL_SECTION_OFFSET     = 113; // if DSL >= 8
+  private static final int LARGE_FILE_SIZE_OFFSET = 81;      // if DSL >= 8
+  private static final int SYMBOLIC_LINK_OFFSET = 91;        // if DSL >= 8
 
   // The following offset is valid only if the reply contains an OA2 structure.
   private static final int CODE_PAGE_OFFSET_INTO_OA2  = 126;
@@ -67,8 +67,13 @@ class IFSListAttrsRep extends IFSDataStream
   // The following offset is valid only if the reply contains an OA2a structure.   @A2a
   private static final int CODE_PAGE_OFFSET_INTO_OA2a = 142;
 
+  // Note: Beginning with OA2b, we no longer care about the codepage field.  Instead, we get the "CCSID of the object" field.
+
   // The following offset is valid only if the reply contains an OA2b structure.   @A2a
   private static final int CCSID_OFFSET_INTO_OA2b = 134;
+
+  // The following offset is valid only if the reply contains an OA2c structure.
+  private static final int CCSID_OFFSET_INTO_OA2c = 134;
 
   // Offset of the "owner user ID" field in the OA2* structures.    @B7a
   private static final int OWNER_OFFSET_INTO_OA2  = 64;
@@ -77,7 +82,7 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int LLCP_LENGTH = 6;
 
   //private int serverDatastreamLevel_; // @A1A @B6d
-  private IFSFileDescriptorImplRemote fd_; // @B6a
+  //private IFSFileDescriptorImplRemote fd_; // @B6a
 
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.     @A3a
@@ -131,11 +136,8 @@ Get the code page value for the IFS file on the AS/400.
 Get the CCSID value for the IFS file on the AS/400.
 @return the CCSID value for the IFS file on the AS/400
 **/
-  int getCCSID()  // @A1A
+  int getCCSID(int datastreamLevel)  // @A1A
   {
-    if (DEBUG) System.out.println("DEBUG IFSListAttrsRep.getCCSID(): " +
-                                  "requestedDatastreamLevel_ = " + fd_.requestedDatastreamLevel_ +
-                                  ", serverDatastreamLevel_ = " + fd_.serverDatastreamLevel_);
     // Note: Only if the server is reporting Datastream Level 2 (or later) will the reply have a CCSID field.
     // If prior to Level 2, we must make do with the codepage value.
 
@@ -158,52 +160,37 @@ Get the CCSID value for the IFS file on the AS/400.
 
      2                 3               OA2b
 
-     Note: Since we only ever request level 0 or 2,
+     8                 0               OA2
+
+     8                 F4F4            OA2a
+
+     8                 2               OA2b
+
+     8                 3               OA2b
+
+     8                 8               OA2c
+
+     Note: Since we only ever request level 0, 2, or 8,
            the server will never report level 1.
      */
     int offset_into_OA;  // offset into OA* structure for CCSID or codepage field
-    switch (fd_.requestedDatastreamLevel_)     // @B6a
+    switch (datastreamLevel)
     {
       case 0:
         offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2;
         break;
-      case 1: case 2:
-        switch (fd_.serverDatastreamLevel_)
-        {
-          case 0:
-            offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2;
-            break;
-          case 0xF4F4:
-            offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
-            break;
-//@B9d    case 2:
-          default:       // @B9c
-            offset_into_OA = CCSID_OFFSET_INTO_OA2b;
-            break;
-//@B9d    default:
-//@B9d      Trace.log(Trace.ERROR, "Unexpected server datastream level: " +
-//@B9d                fd_.serverDatastreamLevel_);
-//@B9d      throw new InternalErrorException(InternalErrorException.UNKNOWN);
-        }
+      case 0xF4F4:
+        offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
+        break;
+      case 2:
+        offset_into_OA = CCSID_OFFSET_INTO_OA2b;
         break;
       default:
-        Trace.log(Trace.ERROR, "Unexpected requested datastream level: " +
-                  fd_.requestedDatastreamLevel_);
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        offset_into_OA = CCSID_OFFSET_INTO_OA2c;
+        break;
     }
     return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
                     LLCP_LENGTH + offset_into_OA);
-
-/* @B6d
-    if (fd_.serverDatastreamLevel_ == 2)                                  // @B6c
-      return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
-                      LLCP_LENGTH + CCSID_OFFSET_INTO_OA2b);
-    else {
-      // Interpret the code page as a CCSID.  For now just assume that the
-      // code page and CCSID are the same.
-      return getCodePage();
-    }
-*/
   }
 
 /**
@@ -221,16 +208,21 @@ Get the extended attribute value.
 Returns null if the reply contains no extended attribute.
 @return extended attribute value
 **/
-  byte[] getExtendedAttributeValue()
+  byte[] getExtendedAttributeValue(int datastreamLevel)
   {
     // Determine length and starting offset of the EA.
 
     // The field preceding the "Extended Attributes" field
     // is the "File Name" field.
-    int fileNameFieldLength = get32bit(FILE_NAME_LL_OFFSET);
+    int file_name_LL_offset;
+    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
+      file_name_LL_offset = OPTIONAL_SECTION_OFFSET_OLD; }
+    else {
+      file_name_LL_offset = OPTIONAL_SECTION_OFFSET; }
+    int fileNameFieldLength = get32bit(file_name_LL_offset);
 
     // Verify that we got at least one EA back.  A "full EA" is at least 20 bytes long.
-    int eaOffset = FILE_NAME_LL_OFFSET + fileNameFieldLength;
+    int eaOffset = file_name_LL_offset + fileNameFieldLength;
     byte[] eaVal = null;
     if (eaOffset+20 > data_.length)
     {
@@ -292,12 +284,22 @@ Get the date/time that the file was last modified.
 Get the file name.
 @return the file name
 **/
-  byte[] getName()
+  byte[] getName(int datastreamLevel)
   {
-    int length = get32bit( FILE_NAME_LL_OFFSET) - 6;
+    int file_name_LL_offset;
+    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
+      file_name_LL_offset = OPTIONAL_SECTION_OFFSET_OLD; }
+    else {
+      file_name_LL_offset = OPTIONAL_SECTION_OFFSET; }
+    int length = get32bit( file_name_LL_offset) - 6;
+    if (DEBUG && length < 0) {
+      Trace.log(Trace.ERROR, "Error getting file name: Value at name-length offset is too small.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
 
     byte[] name = new byte[length];
-    System.arraycopy(data_, FILE_NAME_OFFSET, name, 0, length);
+    System.arraycopy(data_, 6+file_name_LL_offset, name, 0, length);
+    // Note: Actual filename starts after the 6-byte LL CP, hence the "6+".
 
     return name;
   }
@@ -340,11 +342,17 @@ Get the restart identifier.
 Determine the file size (in bytes).
 @return the file size
 **/
-  long getSize()                             // @B8c
+  long getSize(int datastreamLevel)                             // @B8c
   {
-    // We need to suppress sign-extension if the leftmost bit is on.
-    int size = get32bit( FILE_SIZE_OFFSET);     // @B8c
-    return ((long)size) & 0xffffffffL;          // @B8c
+    // Datastream level 8 added a "Large File Size" field.
+    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
+      // We need to suppress sign-extension, just in case the leftmost bit is on.
+      int size = get32bit( FILE_SIZE_OFFSET);     // @B8c
+      return ((long)size) & 0xffffffffL;          // @B8c
+    }
+    else {
+      return (get64bit( LARGE_FILE_SIZE_OFFSET ));
+    }
   }
 
 //@C1a
@@ -352,17 +360,22 @@ Determine the file size (in bytes).
 Get the length of the file (8 bytes).
 @return length of the file
 **/
-  long getSize8Bytes()
+  long getSize8Bytes(int datastreamLevel)
   {
     long fileSize = 0L;
 
-    // Determine starting offset of the optional field "8-byte file size".
+    // Determine starting offset of the Optional field "8-byte file size".
 
     // The field preceding the "8-byte file size" field is the "File Name" field.
-    int fileNameFieldLength = get32bit(FILE_NAME_LL_OFFSET);
+    int file_name_LL_offset;
+    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
+      file_name_LL_offset = OPTIONAL_SECTION_OFFSET_OLD; }
+    else {
+      file_name_LL_offset = OPTIONAL_SECTION_OFFSET; }
+    int fileNameFieldLength = get32bit(file_name_LL_offset);
 
     // Verify that we got the optional "file size" field back.  The field's length should be 8 bytes.
-    int fsOffset = FILE_NAME_LL_OFFSET + fileNameFieldLength;
+    int fsOffset = file_name_LL_offset + fileNameFieldLength;
     byte[] fsVal = null;
     if (fsOffset+8 > data_.length)
     {
@@ -372,7 +385,6 @@ Get the length of the file (8 bytes).
     }
     else
     {
-      if (DEBUG) System.out.println("DEBUG fsListLength==" + get32bit(fsOffset));
       int fsCodePoint = get16bit(fsOffset+4);
       if (fsCodePoint != 0x0014)
       {
@@ -389,23 +401,33 @@ Get the length of the file (8 bytes).
   }
 
 /**
-Set the server datastream level.  This enables us to correctly parse the reply.
-@param datastreamLevel the server datastream level
+Determine whether the object is a symbolic link.
+@return true if object is a symbolic link;
+        false if not a symbolic link (or if could not determine).
 **/
-/* B6d
-  void setServerDataStreamLevel(int datastreamLevel)
+  boolean isSymbolicLink(int datastreamLevel)
   {
-    serverDatastreamLevel_ = dataStreamLevel;
-  }
-*/
-
-/**
-Set the file descriptor.  We need info from the descriptor to correctly parse the reply.
-@param fd the file descriptor.
-**/
-  void setFD(IFSFileDescriptorImplRemote fd)
-  {
-    fd_ = fd;
+    boolean result = false;
+    // Note: The symlink field was added to the reply datastream in DSL 8.
+    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
+      Trace.log(Trace.WARNING, "Could not determine whether file is a symbolic link.");
+    }
+    else {
+      byte fieldValue = data_[SYMBOLIC_LINK_OFFSET];
+      switch (fieldValue)
+      {
+        case 0:
+          result = false;
+          break;
+        case 1:
+          result = true;
+          break;
+        default:
+          Trace.log(Trace.ERROR, "Internal error, unexpected value in symbolic link field: ", fieldValue);
+          break;
+      }
+    }
+    return result;
   }
 
 /**

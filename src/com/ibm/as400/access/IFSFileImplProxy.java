@@ -24,42 +24,55 @@ class IFSFileImplProxy
 extends AbstractProxyImpl
 implements IFSFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
 
   IFSFileImplProxy ()
   {
     super ("IFSFile");
   }
 
-  public int canRead0()
+  public int canRead()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "canRead0");
+      return connection_.callMethodReturnsInt (pxId_, "canRead");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public int canWrite0()
+  public int canWrite()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "canWrite0");
+      return connection_.callMethodReturnsInt (pxId_, "canWrite");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
+  public boolean copyTo(String path, boolean replace)
+    throws IOException, AS400SecurityException, ObjectAlreadyExistsException
+  {
+    try
+    {
+      return ((Boolean)connection_.callMethod(pxId_, "copyTo",
+                                              new Class[] { String.class, Boolean.class },
+                                              new Object[] { path, new Boolean(replace) }).getReturnValue()).booleanValue();
+    }
+    catch (InvocationTargetException e)
+    {
+      throw rethrow2(e);
+    }
+  }
+  
   // @D3 created0 is a new method
-  public long created0()
+  public long created()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "created0").getReturnValueLong();
+      return connection_.callMethod (pxId_, "created").getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -79,22 +92,22 @@ implements IFSFileImpl
 
 
 
-  public int delete0()
+  public int delete()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "delete0");
+      return connection_.callMethodReturnsInt (pxId_, "delete");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public int exists0()
+  public int exists()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "exists0");
+      return connection_.callMethodReturnsInt (pxId_, "exists");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -150,22 +163,22 @@ implements IFSFileImpl
     }
   }
 
-  public int isDirectory0()
+  public int isDirectory()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "isDirectory0");
+      return connection_.callMethodReturnsInt (pxId_, "isDirectory");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public int isFile0()
+  public int isFile()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "isFile0");
+      return connection_.callMethodReturnsInt (pxId_, "isFile");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -196,34 +209,45 @@ implements IFSFileImpl
     }
   }
 
+  public boolean isSymbolicLink()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethodReturnsBoolean (pxId_, "isSymbolicLink");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
   // @D3 lastAccessed0 is a new method
-  public long lastAccessed0()
+  public long lastAccessed()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "lastAccessed0").getReturnValueLong();
+      return connection_.callMethod (pxId_, "lastAccessed").getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public long lastModified0()
+  public long lastModified()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "lastModified0").getReturnValueLong();
+      return connection_.callMethod (pxId_, "lastModified").getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public long length0()
+  public long length()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "length0").getReturnValueLong();
+      return connection_.callMethod (pxId_, "length").getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -249,7 +273,8 @@ implements IFSFileImpl
 
   // @A2A
   // List the file/directory details in the specified directory.
-  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+  public IFSCachedAttributes[] listDirectoryDetails(String directoryPattern,
+                                                    String directoryPath,
                                                     int maxGetCount,            // @D4A
                                                     String restartName)         // @D4A
     throws IOException, AS400SecurityException
@@ -267,7 +292,8 @@ implements IFSFileImpl
 
   // @C3A
   // List the file/directory details in the specified directory.
-  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+  public IFSCachedAttributes[] listDirectoryDetails(String directoryPattern,
+                                                    String directoryPath,
                                                     int maxGetCount,
                                                     byte[] restartID)
     throws IOException, AS400SecurityException
@@ -283,11 +309,11 @@ implements IFSFileImpl
     }
   }
 
-  public int mkdir0(String directory)
+  public int mkdir(String directory)
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "mkdir0",
+      return connection_.callMethod (pxId_, "mkdir",
                               new Class[] { String.class },
                               new Object[] { directory })
         .getReturnValueInt();
@@ -297,22 +323,22 @@ implements IFSFileImpl
     }
   }
 
-  public int mkdirs0()
+  public int mkdirs()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "mkdirs0");
+      return connection_.callMethodReturnsInt (pxId_, "mkdirs");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
     }
   }
 
-  public int renameTo0(IFSFileImpl file)
+  public int renameTo(IFSFileImpl file)
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "renameTo0",
+      return connection_.callMethod (pxId_, "renameTo",
                                      new Class[] { IFSFileImpl.class },
                                      new Object[] { file })
         .getReturnValueInt();

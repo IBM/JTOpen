@@ -23,8 +23,6 @@ import java.io.InterruptedIOException;
 class IFSFileDescriptorImplRemote
 implements IFSFileDescriptorImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   private static final int UNINITIALIZED = -1;  // @B8a
 
   // Note: We allow direct access to some of these fields, for performance.  @B2C
@@ -266,6 +264,46 @@ implements IFSFileDescriptorImpl
     throw e;
   }
 
+  /**
+   * Copies a file or directory to another file or directory.
+  **/
+  boolean copyTo(String destinationPath, boolean replace)
+    throws AS400SecurityException, IOException
+  {
+    ClientAccessDataStream ds = null;
+    IFSCopyReq req = new IFSCopyReq(path_, destinationPath, replace);
+    try
+    {
+      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream connection lost during copy", e);
+      connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted", e);
+      throw new InterruptedIOException(e.getMessage());
+    }
+    if (ds instanceof IFSReturnCodeRep)
+    {
+      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
+        throw new ExtendedIOException(rc);
+      }
+      return true;
+    }
+    else
+    {
+      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+  }  
 
   /**
    Exchanges server attributes.
@@ -279,9 +317,12 @@ implements IFSFileDescriptorImpl
           IFSExchangeAttrRep rep =
             (IFSExchangeAttrRep)server_.getExchangeAttrReply();
 
-          // Note: For V4R5 or later, we ask for Datastream Level 2;
+          // Note: For releases after V5R2, we ask for Datastream Level 8;
+          // for V4R5 or later, we ask for Datastream Level 2;
           // for earlier systems, we ask for Datastream Level 0.    // @B6c
-          if (getSystemVRM() >= 0x00040500)                 // @B3A @B4C
+          if (getSystemVRM() >= 0x00050300)
+            requestedDatastreamLevel_ = 8;
+          else if (getSystemVRM() >= 0x00040500)                 // @B3A @B4C
             requestedDatastreamLevel_ = 2;
           else
             requestedDatastreamLevel_ = 0;
@@ -290,9 +331,14 @@ implements IFSFileDescriptorImpl
               try
               {
                 int[] preferredCcsids;        // @A2A
+                // Datastream level 8 was introduced in the release after V5R2.
+                if (getSystemVRM() >= 0x00050300)
+                { // System is post-V5R2.
+                  preferredCcsids = new int[] {0x04b0,0x34b0,0xf200}; // UTF-16, new or old Unicode.
+                }
                 // Note: Pre-V4R5 systems hang when presented with multiple
                 // preferred CCSIDs in the exchange of attributes.   @B3A @B4C
-                if (getSystemVRM() >= 0x00040500)                 // @B3A @B4C
+                else if (getSystemVRM() >= 0x00040500)               // @B3A @B4C
                 { // System is V4R5 or later.  We can present a list of preferred CCSIDs.
                   preferredCcsids = new int[] {0x34b0,0xf200}; // New or old Unicode.
                 }
@@ -368,6 +414,7 @@ implements IFSFileDescriptorImpl
    references to it.
    @exception IOException If an error occurs while communicating with the AS/400.
    **/
+  // Note: We call this "finalize0" because a "finalize" method would need to be protected; and we want other classes to call this method.
   void finalize0()  // @B2A
     throws IOException
   {
@@ -506,8 +553,6 @@ implements IFSFileDescriptorImpl
       systemVRM_ = system_.getVRM();  // @B4C
       determinedSystemVRM_ = true;
     }
-    if (DEBUG) System.out.println("DEBUG IFSFileImplRemote.getSystemVRM(): " +
-                                  "System VRM is 000" + Integer.toHexString(systemVRM_));
     return systemVRM_;
   }
 

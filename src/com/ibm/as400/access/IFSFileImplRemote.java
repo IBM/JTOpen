@@ -23,12 +23,14 @@ import java.util.Vector;
 class IFSFileImplRemote
 implements IFSFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
-
-
-  transient private IFSListAttrsRep attributes_; // cached attributes
+  transient private IFSListAttrsRep attributesReply_; // "list attributes" reply
+  transient private IFSCachedAttributes cachedAttributes_; // cached attributes
 
   private IFSFileDescriptorImplRemote fd_ = new IFSFileDescriptorImplRemote(); // @B2A
+
+  private boolean isSymbolicLink_ = false;
+  private boolean determinedIsSymbolicLink_ = false;
+
 
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.
@@ -48,7 +50,7 @@ implements IFSFileImpl
   /**
    Determines if the applet or application can read from the integrated file system object represented by this object.
    **/
-  public int canRead0()
+  public int canRead()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -61,7 +63,7 @@ implements IFSFileImpl
   /**
    Determines if the applet or application can write to the integrated file system object represented by this object.
    **/
-  public int canWrite0()
+  public int canWrite()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -71,13 +73,31 @@ implements IFSFileImpl
   }
 
 
+  /**
+   Copies the current file to the specified path.
+   **/
+  public boolean copyTo(String destinationPath, boolean replace)
+    throws IOException, AS400SecurityException, ObjectAlreadyExistsException
+  {
+    fd_.connect();
+    if (Trace.traceOn_ && replace==false && fd_.getSystemVRM() < 0x00050300) {
+      Trace.log(Trace.WARNING, "Server is V5R2 or lower, so the 'Do not replace' argument will be ignored.");
+    }
 
+    // If the source is a directory, verify that the destination doesn't already exist.
+    if (isDirectory() == IFSReturnCodeRep.SUCCESS &&
+        exists(destinationPath) == IFSReturnCodeRep.SUCCESS) {
+      throw new ObjectAlreadyExistsException(destinationPath, ObjectAlreadyExistsException.OBJECT_ALREADY_EXISTS);
+    }
+
+    return fd_.copyTo(destinationPath, replace);
+  }
 
   /**
    @D3a created0 is a new method
    Determines the time that the integrated file system object represented by this object was created.
    **/
-  public long created0()
+  public long created()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -91,7 +111,7 @@ implements IFSFileImpl
     IFSListAttrsRep attrs = getAttributeSetFromServer(fd_.path_);
     if (attrs != null)
     {
-      attributes_ = attrs;
+      attributesReply_ = attrs;
       creationDate = attrs.getCreationDate();
     }
 
@@ -124,7 +144,7 @@ implements IFSFileImpl
   /**
    Deletes the integrated file system object represented by this object.
    **/
-  public int delete0()
+  public int delete()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -139,7 +159,7 @@ implements IFSFileImpl
       new IFSDeleteFileReq(pathname, fd_.preferredServerCCSID_);
     try
     {
-      if (isDirectory0() == IFSReturnCodeRep.SUCCESS)
+      if (isDirectory() == IFSReturnCodeRep.SUCCESS)
       {
         req = new IFSDeleteDirReq(pathname, fd_.preferredServerCCSID_);
       }
@@ -188,7 +208,7 @@ implements IFSFileImpl
     }
 
     // Clear any cached file attributes.
-    attributes_ = null;
+    attributesReply_ = null;
 
     return (rc);
   }
@@ -205,7 +225,7 @@ implements IFSFileImpl
     // Don't need to check if attributeList == null because it has already been
     // checked by the two methods that call it.  Also don't check converter
     // because it is set by a connect() method before calling this.
-    String name = fd_.converter_.byteArrayToString(attributeList.getName());
+    String name = fd_.converter_.byteArrayToString(attributeList.getName(fd_.serverDatastreamLevel_));
     switch (attributeList.getObjectType())
     {
       case IFSListAttrsRep.DIRECTORY:
@@ -240,7 +260,7 @@ implements IFSFileImpl
     // Don't need to check if attributeList == null because it has already been
     // checked by the two methods that call it.   Also don't check converter
     // because it is set by a connect() method before calling this.
-    String name = fd_.converter_.byteArrayToString(attributeList.getName());
+    String name = fd_.converter_.byteArrayToString(attributeList.getName(fd_.serverDatastreamLevel_));
     switch(attributeList.getObjectType())
     {
       case IFSListAttrsRep.DIRECTORY:
@@ -266,10 +286,10 @@ implements IFSFileImpl
   /**
    Determines if the integrated file system object represented by this object exists.
    **/
-  public int exists0()
+  public int exists()
     throws IOException, AS400SecurityException
   {
-    return exists0(fd_.path_);
+    return exists(fd_.path_);
   }
 
 
@@ -277,7 +297,7 @@ implements IFSFileImpl
   /**
    Determines if the integrated file system object represented by this object exists.
    **/
-  private int exists0(String name)
+  private int exists(String name)
     throws IOException, AS400SecurityException
   {
     int returnCode = IFSReturnCodeRep.SUCCESS;
@@ -285,7 +305,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    // @A8D if (attributes_ == null)
+    // @A8D if (attributesReply_ == null)
     // @A8D {
       returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
       // Attempt to list the attributes of the specified file.
@@ -295,7 +315,7 @@ implements IFSFileImpl
         if (attrs != null)
         {
           returnCode = IFSReturnCodeRep.SUCCESS;
-          attributes_ = attrs;
+          attributesReply_ = attrs;
         }
       }
       catch (AS400SecurityException e)
@@ -329,7 +349,8 @@ implements IFSFileImpl
     IFSListAttrsRep reply = null;
 
     // Attempt to list the attributes of the specified file.
-    Vector replys = listAttributes(file, -1, null, true);                                         // @D4C @C3c
+    Vector replys = listAttributes(file, -1, null, true);
+    // Note: This does setFD() on each returned IFSListAttrsRep.
 
     // If this is a directory then there must be exactly one reply.
     if (replys != null && replys.size() == 1)
@@ -348,12 +369,12 @@ implements IFSFileImpl
   public int getCCSID()
     throws IOException, AS400SecurityException
   {
-    IFSListAttrsRep reply = listAttributes1(); // @B7c
+    IFSListAttrsRep reply = listAttributes();
     if (reply != null)
     {
       //reply.setServerDatastreamLevel(fd_.serverDataStreamLevel_);  // @B6d
-      reply.setFD(fd_);                  // @B6a
-      return reply.getCCSID();
+      //reply.setFD(fd_);                  // @B6a
+      return reply.getCCSID(fd_.serverDatastreamLevel_);
     }
     else return -1;
   }
@@ -441,7 +462,7 @@ implements IFSFileImpl
   public long getOwnerUID()
     throws IOException, AS400SecurityException        // @C0c
   {
-    IFSListAttrsRep reply = listAttributes1();
+    IFSListAttrsRep reply = listAttributes();
     if (reply != null)
     {
       // Note: No need to do a setFD(fd_) on the reply, since offset of "owner" field is consistent across the various OA2* structures.
@@ -469,7 +490,7 @@ implements IFSFileImpl
     IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                               IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
                               null, false, extendedAttrName, false);  // @C3c
-    Vector replys = listAttributes0(req);
+    Vector replys = listAttributes(req);
 
     // Verify that we got at least one reply.
     if (replys == null) {
@@ -485,7 +506,7 @@ implements IFSFileImpl
                   replys.size() + ")");
       }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-      byte[] subtypeAsBytes = reply.getExtendedAttributeValue();
+      byte[] subtypeAsBytes = reply.getExtendedAttributeValue(fd_.serverDatastreamLevel_);
       if (subtypeAsBytes != null)
       {
         // Note: The EA value field is always returned in EBCDIC (ccsid=37).
@@ -499,7 +520,7 @@ implements IFSFileImpl
   /**
    Determines if the integrated file system object represented by this object is a directory.
   **/
-  public int isDirectory0()
+  public int isDirectory()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -507,11 +528,11 @@ implements IFSFileImpl
 
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
 
-    if (attributes_ == null)
+    if (attributesReply_ == null)
     {
       try
       {
-        attributes_ = getAttributeSetFromServer(fd_.path_);
+        attributesReply_ = getAttributeSetFromServer(fd_.path_);
       }
       catch (AS400SecurityException e)
       {
@@ -548,9 +569,9 @@ implements IFSFileImpl
     //}
 
     //@B1A Added code to call determineIsDirectory().
-    if (attributes_ != null)
+    if (attributesReply_ != null)
     {
-       if (determineIsDirectory(attributes_))
+       if (determineIsDirectory(attributesReply_))
           returnCode = IFSReturnCodeRep.SUCCESS;
     }
 
@@ -562,7 +583,7 @@ implements IFSFileImpl
    Determines if the integrated file system object represented by this object is a "normal" file.<br>
    A file is "normal" if it is not a directory or a container of other objects.
    **/
-  public int isFile0()
+  public int isFile()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -570,11 +591,11 @@ implements IFSFileImpl
 
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
 
-    if (attributes_ == null)
+    if (attributesReply_ == null)
     {
       try
       {
-          attributes_ = getAttributeSetFromServer(fd_.path_);
+          attributesReply_ = getAttributeSetFromServer(fd_.path_);
       }
       catch (AS400SecurityException e)
       {
@@ -611,9 +632,9 @@ implements IFSFileImpl
     //}
 
     //@B1A Added code to call determineIsFile().
-    if (attributes_ != null)
+    if (attributesReply_ != null)
     {
-       if (determineIsFile(attributes_))
+       if (determineIsFile(attributesReply_))
           returnCode = IFSReturnCodeRep.SUCCESS;
     }
 
@@ -634,16 +655,16 @@ implements IFSFileImpl
 
     boolean result = false;
 
-    if (attributes_ == null)
+    if (attributesReply_ == null)
     {
         // Attempt to get the attributes of this object.
-        attributes_ = getAttributeSetFromServer(fd_.path_);
+        attributesReply_ = getAttributeSetFromServer(fd_.path_);
     }
 
     // Determine if the file attributes indicate hidden.
-    if (attributes_ != null)
+    if (attributesReply_ != null)
     {
-      result = (attributes_.getFixedAttributes() & IFSListAttrsRep.FA_HIDDEN) != 0;
+      result = (attributesReply_.getFixedAttributes() & IFSListAttrsRep.FA_HIDDEN) != 0;
     }
 
     return result;
@@ -663,19 +684,89 @@ implements IFSFileImpl
 
     boolean result = false;
 
-    if (attributes_ == null)
+    if (attributesReply_ == null)
     {
         // Attempt to get the attributes of this object.
-        attributes_ = getAttributeSetFromServer(fd_.path_);
+        attributesReply_ = getAttributeSetFromServer(fd_.path_);
     }
 
     // Determine if the file attributes indicate hidden.
-    if (attributes_ != null)
+    if (attributesReply_ != null)
     {
-      result = (attributes_.getFixedAttributes() & IFSListAttrsRep.FA_READONLY) != 0;
+      result = (attributesReply_.getFixedAttributes() & IFSListAttrsRep.FA_READONLY) != 0;
     }
 
     return result;
+  }
+
+
+  /**
+   Determines if the integrated file system object represented by this object is a symbolic link.
+   **/
+  public boolean isSymbolicLink()
+    throws IOException, AS400SecurityException
+  {
+    // Ensure that we are connected to the server.
+    fd_.connect();
+
+    if (Trace.traceOn_ && fd_.getSystemVRM() < 0x00050300) {
+      Trace.log(Trace.WARNING, "Server is V5R2 or lower, so isSymbolicLink() will always report false.");
+      return false;
+    }
+
+    /* Temporary workaround, until better File Server support is in place.
+     if (attributesReply_ != null)
+     {
+     System.out.println("DEBUG IFSFileImplRemote.isSymbolicLink(): attributesReply_ != null");
+     result = attributesReply_.isSymbolicLink(fd_.serverDatastreamLevel_);
+     }
+     else
+     */
+    if (!determinedIsSymbolicLink_)
+    {
+      // Note: For now (V5R2 and the follow-on release), we can't get accurate symbolic link info by querying the attrs of a specific file.
+      // Instead, we must query the contents of the parent directory.
+      int pathLen = fd_.path_.length();
+      if (pathLen <= 1) {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Path length is less than 2, so assuming not a symbolic link: " + fd_.path_);
+        isSymbolicLink_ = false;
+        determinedIsSymbolicLink_ = true;
+      }
+      else
+      {
+        // Do a wildcard search.
+        StringBuffer wildCardPatternBuf = new StringBuffer(fd_.path_);
+        wildCardPatternBuf.setCharAt(pathLen-1, '*');
+        String wildCardPattern = wildCardPatternBuf.toString();
+        String dirPath = wildCardPattern.substring(0,1+wildCardPattern.lastIndexOf('/'));
+
+        byte[] pathBytes = fd_.converter_.stringToByteArray(wildCardPattern);
+        IFSCachedAttributes[] attrList = listDirectoryDetails(wildCardPattern, dirPath, -1, pathBytes, true);
+
+        IFSCachedAttributes attrs = null;
+        String filename = fd_.path_.substring(1+(fd_.path_.lastIndexOf('/')));
+        for (int i=0; attrs == null && i<attrList.length; i++)
+        {
+          // Note: No need to compare full pathnames, since we know the directory.
+          if (attrList[i].name_.equals(filename)) {
+            attrs = attrList[i];
+          }
+        }
+        if (attrs != null)
+        {
+          isSymbolicLink_ = attrs.isSymbolicLink_;
+          determinedIsSymbolicLink_ = true;
+        }
+        else
+        {
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero matches from listDirectoryDetails() against parent of " + wildCardPattern.toString());
+          isSymbolicLink_ = false;
+          determinedIsSymbolicLink_ = true;
+        }
+      }
+    }
+
+    return isSymbolicLink_;
   }
 
 
@@ -685,7 +776,7 @@ implements IFSFileImpl
    @D3a lastAccessed0 is a new method
    Determines the time that the integrated file system object represented by this object was last accessed.
    **/
-  public long lastAccessed0()
+  public long lastAccessed()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -699,7 +790,7 @@ implements IFSFileImpl
     IFSListAttrsRep attrs = getAttributeSetFromServer(fd_.path_);
     if (attrs != null)
     {
-      attributes_ = attrs;
+      attributesReply_ = attrs;
       accessDate = attrs.getAccessDate();
     }
 
@@ -710,7 +801,7 @@ implements IFSFileImpl
   /**
    Determines the time that the integrated file system object represented by this object was last modified.
    **/
-  public long lastModified0()
+  public long lastModified()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -724,7 +815,7 @@ implements IFSFileImpl
     IFSListAttrsRep attrs = getAttributeSetFromServer(fd_.path_);
     if (attrs != null)
     {
-      attributes_ = attrs;
+      attributesReply_ = attrs;
       modificationDate = attrs.getModificationDate();
     }
 
@@ -735,7 +826,7 @@ implements IFSFileImpl
   /**
    Determines the length of the integrated file system object represented by this object.
    **/
-  public long length0()
+  public long length()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -743,7 +834,7 @@ implements IFSFileImpl
 
     long size = 0L;
 
-    if (fd_.getSystemVRM() < 0x00050200)  // system is pre-V5R2   @C1c
+    if (fd_.getSystemVRM() != 0x00050200)  // system is other than V5R2   @C1c
     {
       // Attempt to list the attributes of the specified file.
       // Note: Do not use cached attributes, since they may be out of date.
@@ -751,11 +842,11 @@ implements IFSFileImpl
 
       if (attrs != null)
       {
-        attributes_ = attrs;
-        size = attrs.getSize();
+        attributesReply_ = attrs;
+        size = attrs.getSize(fd_.serverDatastreamLevel_);
       }
     }
-    else  // the system is V5R2 or later                         @C1a - added this entire 'else' block
+    else  // the system is V5R2                         @C1a - added this entire 'else' block
     {
       // Convert the path name to the AS/400 CCSID.
       byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
@@ -764,7 +855,7 @@ implements IFSFileImpl
       IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                                                 IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
                                                 null, true, null, true);  // @C3c
-      Vector replys = listAttributes0(req);
+      Vector replys = listAttributes(req);
 
       if (replys == null) {
         Trace.log(Trace.ERROR, "Received null from listAttributes().");
@@ -785,7 +876,7 @@ implements IFSFileImpl
                       replys.size() + ")");
         }
         IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-        size = reply.getSize8Bytes();
+        size = reply.getSize8Bytes(fd_.serverDatastreamLevel_);
       }
     }
     return size;
@@ -802,7 +893,7 @@ implements IFSFileImpl
     // Process attribute replies.
     IFSListAttrsReq req = new IFSListAttrsReq(fileHandle, (short)0x44);  // Object Attribute 2 
 
-    return listAttributes0(req);
+    return listAttributes(req);
   }
 
 
@@ -817,7 +908,7 @@ implements IFSFileImpl
 
     // Process attribute replies.
     IFSListAttrsReq req;                                                                            // @D4C
-    if (maxGetCount < 0)                                                                            // @D4A
+    if (maxGetCount < 0)    // a Get Count of -1 means "return all entries"              // @D4A
         req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_);                             // @D4C
     else {                                                                                          // @D4A
 //@C3d  byte[] restartNameAsBytes = null;                                                           // @D4A
@@ -830,14 +921,14 @@ implements IFSFileImpl
                                   isRestartName, // @C3a
                                   null, false);  // @B5a @C3c
     }
-    return listAttributes0(req);
+    return listAttributes(req);  // Note: This does setFD() on each returned IFSListAttrsRep..
   }
 
 
   //@B4c
   // Submit the specified request, and fetch list attributes reply(s).
   // The returned Vector contains IFSListAttrsRep objects.
-  private Vector listAttributes0(IFSListAttrsReq req)
+  private Vector listAttributes(IFSListAttrsReq req)
     throws IOException, AS400SecurityException
   {
     Vector replys = new Vector(256);
@@ -939,7 +1030,7 @@ implements IFSFileImpl
   // @B7a - This code was formerly located in getCcsid().
   // Open the file, list the file attributes, and close the file.
   // May return null, for example if the file is a directory.
-  private IFSListAttrsRep listAttributes1()
+  private IFSListAttrsRep listAttributes()
     throws IOException, AS400SecurityException
   {
     IFSListAttrsRep reply = null;
@@ -1039,8 +1130,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    Vector replys = listAttributes(directoryPath, -1, null, true);                        // @D4C @C3c
-
+    Vector replys = listAttributes(directoryPath, -1, null, true);                        
     String[] names = null;
 
     // Add the name for each file or directory in the specified directory,
@@ -1057,10 +1147,11 @@ implements IFSFileImpl
     {
       names = new String[replys.size()];
       int j = 0;
+      int dsl = fd_.serverDatastreamLevel_;
       for (int i = 0; i < replys.size(); i++)
       {
         IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(i);
-        String name = fd_.converter_.byteArrayToString(reply.getName());
+        String name = fd_.converter_.byteArrayToString(reply.getName(dsl));
         if (!(name.equals(".") || name.equals("..")))
         {
           names[j++] = name;
@@ -1092,7 +1183,8 @@ implements IFSFileImpl
   // @C3C Morphed this method by adding a parameter and making it private.
   // List the files/directories details in the specified directory.
   // Returns null if specified file or directory does not exist.
-  private IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+  private IFSCachedAttributes[] listDirectoryDetails(String pathPattern,
+                                                     String directoryPath,
                                                     int maxGetCount,            // @D4A
                                                     byte[] restartNameOrID,     // @C3C
                                                     boolean isRestartName)      // @C3A
@@ -1104,7 +1196,7 @@ implements IFSFileImpl
 
     try
     {
-      Vector replys = listAttributes(directoryPath, maxGetCount, restartNameOrID, isRestartName);  // @D4C @C3C
+      Vector replys = listAttributes(pathPattern, maxGetCount, restartNameOrID, isRestartName);
 
       // Add each file or directory in the specified directory,
       // to the array of files.
@@ -1113,10 +1205,11 @@ implements IFSFileImpl
       if (replys != null)
       {
         fileAttributes = new IFSCachedAttributes[replys.size()];
+        int dsl = fd_.serverDatastreamLevel_;
         for (int i = 0; i < replys.size(); i++)
         {
           IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(i);
-          String name = fd_.converter_.byteArrayToString(reply.getName());
+          String name = fd_.converter_.byteArrayToString(reply.getName(dsl));
           if (!(name.equals(".") || name.equals("..")))
           {
              // isDirectory and isFile should be different unless the
@@ -1124,13 +1217,13 @@ implements IFSFileImpl
              // to a non-existant object).  This kind of link cannot
              // be resolved and both determineIsDirectory and
              // determineIsFile will return false.  Regular symbolic links
-             // will resolve.  For example, a symlink to a file will return
+             // will resolve.  For example, a symbolic link to a file will return
              // true from isFile and false from determineIsDirectory.
              boolean isDirectory = determineIsDirectory(reply);
              boolean isFile = determineIsFile(reply);
              IFSCachedAttributes attributes = new IFSCachedAttributes(reply.getAccessDate(),
                  reply.getCreationDate(), reply.getFixedAttributes(), reply.getModificationDate(),
-                 reply.getObjectType(), reply.getSize(), name, fd_.path_, isDirectory, isFile, reply.getRestartID()); //@B3A @C3C
+                 reply.getObjectType(), reply.getSize(dsl), name, directoryPath, isDirectory, isFile, reply.getRestartID(), reply.isSymbolicLink(dsl)); //@B3A @C3C
              fileAttributes[j++] = attributes;
            }
         }
@@ -1160,24 +1253,26 @@ implements IFSFileImpl
   // @C3c Moved logic from this method into new private method.
   // List the files/directories details in the specified directory.
   // Returns null if specified file or directory does not exist.
-  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+  public IFSCachedAttributes[] listDirectoryDetails(String pathPattern,
+                                                    String directoryPath,
                                                     int maxGetCount,            // @D4A
                                                     String restartName)         // @D4A
      throws IOException, AS400SecurityException
   {
     byte[] restartNameBytes = fd_.converter_.stringToByteArray(restartName);                     // @C3M
-    return listDirectoryDetails(directoryPath, maxGetCount, restartNameBytes, true);
+    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartNameBytes, true);
   }
 
   // @C3a
   // List the files/directories details in the specified directory.
   // Returns null if specified file or directory does not exist.
-  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+  public IFSCachedAttributes[] listDirectoryDetails(String pathPattern,
+                                                    String directoryPath,
                                                     int maxGetCount,
                                                     byte[] restartID)
      throws IOException, AS400SecurityException
   {
-    return listDirectoryDetails(directoryPath, maxGetCount, restartID, false);
+    return listDirectoryDetails(pathPattern, directoryPath, maxGetCount, restartID, false);
   }
 
 
@@ -1185,7 +1280,7 @@ implements IFSFileImpl
   /**
    Creates an integrated file system directory whose path name is specified by this object.
    **/
-  public int mkdir0(String directory)
+  public int mkdir(String directory)
     throws IOException, AS400SecurityException
   {
     // Ensure that the path name is set.
@@ -1241,7 +1336,7 @@ implements IFSFileImpl
   /**
    Creates an integrated file system directory whose path name is specified by this object. In addition, create all parent directories as necessary.
     **/
-  public int mkdirs0()
+  public int mkdirs()
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -1255,7 +1350,7 @@ implements IFSFileImpl
     String directory = fd_.path_;
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
 
-    returnCode = exists0(directory);
+    returnCode = exists(directory);
     if (returnCode != IFSReturnCodeRep.SUCCESS)
     {
       do
@@ -1263,7 +1358,7 @@ implements IFSFileImpl
         nonexistentDirs.addElement(directory);
         directory = IFSFile.getParent(directory);
       }
-      while (directory != null & (exists0(directory) != IFSReturnCodeRep.SUCCESS));
+      while (directory != null & (exists(directory) != IFSReturnCodeRep.SUCCESS));
     } else
     {
      returnCode = IFSReturnCodeRep.DUPLICATE_DIR_ENTRY_NAME;
@@ -1287,7 +1382,7 @@ implements IFSFileImpl
       //}
 
       // Create the next directory.
-      returnCode = mkdir0(directory);
+      returnCode = mkdir(directory);
       if (returnCode != IFSReturnCodeRep.SUCCESS)
       {
         // Failed to create a directory.
@@ -1303,7 +1398,7 @@ implements IFSFileImpl
    Renames the integrated file system object specified by this object to have the path name of <i>file</i>.  Wildcards are not permitted in this file name.
    @param file The new file name.
    **/
-  public int renameTo0(IFSFileImpl file)
+  public int renameTo(IFSFileImpl file)
     throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -1363,7 +1458,7 @@ implements IFSFileImpl
       fd_.path_ = otherFile.getAbsolutePath();
 
       // Clear any cached attributes.
-      attributes_ = null;
+      attributesReply_ = null;
     }
 
     return returnCode;
@@ -1448,7 +1543,7 @@ implements IFSFileImpl
     }
 
     // Clear any cached attributes.
-    attributes_ = null;
+    attributesReply_ = null;
 
     return success;
   }
@@ -1567,7 +1662,7 @@ implements IFSFileImpl
           }
 
           // Clear any cached attributes.
-          attributes_ = null;
+          attributesReply_ = null;
 
        }
        else
@@ -1604,7 +1699,7 @@ implements IFSFileImpl
     {
       fd_.connect();
       // If we're setting timestamp to "current system time", we'll need to know how big the file is.
-      if (time == -1) fileIsEmpty = (length0()==0 ? true : false);  // @B8a
+      if (time == -1) fileIsEmpty = (length()==0 ? true : false);  // @B8a
 
     }
     catch (AS400SecurityException e)
@@ -1700,7 +1795,7 @@ implements IFSFileImpl
     }
 
     // Clear any cached attributes.
-    attributes_ = null;
+    attributesReply_ = null;
 
     return success;
   }
@@ -1734,7 +1829,7 @@ implements IFSFileImpl
     }
 
     // Clear any cached attributes.
-    attributes_ = null;
+    attributesReply_ = null;
 
     return fd_.setLength(length);
   }
@@ -1880,7 +1975,7 @@ implements IFSFileImpl
           }
 
           // Clear any cached attributes.
-          attributes_ = null;
+          attributesReply_ = null;
 
        }
        else
