@@ -2833,6 +2833,9 @@ Deletes the user.
         if (!isConnectionEstablished())
             establishConnection();
 
+        try //@B1M
+        {
+            fireBusy();
         // Remove the directory entry.
         StringBuffer buffer = new StringBuffer("RMVDIRE USRID(");
         //@B1D buffer.append(name_);
@@ -2844,38 +2847,41 @@ Deletes the user.
         if (desc == "") desc = "*FIRST"; //@B1A
         buffer.append(desc); //@B1A
         buffer.append(')'); //@B1A
-        try {
-            fireBusy();
             CommandCall rmvdire = new CommandCall(getSystem(), buffer.toString());
             if (rmvdire.run() == false)
                 throw new ResourceException(rmvdire.getMessageList());
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             if (Trace.isTraceOn())
                 Trace.log(Trace.ERROR, "Error when removing a directory entry", e);
             // Don't throw an exception here... maybe there is no directory entry.
         }
-        finally {
+        finally
+        {
             fireIdle();
         }
 
         // Delete the user profile.
-        buffer = new StringBuffer("DLTUSRPRF USRPRF(");
+        StringBuffer buffer = new StringBuffer("DLTUSRPRF USRPRF(");
         buffer.append(name_);
         buffer.append(')');
-        try {
+        try
+        {
             fireBusy();
             CommandCall dltusrprf = new CommandCall(getSystem(), buffer.toString());
             if (dltusrprf.run() == false)
                 throw new ResourceException(dltusrprf.getMessageList());
             fireResourceDeleted();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             if (Trace.isTraceOn())
                 Trace.log(Trace.ERROR, "Error when deleting a user profile", e);
             throw new ResourceException(e);
         }
-        finally {
+        finally
+        {
             fireIdle();
         }
 
@@ -2932,8 +2938,8 @@ when the connection needs to be established.
         String description = ""; //@B1A
         try //@B1A
         {
-          address = (String)attributeGetter_.getValue(USER_ID); //@B1A
-          userid = (String)attributeGetter_.getValue(USER_ADDRESS); //@B1A
+          address = (String)attributeGetter_.getValue(USER_ADDRESS); //@B1A
+          userid = (String)attributeGetter_.getValue(USER_ID); //@B1A
           description = (String)attributeGetter_.getValue(USER_DESCRIPTION); //@B1A
         }
         catch(Exception e) //@B1A
