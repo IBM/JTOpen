@@ -1170,7 +1170,7 @@ public class PTF
     {
       case 100:
         format = "PTFR0100";
-        len = 112; // Why isn't this 108? Hmm.
+        len = 200; // Updated length to prevent recursive loop. Was 112. (Old comment: Why isn't this 108? Hmm.)
         break;
       case 200:
         format = "PTFR0200";
