@@ -244,7 +244,7 @@ abstract public class FormInput extends HTMLTagAttributes implements java.io.Ser
     {
         //@C1D
 
-        if ((value_ != null) && (value_.length() > 0))
+	if (value_ != null)  //@C2C
         {
             if (Trace.isTraceOn())
                 Trace.log(Trace.DIAGNOSTIC, "   URL value needs Encoding: " + encode);
