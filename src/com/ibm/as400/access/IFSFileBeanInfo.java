@@ -90,7 +90,7 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
         new PropertyDescriptor("lastModified", beanClass, null,
                                "setLastModified");
       property11.setHidden(true);
-      
+
       PropertyDescriptor[] properties =
       {
         property1, property2, property3, property4, property5, property6,
@@ -126,7 +126,7 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
       throw new Error(e.toString());
     }
   }
-  
+
   /**
    Returns the bean descriptor.
    @return The bean descriptor.
@@ -136,14 +136,6 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
     return new BeanDescriptor(beanClass);
   }
 
-  /**
-   Returns the copyright.
-   @return The copyright String.
-   **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 
   /**
    Returns the default event index.
@@ -206,4 +198,4 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
   }
 
 }
-  
+

@@ -264,8 +264,10 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
   }
 
   /**
-   Returns the CCSID.
+   Returns the CCSID.  This is just the bean property, and does not
+   necessarily represent the file's actual original CCSID on the AS/400.
    @return The CCSID.
+   @see com.ibm.as400.access.IFSFile#getCCSID
    **/
   public int getCCSID()
   {
@@ -285,6 +287,10 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
 
   /**
    Sets the CCSID for the data written to the file.
+   <br>Note: This method is of limited usefulness, since it is invalid after
+   a connection has been opened to the file on the AS/400, and most of the
+   constructors for this class open a connection.  The preferred way to set
+   the CCSID of the file is via a constructor that has a "ccsid" argument.
    @param ccsid The target CCSID.
    @exception PropertyVetoException If the change is vetoed.
    **/

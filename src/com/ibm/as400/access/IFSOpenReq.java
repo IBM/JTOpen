@@ -33,6 +33,16 @@ class IFSOpenReq extends IFSDataStreamReq
   static final int NO_CONVERSION = 0;           // file data conv. opt.
   static final int CONVERT_TO_CLIENT_CCSID = 1; // file data conv. opt.
   static final int CONVERT_TO_SERVER_CCSID = 2; // file data conv. opt.
+
+                                                    // @D1a: add the following open options.
+                                                    //     IF FILE DOES NOT EXIST    |   IF FILE DOES EXIST
+                                                    // ----------------------------- |  ---------------------
+  static final int OPEN_OPTION_CREATE_OPEN    =  1; // create if file does not exist |  open existing file
+  static final int OPEN_OPTION_CREATE_REPLACE =  2; // create if file does not exist |  replace existing file
+  static final int OPEN_OPTION_CREATE_FAIL    =  4; // create if file does not exist |  fail if file exists
+  static final int OPEN_OPTION_FAIL_OPEN      =  8; // fail if file does not exist   |  open if file exists
+  static final int OPEN_OPTION_FAIL_REPLACE   = 16; // fail if file does not exist   |  replace if file exists
+
   private static final int FILE_NAME_CCSID_OFFSET = 22;
   private static final int WORKING_DIR_HANDLE_OFFSET = 24;
   private static final int FILE_DATA_CCSID_OFFSET = 28;
@@ -94,11 +104,6 @@ Construct an open file request.
     System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
   }
 
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 }
 
 

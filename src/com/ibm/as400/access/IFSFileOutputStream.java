@@ -117,7 +117,13 @@ public class IFSFileOutputStream extends OutputStream
                              String name)
     throws AS400SecurityException, IOException
   {
-    this(system, name, SHARE_ALL, false, -1);  // @A2C
+    // Validate arguments.        @C2a
+    if (system == null)
+      throw new NullPointerException("system");
+    if (name == null)
+      throw new NullPointerException("name");
+
+    myConstructor(system, name, SHARE_ALL, false, -1);   // @C2c
   }
 
 
@@ -164,7 +170,14 @@ public class IFSFileOutputStream extends OutputStream
                              boolean append)
     throws AS400SecurityException, IOException
   {
-    this(system, name, shareOption, append, -1);
+    // Validate arguments.             @C2a
+    if (system == null)
+      throw new NullPointerException("system");
+    if (name == null)
+      throw new NullPointerException("name");
+    IFSFileInputStream.validateShareOption(shareOption);
+
+    myConstructor(system, name, shareOption, append, -1);   // @C2c
   }
 
 
@@ -194,20 +207,14 @@ public class IFSFileOutputStream extends OutputStream
     // Validate arguments.
     if (system == null)
       throw new NullPointerException("system");
-    else if (name == null)
+    if (name == null)
       throw new NullPointerException("name");
     IFSFileInputStream.validateShareOption(shareOption);
+    if (ccsid < 0)   // @C2a
+      throw new ExtendedIllegalArgumentException("ccsid",
+                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
-    append_ = append;
-    ccsid_ = ccsid;
-    initializeTransient();
-
-    // Instantiate a file descriptor.
-    fd_ = new IFSFileDescriptor(system, name, shareOption, this);
-
-    // Connect to the AS400 byte stream server, and
-    // open the file.
-    connectAndOpen();
+    myConstructor(system, name, shareOption, append, ccsid);  // @C2c
   }
 
 
@@ -233,7 +240,14 @@ public class IFSFileOutputStream extends OutputStream
                              boolean append)
     throws AS400SecurityException, IOException
   {
-    this(system, file, shareOption, append, -1);
+    // Validate arguments.    @C2c
+    if (system == null)
+      throw new NullPointerException("system");
+    if (file == null)
+      throw new NullPointerException("file");
+    IFSFileInputStream.validateShareOption(shareOption);
+
+    myConstructor(system, file.getAbsolutePath(), shareOption, append, -1);  // @C2c
   }
 
 
@@ -264,9 +278,12 @@ public class IFSFileOutputStream extends OutputStream
     // Validate arguments.
     if (system == null)
       throw new NullPointerException("system");
-    else if (file == null)
+    if (file == null)
       throw new NullPointerException("file");
     IFSFileInputStream.validateShareOption(shareOption);
+    if (ccsid < 0)   // @C2a
+      throw new ExtendedIllegalArgumentException("ccsid",
+                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
     myConstructor(system, file.getAbsolutePath(), shareOption, append, ccsid);
   }
@@ -367,9 +384,12 @@ public class IFSFileOutputStream extends OutputStream
     // Validate arguments.
     if (system == null)
       throw new NullPointerException("system");
-    else if (file == null)
+    if (file == null)
       throw new NullPointerException("file");
     IFSFileInputStream.validateShareOption(shareOption);
+    if (ccsid < 0)   // @C2a
+      throw new ExtendedIllegalArgumentException("ccsid",
+                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
     myConstructor(system, file.getAbsolutePath().replace (file.separatorChar, IFSFile.separatorChar), shareOption, append, ccsid);
   }

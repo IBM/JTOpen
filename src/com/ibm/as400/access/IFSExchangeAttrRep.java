@@ -25,23 +25,12 @@ class IFSExchangeAttrRep extends IFSDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+  private static final int DATA_STREAM_LEVEL_OFFSET = 22; // @A1A
   private static final int MAX_DATA_BLOCK_OFFSET = 26;
   private static final int CCSID_LL_OFFSET = 30;
   private static final int CCSID_CP_OFFSET = 34;
   private static final int CCSID_OFFSET = 36;
 
-/**
-Construct an exchange attributes reply.
-**/
-  IFSExchangeAttrRep()
-  {
-  }
-
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 
 /**
 Generate a new instance of this type.
@@ -50,6 +39,15 @@ Generate a new instance of this type.
   public Object getNewDataStream()
   {
     return new IFSExchangeAttrRep();
+  }
+
+/**
+Get the highest data stream level supported by this server.
+@return the data stream level
+**/
+  int getDataStreamLevel()  // @A1A
+  {
+    return get16bit( DATA_STREAM_LEVEL_OFFSET);
   }
 
 /**
@@ -67,6 +65,23 @@ Get the server's preferred CCSID.
   int getPreferredCCSID()
   {
     return get16bit(CCSID_OFFSET);
+  }
+
+/**
+Get the server's preferred CCSIDs.  Used for debugging.
+**/
+  int[] getPreferredCCSIDs()  // @A1A
+  {
+    int llValue = get32bit(CCSID_LL_OFFSET);
+    int count = (llValue - 6) / 2;
+    int[] list = new int[count];
+    for (int i=0, offset=CCSID_OFFSET;
+         i<count;
+         i++, offset+=2)
+    {
+      list[i] = get16bit(offset);
+    }
+    return list;
   }
 
 /**

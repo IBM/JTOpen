@@ -34,24 +34,24 @@ implements IFSFileOutputStreamImpl
 
   private boolean append_ = false;
   private IFSFileDescriptorImplRemote fd_; // file info
-  private int maxDataBlockSize_ = 1024; // default
 
-  // Variables used by IFSTextFileOutputStream:
-  private OutputStreamWriter writer_;
-  private boolean recursing_ = false;
+  // Variables needed by subclass IFSTextFileOutputStream:
+  //transient private OutputStreamWriter writer_;    // @B4d
+  transient private ConverterImplRemote converter_;   // @B3a
+  //private boolean recursing_ = false;  // @B4d
+
+  // Used for debugging only.  This should always be false for production.
+  // When this is false, all debug code will theoretically compile out.
+  private static final boolean DEBUG = false;  // @B2A
 
   // Static initialization code.
   static
   {
     // Add all byte stream reply data streams of interest to the
     // AS400 server's reply data stream hash table.
-    AS400Server.addReplyStream(new IFSCloseRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSExchangeAttrRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSLockBytesRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSListAttrsRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSOpenRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSWriteRep(), AS400.FILE);
   }
 
   /**
@@ -62,6 +62,7 @@ implements IFSFileOutputStreamImpl
   public void close()
     throws IOException
   {
+/* @B4d
     // An IFSTextFileOutputStream can have a "writer" associated with it.
     // If a writer was instantiated, close it.
     if (writer_ != null)
@@ -91,185 +92,31 @@ implements IFSFileOutputStreamImpl
     }
     else
     {
+*/
       // Close the OutputStream.
-      close0();
+      //close0();    // @B4d
+      fd_.close0();  // @B4a
+/* @B4d
     }
+*/
   }
 
+/* B4d
   private void close0()
     throws IOException
   {
-    if (fd_.isOpen_)
-    {
-      // Close the file.  Send a close request to the server.
-      ClientAccessDataStream ds = null;
-      IFSCloseReq req = new IFSCloseReq(fd_.getFileHandle());
-      try
-      {
-        ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-      }
-      catch(ConnectionDroppedException e)
-      {
-        Trace.log(Trace.ERROR, "Byte stream connection lost during close", e);
-        connectionDropped(e);
-      }
-      catch(InterruptedException e)
-      {
-        fd_.setOpen(false);
-        Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
-      }
-
-      // Validate the reply.
-      if (ds instanceof IFSCloseRep)
-      {
-        int rc = ((IFSCloseRep) ds).getReturnCode();
-        if (rc != 0)
-        {
-          Trace.log(Trace.ERROR, "IFSCloseRep return code ", rc);
-          throw new ExtendedIOException(rc);
-        }
-      }
-      else if (ds instanceof IFSReturnCodeRep)
-      {
-        int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS)
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
-          throw new ExtendedIOException(rc);
-        }
-      }
-      else
-      {
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-      fd_.setOpen(false);
-    }
+    fd_.close0();  // @B2C
   }
-
-
-  /**
-   Establishes communications with the AS400.
-
-   @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
-   **/
-  private void connect()
-    throws AS400SecurityException, IOException
-  {
-    // Connect to the AS400 byte stream server if not already connected.
-    if (fd_.getServer() == null)
-    {
-      // Ensure that the system has been set.
-      AS400ImplRemote system = fd_.getSystem();
-      if (system == null)
-      {
-        throw new ExtendedIllegalStateException("system",
-                                 ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-
-      fd_.setServer(system.getConnection(AS400.FILE, false));
-
-      // Exchange attributes with the server.
-      exchangeServerAttributes();
-    }
-  }
+*/
 
   public void connectAndOpen(int ccsid)
     throws AS400SecurityException, IOException
   {
-    connect();
+    fd_.connect();
     if (ccsid == -1)
       open(fd_.getPreferredCCSID());
     else
       open(ccsid);
-  }
-
-  /**
-   Disconnects from the byte stream server.
-   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   **/
-  void connectionDropped(ConnectionDroppedException e)
-    throws ConnectionDroppedException
-  {
-    if (fd_.getServer() != null)
-    {
-      fd_.getSystem().disconnectServer(fd_.getServer());
-      fd_.setServer(null);
-      fd_.setOpen(false);
-    }
-    Trace.log(Trace.ERROR, "Byte stream connection lost.");
-    throw (ConnectionDroppedException)e.fillInStackTrace();
-  }
-
-
-  /**
-   Exchanges server attributes.
-   @exception IOException If an error occurs while communicating with the AS/400.
-   **/
-  private void exchangeServerAttributes()
-    throws IOException
-  {
-      AS400Server server = fd_.getServer();
-      synchronized (server)
-      {
-     IFSExchangeAttrRep rep =
-       (IFSExchangeAttrRep)server.getExchangeAttrReply();
-     if (rep == null)
-     {
-         try
-         {
-             // Use GMT date/time, don't use posix style return codes,
-             // use PC pattern matching semantics, maximum data transfer size
-             // of 0xffffffff, preferred CCSID of 0xf200.
-        rep = (IFSExchangeAttrRep)server.sendExchangeAttrRequest(new IFSExchangeAttrReq(true, false,
-                  IFSExchangeAttrReq.PC_PATTERN_MATCH,
-                  0xffffffff, 0xf200));
-         }
-         catch(ConnectionDroppedException e)
-         {
-        Trace.log(Trace.ERROR, "Byte stream server connection lost");
-        connectionDropped(e);
-         }
-         catch(InterruptedException e)
-         {
-        fd_.getSystem().disconnectServer(server);
-        fd_.setServer(null);
-        Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
-         }
-         catch(IOException e)
-         {
-        fd_.getSystem().disconnectServer(server);
-        fd_.setServer(null);
-        Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
-        throw (IOException)e.fillInStackTrace();
-         }
-     }
-
-          // Process the exchange attributes reply.
-     if (rep instanceof IFSExchangeAttrRep)
-     {
-         maxDataBlockSize_ = ((IFSExchangeAttrRep) rep).getMaxDataBlockSize();
-         int preferredCCSID = rep.getPreferredCCSID();
-         fd_.setPreferredCCSID(preferredCCSID);
-         fd_.setConverter(ConverterImplRemote.getConverter(preferredCCSID,
-                        fd_.getSystem()));
-     }
-     else
-     {
-              // Should never happen.
-         fd_.getSystem().disconnectServer(server);
-         fd_.setServer(null);
-         Trace.log(Trace.ERROR, "Unknown reply data stream ", rep.data_);
-         throw new
-      InternalErrorException(Integer.toHexString(rep.getReqRepID()),
-                   InternalErrorException.DATA_STREAM_UNKNOWN);
-     }
-      }
   }
 
 
@@ -281,27 +128,8 @@ implements IFSFileOutputStreamImpl
   protected void finalize()
     throws IOException
   {
-    if (fd_ != null && fd_.isOpen_)
-    {
-      // Close the file.  Send a close request to the server.
-      IFSCloseReq req = new IFSCloseReq(fd_.getFileHandle());
-      try
-      {
-        fd_.getServer().sendAndDiscardReply(req);
-      }
-      catch(IOException e)
-      {
-        throw (IOException)e.fillInStackTrace();
-      }
-      catch(Exception e)
-      {
-        Trace.log(Trace.ERROR, "Error during finalization.", e);
-      }
-      finally
-      {
-        fd_.setOpen(false);
-      }
-    }
+    if (fd_ != null)
+      fd_.finalize0();  // @B2C
 
     try
     {
@@ -321,6 +149,7 @@ implements IFSFileOutputStreamImpl
   public void flush()
     throws IOException
   {
+/* @B4d
     // An IFSTextFileOutputStream can have a "writer" associated with it.
     // If a writer was instantiated, flush it.
     if (writer_ != null)
@@ -349,54 +178,26 @@ implements IFSFileOutputStreamImpl
     }
     else
     {
+*/
       // Flush the OutputStream.
-      flush0();
+      //flush0();  // @B4d
+      open(fd_.getPreferredCCSID());  // @B4a
+      fd_.flush();  // @B4a
+/* @B4d
     }
+*/
   }
 
+/* @B4d
   private void flush0()
     throws IOException
   {
     // Ensure that the file is open.
     open(fd_.getPreferredCCSID());
 
-    // Request that changes be committed to disk.
-    IFSCommitReq req = new IFSCommitReq(fd_.getFileHandle());
-    ClientAccessDataStream ds = null;
-    try
-    {
-      ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost");
-      connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify that the request was successful.
-    if (ds instanceof IFSReturnCodeRep)
-    {
-      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (rc != IFSReturnCodeRep.SUCCESS)
-      {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
-        throw new ExtendedIOException(rc);
-      }
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
+    fd_.flush();  // @B2C
   }
+*/
 
 
   /**
@@ -418,60 +219,7 @@ implements IFSFileOutputStreamImpl
     // Ensure that the file is open.
     open(fd_.getPreferredCCSID());
 
-    // Attempt to lock the file.
-    ClientAccessDataStream ds = null;
-    try
-    {
-      // Issue a mandatory, exclusive lock bytes request.  Mandatory
-      // means that the file system enforces the lock by causing any
-      // operation which conflicts with the lock to fail.  Exclusive
-      // means that only the owner of the lock can read or write the
-      // locked area.
-      IFSLockBytesReq req =
-        new IFSLockBytesReq(fd_.getFileHandle(), true, false,
-                            fd_.getFileOffset(), length);
-      ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost");
-      connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify the reply.
-    if (ds instanceof IFSLockBytesRep)
-    {
-      int rc = ((IFSLockBytesRep) ds).getReturnCode();
-      if (rc != 0)
-      {
-        Trace.log(Trace.ERROR, "IFSLockBytesRep return code ", rc);
-        throw new ExtendedIOException(rc);
-      }
-    }
-    else if (ds instanceof IFSReturnCodeRep)
-    {
-      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
-      throw new ExtendedIOException(rc);
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
-
-    // Generate the key for this lock.
-    IFSKey key = new IFSKey(fd_.getFileHandle(), fd_.getFileOffset(), length, true);
-
-    return key;
+    return fd_.lock(length);  // @B2C
   }
 
 
@@ -507,7 +255,7 @@ implements IFSFileOutputStreamImpl
     // Ensure that we are connected to the byte stream server.
     try
     {
-      connect();
+      fd_.connect();
     }
     catch(AS400SecurityException e)
     {
@@ -538,7 +286,7 @@ implements IFSFileOutputStreamImpl
     catch(ConnectionDroppedException e)
     {
       Trace.log(Trace.ERROR, "Byte stream server connection lost");
-      connectionDropped(e);
+      fd_.connectionDropped(e);
     }
     catch(InterruptedException e)
     {
@@ -604,16 +352,7 @@ implements IFSFileOutputStreamImpl
     // Assume the argument has been validated by the public class.
 
     // Cast the argument to an xxxImplRemote.
-    try
-    {
-      fd_ = (IFSFileDescriptorImplRemote)fd;
-    }
-    catch (ClassCastException e)
-    {
-      Trace.log(Trace.ERROR, "Argument is not an instance of IFSFileDescriptorImplRemote", e);
-      throw new
-        InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
-    }
+    fd_ = IFSFileDescriptorImplRemote.castImplToImplRemote(fd);  // @B2C
   }
 
 
@@ -632,56 +371,10 @@ implements IFSFileOutputStreamImpl
   {
     // Assume the argument has been validated by the public class.
 
-    // Verify that this key is compatible with this file.
-    if (key.fileHandle_ != fd_.getFileHandle())
-    {
-      Trace.log(Trace.ERROR, "Attempt to use IFSKey on different file stream.");
-      throw new ExtendedIllegalArgumentException("key",
-                                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-
     // Ensure that the file is open.
     open(fd_.getPreferredCCSID());
 
-    // Attempt to unlock the file.
-    ClientAccessDataStream ds = null;
-    try
-    {
-      // Issue an unlock bytes request.
-      IFSUnlockBytesReq req =
-        new IFSUnlockBytesReq(key.fileHandle_, key.offset_,
-                              key.length_, key.isMandatory_);
-      ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost");
-      connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify the reply.
-    if (ds instanceof IFSReturnCodeRep)
-    {
-      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (rc != IFSReturnCodeRep.SUCCESS)
-      {
-        Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
-        throw new ExtendedIOException(rc);
-      }
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
+    fd_.unlock(key);  // @B2C
   }
 
 
@@ -704,6 +397,7 @@ implements IFSFileOutputStreamImpl
   /**
    Writes <i>data.length</i> bytes of data from the byte array <i>data</i>
    to this file output stream.
+   <br>This method is implemented to qualify this class as an OutputStream.
    @param data The data to be written.
 
    @exception IOException If an error occurs while communicating with the AS/400.
@@ -750,7 +444,7 @@ implements IFSFileOutputStreamImpl
       catch(ConnectionDroppedException e)
       {
         Trace.log(Trace.ERROR, "Byte stream server connection lost");
-        connectionDropped(e);
+        fd_.connectionDropped(e);
       }
       catch(InterruptedException e)
       {
@@ -785,89 +479,13 @@ implements IFSFileOutputStreamImpl
     }
     // @A4A (end of code block)
 
-    // Send write requests until all data has been written.
-    while(length > 0)
-    {
-      // Determine how much data can be written on this request.
-      int writeLength = (length > maxDataBlockSize_ ?
-                         maxDataBlockSize_ : length);
-
-      // Build the write request.  Set the chain bit if there is
-      // more data to write.
-      IFSWriteReq req = new IFSWriteReq(fileHandle, fd_.getFileOffset(),
-                                        data, dataOffset, writeLength,
-                                        0xffff);
-      if (length - writeLength > 0)
-      {
-        // Indicate that there is more to write.
-        req.setChainIndicator(1);
-      }
-
-      // Send the request.
-      ClientAccessDataStream ds = null;
-      try
-      {
-        // Send the request and receive the response.
-        ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-      }
-      catch(ConnectionDroppedException e)
-      {
-        Trace.log(Trace.ERROR, "Byte stream server connection lost");
-        connectionDropped(e);
-      }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
-      }
-
-      // Check the reply.
-      if (ds instanceof IFSWriteRep)
-      {
-        IFSWriteRep rep = (IFSWriteRep) ds;
-        int rc = rep.getReturnCode();
-        if (rc != 0)
-        {
-          throw new ExtendedIOException(rc);
-        }
-
-        // Advance the file pointer the length of the data
-        // written.
-        int lengthWritten = writeLength - rep.getLengthNotWritten();
-        fd_.incrementFileOffset(lengthWritten);
-        dataOffset += lengthWritten;
-        length -= lengthWritten;
-
-        // Ensure that all data requested was written.
-        if (lengthWritten != writeLength)
-        {
-          throw new ExtendedIOException(ExtendedIOException.UNKNOWN_ERROR);
-        }
-      }
-      else if (ds instanceof IFSReturnCodeRep)
-      {
-        int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS)
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ", rc);
-          throw new ExtendedIOException(rc);
-        }
-      }
-      else
-      {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-    }
+    fd_.writeBytes(data, dataOffset, length);  // @B2C
   }
 
 
   // Used by IFSTextFileOutputStream only:
   /**
-   Writes characters to this text file input stream.
+   Writes characters to this text file output stream.
    The characters that are written to the file are converted to the
    specified CCSID.  
    @param data The characters to write to the stream.
@@ -884,15 +502,17 @@ implements IFSFileOutputStreamImpl
     open(ccsid);
 
     // Create the OutputStreamWriter if we don't already have one.
-    if (writer_ == null)
+    //if (writer_ == null && converter_ == null)   // @B3c @B4d
+    if (converter_ == null)   // @B4c
     {
+      int fileCCSID = 0;  // @B2C - formerly codePage
+
       // Determine the file character encoding if the CCSID property
       // value has not been set.
       if (ccsid == -1)
       {
-        // Issue a Look Up request to obtain the OA2 structure, which
-        // contains the code page.
-        int codePage = 0;
+        // Issue a List File Attributes request to obtain the CCSID (or code page)
+        // of the file.
         try
         {
           ClientAccessDataStream ds = null;
@@ -908,16 +528,20 @@ implements IFSFileOutputStreamImpl
           ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
 
           boolean done = false;
-          boolean gotCodePage = false;
+          boolean gotCCSID = false;
           do
           {
             if (ds instanceof IFSListAttrsRep)
             {
-              if (gotCodePage)
+              if (gotCCSID)
                 Trace.log(Trace.DIAGNOSTIC, "Received multiple replies " +
                           "from ListAttributes request.");
-              codePage = ((IFSListAttrsRep) ds).getCodePage();
-              gotCodePage = true;
+              ((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDataStreamLevel_); // @B2A
+              fileCCSID = ((IFSListAttrsRep) ds).getCCSID();
+              if (DEBUG)
+                System.out.println("DEBUG: IFSFileOutputStreamImplRemote.writeText(): " +
+                                   "Reported CCSID for file is " + fileCCSID);  // @B2A
+              gotCCSID = true;
             }
             else if (ds instanceof IFSReturnCodeRep)
             {
@@ -952,7 +576,7 @@ implements IFSFileOutputStreamImpl
               catch(ConnectionDroppedException e)
               {
                 Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-                connectionDropped(e);
+                fd_.connectionDropped(e);
               }
               catch(InterruptedException e)
               {
@@ -963,16 +587,16 @@ implements IFSFileOutputStreamImpl
           }
           while (!done);
 
-          if (!gotCodePage || codePage == 0)
+          if (!gotCCSID || fileCCSID == 0)
           {
-            Trace.log(Trace.ERROR, "Unable to determine code page of file.");
+            Trace.log(Trace.ERROR, "Unable to determine CCSID of file " + fd_.path_);
             throw new ExtendedIOException(ExtendedIOException.UNKNOWN_ERROR);
           }
 
         }
         catch(ConnectionDroppedException e)
         {
-          connectionDropped(e);
+          fd_.connectionDropped(e);
         }
         catch(InterruptedException e)
         {
@@ -980,13 +604,15 @@ implements IFSFileOutputStreamImpl
           throw new InterruptedIOException(e.getMessage());
         }
 
-        // Convert the code page to CCSID.  
-        ccsid = codePage;
+        ccsid = fileCCSID;
       }
 
-      // Convert the CCSID to the encoding string. 
-      String encoding = ConversionMaps.ccsidToEncoding(ccsid == 0xf200 ?  //@B0C
-                                                         0x34b0 : ccsid);
+/*  @B4d
+
+      // Convert the CCSID to the encoding string.  
+//    String encoding = ConversionMaps.ccsidToEncoding(ccsid == 0xf200 ? //@D0C
+//                                                       0x34b0 : ccsid);//@B3d
+      String encoding = ConversionMaps.ccsidToEncoding(ccsid); // @B3c
 
       // If there is no encoding for this CCSID, throw an
       // UnsupportedEncodingException.
@@ -999,16 +625,44 @@ implements IFSFileOutputStreamImpl
       // Added code to check for 13488 because of a change made
       // in the ccsid to encoding mapping (in v3r2m0, 13488 is
       // mapped to "Unicode". Now, 13488 is mapped to 13488.)
-      if (encoding.equals("13488")) {  // @A1A
-        encoding = "Unicode";        // @A1A
-      }                                // @A1A
-
-      // Instantiate the OutputStreamWriter.
-      writer_ = new OutputStreamWriter(this, encoding);
+//    if (encoding.equals("13488")) {  // @A1A @B3d
+//      encoding = "Unicode";          // @A1A @B3d
+//    }                                // @A1A @B3d
+      if (ccsid == 13488 ||            // @A1A @B3c
+          ccsid == 61952)              // @B3a
+      {
+        // Note: This is to avoid the problem of the writer getting confused about
+        // a "missing byte-order mark" when dealing with Unicode streams.    @B3a
+*/
+        converter_ = ConverterImplRemote.getConverter(ccsid, fd_.getSystem()); //@B3a
+/* @B4d
+      }
+      else
+      {
+        // Instantiate the OutputStreamWriter.
+        writer_ = new OutputStreamWriter(this, encoding);
+      }
+*/
     }
 
     // Write the characters of the String.
-    writer_.write(data, 0, data.length());
+
+/* @B4d
+    if (writer_ != null)
+    {
+      writer_.write(data, 0, data.length());
+    }
+    else if (converter_ != null)  //@B3a
+    {
+*/
+      this.write(converter_.stringToByteArray(data));  //@B3a
+/* @B4d
+    }
+    else
+    {
+      Trace.log(Trace.DIAGNOSTIC, "Neither the writer nor the converter got set.");
+    }
+*/
   }
 
 }

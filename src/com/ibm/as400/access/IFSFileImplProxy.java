@@ -54,6 +54,31 @@ implements IFSFileImpl
     }
   }
 
+  // @D3 created0 is a new method
+  public long created0()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethod (pxId_, "created0").getReturnValueLong();
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+  public int createNewFile()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethodReturnsInt (pxId_, "createNewFile");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+
+
   public int delete0()
     throws IOException, AS400SecurityException
   {
@@ -65,17 +90,27 @@ implements IFSFileImpl
     }
   }
 
-  public int exists0(String name)
+  public int exists0()
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "exists0",
-                                     new Class[] { String.class },
-                                     new Object[] { name })
+      return connection_.callMethod (pxId_, "exists0")
                         .getReturnValueInt();
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
+    }
+  }
+
+  // @A3a
+  public int getCCSID()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethod (pxId_, "getCCSID").getReturnValueInt();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
     }
   }
 
@@ -84,6 +119,19 @@ implements IFSFileImpl
   {
     try {
       return connection_.callMethod (pxId_, "getFreeSpace").getReturnValueLong();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+  // @B5a
+  public String getSubtype()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return (String)connection_.callMethod (pxId_, "getSubtype")
+                                .getReturnValue();
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -106,6 +154,42 @@ implements IFSFileImpl
   {
     try {
       return connection_.callMethodReturnsInt (pxId_, "isFile0");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  public boolean isHidden()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethodReturnsBoolean (pxId_, "isHidden");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  public boolean isReadOnly()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethodReturnsBoolean (pxId_, "isReadOnly");
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+  // @D3 lastAccessed0 is a new method
+  public long lastAccessed0()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethod (pxId_, "lastAccessed0").getReturnValueLong();
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -151,6 +235,23 @@ implements IFSFileImpl
     }
   }
 
+  // @A2A
+  // List the file/directory details in the specified directory.
+  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+                                                    int maxGetCount,            // @D4A
+                                                    String restartName)         // @D4A
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
+                              new Class[] { String.class, Integer.TYPE, String.class },     // @D4C
+                              new Object[] { directoryPath, new Integer(maxGetCount), restartName })    // @D4C
+        .getReturnValue();
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
 
   public int mkdir0(String directory)
     throws IOException, AS400SecurityException
@@ -204,6 +305,36 @@ implements IFSFileImpl
       return ProxyClientConnection.rethrow (e);
   }
 
+   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  public boolean setFixedAttributes(int attributes)
+    throws IOException
+  {
+    try {
+      return connection_.callMethod (pxId_, "setFixedAttributes",
+                                     new Class[] { Integer.TYPE },
+                                     new Object[] { new Integer(attributes) })
+        .getReturnValueBoolean();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  public boolean setHidden(boolean attribute)
+    throws IOException
+  {
+    try {
+      return connection_.callMethod (pxId_, "setHidden",
+                                     new Class[] { Boolean.TYPE },
+                                     new Object[] { new Boolean(attribute) })
+        .getReturnValueBoolean();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
   public boolean setLastModified(long time)
     throws IOException
   {
@@ -211,6 +342,21 @@ implements IFSFileImpl
       return connection_.callMethod (pxId_, "setLastModified",
                                      new Class[] { Long.TYPE },
                                      new Object[] { new Long(time) })
+        .getReturnValueBoolean();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+   // @D1 - method is new for V5R1 because of changes to java.io.file in Java 2.
+  public boolean setReadOnly(boolean attribute)
+    throws IOException
+  {
+    try {
+      return connection_.callMethod (pxId_, "setReadOnly",
+                                     new Class[] { Boolean.TYPE },
+                                     new Object[] { new Boolean(attribute) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
