@@ -172,6 +172,10 @@ public final class AS400
 
 
 
+    /**
+     *  When the garbage collector calls finalize(), this
+     *  method will call disconnect() on the AS400 object.
+     **/
     protected void finalize()
     {
         disconnect();
