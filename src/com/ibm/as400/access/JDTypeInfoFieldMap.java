@@ -50,6 +50,15 @@ implements JDFieldMap
         return SQLDataFactory.newData(typeName, length, precision, scale, null, vrm_, properties_); // @M0C - added vrm and properties
     }
 
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
+
     public boolean isNull(JDRow row)
     throws SQLException
     {

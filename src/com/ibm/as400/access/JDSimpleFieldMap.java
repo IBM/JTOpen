@@ -30,42 +30,33 @@ need to map it to the 5th column.
 class JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private int                 fromIndex_;
-
-
 
     JDSimpleFieldMap (int fromIndex)
     {
         fromIndex_ = fromIndex;
     }
 
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return row.getSQLData (fromIndex_).getObject ();
     }
 
-
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return row.isDataMappingError(fromIndex_);
+    }
 
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return row.isNull (fromIndex_);
     }
-
-
 }

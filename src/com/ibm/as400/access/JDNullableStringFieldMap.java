@@ -25,7 +25,7 @@ class JDNullableStringFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -36,25 +36,14 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-/**
-    Returns the nullable indicator in JDBC format.
-**/
+    /**
+        Returns the nullable indicator in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets data from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets data from correct column
+        // using fromIndex
 
         // if serverData == "Y", return YES
         //               == "N", return NO
@@ -62,28 +51,36 @@ implements JDFieldMap
         String serverDataAsString = serverData.toString ();
         String result;
 
-        if (serverDataAsString.length() > 0)
+        if(serverDataAsString.length() > 0)
         {
-            switch (serverDataAsString.charAt (0))
+            switch(serverDataAsString.charAt (0))
             {
-            case 'N':
-                return "NO";
-            case 'Y':
-                return "YES";
-            default:
-                return  "";
+                case 'N':
+                    return "NO";
+                case 'Y':
+                    return "YES";
+                default:
+                    return  "";
             }
         }
         else
             return "";
     }
 
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
 
-/**
-   Indicates if value is null.
-**/
+    /**
+       Indicates if value is null.
+    **/
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

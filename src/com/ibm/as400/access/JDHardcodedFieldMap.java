@@ -30,6 +30,7 @@ implements JDFieldMap
 
     private Object hardcodedValue_;
     private boolean hardcodedNull_;
+    private boolean hardcodedDataMappingError_;
 
 
 
@@ -37,27 +38,17 @@ implements JDFieldMap
     {
         hardcodedValue_ = hardcodedValue;
         hardcodedNull_  = false;
+        hardcodedDataMappingError_ = false;
     }
 
 
     // Use this to hard code null
-    JDHardcodedFieldMap (Object hardcodedValue, boolean hardcodedNull)
+    JDHardcodedFieldMap (Object hardcodedValue, boolean hardcodedNull, boolean hardcodedDataMappingError)
     {
         hardcodedValue_ = hardcodedValue;
         hardcodedNull_  = hardcodedNull;
+        hardcodedDataMappingError_ = hardcodedDataMappingError;
     }
-
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
 
     public Object getValue (JDRow row)
         throws SQLException
@@ -65,7 +56,14 @@ Copyright.
         return hardcodedValue_;
     }
 
-
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return hardcodedDataMappingError_;
+    }
 
     public boolean isNull (JDRow row)
         throws SQLException

@@ -22,9 +22,9 @@ implements JDFieldMap
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     JDCharOctetLengthFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
-                              int scaleIndex, int vrm, JDProperties properties)     // @M0C - added vrm and properties
+                              int scaleIndex, int vrm, JDProperties properties)    // @M0C - added vrm and properties
     {
-        super(typeIndex, lengthIndex, precisionIndex, scaleIndex, vrm, properties);  // @M0C
+        super(typeIndex, lengthIndex, precisionIndex, scaleIndex, vrm, properties);    // @M0C
     }
 
     /**
@@ -38,6 +38,15 @@ implements JDFieldMap
             return new Integer(data.getPrecision());
         else
             return new Integer(-1);
+    }
+
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
     }
 
     /**

@@ -37,6 +37,15 @@ implements JDFieldMap
     }
 
     /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
+
+    /**
         Indicates if the value is null.
     **/
     public boolean isNull(JDRow row)

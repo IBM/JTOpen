@@ -25,7 +25,7 @@ class JDParameterModeFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     // fromIndex is the index of the data received from server.
@@ -34,25 +34,14 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-/**
-   Returns the parameter mode in JDBC format.
-**/
+    /**
+       Returns the parameter mode in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets data from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets data from correct column
+        // using fromIndex
 
         // if serverData == "IN", set to procedureColumnIn
         //               == "OUT", set to procedureColumnOut
@@ -69,21 +58,30 @@ implements JDFieldMap
         String serverDataAsString = serverData.toString ();
         int result;
 
-        if (serverDataAsString.equalsIgnoreCase("IN"))
+        if(serverDataAsString.equalsIgnoreCase("IN"))
             return new Short ((short) DatabaseMetaData.procedureColumnIn);
-        else if (serverDataAsString.equalsIgnoreCase("OUT"))
-	        return new Short ((short) DatabaseMetaData.procedureColumnOut);
-	    else if (serverDataAsString.equalsIgnoreCase("INOUT"))
-	        return new Short ((short) DatabaseMetaData.procedureColumnInOut);
-	    else
-	        return new Short ((short) DatabaseMetaData.procedureColumnUnknown);
+        else if(serverDataAsString.equalsIgnoreCase("OUT"))
+            return new Short ((short) DatabaseMetaData.procedureColumnOut);
+        else if(serverDataAsString.equalsIgnoreCase("INOUT"))
+            return new Short ((short) DatabaseMetaData.procedureColumnInOut);
+        else
+            return new Short ((short) DatabaseMetaData.procedureColumnUnknown);
     }
 
-/**
-   Indicates if value is null.
-**/
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
+
+    /**
+       Indicates if value is null.
+    **/
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

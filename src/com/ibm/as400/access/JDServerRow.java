@@ -25,7 +25,7 @@ directly from a datastream to or from the server.
 class JDServerRow
 implements JDRow
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -36,7 +36,7 @@ implements JDRow
     private int[]                   dataLength_;
     private int[]                   dataOffset_;
     private String[]                fieldNames_;
-    private int[]                   lobLocatorHandles_;       // @C2A
+    private int[]                   lobLocatorHandles_;    // @C2A
     private int[]                   precisions_;
     private byte[]                  rawBytes_;
     private int                     rowDataOffset_;
@@ -156,7 +156,7 @@ implements JDRow
         try
         {
             int count;
-            if (serverFormat_ == null)
+            if(serverFormat_ == null)
                 count = 0;
             else
                 count = serverFormat_.getNumberOfFields ();
@@ -165,7 +165,7 @@ implements JDRow
             dataLength_ = new int[count];
             dataOffset_ = new int[count];
             fieldNames_ = new String[count];
-            lobLocatorHandles_= new int[count];       // @C2A
+            lobLocatorHandles_= new int[count];    // @C2A
             precisions_ = new int[count];
             scales_     = new int[count];
             sqlData_    = new SQLData[count];
@@ -174,33 +174,33 @@ implements JDRow
 
             // Compute the offsets, lengths, and SQL data for
             // each field.
-            if (count > 0)
+            if(count > 0)
             {
                 int offset = 0;
                 boolean translateBinary = connection.getProperties().getBoolean (JDProperties.TRANSLATE_BINARY);
-                for (int i = 0; i < count; ++i)
+                for(int i = 0; i < count; ++i)
                 {
                     ccsids_[i] = serverFormat_.getFieldCCSID (i);
                     dataOffset_[i] = offset;
                     dataLength_[i] = serverFormat_.getFieldLength (i);
-                    lobLocatorHandles_[i] = serverFormat_.getFieldLOBLocator (i);       // @C2C                    
+                    lobLocatorHandles_[i] = serverFormat_.getFieldLOBLocator (i);    // @C2C                    
                     offset += dataLength_[i];
                     scales_[i] = serverFormat_.getFieldScale (i);
                     precisions_[i] = serverFormat_.getFieldPrecision (i);
                     sqlTypes_[i] = serverFormat_.getFieldSQLType (i);
-                    int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);              // @C2C
+                    int maxLobSize = serverFormat_.getFieldLOBMaxSize (i);    // @C2C
 
                     sqlData_[i] = SQLDataFactory.newData (connection, id,
                                                           sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
                                                           scales_[i], ccsids_[i], translateBinary, settings,
-                                                          maxLobSize, (i+1));     //@F1C                                               // @C2C
+                                                          maxLobSize, (i+1));    //@F1C                                               // @C2C
                     // @E2D // SQLDataFactory never returns null.
                     // @E2D if (sqlData_[i] == null)
                     // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
                 }
             }
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
@@ -225,7 +225,7 @@ implements JDRow
         {
             rawBytes_   = serverData_.getRawBytes ();
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
@@ -247,18 +247,18 @@ implements JDRow
 
         try
         {
-            if (serverData_ != null)
+            if(serverData_ != null)
                 rowDataOffset_ = serverData_.getRowDataOffset (rowIndex_);
             else
                 rowDataOffset_ = -1;
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
 
         // Reset so that data gets retranslated.
-        for (int i = 0; i < translated_.length; ++i)
+        for(int i = 0; i < translated_.length; ++i)
             translated_[i] = false;
     }
 
@@ -275,14 +275,14 @@ implements JDRow
     public int findField (String name)
     throws SQLException
     {       
-        if(name.indexOf("\"") >= 0)                                //@D6a
+        if(name.indexOf("\"") >= 0)    //@D6a
         {
-            name = name.replace('"', ' ').trim();                  //@D6a
+            name = name.replace('"', ' ').trim();    //@D6a
             for(int i=1; i<=sqlData_.length; ++i)
-                if (name.equals(getFieldName(i)))                  //@D6c (used to be equalsIgnoreCase)
+                if(name.equals(getFieldName(i)))    //@D6c (used to be equalsIgnoreCase)
                     return i;
         }
-        else                                                       //@D6a
+        else    //@D6a
         {
             // name = name.toUpperCase();                          //@D6a
             for(int i = 1; i <= sqlData_.length; ++i)
@@ -303,11 +303,11 @@ implements JDRow
 
 
 
-    public int getFieldLOBLocatorHandle (int index)         // @C2A
-    throws SQLException                                 // @C2A
-    {                                                       // @C2A
-        return lobLocatorHandles_[index-1];                 // @C2A
-    }                                                       // @C2A
+    public int getFieldLOBLocatorHandle (int index)    // @C2A
+    throws SQLException    // @C2A
+    {    // @C2A
+        return lobLocatorHandles_[index-1];    // @C2A
+    }    // @C2A
 
 
 
@@ -324,12 +324,12 @@ implements JDRow
             // Cache the field names so we only translate them once.
             //
             int index0 = index-1;
-            if (fieldNames_[index0] == null)
+            if(fieldNames_[index0] == null)
                 fieldNames_[index0] = serverFormat_.getFieldName (index0,
                                                                   connection_.getConverter (serverFormat_.getFieldNameCCSID (index0))).trim();
             return fieldNames_[index0];
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return null;
@@ -368,7 +368,7 @@ implements JDRow
             // this gets called, specifically in the case
             // where result set meta data methods get called
             // before fetching data.)
-            if ((rowIndex_ >= 0) && (translated_[index0] == false))
+            if((rowIndex_ >= 0) && (translated_[index0] == false))
             {
 
                 // @E1D // The CCSID returned in the data format is not
@@ -392,10 +392,10 @@ implements JDRow
                 // @E1D }
 
                 // Use the CCSID returned in the data format.                                       // @E1A
-                ConvTable ccsidConverter = connection_.getConverter(ccsids_[index0]);     // @E1A @P0C
+                ConvTable ccsidConverter = connection_.getConverter(ccsids_[index0]);    // @E1A @P0C
 
                 // If there are bytes, then do a translation.
-                if (rawBytes_ != null)
+                if(rawBytes_ != null)
                 {
                     sqlData_[index0].convertFromRawBytes (rawBytes_,
                                                           rowDataOffset_ + dataOffset_[index0],
@@ -407,7 +407,7 @@ implements JDRow
 
             return sqlData_[index0];
         }
-        catch (ArrayIndexOutOfBoundsException e)
+        catch(ArrayIndexOutOfBoundsException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return null;
@@ -422,7 +422,30 @@ implements JDRow
         return sqlData_[index - 1];
     }
 
-
+    /**
+    Is there a data mapping error for the field?
+    
+    @param      index   The field index (1-based).
+    @return             true or false
+    
+    @exception  SQLException    If an error occurs.
+    **/
+    public boolean isDataMappingError(int index)
+    throws SQLException
+    {
+        try
+        {
+            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, index - 1) == -2))
+                return true;
+            else
+                return false;
+        }
+        catch(DBDataStreamException e)
+        {
+            JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
+            return false;
+        }
+    }
 
     /**
     Is the field value SQL NULL?
@@ -432,19 +455,19 @@ implements JDRow
     
     @exception  SQLException    If an error occurs.
     **/
-    public boolean isNull (int index)
+    public boolean isNull(int index)
     throws SQLException
     {
         try
         {
-            if (serverData_ != null)
-                return(serverData_.getIndicator (rowIndex_, index - 1) != 0);
+            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, index - 1) == -1))
+                return true;
             else
                 return false;
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
+            JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return false;
         }
     }
@@ -464,16 +487,17 @@ implements JDRow
     {
         //@F2 Add try/catch block to this method.
         try
-        {                                                                         //@F2A
+        {    //@F2A
             return(((sqlTypes_[index-1] & 0x0001) != 0) 
                    ? ResultSetMetaData.columnNullable
                    : ResultSetMetaData.columnNoNulls);
         }
-        catch (ArrayIndexOutOfBoundsException e)                                  //@F2A
-        {                                                                         //@F2A
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);  //@F2A
-            return 0;                                                             //@F2A
-        }                                                                         //@F2A
+        catch(ArrayIndexOutOfBoundsException e)    //@F2A
+        {
+            //@F2A
+            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);    //@F2A
+            return 0;    //@F2A
+        }    //@F2A
     }
 
 
@@ -526,7 +550,7 @@ implements JDRow
         {
             return serverFormat_.getRecordSize();
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
             return -1;
@@ -552,7 +576,7 @@ implements JDRow
         {
             parameterType = serverFormat_.getFieldParameterType (index - 1);
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
         }
@@ -580,7 +604,7 @@ implements JDRow
         {
             parameterType = serverFormat_.getFieldParameterType (index - 1);
         }
-        catch (DBDataStreamException e)
+        catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
         }

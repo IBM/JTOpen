@@ -25,7 +25,7 @@ class JDTableTypeFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -40,50 +40,47 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-/**
-   Returns the table type in JDBC format.
-**/
+    /**
+       Returns the table type in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         Object serverData = super.getValue (row);
         String serverDataAsString = serverData.toString ();
         String result;
 
-        if (serverDataAsString.length () > 0)
+        if(serverDataAsString.length () > 0)
         {
-            switch (serverData.toString ().charAt (0))
+            switch(serverData.toString ().charAt (0))
             {
-            case 'T':
-            default:
-                return TABLE_TYPE_TABLE;
-            case 'V':
-                return TABLE_TYPE_VIEW;
-            case 'S':
-                return TABLE_TYPE_SYSTEM_TABLE;
+                case 'T':
+                default:
+                    return TABLE_TYPE_TABLE;
+                case 'V':
+                    return TABLE_TYPE_VIEW;
+                case 'S':
+                    return TABLE_TYPE_SYSTEM_TABLE;
             }
         }
         else
             return TABLE_TYPE_TABLE;
     }
 
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
 
-/**
-   Indicates if the value is null.
-**/
+    /**
+       Indicates if the value is null.
+    **/
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

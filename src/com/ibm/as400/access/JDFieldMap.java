@@ -27,29 +27,39 @@ interface JDFieldMap
 
 
 
-/**
-Returns the value for a field.
-
-@param   row        The row from which to map.
-@return             The value.
-
-@exception       SQLException   If an error occurs.
-**/
+    /**
+    Returns the value for a field.
+    
+    @param   row        The row from which to map.
+    @return             The value.
+    
+    @exception       SQLException   If an error occurs.
+    **/
     public abstract Object getValue (JDRow row)
-        throws SQLException;
+    throws SQLException;
+
+    /**
+    Is there a data mapping error for the field?
+    
+    @param      row     The row from which to map.
+    @return             true or false
+    
+    @exception  SQLException    If an error occurs.
+    **/
+    public abstract boolean isDataMappingError(JDRow row)
+    throws SQLException;
 
 
-
-/**
-Is this field value SQL NULL?
-
-@param   row     The row from which to map.
-@return          true or false
-
-@exception       SQLException   If an error occurs.
-**/
+    /**
+    Is this field value SQL NULL?
+    
+    @param   row     The row from which to map.
+    @return          true or false
+    
+    @exception       SQLException   If an error occurs.
+    **/
     public abstract boolean isNull (JDRow row)
-        throws SQLException;
+    throws SQLException;
 
 
 }

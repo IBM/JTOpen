@@ -24,27 +24,24 @@ import java.sql.DatabaseMetaData;
    required for JDBC.
 **/
 
-   //-------------------------------------------------//
-   //   JDBC supports:
-   //     procedureResultUnknown
-   //     procedureNoResult
-   //     procedureReturnsResult
-   //
-   //
-   //    if 0 from server = procedureNoResult
-   //    if >0 from server = procedureReturnsResult
-   //    if any other value =  procedureResultUnknown
-   //
-   //-------------------------------------------------//
+//-------------------------------------------------//
+//   JDBC supports:
+//     procedureResultUnknown
+//     procedureNoResult
+//     procedureReturnsResult
+//
+//
+//    if 0 from server = procedureNoResult
+//    if >0 from server = procedureReturnsResult
+//    if any other value =  procedureResultUnknown
+//
+//-------------------------------------------------//
 
 class JDProcTypeFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // fromIndex is the index of the data received from server.
     JDProcTypeFieldMap (int fromIndex)
@@ -52,38 +49,23 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-/**
-   Returns the procedure type in JDBC format.
-**/
+    /**
+       Returns the procedure type in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets data from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets data from correct column
+        // using fromIndex
 
         int result;
         int serverDataAsInt = ((Number) serverData).intValue ();
 
-        if (serverDataAsInt == 0)
+        if(serverDataAsInt == 0)
             return new Short ((short) DatabaseMetaData.procedureNoResult);
-        else if (serverDataAsInt >= 0)
+        else if(serverDataAsInt >= 0)
             return new Short ((short) DatabaseMetaData.procedureReturnsResult);
         else
             return new Short ((short) DatabaseMetaData.procedureResultUnknown);
     }
-
-
-
-
 }

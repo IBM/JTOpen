@@ -49,7 +49,7 @@ class JDPrivilegeFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     JDPrivilegeFieldMap (int fromIndex)
     {
@@ -58,23 +58,23 @@ implements JDFieldMap
 
 
 
-/**
-   Returns the copyright.
-**/
+    /**
+       Returns the copyright.
+    **/
     static private String getCopyright ()
     {
         return Copyright.copyright;
     }
 
 
-/**
-   Returns the privileges in JDBC format.
-**/
+    /**
+       Returns the privileges in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets it from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets it from correct column
+        // using fromIndex
 
         StringBuffer privileges = new StringBuffer ("");
 
@@ -83,23 +83,32 @@ implements JDFieldMap
         // Send back the appropriate String for authority
         // we now have 2 bytes
         // I only care about bytes 4-7 of byte 1
-        if ((privilegeBytes[0] & 0x08) != 0)  // Read authority
-	        privileges.append ("READ ");
-        if ((privilegeBytes[0] & 0x04) != 0)  // Add authority
-	        privileges.append ("ADD ");
-        if ((privilegeBytes[0] & 0x02) != 0) // Delete authority
-	        privileges.append ("DELETE ");
-        if ((privilegeBytes[0] & 0x01) != 0) // Update authority
-	        privileges.append ("UPDATE ");
+        if((privilegeBytes[0] & 0x08) != 0)    // Read authority
+            privileges.append ("READ ");
+        if((privilegeBytes[0] & 0x04) != 0)    // Add authority
+            privileges.append ("ADD ");
+        if((privilegeBytes[0] & 0x02) != 0)    // Delete authority
+            privileges.append ("DELETE ");
+        if((privilegeBytes[0] & 0x01) != 0)    // Update authority
+            privileges.append ("UPDATE ");
 
         return privileges.toString();
     }
 
-/**
-    Indicates if value is null.
-**/
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
+
+    /**
+        Indicates if value is null.
+    **/
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

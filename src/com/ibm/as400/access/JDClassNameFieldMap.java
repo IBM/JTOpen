@@ -49,6 +49,15 @@ implements JDFieldMap
             return "";
     }
 
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
+
     public boolean isNull (JDRow row)
     throws SQLException
     {

@@ -16,8 +16,6 @@ package com.ibm.as400.access;
 import java.sql.SQLException;
 import java.util.Vector;
 
-
-
 /**
 The JDSimpleRowCache class implements a set of rows that
 is contained completely on the client, without regard to
@@ -26,51 +24,48 @@ where they were generated.
 class JDSimpleRowCache
 implements JDRowCache
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // Private data.
     private int         index_;
     private JDSimpleRow row_;
     private Object[][]  data_;
     private boolean[][] nulls_;
+    private boolean[][] dataMappingErrors_;
     private boolean     valid_;
 
-
-
-/**
-Constructs a JDSimpleRowCache object.  This is intended for
-empty results, i.e., a cache with no data.
-
-@param  formatRow   The row describing the format.
-**/
-    JDSimpleRowCache (JDSimpleRow formatRow)
+    /**
+    Constructs a JDSimpleRowCache object.  This is intended for
+    empty results, i.e., a cache with no data.
+    
+    @param  formatRow   The row describing the format.
+    **/
+    JDSimpleRowCache(JDSimpleRow formatRow)
     {
         index_      = -1;
         valid_      = false;
         row_        = formatRow;
 
-        int fieldCount = row_.getFieldCount ();
+        int fieldCount = row_.getFieldCount();
 
         data_       = new Object[0][fieldCount];
         nulls_      = new boolean[0][fieldCount];
+        dataMappingErrors_ = new boolean[0][fieldCount];
     }
 
-
-
-/**
-Constructs a JDSimpleRowCache object.  This is intended for
-SQL data generated entirely on the client.
-
-@param  formatRow   The row describing the format.
-@param  data        The data generated on the client.
-@param  nulls       The nulls corresponding to the data.
-**/
-    JDSimpleRowCache (JDSimpleRow formatRow,
-                      Object[][] data,
-                      boolean[][] nulls)
+    /**
+    Constructs a JDSimpleRowCache object.  This is intended for
+    SQL data generated entirely on the client.
+    
+    @param  formatRow   The row describing the format.
+    @param  data        The data generated on the client.
+    @param  nulls       The nulls corresponding to the data.
+    @param  dataMappingErrors The data mapping errors corresponding to the data.
+    **/
+    JDSimpleRowCache(JDSimpleRow formatRow,
+                     Object[][] data,
+                     boolean[][] nulls,
+                     boolean[][] dataMappingErrors)
     {
         index_      = -1;
         valid_      = false;
@@ -78,19 +73,17 @@ SQL data generated entirely on the client.
 
         data_       = data;
         nulls_      = nulls;
+        dataMappingErrors_ = dataMappingErrors;
     }
 
-
-
-/**
-Constructs a JDSimpleRowCache object.  This is intended for
-SQL data generated entirely on the client.
-
-@param  formatRow   The row describing the format.
-@param  data        The data generated on the client.
-**/
-    JDSimpleRowCache (JDSimpleRow formatRow,
-                      Object[][] data)
+    /**
+    Constructs a JDSimpleRowCache object.  This is intended for
+    SQL data generated entirely on the client.
+    
+    @param  formatRow   The row describing the format.
+    @param  data        The data generated on the client.
+    **/
+    JDSimpleRowCache(JDSimpleRow formatRow, Object[][] data)
     {
         index_      = -1;
         valid_      = false;
@@ -98,158 +91,153 @@ SQL data generated entirely on the client.
 
         data_       = data;
         nulls_      = new boolean[data.length][data[0].length];
+        dataMappingErrors_ = new boolean[data.length][data[0].length];
     }
 
-
-
-/**
-Constructs a JDSimpleRowCache object.  This is intended for
-data to be fully cached based on another row cache (most likely
-one from the server).
-
-@param  otherRowCache   The other row cache.
-
-@exception  SQLException    If an error occurs.
-**/
-    JDSimpleRowCache (JDRowCache otherRowCache)
-        throws SQLException
+    /**
+    Constructs a JDSimpleRowCache object.  This is intended for
+    data to be fully cached based on another row cache (most likely
+    one from the server).
+    
+    @param  otherRowCache   The other row cache.
+    
+    @exception  SQLException    If an error occurs.
+    **/
+    JDSimpleRowCache(JDRowCache otherRowCache)
+    throws SQLException
     {
-        Vector tempData = new Vector ();
-        Vector tempNulls = new Vector ();
-        JDRow otherRow = otherRowCache.getRow ();
-        int fieldCount = otherRow.getFieldCount ();
+        Vector tempData = new Vector();
+        Vector tempNulls = new Vector();
+        Vector tempDataMappingErrors = new Vector();
+
+        JDRow otherRow = otherRowCache.getRow();
+        int fieldCount = otherRow.getFieldCount();
         int rowCount = 0;
 
-        row_ = new JDSimpleRow (otherRow, false);
+        row_ = new JDSimpleRow(otherRow, false);
 
-        otherRowCache.open ();
-        otherRowCache.next ();
-        while (otherRowCache.isValid ()) {
+        otherRowCache.open();
+        otherRowCache.next();
+        while(otherRowCache.isValid())
+        {
             Object[] rowOfData = new Object[fieldCount];
-            for (int i = 1; i <= fieldCount; ++i)
-                rowOfData[i-1] = otherRow.getSQLData (i).getObject ();
-            tempData.addElement (rowOfData);
-
             boolean[] rowOfNulls = new boolean[fieldCount];
-            for (int i = 1; i <= fieldCount; ++i)
-                rowOfNulls[i-1] = otherRow.isNull (i);
-            tempNulls.addElement (rowOfNulls);
+            boolean[] rowOfDataMappingErrors = new boolean[fieldCount];
+
+            for(int i = 1; i <= fieldCount; ++i)
+            {
+                rowOfData[i-1] = otherRow.getSQLData(i).getObject();
+                rowOfNulls[i-1] = otherRow.isNull(i);
+                rowOfDataMappingErrors[i-1] = otherRow.isDataMappingError(i);
+            }
+
+            tempData.addElement(rowOfData);
+            tempNulls.addElement(rowOfNulls);
+            tempDataMappingErrors.addElement(rowOfDataMappingErrors);
 
             ++rowCount;
-            otherRowCache.next ();
+            otherRowCache.next();
         }
 
         index_      = -1;
         data_       = new Object[rowCount][fieldCount];
         nulls_      = new boolean[rowCount][fieldCount];
+        dataMappingErrors_ = new boolean[rowCount][fieldCount];
         valid_      = false;
 
-        for (int i = 0; i < rowCount; ++i) {
-            data_[i] = (Object[]) tempData.elementAt (i);
-            nulls_[i] = (boolean[]) tempNulls.elementAt (i);
+        for(int i = 0; i < rowCount; ++i)
+        {
+            data_[i] = (Object[])tempData.elementAt(i);
+            nulls_[i] = (boolean[])tempNulls.elementAt(i);
+            dataMappingErrors_[i] = (boolean[])tempDataMappingErrors.elementAt(i);
         }
     }
 
-
-/**
-Repositions the cursor so that the row reflects the appropriate
-data.
-
-@param  valid   Indicates if the current position is valid.
-**/
-    private void reposition (boolean valid)
-        throws SQLException
+    /**
+    Repositions the cursor so that the row reflects the appropriate
+    data.
+    
+    @param  valid   Indicates if the current position is valid.
+    **/
+    private void reposition(boolean valid)
+    throws SQLException
     {
         valid_ = valid;
-        if (valid_) {
-            row_.setData (data_[index_]);
-            row_.setNulls (nulls_[index_]);
+        if(valid_)
+        {
+            row_.setData(data_[index_]);
+            row_.setNulls(nulls_[index_]);
+            row_.setDataMappingErrors(dataMappingErrors_[index_]);
         }
     }
 
+    //-------------------------------------------------------------//
+    //                                                             //
+    // INTERFACE IMPLEMENTATIONS                                   //
+    //                                                             //
+    //-------------------------------------------------------------//
 
-
-//-------------------------------------------------------------//
-//                                                             //
-// INTERFACE IMPLEMENTATIONS                                   //
-//                                                             //
-//-------------------------------------------------------------//
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
-    public void open ()
-        throws SQLException
+    public void open()
+    throws SQLException
     {
         // No-op.
     }
 
-
-
-    public void close ()
-        throws SQLException
+    public void close()
+    throws SQLException
     {
         // No-op.
     }
 
-
-    public void flush ()
-        throws SQLException
+    public void flush()
+    throws SQLException
     {
         // No-op.
     }
 
-
-
-    public JDRow getRow ()
+    public JDRow getRow()
     {
         return row_;
     }
 
-
-
-    public boolean isEmpty ()
-        throws SQLException
+    public boolean isEmpty()
+    throws SQLException
     {
         return data_.length == 0;
     }
 
-
-
-    public boolean isValid ()
+    public boolean isValid()
     {
         return valid_;
     }
 
-
-
-    public void absolute (int rowNumber)
-        throws SQLException
+    public void absolute(int rowNumber)
+    throws SQLException
     {
-        if (rowNumber > 0) {
-            if (rowNumber <= data_.length) {
+        if(rowNumber > 0)
+        {
+            if(rowNumber <= data_.length)
+            {
                 index_ = rowNumber - 1;
-                reposition (true);
+                reposition(true);
             }
-            else {
+            else
+            {
                 index_ = data_.length;
-                reposition (false);
+                reposition(false);
             }
         }
-        else if (rowNumber < 0) {
-            if (-rowNumber <= data_.length) {
+        else if(rowNumber < 0)
+        {
+            if(-rowNumber <= data_.length)
+            {
                 index_ = data_.length + rowNumber;
-                reposition (true);
+                reposition(true);
             }
-            else {
+            else
+            {
                 index_ = -1;
-                reposition (false);
+                reposition(false);
             }
         }
         /* @C1D - AS400JDBCResultSet will check for this 
@@ -262,94 +250,80 @@ data.
         */
     }
 
-
-
-    public void afterLast ()
-		throws SQLException
+    public void afterLast()
+    throws SQLException
     {
         index_ = data_.length;
-        reposition (false);
+        reposition(false);
     }
 
-
-
-    public void beforeFirst ()
-		throws SQLException
+    public void beforeFirst()
+    throws SQLException
     {
         index_ = -1;
-        reposition (false);
+        reposition(false);
     }
 
-
-
-    public void first ()
-		throws SQLException
-	{
-	    index_ = 0;
-        reposition (data_.length > 0);
-    }
-
-
-
-    public void last ()
-		throws SQLException
-	{
-	    index_ = data_.length - 1;
-        reposition (data_.length > 0);
-    }
-
-
-
-    public void next ()
-        throws SQLException
+    public void first()
+    throws SQLException
     {
-        if (index_ < data_.length - 1) {
+        index_ = 0;
+        reposition(data_.length > 0);
+    }
+
+    public void last()
+    throws SQLException
+    {
+        index_ = data_.length - 1;
+        reposition(data_.length > 0);
+    }
+
+    public void next()
+    throws SQLException
+    {
+        if(index_ < data_.length - 1)
+        {
             ++index_;
-            reposition (true);
-        }
-        else {
-            index_ = data_.length;
-            reposition (false);
-        }
-    }
-
-
-
-    public void previous ()
-        throws SQLException
-    {
-        if (index_ > 0) {
-            --index_;
-            reposition (true);
-        }
-        else {
-            index_ = -1;
-            reposition (false);
-        }
-    }
-
-
-
-    public void refreshRow ()
-        throws SQLException
-    {
-        reposition (valid_);
-    }
-
-
-
-    public void relative (int rowIndex)
-		throws SQLException
-    {
-        int newIndex = index_ + rowIndex;
-        if ((newIndex >= 0) && (newIndex < data_.length)) {
-            index_ = newIndex;
-            reposition (true);
+            reposition(true);
         }
         else
-            reposition (false);
+        {
+            index_ = data_.length;
+            reposition(false);
+        }
     }
 
+    public void previous()
+    throws SQLException
+    {
+        if(index_ > 0)
+        {
+            --index_;
+            reposition(true);
+        }
+        else
+        {
+            index_ = -1;
+            reposition(false);
+        }
+    }
 
+    public void refreshRow()
+    throws SQLException
+    {
+        reposition(valid_);
+    }
 
+    public void relative(int rowIndex)
+    throws SQLException
+    {
+        int newIndex = index_ + rowIndex;
+        if((newIndex >= 0) && (newIndex < data_.length))
+        {
+            index_ = newIndex;
+            reposition(true);
+        }
+        else
+            reposition(false);
+    }
 }

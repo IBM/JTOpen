@@ -28,132 +28,141 @@ interface JDRow
 
 
 
-/**
-Return the index for the specified field name.
-
-
-@param      name            The field name.
-@return                     The field index (1-based).
-
-@exception  SQLException    If the name is not
-                            found or an error occurs.
-**/
+    /**
+    Return the index for the specified field name.
+    
+    
+    @param      name            The field name.
+    @return                     The field index (1-based).
+    
+    @exception  SQLException    If the name is not
+                                found or an error occurs.
+    **/
     public abstract int findField (String name)
-        throws SQLException;
+    throws SQLException;
 
 
 
-/**
-Return the number of fields.
-
-@return     The number of fields.
-
-@exception  SQLException    If an error occurs.
-**/
+    /**
+    Return the number of fields.
+    
+    @return     The number of fields.
+    
+    @exception  SQLException    If an error occurs.
+    **/
     public abstract int getFieldCount ();
 
 
 
-/**
-Return the name of a field.
-
-@param  index   The field index (1-based).
-@return         The field name.
-
-@exception  SQLException    If the index is invalid
-                            or an error occurs.
-**/
+    /**
+    Return the name of a field.
+    
+    @param  index   The field index (1-based).
+    @return         The field name.
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
     public abstract String getFieldName (int index)
-        throws SQLException;
+    throws SQLException;
 
 
 
-/**
-Return the precision for a field.  This is the number
-of decimal digits the field may hold.
-
-@param  index   The field index (1-based).
-@return         The precision.
-
-@exception  SQLException    If the index is invalid
-                            or an error occurs.
-**/
-// @C1D    public abstract int getFieldPrecision (int index)
-// @C1D        throws SQLException;
-
-
-
-/**
-Return the scale for a field.  This is number of digits
-to the right of the decimal point.
-
-@param  index   The field index (1-based).
-@return         The scale.
-
-@exception  SQLException    If the index is invalid
-                            or an error occurs.
-**/
-// @C1D    public abstract int getFieldScale (int index)
-// @C1D        throws SQLException;
+    /**
+    Return the precision for a field.  This is the number
+    of decimal digits the field may hold.
+    
+    @param  index   The field index (1-based).
+    @return         The precision.
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
+    // @C1D    public abstract int getFieldPrecision (int index)
+    // @C1D        throws SQLException;
 
 
 
-/**
-Return the SQL data object a field.
+    /**
+    Return the scale for a field.  This is number of digits
+    to the right of the decimal point.
+    
+    @param  index   The field index (1-based).
+    @return         The scale.
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
+    // @C1D    public abstract int getFieldScale (int index)
+    // @C1D        throws SQLException;
 
-@param  index   The field index (1-based).
-@return         The SQL data object.
 
-@exception  SQLException    If the index is invalid
-                            or an error occurs.
-**/
+
+    /**
+    Return the SQL data object a field.
+    
+    @param  index   The field index (1-based).
+    @return         The SQL data object.
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
     public abstract SQLData getSQLData (int index)
-        throws SQLException;
+    throws SQLException;
 
 
 
-/**
-Return the SQL data object a field intended for type
-information only.  This method does not perform any
-data copying or converion, it just returns a representative
-useful only for gathering type information.
-
-@param  index   The field index (1-based).
-@return         The SQL data object.
-
-@exception  SQLException    If the index is invalid
-                            or an error occurs.
-**/
+    /**
+    Return the SQL data object a field intended for type
+    information only.  This method does not perform any
+    data copying or converion, it just returns a representative
+    useful only for gathering type information.
+    
+    @param  index   The field index (1-based).
+    @return         The SQL data object.
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
     public abstract SQLData getSQLType (int index)
-        throws SQLException;
+    throws SQLException;
 
+    /**
+    Is there a data mapping error for the field?
+    
+    @param      index   The field index (1-based).
+    @return             true or false
+    
+    @exception  SQLException    If an error occurs.
+    **/
+    public boolean isDataMappingError(int index)
+    throws SQLException;
 
-
-/**
-Is the field value SQL NULL?
-
-@param      index   The field index (1-based).
-@return             true or false
-
-@exception  SQLException    If the index is invalid or an
-                            error occurs.
-**/
+    /**
+    Is the field value SQL NULL?
+    
+    @param      index   The field index (1-based).
+    @return             true or false
+    
+    @exception  SQLException    If the index is invalid or an
+                                error occurs.
+    **/
     public abstract boolean isNull (int index)
-        throws SQLException;
+    throws SQLException;
 
 
 
-/**
-Can the field contain a SQL NULL value?
-
-@param  index   The field index (1-based).
-@return         true if nullable.
-
-@exception  SQLException    If the index is invalid
-                            or an error occurs.
-**/
+    /**
+    Can the field contain a SQL NULL value?
+    
+    @param  index   The field index (1-based).
+    @return         true if nullable.
+    
+    @exception  SQLException    If the index is invalid
+                                or an error occurs.
+    **/
     public abstract int isNullable (int index)
-        throws SQLException;
+    throws SQLException;
 
 
 

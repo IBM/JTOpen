@@ -27,7 +27,7 @@ class JDNullableSmallintFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -38,25 +38,14 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-/**
-    Returns the nullable indicator in JDBC format.
-**/
+    /**
+        Returns the nullable indicator in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets data from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets data from correct column
+        // using fromIndex
 
         // if serverData == "NO", return procedureNoNulls
         //               == "YES", return procedureNullable
@@ -65,20 +54,28 @@ implements JDFieldMap
         String serverDataAsString = serverData.toString ();
         int result;
 
-        if (serverDataAsString.equalsIgnoreCase("NO"))
+        if(serverDataAsString.equalsIgnoreCase("NO"))
             return new Short ((short) DatabaseMetaData.procedureNoNulls);
-        else if (serverDataAsString.equalsIgnoreCase("YES"))
+        else if(serverDataAsString.equalsIgnoreCase("YES"))
             return new Short ((short) DatabaseMetaData.procedureNullable);
         else
             return new Short ((short) DatabaseMetaData.procedureNullableUnknown);
     }
 
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
 
-/**
-   Indicates if value is null.
-**/
+    /**
+       Indicates if value is null.
+    **/
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

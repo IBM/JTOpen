@@ -25,7 +25,7 @@ class JDNonUniqueFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // fromIndex is the index of the data received from server.
     // Need to specify the index to the non-unique information
@@ -35,39 +35,35 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-/**
-    Returns the non-unique value in JDBC format.
-**/
+    /**
+        Returns the non-unique value in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets data from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets data from correct column
+        // using fromIndex
 
 
         // if serverData == "D", allows duplicate values (set to true)
         //               == "U", must be unique  (set to false)
-        if (serverData.toString ().charAt (0) == 'D')
+        if(serverData.toString ().charAt (0) == 'D')
             return new Boolean (true);
         else
             return new Boolean (false);
     }
 
-
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
 
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

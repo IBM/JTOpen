@@ -27,7 +27,7 @@ class JDNullableIntegerFieldMap
 extends JDSimpleFieldMap
 implements JDFieldMap
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     // fromIndex is the index of the data received from server.
     JDNullableIntegerFieldMap (int fromIndex)
@@ -35,54 +35,50 @@ implements JDFieldMap
         super (fromIndex);
     }
 
-
-
-/**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
-/**
-    Returns the nullable indicator in JDBC format.
-**/
+    /**
+        Returns the nullable indicator in JDBC format.
+    **/
     public Object getValue (JDRow row)
-        throws SQLException
+    throws SQLException
     {
-        Object serverData = super.getValue (row);// gets data from correct column
-                                                             // using fromIndex
+        Object serverData = super.getValue (row);    // gets data from correct column
+        // using fromIndex
 
         // if serverData == "Y", return columnNullable
         //               == "N", return columnNoNulls
         //                  else return columnNullableUnknown
 
         String serverDataAsString = serverData.toString();
-        if (serverDataAsString.length () > 0)
+        if(serverDataAsString.length () > 0)
         {
-            switch (serverDataAsString.charAt (0))
+            switch(serverDataAsString.charAt (0))
             {
-            case 'N':
-                return new Integer (DatabaseMetaData.columnNoNulls);
-            case 'Y':
-                return new Integer (DatabaseMetaData.columnNullable);
-            default:
-                return new Integer (DatabaseMetaData.columnNullableUnknown);
+                case 'N':
+                    return new Integer (DatabaseMetaData.columnNoNulls);
+                case 'Y':
+                    return new Integer (DatabaseMetaData.columnNullable);
+                default:
+                    return new Integer (DatabaseMetaData.columnNullableUnknown);
             }
         }
         else
             return new Integer (DatabaseMetaData.columnNullableUnknown);
     }
 
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
 
-/**
-   Indicates if value is null.
-**/
+    /**
+       Indicates if value is null.
+    **/
     public boolean isNull (JDRow row)
-        throws SQLException
+    throws SQLException
     {
         return false;
     }

@@ -62,6 +62,7 @@ implements CallableStatement
 
     private boolean             returnValueParameterRegistered_;        // @E2A
     private boolean             wasNull_;
+    private boolean             wasDataMappingError_;
 
     private String[]            parameterNames_;
     private int                 maxToLog_ = 10000;        // Log value of parameter markers up to this length // @G7A
@@ -119,6 +120,7 @@ implements CallableStatement
         returnValueParameterRegistered_ = false;                            // @E2A
 
         wasNull_ = false;
+        wasDataMappingError_ = false;
     }
 
     // @C1A
@@ -2121,6 +2123,7 @@ implements CallableStatement
         // Get the data and check for SQL NULL.
         SQLData data = parameterRow_.getSQLData(parameterIndex);
         wasNull_ = parameterRow_.isNull(parameterIndex);
+        wasDataMappingError_ = parameterRow_.isDataMappingError(parameterIndex);
 
         return wasNull_ ? null : data;
     }
@@ -3054,6 +3057,11 @@ implements CallableStatement
     **/
     private void testDataTruncation(int parameterIndex, SQLData data)
     {
+        if(wasDataMappingError_)
+        {
+            postWarning(new DataTruncation(parameterIndex, true, true, -1, -1));
+        }
+
         if(data != null)
         {
             int truncated = data.getTruncated();

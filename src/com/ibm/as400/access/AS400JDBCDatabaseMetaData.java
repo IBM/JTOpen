@@ -477,7 +477,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,                                                                                     1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
                         JDFieldMap[] maps = new JDFieldMap[8];
                         maps[0] = new JDHardcodedFieldMap(new Short ((short) scope)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
@@ -491,7 +491,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
                 }
                 finally
                 {
@@ -532,7 +532,8 @@ implements DatabaseMetaData
         int[] fieldNullables = {columnNoNulls};    // Catalog Name
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         Object[][] data = { { connection_.getCatalog()}};
-        boolean[][] nulls = { { false}};
+        boolean[][] nulls = {{false}};
+        boolean[][] dataMappingErrors = {{false}};
 
         // If running to a system running OS/400 v5r2 or later the list can contain more than just the system
         // name (when IASPs are on the system).  Try to retrieve that list.  Note 
@@ -560,10 +561,12 @@ implements DatabaseMetaData
                 {                                                                        // @F1a
                     data = new Object[count][1];                                         // @F1a
                     nulls = new boolean[count][1];                                       // @F1a
+                    dataMappingErrors = new boolean[count][1];
                     for (int i=0; i<count; i++)                                          // @F1a
                     {                                                                    // @F1a
                         data[i][0] = RDBEntries.elementAt(i);                            // @F1a
                         nulls[i][0] = false;                                             // @F1a
+                        dataMappingErrors[i][0] = false;
                     }                                                                    // @F1a
                 }                                                                        // @F1a
                 else
@@ -579,7 +582,7 @@ implements DatabaseMetaData
             }                                                                            // @F1a
         }                                                                                // @F1a
 
-        JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow, data, nulls);
+        JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow, data, nulls, dataMappingErrors);
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "Catalogs");
     }
 
@@ -793,9 +796,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache (
-                                                                         new JDServerRowCache(row, connection_, id_,
-                                                                                              1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
                         // Create the mapped row format that is returned in the
                         // result set.
                         // This does not actual move the data, it just sets up
@@ -805,10 +806,10 @@ implements DatabaseMetaData
                         maps[1] = new JDSimpleFieldMap (1); // library
                         maps[2] = new JDSimpleFieldMap (2); // table
                         maps[3] = new JDSimpleFieldMap (3); // column
-                        maps[4] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true ); // grantor
+                        maps[4] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false ); // grantor
                         maps[5] = new JDHardcodedFieldMap (getUserName ()); // grantee - return userid
                         maps[6] = new JDHardcodedFieldMap(""); // privilege
-                        maps[7] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_),true ); // is_grantable
+                        maps[7] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_),true, false ); // is_grantable
 
                         // Create the mapped row cache that is returned in the
                         // result set
@@ -817,7 +818,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
 
                 }
                 finally
@@ -1043,7 +1044,7 @@ implements DatabaseMetaData
                 // columnPattern is not null and is empty string
                 ((columnPattern != null) && (columnPattern.length()==0)))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
 
@@ -1138,8 +1139,7 @@ implements DatabaseMetaData
                     JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                     // Put the result data into a row cache
-                    JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                            1, resultData, true));
+                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
 
                     // Create the mapped row format that is returned in the
                     // result set.
@@ -1169,7 +1169,7 @@ implements DatabaseMetaData
                         maps[11] = new JDSimpleFieldMap (5);  // return text
 
                     // Always return null
-                    maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true); // column def
+                    maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false); // column def
 
                     // Per JDBC api - not used - hardcode to 0
                     maps[13] = new JDHardcodedFieldMap (new Integer (0)); // SQL data type
@@ -1192,9 +1192,9 @@ implements DatabaseMetaData
                     //@G4A by our database. 
                     if (isJDBC3)         //@F2A
                     {
-                        maps[18] = new JDHardcodedFieldMap ("", true);  // scope catalog    //@G4A
-                        maps[19] = new JDHardcodedFieldMap ("", true);  // scope schema     //@G4A
-                        maps[20] = new JDHardcodedFieldMap ("", true);  // scope table      //@G4A
+                        maps[18] = new JDHardcodedFieldMap ("", true, false);  // scope catalog    //@G4A
+                        maps[19] = new JDHardcodedFieldMap ("", true, false);  // scope schema     //@G4A
+                        maps[20] = new JDHardcodedFieldMap ("", true, false);  // scope table      //@G4A
                         maps[21] = new JDHardcodedFieldMap (new Short((short) 0)); // source data type //@G4A
                     }
 
@@ -1485,8 +1485,7 @@ implements DatabaseMetaData
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                         // Put the result data into a row cache
-                        JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                                1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
 
                         // Create the mapped row format that is returned in the
                         // result set.
@@ -1506,8 +1505,8 @@ implements DatabaseMetaData
                         maps[8] = new JDSimpleFieldMap (7); // key seq
                         maps[9] = new JDUpdateDeleteRuleFieldMap (8);   // update rule
                         maps[10] = new JDUpdateDeleteRuleFieldMap (9);  // delete rule
-                        maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
-                        maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
+                        maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
+                        maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
                         maps[13] = new JDHardcodedFieldMap(new Short ((short) importedKeyNotDeferrable));
 
                         // Create the mapped row cache that is returned in the
@@ -1516,7 +1515,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
 
                 }
                 finally
@@ -1808,7 +1807,7 @@ implements DatabaseMetaData
                 // table is null or empty string
                 (table==null)  ||  (table.length()==0 ))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
             else
@@ -1873,8 +1872,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                                1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true));
 
                         JDFieldMap[] maps = new JDFieldMap[14];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
@@ -1895,8 +1893,8 @@ implements DatabaseMetaData
                         }
                         else
                         {                                         //@F4A
-                            maps[11] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
-                            maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
+                            maps[11] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false);
+                            maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false);
                         }
                         maps[13] = new JDHardcodedFieldMap (new Short ((short) importedKeyNotDeferrable));
 
@@ -1904,7 +1902,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
                 }
                 finally
                 {
@@ -2061,7 +2059,7 @@ implements DatabaseMetaData
                 // table is null or empty string
                 (table==null)  ||  (table.length()==0 ))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
             else
@@ -2126,8 +2124,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache =  new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                                 1, resultData, true));
+                        JDRowCache serverRowCache =  new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
                         JDFieldMap[] maps = new JDFieldMap[14];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                         maps[1] = new JDSimpleFieldMap (1); // pk schema
@@ -2147,8 +2144,8 @@ implements DatabaseMetaData
                         }
                         else
                         {                                      //@F4A
-                            maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
-                            maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
+                            maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
+                            maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
                         }
                         maps[13] = new JDHardcodedFieldMap(new Short ((short) importedKeyNotDeferrable));
 
@@ -2156,7 +2153,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
 
                 }
                 finally
@@ -2287,7 +2284,7 @@ implements DatabaseMetaData
                 // table is null or empty string
                 (table==null)  ||  (table.length()==0 ))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
             else
@@ -2359,8 +2356,7 @@ implements DatabaseMetaData
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                         // Put the result data into a row cache
-                        JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                                1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
 
                         // Create the mapped row format that is returned in the
                         // result set.
@@ -2383,7 +2379,7 @@ implements DatabaseMetaData
                         maps[10] = new JDHardcodedFieldMap(new Integer(-1));
                         // number of pages unknown
                         maps[11] = new JDHardcodedFieldMap(new Integer(-1));
-                        maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
+                        maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
 
                         // Create the mapped row cache that is returned in the
                         // result set
@@ -2391,7 +2387,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
 
                 }
                 finally
@@ -2850,7 +2846,7 @@ implements DatabaseMetaData
                 // table is null or empty string
                 (table==null)  ||  (table.length()==0 ))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
             else
@@ -2908,8 +2904,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                                1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true));
                         // Create the mapped row format that is returned in the
                         // result set.
                         // This does not actual move the data, it just sets up
@@ -2921,7 +2916,7 @@ implements DatabaseMetaData
                         maps[2] = new JDSimpleFieldMap (2); // pk table
                         maps[3] = new JDSimpleFieldMap (3); // pk column
                         maps[4] = new JDCharToShortFieldMap (4);    // key seq
-                        maps[5] = new JDHardcodedFieldMap (new SQLVarchar (0, settings_), true);
+                        maps[5] = new JDHardcodedFieldMap (new SQLVarchar (0, settings_), true, false);
 
                         // Create the mapped row cache that is returned in the
                         // result set
@@ -2929,7 +2924,7 @@ implements DatabaseMetaData
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
                     else
-                        rowCache = new JDSimpleRowCache (formatRow);
+                        rowCache = new JDSimpleRowCache(formatRow);
 
                 }
                 finally
@@ -3056,7 +3051,7 @@ implements DatabaseMetaData
                 // column is not null and is empty string
                 ((columnPattern != null)  &&  (columnPattern.length()==0)))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
             else
@@ -3124,7 +3119,7 @@ implements DatabaseMetaData
                 AS400JDBCStatement statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
                 AS400JDBCResultSet serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
 
-                JDRowCache serverRowCache = new JDSimpleRowCache (serverResultSet.getRowCache());
+                JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
                 statement_.close ();
 
                 JDFieldMap[] maps = new JDFieldMap[13];
@@ -3249,7 +3244,7 @@ implements DatabaseMetaData
                 // procedure is not null and is empty string
                 ((procedurePattern!=null)  &&  (procedurePattern.length()==0)))
             { // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
             else
@@ -3297,7 +3292,7 @@ implements DatabaseMetaData
 
                 AS400JDBCResultSet serverResultSet = (AS400JDBCResultSet) statement_.executeQuery (selectStmt.toString());
 
-                JDRowCache serverRowCache = new JDSimpleRowCache (serverResultSet.getRowCache());
+                JDRowCache serverRowCache = new JDSimpleRowCache(serverResultSet.getRowCache());
                 statement_.close ();
 
                 JDFieldMap[] maps = new JDFieldMap[8];
@@ -3431,8 +3426,7 @@ implements DatabaseMetaData
                 JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                 // Put the data format into a row format object
-                JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                        1, resultData, true));
+                JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
                 boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
                 JDFieldMap[] maps = null;    //@F2C
@@ -3783,7 +3777,7 @@ implements DatabaseMetaData
                 // table is not null and is empty string
                 ((tablePattern != null) && (tablePattern.length()==0)))
             {   // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
 
@@ -3858,8 +3852,7 @@ implements DatabaseMetaData
                     JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                     // Put the result data into a row cache
-                    JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                            1, resultData, true));
+                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true));
 
                     // Create the mapped row format that is returned in the
                     // result set.
@@ -3869,10 +3862,10 @@ implements DatabaseMetaData
                     maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                     maps[1] = new JDSimpleFieldMap (1); // library
                     maps[2] = new JDSimpleFieldMap (2); // table
-                    maps[3] = new JDHardcodedFieldMap ("", true); // grantor
+                    maps[3] = new JDHardcodedFieldMap ("", true, false); // grantor
                     maps[4] = new JDHardcodedFieldMap (getUserName ()); // grantee - return userid
                     maps[5] = new JDPrivilegeFieldMap (3); // privilege
-                    maps[6] = new JDHardcodedFieldMap ("", true); // is_grantable
+                    maps[6] = new JDHardcodedFieldMap ("", true, false); // is_grantable
 
                     // Create the mapped row cache that is returned in the
                     // result set
@@ -4017,7 +4010,7 @@ implements DatabaseMetaData
                 // table is not null and is empty string
                 ((tablePattern != null) && (tablePattern.length()==0)))
             {   // Return empty result set
-                rowCache = new JDSimpleRowCache (formatRow);
+                rowCache = new JDSimpleRowCache(formatRow);
             }
 
 
@@ -4215,8 +4208,7 @@ implements DatabaseMetaData
                             // Put the result data into a row cache
                             // ServerRowCache needs rowFormat to get offset and other info
                             // Only need this with this type of server (not with simple)
-                            JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (
-                                                                                                   row, connection_, id_, 1, resultData, true));
+                            JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
 
                             // This is not actually moving data, it just sets up the mapping
                             JDFieldMap[] maps = null;       //@F2C
@@ -4238,11 +4230,11 @@ implements DatabaseMetaData
                                 //@G4A type information.
                                 if (isJDBC3)
                                 {
-                                    maps[5] = new JDHardcodedFieldMap ("", true); // types catalog //@G4A
-                                    maps[6] = new JDHardcodedFieldMap ("", true); // types schema  //@G4A
-                                    maps[7] = new JDHardcodedFieldMap ("", true); // type name     //@G4A
-                                    maps[8] = new JDHardcodedFieldMap ("", true); // self referencing col name //@G4A
-                                    maps[9] = new JDHardcodedFieldMap ("", true); // ref generation //@G4A
+                                    maps[5] = new JDHardcodedFieldMap ("", true, false); // types catalog //@G4A
+                                    maps[6] = new JDHardcodedFieldMap ("", true, false); // types schema  //@G4A
+                                    maps[7] = new JDHardcodedFieldMap ("", true, false); // type name     //@G4A
+                                    maps[8] = new JDHardcodedFieldMap ("", true, false); // self referencing col name //@G4A
+                                    maps[9] = new JDHardcodedFieldMap ("", true, false); // ref generation //@G4A
                                 }
                             }
 
@@ -4258,11 +4250,11 @@ implements DatabaseMetaData
                                 //@G4A type information.
                                 if (isJDBC3)
                                 {
-                                    maps[5] = new JDHardcodedFieldMap ("", true); // types catalog //@G4A
-                                    maps[6] = new JDHardcodedFieldMap ("", true); // types schema  //@G4A
-                                    maps[7] = new JDHardcodedFieldMap ("", true); // type name     //@G4A
-                                    maps[8] = new JDHardcodedFieldMap ("", true); // self referencing col name //@G4A
-                                    maps[9] = new JDHardcodedFieldMap ("", true); // ref generation //@G4A
+                                    maps[5] = new JDHardcodedFieldMap ("", true, false); // types catalog //@G4A
+                                    maps[6] = new JDHardcodedFieldMap ("", true, false); // types schema  //@G4A
+                                    maps[7] = new JDHardcodedFieldMap ("", true, false); // type name     //@G4A
+                                    maps[8] = new JDHardcodedFieldMap ("", true, false); // self referencing col name //@G4A
+                                    maps[9] = new JDHardcodedFieldMap ("", true, false); // ref generation //@G4A
                                 }
                             }
 
@@ -4271,7 +4263,7 @@ implements DatabaseMetaData
 
                         }
                         else
-                            rowCache = new JDSimpleRowCache (formatRow);
+                            rowCache = new JDSimpleRowCache(formatRow);
 
                     }
                     finally
@@ -4282,7 +4274,7 @@ implements DatabaseMetaData
                 } // End of if file attribute != -1
                 else
                 { // result set should be empty.
-                    rowCache = new JDSimpleRowCache (formatRow);
+                    rowCache = new JDSimpleRowCache(formatRow);
                 }
 
             } // End of else to create and send request
@@ -4322,7 +4314,7 @@ implements DatabaseMetaData
             { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE}};
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
-        JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow, data);
+        JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
                                        "Table Types");
@@ -4479,10 +4471,12 @@ implements DatabaseMetaData
         int numberOfFields = sqlData.length;
         Object[][] data = new Object[numberOfTypes][];
         boolean[][] nulls = new boolean[numberOfTypes][];
+        boolean[][] dataMappingErrors = new boolean[numberOfTypes][];
         for (int i = 0; i < numberOfTypes; ++i)
         {
             data[i] = new Object[numberOfFields];
             nulls[i] = new boolean[numberOfFields];
+            dataMappingErrors[i] = new boolean[numberOfFields];
 
             SQLData typeSample = (SQLData) typeSamples.elementAt(i);            // @D0C
             data[i][0] = typeSample.getTypeName ();                             // @D0C
@@ -4539,8 +4533,7 @@ implements DatabaseMetaData
             data[i][17] = new Integer (typeSample.getRadix ());                 // @D0C
         }
 
-        JDSimpleRowCache rowCache = new JDSimpleRowCache (formatRow,
-                                                          data, nulls);
+        JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data, nulls, dataMappingErrors);
 
         return new AS400JDBCResultSet (rowCache,
                                        connection_.getCatalog(), "Type Info");

@@ -40,15 +40,6 @@ implements JDFieldMap
         valueIfNull_ = valueIfNull;
     }
 
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
     public Object getValue (JDRow row)
         throws SQLException
     {
@@ -58,7 +49,14 @@ implements JDFieldMap
             return super.getValue (row);
     }
 
-
+    /**
+        Indicates if the value was a data mapping error.
+    **/
+    public boolean isDataMappingError(JDRow row)
+    throws SQLException
+    {
+        return false;
+    }
 
     public boolean isNull (JDRow row)
         throws SQLException

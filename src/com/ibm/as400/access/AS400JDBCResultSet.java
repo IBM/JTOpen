@@ -202,6 +202,7 @@ public class AS400JDBCResultSet implements ResultSet
     private JDRow                       updateRow_;
     private boolean[]                   updateSet_;
     private boolean                     wasNull_;
+    private boolean                     wasDataMappingError_;
 
 
     /*---------------------------------------------------------*/
@@ -261,6 +262,7 @@ public class AS400JDBCResultSet implements ResultSet
         statement_              = statement;
         type_                   = type;
         wasNull_                = false;
+        wasDataMappingError_    = false;
 
         columnCount_            = row_.getFieldCount ();
 
@@ -3593,6 +3595,7 @@ public class AS400JDBCResultSet implements ResultSet
                || (positionInsert_ == true))
             {
                 wasNull_ = updateNulls_[columnIndex-1];
+                wasDataMappingError_ = false;
                 if(wasNull_)
                     return null;
                 else
@@ -3602,6 +3605,7 @@ public class AS400JDBCResultSet implements ResultSet
 
         // Get the data and check for SQL NULL.   @A1C
         wasNull_ = row_.isNull (columnIndex);
+        wasDataMappingError_ = row_.isDataMappingError(columnIndex);
         if(wasNull_)
             return null;
         else
@@ -3619,6 +3623,11 @@ public class AS400JDBCResultSet implements ResultSet
     **/
     private void testDataTruncation (int columnIndex, SQLData data)
     {
+        if(wasDataMappingError_)
+        {
+            postWarning(new DataTruncation(columnIndex, false, true, -1, -1));
+        }
+
         if(data != null)
         {
             int truncated = data.getTruncated ();

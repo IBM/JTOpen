@@ -102,13 +102,6 @@ implements JDRow
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
     public int findField (String name)
     throws SQLException
     {
@@ -160,10 +153,10 @@ implements JDRow
         // @A0A
         // Added code to trim the data if it is of SQLChar
         // or SQLVarchar type.
-        if(toData.getSQLType() == SQLData.VARCHAR)            // @A0A
-            ((SQLVarchar)toData).trim();                  // @A0A
-        else if(toData.getSQLType() == SQLData.CHAR)          // @A0A
-            ((SQLChar) toData).trim();                    // @A0A
+        if(toData.getSQLType() == SQLData.VARCHAR)    // @A0A
+            ((SQLVarchar)toData).trim();    // @A0A
+        else if(toData.getSQLType() == SQLData.CHAR)    // @A0A
+            ((SQLChar) toData).trim();    // @A0A
         else if(toData.getSQLType() == SQLData.GRAPHIC)
             ((SQLGraphic)toData).trim();
         else if(toData.getSQLType() == SQLData.VARGRAPHIC)
@@ -184,7 +177,11 @@ implements JDRow
         return toRow_.getSQLData (index);
     }
 
-
+    public boolean isDataMappingError(int index)
+    throws SQLException
+    {
+        return fieldMaps_[index-1].isDataMappingError(fromRow_);
+    }
 
     public boolean isNull (int index)
     throws SQLException
