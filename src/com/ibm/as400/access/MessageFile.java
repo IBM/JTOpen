@@ -215,7 +215,7 @@ public class MessageFile extends Object implements Serializable
     @return             The formatted text.
     **/
     public static String substituteFormattingCharacters(String sourceText)
-    {
+    {                                                                           
         // To preserve behavior, assume not BiDi
         return substituteFormattingCharacters(sourceText, false);       // @D6a 
         // String targetText = sourceText;                              // @D6d
@@ -612,7 +612,7 @@ public class MessageFile extends Object implements Serializable
         {                                                                        // @D2m
 //            AS400Message message = pgm.getMessageList()[0];                      // @D2m
 //            throw new IOException(message.toStringM2());                         // @D2m @D3c
-          throw new AS400Exception(pgm.getMessageList());
+          throw new AS400Exception(pgm.getMessageList()[0]);         //@K1C
         }                                                                        // @D2m
                                                                                  // @D2m
         byte[] retData = parms[0].getOutputData();                               // @D2m
@@ -733,9 +733,11 @@ public class MessageFile extends Object implements Serializable
           else                                                                    //@D1a
           {                                                                       //@D1a
              // s = s.substring(0, index - 1) + newPhrase + s.substring(index + 3);  //@D1a
-             StringBuffer b = new StringBuffer(s.substring(0, index - 1));                          //@D1a
+             //@K1D  StringBuffer b = new StringBuffer(s.substring(0, index - 1));                          //@D1a
+             StringBuffer b = new StringBuffer(s.substring(0, index));           //@K1A   copy from beginning of String to location of oldPhrase 
              b.append(newPhrase);                                                 //@D1a
-             b.append(s.substring(index + 3));                                    //@D1a
+             //@K1D b.append(s.substring(index + 3));                                    //@D1a
+             b.append(s.substring(index + 2));                                     //@K1A start at the 2nd position after where oldPhrase occurred
              s = b.toString();                                                    //@D1a
           }                                                                       //@D1a
                                                                                   //@D1a
