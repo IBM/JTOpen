@@ -98,6 +98,7 @@ implements Statement
     private     boolean                 lastPrepareContainsLocator_;                    // @B2A
     private     int                     maxFieldSize_;
     private     int                     maxRows_;
+    int                                 rowsInserted_; // for block insert @G5A
     private     String                  name_;
     private     String                  nameOverride_;
     int                     numberOfResults_;       // private protected
@@ -636,6 +637,9 @@ implements Statement
                     DBData resultData = null;
                     if (fetchFirstBlock)
                         resultData = reply.getResultData ();
+
+                    // Note the number of rows inserted/updated
+                    rowsInserted_ = sqlca.getErrd(3);                                    // @G5A
 
                     // Check for server errors.  Take note on prefetch
                     // if the last block was fetched.

@@ -863,6 +863,34 @@ class JDSQLStatement
     }
 
 
+    // @G5 new method
+    /**
+    Sets the native statement type to one of the valid types.
+    If an invalid type is specified, no change will occur.
+    Valid types are:
+    <UL>
+    <LI>TYPE_UNDETERMINED
+    <LI>TYPE_OTHER
+    <LI>TYPE_UNDETERMINED 
+    <LI>TYPE_OTHER        
+    <LI>TYPE_SELECT       
+    <LI>TYPE_CALL         
+    <LI>TYPE_COMMIT       
+    <LI>TYPE_ROLLBACK     
+    <LI>TYPE_CONNECT      
+    <LI>TYPE_BLOCK_INSERT 
+    </UL>
+    @param  type                 Native statement type.
+    **/
+    public void setNativeType (int type)                                   // @G5A
+    {                                                                      // @G5A
+      nativeType_ = type;                                                  // @G5A
+      return;                                                              // @G5A
+    }                                                                      // @G5A
+
+
+
+
     /**
     Returns the SQL statement as a String.  This will be
     native SQL if conversion was requested.

@@ -2685,6 +2685,9 @@ implements Connection
 
         //@A3A
         // Connect.
+        if (JDTrace.isTraceOn())                                                      // @F6a
+            JDTrace.logInformation("Toolbox for Java - " + Copyright.version);        // @F6a
+
         try
         {
             server_ = as400_.getConnection (AS400.DATABASE, false);
