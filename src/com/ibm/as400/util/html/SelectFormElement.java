@@ -73,7 +73,7 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
     private String name_;           // The select element name.
     private int size_;              // The number of visible choices.
     private boolean multiple_;      // Whether multiple selections can be made.
-    private boolean optionSelected_;// Whether a option is marked as selected.
+    private boolean optionSelected_;// Whether at least one option is marked as selected.
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
@@ -142,9 +142,9 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         if (option == null)
             throw new NullPointerException("option");
 
-        if ((option.isSelected()) && (optionSelected_))
+        if ((option.isSelected()) && (optionSelected_) && !(multiple_))
         {
-            Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
+            Trace.log(Trace.ERROR, "Multiple options marked as 'selected' but multiple attribute not set.");
             throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         else if ((option.isSelected()) && !(optionSelected_))
@@ -188,9 +188,9 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         if (value == null)
             throw new NullPointerException("value");
 
-        if ((selected) && (optionSelected_))
+        if ((selected) && (optionSelected_) && !(multiple_))
         {
-            Trace.log(Trace.ERROR, "Previous option marked as 'selected'.");
+            Trace.log(Trace.ERROR, "Multiple options marked as 'selected' but multiple attribute not set.");
             throw new ExtendedIllegalArgumentException("selected", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         else if ((selected) && !(optionSelected_))
@@ -403,9 +403,25 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         if (option == null)
             throw new NullPointerException("option");
 
-        // if removing the option that is selected, reset the optionSelected_ flag.
+        // if removing the option that is selected in a single selection list, reset the optionSelected_ flag.
         if (option.isSelected())
+        {
+          if (multiple_)
+          {
+            // Check to see if there are other options that are still selected.
+            boolean stillSomeLeft = false;
+            for (int i=0; !stillSomeLeft && i<list_.size(); ++i)
+            {
+              SelectOption cur = (SelectOption)list_.elementAt(i);
+              if (cur != option && cur.isSelected()) stillSomeLeft = true;
+            }
+            if (!stillSomeLeft) optionSelected_ = false;
+          }
+          else
+          {
             optionSelected_ = false;
+          }
+        }
 
         if (list_.removeElement(option))
             fireElementEvent(ElementEvent.ELEMENT_REMOVED);
