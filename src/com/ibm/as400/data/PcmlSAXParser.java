@@ -33,7 +33,7 @@ import java.util.Stack;
 
 /**
 */
-class PcmlSAXParser extends DefaultHandler {                                // @C2C
+class PcmlSAXParser extends HandlerBase {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
