@@ -21,6 +21,7 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.Trace;                          // @C4A
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -894,20 +895,16 @@ public class ProgramCallDocument implements Serializable, Cloneable
     private static void savePcmlDocument(PcmlDocument pd)
         throws PcmlException
     {
-        FileOutputStream fos;
-//         GZIPOutputStream gzos;                                   // @C7D
-        ObjectOutputStream out;
-
         pd.setSerializingWithData(false);                           // @C1A
 
         String outFileName = pd.getDocName() + SystemResourceFinder.m_pcmlSerializedExtension;
 
         try
         {
-            fos = new FileOutputStream(outFileName);
+            BufferedOutputStream fos = new BufferedOutputStream(new FileOutputStream(outFileName));
 //             gzos = new GZIPOutputStream(fos);                    // @C7D
 //             out = new ObjectOutputStream(gzos);
-            out = new ObjectOutputStream(fos);                      // @C7C
+            ObjectOutputStream out = new ObjectOutputStream(fos);                      // @C7C
             out.writeObject(pd);
             out.flush();
             out.close();
