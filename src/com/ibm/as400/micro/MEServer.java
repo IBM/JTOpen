@@ -379,7 +379,7 @@ public class MEServer implements Runnable
      * And if it exists:
      *  String - value of entry read from data queue
      **/
-    private void doDataQueueRead() throws IOException, ErrorCompletingRequestException, InterruptedException
+    private void doDataQueueRead() throws IOException, InterruptedException
     {
         String queueName = input_.readUTF();
         int dataType = input_.readInt();
@@ -398,6 +398,15 @@ public class MEServer implements Runnable
             output_.flush();
 
             sendException(ase);
+
+            return;
+        }
+        catch (ErrorCompletingRequestException ecr)                                                         
+        {
+            output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
+            output_.flush();
+
+            sendException(ecr);
 
             return;
         }
@@ -459,7 +468,7 @@ public class MEServer implements Runnable
      * Datastream reply format:
      *  int - data queue status (e.g. data queue exists, etc.)
      **/
-    private void doDataQueueWrite() throws IOException, ErrorCompletingRequestException, InterruptedException
+    private void doDataQueueWrite() throws IOException, InterruptedException
     {
         String queueName = input_.readUTF();
         int dataType = input_.readInt();
@@ -482,6 +491,24 @@ public class MEServer implements Runnable
                 String data = input_.readUTF();
                 dq.write(data);
             }
+        }
+        catch (ErrorCompletingRequestException ecr)                                                         
+        {
+            output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
+            output_.flush();
+
+            sendException(ecr);
+
+            return;
+        }
+        catch (ExtendedIllegalArgumentException ecr)                                                         
+        {
+            output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
+            output_.flush();
+
+            sendException(ecr);
+
+            return;
         }
         catch (AS400SecurityException ase)
         {
@@ -549,6 +576,9 @@ public class MEServer implements Runnable
 
         // Read in the number of parameters the user is setting.
         int numParmsToSet = input_.readInt(); 
+        
+        if (Trace.isTraceOn())
+            Trace.log(Trace.PROXY, "Number of PCML input Parms:" + numParmsToSet);
 
         // initialize string arrays used to set the pcml values.
         String[] tagNamesToSet = new String[numParmsToSet];
@@ -561,13 +591,15 @@ public class MEServer implements Runnable
             valuesToSet[i] = input_.readUTF();
 
             if (Trace.isTraceOn())
-                Trace.log(Trace.PROXY, "ToolboxME PCML Parm[" + i + "] " + tagNamesToSet[i] + ": " + valuesToSet[i]);
+                Trace.log(Trace.PROXY, "ToolboxME PCML input Parm[" + i + "] " + tagNamesToSet[i] + ": " + valuesToSet[i]);
         }
 
         // Read in the number of parameters to get or return to caller.
         int numParmsToGet = input_.readInt(); 
         String[] tagNamesToGet = new String[numParmsToGet];
 
+        if (Trace.isTraceOn())
+            Trace.log(Trace.PROXY, "Number of PCML output Parms:" + numParmsToGet);
         // Read in each parameter name to get.
         for (int i=0; i<numParmsToGet; ++i)
         {
@@ -598,6 +630,19 @@ public class MEServer implements Runnable
             // Call the program.
             retVal = pc.callProgram(apiName);
 
+            // Get output parameters.
+            String[] values = null;
+            if (retVal)
+            {
+                values = new String[numParmsToGet];
+                for (int i=0; i<numParmsToGet; ++i)
+                {
+                    values[i] = pc.getStringValue(tagNamesToGet[i], BidiStringType.DEFAULT);                
+
+                    if (Trace.isTraceOn())
+                        Trace.log(Trace.PROXY, "ToolboxME PCML ouput Parm[" + i + "] " + tagNamesToGet[i] + ": " + values[i]);
+                }
+            }
             output_.writeBoolean(retVal);
             output_.flush();
 
@@ -617,27 +662,31 @@ public class MEServer implements Runnable
                 output_.writeUTF(messages[0].getID()+": "+messages[0].getText());
                 output_.flush();
             }
-
-            // Get.
-            for (int i=0; i<numParmsToGet; ++i)
+            else
             {
-                String value = pc.getStringValue(tagNamesToGet[i], BidiStringType.DEFAULT);
-                output_.writeUTF(value == null ? "" : value);
-                output_.flush();
+                for (int j=0; j<numParmsToGet; ++j)
+                {
+                    output_.writeUTF(values[j] == null ? "" : values[j]);
+                    output_.flush();
+                }
             }
         }
         catch (PcmlException pe)
         {
-            verbose_.println( pe.getMessage() );
-
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, pe);
-
-            output_.writeBoolean(false);
-            output_.flush();
-
-            sendException( pe.getException() );
-
+            Exception e2;
+            if ( (e2 = ((PcmlException) pe).getException()) != null)
+            {
+                verbose_.println( e2.getMessage() );
+                output_.writeBoolean(false);
+                sendException(e2);
+            }
+            else
+            {
+                if (verboseState_)
+                    verbose_.println( pe.getLocalizedMessage() );
+                sendException( pe );
+            }
+            
             return;
         }
     }
@@ -692,10 +741,10 @@ public class MEServer implements Runnable
                 {
                     output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
                     output_.writeInt(MEException.PROGRAM_NOT_REGISTERED);
-                    output_.writeUTF( pe.getException().getMessage() );
+                    output_.writeUTF(pe.getLocalizedMessage());
                     output_.flush();
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     if (Trace.isTraceErrorOn ())
                         Trace.log (Trace.ERROR, "Error returning exception, from PCML load, to ME client.", e);
@@ -721,7 +770,36 @@ public class MEServer implements Runnable
                     output_.writeUTF( n.getClass().getName()+ ": " + n.getMessage() );
                     output_.flush();
                 }
-                catch (IOException e)
+                catch (Exception e)                                                                                                                     // UPDATED
+                {
+                    if (Trace.isTraceErrorOn ())
+                        Trace.log (Trace.ERROR, "Error returning exception, from PCML load, to ME client.", e);
+                }
+            }
+
+            return null;
+        }
+        catch (MissingResourceException mre)          
+        {
+            if (pcml == null)
+                verbose_.println( ResourceBundleLoader_m.getText("ME_PCML_ERROR") );
+
+            if (Trace.isTraceOn())
+                Trace.log(Trace.ERROR, mre);
+
+            if (output_ != null)
+            {
+                try
+                {
+                    output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
+                    if (pcml.length() == 0)
+                        output_.writeInt(MEException.PARAMETER_VALUE_NOT_VALID);
+                    else
+                        output_.writeInt(MEException.PROGRAM_NOT_REGISTERED);
+                    output_.writeUTF( n.getClass().getName()+ ": " + n.getMessage() );
+                    output_.flush();
+                }
+                catch (Exception e)                                                                                                                         // UPDATED
                 {
                     if (Trace.isTraceErrorOn ())
                         Trace.log (Trace.ERROR, "Error returning exception, from PCML load, to ME client.", e);
@@ -1117,7 +1195,7 @@ public class MEServer implements Runnable
     private void sendException(Exception e) throws IOException
     {
         if ( Trace.isTraceOn() )
-            Trace.log(Trace.ERROR, "ME Exception Occurred: \n", e);
+            Trace.log(Trace.PROXY, "ME Exception Occurred: \n", e);
 
         // Determine what the exception was and then map it
         // the the MEException return code and send it back
@@ -1167,6 +1245,12 @@ public class MEServer implements Runnable
                 break;
             }
         }
+        else if (e instanceof PcmlException)
+        {
+            output_.writeBoolean(false);
+            output_.writeInt(MEException.PCML_EXCEPTION);
+            output_.writeUTF( e.getLocalizedMessage() );
+        }
         else if (e instanceof ObjectDoesNotExistException)
         {
             output_.writeInt(MEException.OBJECT_DOES_NOT_EXIST);
@@ -1174,6 +1258,10 @@ public class MEServer implements Runnable
         }
         else if (e instanceof ExtendedIllegalArgumentException)
         {
+            int rc = ((ExtendedIllegalArgumentException)e).getReturnCode();                 
+            if (rc == ExtendedIllegalArgumentException.LENGTH_NOT_VALID)
+                output_.writeInt(MEException.LENGTH_NOT_VALID);
+            else
             output_.writeInt(MEException.PARAMETER_VALUE_NOT_VALID);
             output_.writeUTF( e.getMessage() );
         }
@@ -1182,9 +1270,20 @@ public class MEServer implements Runnable
             output_.writeInt(MEException.PROPERTY_NOT_SET);
             output_.writeUTF( e.getMessage() );
         }
+        else if (e instanceof ErrorCompletingRequestException)                  
+        {
+            int rc = ((ErrorCompletingRequestException)e).getReturnCode();
+
+            if (rc == ErrorCompletingRequestException.LENGTH_NOT_VALID)
+                output_.writeInt(MEException.LENGTH_NOT_VALID);
+            else
+                output_.writeInt(MEException.UNKNOWN);
+            output_.writeInt(MEException.PROPERTY_NOT_SET);
+            output_.writeUTF( e.getMessage() );
+        }
         else if (e instanceof ConnectionDroppedException)
         {
-            int rc = ((ConnectionDroppedException) e).getReturnCode();
+            int rc = ((ConnectionDroppedException)e).getReturnCode();
 
             if (Trace.isTraceOn())
                 Trace.log(Trace.DIAGNOSTIC, "Exception return code: " + rc);

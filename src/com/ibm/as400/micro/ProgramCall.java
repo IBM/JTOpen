@@ -109,7 +109,6 @@ public final class ProgramCall
      *  @exception  IOException  If an error occurs while communicating with the server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
-    //public static String[] run(AS400 system, String pcmlName, String program, String[] parametersToSet, String[] parameterValues, String[] parametersToGet) throws IOException, MEException
     public static String[] run(AS400 system, String pcmlName, String program, Hashtable parametersToSet, String[] parametersToGet) throws IOException, MEException
     {
         if (system == null)
@@ -140,7 +139,7 @@ public final class ProgramCall
             {
                 String key = (String)e.nextElement();
                 system.toServer_.writeUTF(key);
-                system.toServer_.writeUTF((String) parametersToSet.get(key));
+                system.toServer_.writeUTF(parametersToSet.get(key).toString());
             }
 
             system.toServer_.flush();
