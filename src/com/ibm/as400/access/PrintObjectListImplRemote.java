@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectListImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ import java.io.IOException;
 abstract class PrintObjectListImplRemote
 implements PrintObjectListImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
     // These instance variable are persistent.
@@ -254,10 +254,12 @@ implements PrintObjectListImpl
                       // every 15 datastreams that we get we'll call to the
                       // garbage collector to keep the VM from running out of
                       // of memory
-                      if ((count % 15) == 0)
-                      {
-                         System.gc();
-                      }
+//@C0 - This is a serious performance bottleneck and should no longer be
+//      necessary under today's "modern" JVMs.
+//@C0D                      if ((count % 15) == 0)
+//@C0D                      {
+//@C0D                         System.gc();
+//@C0D                      }
                   } while (fMoreData);
               }
             }
