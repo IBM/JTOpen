@@ -332,7 +332,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
         }
 
         //Add the <body> tag and its contents
-        s.append(body);
+        s.append(body.toString());
         s.append("</body>\n");
         s.append("</html>\n");
 

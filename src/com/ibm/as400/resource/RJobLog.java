@@ -822,7 +822,7 @@ Writes a program message to the job log for the job in which the program is runn
         StringBuffer fullName = new StringBuffer();
         fullName.append(jobLogName);
         fullName.append('-');
-        fullName.append(name);
+        fullName.append(name.toString());
 
         Presentation presentation = rQueuedMessage.getPresentation();
         presentation.setName(name.toString());
