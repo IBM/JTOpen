@@ -834,7 +834,7 @@ implements IFSFileImpl
 
     long size = 0L;
 
-    if (fd_.getSystemVRM() != 0x00050200)  // system is other than V5R2   @C1c
+    if (fd_.getSystemVRM() >> 8 != 0x00000502)  // system is other than V5R2   @C1c
     {
       // Attempt to list the attributes of the specified file.
       // Note: Do not use cached attributes, since they may be out of date.
