@@ -170,19 +170,19 @@ class PermissionAccessQSYS extends PermissionAccess
                       +" AUT(*EXCLUDE)";
         } else
         {
+            try
+            {
+              object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
+            }
+            catch(Exception e)
+            {
+              Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+            }
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
                     +" USER("+userProfile+")"
                     +" AUT(*EXCLUDE)";
-        }
-        try
-        {
-          command = CharConverter.convertIFSQSYSPathnameToJobPathname(command, sys.getCcsid());
-        }
-        catch(Exception e)
-        {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
@@ -222,20 +222,20 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         else
         {
+          try
+          {
+            object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
+          }
+          catch(Exception e)
+          {
+            Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+          }
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
                     +" USER("+userProfile+")"
                     +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"  // @B5c
                     +" REPLACE(*YES)";
-        }
-        try
-        {
-          command = CharConverter.convertIFSQSYSPathnameToJobPathname(command, sys.getCcsid());
-        }
-        catch(Exception e)
-        {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
@@ -299,6 +299,14 @@ class PermissionAccessQSYS extends PermissionAccess
             if (asp != null)                                 // @B6a
                localName = asp + localName;                  // @B6a
 
+            try
+            {
+              localName = CharConverter.convertIFSQSYSPathnameToJobPathname(localName, sys.getCcsid());
+            }
+            catch(Exception e)
+            {
+              Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+            }
             command="CHGAUT"
                     +" OBJ(" + expandQuotes0(localName) + ")"      // @B4c @B6c
                     +" USER("+userName+")"
@@ -307,14 +315,6 @@ class PermissionAccessQSYS extends PermissionAccess
             threadSafe = true; //@A2A
         }
 
-        try
-        {
-          command = CharConverter.convertIFSQSYSPathnameToJobPathname(command, sys.getCcsid());
-        }
-        catch(Exception e)
-        {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
-        }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(threadSafe);  //@A2A
         return cmd;                     //@A2C
@@ -483,6 +483,14 @@ class PermissionAccessQSYS extends PermissionAccess
 
         CommandCall setAUTL=new CommandCall(as400_);
         String cmd;
+        try
+        {
+          object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, as400_.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+        }
         if (!oldValue.toUpperCase().equals("*NONE")&&
             autList.toUpperCase().equals("*NONE"))
         {
@@ -496,14 +504,6 @@ class PermissionAccessQSYS extends PermissionAccess
                   +" OBJ("+object+")"
                   +" OBJTYPE(*"+objectType+")"
                   +" AUTL("+autList+")";
-        }
-        try
-        {
-          cmd = CharConverter.convertIFSQSYSPathnameToJobPathname(cmd, as400_.getCcsid());
-        }
-        catch(Exception e)
-        {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
         }
         setAUTL.setCommand(cmd);
         setAUTL.setThreadSafe(false); // RVKOBJAUT,GRTOBJAUT not threadsafe.  @A2A @A3C
@@ -554,6 +554,14 @@ class PermissionAccessQSYS extends PermissionAccess
 
         CommandCall fromAUTL=new CommandCall(as400_);
         String cmd;
+        try
+        {
+          object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, as400_.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+        }
         if (fromAutl)
             cmd = "GRTOBJAUT"
                   +" OBJ("+object+")"
@@ -566,14 +574,6 @@ class PermissionAccessQSYS extends PermissionAccess
                   +" OBJTYPE(*"+objectType+")"
                   +" USER(*PUBLIC)"
                   +" AUT(*EXCLUDE)";
-        try
-        {
-          cmd = CharConverter.convertIFSQSYSPathnameToJobPathname(cmd, as400_.getCcsid());
-        }
-        catch(Exception e)
-        {
-          Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
-        }
         fromAUTL.setCommand(cmd);
         fromAUTL.setThreadSafe(false); // GRTOBJAUT isn't threadsafe.  @A2A @A3C
         if (fromAUTL.run()!=true)
