@@ -107,8 +107,8 @@ implements java.sql.Driver
 
 
 	// Constants.
-     // Update each release.  Was 4 for v5r1.
-	static final int    MAJOR_VERSION_          = 5; // @B1C @C5C 
+        // Update each release.  Was 4 for v5r1.
+	static final int    MAJOR_VERSION_          = 6; // @B1C @C5C @D1C
 	static final int    MINOR_VERSION_          = 0;
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
