@@ -609,7 +609,7 @@ class JDProperties implements Serializable
         // Extended metadata.   @F5A
         i = EXTENDED_METADATA;
         dpi_[i] = new DriverPropertyInfo (EXTENDED_METADATA_, "");
-        dpi_[i].description = "EXTENDED_METADATA";
+        dpi_[i].description = "EXTENDED_METADATA_DESC";     //@K7C changed to match the name in JDMRI.java
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = FALSE_;
@@ -647,7 +647,7 @@ class JDProperties implements Serializable
         // login timeout.         //@K5A
         i = LOGIN_TIMEOUT;
         dpi_[i] = new DriverPropertyInfo (LOGIN_TIMEOUT_, "");
-        dpi_[i].description = "LOGIN_TIMEOUT_NAME_DESC";
+        dpi_[i].description = "LOGIN_TIMEOUT_DESC";     //@K7C changed to match the description name in JDMRI.java
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;
