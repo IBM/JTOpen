@@ -66,6 +66,19 @@ public class User implements Serializable
   };
 
   /**
+   * Constant value representing the String "*NONE".
+   * @see #getGroupProfileName
+   * @see #getAttentionKeyHandlingProgram
+   * @see #getGroupAuthority
+   * @see #getInitialProgram
+   * @see #getLocaleJobAttributes
+   * @see #getLocalePathName
+   * @see #getObjectAuditingValue
+   * @see #getSpecialEnvironment
+  **/
+  public static final String NONE = "*NONE";
+
+  /**
    * Constant value representing a special authority of "*ALLOBJ".
    * @see #getSpecialAuthority
   **/
@@ -313,8 +326,8 @@ attention key handling program for this user.
 @return The fully qualified integrated file system path name of the
         attention key handling program for this user. Possible values are:
         <ul>
+        <li>{@link #NONE User.NONE} - No attention key handling program is used.
         <li>"*SYSVAL" - The system value QATNPGM determines the user's attention key handling program.
-        <li>"*NONE" - No attention key handling program is used.
         <li>"*ASSIST" - The Operational Assistant attention key handling program.
         <li>The attention key handling program name.
         </ul>
@@ -479,7 +492,7 @@ has to objects the user creates.
 @return The authority the user's group profile
         has to objects the user creates.  Possible values are:
         <ul>
-        <li>"*NONE" - The group profile has no authority to the objects the user creates,
+        <li>{@link #NONE User.NONE} - The group profile has no authority to the objects the user creates,
             or the user does not have a group profile.
         <li>"*ALL" - The group profile has all authority to the objects the user creates.
         <li>"*CHANGE" - The group profile has change authority to the objects the user creates.
@@ -490,6 +503,7 @@ has to objects the user creates.
     public String getGroupAuthority()
     {
       if (!loaded_) refresh();
+      if (groupAuthority_.equals(NONE)) return NONE;
       return groupAuthority_;
     }
 
@@ -558,13 +572,14 @@ Returns the name of the group profile.
 
 @return The name of the group profile.  Possible values are:
         <ul>
-        <li>"*NONE" - If the user does not have a group profile.
+        <li>{@link #NONE User.NONE} - If the user does not have a group profile.
         <li>The group profile name.
         </ul>
 **/
     public String getGroupProfileName()
     {
       if (!loaded_) refresh();
+      if (groupProfile_.equals(NONE)) return NONE;
       return groupProfile_;
     }
 
@@ -692,7 +707,7 @@ of the initial program for the user.
         of the initial program for the user.
         Possible values are:
         <UL>
-        <LI>"*NONE" - If the user does not have an initial program.
+        <LI>{@link #NONE User.NONE} - If the user does not have an initial program.
         <LI>The initial program name.
         </UL>
 @see QSYSObjectPathName
@@ -804,7 +819,7 @@ name at the time a job is started for this user.
         name at the time a job is started for this user.
         Possible values for the elements of this array are:
         <ul>
-        <li>"*NONE" - No job attributes are used from the locale path name at the time a job is
+        <li>{@link #NONE User.NONE} - No job attributes are used from the locale path name at the time a job is
             started for this user profile.
         <li>"*SYSVAL" - The job attributes assigned from the locale path name are determined by
             the system value QSETJOBATR at the time a job is started for this user profile.
@@ -830,7 +845,7 @@ name at the time a job is started for this user.
 
     private static final String[] LOCALE_ATTRIBUTES = new String[]
     {
-      "*NONE",
+      User.NONE,
       "*SYSVAL",
       "*CCSID",
       "*DATFMT",
@@ -849,8 +864,8 @@ user profile when a job is started.
         user profile when a job is started.
         Possible values are:
         <ul>
+        <li>{@link #NONE User.NONE} - No locale path name is assigned.
         <li>"*SYSVAL" - The QLOCALE system value is used to determine the locale path name.
-        <li>"*NONE" - No locale path name is assigned.
         <li>"*C" - The C locale path name is assigned.
         <li>"*POSIX" - The POSIX locale path name is assigned.
         <li>A locale path name.
@@ -859,6 +874,7 @@ user profile when a job is started.
     public String getLocalePathName()
     {
       if (!loaded_) refresh();
+      if (localePathName_.equals(NONE)) return NONE;
       return localePathName_;
     }
 
@@ -954,7 +970,7 @@ Returns the user's object auditing value.
 
 @return The user's object auditing value.  Possible values are:
         <ul>
-        <li>"*NONE" - No additional object auditing is done for the user.
+        <li>{@link #NONE User.NONE} - No additional object auditing is done for the user.
         <li>"*CHANGE" - Object changes are audited for the user if the object's auditing
             value is *USRPRF.
         <li>"*ALL" - Object read and change operations are audited for the user
@@ -964,6 +980,7 @@ Returns the user's object auditing value.
     public String getObjectAuditingValue()
     {
       if (!loaded_) refresh();
+      if (objectAuditingValue_.equals(NONE)) return NONE;
       return objectAuditingValue_;
     }
 
@@ -1189,15 +1206,16 @@ Returns the special environment the user operates in after signing on.
 @return The special environment the user operates in after signing on.
         Possible values are:
         <ul>
+        <li>{@link #NONE User.NONE} - The user operates in the OS/400 environment.
         <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special
             environment.
-        <li>"*NONE" - The user operates in the OS/400 environment.
         <li>"*S36" - The user operates in the System/36 environment.
         </ul>
 **/
     public String getSpecialEnvironment()
     {
       if (!loaded_) refresh();
+      if (specialEnvironment_.equals(NONE)) return NONE;
       return specialEnvironment_;
     }
 
@@ -1456,8 +1474,8 @@ was set into this User object by the constructor or a call to setUser().
       }
     }
     // Check to see if a group this user belongs to is authorized.
-    String primaryGroup = getGroupProfileName().trim();
-    if (primaryGroup != null && !primaryGroup.equals("*NONE"))
+    String primaryGroup = getGroupProfileName();
+    if (primaryGroup != null && primaryGroup != NONE)
     {
       User group = null;
       try { group = new User(system_, primaryGroup); } catch(Exception e) {}
@@ -1678,9 +1696,9 @@ Refreshes the values for all attributes.
         initialMenu_ = QSYSObjectPathName.toPath(conv.byteArrayToString(data, 158, 10).trim(), menu, "MNU");
       }
       String prog = conv.byteArrayToString(data, 168, 10).trim();
-      if (prog.equals("*NONE"))
+      if (prog.equals(NONE))
       {
-        initialProgram_ = prog;
+        initialProgram_ = NONE;
       }
       else
       {
@@ -1715,7 +1733,11 @@ Refreshes the values for all attributes.
       printDevice_ = conv.byteArrayToString(data, 380, 10).trim();
       specialEnvironment_ = conv.byteArrayToString(data, 390, 10).trim();
       String keyName = conv.byteArrayToString(data, 400, 10).trim();
-      if (keyName.equals("*SYSVAL") || keyName.equals("*NONE") || keyName.equals("*ASSIST"))
+      if (keyName.equals(NONE))
+      {
+        attentionKeyHandlingProgram_ = NONE;
+      }
+      else if (keyName.equals("*SYSVAL") || keyName.equals("*ASSIST"))
       {
         attentionKeyHandlingProgram_ = keyName;
       }
