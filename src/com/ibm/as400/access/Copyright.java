@@ -19,5 +19,5 @@ package com.ibm.as400.access;
 public interface Copyright
 {
     public static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-    public static final String version   = "Open Source Software, JTOpen 4.3, codebase 5722-JC1 V5R3M0.2";
+    public static final String version   = "Open Source Software, JTOpen 4.3.1, codebase 5722-JC1 V5R3M0.2";
 }
