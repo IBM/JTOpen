@@ -2285,7 +2285,7 @@ time.
     public int getMaxStatements ()
     throws SQLException
     {
-        return 255;
+        return AS400JDBCConnection.MAX_STATEMENTS_; // @E4C
     }
 
 

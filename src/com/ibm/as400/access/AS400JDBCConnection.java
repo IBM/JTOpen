@@ -23,8 +23,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.BitSet;                    // @EFA
+import java.util.Enumeration;               // @EFA
 import java.util.Map;
 import java.util.Properties;
+import java.util.Vector;
 
 
 
@@ -120,15 +123,17 @@ implements Connection
 
             static final int            BIGINT_SUPPORTED_       = 0x00040500; // @D0A
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;  // @B1A
+    private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @EFA
+    private static final int            INITIAL_STATEMENT_TABLE_SIZE_ = 256;    // @EFA
             static final int            LOB_SUPPORTED_          = 0x00040400; // @D6A
-    private static final int            MAX_STATEMENTS_         = 256;
+            static final int            MAX_STATEMENTS_         = 9999;         // @EFC 
 
 
 
     // Private data.
     private AS400ImplRemote             as400_;
     private AS400                       as400PublicClassObj_; // Prevents garbage collection.
-    private boolean[]                   assigned_;
+    private BitSet                      assigned_;                      // @EFC
     private String                      catalog_;
     private boolean                     closing_;            // @D4A
     private ConverterImplRemote         converter_;
@@ -143,10 +148,10 @@ implements Connection
 	private JDPackageManager            packageManager_;
 	private JDProperties                properties_;
 	private boolean                     readOnly_;
-	private boolean[]                   requestPending_;
+	private BitSet                      requestPending_;                // @EFC
 	private AS400Server				    server_;
     private SQLWarning				    sqlWarning_;
-    private AS400JDBCStatement[]		statements_;
+    private Vector		                statements_;                    // @EFC
 	private JDTransactionManager  	    transactionManager_;
     private int                         vrm_;                           // @D0A
 
@@ -278,11 +283,12 @@ of the connection, and disconnects from the server.
 
 		// Close all statements that are running in the context
 		// of this connection.
-		for (int i = 0; i < MAX_STATEMENTS_; ++i) {
-		    if (statements_[i] != null)
-		        if (! statements_[i].isClosed ())
-		            statements_[i].close ();
-		}
+   Enumeration enum = statements_.elements();                                       // @EFA
+   while(enum.hasMoreElements()) {                                                  // @EFC
+       AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @EFA
+       if (! statement.isClosed())                                                  // @EFC
+           statement.close();                                                       // @EFC
+   }
 
 		// Disconnect from the server.
 		if (server_ != null) {
@@ -428,7 +434,7 @@ is more efficient to use prepareStatement().
 		    properties_.getBoolean (JDProperties.PREFETCH),
 		    properties_.getString (JDProperties.PACKAGE_CRITERIA), // @A2A
 		    resultSetType, resultSetConcurrency);
-        statements_[statementId] = statement;
+        statements_.addElement(statement);
         return statement;
     }
 
@@ -741,16 +747,16 @@ Returns the next unused id.
         if (drda_) {
             if (resultSetType == ResultSet.TYPE_FORWARD_ONLY) {             
                 for (int i = 1; i < DRDA_SCROLLABLE_CUTOFF_; ++i) {
-                    if (assigned_[i] == false) {
-                        assigned_[i] = true;
+                    if (assigned_.get(i) == false) {                                    // @EFC
+                        assigned_.set(i);                                               // @EFC
                         return i;
                     }
                 }            
             }
             else {
-                for (int i = DRDA_SCROLLABLE_CUTOFF_; i < MAX_STATEMENTS_; ++i) {
-                    if (assigned_[i] == false) {
-                        assigned_[i] = true;
+                for (int i = DRDA_SCROLLABLE_CUTOFF_; i < DRDA_SCROLLABLE_MAX_; ++i) {  // @EFC
+                    if (assigned_.get(i) == false) {                                    // @EFC
+                        assigned_.set(i);                                               // @EFC
                         return i;
                     }
                 }            
@@ -761,8 +767,8 @@ Returns the next unused id.
         // we can use any statement id.
         else {
             for (int i = 1; i < MAX_STATEMENTS_; ++i) {
-                if (assigned_[i] == false) {
-                    assigned_[i] = true;
+                if (assigned_.get(i) == false) {                                    // @EFC
+                    assigned_.set(i);                                               // @EFC
                     return i;
                 }
             }
@@ -832,11 +838,11 @@ in the connection.
 **/
     boolean isCursorNameUsed (String cursorName)
     {
-        for (int i = 0; i < MAX_STATEMENTS_; ++i) {
-            if (statements_[i] != null)
-                if (statements_[i].getCursorName ().equalsIgnoreCase (cursorName))
-    				return true;
-		}
+        Enumeration enum = statements_.elements();                                                          // @EFA
+        while(enum.hasMoreElements()) {                                                                     // @EFC
+            if (((AS400JDBCStatement)enum.nextElement()).getCursorName().equalsIgnoreCase(cursorName))      // @EFC
+                return true;
+        }
 		return false;
     }
 
@@ -909,8 +915,8 @@ been closed.
 **/
     void notifyClose (AS400JDBCStatement statement, int id)
     {
-		statements_[id] = null;
-		assigned_[id] = false;
+        statements_.remove(statement);                  // @EFC
+        assigned_.clear(id);                            // @EFC
     }
 
 
@@ -1011,7 +1017,7 @@ stored procedure multiple times.
 		    sqlStatement,
 		    properties_.getString (JDProperties.PACKAGE_CRITERIA),
 		    resultSetType, resultSetConcurrency);
-		statements_[statementId] = statement;
+        statements_.addElement(statement);                  // @EFC
 		return statement;
     }
 
@@ -1094,7 +1100,7 @@ multiple times.
 		    sqlStatement, false,
 		    properties_.getString (JDProperties.PACKAGE_CRITERIA),
 		    resultSetType, resultSetConcurrency);
-		statements_[statementId] = statement;
+		statements_.addElement(statement);                      // @EFC
 		return statement;
     }
 
@@ -1183,17 +1189,20 @@ expect a reply.
 		throws SQLException
 	{
 	    try {
-	        request.setBasedOnORSHandle (requestPending_[id] ? id : 0);
+	        request.setBasedOnORSHandle (requestPending_.get(id) ? id : 0);                 // @EFC
     		DBReplyRequestedDS reply = null;
 
             if (DEBUG_REQUEST_CHAINING_ == true) {
        		    server_.send (request);
-                requestPending_[id] = leavePending;
+                if (leavePending)                                                           // @EFA
+                    requestPending_.set(id);                                                // @EFC
+                else                                                                        // @EFA
+                    requestPending_.clear(id);                                              // @EFA
             }
             else {
                 request.addOperationResultBitmap (DBBaseRequestDS.ORS_BITMAP_RETURN_DATA);
                 reply = (DBReplyRequestedDS) server_.sendAndReceive (request);
-                requestPending_[id] = false;
+                    requestPending_.clear(id);                                              // @EFC
             }
 
             if (DEBUG_COMM_TRACE_ > 0) {
@@ -1233,10 +1242,10 @@ the reply.
 		throws SQLException
 	{
 	    try {
-	        request.setBasedOnORSHandle (requestPending_[id] ? id : 0);
+	        request.setBasedOnORSHandle (requestPending_.get(id) ? id : 0);                 // @EFC
 
    		    server_.sendAndDiscardReply (request);
-            requestPending_[id] = false;
+                    requestPending_.clear(id);                                              // @EFC
 
             if (DEBUG_COMM_TRACE_ > 0)
                 debug (request);
@@ -1310,10 +1319,10 @@ corresponding reply from the server.
 		DBReplyRequestedDS reply = null;
 
 		try {
-	        request.setBasedOnORSHandle (requestPending_[id] ? id : 0);
+	        request.setBasedOnORSHandle (requestPending_.get(id) ? id : 0);                 // @EFC
 
    			reply = (DBReplyRequestedDS) server_.sendAndReceive (request);
-            requestPending_[id] = false;
+            requestPending_.clear(id);                                                      // @EFC
 
             if (DEBUG_COMM_TRACE_ > 0) {
                 debug (request);
@@ -1425,12 +1434,12 @@ Sets whether the connection is being used for DRDA.
     {
       // Initialization.
       as400_                  = (AS400ImplRemote) as400;           //@A3A
-      assigned_               = new boolean[MAX_STATEMENTS_];
+      assigned_               = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);          // @EFC
       dataSourceUrl_          = dataSourceUrl;
       extendedFormats_        = false;
       properties_             = properties;
-      requestPending_         = new boolean[MAX_STATEMENTS_];
-      statements_                      = new AS400JDBCStatement[MAX_STATEMENTS_];
+      requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @EFC
+      statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @EFC
 
       // Issue any warnings.
       if (dataSourceUrl_.isExtraPathSpecified ())
