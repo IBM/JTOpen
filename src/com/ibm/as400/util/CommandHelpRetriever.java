@@ -320,6 +320,9 @@ public class CommandHelpRetriever
   }
 
 
+  private static boolean genUIM_ = false;
+  private static boolean genHTML_ = true;
+
   /**
    * Performs the actions specified in the invocation arguments.
    * @param args The command line arguments.
@@ -356,23 +359,46 @@ public class CommandHelpRetriever
       {
         try
         {
-          String html = utility.generateHTML(cmds[i]);
-
-          File outFile = null;
-          if (isDir)
+          if (genHTML_)
           {
-            QSYSObjectPathName path = new QSYSObjectPathName(cmds[i].getPath());
-            String filename = path.getLibraryName()+"_"+path.getObjectName()+".html";
-            outFile = new File(outDir, filename);
-          }
-          else
-          {
-            outFile = outDir;
-          }
+            String html = utility.generateHTML(cmds[i]);
 
-          FileWriter out = new FileWriter(outFile);
-          out.write(html);
-          out.close();
+            File outFile = null;
+            if (isDir)
+            {
+              QSYSObjectPathName path = new QSYSObjectPathName(cmds[i].getPath());
+              String filename = path.getLibraryName()+"_"+path.getObjectName()+".html";
+              outFile = new File(outDir, filename);
+            }
+            else
+            {
+              outFile = outDir;
+            }
+
+            FileWriter out = new FileWriter(outFile);
+            out.write(html);
+            out.close();
+          }
+          if (genUIM_)
+          {
+            String uim = utility.generateUIM(cmds[i]);
+
+            File outFile = null;
+            if (isDir)
+            {
+              QSYSObjectPathName path = new QSYSObjectPathName(cmds[i].getPath());
+              String filename = path.getLibraryName()+"_"+path.getObjectName()+".uim";
+              outFile = new File(outDir, filename);
+            }
+            else
+            {
+              outFile = outDir;
+            }
+
+            FileWriter out = new FileWriter(outFile);
+            out.write(uim);
+            out.close();
+          }
         }
         catch (Exception e1)
         {
@@ -773,7 +799,7 @@ public class CommandHelpRetriever
   **/
   private static AS400 parseParms(String args[], CommandHelpRetriever utility) throws Exception
   {
-    String s,u,p,l,c,pv,o,d;
+    String s,u,p,l,c,pv,o,d,uim,html;
 
     Vector v = new Vector();
     v.addElement("-system");
@@ -784,6 +810,8 @@ public class CommandHelpRetriever
     v.addElement("-showChoicePgmValues");
     v.addElement("-output");
     v.addElement("-debug");
+    v.addElement("-uim");
+    v.addElement("-html");
 
     Hashtable shortcuts = new Hashtable();
     shortcuts.put("-help", "-h");
@@ -850,6 +878,20 @@ public class CommandHelpRetriever
     {
       if (d.length() == 0 || pv.equalsIgnoreCase("true"))
         utility.setDebug(true);
+    }
+
+    genUIM_ = false;
+    genHTML_ = true;
+    uim = arguments.getOptionValue("-uim");
+    if (uim != null && (uim.length() == 0 || uim.equalsIgnoreCase("true")))
+    {
+      genUIM_ = true;
+      genHTML_ = false;
+    }
+    html = arguments.getOptionValue("-html");
+    if (html != null && (html.length() == 0 || html.equalsIgnoreCase("true")))
+    {
+      genHTML_ = true;
     }
 
     return system;
@@ -968,11 +1010,13 @@ public class CommandHelpRetriever
     System.out.println ();
     System.out.println ("  com.ibm.as400.util.CommandHelpRetriever [ " + optionslc + " ]");
     System.out.println ();
-    System.out.println ("  -libary library");
+    System.out.println ("  -library library");
     System.out.println ("  -command command");
     System.out.println ();
     System.out.println (optionsuc + ":");
     System.out.println ();
+    System.out.println ("  [ -html ]");
+    System.out.println ("  [ -uim ]");
     System.out.println ("  [ -system systemName ]");
     System.out.println ("  [ -userID userID ]");
     System.out.println ("  [ -password password ]");       
