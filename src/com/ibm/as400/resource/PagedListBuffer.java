@@ -220,7 +220,7 @@ Sets a resource in the buffer.
                 for (int i = 0; i < pageSize_; ++i)
                     pages_[page][i] = null;
                 pages_[page] = null;
-                System.gc();
+//@B0D                System.gc();
 
                 if (Trace.isTraceOn())
                     Trace.log(Trace.INFORMATION, "Paged list buffer " + this + " swapped out page " + page + ".");
