@@ -18,7 +18,7 @@ import java.util.Hashtable;
 import java.util.Enumeration;
 
 /**
- *  The SQLStatement class represents an SQL statement.  This class allows the user to runl any SQL statement
+ *  The SQLStatement class represents an SQL statement.  This class allows the user to run any SQL statement
  *  from a wireless device.  This class provides a modified subset of the JDBC functions available in 
  *  the com.ibm.as400.access package.
  *
@@ -63,13 +63,14 @@ import java.util.Enumeration;
  *   system.disconnect();
  *  </pre>
  **/
-public final class SQLStatement 
+public class SQLStatement 
 {
     /**
      *  Construct a SQLStatement object.  This class has a static method execute() and
-     *  does not need a public constructor.
+     *  does not need a public constructor.  It does need to be package scope so the SQLCallableStatement
+     *  can subclass SQLStatement.
      **/
-    private SQLStatement()
+    SQLStatement()
     {
     }
 
@@ -79,7 +80,7 @@ public final class SQLStatement
      *
      *  @param system The iSeries server.
      *  @param info      The connection properties or null meaning no properties.
-     *  @param query   The SQL statement.
+     *  @param sql   The SQL statement.
      *
      *  @return The result set that contains the data produced by the query.
      *
