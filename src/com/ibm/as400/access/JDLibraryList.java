@@ -178,7 +178,7 @@ Constructor.
         //@KBD   defaultSchema_ = list_[0];
         //@KBD else if (list_.length > 1)
         //@KBD   defaultSchema_ = list_[1];
-          if(list_length > 0)                   //@KBA
+          if(list_.length > 0)                   //@KBA
               defaultSchema_ = list_[0];        //@KBA
       }
 
