@@ -31,14 +31,6 @@ import com.ibm.as400.access.BinaryConverter; //@E1A
 
 import org.xml.sax.XMLReader;
 
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerConfigurationException;
-
 import java.io.OutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
@@ -54,7 +46,8 @@ import java.util.MissingResourceException;
 import java.util.Stack;
 import java.util.Vector;
 
-import com.ibm.as400.access.Trace; 
+import com.ibm.as400.access.Trace;
+
 class PcmlSAXParser extends DefaultHandler
 {
 
@@ -88,10 +81,6 @@ class PcmlSAXParser extends DefaultHandler
 
   /** xsd file **/
   private InputStream xsdFileStream;
-
-
-  //@E1A -- Transformer used for transforming user supplied xsd
-  private static TransformerFactory tFactory = TransformerFactory.newInstance();
 
   // @E1A -- Set features for XML parser.  Need to set for full schema checking
   // @E1A feature ids
@@ -163,7 +152,7 @@ class PcmlSAXParser extends DefaultHandler
       {
         try
         {
-          simplifyXSDTransform(xsdFileStream, xmlOut);
+          XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
         }
         catch (IOException e)
         {
@@ -172,10 +161,6 @@ class PcmlSAXParser extends DefaultHandler
         catch (SAXException e)
         {
           throw e;
-        }
-        catch (TransformerException e)
-        {
-          throw new SAXException(e);
         }
 
         stream = new ByteArrayInputStream(xmlOut.toByteArray());
@@ -354,7 +339,7 @@ class PcmlSAXParser extends DefaultHandler
       {
         try
         {
-          simplifyXSDTransform(xsdFileStream, xmlOut);
+          XPCMLHelper.doSimplifyXSDTransform(xsdFileStream, xmlOut);
         }
         catch (IOException e)
         {
@@ -363,10 +348,6 @@ class PcmlSAXParser extends DefaultHandler
         catch (SAXException e)
         {
           throw e;
-        }
-        catch (TransformerException e)
-        {
-          throw new SAXException(e);
         }
 
         stream = new ByteArrayInputStream(xmlOut.toByteArray());
@@ -1758,19 +1739,6 @@ class PcmlSAXParser extends DefaultHandler
     }  // end if isXPCML
   }
 
-
-  /**********************************************************************************************************/
-  /** simplifyXSDTransform -- Transform that takes XSD file and transforms it to a more readable form for   */
-  /*                             identifying types and their attributes                                     */
-  /***********************************************************************************************************/
-  static void simplifyXSDTransform(InputStream streamSource, OutputStream streamResult)
-  throws TransformerException, TransformerConfigurationException,
-  SAXException, IOException 
-  {
-    StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile("xpcml_xpcml.xsl"));
-    Transformer transformer = tFactory.newTransformer(in);
-    transformer.transform(new StreamSource(streamSource), new StreamResult(streamResult));
-  }
 
   /** Determine if node is in tree already -- used for array processing ****/
   boolean inTree(String equivQName, AttributesImpl curList)
