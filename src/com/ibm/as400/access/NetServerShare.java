@@ -332,13 +332,12 @@ extends ChangeableResource
   public Object getAttributeUnchangedValue(Object attributeID)
     throws ResourceException
   {
-    if (! isConnectionEstablished()) {
-      establishConnection();
-    }
-
     Object value = super.getAttributeUnchangedValue(attributeID);
 
     if (value == null) {
+      if (! isConnectionEstablished()) {      // @A2M
+        establishConnection();                // @A2M
+      }
       value = attributeGetter_.getValue(attributeID);
     }
     return value;
@@ -540,6 +539,7 @@ extends ChangeableResource
   /**
    Sets the network name of the share.
    <br>Note: All share names are uppercase on the server.
+   Share names are limited to 12 characters in length. 
    This method fires a PropertyChangeEvent.
 
    @param name  The name of the share.

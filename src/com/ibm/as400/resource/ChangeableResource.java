@@ -645,11 +645,14 @@ has an uncommitted change, this returns the changed (uncommitted) value.
     private Object getAttributeValueImplementation(Object attributeID, int bidiStringType)
     throws ResourceException
     {
+        Object value = null;  // @A4A
         synchronized(this) {
             if (uncommittedChanges_.containsKey(attributeID))
-                return uncommittedChanges_.get(attributeID);
+                value = uncommittedChanges_.get(attributeID);  // @A4C
             else
-                return getAttributeUnchangedValue(attributeID, bidiStringType);
+                value = getAttributeUnchangedValue(attributeID, bidiStringType);  // @A4C
+            bufferedValues_.put(attributeID, value);   // @A4A
+            return value;  // @A4A
         }
     }
 
@@ -666,6 +669,21 @@ Indicates if an attribute has an uncommitted change.
     {
         validateAttributeID(attributeID);
         return uncommittedChanges_.containsKey(attributeID);
+    }
+
+
+// @A4A
+/**
+Initializes an attribute value.  This is intended for use by the
+subclass when it is initializing attribute values.
+
+@param attributeID  Identifies the attribute.
+@param value        The attribute value.  This cannot be null.
+**/
+    protected void initializeAttributeValue(Object attributeID, Object value)
+    {
+      super.initializeAttributeValue(attributeID, value);
+      bufferedValues_.put(attributeID, value);   // @A4A
     }
 
 

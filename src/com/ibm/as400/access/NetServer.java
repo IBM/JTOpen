@@ -38,7 +38,7 @@ import java.util.Vector;
  <p>
  Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile has *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
- Note: This class uses some API fields that are available only in the OS/400 releases following V4R5.
+ Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>
@@ -348,7 +348,7 @@ extends ChangeableResource
    **/
   /*public*/ static final String GUEST_SUPPORT_PENDING = "GUEST_SUPPORT_PENDING";
   static {
-    attributes_.add(GUEST_SUPPORT_PENDING, Boolean.class, true); // TBD - no setter, so it's read-only for now.
+    attributes_.add(GUEST_SUPPORT_PENDING, Boolean.class, true); // Note: No setter, so it's read-only for now.
     getterMap_.add (GUEST_SUPPORT_PENDING, OLST0201_, "receiverVariable.guestSupportP", BV_MAP_0_1_INT_);
     // Note: No setter, there is no API to set this attribute.
   }
@@ -722,7 +722,7 @@ extends ChangeableResource
         throw new ResourceException(document.getMessageList("qzlsends"));
       }
 
-      // TBD - fireServerEnded();
+      // Note: Here is where we would do a fireServerEnded();
     }
     catch (PcmlException e) {
       Trace.log(Trace.ERROR, "PcmlException when ending the NetServer.", e);
@@ -816,13 +816,12 @@ extends ChangeableResource
   public Object getAttributeUnchangedValue(Object attributeID)
     throws ResourceException
   {
-    if (! isConnectionEstablished()) {
-      establishConnection();
-    }
-
     Object value = super.getAttributeUnchangedValue(attributeID);
 
     if (value == null) {
+      if (! isConnectionEstablished()) {  // @A2M
+        establishConnection();            // @A2M
+      }
       value = attributeGetter_.getValue(attributeID);
     }
     return value;
@@ -911,6 +910,25 @@ extends ChangeableResource
     }
 
     return NetServerPrintShare.list(getSystem());
+  }
+
+  /**
+   Lists print server shares currently associated with the NetServer.
+   The returned ResourceList contains NetServerPrintShare objects.
+   @param shareName Name of shares to list.  Can include wildcard ("*").
+   @return  Information about the specified print shares.
+
+   @exception ResourceException  If an error occurs.
+   @see NetServerPrintShare
+   **/
+  public ResourceList listPrintShares(String shareName)
+    throws ResourceException
+  {
+    if (! isConnectionEstablished()) {
+      establishConnection();
+    }
+
+    return NetServerPrintShare.list(getSystem(), shareName);
   }
 
   /**
@@ -1033,7 +1051,7 @@ extends ChangeableResource
         throw new ResourceException(document.getMessageList("qzlsstrs"));
       }
 
-      // TBD - fireServerStarted();
+      // Note: Here is where we would do a fireServerStarted();
     }
     catch (PcmlException e) {
       Trace.log(Trace.ERROR, "PcmlException when starting the NetServer.", e);
@@ -1062,7 +1080,6 @@ extends ChangeableResource
     }
     if (!foundRequiredAuth) {
       Trace.log(Trace.WARNING, "User " + userId + " does not have *IOSYSCFG authority.");
-      ///throw new ResourceException(ResourceException.AUTHORITY_INSUFFICIENT);
     }
   }
 
