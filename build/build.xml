@@ -565,7 +565,7 @@
 
   <!-- Note that the utilities package is now included in the jt400.jar. -->  
   <target name="jar-jt400" depends="init,compile,pcml,pdml">
-    <jar jarfile="${dist}/jt400.jar">
+    <jar jarfile="${dist}/jt400.jar" manifest="${build}/build/jt400_manifest.txt">
       <fileset dir="${output}">
         <patternset refid="exclude.native.optimizations"/>
         <patternset>
@@ -584,7 +584,7 @@
   </target>
   
   <target name="jar-jt400-xerces-4.0" depends="init,compile-xerces-4.0,pcml,pdml">
-    <jar jarfile="${dist}/jt400-xerces-40.jar">
+    <jar jarfile="${dist}/jt400-xerces-40.jar" manifest="${build}/build/jt400_manifest.txt">
       <fileset dir="${output-xerces-4.0}">
         <patternset refid="exclude.native.optimizations"/>
         <patternset>
@@ -604,7 +604,7 @@
   
   <!-- Preverify doesn't work under JDK 1.4. Skip this jar in that case. -->
   <target name="jar-jt400Micro" depends="init,micro-preverify" unless="compileIncludesExist-1.4">
-    <jar jarfile="${dist}/jt400Micro.jar">
+    <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
       <fileset dir="${output}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
@@ -612,7 +612,7 @@
   </target>
 
   <target name="jar-jt400Native" depends="init,compile,pcml,pdml">
-    <jar jarfile="${dist}/jt400Native.jar">
+    <jar jarfile="${dist}/jt400Native.jar" manifest="${build}/build/jt400Native_manifest.txt">
       <fileset dir="${output}">
         <patternset>
             <exclude name="utilities/**"/>
@@ -628,7 +628,7 @@
   </target>
   
   <target name="jar-jt400Native-xerces-4.0" depends="init,compile-xerces-4.0,pcml,pdml">
-    <jar jarfile="${dist}/jt400Native-xerces-40.jar">
+    <jar jarfile="${dist}/jt400Native-xerces-40.jar" manifest="${build}/build/jt400Native_manifest.txt">
       <fileset dir="${output-xerces-4.0}">
         <patternset>
             <exclude name="utilities/**"/>
@@ -644,7 +644,7 @@
   </target>
   
   <target name="jar-jt400Proxy" depends="init,compile">
-    <jar jarfile="${dist}/jt400Proxy.jar">
+    <jar jarfile="${dist}/jt400Proxy.jar" manifest="${build}/build/jt400Proxy_manifest.txt">
       <fileset dir="${output}" includesfile="${build}/build/proxy.includes"/>
       <fileset dir="${include}" includesfile="${build}/build/proxy.includes"/>
       <fileset dir="${source}" includesfile="${build}/build/proxy.includes"/>
@@ -653,7 +653,7 @@
   </target>
 
   <target name="jar-jt400Servlet" depends="init,compile">
-    <jar jarfile="${dist}/jt400Servlet.jar">
+    <jar jarfile="${dist}/jt400Servlet.jar" manifest="${build}/build/jt400Servlet_manifest.txt">
       <fileset dir="${output}">
         <patternset>
             <include name="com/ibm/as400/util/**"/>
