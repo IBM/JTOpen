@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: DataQueue.java
+// Filename: AS400.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -14,35 +14,36 @@
 package com.ibm.as400.micro;
 
 import java.io.IOException;
-import com.ibm.as400.access.MEConstants;
 
 /**
- The DataQueue class represents an iSeries data queue object.
- <P>The following example demonstrates the use of DataQueue:
- <br>
- <pre>
-    AS400 system = new AS400("mySystem", "myUserid", "myPwd", "myMEServer");
-    try
-    {
-        // Write to the Data Queue.
-        DataQueue.write(system, "/QSYS.LIB/FRED.LIB/MYDTAQ.DTAQ", "some text");
-        
-        // Read from the Data Queue.
-        String txt = DataQueue.read(system, "/QSYS.LIB/FRED.LIB/MYDTAQ.DTAQ");
-    }
-    catch (Exception e)
-    {
-        System.out.println("Data Queue read/wirte failed!");
-        e.printStackTrace();
-    }
-    // Done with the system.
-    system.disconnect();
- </pre>
+ *  The DataQueue class represents an iSeries data queue object.
+ *  This class provides a modified subset of the functions available in 
+ *  com.ibm.as400.access.DataQueue.
+ *
+ *  <P>The following example demonstrates the use of DataQueue:
+ *  <br>
+ *  <pre>
+ *   AS400 system = new AS400("mySystem", "myUserid", "myPwd", "myMEServer");
+ *   try
+ *   {
+ *       // Write to the Data Queue.
+ *       DataQueue.write(system, "/QSYS.LIB/FRED.LIB/MYDTAQ.DTAQ", "some text");
+ *       
+ *       // Read from the Data Queue.
+ *       String txt = DataQueue.read(system, "/QSYS.LIB/FRED.LIB/MYDTAQ.DTAQ");
+ *   }
+ *   catch (Exception e)
+ *   {
+ *       // Handle the exception
+ *   }
+ *   // Done with the system object.
+ *   system.disconnect();
+ *  </pre>
+ *
+ *  @see com.ibm.as400.access.DataQueue
  **/
 public final class DataQueue 
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     /**
      *  Private DataQueue constructor.  The methods on DataQueue are static and
      *  therefore an object does not need to be created, hence the private constructor.
@@ -52,23 +53,29 @@ public final class DataQueue
 
 
     /**
-     *  Reads an entry from the data queue.  An exception is thrown when running to a pre-V4R5 
-     *  server if the maximum length of a message on the queue is greater than 31744 bytes.
+     *  Reads an entry from the data queue.
      *  
      *  @param  system  The system on which the data queue exists.
      *  @param  path  The fully qualified integrated file system path name of the data queue.
-     *  @param  b  the buffer into which the data is read.
+     *  @param  buffer  the buffer into which the data is read.
      *
-     *  @return the total number of bytes read into the buffer.
+     *  @return the total number of bytes read into the buffer.  If no entries were available, null is returned.
      *
-     *  @exception  IOException  If an error occurs while communicating with the system.
+     *  @exception  IOException  If an error occurs while communicating with the server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
-    public static int readBytes(AS400 system, String path, byte[] b) throws IOException, MEException
+    public static byte[] readBytes(AS400 system, String path) throws IOException, MEException
     {
+
+        if (system == null)
+            throw new NullPointerException("system");
+        
+        if (path == null)
+            throw new NullPointerException("path");
+
         synchronized(system)
         {
-            system.signon();
+            system.connect();
 
             system.toServer_.writeInt(MEConstants.DATA_QUEUE_READ);
             system.toServer_.writeUTF(path);
@@ -76,19 +83,15 @@ public final class DataQueue
             system.toServer_.flush();
 
             int status = system.fromServer_.readInt();
-            int len = 0;
-
-            if (status == MEConstants.DATA_QUEUE_WRITE_READ_SUCCESSFUL)
+            byte[]  buffer = null;
+            
+            if (status == MEConstants.DATA_QUEUE_ACTION_SUCCESSFUL)
             {
-                len = system.fromServer_.readInt();
+                buffer = new byte[system.fromServer_.readInt()];
+                system.fromServer_.readFully(buffer);
                 
-                if (len != 0)
-                {
-                    for (int i=0; i<len; ++i)
-                    {
-                        b[i] = system.fromServer_.readByte();
-                    }
-                }
+                if (buffer.length == 0)
+                    return null;
             }
             else if (status == MEConstants.EXCEPTION_OCCURRED)
             {
@@ -97,28 +100,33 @@ public final class DataQueue
                 throw new MEException(msg, rc);
             }
 
-            return len;
+            return buffer;
         }
     }
 
 
     /**
-     *  Reads an entry from the data queue.  An exception is thrown when running to a pre-V4R5 
-     *  server if the maximum length of a message on the queue is greater than 31744 bytes.
+     *  Reads an entry from the data queue.
      *  
      *  @param  system  The system on which the data queue exists.
      *  @param  path  The fully qualified integrated file system path name of the data queue.
      *
      *  @return The entry read from the queue. If no entries were available, null is returned.
      *
-     *  @exception  IOException  If an error occurs while communicating with the system.
+     *  @exception  IOException  If an error occurs while communicating with the server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static String readString(AS400 system, String path) throws IOException, MEException
     {
+        if (system == null)
+            throw new NullPointerException("system");
+
+        if (path == null)
+            throw new NullPointerException("path");
+
         synchronized(system)
         {
-            system.signon();
+            system.connect();
 
             system.toServer_.writeInt(MEConstants.DATA_QUEUE_READ);
             system.toServer_.writeUTF(path);
@@ -129,7 +137,7 @@ public final class DataQueue
 
             String data = null;
             
-            if (status == MEConstants.DATA_QUEUE_WRITE_READ_SUCCESSFUL)
+            if (status == MEConstants.DATA_QUEUE_ACTION_SUCCESSFUL)
             {
                 data = system.fromServer_.readUTF();
             }
@@ -155,14 +163,23 @@ public final class DataQueue
      *  @param  path  The fully qualified integrated file system path name of the data queue.
      *  @param  data  The string to write to the queue.
      *
-     *  @exception  IOException  If an error occurs while communicating with the system.
+     *  @exception  IOException  If an error occurs while communicating with the server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static void write(AS400 system, String path, String data) throws IOException, MEException
     {
+        if (system == null)
+            throw new NullPointerException("system");
+        
+        if (path == null)
+            throw new NullPointerException("path");
+        
+        if (data == null)
+            throw new NullPointerException("data");
+
         synchronized(system)
         {
-            system.signon();
+            system.connect();
 
             system.toServer_.writeInt(MEConstants.DATA_QUEUE_WRITE);
             system.toServer_.writeUTF(path);
@@ -172,10 +189,7 @@ public final class DataQueue
 
             int status = system.fromServer_.readInt();
             
-            if (status == MEConstants.DATA_QUEUE_WRITE_READ_SUCCESSFUL)
-            {
-            }
-            else if (status == MEConstants.EXCEPTION_OCCURRED)
+            if (status == MEConstants.EXCEPTION_OCCURRED)
             {
                 int rc = system.fromServer_.readInt();
                 String msg = system.fromServer_.readUTF();
@@ -192,14 +206,23 @@ public final class DataQueue
      *  @param  path  The fully qualified integrated file system path name of the data queue.
      *  @param  data  The array of bytes to write to the queue.
      *
-     *  @exception  IOException  If an error occurs while communicating with the system.
+     *  @exception  IOException  If an error occurs while communicating with the server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
     public static void write(AS400 system, String path, byte[] data) throws IOException, MEException
     {
+        if (system == null)
+            throw new NullPointerException("system");
+        
+        if (path == null)
+            throw new NullPointerException("path");
+        
+        if (data == null)
+            throw new NullPointerException("data");
+
         synchronized(system)
         {
-            system.signon();
+            system.connect();
 
             system.toServer_.writeInt(MEConstants.DATA_QUEUE_WRITE);
             system.toServer_.writeUTF(path);
@@ -210,10 +233,7 @@ public final class DataQueue
 
             int status = system.fromServer_.readInt();
             
-            if (status == MEConstants.DATA_QUEUE_WRITE_READ_SUCCESSFUL)
-            {
-            }
-            else if (status == MEConstants.EXCEPTION_OCCURRED)
+            if (status == MEConstants.EXCEPTION_OCCURRED)
             {
                 int rc = system.fromServer_.readInt();
                 String msg = system.fromServer_.readUTF();

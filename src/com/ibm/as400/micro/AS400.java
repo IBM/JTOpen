@@ -17,35 +17,33 @@ import java.io.*;
 import java.util.Random;
 import javax.microedition.io.*;
 
-import com.ibm.as400.access.MEConstants;
-
-
 /**
- The AS400 class represents an iSeries system sign-on.
- 
- <P>The following example demonstrates the use of AS400:
- <br>
-  <pre>
-    AS400 system = new AS400("mySystem", "myUserid", "myPwd", "myMEServer");
-    try
-    {
-        system.signon();
-    }
-    catch (Exception e)
-    {
-        System.out.println("Signon Failed!");
-        e.printStackTrace();
-    }
-    // Done with the system.
-    system.disconnect();
- </pre>
+ *  The AS400 class represents an iSeries system sign-on from a wireless device.
+ *  This class provides a modified subset of the functions available in 
+ *  com.ibm.as400.access.AS400.
+ *
+ *  <P>The following example demonstrates the use of AS400:
+ *  <br>
+ *  <pre>
+ *  AS400 system = new AS400("mySystem", "myUserid", "myPwd", "myMEServer");
+ *  try
+ *  {
+ *      system.connect();
+ *  }   
+ *  catch (Exception e)
+ *  {
+ *      // Handle the exception
+ *  }
+ *  // Done with the system object.
+ *  system.disconnect();
+ *  </pre>
+ *
+ *  @see com.ibm.as400.access.AS400
  **/
 public final class AS400 
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
     private String systemName_;             // System name.
-    private String userName_;                // User ID.
+    private String userId_;                     // User ID.
     
     // Password bytes twiddled.
     private char[] bytes_ = null;
@@ -69,10 +67,22 @@ public final class AS400
      *  @param  MEServer  The system name and port of the ME server in the format <code>serverName[:port]</code>.  
      *                            If no port is specified, the default will be used.
      **/
-    public AS400(String systemName, String userName, String password, String MEServer)
+    public AS400(String systemName, String userId, String password, String MEServer)
     {
+        if (systemName == null)
+            throw new NullPointerException("systemName");
+
+        if (userId == null)
+            throw new NullPointerException("userId");
+
+        if (password == null)
+            throw new NullPointerException("password");
+
+        if (MEServer == null)
+            throw new NullPointerException("MEServer");
+
         systemName_ = systemName;
-        userName_ = userName;
+        userId_ = userId;
         bytes_ = store(password);
 
         // determine if a port was specified.
@@ -169,12 +179,16 @@ public final class AS400
 
 
     /**
-     *  Initiate a connection to the MEServer and sign-on to the iSeries.
+     *  Connect to an iSeries server.<p>
      *
-     *  @exception  IOException  If an error occurs while communicating with the system.
+     *  A connection is typically made implicitly; therefore, this method does not have to be 
+     *  called to connect to the iSeries. This method can be used to control when the connection 
+     *  is established.
+     *
+     *  @exception  IOException  If an error occurs while communicating with the iSeries server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.
      **/
-    public boolean signon() throws IOException, MEException
+    public boolean connect() throws IOException, MEException
     {
         synchronized(this)
         {
@@ -188,29 +202,24 @@ public final class AS400
 
                 toServer_.writeInt(MEConstants.SIGNON);
                 toServer_.writeUTF(systemName_);
-                toServer_.writeUTF(userName_);
+                toServer_.writeUTF(userId_);
                 toServer_.writeUTF( new String(bytes_) );  //password
                 toServer_.flush();
                 
 
                 int retVal = fromServer_.readInt();
 
-                if (retVal == MEConstants.SIGNON_FAILED)
+                if (retVal == MEConstants.SIGNON_FAILED || retVal == MEConstants.EXCEPTION_OCCURRED)
                 {
                     signedOn_ = false;
                     int rc = fromServer_.readInt();
                     String msg = fromServer_.readUTF();
-                    throw new MEException(msg,rc);
-                }
-                else if (retVal == MEConstants.EXCEPTION_OCCURRED)
-                {
-                    signedOn_ = false;
-                    int rc = fromServer_.readInt();
-                    String msg = fromServer_.readUTF();
-                    
-                    throw new MEException(msg,rc);
-                }
 
+                    disconnect();
+
+                    throw new MEException(msg,rc);
+                }
+                
                 signedOn_ = true;
             }
 
@@ -239,7 +248,7 @@ public final class AS400
 
 
     // Randomly generate bytes and put them into a new char array
-    public static  char[] nextBytes(Random r, int numBytes)
+    private static  char[] nextBytes(Random r, int numBytes)
     {
         char[] buf = new char[numBytes/2]; // 2 bytes for each char
         int length = buf.length / 4;             // 4 chars for each long
