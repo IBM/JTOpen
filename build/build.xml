@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 // 
 //
 // Pre-requisites:
-//   - JDK 1.3 (or higher*)
+//   - JDK 1.4.1 (or higher*)
 //   - Apache Ant 1.5
 //   - CVS client (to download source)
 //
@@ -216,19 +216,19 @@
 
   <property name="build.sysclasspath" value="ignore"/>
   
-  <property name="doclink" value="http://java.sun.com/j2se/1.3/docs/api/"/>
+  <property name="doclink" value="http://java.sun.com/j2se/1.4.1/docs/api/"/>
   
   <path id="jtopen.includes">
     <pathelement path="${include}"/>
     <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
     <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
-    <pathelement location="${include}/jta.jar"/>
-    <pathelement location="${include}/jdbc2_0-stdext.jar"/>
-    <pathelement location="${include}/jsse.jar"/>
-    <pathelement location="${include}/jtStubs.jar"/>
-    <pathelement location="${include}/jnet.jar"/>
+    <!-- pathelement location="${include}/jta.jar"/ -->
+    <!-- pathelement location="${include}/jdbc2_0-stdext.jar"/ -->
+    <!-- pathelement location="${include}/jsse.jar"/ -->
+    <!-- pathelement location="${include}/jtStubs.jar"/ -->
+    <!-- pathelement location="${include}/jnet.jar"/ -->
     <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
-    <pathelement location="${include}/xml-apis.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
+    <!-- pathelement location="${include}/xml-apis.jar"/ --> <!-- Need this to compile CommandHelpRetriever utility. -->
   </path>
 
   <!-- These local socket optimizations are only beneficial when running
@@ -317,26 +317,8 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: compile
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="compile" depends="compile-1.4,compileCheckIncludes-1.4,compile-1.3,compileCheckIncludes-1.3"/>
+  <target name="compile" depends="compile-1.4,compileCheckIncludes-1.4"/>
   
-  <target name="compile-1.3" depends="init" if="compileIncludesExist-1.3">
-    <javac srcdir="${source}:${source-contrib}"
-           destdir="${output}"
-           memoryMaximumSize="256m"
-           failonerror="true"
-           debug="on"
-           debuglevel="lines,source"
-           fork="true">
-      <classpath refid="jtopen.includes"/>
-    </javac>
-    <copy file="${source}/utilities/INMRI.pro"
-          preservelastmodified="yes"
-          tofile="${output}/utilities/INMRI.properties"/>
-    <copy file="${source}/utilities/UTMRI.pro"
-          preservelastmodified="yes"
-          tofile="${output}/utilities/UTMRI.properties"/>
-  </target>
-
   <target name="compile-1.4" depends="init" if="compileIncludesExist-1.4">
     <javac srcdir="${source}:${source-contrib}"
            destdir="${output}"
@@ -381,28 +363,12 @@
       <exclude name="com/ibm/as400/micro/StatementHandler.java"/>
       
       <bootclasspath>
-        <pathelement path="${include}/midpapi.zip"/>
-        <pathelement path="${include}/jtStubs.jar"/>
+        <pathelement path="${include}/midpapi.zip:${include}"/>
+        <!-- pathelement path="${include}/jtStubs.jar"/ -->
       </bootclasspath>
     </javac>
   </target>
       
-  <target name="compileCheckIncludes-1.3" unless="compileIncludesExist-1.3">
-     <echo>
-     Unable to compile using JDK 1.3.
-     Missing one of: JDK 1.3,
-                     ${include}/servlet.jar, 
-                     ${include}/jui400.jar,
-                     ${include}/jdbc2_0-stdext.jar,
-                     ${include}/jsse.jar,
-                     ${include}/jta.jar,
-                     ${include}/jtStubs.jar,
-                     ${include}/jnet.jar,
-                     ${include}/midpapi.zip, or
-                     ${include}/xml-apis.jar.
-     </echo>
-  </target>
-
   <target name="compileCheckIncludes-1.4" unless="compileIncludesExist-1.4">
     <echo>
      Unable to compile using JDK 1.4.
@@ -445,22 +411,7 @@
         <available file="${include}/servlet.jar" type="file"/>
         <available file="${include}/jui400.jar" type="file"/>
         <available file="${include}/midpapi.zip" type="file"/>
-        <available file="${include}/jtStubs.jar" type="file"/>
-      </and>
-    </condition>
-    
-    <condition property="compileIncludesExist-1.3">
-      <and>
-        <available classname="java.lang.StrictMath"/> <!-- JDK 1.3 and higher. -->
-        <available file="${include}/servlet.jar" type="file"/>
-        <available file="${include}/jui400.jar" type="file"/>
-        <available file="${include}/jdbc2_0-stdext.jar" type="file"/>
-        <available file="${include}/jsse.jar" type="file"/>
-        <available file="${include}/jta.jar" type="file"/>
-        <available file="${include}/jtStubs.jar" type="file"/>
-        <available file="${include}/jnet.jar" type="file"/>
-        <available file="${include}/midpapi.zip" type="file"/>
-        <available file="${include}/xml-apis.jar" type="file"/>
+        <!-- available file="${include}/jtStubs.jar" type="file"/ -->
       </and>
     </condition>
     
@@ -468,13 +419,13 @@
       <and>
         <available file="${include}/uitools.jar" type="file"/>
         <available file="${include}/jui400.jar" type="file"/>
-        <available file="${include}/x4j400.jar" type="file"/>
+        <!-- available file="${include}/x4j400.jar" type="file"/ -->
       </and>
     </condition>
     
     <condition property="pcmlRuntimeExists">
       <or>
-        <available file="${include}/x4j400.jar" type="file"/>
+        <!-- available file="${include}/x4j400.jar" type="file"/ -->
         <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
       </or>
     </condition>
@@ -482,7 +433,7 @@
     <condition property="microIncludesExist">
       <and>
         <available file="${include}/midpapi.zip" type="file"/>
-        <available file="${include}/jtStubs.jar" type="file"/>
+        <!-- available file="${include}/jtStubs.jar" type="file"/ -->
         <or>
           <available file="${bin}/preverify.exe" type="file"/> <!-- Windows. -->
           <available file="${bin}/preverify" type="file"/>     <!-- Linux/Unix. -->
@@ -597,7 +548,8 @@
      to the JDK will include this fix, however.
      So, for now, we skip the javadoc step if we are running under JDK 1.4. -->
 
-  <target name="javadoc" depends="init" unless="compileIncludesExist-1.4">
+  <!-- target name="javadoc" depends="init" unless="compileIncludesExist-1.4" -->
+  <target name="javadoc" depends="init">
     <javadoc packagenames="com.*,utilities"
                     sourcepath="${source}:${source-contrib}:${source-micro}"
                     destdir="${javadoc}"
@@ -640,7 +592,7 @@
     <taskdef name="pcml" classname="PCMLTask"/>
     <pcml srcdir="${source}"
           destdir="${output}"
-          classpath="${output}:${include}:${include}/xml-apis.jar:${include}/x4j400.jar:${source}"
+          classpath="${output}:${include}:${source}"
           includes="**/*.pcml"/>
     <!-- Classpath:
            Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
@@ -659,7 +611,7 @@
     <taskdef name="pdml" classname="PDMLTask"/>
     <pdml srcdir="${source}"
           destdir="${output}"
-          classpath="${include}/uitools.jar:${include}/jui400.jar:${include}/xml-apis.jar:${include}/x4j400.jar"
+          classpath="${include}/uitools.jar:${include}/jui400.jar"
           includes="**/*.pdml"/>
     <!-- Classpath:
            Need "uitools.jar" to run the com.ibm.as400.ui.tools.RCXML class.
