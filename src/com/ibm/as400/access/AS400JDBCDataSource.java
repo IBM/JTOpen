@@ -94,6 +94,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final String KEY_RING_PASSWORD = "keyringpw"; // @F0A
     private static final String SECURE = "secure";               // @F0A
     private static final String SAVE_PASSWORD = "savepw";        // @F0A
+    private static final String PLAIN_TEXT_PASSWORD = "pwd";     //@K1A
     private static final String TRUE_ = "true";
     private static final String FALSE_ = "false";
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
@@ -322,11 +323,22 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
                 setServerName(value);
             else if (property.equals(USER))
                 setUser(value);
+            else if(property.equals(PLAIN_TEXT_PASSWORD)) {         //@K1A
+                //set the password                                  //@K1A
+                setPassword(value);                                 //@K1A
+            }
             else if (property.equals(PASSWORD)) {
-                // get the password back from the serialized char[]
-                serialPWBytes_ = value.toCharArray();
-                // decode the password and set it on the as400
-                as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+                if(reference.get(PLAIN_TEXT_PASSWORD) != null)      //@K1A
+                {                                                   //@K1A
+                    setPassword((String)reference.get(PLAIN_TEXT_PASSWORD).getContent());       //@K1A
+                }                                                                               //@K1A
+                else                                                                            //@K1A
+                {                                                                               //@K1A
+                    // get the password back from the serialized char[]
+                    serialPWBytes_ = value.toCharArray();
+                    // decode the password and set it on the as400
+                    as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+                }                                                                               //@K1A
             }
             else if (property.equals(SAVE_PASSWORD)) {
                 // set the savePasswordWhenSerialized_ flag
