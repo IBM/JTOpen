@@ -915,7 +915,7 @@ been closed.
 **/
     void notifyClose (AS400JDBCStatement statement, int id)
     {
-        statements_.remove(statement);                  // @EFC
+        statements_.removeElement(statement);                  // @EFC
         assigned_.clear(id);                            // @EFC
     }
 
