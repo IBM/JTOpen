@@ -9,7 +9,7 @@ Copyright (C) 1997-2003 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: April 30, 2003
+Last updated: August 2, 2003
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -25,15 +25,91 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<PRE>
 <H3>Contents</H3>
-</PRE>
-<PRE>
+<A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
+<P>
+
+<HR>
+<H3><A NAME="#41">Fixes and enhancements in JTOpen 4.1</A></H3>
+<PRE>
+- Build: Include build directory in src.zip.
+- Build: Added xpcml.xsd to jt400.jar and jt400Native.jar
+- Build: Added com.ibm.as400.access.list package.
+- Build: Use old StringBuffer.append() method in RJobLog and HTMLDocument for compatibility with JDK 1.3.
+- Comm trace: Added reverse.
+- Connection: Open sourced AS400ImplRemote.
+- Connection: Support extra GSS/Kerberos option of authentication for portlet environment.
+- Connection: Catch socket properties exceptions when tracing is active.
+- Connection pools: Moved inner classes to their own external definitions, to avoid possible JIT errors.
+- Connection pools: Check for null in AS400JDBCConnectionPool.setDataSource().
+- Connection pools: Ensure AS400 object is connected when it is retrieved from the pool.
+- Data areas: Cleaned up implementation of subclass delete() methods.
+- Data conversion: Added NLV mapping for zh_CN.
+- Data conversion: Added getInstanceType() methods to AS400DataType classes for performance.
+- Data conversion: Added CCSID 17584 (subset of 1200).
+- Data conversion: Removed _en and _en_US resource bundles, they were a performance hit and are not needed.
+- Data conversion: Added localeToNLV() methods on NLS class.
+- Data conversion: Fixed AS400Text.toBytes() for CCSIDs 13488 and 61952.
+- Data conversion: Made BinaryConverter.bytesToString() and stringToBytes() public.
+- Directory entries: Default to USER_PROFILE, "*" when no selection IDs are added.
+- Environment variables: Fixed problems with service program call.
+- FTP: Use APPE instead of APPEND to work with non-OS/400 FTP servers.
+- HTML: Throw exception if listener is null on form and table converters.
+- IFS: Added copyTo() functionality.
+- IFS: Added isSymbolicLink().
+- Javadoc: Added doc-files subdirectories and updated references in all source parts.
+- Javadoc: Added CCSID list and component list documentation, linked to from utilities.AS400ToolboxJarMaker.
+- Javadoc: Minor updates to micro JDBC driver.
+- Javadoc: Added example to JobList.addJobSelectionCriteria().
+- Javadoc: Minor fixes to FTP classes.
+- JDBC: Minor description string updates to AS400JDBCDataSourcePaneGUI.
+- JDBC: Post data truncation warning when the database has a mapping error.
+- JDBC: Perform case insensitive search for parameter indices to match the JDBC spec.
+- JDBC: Pad with correct space character in CLOBs.
+- JDBC: Fixed string index in CLOBs when locators are used.
+- JDBC: Added loginTimeout and serverTraceCategories properties to data source.
+- JDBC: Fixed translateHex property in data source.
+- JDBC: Added materialized query table support.
+- JDBC: Added static cursor support.
+- JDBC: Throw data type mismatch when length on setBinaryStream() is greater than the stream length, except on locators.
+- JDBC: Throw data truncation when length on setBinaryStream() is greater than the column size.
+- JDBC: ResultSetMetaData.getTableName() now calls getBaseTableName().
+- JDBC: Changed how cursor sensitivity is used.
+- JDBC: Changed how output parameters are registered and retrieved.
+- JDBC: Fixed proxy support for BLOBs and CLOBs.
+- JDBC: Alias VARBIN and BINARY VARYING to VARBINARY.
+- JDBC: Changed radix from decimal (10) to binary (2) on double, float, and real columns.
+- JDBC: Support setting a URL for char and graphic columns.
+- JDBC: Changed setBytes() to expect byte[].class instead of Byte.class.
+- JDBC: Added proxy support for ParameterMetaData.
+- JDBC: Set table name from first SELECT FROM TABLE only, in the case of a subquery.
+- JDBC: Changes to how the default schema is added to the library list.
+- Jobs: Return empty array when JobList length is 0.
+- Messages: Added option to get the user who sent the message as well as the initial user of the job. 
+- Messages: Fixed MessageFile.replaceText() to use the correct indices.
+- Messages: Support more than 10 messages returned from a remote command or API call.
+- NetServer: Added new ISeriesNetServer classes to replace the ones that relied on PCML/Resource framework.
+- Object: Only call API on-thread if Toolbox property is set.
+- Object: Added ObjectDescription.exists().
+- Open list: Added new package com.ibm.as400.access.list.
+- Open list: Added SpooledFileOpenList classes to use in place of regular SpooledFile classes for performance.
+- PCML: Added support to PCML for XPCML, using XML schemas.
+- PCML: Updated xsl and xsd definitions.
+- PCML: Removed dependency on XML parser when using serialized PCML.
+- PCML: Handle extendable elements in XPCML.
+- PCML: Handle non-qualified transform file name.
+- PCML: Support PCML/XPCML documents via an InputStream.
+- Print: Added ISeriesPrinter class to use remote command server instead of network print server for performance.
+- Print: Added more print attributes to print classes such as AFPResource and SpooledFile.
+- PTF: Added getRelationship(), fixed pre-req and co-req methods.
+- User: Added more constants.
+- Utilities: Added AboutToolbox class to utilities package, to determine which version of jt400.jar is used.
+- Utilities: Handle old and new tags in gencmddoc.
 </PRE>
+
 <HR>
 <H3><A NAME="#40">Fixes and enhancements in JTOpen 4.0</A></H3>
-</PRE>
 <PRE>
 - Build: Compile with JDK 1.4 to eliminate dependencies, target JDK 1.1.
 - Build: Updated manifest files with new JTOpen version number.
