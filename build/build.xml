@@ -467,10 +467,10 @@
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="javadoc" depends="init,checkJavadocIncludes">
-    <condition property="jdk141Exists"> <!-- Need this for javadoc to work on Windows. -->
-      <contains string="${java.version}" substring="1.4.1"/>
+    <condition property="jdk140Exists"> <!-- Need 1.4.1 or later for javadoc to work on Windows. -->
+      <contains string="${java.version}" substring="1.4.0"/>
     </condition>
-    <fail message="Not using JDK 1.4.1 or higher." unless="jdk141Exists"/>
+    <fail message="Not using JDK 1.4.1 or higher." if="jdk140Exists"/>
     <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/> <!-- Sanity. -->
     <javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
