@@ -888,11 +888,11 @@ public class AS400JDBCStatement implements Statement
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
                                                              getBlockingFactor (sqlStatement, resultRow.getRowLength()), resultData,
-                                                             lastBlock);
+                                                             lastBlock, resultSetType_);
                         else
                             rowCache = new JDServerRowCache (resultRow,
                                                              connection_, id_,
-                                                             getBlockingFactor (sqlStatement, resultRow.getRowLength()));
+                                                             getBlockingFactor (sqlStatement, resultRow.getRowLength()), resultSetType_);
 
                         // If the result set concurrency is updatable, check to                            @E1C
                         // see if the server overrode the cursor type to read only.                        @E1C
@@ -932,14 +932,15 @@ public class AS400JDBCStatement implements Statement
                     {
                         if((isCall) && (numberOfResults_ > 0) && (resultSet_ == null))
                         {
+                            boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
                             JDServerRow row = new JDServerRow (
                                                               connection_, id_, cursor_.openDescribe (openAttributes,
                                                                                                       resultSetType_), settings_);          //@KBA
                             JDServerRowCache rowCache = new JDServerRowCache (row,
                                                                               connection_, id_, getBlockingFactor (sqlStatement,
-                                                                                                                   row.getRowLength()));
+                                                                                                                   row.getRowLength()), (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_));
                             //if pre-v5r3 create a FORWARD_ONLY RESULT SET
-                            if(connection_.getVRM() < JDUtilities.vrm530)                                                           //@KBA
+                            if(preV5R3)                                                           //@KBA
                             {                             
                                 resultSet_ = new AS400JDBCResultSet (this,
                                                                      sqlStatement, rowCache, connection_.getCatalog(),
@@ -1326,14 +1327,15 @@ public class AS400JDBCStatement implements Statement
                     // As of V5R3, the restriction to be forward only no longer applies @KBA
                     if((isCall == true) && (numberOfResults_ > 0))
                     {
+                        boolean preV5R3 = connection_.getVRM() < JDUtilities.vrm530;
                         JDServerRow row = new JDServerRow (connection_, id_,
                                                            cursor_.openDescribe (openAttributes, resultSetType_),             //@KBA
                                                            settings_);
                         JDServerRowCache rowCache = new JDServerRowCache (row, connection_, id_, getBlockingFactor (
-                                                                                                                   sqlStatement, row.getRowLength()));
+                                                                                                                   sqlStatement, row.getRowLength()), (preV5R3 ? ResultSet.TYPE_FORWARD_ONLY : resultSetType_));
 
                         //if pre-v5r3 create a FORWARD_ONLY RESULT SET
-                            if(connection_.getVRM() < JDUtilities.vrm530)                                                           //@KBA
+                            if(preV5R3)                                                           //@KBA
                             {                             
                                 resultSet_ = new AS400JDBCResultSet (this,
                                                                      sqlStatement, rowCache, connection_.getCatalog(),
@@ -2432,7 +2434,7 @@ public class AS400JDBCStatement implements Statement
                                                        settings_);
                     JDServerRowCache rowCache = new JDServerRowCache (
                                                                      row, connection_, id_, getBlockingFactor (
-                                                                                                              null, row.getRowLength()));
+                                                                                                              null, row.getRowLength()), resultSetType_);
 
                     // If the result set concurrency is updatable, check to                            @E1C
                     // see if the server overrode the cursor type to read only.                        @E1C

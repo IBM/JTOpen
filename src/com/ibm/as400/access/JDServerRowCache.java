@@ -84,7 +84,8 @@ prefetched.
   JDServerRowCache (JDServerRow row,
                     AS400JDBCConnection connection,
                     int id,
-                    int blockingFactor)
+                    int blockingFactor, 
+                    int resultSetType)
   throws SQLException
   {
     blockingFactor_ = blockingFactor;
@@ -101,7 +102,8 @@ prefetched.
 
     if(connection_.getServerFunctionalLevel() >=14 && 
        connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION) &&
-       blockingFactor_ != 1)               //@K54    If blocking factor is one, than the result set is scrollable.
+       //blockingFactor_ != 1)               //@K54    If blocking factor is one, than the result set is scrollable.
+       resultSetType == java.sql.ResultSet.TYPE_FORWARD_ONLY)
         variableFieldCompressionSupported_ = true;                //@K54
 
     bufferSize_ = connection_.getProperties().getInt(JDProperties.BLOCK_SIZE);  //@K54
@@ -136,7 +138,8 @@ prefetched.
                     int id,
                     int blockingFactor,
                     DBData serverData,
-                    boolean lastBlock)
+                    boolean lastBlock,
+                    int resultSetType)
   throws SQLException
   {
     blockingFactor_ = blockingFactor;
@@ -149,7 +152,8 @@ prefetched.
 
     if(connection_.getServerFunctionalLevel() >=14 &&
        connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION) &&
-       blockingFactor_ != 1)               //@K54  If blocking factor is one, than the result set is scrollable
+       //blockingFactor_ != 1)               //@K54  If blocking factor is one, than the result set is scrollable
+       resultSetType == java.sql.ResultSet.TYPE_FORWARD_ONLY)
         variableFieldCompressionSupported_ = true;          //@K54
 
     bufferSize_ = connection_.getProperties().getInt(JDProperties.BLOCK_SIZE);  //@K54

@@ -477,7 +477,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                         JDFieldMap[] maps = new JDFieldMap[8];
                         maps[0] = new JDHardcodedFieldMap(new Short ((short) scope)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
@@ -796,7 +796,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                         // Create the mapped row format that is returned in the
                         // result set.
                         // This does not actual move the data, it just sets up
@@ -1139,7 +1139,7 @@ implements DatabaseMetaData
                     JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                     // Put the result data into a row cache
-                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                     // Create the mapped row format that is returned in the
                     // result set.
@@ -1485,7 +1485,7 @@ implements DatabaseMetaData
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                         // Put the result data into a row cache
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                         // Create the mapped row format that is returned in the
                         // result set.
@@ -1875,7 +1875,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                         JDFieldMap[] maps = new JDFieldMap[14];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
@@ -2127,7 +2127,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache =  new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache =  new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                         JDFieldMap[] maps = new JDFieldMap[14];
                         maps[0] = new JDHardcodedFieldMap (connection_.getCatalog ());
                         maps[1] = new JDSimpleFieldMap (1); // pk schema
@@ -2359,7 +2359,7 @@ implements DatabaseMetaData
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                         // Put the result data into a row cache
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                         // Create the mapped row format that is returned in the
                         // result set.
@@ -2913,7 +2913,7 @@ implements DatabaseMetaData
                     if (resultData != null)
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
-                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true));
+                        JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                         // Create the mapped row format that is returned in the
                         // result set.
                         // This does not actual move the data, it just sets up
@@ -3435,7 +3435,7 @@ implements DatabaseMetaData
                 JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                 // Put the data format into a row format object
-                JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                 boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
                 JDFieldMap[] maps = null;    //@F2C
@@ -3861,7 +3861,7 @@ implements DatabaseMetaData
                     JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
 
                     // Put the result data into a row cache
-                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true));
+                    JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache (row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                     // Create the mapped row format that is returned in the
                     // result set.
@@ -4252,7 +4252,7 @@ implements DatabaseMetaData
                             // Put the result data into a row cache
                             // ServerRowCache needs rowFormat to get offset and other info
                             // Only need this with this type of server (not with simple)
-                            JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true));
+                            JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                             // This is not actually moving data, it just sets up the mapping
                             JDFieldMap[] maps = null;       //@F2C
@@ -5061,7 +5061,7 @@ implements DatabaseMetaData
                     {
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
                         JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
-                                                                                                1, resultData, true));
+                                                                                                1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
 
                         // Create the mapped row format that is returned in the
                         // result set.
