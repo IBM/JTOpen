@@ -71,7 +71,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
-    private String cellDir_; // The direction of the text interpretation used on each table cell.
+    private String[] columnDir_; // The direction of the text interpretation used on each cell for a given table column.
+    private String[] columnAlign_; // The alignment used on each cell for a given table column.
+    private String align_; // The alignment used on the overall table.
 
 
     /**
@@ -81,7 +83,8 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     {
         super();
         columns_ = 1;
-
+        columnDir_ = new String[columns_];
+        columnAlign_ = new String[columns_];
     }
 
     /**
@@ -134,15 +137,82 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     }
 
     /**
-     * Returns the <i>direction</i> of the text interpretation that is
-     * used for each cell in the grid. Use {@link #getDirection getDirection}
-     * to determine the direction used for the overall table.
-     * @return The direction of the text.
-     * @see #setCellDirection
+    *  Returns the <i>alignment</i> of the text interpretation.
+    *  @return The alignment of the text.
     **/
-    public String getCellDirection()
+    public String getAlignment()
     {
-      return cellDir_;
+        return align_;
+    }
+
+    /**
+     * Returns the alignment attribute tag.
+    **/
+    String getAlignmentAttributeTag()
+    {
+      if (align_ != null && align_.length() > 0)
+      {
+        return " align=\"" + align_ + "\"";
+      }
+      return "";
+    }
+
+    /**
+     * Returns the cell alignment attribute tag for the given column.
+    **/
+    String getCellAlignmentAttributeTag(int column)
+    {
+      if (columnAlign_[column] != null && columnAlign_[column].length() > 0)
+      {
+        return " align=\"" + columnAlign_[column] + "\"";
+      }
+      return "";
+    }
+
+    /**
+     * Returns the cell direction attribute tag for the given column.
+    **/
+    String getCellDirectionAttributeTag(int column)
+    {
+      if (columnDir_[column] != null && columnDir_[column].length() > 0)
+      {
+        return " dir=\"" + columnDir_[column] + "\"";
+      }
+      return "";
+    }
+
+    /**
+     * Returns the <i>alignment</i> of the text that is used for
+     * elements in a specific column in the grid. Use {@link #getAlignment getAlignment}
+     * to determine the alignment used for the overall grid.
+     * @param column The column for which to retrieve the alignment. The column is 0-based.
+     * @return The alignment of the text, or null if one was not set.
+     * @see #setColumnAlignment
+    **/
+    public String getColumnAlignment(int column)
+    {
+      if (column < 0 || column >= columns_)
+      {
+        throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
+      return columnAlign_[column];
+    }
+
+    /**
+     * Returns the <i>direction</i> of the text interpretation that is
+     * used for elements in a specific column in the grid. Use {@link #getDirection getDirection}
+     * to determine the direction used for the overall grid.
+     * @param column The column for which to retrieve the direction. The column is 0-based.
+     * @return The direction of the text, or null if one was not set.
+     * @see #setColumnDirection
+    **/
+    public String getColumnDirection(int column)
+    {
+      if (column < 0 || column >= columns_)
+      {
+        throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
+      return columnDir_[column];
     }
 
     /**
@@ -163,19 +233,6 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     {
         return dir_;
     }
-
-    /**
-     * Returns the cell direction attribute tag.
-    **/
-    String getCellDirectionAttributeTag()
-    {
-      if (cellDir_ != null && cellDir_.length() > 0)
-      {
-        return " dir=\"" + cellDir_ + "\"";
-      }
-      return "";
-    }
-
 
     /**
     *  Returns the direction attribute tag.
@@ -240,7 +297,8 @@ public class GridLayoutFormPanel extends LayoutFormPanel
 
             HTMLTagElement e = getElement(i);
             s.append("<td");
-            s.append(getCellDirectionAttributeTag());
+            s.append(getCellDirectionAttributeTag(index));
+            s.append(getCellAlignmentAttributeTag(index));
             s.append(">");
             s.append(e.getTag());
             s.append("</td>\n");
@@ -292,27 +350,77 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     }
 
     /**
-     * Sets the <i>direction</i> of the text interpretation for
-     * each cell in the grid. Use {@link #setDirection setDirection}
-     * to set the direction for the overall table.
+     * Sets the <i>alignment</i> of the text for the grid.
+     * @param align The alignment. Use one of the following constants
+     * defined in HTMLConstants:  LEFT, RIGHT, or CENTER.
+     * @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setAlignment(String align)
+    {
+      if (align == null) throw new NullPointerException("align");
+      if (!align.equals(HTMLConstants.LEFT) &&
+          !align.equals(HTMLConstants.RIGHT) &&
+          !align.equals(HTMLConstants.CENTER))
+      {
+        throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+      align_ = align;
+    }
+
+    /**
+     * Sets the <i>alignment</i> of the text interpretation that is used
+     * for elements in a specific column in the grid. Use {@link #setAlignment setAlignment}
+     * to set the alignment for the overall grid.
+     * @param column The column. This value is 0-based.
+     * @param align The alignment. One of the following constants
+     * defined in HTMLConstants:  LEFT, RIGHT, or CENTER.
+     * @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setColumnAlignment(int column, String align)
+    {
+      if (align == null) throw new NullPointerException("align");
+      if (column < 0 || column >= columns_)
+      {
+        throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
+      // If direction is not one of the valid HTMLConstants, throw an exception.
+      if (!align.equals(HTMLConstants.LEFT) &&
+          !align.equals(HTMLConstants.RIGHT) &&
+          !align.equals(HTMLConstants.CENTER))
+      {
+        throw new ExtendedIllegalArgumentException("align", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+      columnAlign_[column] = align;
+    }
+
+    /**
+     * Sets the <i>direction</i> of the text interpretation that is used
+     * for elements in a specific column in the grid. Use {@link #setDirection setDirection}
+     * to set the direction for the overall grid.
+     * @param column The column. This value is 0-based.
      * @param dir The direction. One of the following constants
      * defined in HTMLConstants:  LTR or RTL.
      * @see com.ibm.as400.util.html.HTMLConstants
     **/
-    public void setCellDirection(String dir)
+    public void setColumnDirection(int column, String dir)
     {
       if (dir == null) throw new NullPointerException("dir");
+      if (column < 0 || column >= columns_)
+      {
+        throw new ExtendedIllegalArgumentException("column", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+      }
       // If direction is not one of the valid HTMLConstants, throw an exception.
       if (!dir.equals(HTMLConstants.LTR) && !dir.equals(HTMLConstants.RTL))
       {
         throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       }
-
-      cellDir_ = dir;
+      columnDir_[column] = dir;
     }
 
     /**
     *  Sets the number of columns in the layout.
+    * Note that this will not preserve any column alignment or column direction
+    * information that was previously set.
     *  @param columns The number of columns.
     *
     *  @exception PropertyVetoException If a change is vetoed.
@@ -327,6 +435,8 @@ public class GridLayoutFormPanel extends LayoutFormPanel
         vetos_.fireVetoableChange("columns", new Integer(old), new Integer(columns) );
 
         columns_ = columns;
+        columnDir_ = new String[columns_]; // Don't preserve the old direction info.
+        columnAlign_ = new String[columns_]; // Don't preserve the old alignment info.
 
         changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) );
     }
