@@ -17,8 +17,8 @@ import java.io.IOException;
 
 
 /**
-  * The PrintObjectInputStream class is used to read data out of an
-  * iSeries spooled file or AFP resource such as an overlay or page
+  * The PrintObjectInputStream class is used to read data out of a
+  * server spooled file or AFP resource such as an overlay or page
   * segment.
   **/
 
@@ -123,7 +123,8 @@ implements PrintObjectInputStreamImpl
             }
         }
     }
-//C1A
+
+
     /**
       * Constructs a  PrintObjectInputStream object. It uses the
       * specified SpooledFile object from which to read, the PrintParameterList
@@ -208,7 +209,6 @@ implements PrintObjectInputStreamImpl
             }
         }
     }
-//C1A
 
 
     /**
@@ -265,7 +265,7 @@ implements PrintObjectInputStreamImpl
                switch(rc)
                {
                    // we get back RET_INV_REQ_ACT on pre-V3R7 systems if we try
-                   // to open an AFP resource.  The host must be at V3R7 with PTFs
+                   // to open an AFP resource.  The server must be at V3R7 with PTFs
                    // to work with AFP resources so throw a requestNotSupportedException
                    // here.
                   case NPDataStream.RET_INV_REQ_ACT:

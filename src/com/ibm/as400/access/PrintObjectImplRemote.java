@@ -35,7 +35,7 @@ implements PrintObjectImpl
 
 
     /**
-     * Check to see if the iSeries system has been set...
+     * Check to see if the system has been set...
      **/
     void checkRunTimeState()
     {
@@ -91,7 +91,7 @@ implements PrintObjectImpl
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
@@ -160,7 +160,7 @@ implements PrintObjectImpl
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
@@ -228,7 +228,7 @@ implements PrintObjectImpl
      * </UL>
      *
      * @return The value of the attribute.
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
@@ -297,7 +297,7 @@ implements PrintObjectImpl
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
@@ -364,7 +364,7 @@ implements PrintObjectImpl
      * </UL>
      *
      * @return The value of the attribute.
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
@@ -434,10 +434,10 @@ implements PrintObjectImpl
      *
      * @return The value of the attribute.
      *
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the iSeries.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
      *                                         server operating system is not at the correct level.
@@ -488,8 +488,8 @@ implements PrintObjectImpl
 
 
     /**
-      * Returns the iSeries system on which this object exists.
-      * @return The iSeries system on which this object exists.
+      * Returns the system on which this object exists.
+      * @return The server on which this object exists.
       **/
     final public AS400ImplRemote getSystem()
     {
@@ -537,13 +537,13 @@ implements PrintObjectImpl
 
 
     /**
-     * Sets the iSeries system on which this object exists. This
+     * Sets the system on which this object exists. This
      * method is primarily provided for visual application builders
      * that support JavaBeans. Application programmers should
-     * specify the iSeries system in the constructor for the
+     * specify the system in the constructor for the
      * specific print object.
      *
-     * @param system The iSeries system on which this object exists.
+     * @param system The system on which this object exists.
      **/
     final public void setSystem(AS400Impl system)
     {
@@ -557,7 +557,7 @@ implements PrintObjectImpl
      * Updates the attributes of this object by going to the server and
      * retrieving the latest attributes for the object.
      *
-     * @exception AS400Exception If the iSeries system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
@@ -579,7 +579,7 @@ implements PrintObjectImpl
 
 
     /**
-     * Go to the host and get the lastest attributes for this object
+     * Go to the server and get the lastest attributes for this object
      **/
     void updateAttrs(NPCPAttributeIDList attrIDs)
        throws AS400Exception,
@@ -618,14 +618,12 @@ implements PrintObjectImpl
 
                 switch(rc) {
                         // we get back RET_INV_REQ_ACT on pre-V3R7 systems if we try
-                        // to open an AFP resource.  The host must be at V3R7 with PTFs
+                        // to open an AFP resource.  The server must be at V3R7 with PTFs
                         // to work with AFP resources so throw a requestNotSupportedException
                         // here.
                     case NPDataStream.RET_INV_REQ_ACT:
                         throw new RequestNotSupportedException(curLevel,
                                                                RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
-
-
                         // any other error is either an unexpected error or an error
                         // completing request
                     default:

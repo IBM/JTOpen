@@ -686,7 +686,6 @@ abstract public class PrintObject implements java.io.Serializable
     transient VetoableChangeSupport     vetos;
 
 
-
     PrintObject(NPCPID idCodePoint,
                 NPCPAttribute cpAttrs,
                 int type)
@@ -698,7 +697,6 @@ abstract public class PrintObject implements java.io.Serializable
         system_ = null;
         initializeTransient();
     }
-
 
 
     PrintObject(AS400 system,
@@ -717,7 +715,6 @@ abstract public class PrintObject implements java.io.Serializable
     }
 
 
-
     /**
      * Adds the specified PropertyChange listener to receive
      * PropertyChange events from this print object.
@@ -733,7 +730,6 @@ abstract public class PrintObject implements java.io.Serializable
     }
 
 
-
     /**
      * Adds the specified VetoableChange listener to receive
      * VetoableChange events from this print object.
@@ -747,7 +743,6 @@ abstract public class PrintObject implements java.io.Serializable
             throw new NullPointerException("listener");
         vetos.addVetoableChangeListener(listener);
     }
-
 
 
     /**
@@ -902,6 +897,7 @@ abstract public class PrintObject implements java.io.Serializable
         return aValue;
     }
 
+
     /**
      * Returns an attribute of the object that is a Float type attribute.
      *
@@ -950,7 +946,7 @@ abstract public class PrintObject implements java.io.Serializable
     }
 
 
-/**
+   /**
      * Returns an attribute of the object that is a Float type attribute.
      *
      * @param attributeID Identifies which attribute to retrieve.
@@ -1106,7 +1102,6 @@ abstract public class PrintObject implements java.io.Serializable
     }
 
 
-
     private void initializeTransient()
     {
         impl_   = null;
@@ -1114,7 +1109,6 @@ abstract public class PrintObject implements java.io.Serializable
         vetos   = new VetoableChangeSupport(this);
 
     }
-
 
 
     /**
@@ -1127,7 +1121,6 @@ abstract public class PrintObject implements java.io.Serializable
         in.defaultReadObject();
         initializeTransient();
     }
-
 
 
     /**
@@ -1146,7 +1139,6 @@ abstract public class PrintObject implements java.io.Serializable
     }
 
 
-
     /**
      * Removes the specified VetoableChange listener
      * so that it no longer receives VetoableChange events
@@ -1161,7 +1153,6 @@ abstract public class PrintObject implements java.io.Serializable
             throw new NullPointerException("listener");
         vetos.removeVetoableChangeListener(listener);
     }
-
 
 
     // This is left here for public subclasses to use...
@@ -1239,7 +1230,7 @@ abstract public class PrintObject implements java.io.Serializable
 
 
     /**
-     * Updates the attributes of this object by going to the iSeries server and
+     * Updates the attributes of this object by going to the server and
      * retrieving the latest attributes for the object.
      *
      * @exception AS400Exception If the server returns an error message.

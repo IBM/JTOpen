@@ -14,9 +14,9 @@
 package com.ibm.as400.access;
 
 /**
- * The Printer class represents an iSeries server printer.
+ * The Printer class represents a server printer.
  * An instance of this class can be used to manipulate an individual
- * iSeries server printer.
+ * printer.
  *
  * See <a href="PrinterAttrs.html">Printer Attributes</a> for
  * valid attributes.
@@ -110,7 +110,6 @@ class PrinterImplRemote extends PrintObjectImplRemote
     }
 
 
-
     // Check the run time state
     void checkRunTimeState()
     {
@@ -135,6 +134,7 @@ class PrinterImplRemote extends PrintObjectImplRemote
         }
         return attrsToRetrieve_;
     }
+
 
     NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
