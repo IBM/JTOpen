@@ -27,7 +27,9 @@ class JDPackageManager
 
 
 
-  private static final String SUFFIX_INVARIANT_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  //private static final String SUFFIX_INVARIANT_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //@G0D
+  // because we only send unicode to the server anyway we don't check if the server         //@G0A
+  // supports unicode first like ODBC does                                                  //@G0A
 
   private boolean             cache_;
   private DBReplyPackageInfo  cachedPackage_;
@@ -455,6 +457,26 @@ class JDPackageManager
     //
     // The index into the invariant is formed as 000ccfff.
     //
+
+        int dateSep = properties.getIndex(JDProperties.DATE_SEPARATOR);                                             //@G0A
+
+        // if commitMode is 4 (*RR), it won't fit in 2 bits, use part of DateSep to store the commitMode            //@G0A
+        // and use commitMode to store part of DateSep. This takes advantage of the fact that DateSep               //@G0A
+        // values only range from 0-4.  We still have a DateSep of 5 available for future expansion.                //@G0A
+        if (commitMode == 4) {  // we dont use a constant for the RR commit mode because there isnt one available   //@G0A
+            // the different DateSep are: 0=/, 1=-, 2=., 3=comma, 4=blank                                           //@G0A
+            switch(dateSep) {                                                                                       //@G0A
+            case 0: case 1: case 2:                                                                                 //@G0A
+                commitMode = dateSep;                                                                               //@G0A
+                dateSep = 6;                                                                                        //@G0A
+                break;                                                                                              //@G0A
+            case 3: case 4:                                                                                         //@G0A
+                commitMode = dateSep - 2;                                                                           //@G0A
+                dateSep = 7;                                                                                        //@G0A
+                break;                                                                                              //@G0A
+            }                                                                                                       //@G0A
+        }                                                                                                           //@G0A
+
     index = (commitMode << 3)
             | (properties.getIndex (JDProperties.DATE_FORMAT));
     suffix.append (SUFFIX_INVARIANT_.charAt (index));
@@ -468,7 +490,7 @@ class JDPackageManager
     // The index into the invariant is formed as 000dnsss.
     index = (properties.getIndex (JDProperties.DECIMAL_SEPARATOR) << 4)
             | (properties.getIndex (JDProperties.NAMING) << 3)
-            | (properties.getIndex (JDProperties.DATE_SEPARATOR));
+                | (dateSep);                                                                                        //@G0A
     suffix.append (SUFFIX_INVARIANT_.charAt (index));
 
     // Base the 3rd suffix character on:
