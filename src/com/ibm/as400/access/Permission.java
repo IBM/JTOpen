@@ -96,6 +96,7 @@ public class Permission
     private String owner_;
     private boolean ownerChanged_;                        // @B2a
     private boolean revokeOldAuthority_;                  // @B2a
+    private boolean revokeOldGroupAuthority_;
 
     // @B6 The name supplied by the application for QSYS objects on IASPs is
     //     "/aspName/QSYS.LIB/...".  For QSYS objects the asp name will 
@@ -112,6 +113,7 @@ public class Permission
     private String asp_ = null;                           // @B6a
 
     private String primaryGroup_;
+    private boolean primaryGroupChanged_;
     private boolean sensitivityChanged_;
     private int sensitivityLevel_;
     private int type_;
@@ -493,7 +495,12 @@ public class Permission
               access_.setOwner(path, owner_, revokeOldAuthority_); // @B6c
               ownerChanged_ = false;
            }
-           
+           if (primaryGroupChanged_)
+           {
+              access_.setPrimaryGroup(path_,primaryGroup_,revokeOldGroupAuthority_);
+              primaryGroupChanged_ = false;
+           }
+
            int count = userPermissionsBuffer_.size();
            for (int i=count-1;i>=0;i--)
            {
@@ -720,6 +727,10 @@ public class Permission
             return false;
         }
         if (ownerChanged_ == true)               // @B2a
+        {
+            return false;
+        }
+        if (primaryGroupChanged_ == true)
         {
             return false;
         }
@@ -971,6 +982,21 @@ public class Permission
         owner_ = owner;
         revokeOldAuthority_ = revokeOldAuthority;
         ownerChanged_ = true;
+    }
+
+    /**
+     * Sets the primary group of the object.
+     * @param primaryGroup The primary group of the object.
+     * @param revokeOldAuthority Specifies whether the authorities for the current
+     * primary group are revoked when the primary group is changed to the new value.
+     *
+    **/
+    public void setPrimaryGroup(String primaryGroup, boolean revokeOldAuthority)
+    {
+        if (primaryGroup == null) throw new NullPointerException("primaryGroup");
+        primaryGroup_ = primaryGroup;
+        revokeOldGroupAuthority_ = revokeOldAuthority;
+        primaryGroupChanged_ = true;
     }
 
     /**

@@ -622,11 +622,65 @@ abstract class PermissionAccess
         throw new AS400Exception(msgList);
       }
     }
-                   
+
+
+    /**
+     * Sets the primary group of the object.
+     * @param objName The object whose primary group is being reset.
+     * @param primaryGroup The primary group.
+     * @param revokeOldAuthority Specifies whether the authorities for the current
+     * primary group are revoked when the primary group is changed to the new value.
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception PropertyVetoException If the change is vetoed.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
+     *
+    **/
+    public void setPrimaryGroup(String objName, String primaryGroup, boolean revokeOldAuthority)
+            throws AS400Exception,
+                   AS400SecurityException,
+                   ConnectionDroppedException,
+                   ErrorCompletingRequestException,
+                   InterruptedException,
+                   IOException,
+                   ServerStartupException,
+                   UnknownHostException,
+                   PropertyVetoException
+    {
+      // Note -- objName is an IFS-style name which is what
+      //     the CHGPGP command requires.  For objects in QSYS, the name
+      //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
+      //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
+      //     caller must correctly build the name. 
+
+      objName = objName.toUpperCase();
+      CommandCall cmd = new CommandCall(as400_);
+      String revokeOldAut;
+      if (revokeOldAuthority) revokeOldAut = "*YES";
+      else                    revokeOldAut = "*NO";
+      String cmdString = "CHGPGP " +
+        "OBJ("+expandQuotes(objName)+") " +
+        "NEWPGP("+primaryGroup+") " +
+        "RVKOLDAUT("+revokeOldAut+")";
+      cmd.setCommand(cmdString);
+      cmd.setThreadSafe(false); // CHGPGP isn't threadsafe.
+      if(cmd.run()!=true)
+      {
+        AS400Message[] msgList=cmd.getMessageList();
+        throw new AS400Exception(msgList);
+      }
+    }
+
+
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object the sensitivity level will be set to.
-     * @param sensitivityLevel The sensitivity level will be set.
+     * @param sensitivityLevel The sensitivity level.
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
