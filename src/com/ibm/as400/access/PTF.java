@@ -55,6 +55,7 @@ public class PTF
   private String saveFile_;  
   private String supersedingPTF_;
   private String targetRelease_;
+  private String supersededBy_;
 
   private boolean loaded_ = false;
   private boolean partiallyLoaded_ = false;
@@ -64,6 +65,7 @@ public class PTF
   private boolean loaded600_ = false;
   private boolean loaded700_ = false;
   private boolean loaded800_ = false;
+  private boolean loaded900_ = false;
   private int chunkSize_ = 8192;
 
   // PTFR0200
@@ -89,6 +91,8 @@ public class PTF
   // PTFR0800
   private PTFExitProgram[] exitPrograms_;
 
+  // PTFR0900
+  private PTFPrecondition[] preconditions_;
 
   private String messageData_; // This is loaded from CPX3501 and contains the translated text.
 
@@ -750,6 +754,23 @@ public class PTF
 
  
   /**
+   * Retrieves the list of preconditions for this PTF.
+   * @return The array of preconditions.
+  **/
+  public PTFPrecondition[] getPreconditions()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded900_) refresh(900);
+    return preconditions_;
+  }
+
+
+  /**
    * Returns the product feature to which this PTF applies. This
    * value will be blank if the feature cannot be determined (as in
    * the case of a dependent or requisite PTF).
@@ -1153,6 +1174,8 @@ public class PTF
   }
 
 
+  private static int baseSize_ = 115; // This was 108 for V5R1.
+
   /**
    * This refresh method does all the work.
   **/
@@ -1174,31 +1197,34 @@ public class PTF
         break;
       case 200:
         format = "PTFR0200";
-        len = 108+12+chunkSize_; // 108+12+(36*numberOfCoverLetters)
+        len = baseSize_+12+chunkSize_; // 108+12+(36*numberOfCoverLetters)
         break;
       case 300:
         format = "PTFR0300";
-        len = 108+12+chunkSize_; // 108+12+(35*numberOfRequisites)
+        len = baseSize_+12+chunkSize_; // 108+12+(35*numberOfRequisites)
         break;
       case 500:
         format = "PTFR0500";
-        len = 108+12+chunkSize_; // 108+12+(33*numberOfDependents)
+        len = baseSize_+12+chunkSize_; // 108+12+(33*numberOfDependents)
         break;
       case 600:
         format = "PTFR0600";
-        len = 108+12+chunkSize_; // 108+12+(7*numberOfAPARs)
+        len = baseSize_+12+chunkSize_; // 108+12+(7*numberOfAPARs)
         break;
       case 700:
         format = "PTFR0700";
-        len = 108+12+chunkSize_; // 108+12+(symptomStringData)
+        len = baseSize_+12+chunkSize_; // 108+12+(symptomStringData)
         break;
       case 800:
         format = "PTFR0800";
-        len = 108+12+chunkSize_; // 108+12+(29*numberOfExitPrograms)
+        len = baseSize_+12+chunkSize_; // 108+12+(29*numberOfExitPrograms)
         break;
+      case 900:
+        format = "PTFR0900";
+        len = baseSize_+12+chunkSize_; // 108+12+(30*numberOfPreconditions)
       default:
         format = "PTFR0100";
-        len = 108+chunkSize_;
+        len = baseSize_+chunkSize_;
         break;
     }
     int ccsid = system_.getCcsid();
@@ -1284,6 +1310,11 @@ public class PTF
       statusDate_ = null;
     }
     licGroup_ = conv.byteArrayToString(output, 101, 7).trim();
+    if (output.length >= 115)
+    {
+      // V5R2 and higher
+      supersededBy_ = conv.byteArrayToString(output, 108, 7).trim();
+    }
     loaded_ = true;
 
     if (whichFormat == 200)
@@ -1460,6 +1491,29 @@ public class PTF
       }
       loaded800_ = true;
     }
+    else if (whichFormat == 900)
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numConds = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      preconditions_ = new PTFPrecondition[numConds];
+      for (int i=0; i<numConds; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        String preCondType = conv.byteArrayToString(output, offset, 10).trim();
+        offset += 10;
+        String preCondName = conv.byteArrayToString(output, offset, 10).trim();
+        offset += 10;
+        String preCondLib = conv.byteArrayToString(output, offset, 10).trim();
+        String path = QSYSObjectPathName.toPath(preCondLib, preCondName, preCondType);
+        preconditions_[i] = new PTFPrecondition(preCondLib, preCondName, preCondType);
+      }
+      loaded900_ = true;
+    }
+
   }
 
 
