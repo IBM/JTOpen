@@ -29,12 +29,11 @@ import java.awt.Panel;
 import java.awt.TextField;
 
 /**
- The PasswordDialog class is a dialog for prompting end-users for a system name, a user ID, and/or a password.  End-user programs will typically not need to use this class directly.  Instead, such programs should allow the AS400 class to display the dialog when necessary.
+ Provides a dialog for prompting end-users for a system name, a user ID, and/or a password.  End-user programs will typically not need to use this class directly.  Instead, such programs should allow the AS400 class to display the dialog when necessary.
+ @see SignonHandler
  **/
 public class PasswordDialog extends Dialog
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
     // Implementation notes:
     // * There is a concern that making this class public makes it too easy for external developers to display a Toolbox signon prompt and gather end-user passwords.  The general consensus is that this would be easy enough for most Java developers to do, anyway (without this class)!
@@ -192,6 +191,11 @@ public class PasswordDialog extends Dialog
     void enablePasswordCacheCheckbox()
     {
         cachePasswordCheckbox_.setEnabled(true);
+    }
+
+    void enableSystemNameField()
+    {
+        systemNameTextField_.setEnabled(true);
     }
 
     boolean getDefaultState()

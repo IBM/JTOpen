@@ -22,8 +22,6 @@ package com.ibm.as400.access;
 public class ExtendedIllegalStateException extends IllegalStateException
 implements ReturnCodeException
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
 
@@ -128,6 +126,11 @@ implements ReturnCodeException
     **/
     public static final int OBJECT_CAN_NOT_START_THREADS = 9;            // @D1A
 
+    /**
+       The return code indicating that a signon is already in progress.
+    **/
+    public static final int SIGNON_ALREADY_IN_PROGRESS = 16;
+
 
     /**
        The return code indicating that
@@ -208,6 +211,8 @@ implements ReturnCodeException
 	        return "EXC_INFORMATION_NOT_AVAILABLE";	        // @E2A
 	    case LICENSE_CAN_NOT_BE_REQUESTED:                  // @E2A
 	        return "EXC_LICENSE_CAN_NOT_BE_REQUESTED";	    // @E2A
+	    case SIGNON_ALREADY_IN_PROGRESS:                  // @E2A
+	        return "EXC_SIGNON_ALREADY_IN_PROGRESS";
         case UNKNOWN:
             // @D0A - drop through to default case...      return "EXC_UNKNOWN";
         default:

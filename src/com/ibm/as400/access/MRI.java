@@ -26,8 +26,6 @@ import java.util.ListResourceBundle;
 //
 public class MRI extends ListResourceBundle
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     public Object[][] getContents()
     {
         return resources;
@@ -71,7 +69,7 @@ public class MRI extends ListResourceBundle
         { "DLG_SET_DEFAULT_USER_FAILED", "Default user has not been changed." },
         { "DLG_SIGNON_TITLE", "Signon to the Server" },
         { "DLG_CHANGE_PASSWORD_TITLE", "Change Password" },
-        { "DLG_MISSING_USERID", "Missing user ID or password." },
+        { "DLG_MISSING_USERID", "Missing system name, user ID, or password." },
         { "DLG_MISSING_PASSWORD", "Missing user ID, old or new password." },
         { "DLG_INVALID_USERID", "User ID is not valid." },
         { "DLG_CHANGE_PASSWORD_PROMPT", "Would you like to change your password now?" },
@@ -312,6 +310,7 @@ public class MRI extends ListResourceBundle
         { "EXC_START_SERVER_UNKNOWN_ERROR", "Unknown error starting server." },
         { "EXC_SYNTAX_ERROR", "Syntax error occurred." },
         { "EXC_SYSTEM_LEVEL_NOT_CORRECT", "Correct server level is required." },
+        { "EXC_SYSTEM_UNKNOWN", "System name is not known." },
 
         { "EXC_TOKEN_LENGTH_NOT_VALID", "Token length is not valid." },  // @F1A
         { "EXC_TOKEN_TYPE_NOT_VALID", "Token type is not valid." },  // @F1A

@@ -21,8 +21,6 @@ import java.util.Vector;
 // The SystemProperties class contains constants representing names of all system properties recognized by the IBM Toolbox for Java.
 class SystemProperties
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     // System property constants.
     private static final String ACCESS_PREFIX = "com.ibm.as400.access.";
     private static final String PROPERTIES_CLASS_NAME = ACCESS_PREFIX + "Properties";
@@ -41,6 +39,7 @@ class SystemProperties
     public static final String TUNNELPROXYSERVER_CLIENTCLEANUPINTERVAL = ACCESS_PREFIX + "TunnelProxyServer.clientCleanupInterval"; //@A2A
     public static final String TUNNELPROXYSERVER_CLIENTLIFETIME	= ACCESS_PREFIX + "TunnelProxyServer.clientLifetime"; //@A2A
     public static final String FTP_REUSE_SOCKET = ACCESS_PREFIX + "FTP.reuseSocket";
+    public static final String AS400_SIGNON_HANDLER = ACCESS_PREFIX + "AS400.signonHandler";
     //  *** Note: ***
     //
     // If you add a new system property, remember to add them to the following other files:

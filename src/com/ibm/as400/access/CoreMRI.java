@@ -28,8 +28,6 @@ Locale-specific objects for IBM Toolbox for Java.
 //
 public class CoreMRI extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
       public Object[][] getContents()
    {
        return resources;
@@ -72,6 +70,7 @@ public class CoreMRI extends ListResourceBundle
       { "EXC_PATH_NOT_VALID", "Path name is not valid." },
       { "EXC_RANGE_NOT_VALID", "The parameter value is out of the allowed range." },
       { "EXC_SIGNON_CHAR_NOT_VALID", "The user ID or password contains a character that is not valid." },
+      { "EXC_SIGNON_ALREADY_IN_PROGRESS", "A sign-on is already in progress." },
       { "EXC_UNKNOWN", "An unknown problem has occurred." },
 
       { "EXC_PROXY_SERVER_EVENT_NOT_FIRED", "The proxy server was not able to fire an event." },

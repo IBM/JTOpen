@@ -6,14 +6,13 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2005 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.awt.Frame;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
@@ -35,7 +34,7 @@ import java.util.Vector;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
- The AS400 class represents the authentication information and a set of connections to a server.
+ Represents the authentication information and a set of connections to an iSeries server.
  <p>If running under i5/OS or an older version of this operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
  <p>If running on another operating system to a server, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running from another operating system.
  <p>For example:
@@ -48,8 +47,6 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  **/
 public class AS400 implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
 
@@ -126,6 +123,9 @@ public class AS400 implements Serializable
     static boolean onAS400 = false;
     // VRM from system property, if we are native.
     static ServerVersion nativeVRM = null;
+    // The static default sign-on handler.
+    static Class defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+    static SignonHandler defaultSignonHandler_;
     static
     {
         try
@@ -151,6 +151,31 @@ public class AS400 implements Serializable
         {
             Trace.log(Trace.WARNING, "Error retrieving os.name:", e);
         }
+
+      // Get the "default sign-on handler" property, if it is set.
+      try
+      {
+        String className = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
+        if (className != null)
+        {
+          try
+          {
+            defaultSignonHandlerClass_ = Class.forName(className);
+          }
+          catch (Exception exc)
+          {
+            Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property): ", exc);
+            defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
+          }
+        }
+      }
+      catch (SecurityException e)
+      {
+        Trace.log(Trace.WARNING, "Error retrieving default sign-on handler name:", e);
+      }
+    }
+    static
+    {
     }
 
     // System list:  elements are 3 element Object[]: systemName, userId, bytes.
@@ -192,6 +217,8 @@ public class AS400 implements Serializable
     private boolean useDefaultUser_ = true;
     // Show the checkboxes on the password dialog.
     private boolean showCheckboxes_ = true;
+    // Detect/prevent recursion when interacting with sign-on handler.
+    private boolean signingOn_ = false;
 
     // SSL options, null value indicates SSL is not to be used.  Options set in SecureAS400 subclass.
     SSLOptions useSSLConnection_ = null;
@@ -228,6 +255,10 @@ public class AS400 implements Serializable
 
     // The IASP name used for the RECORDACCESS service.
     private String ddmRDB_ = null;
+
+    // The sign-on handler for this AS400 instance.
+    private transient SignonHandler signonHandler_ = null;
+    private transient boolean handlerCanceled_ = false;
 
     /**
      Constructs an AS400 object.
@@ -1102,6 +1133,25 @@ public class AS400 implements Serializable
     }
 
     /**
+     Returns the default sign-on handler.  If none has been specified, returns an instance of the Toolbox's internal sign-on handler.
+     @return The default sign-on handler.  Never returns null.
+     @see #setDefaultSignonHandler
+     **/
+    public static SignonHandler getDefaultSignonHandler()
+    {
+      if (defaultSignonHandler_ != null) return defaultSignonHandler_;
+      try
+      {
+        return (SignonHandler)defaultSignonHandlerClass_.newInstance();
+      }
+      catch (Exception e)
+      {
+        Trace.log(Trace.ERROR, "Unable to cast specified default sign-on handler to a SignonHandler: " + defaultSignonHandlerClass_.getName(), e);
+        return new ToolboxSignonHandler();
+      }
+    }
+
+    /**
      Returns the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
      @return  The name of the IASP or RDB that is in use by this AS400 object's RECORDACCESS service, or null if the IASP used will be the default system pool (*SYSBAS).
      @see  #setDDMRDB
@@ -1623,6 +1673,18 @@ public class AS400 implements Serializable
     }
 
     /**
+     Returns the sign-on handler that is used by this AS400 object.  Never returns null.
+     @return The sign-on handler.
+     @see #setSignonHandler
+     @see #setDefaultSignonHandler
+     **/
+    public SignonHandler getSignonHandler()
+    {
+      if (signonHandler_ != null) return signonHandler_;
+      else return getDefaultSignonHandler();
+    }
+
+    /**
      Returns a copy of the socket options object.
      @return  The socket options object.
      **/
@@ -1720,7 +1782,7 @@ public class AS400 implements Serializable
 
     /**
      Indicates if any service is currently connected through this object.
-     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  Also, if the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
+     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @return  true if any service is connected; false otherwise.
      **/
     public boolean isConnected()
@@ -1740,7 +1802,7 @@ public class AS400 implements Serializable
 
     /**
      Indicates if a service is currently connected through this object.
-     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  Also, if the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
+     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
      @param  service  The name of the service.
      <br>Valid services are:
      <br>   FILE - IFS file classes.
@@ -1991,287 +2053,162 @@ public class AS400 implements Serializable
     private static final int FINISHED = 0;
     private static final int VALIDATE = 1;
     private static final int PROMPT = 2;
-    private static final int CHANGE = 3;
+    // Maximum number of iterations of the state machine before we suspect infinite loop.
+    private static final int MAX_ITERATIONS = 20;  // Future enhancement: Make this configurable
     // Run through the various prompts for signon.
     private void promptSignon() throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signing-on with prompting turned on.");
+      if (signingOn_)
+      {
+        Trace.log(Trace.ERROR, "AS400.promptSignon() called while already signing on.  SignonHandler may have called a prohibited method.");
+        throw new ExtendedIllegalStateException(ExtendedIllegalStateException.SIGNON_ALREADY_IN_PROGRESS);
+      }
+
+      try
+      {
+        signingOn_ = true;  // detect/prevent recursion
+        boolean reconnecting = (signonInfo_ != null);  // is this a reconnection
 
         // Start in validate state.
         int pwState = VALIDATE;
-        // If something isn't set, go to prompt state.
-        if (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null) pwState = PROMPT;
+        SignonHandler soHandler = getSignonHandler();
 
-        MessageDialog md = null;
-        PasswordDialog pd = null;
-        boolean signonAttempt = false;
+        // If something isn't set, go to prompt state.
+        if (byteType_ == AUTHENTICATION_SCHEME_PASSWORD &&
+            (systemName_.length() == 0 || userId_.length() == 0 || bytes_ == null ||
+             !(soHandler instanceof ToolboxSignonHandler)))
+        {
+          pwState = PROMPT;
+        }
+
+        int counter = 0;  // loop counter to detect infinite looping
+        boolean proceed = true;
 
         do
         {
-            try
+          counter++;
+          try
+          {
+            switch (pwState)
             {
-                switch (pwState)
+
+              case VALIDATE:
+
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validate security...");
+                sendSignonRequest();
+                break;
+
+
+              case PROMPT:
+
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling SignonHandler...");
+                // If bytes_ has not been set, tell the handler something is missing.
+                SignonEvent soEvent = new SignonEvent(this, reconnecting);
+                proceed = soHandler.connectionInitiated(soEvent, (bytes_ == null));
+                if (!proceed)
                 {
-                    case VALIDATE:
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validate security...");
-                        signonAttempt = true;
-                        sendSignonRequest();
-                        break;
-
-                    case PROMPT:
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prompt for signon information...");
-                        String systemName = "";
-                        String userId = "";
-                        String password = "";
-                        boolean invalidInformation = true;
-                        do
-                        {
-                            pd = setupPasswordDialog();
-                            signonAttempt = pd.prompt();
-                            if (signonAttempt)
-                            {
-                                // User did not cancel.
-                                systemName = pd.getSystemName().trim();
-                                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name: '" + systemName + "'");
-                                userId = pd.getUserId().trim().toUpperCase();
-                                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "User ID: '" + userId + "'");
-                                password = pd.getPassword();
-                                if (PASSWORD_TRACE)
-                                {
-                                    Trace.log(Trace.DIAGNOSTIC, "Password: '" + password + "'");
-                                }
-
-                                if (systemName.equals("") || userId.equals("") || password.equals(""))
-                                {
-                                    // A field is not filled in.
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("DLG_MISSING_USERID"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else if (userId.length() > 10)
-                                {
-                                    Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid: '" + userId + "'");
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("EXC_USERID_LENGTH_NOT_VALID"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else if (password.length() > 128)
-                                {
-                                    Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid: " + password.length());
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("EXC_PASSWORD_LENGTH_NOT_VALID"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else
-                                {
-                                    // Dialog information is all valid.
-                                    invalidInformation = false;
-                                }
-                            }
-                        }
-                        while (signonAttempt && invalidInformation);
-
-                        if (signonAttempt)
-                        {
-                            systemName_ = systemName;
-                            systemNameLocal_ = resolveSystemNameLocal(systemName_);
-                            userId_ = resolveUserId(userId);
-                            bytes_ = store(password);
-                            sendSignonRequest();
-
-                            // Check to see if we should set the default user.
-                            if (pd.getDefaultState())
-                            {
-                                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting default user from dialog...");
-                                // Set the default user.
-                                if (!setDefaultUser(systemName_, userId_))
-                                {
-                                    if (Trace.traceOn_) Trace.log(Trace.WARNING, "Failed to set default user.");
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("DLG_DEFAULT_USER_EXISTS") + "\n\n" + ResourceBundleLoader.getText("DLG_SET_DEFAULT_USER_FAILED"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                            }
-                            // Also see if we should cache the password.
-                            if (pd.getPasswordCacheState())
-                            {
-                                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from dialog...");
-                                setCacheEntry(systemName_, userId_, bytes_);
-                            }
-                        }
-                        break;
-
-                    case CHANGE:
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prompt for change password information...");
-                        String oldPassword = "";
-                        String newPassword = "";
-                        String confirmPassword = "";
-
-                        boolean changeInformationInvalid = true;
-                        do
-                        {
-                            ChangePasswordDialog cpd = new ChangePasswordDialog(new Frame(), ResourceBundleLoader.getText("DLG_CHANGE_PASSWORD_TITLE"));
-                            signonAttempt = cpd.prompt(systemName_, userId_);
-                            if (signonAttempt)
-                            {
-                                // User did not cancel.
-                                oldPassword = cpd.getOldPassword();
-                                newPassword = cpd.getNewPassword();
-                                confirmPassword = cpd.getConfirmPassword();
-                                if (PASSWORD_TRACE)
-                                {
-                                    Trace.log(Trace.DIAGNOSTIC, "Old password: '" + oldPassword + "'");
-                                    Trace.log(Trace.DIAGNOSTIC, "New password: '" + newPassword + "'");
-                                    Trace.log(Trace.DIAGNOSTIC, "Confirm password: '" + confirmPassword + "'");
-                                }
-
-                                if (oldPassword.equals("") || newPassword.equals("") || confirmPassword.equals(""))
-                                {
-                                    // A field is not filled in.
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("DLG_MISSING_PASSWORD"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else if (!newPassword.equals(confirmPassword))
-                                {
-                                    // New and confirm are not the same.
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("EXC_PASSWORD_NOT_MATCH"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else if (oldPassword.length() > 128)
-                                {
-                                    Trace.log(Trace.ERROR, "Length of parameter 'oldPassword' is not valid: " + oldPassword.length());
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("EXC_PASSWORD_LENGTH_NOT_VALID"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else if (newPassword.length() > 128)
-                                {
-                                    Trace.log(Trace.ERROR, "Length of parameter 'newPassword' is not valid: " + newPassword.length());
-                                    md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("EXC_PASSWORD_NEW_NOT_VALID"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                                    md.display();
-                                }
-                                else
-                                {
-                                    // Dialog information is all valid.
-                                    changeInformationInvalid = false;
-                                }
-                            }
-                        }
-                        while (signonAttempt && changeInformationInvalid);
-
-                        if (signonAttempt)
-                        {
-                            byte[] proxySeed = new byte[9];
-                            AS400.rng.nextBytes(proxySeed);
-                            byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
-                            if (PASSWORD_TRACE)
-                            {
-                                Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
-                                Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
-                            }
-
-                            signonInfo_ = impl_.changePassword(systemName_, systemNameLocal_, userId_, encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
-
-                            bytes_ = store(newPassword);  // Change instance variable to match.
-                        }
-                        break;
-
-                    default:
-                        // Invalid state should never happen.
-                        Trace.log(Trace.ERROR, "Invalid password prompt state:", pwState);
-                        throw new InternalErrorException(InternalErrorException.SECURITY_INVALID_STATE, pwState);
+                  // User canceled.
+                  Trace.log(Trace.DIAGNOSTIC, "User canceled.");
+                  handlerCanceled_ = true;  // don't submit exception to handler
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
                 }
-                if (signonAttempt)
+
+                sendSignonRequest();
+
+                // See if we should cache the password.
+                if (isUsePasswordCache() &&
+                    byteType_ == AUTHENTICATION_SCHEME_PASSWORD)
                 {
-                    // Check for number of days to expiration, and warn if within threshold.
-                    int daysToExpiration = getDaysToExpiration();
-                    if (daysToExpiration < AS400.expirationWarning)
-                    {
-                        // Put up warning.
-                        md = new MessageDialog(new Frame(), ResourceBundleLoader.substitute(ResourceBundleLoader.getText("DLG_PASSWORD_EXP_WARNING"), new Integer(daysToExpiration).toString()) + "  " + ResourceBundleLoader.getText("DLG_CHANGE_PASSWORD_PROMPT"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), true);
-                        if (md.display())
-                        {
-                            pwState = CHANGE;
-                        }
-                        else
-                        {
-                            pwState = FINISHED;
-                        }
-                    }
-                    else
-                    {
-                        pwState = FINISHED;
-                    }
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from SignonHandler...");
+                  setCacheEntry(systemName_, userId_, bytes_);
                 }
-                else
-                {
-                    // User canceled.
-                    Trace.log(Trace.DIAGNOSTIC, "User canceled.");
-                    throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
-                }
-            }
-            catch (AS400SecurityException e)
+                break;
+
+
+              default:  // this should never happen
+
+                Trace.log(Trace.ERROR, "Invalid password prompt state:", pwState);
+                throw new InternalErrorException(InternalErrorException.SECURITY_INVALID_STATE, pwState);
+
+            }  // switch
+
+
+            // Check for number of days to expiration, and warn if within threshold.
+            if (getDaysToExpiration() < AS400.expirationWarning)
             {
-                Trace.log(Trace.ERROR, "Security exception in sign-on:", e);
-                switch (e.getReturnCode())
-                {
-                    case AS400SecurityException.USERID_LENGTH_NOT_VALID:
-                    case AS400SecurityException.PASSWORD_LENGTH_NOT_VALID:
-                    case AS400SecurityException.USERID_DISABLE:
-                    case AS400SecurityException.PASSWORD_INCORRECT:
-                    case AS400SecurityException.PASSWORD_INCORRECT_USERID_DISABLE:
-                    case AS400SecurityException.SIGNON_REQUEST_NOT_VALID:
-                    case AS400SecurityException.USERID_UNKNOWN:
-                    case AS400SecurityException.SIGNON_CHAR_NOT_VALID:
-                        md = new MessageDialog(new Frame(), e.getMessage(), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                        md.display();
-                        pwState = PROMPT;
-                        break;
-
-                    case AS400SecurityException.PASSWORD_CHANGE_REQUEST_NOT_VALID:
-                    case AS400SecurityException.PASSWORD_OLD_NOT_VALID:
-                    case AS400SecurityException.PASSWORD_NEW_NOT_VALID:
-                    case AS400SecurityException.PASSWORD_NEW_TOO_LONG:
-                    case AS400SecurityException.PASSWORD_NEW_TOO_SHORT:
-                    case AS400SecurityException.PASSWORD_NEW_REPEAT_CHARACTER:
-                    case AS400SecurityException.PASSWORD_NEW_ADJACENT_DIGITS:
-                    case AS400SecurityException.PASSWORD_NEW_CONSECUTIVE_REPEAT_CHARACTER:
-                    case AS400SecurityException.PASSWORD_NEW_PREVIOUSLY_USED:
-                    case AS400SecurityException.PASSWORD_NEW_NO_NUMERIC:
-                    case AS400SecurityException.PASSWORD_NEW_NO_ALPHABETIC:
-                    case AS400SecurityException.PASSWORD_NEW_DISALLOWED:
-                    case AS400SecurityException.PASSWORD_NEW_USERID:
-                    case AS400SecurityException.PASSWORD_NEW_SAME_POSITION:
-                    case AS400SecurityException.PASSWORD_NEW_CHARACTER_NOT_VALID:
-                    case AS400SecurityException.PASSWORD_NEW_VALIDATION_PROGRAM:
-                        md = new MessageDialog(new Frame(), e.getMessage(), ResourceBundleLoader.getText("DLG_CHANGE_PASSWORD_TITLE"), false);
-                        md.display();
-                        pwState = CHANGE;
-                        break;
-                    case AS400SecurityException.PASSWORD_EXPIRED:
-                        md = new MessageDialog(new Frame(), ResourceBundleLoader.getText("EXC_PASSWORD_EXPIRED") + "\n" + ResourceBundleLoader.getText("DLG_CHANGE_PASSWORD_PROMPT"), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), true);
-                        if (md.display())
-                        {
-                            pwState = CHANGE;
-                        }
-                        else
-                        {
-                            // Don't want to change password, then fail it.
-                            pwState = FINISHED;
-                            throw e;
-                        }
-                        break;
-                    case AS400SecurityException.SECURITY_GENERAL:
-                    case AS400SecurityException.EXIT_POINT_PROCESSING_ERROR:
-                    case AS400SecurityException.EXIT_PROGRAM_RESOLVE_ERROR:
-                    case AS400SecurityException.EXIT_PROGRAM_CALL_ERROR:
-                    case AS400SecurityException.EXIT_PROGRAM_DENIED_REQUEST:
-                        md = new MessageDialog(new Frame(), e.getMessage(), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), false);
-                        md.display();
-                        pwState = FINISHED;
-                        throw e;
-                    default:
-                        throw e;
-                }
+              SignonEvent soEvent = new SignonEvent(this, reconnecting);
+              proceed = soHandler.passwordAboutToExpire(soEvent, getDaysToExpiration());
+              if (!proceed)
+              {
+                handlerCanceled_ = true;  // don't submit exception to handler
+                throw new AS400SecurityException(AS400SecurityException.SIGNON_CANCELED);
+              }
             }
+
+            pwState = FINISHED;  // if we got this far, we're done
+          }
+          catch (AS400SecurityException e)
+          {
+            if (handlerCanceled_) throw e;  // handler already gave up on this event
+            Trace.log(Trace.ERROR, "Security exception in sign-on:", e);
+            SignonEvent soEvent = new SignonEvent(this, reconnecting, e);
+            switch (e.getReturnCode())
+            {
+              case AS400SecurityException.PASSWORD_EXPIRED:
+                proceed = soHandler.passwordExpired(soEvent);
+                break;
+              case AS400SecurityException.PASSWORD_NOT_SET:
+                proceed = soHandler.passwordMissing(soEvent);
+                break;
+              case AS400SecurityException.PASSWORD_INCORRECT:
+              case AS400SecurityException.PASSWORD_OLD_NOT_VALID:
+                proceed = soHandler.passwordIncorrect(soEvent);
+                break;
+              case AS400SecurityException.PASSWORD_LENGTH_NOT_VALID:
+              case AS400SecurityException.PASSWORD_NEW_TOO_LONG:
+              case AS400SecurityException.PASSWORD_NEW_TOO_SHORT:
+                proceed = soHandler.passwordLengthIncorrect(soEvent);
+                break;
+              case AS400SecurityException.PASSWORD_INCORRECT_USERID_DISABLE:
+                proceed = soHandler.userIdAboutToBeDisabled(soEvent);
+                break;
+              case AS400SecurityException.USERID_UNKNOWN:
+                proceed = soHandler.userIdUnknown(soEvent);
+                break;
+              case AS400SecurityException.USERID_DISABLE:
+                proceed = soHandler.userIdDisabled(soEvent);
+                break;
+              default:
+                soHandler.exceptionOccurred(soEvent);  // handler rethrows if can't handle
+            }
+            if (!proceed) { throw e; }
+
+            // Assume handler has corrected any incorrect values. Prepare to try again.
+            pwState = VALIDATE;
+          }
+          catch (UnknownHostException e)
+          {
+            SignonEvent soEvent = new SignonEvent(this, reconnecting);
+            proceed = soHandler.systemNameUnknown(soEvent, e);
+            if (!proceed) { throw e; }
+            pwState = VALIDATE;
+          }
         }
-        while (pwState != FINISHED);
+        while (pwState != FINISHED && counter < MAX_ITERATIONS);
+
+        if (pwState != FINISHED)
+        {
+          Trace.log(Trace.ERROR, "Possible infinite loop while interacting with SignonHandler.");
+          throw new AS400SecurityException(AS400SecurityException.SIGNON_REQUEST_NOT_VALID);
+        }
+
+      }
+      finally
+      {
+        signingOn_ = false;
+      }
     }
+
 
     // Help de-serialize the object.
     private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
@@ -2674,6 +2611,11 @@ public class AS400 implements Serializable
      **/
     public void setDDMRDB(String ddmRDB)
     {
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set RDB name after connection has been made.");
+            throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
         if (ddmRDB.length() > 18)
         {
             throw new ExtendedIllegalArgumentException("ddmRDB", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
@@ -2683,6 +2625,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
         ddmRDB_ = (ddmRDB == null ? null : ddmRDB.toUpperCase());
+    }
+
+    /**
+     Sets the default sign-on handler, globally across the JVM.
+     The specified handler object will be called at runtime if any AS400 object needs to obtain additional signon information, and a sign-on handler has not been set on the AS400 object via {@link #setSignonHandler setSignonHandler()}.
+     <br>Users are advised to implement the default sign-on handler in a thread-safe manner, since it may occasionally be in simultaneous use by multiple threads.
+     <br>If a default sign-on handler is not set, then the name of the default sign-on handler class is retrieved from the <em>com.ibm.as400.access.AS400.signonHandler</em> <a href="doc-files/SystemProperties.html">system property</a>.
+     <br>If not specified, an internal AWT-based sign-on handler is used.
+     @param handler The sign-on handler.  Specifying <tt>null</tt> will reset the default sign-on handler to the internal AWT-based handler.
+     @see #getDefaultSignonHandler
+     **/
+    public static void setDefaultSignonHandler(SignonHandler handler)
+    {
+      if (Trace.traceOn_)
+      {
+        if (handler == null) Trace.log(Trace.DIAGNOSTIC, "Setting the default sign-on handler to null.");
+        else if (defaultSignonHandler_ != null) Trace.log(Trace.DIAGNOSTIC, "Replacing default sign-on handler, formerly an instance of " + defaultSignonHandler_.getClass().getName());
+      }
+      defaultSignonHandler_ = handler;
     }
 
     /**
@@ -2727,7 +2688,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, or password) can be used at a single time.  Using this method will clear any set profile token or password.
+     Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
      @param  gssCredential  The GSS credential object.  The type of this must be org.ietf.jgss.GSSCredential, the object is set to type to object only to avoid a JDK release dependency.
      **/
     public void setGSSCredential(Object gssCredential)
@@ -2776,7 +2737,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, or password) can be used at a single time.  Using this method will clear any set profile token or password.
+     Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
      @param  gssName  The GSS name string.
      **/
     public void setGSSName(String gssName)
@@ -2911,7 +2872,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the password for this object.  Only one authentication means (Kerberos ticket, profile token, or password) can be used at a single time.  Using this method will clear any set Kerberos ticket or profile token.
+     Sets the password for this object.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set Kerberos ticket, profile token, or identity token.
      @param  password  The user profile password.
      **/
     public void setPassword(String password)
@@ -3075,6 +3036,23 @@ public class AS400 implements Serializable
     }
 
     /**
+     Sets the sign-on handler for this AS400 object.  The specified handler will be called at runtime if the AS400 object needs to obtain additional signon information.
+     <br>By default, an internal AWT-based implementation is used, if no sign-on handler has been statically set via setDefaultSignonHandler().
+     @param handler The sign-on handler.  Specifying <tt>null</tt> will reset the default sign-on handler to the internal AWT-based handler.
+     @see #getSignonHandler
+     @see #setDefaultSignonHandler
+     **/
+    public void setSignonHandler(SignonHandler handler)
+    {
+      if (Trace.traceOn_)
+      {
+        if (handler == null) Trace.log(Trace.DIAGNOSTIC, "Setting the sign-on handler to null.");
+        if (signonHandler_ != null) Trace.log(Trace.DIAGNOSTIC, "Sign-on handler was formerly an instance of " + signonHandler_.getClass().getName());
+      }
+      signonHandler_ = handler;
+    }
+
+    /**
      Sets the socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the server has been established.
      @param  socketProperties  The set of socket options to set.  The options are copied from this object, not shared.
      **/
@@ -3102,7 +3080,14 @@ public class AS400 implements Serializable
     public void setSystemName(String systemName) throws PropertyVetoException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system name: " + systemName);
-        if (propertiesFrozen_)
+        if (systemName == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'systemName' is null.");
+            throw new NullPointerException("systemName");
+        }
+        if (systemName.equals(systemName_)) return;
+        if (propertiesFrozen_ &&
+            (systemNameLocal_ || systemName_.length() != 0))
         {
             Trace.log(Trace.ERROR, "Cannot set system name after connection has been made.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
@@ -3167,46 +3152,6 @@ public class AS400 implements Serializable
         }
     }
 
-    // Setup password dialog based on information already set.
-    private PasswordDialog setupPasswordDialog()
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No password to try, putting up dialog.");
-
-        PasswordDialog pd = new PasswordDialog(new Frame(), ResourceBundleLoader.getText("DLG_SIGNON_TITLE"), showCheckboxes_);
-
-        // If system name is not set.
-        if (systemName_.length() == 0)
-        {
-            // Enable default user checkbox.
-            pd.enableDefaultUserCheckbox();
-            // But uncheck it.
-            pd.setDefaultUserState(false);
-        }
-        else
-        {
-            // Put system name in dialog.
-            pd.setSystemName(systemName_);
-            // Do we already have a default user for this system
-            if (AS400.getDefaultUser(systemName_) == null)
-            {
-                // Enable the check box.
-                pd.enableDefaultUserCheckbox();
-                // And check it.
-                pd.setDefaultUserState(true);
-            }
-            else
-            {
-                // Disable the check box.
-                pd.disableDefaultUserCheckbox();
-            }
-        }
-        // Check the use cache checkbox.
-        pd.setPasswordCacheState(true);
-        // If user ID set, put it in dialog.
-        if (userId_.length() != 0) pd.setUserId(userId_);
-        return pd;
-    }
-
     /**
      Sets the indicator for whether the default user is used.  The default user is used if a system name is provided, but a user ID is not.  If a default user is set for that system, then the default user is used.
      @param  useDefaultUser  The value indicating if the default user should be used.  Set to true if default user should be used; false otherwise.
@@ -3239,6 +3184,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the indicator for whether the password cache is used.  If password cache is used, then the user would only have to enter password once within a Java virtual machine.  The default is to use the cache.
+     <br>Unless the application is running in its own private JVM, users are advised to turn off password caching, in order to ensure that another application within the same JVM cannot create a connection using the cached password.
      @param  usePasswordCache  The value indicating whether the password cache should be used.  Set to true to use the password cache; false otherwise.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -3268,7 +3214,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the user ID for this object.  The user ID cannot be changed once a connection to the server has been established.  If this method is used in conjunction with a Kerberos ticket or profile token, the user profile associated with the authentication token must match this user ID.
+     Sets the user ID for this object.  The user ID cannot be changed once a connection to the server has been established.  If this method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with the authentication token must match this user ID.
      @param  userId  The user profile name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -3280,6 +3226,7 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'userId' is null.");
             throw new NullPointerException("userId");
         }
+        if (userId.equals(userId_)) return;
         if (userId.length() > 10)
         {
             Trace.log(Trace.ERROR, "Length of 'userId' parameter is not valid: '" + userId + "'");
@@ -3313,7 +3260,7 @@ public class AS400 implements Serializable
         }
     }
 
-    // Initiate sign-on to the server.  This method is syncronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
+    // Initiate sign-on to the server.  This method is synchronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
     synchronized void signon(boolean keepConnection) throws AS400SecurityException, IOException
     {
         // If we haven't already signed on.
@@ -3369,15 +3316,8 @@ public class AS400 implements Serializable
                 }
             }
 
-            // If we can use the prompts, use them, else go right to server flows.
-            if (guiAvailable_ && byteType_ == AUTHENTICATION_SCHEME_PASSWORD)
-            {
-                promptSignon();
-            }
-            else
-            {
-                sendSignonRequest();
-            }
+            // Note: A user-supplied sign-on handler isn't necessarily GUI-based.
+            promptSignon();
             if (!keepConnection) impl_.disconnect(AS400.SIGNON);
         }
     }
