@@ -13,6 +13,7 @@
 
 package com.ibm.as400.util.html;
 
+import com.ibm.as400.access.Trace;
 import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 
