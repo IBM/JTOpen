@@ -8,7 +8,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ////////////////////////////////////////////////////////////////////////////-->
@@ -88,7 +88,7 @@
 
 <!-- Declare the type of output file produced 
      (currently HTML, might change to XML)                           -->
-<xsl:output method="html" encoding="iso-8859-1" indent="no" />
+<xsl:output method="html" encoding="utf-8" indent="no" />
             
 <!-- Set the document variable once, so we don't re-parse the CommandHelp
      document every time we would've encountered a document(...) call. -->
