@@ -536,7 +536,8 @@ implements IFSFileOutputStreamImpl
               if (gotCCSID)
                 Trace.log(Trace.DIAGNOSTIC, "Received multiple replies " +
                           "from ListAttributes request.");
-              ((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDataStreamLevel_); // @B2A
+              //((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDatastreamLevel_); // @B2A @B6d
+              ((IFSListAttrsRep)ds).setFD(fd_);             // @B6a
               fileCCSID = ((IFSListAttrsRep) ds).getCCSID();
               if (DEBUG)
                 System.out.println("DEBUG: IFSFileOutputStreamImplRemote.writeText(): " +

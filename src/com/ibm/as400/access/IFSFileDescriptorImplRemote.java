@@ -30,7 +30,8 @@ implements IFSFileDescriptorImpl
           ConverterImplRemote converter_;
   private int         fileHandle_;
           int         preferredServerCCSID_;
-          int         serverDataStreamLevel_; // @B3A
+          int         serverDatastreamLevel_; // @B3A
+          int         requestedDatastreamLevel_; // @B6a
   private int         fileOffset_;
           boolean     isOpen_;
           boolean     isOpenAllowed_ = true;
@@ -207,24 +208,26 @@ implements IFSFileDescriptorImpl
       {
           IFSExchangeAttrRep rep =
             (IFSExchangeAttrRep)server_.getExchangeAttrReply();
+
+          // Note: For V4R5 or later, we ask for Datastream Level 2;
+          // for earlier systems, we ask for Datastream Level 0.    // @B6c
+          if (getSystemVRM() >= 0x00040500)                 // @B3A @B4C
+            requestedDatastreamLevel_ = 2;
+          else
+            requestedDatastreamLevel_ = 0;
           if (rep == null)
           {
               try
               {
-                int requestedDataStreamLevel; // @A2A
                 int[] preferredCcsids;        // @A2A
                 // Note: Pre-V4R5 systems hang when presented with multiple
                 // preferred CCSIDs in the exchange of attributes.   @B3A @B4C
                 if (getSystemVRM() >= 0x00040500)                 // @B3A @B4C
                 { // System is V4R5 or later.  We can present a list of preferred CCSIDs.
-
-                  requestedDataStreamLevel = 2;
                   preferredCcsids = new int[] {0x34b0,0xf200}; // New or old Unicode.
                 }
                 else
-                { // System is pre-V4R5 or later.  Exchange attr's the old way.
-
-                  requestedDataStreamLevel = 0;
+                { // System is pre-V4R5.  Exchange attr's the old way.
                   preferredCcsids = new int[] {0xf200}; // Old Unicode only.
                 }
 
@@ -235,7 +238,7 @@ implements IFSFileDescriptorImpl
                          new IFSExchangeAttrReq(true, false,
                                                 IFSExchangeAttrReq.PC_PATTERN_MATCH,
                                                 0xffffffff,
-                                                requestedDataStreamLevel,
+                                                requestedDatastreamLevel_,
                                                 preferredCcsids)); // @A2C
               }
               catch(ConnectionDroppedException e)
@@ -264,7 +267,7 @@ implements IFSFileDescriptorImpl
           {
               maxDataBlockSize_ = ((IFSExchangeAttrRep) rep).getMaxDataBlockSize();
               preferredServerCCSID_ = rep.getPreferredCCSID();
-              serverDataStreamLevel_ = rep.getDataStreamLevel();
+              serverDatastreamLevel_ = rep.getDataStreamLevel();
               setConverter(ConverterImplRemote.getConverter(preferredServerCCSID_,
                                                                 system_));
               if (DEBUG) {
@@ -273,7 +276,7 @@ implements IFSFileDescriptorImpl
                 int[] list = rep.getPreferredCCSIDs();
                 for (int i=0; i<list.length; i++)
                   System.out.println("-- Server's preferred CCSID (#" + i+1 + "): " + list[i]);
-                System.out.println("-- Server's dataStreamLevel : " + Integer.toHexString(serverDataStreamLevel_));
+                System.out.println("-- Server's dataStreamLevel : " + Integer.toHexString(serverDatastreamLevel_));
               }
           }
           else

@@ -73,7 +73,8 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int HEADER_LENGTH = 20;
   private static final int LLCP_LENGTH = 6;
 
-  private int serverDataStreamLevel_; // @A1A
+  //private int serverDatastreamLevel_; // @A1A @B6d
+  private IFSFileDescriptorImplRemote fd_; // @B6a
 
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.     @A3a
@@ -108,10 +109,12 @@ Get the date/time that the file was last accessed.
 Get the code page value for the IFS file on the AS/400.
 @return the code page value for the IFS file on the AS/400
 **/
+/* @B6d
   private int getCodePage()
   {
     int codePageOffset;
-    if (serverDataStreamLevel_ == 0xf4f4)              //@A2a
+    int 
+    if (fd_.serverDatastreamLevel_ == 0xf4f4)          //@A2a @B6c
       codePageOffset = CODE_PAGE_OFFSET_INTO_OA2a;     //@A2a
     else
       codePageOffset = CODE_PAGE_OFFSET_INTO_OA2;
@@ -119,6 +122,7 @@ Get the code page value for the IFS file on the AS/400.
     return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
                     LLCP_LENGTH + codePageOffset);
   }
+*/
 
 /**
 Get the CCSID value for the IFS file on the AS/400.
@@ -126,9 +130,66 @@ Get the CCSID value for the IFS file on the AS/400.
 **/
   int getCCSID()  // @A1A
   {
+    if (DEBUG) System.out.println("DEBUG IFSListAttrsRep.getCCSID(): " +
+                                  "requestedDatastreamLevel_ = " + fd_.requestedDatastreamLevel_ +
+                                  ", serverDatastreamLevel_ = " + fd_.serverDatastreamLevel_);
     // Note: Only if the server is reporting Datastream Level 2 will have a CCSID field.
     // If other than Level 2, we must make do with the codepage value.
-    if (serverDataStreamLevel_ == 2)
+
+    /* @B6a
+
+     Note: To figure out the format of the returned information, we need to
+     consider both the requested and reported Datastream Levels:
+
+     DSL requested     DSL reported    OA format sent
+     by client         by server       by server
+     _____________     ____________    _______________
+
+     0                 any             OA2
+
+     2                 0               OA2
+
+     2                 F4F4            OA2a
+
+     2                 2               OA2b
+
+     Note: Since we only ever request level 0 or 2,
+           the server will never report level 1.
+     */
+    int offset_into_OA;  // offset into OA* structure for CCSID or codepage field
+    switch (fd_.requestedDatastreamLevel_)     // @B6a
+    {
+      case 0:
+        offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2;
+        break;
+      case 1: case 2:
+        switch (fd_.serverDatastreamLevel_)
+        {
+          case 0:
+            offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2;
+            break;
+          case 0xF4F4:
+            offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
+            break;
+          case 2:
+            offset_into_OA = CCSID_OFFSET_INTO_OA2b;
+            break;
+          default:
+            Trace.log(Trace.ERROR, "Unexpected server datastream level: " +
+                      fd_.serverDatastreamLevel_);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        }
+        break;
+      default:
+        Trace.log(Trace.ERROR, "Unexpected requested datastream level: " +
+                  fd_.requestedDatastreamLevel_);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
+    return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
+                    LLCP_LENGTH + offset_into_OA);
+
+/* @B6d
+    if (fd_.serverDatastreamLevel_ == 2)                                  // @B6c
       return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
                       LLCP_LENGTH + CCSID_OFFSET_INTO_OA2b);
     else {
@@ -136,6 +197,7 @@ Get the CCSID value for the IFS file on the AS/400.
       // code page and CCSID are the same.
       return getCodePage();
     }
+*/
   }
 
 /**
@@ -254,11 +316,22 @@ Determine the file size (in bytes).
 
 /**
 Set the server datastream level.  This enables us to correctly parse the reply.
-@param dataStreamLevel the server datastream level
+@param datastreamLevel the server datastream level
 **/
-  void setServerDatastreamLevel(int dataStreamLevel)
+/* B6d
+  void setServerDataStreamLevel(int datastreamLevel)
   {
-    serverDataStreamLevel_ = dataStreamLevel;
+    serverDatastreamLevel_ = dataStreamLevel;
+  }
+*/
+
+/**
+Set the file descriptor.  We need info from the descriptor to correctly parse the reply.
+@param fd the file descriptor.
+**/
+  void setFD(IFSFileDescriptorImplRemote fd)
+  {
+    fd_ = fd;
   }
 
 /**

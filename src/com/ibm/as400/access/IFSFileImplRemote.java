@@ -479,7 +479,8 @@ implements IFSFileImpl
     else
     {
       IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(0);
-      reply.setServerDatastreamLevel(fd_.serverDataStreamLevel_);
+      //reply.setServerDatastreamLevel(fd_.serverDataStreamLevel_);  // @B6d
+      reply.setFD(fd_);                  // @B6a
       fileCcsid = reply.getCCSID();
     }
 
