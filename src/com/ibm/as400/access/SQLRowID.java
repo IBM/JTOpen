@@ -75,7 +75,7 @@ final class SQLRowID implements SQLData
         int len = (value_.length < rawBytes.length) ? value_.length : rawBytes.length;
         System.arraycopy(value_, 0, rawBytes, offset + 2, len);
         // pad rawBytes with zeros if it has room
-        for(int i=value_.length; i<rawBytes.length; ++i) rawBytes[i] = 0;
+        for(int i=(offset + 2 + len); i<rawBytes.length; ++i) rawBytes[i] = 0;  //@K1C changed from value_.length to offset+2+length so we pad DataStream at correct place
     }
 
     //---------------------------------------------------------//
