@@ -285,7 +285,8 @@ class PermissionAccessQSYS extends PermissionAccess
                 object += objectPathName.getLibraryName()+".LIB/";
             object += objectPathName.getObjectName()+".FILE";
 
-            try
+// The CHGAUT command doesn't need the path converted either, for some reason.
+/*            try
             {
               object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
             }
@@ -293,6 +294,7 @@ class PermissionAccessQSYS extends PermissionAccess
             {
               Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
             }
+*/            
             command="CHGAUT"
                     +" OBJ("+expandQuotes0(object)+")"       // @B4c
                     +" USER("+userName+")"
@@ -307,7 +309,7 @@ class PermissionAccessQSYS extends PermissionAccess
             if (asp != null)                                 // @B6a
                localName = asp + localName;                  // @B6a
 
-            try
+/*            try
             {
               localName = CharConverter.convertIFSQSYSPathnameToJobPathname(localName, sys.getCcsid());
             }
@@ -315,6 +317,7 @@ class PermissionAccessQSYS extends PermissionAccess
             {
               Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
             }
+*/            
             command="CHGAUT"
                     +" OBJ(" + expandQuotes0(localName) + ")"      // @B4c @B6c
                     +" USER("+userName+")"
