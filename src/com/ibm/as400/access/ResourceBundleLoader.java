@@ -16,19 +16,23 @@ package com.ibm.as400.access;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import java.io.File;
+import java.net.URL;
 
 
 // A class representing the ResourceBundleLoader object which is used to load the resource bundle.
 class ResourceBundleLoader 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final boolean DEBUG = false;
 
     private static MissingResourceException resourceException_;  // Set if there is an exception during the loading of the resource bundle
     private static ResourceBundle coreResources_;  // Core toolbox resources @B2A
     private static ResourceBundle resources_;  // Base toolbox resources needed in proxy jar file @B1C
     private static ResourceBundle resources2_;  // Base toolbox resources NOT needed in proxy jar file @B1A
     private static ResourceBundle systemValueResource_;  // resource bundle for system value.
+    private static String           genericDescription_         = null;
 
     static
     { 
@@ -74,6 +78,70 @@ class ResourceBundleLoader
             throw resourceException_;                                           // @B2A
         return coreResources_.getString(textId);                                // @B2A
     }                                                                           // @B2A
+
+
+
+    /**
+     Returns an icon.
+
+     @param  fileName    The icon file name.
+     @return             The icon.
+     **/
+    static final Icon getIcon (String fileName)
+    {
+      return getIcon (fileName, null);
+    }
+
+
+
+    /**
+     Returns an icon.
+
+     @param  fileName    The icon file name.
+     @param  description The icon description.
+     @return             The icon.
+     **/
+    static final Icon getIcon (String fileName, String description)
+    {
+      Icon icon = null;
+
+      if (DEBUG)
+        System.out.println ("ResourceBundleLoader: Loading icon " + fileName + ".");
+
+      try {
+
+        // The generic description is for loading icons.  Aparantly, the
+        // description is used in cases like presenting an icon to blind
+        // users, etc.  In some cases, we just don't have a description,
+        // so we will put up a canned description.
+        if (description == null) {
+          if (genericDescription_ == null)
+            genericDescription_ = getText ("PRODUCT_TITLE");  // TBD: copy MRI from VMRI to MRI2
+          description = genericDescription_;
+        }
+
+        URL url = ResourceBundleLoader.class.getResource (fileName);
+        if (url == null)
+        {
+          fileName = "com" + File.separator + "ibm" + File.separator +
+            "as400" + File.separator + "access" + File.separator +
+            fileName;
+          icon = new ImageIcon (fileName, description);
+        }
+        else
+        {
+          icon = new ImageIcon (url, description);
+        }
+      }
+      catch (Exception e) {
+        if (DEBUG)
+          System.out.println ("ResourceBundleLoader: Error: " + e + ".");
+
+        Trace.log (Trace.ERROR, "Icon " + fileName + " not loaded: " + e.getMessage() + ".");
+      }
+
+      return icon;
+    }
 
     // Returns the system value MRI text.
     // @param  textId  the id which identifies the text to return.
