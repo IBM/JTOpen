@@ -94,8 +94,8 @@ class ServerTrace
     /**
       Save SQL information.
       The numeric value of this constant is 32.  This
-      option is valid when connecting to V5R1 and
-      newer versions of OS/400.
+      option is valid when connecting to OS/400 V5R1 and
+      newer versions of OS/400 and i5/OS.
      **/
     static final int JDBC_SAVE_SQL_INFORMATION = 32;
 
