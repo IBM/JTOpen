@@ -29,7 +29,8 @@ import com.ibm.as400.access.*;
 //import org.apache.xerces.parsers.SAXParser;
 //import javax.xml.parsers.*;
 
-//import org.xml.sax.*;
+import org.xml.sax.SAXException;
+import org.xml.sax.ParserConfigurationException;
 //import org.xml.sax.helpers.*;
 
 
@@ -444,7 +445,8 @@ public class CommandHelpRetriever
     public synchronized String generateHTML(Command command) throws AS400Exception, AS400SecurityException,
     ErrorCompletingRequestException, IOException,
     InterruptedException, ObjectDoesNotExistException,
-//    SAXNotRecognizedException, SAXNotSupportedException, SAXException,
+/*    SAXNotRecognizedException, SAXNotSupportedException, */ SAXException,
+    ParserConfigurationException, 
     TransformerConfigurationException, TransformerException
     {
         if (command == null)
