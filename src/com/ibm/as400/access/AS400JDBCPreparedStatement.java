@@ -2430,7 +2430,7 @@ implements PreparedStatement
         // @B2D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
         setValue (parameterIndex,
-                  (parameterValue == null) ? null : JDUtilities.streamToString (parameterValue, length, "Unicode"), // @B2C @B3C @H2C
+                  (parameterValue == null) ? null : JDUtilities.streamToString (parameterValue, length, "UnicodeBig"), // @B2C @B3C @H2C @H3C
                   null, -1); //@P0C
     }
 
