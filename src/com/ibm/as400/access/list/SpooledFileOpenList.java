@@ -1006,7 +1006,6 @@ public class SpooledFileOpenList extends OpenList
    * creation date and earlier will be selected, down to the specified <i>start</i> date.
    * @see #getFilterCreationDateStart
    * @see #getFilterCreationDateEnd
-   * @see #setFilterCreationDate(String,String)
   **/
   public void setFilterCreationDate(Date start, Date end)
   {
