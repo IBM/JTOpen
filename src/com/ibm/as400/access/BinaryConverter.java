@@ -444,7 +444,7 @@ public class BinaryConverter
     static final byte[] stringToBytes(char[] hex, int offset, int length)
     {
         if(hex.length == 0) return new byte[0];
-        byte[] buf = new byte[length/2];
+        byte[] buf = new byte[(length+1)/2];
         int num = stringToBytes(hex, offset, length, buf, 0);
         if(num < buf.length)
         {
@@ -459,6 +459,16 @@ public class BinaryConverter
     static final int stringToBytes(char[] hex, int offset, int length, final byte[] b, int boff)
     {
         if(hex.length == 0) return 0;
+
+        // account for char[] of odd length
+        if(hex.length % 2 == 1)
+        {
+            char[] temp = hex;
+            hex = new char[temp.length+1];
+            System.arraycopy(temp, 0, hex, 0, temp.length-1);
+            hex[hex.length-2] = '0';
+            hex[hex.length-1] = temp[temp.length-1];
+        }
         if(hex[offset] == '0' && (hex.length > offset+1 && (hex[offset+1] == 'X' || hex[offset+1] == 'x')))
         {
             offset += 2;
