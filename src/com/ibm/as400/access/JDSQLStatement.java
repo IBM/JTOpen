@@ -102,6 +102,7 @@ class JDSQLStatement
   private boolean         isImmediatelyExecutable_    = false;
   private boolean         isInsert_                   = false;
   private boolean         isSelect_                   = false;
+  private boolean         isSet_                      = false;    // @F4A
   private boolean         isSubSelect_                = false;
   private boolean         isPackaged_                 = false;
   private boolean         isUpdateOrDelete_           = false;
@@ -326,6 +327,12 @@ Constructs a JDSQLStatement object.
     {
       isDeclare_ = true;
     }
+    else if (firstWord.equals(SET_))  // @F4A - This entire block.
+    {
+      isSet_ = true;
+      nativeType_ = TYPE_UNDETERMINED;
+      // Note: See loop below for SET CONNECTION.
+    }
 
 
     // Now we need to do some parsing based on the
@@ -338,6 +345,7 @@ Constructs a JDSQLStatement object.
     //    FOR UPDATE
     //    FROM (select from-clause)
     //
+    boolean isSecondToken = true;                   // @F4A
     while (tokenizer_.hasMoreTokens())
     {
       String token = tokenizer_.nextToken().toUpperCase();
@@ -378,6 +386,11 @@ Constructs a JDSQLStatement object.
           }
         }
       }
+      else if (isSet_ && isSecondToken && token.equals(CONNECTION_))  // @F4A - This entire block.
+      {
+        nativeType_ = TYPE_CONNECT;
+      }
+      isSecondToken = false;      // @F4A
     }
 
     // Based on all of the information that we
