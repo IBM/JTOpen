@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--///////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: xpcml.xsd
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ////////////////////////////////////////////////////////////////////////////-->
 
 <xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>
-           
+
 <xs:annotation>
  <xs:documentation>
   Schema for xpcml (eXtended Program Call Markup Language).
@@ -43,7 +43,7 @@
   </xs:key>
   <xs:keyref name="spRef" refer="StructKey">
      <xs:selector xpath="structParm" />
-     <xs:field xpath="@struct" />       
+     <xs:field xpath="@struct" />
   </xs:keyref>
 </xs:element>
 
@@ -54,12 +54,12 @@
       <xs:element ref="parameterList" minOccurs="1" maxOccurs="1"/>
          <!-- Used as a wrapper tag around the parameter list for the program. -->
     </xs:sequence>
-    <!-- Name of the program to call. --> 
+    <!-- Name of the program to call. -->
     <xs:attribute name="name" type="string50" use="required" />
     <!-- Path to the program object. Default is to assume in library QSYS. -->
     <xs:attribute name="path" type="xs:string"/>
     <!-- Specifies the order in which parameters should be parsed. -->
-    <!-- Value is a blank-separated list of parameter names. --> 
+    <!-- Value is a blank-separated list of parameter names. -->
     <xs:attribute name="parseOrder" type="xs:string"/>
     <!-- The entry point name within a service program. -->
     <xs:attribute name="entryPoint" type="xs:string"/>
@@ -145,7 +145,7 @@
    <xs:element name="stringParm" type="stringParmType" substitutionGroup="stringParmGroup" nillable="true"/>
      <xs:complexType name="stringParmType">
        <xs:simpleContent>
-          <xs:extension base="stringFieldType">    
+          <xs:extension base="stringFieldType">
             <xs:attributeGroup ref="commonParmAttrs"/>
           </xs:extension>
        </xs:simpleContent>
@@ -160,7 +160,7 @@
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
     <!-- The number of elements in the array. -->
-    <!-- Count is required if you want to input and/or output array data as XPCML -->    
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
     <xs:attribute name="count" type="xs:string" />
     <!-- The number of characters in each string. -->
     <xs:attribute name="length" type="xs:string"/>
@@ -201,8 +201,8 @@
       <!-- 'i' is the tag used for non-struct array elements. -->
       <xs:element name="i" type="intElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -232,8 +232,8 @@
     <xs:sequence>
       <xs:element name="i" type="unsignedIntElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -256,15 +256,15 @@
             </xs:extension>
          </xs:simpleContent>
       </xs:complexType>
- 
+
 <!-- shortParm array type -->
   <xs:element name="arrayOfShortParm" type="shortParmArrayType" substitutionGroup="shortParmArrayGroup" nillable="true" />
   <xs:complexType name="shortParmArrayType">
     <xs:sequence>
       <xs:element name="i" type="shortElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -294,8 +294,8 @@
     <xs:sequence>
       <xs:element name="i" type="unsignedShortElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -325,8 +325,8 @@
     <xs:sequence>
       <xs:element name="i" type="longElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -338,7 +338,7 @@
        </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
- 
+
 
 <!-- ZonedDecimal parameter -->
     <xs:element name="zonedDecimalParm" type="zonedDecimalParmType" nillable="true" substitutionGroup="zonedDecimalParmGroup"   />
@@ -349,7 +349,7 @@
             </xs:extension>
          </xs:simpleContent>
       </xs:complexType>
- 
+
 <!-- zonedDecimalParm array type -->
   <xs:element name="arrayOfZonedDecimalParm" type="zonedDecimalParmArrayType" substitutionGroup="zonedDecimalParmArrayGroup" nillable="true" />
   <xs:complexType name="zonedDecimalParmArrayType">
@@ -358,8 +358,8 @@
     </xs:sequence>
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <!-- The total number of digits in the field ('length' in PCML). -->
     <xs:attribute name="totalDigits" type="xs:positiveInteger"/>
     <!-- The number of fractional digits ('precision' in PCML). -->
@@ -392,8 +392,8 @@
     </xs:sequence>
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attribute name="totalDigits" type="xs:positiveInteger"/>
     <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger"/>
   </xs:complexType>
@@ -422,8 +422,8 @@
     <xs:sequence>
       <xs:element name="i" type="floatElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -453,8 +453,8 @@
     <xs:sequence>
       <xs:element name="i" type="doubleElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -486,9 +486,9 @@
     <xs:sequence>
       <xs:element name="i" type="hexBinaryElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <xs:attribute name="totalBytes" type="xs:string"/> 
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <xs:attribute name="totalBytes" type="xs:string"/>
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
   </xs:complexType>
@@ -506,11 +506,11 @@
       <xs:complexType name="structParmType">
          <xs:complexContent>
             <xs:extension base="structureParmArray">
-               <xs:attribute name="struct" type="string50"/>  
+               <xs:attribute name="struct" type="string50"/>
                <!-- Specifies whether the parameter is passed by value or reference ('passby' in PCML). -->
                <!-- Value only allowed for integer parameters. -->
                <xs:attribute name="passMode" type="passModeType"/>
-               <!-- Count is required if you want to input and/or output array data as XPCML --> 
+               <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
                <xs:attribute name="count" type="xs:string"/>
             </xs:extension>
          </xs:complexContent>
@@ -523,11 +523,11 @@
         <!-- struct_i tag represents struct or struct parm array elements. -->
         <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
-    <xs:attribute name="count" type="xs:string" />      
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
+    <xs:attribute name="count" type="xs:string" />
     <xs:attributeGroup ref="commonParmAttrs"/>
     <xs:attributeGroup ref="commonFieldAttrs"/>
-    <xs:attribute name="struct" type="string50"/>  
+    <xs:attribute name="struct" type="string50"/>
   </xs:complexType>
 
   <xs:complexType name="structElementType">
@@ -552,7 +552,7 @@
     <!-- The name of the struct. -->
     <xs:attribute name="name" type="string50"/>
     <!-- Number of elements in the array. -->
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
     <xs:attribute name="count" type="xs:string" />
     <!-- Specifies whether this is an input, output, or input-output struct ('usage' in PCML). -->
     <xs:attribute name="passDirection" type="passDirectionType"/>
@@ -572,23 +572,23 @@
 <!-- Attributes that are common to all data field types. -->
   <xs:attributeGroup name="commonParmAttrs">
      <!-- Specifies whether this is an input, output, or input-output parameter ('usage' in PCML). -->
-     <!-- The default value if none is specified is inherit -->
+     <!-- The default value if none is specified is 'inherit'. -->
      <xs:attribute name="passDirection" type="passDirectionType"/>
      <!-- Specifies whether the parameter is passed by reference or value ('passby' in PCML). -->
-     <!-- The default value if none is specified is reference -->
+     <!-- The default value if none is specified is 'reference'. -->
      <xs:attribute name="passMode" type="passModeType" />
      <!-- The offset to the element within an output parameter. -->
-     <!-- The default value if none is specified is 0 -->
+     <!-- The default value if none is specified is 0. -->
      <xs:attribute name="offset" type="xs:string" />
      <!-- The base location from which the 'offset' attribute is relative. -->
      <xs:attribute name="offsetFrom" type="xs:string" />
      <!-- The number of bytes to reserve for output data for the element. -->
      <xs:attribute name="outputSize" type="xs:string" />
-     <!-- The lowest version of OS/400 on which this element exists. -->
-     <!-- The default value if none is specified is null -->
+     <!-- The lowest version of OS/400 to which this field applies. -->
+     <!-- If not specified, we assume this field applies to all versions. -->
      <xs:attribute name="minvrm" type="string10" />
-     <!-- The highest version of OS/400 on which this element exists. -->
-     <!-- The default value if none is specified is none -->
+     <!-- The highest version of OS/400 to which this field applies. -->
+     <!-- If not specified, we assume this field applies to all versions. -->
      <xs:attribute name="maxvrm" type="string10" />
   </xs:attributeGroup>
 
@@ -597,7 +597,7 @@
        <xs:enumeration value="in"/>
        <xs:enumeration value="inout"/>
        <xs:enumeration value="out"/>
-       <xs:enumeration value="inherit"/>     
+       <xs:enumeration value="inherit"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -655,7 +655,7 @@
     <xs:attribute name="passDirection" type="passDirectionType"/>
     <xs:attribute name="offset" type="xs:string" />
     <xs:attribute name="offsetFrom" type="xs:string" />
-    <xs:attribute name="outputSize" type="xs:string" />  
+    <xs:attribute name="outputSize" type="xs:string" />
     <xs:attribute name="minvrm" type="string10" />
     <xs:attribute name="maxvrm" type="string10" />
   </xs:complexType>
@@ -672,8 +672,8 @@
           <xs:element ref="intParmArrayGroup"   />
           <xs:element ref="unsignedIntParmGroup"   />
           <xs:element ref="unsignedIntParmArrayGroup"   />
-          <xs:element ref="shortParmGroup" />          
-          <xs:element ref="shortParmArrayGroup" />          
+          <xs:element ref="shortParmGroup" />
+          <xs:element ref="shortParmArrayGroup" />
           <xs:element ref="unsignedShortParmGroup"   />
           <xs:element ref="unsignedShortParmArrayGroup"   />
           <xs:element ref="longParmGroup"  />
@@ -725,16 +725,16 @@
        <xs:group ref="structureField" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="name" type="string50"/>
-    <!-- Count is required if you want to input and/or output array data as XPCML --> 
+    <!-- 'count' is required if you want to input and/or output array data as XPCML. -->
     <xs:attribute name="count" type="xs:string"/>
   </xs:complexType>
 
 
- 
+
   <!-- Abstract type for "struct or program". -->
   <xs:element name="structOrProgram" abstract="true" />
 
- 
+
   <!-- Abstract type for all data field types. -->
   <xs:element name="stringFieldGroup" type="stringFieldType" abstract="true" />
   <xs:element name="intFieldGroup" type="intFieldType" abstract="true" />
@@ -775,7 +775,7 @@
           <xs:element ref="stringFieldGroup"/>
           <xs:element ref="intFieldGroup"/>
           <xs:element ref="unsignedIntFieldGroup"/>
-          <xs:element ref="shortFieldGroup"/>          
+          <xs:element ref="shortFieldGroup"/>
           <xs:element ref="unsignedShortFieldGroup"/>
           <xs:element ref="longFieldGroup"/>
           <xs:element ref="zonedDecimalFieldGroup"/>
@@ -790,7 +790,7 @@
 
   <!-- Character field -->
   <!-- Maps to AS400Text. -->
-   <xs:complexType name="stringFieldType"> 
+   <xs:complexType name="stringFieldType">
      <xs:simpleContent>
         <xs:extension base="xs:string">
           <!-- Number of characters. -->
@@ -808,14 +808,14 @@
 
   <!-- hexBinary field -->
   <!-- Maps to AS400ByteArray. -->
-   <xs:complexType name="hexBinaryFieldType"> 
+   <xs:complexType name="hexBinaryFieldType">
      <xs:simpleContent>
         <xs:extension base="xs:hexBinary">
           <xs:attributeGroup ref="commonFieldAttrs"/>
         </xs:extension>
      </xs:simpleContent>
    </xs:complexType>
-  
+
 
   <!-- Float field -->
   <!-- Maps to AS400Float4. -->
@@ -916,7 +916,7 @@
    <xs:complexType name="structFieldType">
      <xs:simpleContent>
        <xs:extension base="xs:string">
-         <xs:attribute name="struct" type="string50"/>  
+         <xs:attribute name="struct" type="string50"/>
          <xs:attributeGroup ref="commonFieldAttrs"/>
        </xs:extension>
      </xs:simpleContent>
