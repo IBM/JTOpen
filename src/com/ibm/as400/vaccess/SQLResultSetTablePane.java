@@ -86,7 +86,7 @@ and query and displays it using a JTable:
 DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
 <br>
 // Create the SQLResultSetTablePane object.
-SQLConnection connection = new SQLConnection("MySystem", "Userid", "Password");
+SQLConnection connection = new SQLConnection("jdbc:as400://MySystem", "Userid", "Password");
 String query = "SELECT * FROM MYLIB.MYTABLE";
 SQLResultSetTablePane table = new SQLResultSetTablePane(connection, query);
 <br>
@@ -113,7 +113,7 @@ and displays it using a JTable:
 DriverManager.registerDriver(new com.ibm.as400.access.AS400JDBCDriver());
 <br>
 // Use JDBC to execute the SQL query directly.
-Connection connection = DriverManager.getConnection("MySystem", "Userid", "Password");
+Connection connection = DriverManager.getConnection("jdbc:as400://MySystem", "Userid", "Password");
 Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 ResultSet rs = statement.executeQuery("SELECT * FROM MYLIB.MYTABLE");
 <br>
@@ -726,10 +726,6 @@ public void refreshHeadings()
 {
   Runnable refreshHeading = new Runnable()
   {
-    private String getCopyright()
-    {
-      return Copyright_v.copyright;
-    }
     public void run()
     {
 

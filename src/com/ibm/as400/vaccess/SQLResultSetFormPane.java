@@ -76,7 +76,7 @@ in order to diagnose and recover from error conditions.
 DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());
 
  // Set up table for result set contents.
-final SQLConnection connection = new SQLConnection("MySystem", "Userid", "Password");
+final SQLConnection connection = new SQLConnection("jdbc:as400://MySystem", "Userid", "Password");
 String query = "SELECT * FROM MYLIB.MYTABLE";
 final SQLResultSetFormPane pane = new SQLResultSetFormPane(connection, query);
 
@@ -389,15 +389,6 @@ Returns the SQL connection with which to access data.
 public SQLConnection getConnection ()
 {
     return tableData_.getConnection();
-}
-
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
 }
 
 

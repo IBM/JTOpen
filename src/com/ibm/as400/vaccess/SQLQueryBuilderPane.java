@@ -68,7 +68,7 @@ in order to diagnose and recover from error conditions.
 DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());
 
  // Set up table for result set contents.
-final SQLConnection connection = new SQLConnection("MySystem");
+final SQLConnection connection = new SQLConnection("jdbc:as400://MySystem");
 final SQLQueryBuilderPane pane = new SQLQueryBuilderPane(connection);
 
  // Set up window to hold table
@@ -392,14 +392,6 @@ public SQLConnection getConnection ()
     return sqlconn_;
 }
 
-
-/**
-Returns the copyright.
-**/
-private static String getCopyright()
-{
-    return Copyright_v.copyright;
-}
 
 
 
@@ -1100,13 +1092,8 @@ private class Listener_
 implements ChangeListener
 {
 
-private String getCopyright()
-{
-    return Copyright_v.copyright;
-}
-
-public void stateChanged(ChangeEvent e)
-{
+  public void stateChanged(ChangeEvent e) 
+  {
     worker_.startWorking(workEvent_);
 
     completePage();  // save current page
@@ -1115,7 +1102,7 @@ public void stateChanged(ChangeEvent e)
 
     worker_.stopWorking(workEvent_);
 
-}
+  }
 
 } // end of class Listener_
 

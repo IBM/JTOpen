@@ -78,7 +78,7 @@ and query and displays it using a JTable:
 DriverManager.registerDriver (new com.ibm.as400.access.AS400JDBCDriver ());
 <br>
 // Create the SQLResultSetTableModel object.
-SQLConnection connection = new SQLConnection("MySystem", "Userid", "Password");
+SQLConnection connection = new SQLConnection("jdbc:as400://MySystem", "Userid", "Password");
 String query = "SELECT * FROM MYLIB.MYTABLE";
 SQLResultSetTableModel model = new SQLResultSetTableModel(connection, query);
 <br>
