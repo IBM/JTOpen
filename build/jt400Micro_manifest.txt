@@ -5,7 +5,7 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.3.0.0
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.access
-Implementation-Version: JTOpen 4.1
+Implementation-Version: JTOpen 4.2
 Implementation-Vendor: IBM Corporation and others
 
 Name: com/ibm/as400/micro/
@@ -13,6 +13,6 @@ Specification-Title: IBM Toolbox for Java
 Specification-Version: 5.3.0.0
 Specification-Vendor: IBM Corporation
 Implementation-Title: com.ibm.as400.micro
-Implementation-Version: JTOpen 4.1
+Implementation-Version: JTOpen 4.2
 Implementation-Vendor: IBM Corporation and others
 
