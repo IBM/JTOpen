@@ -455,6 +455,22 @@ public class CommandHelpRetriever
     return dest.toString();
   }
 
+  /**
+   * We don't want to HTML-encode the UIM strings, but we still
+   * need to replace the ampersands so the XSL doesn't get confused.
+  **/
+  private static final String encodeAmp(String source)
+  {
+    StringBuffer dest = new StringBuffer();
+    char[] buf = source.toCharArray();
+    for (int i=0; i<buf.length; ++i)
+    {
+      if (buf[i] == '&') dest.append("&amp;");
+      else dest.append(buf[i]);
+    }
+    return dest.toString();
+  }
+
 
   /**
    * Generates IBM-formatted command help documentation for the specified CL command.
@@ -787,7 +803,7 @@ public class CommandHelpRetriever
 
     for (int i=0; i<mriUIMTags_.length; ++i)
     {
-      parms[i] = new String[] { "_"+mriUIMTags_[i], bundle2.getString("GENCMDDOC_"+mriUIMTags_[i])};
+      parms[i] = new String[] { "_"+mriUIMTags_[i], encodeAmp(bundle2.getString("GENCMDDOC_"+mriUIMTags_[i]))};
     }
 
     return parms;
