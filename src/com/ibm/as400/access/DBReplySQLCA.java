@@ -72,6 +72,17 @@ class DBReplySQLCA
 
 
 
+    // @E3A
+    final public String getErrmc(ConverterImplRemote converter) throws DBDataStreamException  // @E3A
+    {                                                                          // @E3A
+        if (length_ <= 6)                                                      // @E3A
+            return "";                                                         // @E3A
+        short errml = BinaryConverter.byteArrayToShort(data_, offset_ + 16);   // @E3A
+        return converter.byteArrayToString(data_, offset_ + 18, errml);        // @E3A
+    }                                                                          // @E3A
+
+
+
     // Returns the SQLState
     // It needs to run thru EbcdicToAscii since it is a string
    final public String getSQLState (ConverterImplRemote converter) throws DBDataStreamException

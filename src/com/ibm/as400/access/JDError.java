@@ -116,15 +116,18 @@ Returns the reason text based on a SQL state.
 
 
 
+// @E2C
 /**
 Returns the message text for the last operation on the server.
 
 @param  connection  Connection to the server.
 @param  id          Id for the last operation.
+@param  returnCode  The return code from the last operation.
 @return             Reason - error description.
 **/
 	private static String getReason (AS400JDBCConnection connection,
-	                                 int id)
+	                                 int id,
+                                     int returnCode)                                    // @E2A
 	{
 		try {
 		    // Check to see if the caller wants second level text, too.
@@ -145,21 +148,26 @@ Returns the message text for the last operation on the server.
     		    id, orsBitmap, 0);
 
 			DBReplyRequestedDS reply = connection.sendAndReceive (request, id);
+            DBReplySQLCA sqlca = reply.getSQLCA();                                                  // @E2A
 
             // Build up the error description.
             StringBuffer errorDescription = new StringBuffer ();
 			errorDescription.append ("[");
 			errorDescription.append (reply.getMessageId());
 			errorDescription.append ("] ");
-            errorDescription.append (reply.getFirstLevelMessageText());
-	        if (secondLevelText) {
-	            errorDescription.append (" ");
-	            errorDescription.append (reply.getSecondLevelMessageText ());
-	        }
+            if (Math.abs(returnCode) == 438)                                                        // @E2A
+                errorDescription.append(reply.getSQLCA().getErrmc(connection.getConverter()));      // @E2A
+            else {                                                                                  // @E2A
+                errorDescription.append (reply.getFirstLevelMessageText());
+	            if (secondLevelText) {
+	                errorDescription.append (" ");
+	                errorDescription.append (reply.getSecondLevelMessageText ());
+	            }
+            }                                                                                       // @E2A
 
             // Get the SQL state and remember it for the next
             // call to getSQLState().
-            lastServerSQLState_ = reply.getSQLCA ().getSQLState (connection.getConverter ());
+            lastServerSQLState_ = sqlca.getSQLState (connection.getConverter ());                   // @E2C
             if (lastServerSQLState_ == null)
                 lastServerSQLState_ = EXC_SERVER_ERROR;
 
