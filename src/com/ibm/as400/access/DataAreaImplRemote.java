@@ -1062,13 +1062,20 @@ class DataAreaImplRemote implements DataAreaImpl
 
         // Build the string for the write.
         String wrtcmd = null;
+
+        // convert to get the actual number of bytes being written.  In mixed
+        // environments a character can expand to more than one byte.  The
+        // number of byte is passed on the command.
+        ConverterImplRemote ir = ConverterImplRemote.getConverter(system_.getCcsid(), system_); //@D1a
+        int dataLength = ir.stringToByteArray(data).length;                                     //@D1a
+
         switch (dataAreaType_)
         {
             case DataArea.CHARACTER_DATA_AREA:
-                wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + data.length() + ")" + ") VALUE('" + data + "')";
+                wrtcmd = "QSYS/CHGDTAARA DTAARA(" + library_ + "/" + name_ + " (" + (dataAreaOffset+1) + " " + dataLength + ")" + ") VALUE('" + data + "')"; //@D1c
                 break;
             case DataArea.LOCAL_DATA_AREA:
-                wrtcmd = "QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + data.length() + ")) VALUE('" + data + "')";
+                wrtcmd = "QSYS/CHGDTAARA DTAARA(*LDA (" + (dataAreaOffset+1) + " " + dataLength + ")) VALUE('" + data + "')";                                //@D1c
                 break;
             default:
                 Trace.log(Trace.ERROR, "Programming error: write(String,int) was called as dataAreaType=" + dataAreaType_);
