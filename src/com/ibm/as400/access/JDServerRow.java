@@ -47,6 +47,7 @@ implements JDRow
     private SQLData[]               sqlData_;
     private int[]                   sqlTypes_;
     private boolean[]               translated_;
+    private boolean                 wasCompressed = false;   // set to true if variable length field compression is used
 
 
 
@@ -206,6 +207,30 @@ implements JDRow
         }
     }
 
+    // If varying length field compression was used, and it was not used on a subsequent request, we need to set the
+    // data offsets and data lengths based on the server format
+    void setOriginalData() throws SQLException{
+        try{
+            int count = 0;
+            if(serverFormat_ != null)
+                count = serverFormat_.getNumberOfFields ();
+
+            if(count>0){
+                int offset = 0;
+                for(int i = 0; i < count; ++i)
+                {
+                    dataOffset_[i] = offset;
+                    dataLength_[i] = serverFormat_.getFieldLength (i);
+                    offset += dataLength_[i];
+                }
+            }
+        }
+        catch(DBDataStreamException e){
+            JDError.throwSQLException(JDError.EXC_INTERNAL, e);
+        }
+
+    }
+
 
 
     /**
@@ -252,6 +277,7 @@ implements JDRow
                 rowDataOffset_ = serverData_.getRowDataOffset (rowIndex_);
                 if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
                 {                                                              //@K54
+                    wasCompressed = true;
                     int offset = 0;                                                 //@K54
                     int numOfFields = serverFormat_.getNumberOfFields();            //@K54
                     for(int j=0; j<numOfFields; j++)                                 //@K54
@@ -283,6 +309,10 @@ implements JDRow
                         dataLength_[j] = length;                                    //@K54
                     }                                                               //@K54
                 }                                                                   //@K54
+                else if(wasCompressed){     // If varying length field compression was used on one request, and not a subsequent fetch, we need to reset the data lengths and offsets based on the server format
+                    wasCompressed = false;
+                    setOriginalData();
+                }
             }
             else
                 rowDataOffset_ = -1;
