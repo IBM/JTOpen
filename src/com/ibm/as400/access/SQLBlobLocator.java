@@ -105,7 +105,6 @@ final class SQLBlobLocator implements SQLLocator
     private void writeToServer()
     throws SQLException
     {
-        System.out.println("writeToServer called in SQLBlobLocator, savedObject_ value: " + savedObject_);
         if(savedObject_ instanceof byte[])
         {
             byte[] bytes = (byte[])savedObject_;        
@@ -282,7 +281,6 @@ final class SQLBlobLocator implements SQLLocator
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
-        System.out.println("Set in SQLBlobLocator called, object value: " + object);
         savedObject_ = object;
         if(scale != -1) scale_ = scale; // Skip resetting it if we don't know the real length
     }
