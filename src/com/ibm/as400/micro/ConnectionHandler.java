@@ -43,14 +43,14 @@ import com.ibm.as400.access.Trace;
  **/
 class ConnectionHandler
 {
-    private JDBCMEService service_;
+    private JdbcMeService service_;
     private MicroDataInputStream in_;
     private MicroDataOutputStream out_;
     
     /**
     Constructor.  Creates a JDBC-ME handler for Connection objects.
     **/
-    public ConnectionHandler(JDBCMEService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
+    public ConnectionHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
         service_ = jdbcme;
         in_ = in;

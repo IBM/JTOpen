@@ -36,7 +36,7 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
-class JDBCMEService implements Service
+class JdbcMeService implements Service
 {
     private Vector connections_;
     private Vector statements_;
@@ -63,7 +63,7 @@ class JDBCMEService implements Service
     Constructor so we do not have to pass the streams around in all
     the helper functions.
     **/
-    public JDBCMEService()
+    public JdbcMeService()
     {
         // Create the data structures to hold our JDBC objects.
         connections_ = new Vector();
