@@ -32,6 +32,7 @@ import java.io.Serializable;
 *  <BLOCKQUOTE><PRE>
 *  HTMLTable table = new HTMLTable();
 *  table.setAlignment(HTMLTable.CENTER);
+*  table.setHeaderInUse(false);
 *  table.setBorderWidth(1);
 *  table.setCellSpacing(2);
 *  table.setCellPadding(2);
