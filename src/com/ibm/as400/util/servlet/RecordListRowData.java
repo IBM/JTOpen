@@ -94,7 +94,7 @@ public class RecordListRowData extends RowData implements Serializable
   public RecordListRowData()
   {
     super();
-    rowdataSupport_ = new RowDataSupport(this);
+    //@CRS rowdataSupport_ = new RowDataSupport(this);
   }
 
   /**
@@ -150,7 +150,7 @@ public class RecordListRowData extends RowData implements Serializable
     rowProperties_.addElement(properties);
 
     // Notify the listeners.
-    rowdataSupport_.fireAdded();
+    if (rowdataSupport_ != null) rowdataSupport_.fireAdded(); //@CRS
   }
 
   /**
@@ -193,7 +193,7 @@ public class RecordListRowData extends RowData implements Serializable
     rowProperties_.insertElementAt(properties, rowIndex);
 
     // Notify the listeners.
-    rowdataSupport_.fireAdded();
+    if (rowdataSupport_ != null) rowdataSupport_.fireAdded(); //@CRS
   }
 
   /**
@@ -205,6 +205,7 @@ public class RecordListRowData extends RowData implements Serializable
   **/
   public void addRowDataListener(RowDataListener listener)
   {
+    if (rowdataSupport_ == null) rowdataSupport_ = new RowDataSupport(this); //@CRS
     rowdataSupport_.addRowDataListener(listener);
   }
 
@@ -289,7 +290,7 @@ public class RecordListRowData extends RowData implements Serializable
   {
     in.defaultReadObject();
 
-    rowdataSupport_ = new RowDataSupport(this);
+    //@CRS rowdataSupport_ = new RowDataSupport(this);
     currentRecordIndex_ = -1;
   }
 
@@ -300,7 +301,7 @@ public class RecordListRowData extends RowData implements Serializable
   **/
   public void removeRowDataListener(RowDataListener listener)
   {
-    rowdataSupport_.removeRowDataListener(listener);
+    if (rowdataSupport_ != null) rowdataSupport_.removeRowDataListener(listener); //@CRS
   }
 
   /**
@@ -322,7 +323,7 @@ public class RecordListRowData extends RowData implements Serializable
     rowProperties_.removeElementAt(rowIndex);
 
     // Notify the listeners.
-    rowdataSupport_.fireRemoved();
+    if (rowdataSupport_ != null) rowdataSupport_.fireRemoved(); //@CRS
   }
 
   /**
@@ -368,7 +369,7 @@ public class RecordListRowData extends RowData implements Serializable
     rowProperties_.setElementAt(properties, rowIndex);
 
     // Notify the listeners.
-    rowdataSupport_.fireChanged();
+    if (rowdataSupport_ != null) rowdataSupport_.fireChanged(); //@CRS
   }
 
   /**
@@ -388,7 +389,7 @@ public class RecordListRowData extends RowData implements Serializable
       throw new NullPointerException("recordFormat");
 
     RecordFormat old = recordFormat_;
-    vetos_.fireVetoableChange("recordFormat", old, recordFormat);
+    if (vetos_ != null) vetos_.fireVetoableChange("recordFormat", old, recordFormat); //@CRS
 
     recordFormat_ = recordFormat;
 
@@ -399,7 +400,7 @@ public class RecordListRowData extends RowData implements Serializable
       rowProperties_ = new Vector();
     }
 
-    changes_.firePropertyChange("recordFormat", old, recordFormat);
+    if (changes_ != null) changes_.firePropertyChange("recordFormat", old, recordFormat); //@CRS
 
     // Set the metadata.
     if (metadata_ == null)

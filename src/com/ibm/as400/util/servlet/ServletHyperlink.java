@@ -75,7 +75,7 @@ public class ServletHyperlink extends HTMLHyperlink
                                                        //   ex. - http://myServlet/myPathInfo
 
 
-    transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+    transient PropertyChangeSupport changes_; //@CRS
 
 
     /**
@@ -148,6 +148,7 @@ public class ServletHyperlink extends HTMLHyperlink
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
         changes_.addPropertyChangeListener(listener);
 
         //must call the parents change listener since it is
@@ -399,7 +400,7 @@ public class ServletHyperlink extends HTMLHyperlink
     {
         in.defaultReadObject();
 
-        changes_ = new PropertyChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
     }
 
     /**
@@ -412,7 +413,7 @@ public class ServletHyperlink extends HTMLHyperlink
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        changes_.removePropertyChangeListener(listener);
+        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
 
         //must call the parents change listener since it is
         //in a different package.
@@ -434,7 +435,7 @@ public class ServletHyperlink extends HTMLHyperlink
 
         response_ = response;
 
-        changes_.firePropertyChange("response", old, response);
+        if (changes_ != null) changes_.firePropertyChange("response", old, response); //@CRS
     }
 
 
@@ -453,7 +454,7 @@ public class ServletHyperlink extends HTMLHyperlink
 
         pathInfo_ = path;
 
-        changes_.firePropertyChange("path", old, path);
+        if (changes_ != null) changes_.firePropertyChange("path", old, path); //@CRS
     }
 
 }

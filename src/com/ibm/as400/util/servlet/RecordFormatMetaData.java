@@ -56,15 +56,14 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    private RecordFormat recordFormat_;          // The record format.
    transient private String[] columnLabel_;     // The column label list.
 
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+   transient private PropertyChangeSupport changes_; //@CRS
+   transient private VetoableChangeSupport vetos_; //@CRS
 
    /**
    *  Constructs a default RecordFormatMetaData object.
    **/
    public RecordFormatMetaData()
    {
-
    }
 
    /**
@@ -90,7 +89,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
       changes_.addPropertyChangeListener(listener);
    }
 
@@ -104,7 +103,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-
+      if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
       vetos_.addVetoableChangeListener(listener);
    }
 
@@ -361,8 +360,8 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
    {
       in.defaultReadObject();
 
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
+      //@CRS changes_ = new PropertyChangeSupport(this);
+      //@CRS vetos_ = new VetoableChangeSupport(this);
 
       if (recordFormat_ != null)
       {
@@ -385,7 +384,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
       if (listener == null)
          throw new NullPointerException("listener");
 
-      changes_.removePropertyChangeListener(listener);
+      if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
    }
 
    /**
@@ -399,7 +398,7 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
       if (listener == null)
          throw new NullPointerException("listener");
 
-      vetos_.removeVetoableChangeListener(listener);
+      if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
    }
 
    /**
@@ -434,11 +433,11 @@ public class RecordFormatMetaData implements RowMetaData, Serializable
          throw new NullPointerException("recordFormat");
 
       RecordFormat old = recordFormat_;
-      vetos_.fireVetoableChange("recordFormat", old, recordFormat);
+      if (vetos_ != null) vetos_.fireVetoableChange("recordFormat", old, recordFormat); //@CRS
 
       recordFormat_ = recordFormat;
 
-      changes_.firePropertyChange("recordFormat", old, recordFormat);
+      if (changes_ != null) changes_.firePropertyChange("recordFormat", old, recordFormat); //@CRS
 
       // Initialize the label array.
       columnLabel_ = new String[getColumnCount()];

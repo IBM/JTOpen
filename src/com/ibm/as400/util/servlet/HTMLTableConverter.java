@@ -101,6 +101,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
+      if (completedListeners_ == null) completedListeners_ = new Vector(); //@CRS
       completedListeners_.addElement(listener);
    }
 
@@ -114,6 +115,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
       changes_.addPropertyChangeListener(listener);
    }
 
@@ -129,6 +131,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void addSectionCompletedListener(SectionCompletedListener listener)
    {
+      if (sectionCompletedSupport_ == null) sectionCompletedSupport_ = new SectionCompletedSupport(this); //@CRS
       sectionCompletedSupport_.addSectionCompletedListener(listener);
    }
 
@@ -142,6 +145,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
+      if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
       vetos_.addVetoableChangeListener(listener);
    }
 
@@ -263,7 +267,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
             if (numRowsInTable > 1 && (numRowsInTable % maxTableSize_ == 1) )
             {
                // Notify the listeners that a table is finished.
-               sectionCompletedSupport_.fireSectionCompleted(table.getTag());
+               if (sectionCompletedSupport_ != null) sectionCompletedSupport_.fireSectionCompleted(table.getTag()); //@CRS
             }
          }
 
@@ -319,7 +323,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
       }
 
       // Notify section completed listeners that the last table is converted.
-      sectionCompletedSupport_.fireSectionCompleted(table.getTag());
+      if (sectionCompletedSupport_ != null) sectionCompletedSupport_.fireSectionCompleted(table.getTag()); //@CRS
 
 
       // Notify listeners that the tables have been converted.
@@ -425,6 +429,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    private void fireCompleted()
    {
+     if (completedListeners_ == null) return; //@CRS
       Vector targets = (Vector) completedListeners_.clone();
       ActionCompletedEvent event = new ActionCompletedEvent(this);
       for (int i=0; i< targets.size(); i++)
@@ -521,10 +526,10 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    private void initializeTransient()
    {
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
-      sectionCompletedSupport_ = new SectionCompletedSupport(this);
-      completedListeners_ = new Vector();
+      //@CRS changes_ = new PropertyChangeSupport(this);
+      //@CRS vetos_ = new VetoableChangeSupport(this);
+      //@CRS sectionCompletedSupport_ = new SectionCompletedSupport(this);
+      //@CRS completedListeners_ = new Vector();
    }
 
    /**
@@ -558,7 +563,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-      completedListeners_.removeElement(listener);
+      if (completedListeners_ != null) completedListeners_.removeElement(listener); //@CRS
    }
 
    /**
@@ -571,7 +576,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
+      if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
    }
 
    /**
@@ -582,7 +587,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    **/
    public void removeSectionCompletedListener(SectionCompletedListener listener)
    {
-      sectionCompletedSupport_.removeSectionCompletedListener(listener);
+      if (sectionCompletedSupport_ != null) sectionCompletedSupport_.removeSectionCompletedListener(listener); //@CRS
    }
 
    /**
@@ -595,7 +600,7 @@ public class HTMLTableConverter extends StringConverter implements Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-      vetos_.removeVetoableChangeListener(listener);
+      if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
    }
 
    /**
@@ -609,11 +614,11 @@ public class HTMLTableConverter extends StringConverter implements Serializable
          throw new NullPointerException("links");
 
       HTMLHyperlink[] old = links_;
-      vetos_.fireVetoableChange("links", old, links);
+      if (vetos_ != null) vetos_.fireVetoableChange("links", old, links); //@CRS
 
       links_ = links;
 
-      changes_.firePropertyChange("links", old, links);
+      if (changes_ != null) changes_.firePropertyChange("links", old, links); //@CRS
    }
 
    /**
@@ -626,14 +631,15 @@ public class HTMLTableConverter extends StringConverter implements Serializable
       if (size < 0)
          throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Integer oldSize = new Integer(maxTableSize_);
-      Integer newSize = new Integer(size);
+      //@CRS Integer oldSize = new Integer(maxTableSize_);
+      //@CRS Integer newSize = new Integer(size);
+      int oldSize = maxTableSize_; //@CRS
 
-      vetos_.fireVetoableChange("size", oldSize, newSize);
+      if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(oldSize), new Integer(size)); //@CRS
 
       maxTableSize_ = size;
 
-      changes_.firePropertyChange("size", oldSize, newSize);
+      if (changes_ != null) changes_.firePropertyChange("size", new Integer(oldSize), new Integer(size)); //@CRS
    }
 
    /**
@@ -729,11 +735,11 @@ public class HTMLTableConverter extends StringConverter implements Serializable
          throw new NullPointerException("table");
 
       HTMLTable old = htmlTable_;
-      vetos_.fireVetoableChange("table", old, table);
+      if (vetos_ != null) vetos_.fireVetoableChange("table", old, table); //@CRS
 
       htmlTable_ = table;
 
-      changes_.firePropertyChange("table", old, table);
+      if (changes_ != null) changes_.firePropertyChange("table", old, table); //@CRS
    }
 
    /**

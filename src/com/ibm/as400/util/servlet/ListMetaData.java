@@ -45,15 +45,14 @@ public class ListMetaData implements RowMetaData, Serializable
    private int[] columnType_;          // The array of column types.
    private int[] columnSize_;          // The array of column sizes.
 
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+   transient private PropertyChangeSupport changes_; //@CRS
+   transient private VetoableChangeSupport vetos_; //@CRS
 
    /**
    *  Constructs a default ListMetaData object.
    **/
    public ListMetaData()
    {
-
    }
 
    /**
@@ -80,7 +79,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
       changes_.addPropertyChangeListener(listener);
    }
 
@@ -94,7 +93,7 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-
+      if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
       vetos_.addVetoableChangeListener(listener);
    }
 
@@ -234,8 +233,8 @@ public class ListMetaData implements RowMetaData, Serializable
    {
       in.defaultReadObject();
 
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
+      //@CRS changes_ = new PropertyChangeSupport(this);
+      //@CRS vetos_ = new VetoableChangeSupport(this);
    }
 
    /**
@@ -249,7 +248,7 @@ public class ListMetaData implements RowMetaData, Serializable
       if (listener == null)
          throw new NullPointerException("listener");
 
-      changes_.removePropertyChangeListener(listener);
+      if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
    }
 
    /**
@@ -263,7 +262,7 @@ public class ListMetaData implements RowMetaData, Serializable
       if (listener == null)
          throw new NullPointerException("listener");
 
-      vetos_.removeVetoableChangeListener(listener);
+      if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
    }
 
    /**
@@ -333,10 +332,11 @@ public class ListMetaData implements RowMetaData, Serializable
       if (columns <= 0)
          throw new ExtendedIllegalArgumentException("columns", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Integer oldInt = new Integer(columnCount_);
-      Integer newInt = new Integer(columns);
+      //@CRS Integer oldInt = new Integer(columnCount_);
+      //@CRS Integer newInt = new Integer(columns);
+      int oldInt = columnCount_; //@CRS
 
-      vetos_.fireVetoableChange("columns", oldInt, newInt);
+      if (vetos_ != null) vetos_.fireVetoableChange("columns", new Integer(oldInt), new Integer(columns)); //@CRS
 
       columnCount_ = columns;
 
@@ -345,7 +345,7 @@ public class ListMetaData implements RowMetaData, Serializable
       columnType_ = new int[columnCount_];
       columnSize_ = new int[columnCount_];
 
-      changes_.firePropertyChange("columns", oldInt, newInt);
+      if (changes_ != null) changes_.firePropertyChange("columns", new Integer(oldInt), new Integer(columns)); //@CRS
    }
 
    /**

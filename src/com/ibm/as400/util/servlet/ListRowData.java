@@ -123,7 +123,7 @@ public class ListRowData extends RowData implements Serializable
   public ListRowData()
   {
     super();
-    rowdataSupport_ = new RowDataSupport(this);
+    //@CRS rowdataSupport_ = new RowDataSupport(this);
   }
 
   /**
@@ -182,7 +182,7 @@ public class ListRowData extends RowData implements Serializable
     rowProperties_.addElement(properties);
 
     // Notify listeners.
-    rowdataSupport_.fireAdded();
+    if (rowdataSupport_ != null) rowdataSupport_.fireAdded(); //@CRS
   }
 
   /**
@@ -229,7 +229,7 @@ public class ListRowData extends RowData implements Serializable
     rowProperties_.insertElementAt(properties, rowIndex);
 
     // notify the listeners.
-    rowdataSupport_.fireAdded();
+    if (rowdataSupport_ != null) rowdataSupport_.fireAdded(); //@CRS
   }
 
 
@@ -242,6 +242,7 @@ public class ListRowData extends RowData implements Serializable
   **/
   public void addRowDataListener(RowDataListener listener)
   {
+    if (rowdataSupport_ == null) rowdataSupport_ = new RowDataSupport(this); //@CRS
     rowdataSupport_.addRowDataListener(listener);
   }
 
@@ -276,7 +277,7 @@ public class ListRowData extends RowData implements Serializable
   throws java.io.IOException, ClassNotFoundException, RowDataException
   {
     in.defaultReadObject();
-    rowdataSupport_ = new RowDataSupport(this);
+    //@CRS rowdataSupport_ = new RowDataSupport(this);
   }
 
   /**
@@ -298,7 +299,7 @@ public class ListRowData extends RowData implements Serializable
     // Remove the parameter list.
     rowProperties_.removeElementAt(rowIndex);
     // Notify the listeners.
-    rowdataSupport_.fireRemoved();
+    if (rowdataSupport_ != null) rowdataSupport_.fireRemoved(); //@CRS
   }
 
   /**
@@ -308,7 +309,7 @@ public class ListRowData extends RowData implements Serializable
   **/
   public void removeRowDataListener(RowDataListener listener)
   {
-    rowdataSupport_.removeRowDataListener(listener);
+    if (rowdataSupport_ != null) rowdataSupport_.removeRowDataListener(listener); //@CRS
   }
 
   /**
@@ -330,11 +331,11 @@ public class ListRowData extends RowData implements Serializable
     }
 
     RowMetaData old = metadata_;
-    vetos_.fireVetoableChange("metadata", old, metadata);
+    if (vetos_ != null) vetos_.fireVetoableChange("metadata", old, metadata); //@CRS
 
     metadata_ = metadata;
 
-    changes_.firePropertyChange("metadata", old, metadata);
+    if (changes_ != null) changes_.firePropertyChange("metadata", old, metadata); //@CRS
   }
 
   /**
@@ -384,7 +385,7 @@ public class ListRowData extends RowData implements Serializable
     rowProperties_.setElementAt(properties, rowIndex);
 
     // Notify the listeners.
-    rowdataSupport_.fireChanged();
+    if (rowdataSupport_ != null) rowdataSupport_.fireChanged(); //@CRS
   }
 
   /**

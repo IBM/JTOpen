@@ -189,7 +189,7 @@ public class SQLResultSetRowData extends RowData
       throw new NullPointerException("resultSet");
 
     ResultSet old = resultSet_;
-    vetos_.fireVetoableChange("resultSet", old, resultSet);
+    if (vetos_ != null) vetos_.fireVetoableChange("resultSet", old, resultSet); //@CRS
 
     resultSet_ = resultSet;
 
@@ -218,7 +218,7 @@ public class SQLResultSetRowData extends RowData
         rowProperties_.addElement(new Vector[numColumns]); //@B6C
       }
       // Verify that a row was added to the list.
-      changes_.firePropertyChange("resultSet", old, resultSet);
+      if (changes_ != null) changes_.firePropertyChange("resultSet", old, resultSet); //@CRS
       // Set the starting position in the list.
       beforeFirst();
     }

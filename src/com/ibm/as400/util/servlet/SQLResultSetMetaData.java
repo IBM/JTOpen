@@ -62,8 +62,8 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    private int[] columnPrecision_;                       // The column precision.
    private int[] columnScale_;                                // The column scale.
 
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+   transient private PropertyChangeSupport changes_; //@CRS
+   transient private VetoableChangeSupport vetos_; //@CRS
 
    /**
      Constructs a default SQLResultSetMetaData object.
@@ -97,7 +97,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
       changes_.addPropertyChangeListener(listener);
    }
 
@@ -111,7 +111,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
    {
       if (listener == null)
          throw new NullPointerException("listener");
-
+      if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
       vetos_.addVetoableChangeListener(listener);
    }
 
@@ -405,8 +405,8 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       metadata_ = null;            // use cached data until reset.
 
       // Setup the listeners.
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
+      //@CRS changes_ = new PropertyChangeSupport(this);
+      //@CRS vetos_ = new VetoableChangeSupport(this);
    }
 
    /**
@@ -420,7 +420,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       if (listener == null)
          throw new NullPointerException("listener");
 
-      changes_.removePropertyChangeListener(listener);
+      if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
    }
 
    /**
@@ -434,7 +434,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
       if (listener == null)
          throw new NullPointerException("listener");
 
-      vetos_.removeVetoableChangeListener(listener);
+      if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
    }
 
    /**
@@ -450,7 +450,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          throw new NullPointerException("metadata");
 
       ResultSetMetaData old = metadata_;
-      vetos_.fireVetoableChange("metadata", old, metadata);
+      if (vetos_ != null) vetos_.fireVetoableChange("metadata", old, metadata); //@CRS
 
       try
       {
@@ -464,7 +464,7 @@ public class SQLResultSetMetaData implements RowMetaData, Serializable
          throw new RowDataException(e);
       }
 
-      changes_.firePropertyChange("metadata", old, metadata);
+      if (changes_ != null) changes_.firePropertyChange("metadata", old, metadata); //@CRS
 
       // clear the cached data.
       if (isCached_)

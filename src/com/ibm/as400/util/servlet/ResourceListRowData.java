@@ -287,7 +287,7 @@ public class ResourceListRowData extends RowData implements java.io.Serializable
 
       columnAttributeIDs_ = columnAttributeIDs;
 
-      changes_.firePropertyChange("columnAttributeIDs", old, columnAttributeIDs);
+      if (changes_ != null) changes_.firePropertyChange("columnAttributeIDs", old, columnAttributeIDs); //@CRS
 
       if (metadata_ == null)
          metadata_ = new ResourceListMetaData();
@@ -315,7 +315,7 @@ public class ResourceListRowData extends RowData implements java.io.Serializable
 
       metadata_ = new ResourceListMetaData(resourceList, columnAttributeIDs);
 
-      changes_.firePropertyChange("metadata", old, metadata_);
+      if (changes_ != null) changes_.firePropertyChange("metadata", old, metadata_); //@CRS
    }
 
 
@@ -337,7 +337,7 @@ public class ResourceListRowData extends RowData implements java.io.Serializable
 
       resourceList_ = resourceList;
 
-      changes_.firePropertyChange("resourceList", old, resourceList);
+      if (changes_ != null) changes_.firePropertyChange("resourceList", old, resourceList); //@CRS
 
       if (metadata_ == null)
          metadata_ = new ResourceListMetaData();

@@ -109,6 +109,7 @@ public abstract class RowData implements Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
         changes_.addPropertyChangeListener(listener);
     }
     /**
@@ -122,6 +123,7 @@ public abstract class RowData implements Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
         vetos_.addVetoableChangeListener(listener);
     }
 
@@ -256,8 +258,8 @@ public abstract class RowData implements Serializable
     {
         maxLoad_ = 0;
         position_ = -1;         // Set the initial position before the first row.
-        changes_ = new PropertyChangeSupport(this);
-        vetos_ = new VetoableChangeSupport(this);
+        //@CRS changes_ = new PropertyChangeSupport(this);
+        //@CRS vetos_ = new VetoableChangeSupport(this);
     }
 
     /**
@@ -430,7 +432,7 @@ public abstract class RowData implements Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        changes_.removePropertyChangeListener(listener);
+        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
     }
 
     /**
@@ -443,7 +445,7 @@ public abstract class RowData implements Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        vetos_.removeVetoableChangeListener(listener);
+        if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
     }
 
     /**

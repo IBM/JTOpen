@@ -143,10 +143,10 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    private HTMLTable htmlTable_;                    // HTMLTable used to represent form.
    private HTMLHyperlink[] links_;              // The column header's hyperlink list.
 
-   transient private Vector completedListeners_ = new Vector();
-   transient private SectionCompletedSupport sectionCompletedSupport_ = new SectionCompletedSupport(this);
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-   transient private VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+   transient private Vector completedListeners_; //@CRS
+   transient private SectionCompletedSupport sectionCompletedSupport_; //@CRS
+   transient private PropertyChangeSupport changes_; //@CRS
+   transient private VetoableChangeSupport vetos_; //@CRS
 
    /**
    *  Constructs a default HTMLFormConverter object.
@@ -172,6 +172,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       if (listener == null)
          throw new NullPointerException("listener");
 
+      if (completedListeners_ == null) completedListeners_ = new Vector(); //@CRS
       completedListeners_.addElement(listener);
    }
 
@@ -185,6 +186,8 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    {
       if (listener == null)
          throw new NullPointerException("listener");
+
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@CRS
 
       changes_.addPropertyChangeListener(listener);
 
@@ -204,6 +207,8 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void addSectionCompletedListener(SectionCompletedListener listener)
    {
+     if (sectionCompletedSupport_ == null) sectionCompletedSupport_ = new SectionCompletedSupport(this); //@CRS
+
       sectionCompletedSupport_.addSectionCompletedListener(listener);
    }
 
@@ -217,6 +222,8 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    {
       if (listener == null)
          throw new NullPointerException("listener");
+
+      if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@CRS
 
       vetos_.addVetoableChangeListener(listener);
 
@@ -257,7 +264,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
          formList.addElement(table);
 
          // Notify the listeners that a form is completed.
-         sectionCompletedSupport_.fireSectionCompleted(table.getTag());
+         if (sectionCompletedSupport_ != null) sectionCompletedSupport_.fireSectionCompleted(table.getTag()); //@CRS
       }
       else
       {
@@ -316,7 +323,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
          formList.addElement(table);
 
          // Notify the listeners that a form is completed.
-         sectionCompletedSupport_.fireSectionCompleted(table.getTag());
+         if (sectionCompletedSupport_ != null) sectionCompletedSupport_.fireSectionCompleted(table.getTag()); //@CRS
       }
 
       // Notify the listeners that all the forms are converted.
@@ -462,6 +469,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    private void fireCompleted()
    {
+     if (completedListeners_ == null) return; //@CRS
      Vector targets = (Vector) completedListeners_.clone();
      ActionCompletedEvent event = new ActionCompletedEvent(this);
      for (int i=0; i< targets.size(); i++)
@@ -620,10 +628,10 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    {
       in.defaultReadObject();
 
-      changes_ = new PropertyChangeSupport(this);
-      vetos_ = new VetoableChangeSupport(this);
-      completedListeners_ = new Vector();
-      sectionCompletedSupport_ = new SectionCompletedSupport(this);
+      //@CRS changes_ = new PropertyChangeSupport(this);
+      //@CRS vetos_ = new VetoableChangeSupport(this);
+      //@CRS completedListeners_ = new Vector();
+      //@CRS sectionCompletedSupport_ = new SectionCompletedSupport(this);
    }
 
    /**
@@ -637,7 +645,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       if (listener == null)
          throw new NullPointerException("listener");
 
-      completedListeners_.removeElement(listener);
+      if (completedListeners_ != null) completedListeners_.removeElement(listener); //@CRS
    }
 
    /**
@@ -651,7 +659,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       if (listener == null)
          throw new NullPointerException("listener");
 
-      changes_.removePropertyChangeListener(listener);
+      if (changes_ != null) changes_.removePropertyChangeListener(listener); //@CRS
 
       // Remove the listener for the table attributes.
       htmlTable_.removePropertyChangeListener(listener);
@@ -665,7 +673,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
    **/
    public void removeSectionCompletedListener(SectionCompletedListener listener)
    {
-      sectionCompletedSupport_.removeSectionCompletedListener(listener);
+      if (sectionCompletedSupport_ != null) sectionCompletedSupport_.removeSectionCompletedListener(listener); //@CRS
    }
 
    /**
@@ -679,7 +687,7 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
       if (listener == null)
          throw new NullPointerException("listener");
 
-      vetos_.removeVetoableChangeListener(listener);
+      if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@CRS
 
       // Remove the listener for the table attributes.
       htmlTable_.removeVetoableChangeListener(listener);
@@ -770,11 +778,11 @@ public class HTMLFormConverter extends StringConverter implements Serializable, 
          throw new NullPointerException("links");
 
       HTMLHyperlink[] old = links_;
-      vetos_.fireVetoableChange("links", old, links);
+      if (vetos_ != null) vetos_.fireVetoableChange("links", old, links); //@CRS
 
       links_ = links;
 
-      changes_.firePropertyChange("links", old, links);
+      if (changes_ != null) changes_.firePropertyChange("links", old, links); //@CRS
    }
 
    /**
