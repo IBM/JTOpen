@@ -295,7 +295,7 @@ implements java.sql.Driver
                     {
                         Trace.setTraceOn(true);
                     }
-                    Trace.setTraceDatastreamOn(true);
+                    Trace.setTraceProxyOn(true);
                 }
                 // If toolbox trace is set to pcml.  Turn on pcml tracing.
                 else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PCML)
@@ -557,7 +557,7 @@ implements java.sql.Driver
                     {
                         Trace.setTraceOn(true);
                     }
-                    Trace.setTraceDatastreamOn(true);
+                    Trace.setTraceProxyOn(true);
                 }
                 // If toolbox trace is set to pcml.  Turn on pcml tracing.
                 else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PCML)

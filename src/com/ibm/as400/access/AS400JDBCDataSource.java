@@ -3615,6 +3615,36 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         changes_.firePropertyChange(property, oldOption, newOption);
 
+        if(!traceCategory.equals("") || !traceCategory.equals("none"))
+        {
+            if (! Trace.isTraceOn())
+            {
+                Trace.setTraceOn(true);
+            }
+            if(traceCategory.equals("datastream"))
+                Trace.setTraceDatastreamOn(true);
+            else if(traceCategory.equals("diagnostic"))
+                Trace.setTraceDiagnosticOn(true);
+            else if(traceCategory.equals("error"))
+                Trace.setTraceErrorOn(true);
+            else if(traceCategory.equals("information"))
+                Trace.setTraceInformationOn(true);
+            else if(traceCategory.equals("warning"))
+                Trace.setTraceWarningOn(true);
+            else if(traceCategory.equals("conversion"))
+                Trace.setTraceConversionOn(true);
+            else if(traceCategory.equals("proxy"))
+                Trace.setTraceProxyOn(true);
+            else if(traceCategory.equals("pcml"))
+                Trace.setTracePCMLOn(true);
+            else if(traceCategory.equals("jdbc"))
+                Trace.setTraceJDBCOn(true);
+            else if(traceCategory.equals("all"))
+                Trace.setTraceAllOn(true);
+            else if(traceCategory.equals("thread"))
+                Trace.setTraceThreadOn(true);
+        }
+
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, property + ": " + traceCategory);
     }
