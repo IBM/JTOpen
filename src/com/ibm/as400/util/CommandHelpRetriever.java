@@ -84,7 +84,8 @@ import org.xml.sax.helpers.*;
  *  </dd>
  *
  *  <dt><b><code>-output </b></code><var>output location.</var>
- *  <dd>Specifies the output location for the generated help.  The default is the current directory.
+ *  <dd>Specifies the output location for the generated help.  The default is the current directory. The output
+ *  cannot be a file when the command (-c) parameter contains a wildcard (*).
  *  This optional parameter may be abbreviated <code>-o</code>.
  *  </dd>
  *
@@ -317,15 +318,20 @@ public class CommandHelpRetriever
         try
         {
             CommandHelpRetriever utility = new CommandHelpRetriever();
-            //parseParms(args, utility);
 
-            //AS400 system = new AS400(utility.systemName_, utility.userID_, utility.password_);
             AS400 system = parseParms(args, utility);
             CommandList list = new CommandList(system, utility.library_, utility.command_);
             Command[] cmds = list.generateList();
 
             File outDir = new File(utility.outputDirectory_);
             boolean isDir = outDir.isDirectory();
+	    if (!isDir && cmds.length>1)
+	    {
+		if (Trace.isTraceOn())
+		    Trace.log(Trace.DIAGNOSTIC, "The output parameter cannot be a file when a wildcard command is specified");
+
+		throw new ExtendedIllegalArgumentException("output", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+	    }
 
             for (int i=0; i<cmds.length; ++i)
             {
@@ -360,7 +366,7 @@ public class CommandHelpRetriever
         {
             e.printStackTrace();
         }
-
+	// Don't do this.
         //System.exit(0);
     }
 
@@ -726,17 +732,14 @@ public class CommandHelpRetriever
         s = arguments.getOptionValue("-system");
         if (s != null)
             system.setSystemName(s);
-            //systemName_ = s;
         
         u = arguments.getOptionValue("-userid");
         if (u != null)
             system.setUserId(u);
-            //userID_ = u;
         
         p = arguments.getOptionValue("-password");
         if (p != null)
             system.setPassword(p);
-            //password_ = p;
         
         l = arguments.getOptionValue("-library");
         if (l != null)
