@@ -668,7 +668,7 @@
       </fileset>
       <fileset dir="${include}" includes="com/ibm/as400/**"/>
       <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd"
+               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
                excludes="com/ibm/as400/vaccess/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
