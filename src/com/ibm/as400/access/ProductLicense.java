@@ -523,7 +523,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Release this license.  This method must be called to release the license.  Failure
-    *   to do so may result in incorrect license usage count. Callin this method will
+    *   to do so may result in incorrect license usage count. Calling this method will
     *   disconnect from the AS400 Optimized License Management server.
     *   @exception  IOException  If an error occurs while communicating with the AS/400.
     *   @exception  ConnectionDroppedException If the connection was dropped while trying to communicate with the AS/400.
