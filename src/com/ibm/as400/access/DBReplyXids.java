@@ -49,14 +49,16 @@ class DBReplyXids
     {
         if (xidArray_ == null) {
 
-            if (length_ <= 6)
-                xidArray_ = new AS400JDBCXid[0];
-            else {
-                int count = BinaryConverter.byteArrayToInt(data_, offset_ + 6);
-                xidArray_ = new AS400JDBCXid[count];
-                for(int i = 0; i < count; ++i)
-                    xidArray_[i] = new AS400JDBCXid(data_, offset_ + 18 + count * 140);
+            // @A1D if (length_ <= 6)
+            // @A1D     xidArray_ = new AS400JDBCXid[0];
+            // @A1D else {
+            int count = BinaryConverter.byteArrayToInt(data_, offset_ + 6);
+            xidArray_ = new AS400JDBCXid[count];
+            for (int i = 0; i < count; ++i)
+            {
+                xidArray_[i] = new AS400JDBCXid(data_, offset_ + 14 + i * 140);  // @A1C
             }
+            // @A1D }
 
         }
         return xidArray_;

@@ -650,7 +650,7 @@ Parses the datastream.
 
             // Xids.                                                                // @E0A
             case 0x38A1:                                                            // @E0A
-				xids_ = new DBReplyXids(data_, offset + 6, parmLength);             // @E0A
+				xids_ = new DBReplyXids(data_, offset, parmLength);             // @E0A @E5C
                 break;                                                              // @E0A
 
 			}            
