@@ -16,7 +16,6 @@ package com.ibm.as400.access;
 class SSTS0200Format extends SystemStatusFormat
 {
   static final long serialVersionUID = 4L;
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
   SSTS0200Format(AS400 sys)
   {
@@ -34,5 +33,24 @@ class SSTS0200Format extends SystemStatusFormat
     addBin4("totalAuxiliaryStorage");
     addBin4("currentUnprotectedStorageUsed");
     addBin4("maximumUnprotectedStorageUsed");
+    addBin4("percentDBCapability");
+    addBin4("mainStorageSize");
+    addBin4("numberOfPartitions");
+    addBin4("partitionIdentifier");
+    addBin4("reserved1");
+    addBin4("currentProcessingCapacity");
+    addChar(1, "processorSharingAttribute");
+    addChar(3, "reserved2");
+    addBin4("numberOfProcessors");
+    addBin4("activeJobsInSystem");
+    addBin4("activeThreadsInSystem");
+    addBin4("maximumJobsInSystem");
+    addBin4("percentTemporary256MBSegmentsUsed");
+    addBin4("percentTemporary4GBSegmentsUsed");
+    addBin4("percentPermanent256MBSegmentsUsed");
+    addBin4("percentPermanent4GBSegmentsUsed");
+    addBin4("percentCurrentInteractivePerformance");
+    addBin4("percentUncappedCPUCapacityUsed");
+    addBin4("percentSharedProcessorPoolUsed");
   }
 }  

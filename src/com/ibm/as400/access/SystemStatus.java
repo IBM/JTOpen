@@ -37,12 +37,7 @@ import java.util.Vector;
 **/
 public class SystemStatus implements Serializable //@B0C - made Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
     static final long serialVersionUID = 4L;
-
 
     private AS400 as400_;
     private Vector poolsVector_; //@B0C
@@ -143,7 +138,7 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     
     //@B0A
     /**
-     * Connects to the 400 by loading system status information.
+     * Connects to the server by loading system status information.
      * Does nothing if we have already connected.
      *
      * @exception AS400SecurityException If a security or authority error
@@ -183,7 +178,7 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     /**
      * Gets the value for the specified field out of the
      * appropriate record in the format cache. If the particular
-     * format has not been loaded yet, it is loaded from the 400.
+     * format has not been loaded yet, it is loaded from the server.
     **/
     private Object get(String field)
             throws AS400Exception,
@@ -441,6 +436,33 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     }
 
     /** 
+     * Returns the amount (in number of physical processors) of current processing capacity of the partition.  For a partition sharing physical processors, this attribute represents the share of the physical processors in the pool it is executing.
+     *
+     * @return The amount of current processing capacity of the partition.
+     * @exception AS400SecurityException If a security or authority error
+     *            occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before
+     *            the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
+     *            exist.
+     * @exception UnsupportedEncodingException If the character encoding is
+     *            not supported.
+    **/
+    public float getCurrentProcessingCapacity()
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException,
+               UnsupportedEncodingException
+    {
+      return (float)((Integer)get("currentProcessingCapacity")).intValue()/(float)100.0;
+    }
+
+    /** 
      * Returns the current amount of storage in use for temporary objects.
      * This value is in millions of bytes.
      *
@@ -604,6 +626,89 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
                UnsupportedEncodingException
     {
       return ((Integer)get("maximumUnprotectedStorageUsed")).intValue();
+    }
+
+    /** 
+     * Returns the number of processors that are currently active in this partition.
+     *
+     * @return The number of processors that are currently active in this partition.
+     * @exception AS400SecurityException If a security or authority error
+     *            occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before
+     *            the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
+     *            exist.
+     * @exception UnsupportedEncodingException If the character encoding is
+     *            not supported.
+    **/
+    public int getNumberOfProcessors()
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException,
+               UnsupportedEncodingException
+    {
+      return ((Integer)get("numberOfProcessors")).intValue();
+    }
+
+    /** 
+     * Returns the percentage of interactive performance assigned to this logical partition. This value is a percentage of the total interactive performance available to the entire physical system.
+     *
+     * @return The percentage of interactive performance assigned to this logical partition.
+     * @exception AS400SecurityException If a security or authority error
+     *            occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before
+     *            the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
+     *            exist.
+     * @exception UnsupportedEncodingException If the character encoding is
+     *            not supported.
+    **/
+    public float getPercentCurrentInteractivePerformance()
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException,
+               UnsupportedEncodingException
+    {
+      return (float)((Integer)get("percentCurrentInteractivePerformance")).intValue();
+    }
+
+    /** 
+     * Returns the percentage of processor database capability that was used during the elapsed time. Database capability is the maximum CPU utilization available for database processing on this server. -1 is returned if this server does not report the amount of CPU used for database processing.
+     *
+     * @return The percentage of processor database capability that was used during the elapsed time.
+     * @exception AS400SecurityException If a security or authority error
+     *            occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before
+     *            the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
+     *            exist.
+     * @exception UnsupportedEncodingException If the character encoding is
+     *            not supported.
+    **/
+    public float getPercentDBCapability()
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException,
+               UnsupportedEncodingException
+    {
+      int val = ((Integer)get("percentDBCapability")).intValue();
+      if (val == -1) return (float)val;
+      else return (float)val/(float)10.0;
     }
 
     /** 
@@ -1033,7 +1138,7 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
       // resize it.
       // This sets the length for the API call.
       // Since the 0300 format is adjusting dynamically depending on the number
-      // of system pools that currently exist on the 400, this length could change.
+      // of system pools that currently exist on the server, this length could change.
       // Use an initial size of 1000 bytes for the pool information.
       // Each pool information is 84 bytes (11 bin4's and 4 char10's)
       // but the reserved field is of unknown length.
