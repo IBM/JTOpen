@@ -1847,6 +1847,9 @@ implements DatabaseMetaData
                     else                                                             //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
+                    //Get the long file name
+                    request.setFileShortOrLongNameIndicator (0xF0); // @KBA Long table names.        
+
 
                     //--------------------------------------------------------
                     //  Send the request and cache all results from the server
