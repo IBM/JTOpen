@@ -137,8 +137,8 @@
 // Note: The xerces-4.0 target has been removed, since the JTOpen source code has been
 //       updated to use JAXP-compliant APIs.
 //
-// Note: The javadoc target will build the javadoc to the best of its ability. However,
-//       many warnings may appear for some of the files that have pre-requisites that are
+// Note: The javadoc target can build the javadoc to the best of its ability. However,
+//       many warnings will appear for some of the files that have pre-requisites that are
 //       not required for compilation. Namely, these pre-requisites are:
 //
 //         jui400.jar   - A Graphical Toolbox jar file needed to generate javadoc for the
@@ -228,7 +228,6 @@
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="all" depends="jar,javadoc,zip"/>
 
-
   
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: clean
@@ -268,9 +267,9 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: compile
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="compile" depends="compile-1.4,compileCheckIncludes-1.4"/>
-  
-  <target name="compile-1.4" depends="init" if="compileIncludesExist-1.4">
+  <target name="compile" depends="init">
+    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
+    <fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
     <javac srcdir="${source}:${source-contrib}"
            destdir="${output}"
            memoryMaximumSize="256m"
@@ -292,7 +291,9 @@
           tofile="${output}/utilities/UTMRI.properties"/>
   </target>
 
-  <target name="compile-micro" depends="init,compileCheckIncludes-micro">
+  <target name="compile-micro" depends="init">
+    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
+    <fail message="Can't find ${include}/midpapi.zip." unless="midpapiZipExists"/>
     <javac srcdir="${source-micro}:${source}"
            destdir="${output-micro}"
            failonerror="true"
@@ -318,25 +319,7 @@
         <pathelement path="${include}/midpapi.zip:${include}"/>
       </bootclasspath>
     </javac>
-  </target>
-      
-  <target name="compileCheckIncludes-1.4" unless="compileIncludesExist-1.4">
-    <echo>
-     Unable to compile using JDK 1.4.
-     Missing one of: JDK 1.4,
-                     ${include}/servlet.jar, or
-                     ${include}/midpapi.zip.
-     </echo>
-  </target>
-  
-  <target name="compileCheckIncludes-micro" unless="microIncludesExist">
-     <echo>
-     Unable to compile ToolboxME files.
-     Missing one of: ${include}/midpapi.zip, or
-                     ${bin}/preverify.
-     </echo>
-  </target>
-
+  </target>      
   
 
 <!--///////////////////////////////////////////////////////////////////////////
@@ -353,30 +336,66 @@
     <mkdir dir="${output-micro-verified}"/>
     <mkdir dir="${bin}"/>
     
-    <condition property="compileIncludesExist-1.4">
-      <and>
-        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
-        <available file="${include}/servlet.jar" type="file"/>
-      </and>
+    <condition property="jdk14Exists">
+      <available classname="java.nio.Buffer"/>
     </condition>
     
-    <condition property="pcmlRuntimeExists">
+    <condition property="jdk141Exists"> <!-- Need this for javadoc. -->
       <or>
-        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+        <and>
+          <os family="windows"/>
+          <contains string="${java.version}" substring="1.4.1"/>
+        </and>
+        <not>
+          <os family="windows"/>
+        </not>
       </or>
     </condition>
     
-    <condition property="microIncludesExist">
-      <and>
-        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
-        <available file="${include}/midpapi.zip" type="file"/>
-        <or>
+    <condition property="servletJarExists">
+      <available file="${include}/servlet.jar" type="file"/>
+    </condition>
+    
+    <condition property="midpapiZipExists">
+      <available file="${include}/midpapi.zip" type="file"/>
+    </condition>
+    
+    <condition property="preverifyExeExists">
+      <or>
+        <and>
           <available file="${bin}/preverify.exe" type="file"/> <!-- Windows. -->
-          <available file="${bin}/preverify" type="file"/>     <!-- Linux/Unix. -->
-        </or>
-      </and>
+          <os family="windows"/>
+        </and>
+        <available file="${bin}/preverify" type="file"/>     <!-- Linux/Unix. -->
+      </or>
     </condition>
       
+    <condition property="pcmlRuntimeExists">
+      <and>
+        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+        <available classname="com.ibm.as400.data.ProgramCallDocument"/>
+      </and>
+    </condition>
+    
+    <condition property="cvsExeExists">
+      <or>
+        <and>
+          <os family="windows"/>
+          <available file="${bin}/cvs.exe" type="file"/> <!-- Windows. -->
+        </and>
+        <not>
+          <os family="windows"/>
+        </not>
+      </or>
+    </condition>        
+
+    <condition property="jui400JarExists">
+      <available file="${include}/jui400.jar" type="file"/>
+    </condition>
+    
+    <condition property="sslightxZipExists">
+      <available file="${include}/sslightx.zip" type="file"/>
+    </condition>
   </target>
 
 
@@ -411,8 +430,7 @@
     <checksum file="${dist}/jt400.jar"/>
   </target>
   
-  <!-- Preverify doesn't work under JDK 1.4. Skip this jar in that case. -->
-  <target name="jar-jt400Micro" depends="init,micro-preverify">
+  <target name="jar-jt400Micro" depends="init,compile-micro,micro-preverify">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
@@ -482,15 +500,9 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: javadoc
     ///////////////////////////////////////////////////////////////////////////-->
-
-<!-- This target currently fails under Sun JDK 1.4.0 on Windows 2000 with 
-     a StringIndexOutOfBoundsException. The bug ID for this is #4638015
-     ( http://developer.java.sun.com/developer/bugParade/bugs/4638015.html )
-     and is supposedly fixed as of 04/15/2002. I don't know when the next update
-     to the JDK will include this fix, however.
-     So, for now, we skip the javadoc step if we are running under JDK 1.4. -->
-
-  <target name="javadoc" depends="init">
+  <target name="javadoc" depends="init,checkJavadocIncludes">
+    <fail message="Not using JDK 1.4.1 or higher." unless="jdk141Exists"/>
+    <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <javadoc packagenames="com.*,utilities"
              excludepackagenames="com.ibm.as400.security"
              sourcepath="${source}:${source-contrib}:${source-micro}:${include}"
@@ -516,8 +528,18 @@
            com.ibm.as400.access package will get erroneously linked to our stubs. -->
     </javadoc>
   </target>
-  
 
+  <target name="checkJavadocIncludes" unless="servletJarExists,midpapiZipExists,jui400JarExists,sslightxZipExists">
+    <echo>
+      WARNING: Generated javadoc will be missing some information.
+      Can't find one of:
+        ${include}/servlet.jar
+        ${include}/midpapi.zip
+        ${include}/jui400.jar
+        ${include}/sslightx.zip
+    </echo>
+  </target>
+  
   
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: micro
@@ -525,6 +547,8 @@
   <target name="micro" depends="init,jar-jt400Micro"/>
   
   <target name="micro-preverify" depends="init,compile-micro">
+    <fail message="Can't find ${include}/midpapi.zip." unless="midpapiZipExists"/>
+    <fail message="Can't find ${include}/preverify executable." unless="preverifyExeExists"/>
     <echo>Pre-verifying Micro Edition classes</echo>
     <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
       <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi.zip ${output-micro}"/>
@@ -536,7 +560,8 @@
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: pcml
     ///////////////////////////////////////////////////////////////////////////-->
-  <target name="pcml" if="pcmlRuntimeExists">
+  <target name="pcml" depends="init">
+    <fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
     <taskdef name="pcml" classname="PCMLTask"/>
     <pcml srcdir="${source}"
           destdir="${output}"
@@ -555,6 +580,7 @@
     // Target: source
     ///////////////////////////////////////////////////////////////////////////-->
   <target name="source" depends="init">
+    <fail message="Can't find ${bin}/cvs executable." unless="cvsExeExists"/>
     <cvspass cvsroot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400" password="anonymous" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
              command="checkout -P -R -A" package="src" dest="${build}" passfile="mypasswd"/>
@@ -592,7 +618,7 @@
       <zipfileset dir="${source}"/>
       <zipfileset dir="${source-contrib}"/>
       <zipfileset dir="${source-micro}"/>
-      <zipfileset dir="${include}"/>
+      <zipfileset dir="${include}" excludes="*.zip,*.jar"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
     </zip>
