@@ -96,7 +96,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runProgram", new Class[] { String.class, String.class, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE }, new Object[] { library,  name, parameterList, new Boolean(threadSafety), new Integer(messageCount) }, new boolean[] { false, false, true, false }, true);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runProgram", new Class[] { String.class, String.class, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE }, new Object[] { library,  name, parameterList, new Boolean(threadSafety), new Integer(messageCount) }, new boolean[] { false, false, true, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(2);
             for (int i = 0; i < parameterList.length; ++i)
             {
@@ -115,7 +115,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE, Integer.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, new Boolean(threadSafety), new Integer(procedureNameCCSID), new Integer(messageCount) }, new boolean[] { false, false, false, false, true, false, false }, true);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE, Integer.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, new Boolean(threadSafety), new Integer(procedureNameCCSID), new Integer(messageCount) }, new boolean[] { false, false, false, false, true, false, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
             for (int i = 0; i < parameterList.length; ++i)
             {
