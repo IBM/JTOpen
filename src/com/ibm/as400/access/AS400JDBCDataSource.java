@@ -573,7 +573,13 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private Connection getConnection(AS400 as400) throws SQLException
     {
         // Set the socket properties, if there are any, on the AS400 object before making a connection.
-        as400.setSocketProperties(sockProps_);
+        if(sockProps_ != null){
+            as400.setSocketProperties(sockProps_);
+        }else
+        {
+            if(JDTrace.isTraceOn())
+                JDTrace.logInformation(this, "sockProps_:  null");
+        }
 
         AS400JDBCConnection connection = null;
 
