@@ -203,7 +203,7 @@ public class IFSFileSystemView extends FileSystemView
 
     /**
      Returns whether a file is hidden or not. 
-     @param File The file.
+     @param file The file.
      @return true if the file is hidden.
      **/
     public boolean isHiddenFile(File file)

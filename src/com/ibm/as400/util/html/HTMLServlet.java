@@ -379,7 +379,7 @@ public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializab
     /**
     *  Sets the class name of the servlet.
     *
-    *  @param source The name.
+    *  @param name The name.
     **/
     public void setName(String name)
     {

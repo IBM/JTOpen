@@ -740,7 +740,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
     /**
      *  Set the visigble test of the HTMLTreeElement.
      *
-     *  @param test The text.
+     *  @param text The text.
      **/
     public void setText(String text)
     {

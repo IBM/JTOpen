@@ -3165,7 +3165,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *  Sets the URL used for getting a connection.
     *  Either this property or the dataSource property must be set before a connection can be made.
     *  This sets setUseDataSource to false.
-    *  @param The URL.
+    *  @param url The URL.
     *  @see #setUseDataSource
     **/
     public void setUrl(String url)
@@ -3239,7 +3239,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     DB2 UDB for iSeries does not support arrays.
     
     @param  columnIndex   The column index (1-based).
-    @return               The column value or null if the value is SQL NULL.
+    @param  columnValue   The column value or null if the value is SQL NULL.
     
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support arrays.
@@ -3258,8 +3258,8 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     Updates a column in the current row using an Array value.
     DB2 UDB for iSeries does not support arrays.
     
-    @param  columnIndex   The column name.
-    @return               The column value or null if the value is SQL NULL.
+    @param  columnName    The column name.
+    @param  columnValue   The column value or null if the value is SQL NULL.
     
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support arrays.
@@ -4267,7 +4267,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     Updates a column in the current row using an Ref value.
     DB2 UDB for iSeries does not support structured types.
        
-    @param  columnIndex     The column name.
+    @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
     @return                 The parameter value or 0 if the value is SQL NULL.

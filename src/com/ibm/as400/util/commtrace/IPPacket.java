@@ -77,7 +77,7 @@ public abstract class IPPacket {
 
     /**
      * Sets the type of this packet.
-     * @param int the type of this packet. 
+     * @param type the type of this packet. 
      */
     public void setType(int type) {
 		this.type=type;

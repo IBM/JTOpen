@@ -125,7 +125,7 @@ public class KeyedDataQueue extends BaseDataQueue
     /**
      Creates a keyed data queue on the server.  The queue will be created with the following attributes: authority = *LIBCRTAUT, saveSenderInformation = false, forceToAuxiliaryStorage = false, description = (50 blanks).
      @param  keyLength  The number of bytes per data queue key. Valid values are 1-256.
-     @param  entryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
+     @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
@@ -141,7 +141,7 @@ public class KeyedDataQueue extends BaseDataQueue
     /**
      Creates a keyed data queue on the server.
      @param  keyLength  The number of bytes per data queue key. Valid values are 1-256.
-     @param  entryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
+     @param  maxEntryLength  The maximum number of bytes per data queue entry.  Valid values are 1-64512.
      @param  authority  The public authority for the data queue.  Valid values are *ALL, *CHANGE, *EXCLUDE, *USE, *LIBCRTAUT.
      @param  saveSenderInformation  Determines if entry origin information will be saved.
      @param  forceToAuxiliaryStorage  true if writes are forced to storage before return; false otherwise.

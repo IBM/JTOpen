@@ -586,7 +586,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
     /**
     *  Removes an HTMLTagElement from the document.
-    *  @param item The HTMLTagElement.
+    *  @param tag The HTMLTagElement.
     **/
     public void removeElement(HTMLTagElement tag)
     {

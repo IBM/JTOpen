@@ -670,7 +670,7 @@ Returns the index of the specified child for the details.
 The details child is a spooled file (VOutput object) in
 this list.
 
-@param  detailsChild   The details child.
+@param  child   The details child.
 @return                The index, or -1 if the child is not found
                        in the details.
 **/

@@ -1716,7 +1716,7 @@ public class AS400JDBCStatement implements Statement
     both.
     
     @param  sql               The SQL statement.
-    @param  columnIndexes     Indicates that auto-generated keys for the indicated 
+    @param  columnNames     Indicates that auto-generated keys for the indicated 
                               columns should be made available for retrieval. 
     @return                   Always false.  This method is not supported.
     
@@ -2458,7 +2458,7 @@ public class AS400JDBCStatement implements Statement
     by the actionOnCurrentResultSet parameter, and returns true if the next result is a 
     ResultSet object. 
     
-    @param          actionOnCurrentResultSet  What should happen to current ResultSet objects 
+    @param          current  What should happen to current ResultSet objects 
                     obtained using the method getResultSet.  Valid values are 
                     CLOSE_CURRENT_RESULT, KEEP_CURRENT_RESULT, and CLOSE_ALL_RESULTS.
     

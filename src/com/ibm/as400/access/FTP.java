@@ -1065,7 +1065,7 @@ public class FTP
     * The target file is an instance of Java.io.file.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param sourceFileName The file to get on the server.
-    *   @param targetFileName The file on the target file system.
+    *   @param targetFile The file on the target file system.
     *   @return true if the copy was successful; false otherwise.
     *   @exception IOException If an error occurs while communicating with the server.
     *   @exception FileNotFoundException If the source file or the targe file
@@ -1282,7 +1282,7 @@ public class FTP
     * FTP applications convert ls to NLST before sending the command to
     * the server.  This method will not do the conversion.
     * <br>Throws SecurityException if userid or password is invalid.
-    *   @param command The command to send to the server.
+    *   @param cmd The command to send to the server.
     *   @return The reply to the command.
     *           Null is returned if the connection to the server fails.
     *   @exception IOException If an error occurs while communicating with the server.
@@ -1819,7 +1819,7 @@ public class FTP
    /**
     * Sets the buffer size used when transferring files.  The default
     * buffer size is 4096 bytes.
-    *   @param size The size of the buffer used when transferring files.
+    *   @param bufferSize The size of the buffer used when transferring files.
     *   @exception PropertyVetoException If the change is vetoed.
    **/
 
@@ -1936,7 +1936,7 @@ public class FTP
    /**
     * Sets the password.  The password cannot be changed once
     * a connection is made to the server.
-    *   @param The password for the user.
+    *   @param password The password for the user.
    **/
 
     public synchronized void setPassword(String password)
@@ -1979,7 +1979,7 @@ public class FTP
     * Sets the port to use when connecting to the server.
     * The port cannot be changed once
     * a connection is made to the server.
-    *   @param Port The port to use when connecting to the server.
+    *   @param port The port to use when connecting to the server.
     *   @exception PropertyVetoException If the change is vetoed.
    **/
 
@@ -2016,7 +2016,7 @@ public class FTP
    /**
     * Sets the name of the server.  The system name cannot be changed once
     * a connection is made to the server.
-    *   @param The name of the server to which this object connects.
+    *   @param server The name of the server to which this object connects.
     *   @exception PropertyVetoException If the change is vetoed.
    **/
 

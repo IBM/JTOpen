@@ -608,7 +608,7 @@ public class IFSFileInputStream extends InputStream
   /**
    Reads up to <i>length</i> bytes of data from this input stream into <i>data</i>, starting at the array offset <i>dataOffset</i>.
    @param data The buffer into which the data is read.
-   @param offset The start offset of the data in the buffer.
+   @param dataOffset The start offset of the data in the buffer.
    @param length The maximum number of bytes to read
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 

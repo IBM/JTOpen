@@ -366,7 +366,7 @@ public class SystemValueGroup implements java.io.Serializable
    * it refreshes all SystemValue objects at once for a given system,
    * which is more efficient than calling clear() on each SystemValue.
    * All objects in <i>systemValues</i> must be SystemValue objects.
-   * @param values The group of SystemValue objects to be refreshed.
+   * @param systemValues The group of SystemValue objects to be refreshed.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.

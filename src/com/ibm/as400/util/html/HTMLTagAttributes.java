@@ -134,7 +134,7 @@ public abstract class HTMLTagAttributes implements HTMLTagElement, java.io.Seria
     /**
      *  Set the additional HTML tag attributes.
      *
-     *  @param The attributes.
+     *  @param attributes The attributes.
      **/
     public void setAttributes(Properties attributes)
     {

@@ -858,7 +858,7 @@ public class FileListElement implements java.io.Serializable
   /**
    *  Set the AS/400 system.
    *
-   *  @param The system.
+   *  @param system The system.
    **/
   public void setSystem(AS400 system)
   {

@@ -3972,7 +3972,7 @@ public class AS400JDBCResultSet implements ResultSet
     DB2 UDB for iSeries does not support arrays.
     
     @param  columnIndex   The column index (1-based).
-    @return               The column value or null if the value is SQL NULL.
+    @param  columnValue   The column value or null if the value is SQL NULL.
     
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support arrays.
@@ -3993,8 +3993,8 @@ public class AS400JDBCResultSet implements ResultSet
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateArray("\"MixedCase\"", columnValue).
     
-    @param  columnIndex   The column name.
-    @return               The column value or null if the value is SQL NULL.
+    @param  columnName   The column name.
+    @param  columnValue  The column value or null if the value is SQL NULL.
     
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support arrays.
@@ -5109,7 +5109,6 @@ public class AS400JDBCResultSet implements ResultSet
     @param  columnIndex     The column index (1-based).
     @param  columnValue     The column value or null to update
                                       the value to SQL NULL.
-    @return                 The parameter value or 0 if the value is SQL NULL.
         
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support REFs.
@@ -5130,10 +5129,9 @@ public class AS400JDBCResultSet implements ResultSet
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateRef("\"MixedCase\"", columnValue).
        
-    @param  columnIndex     The column name.
+    @param  columnName      The column name.
     @param  columnValue     The column value or null to update
                             the value to SQL NULL.
-    @return                 The parameter value or 0 if the value is SQL NULL.
         
     @exception  SQLException    Always thrown because DB2
                                 UDB for iSeries does not support REFs.

@@ -224,8 +224,8 @@ Returns the handle to this CLOB locator in the database.
   Returns the position at which a pattern is found in the CLOB.
   This method is not supported.
   
-  @param  position     The pattern.
-  @param  start       The position within the CLOB to begin
+  @param  pattern     The pattern.
+  @param  position       The position within the CLOB to begin
                       searching (1-based).
 @return             The position in the CLOB at which the pattern was found,
                     or -1 if the pattern was not found.

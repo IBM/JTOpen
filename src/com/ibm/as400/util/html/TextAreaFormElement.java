@@ -69,7 +69,7 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
     /**
     *  Constructs a TextAreaFormElement object with the specified control <i>name</i>.
-    *  @param The control name of the text area.
+    *  @param name The control name of the text area.
     **/
     public TextAreaFormElement(String name)
     {

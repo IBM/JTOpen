@@ -108,7 +108,7 @@ Returns the bean descriptor.
 /**
 Returns the icon.
 
-@param iconKind The icon kind.  Possible values are:
+@param icon The icon kind.  Possible values are:
                 <ul>
                 <li>BeanInfo.ICON_MONO_16x16
                 <li>BeanInfo.ICON_MONO_32x32

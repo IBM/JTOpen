@@ -1558,7 +1558,7 @@ public class JavaApplicationCall implements Serializable
     /**
        Sets the Java Virtual Machine properties when running the Java Application.
 
-       @param  properties The JVM properties.
+       @param  property The JVM properties.
        @exception PropertyVetoException If the change is vetoed.
     **/
     public void setProperties(Properties property) throws PropertyVetoException

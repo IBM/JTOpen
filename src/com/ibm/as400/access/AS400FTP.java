@@ -150,7 +150,7 @@ public class AS400FTP
 // -----------------------------------------------------------------------
    /**
     * Constructs an AS400FTP object.
-    *   @param server The AS/400 to which to connect.
+    *   @param system The AS/400 to which to connect.
    **/
 
     public AS400FTP(AS400 system)
@@ -477,7 +477,7 @@ public class AS400FTP
     * separator character (if any) must be a forward slash.
     * The target file is an instance of Java.io.file.
     *   @param sourceFileName The file to get on the server.
-    *   @param targetFileName The file on the target file system.
+    *   @param targetFile The file on the target file system.
     *   @return true if the copy was successful; false otherwise.
     *   @exception IOException If an error occurs while communicating with the server.
     *   @exception FileNotFoundException If the source file or the targe file
@@ -570,7 +570,7 @@ public class AS400FTP
     * command to get a list of files from the server is NLST, not ls.  Many
     * FTP applications convert ls to NLST before sending the command to
     * the server.  This method will not do the conversion.
-    *   @param command The command to send to the server.
+    *   @param cmd The command to send to the server.
     *   @return The reply to the command.
     *           Null is returned if the connection to the server fails.
     *   @exception IOException If an error occurs while communicating with the server.
@@ -1070,7 +1070,7 @@ public class AS400FTP
     * <li>authorization-list name.
     * </ul>
     * <P> The default value is *EXCLUDE
-    * @param publicAuthoirty *PUBLIC authority.
+    * @param publicAuthority *PUBLIC authority.
     * @exception PropertyVetoException If the change is vetoed.
    **/
 

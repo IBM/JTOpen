@@ -300,7 +300,7 @@ protected boolean isValidCcsid(int ccsid) {
  * <p>
  * For text conversion, the bytes will be interpreted using the assigned ccsid.
  *
- * @param data byte[]
+ * @param bytes byte[]
  */
 public void setBytes(byte[] bytes) {
 	bytes_ = bytes;

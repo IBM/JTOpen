@@ -161,7 +161,7 @@ public class RootPermission extends UserPermission
 
     /**
      * Sets the data authority of the user.
-     * @param dataAuthority The data authority of the user.
+     * @param authority The data authority of the user.
     <P>Valid values are:
     <UL>
         <LI>*RWX The user has object

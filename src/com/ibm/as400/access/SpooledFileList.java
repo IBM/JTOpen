@@ -355,7 +355,7 @@ implements java.io.Serializable
       * priority, date, and time.
       *
       * The following special values are supported for this parameter:
-      *@param setJobSystemFilter
+      *@param jobSystemFilter
       *<br>
       *  <I>*ALL</I> The returned list is not to be filtered based on job system name.
       *  <I>*CURRENT</I>

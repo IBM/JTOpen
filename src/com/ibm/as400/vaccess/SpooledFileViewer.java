@@ -1737,7 +1737,7 @@ Sets the current page.
 Sets the papersize.  If paper size specified by <i>paperSize</i> is not valid,
 no action is taken.
 
-@param size The paper size to be used for processing spooled file pages.
+@param paperSize The paper size to be used for processing spooled file pages.
       <p>
             May be any of the following values:
       <ul>

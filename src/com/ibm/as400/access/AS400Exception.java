@@ -35,7 +35,7 @@ public class AS400Exception extends ErrorCompletingRequestException
     /**
        Constructs an AS400Exception object.
 
-       @param  message  The list of <A HREF="AS400Message.html">AS400Message</A>s
+       @param  msgList  The list of <A HREF="AS400Message.html">AS400Message</A>s
                         causing this exception.
     **/
     public AS400Exception(AS400Message[] msgList) // @D0C

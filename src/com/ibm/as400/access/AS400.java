@@ -2800,7 +2800,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the GSS name for this object.  The GSS name cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, or password) can be used at a single time.  Using this method will clear any set profile token or password.
-     @param  name  The GSS name string.
+     @param  gssName  The GSS name string.
      **/
     public void setGSSName(String gssName)
     {

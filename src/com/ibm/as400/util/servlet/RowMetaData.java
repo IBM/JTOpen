@@ -150,7 +150,7 @@ public interface RowMetaData
     /**
     *  Sets the specified <i>direction</i> for the column data specified by <i>columnIndex</i>.
     *  @param columnIndex The column index (0-based).
-    *  @param dir The column direction.
+    *  @param alignment The column direction.
     *  @see com.ibm.as400.util.html.HTMLConstants
     **/
     public abstract void setColumnDirection(int columnIndex, String alignment) throws RowDataException;  //@D5A

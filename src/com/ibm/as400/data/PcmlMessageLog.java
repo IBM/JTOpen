@@ -229,7 +229,7 @@ public class PcmlMessageLog
      * @deprecated Replaced by com.ibm.as400.access.Trace.log(int category, String message, Throwable e).
      *
      * @param errorData the data to be logged
-     * @param throwable the <code>Throwable</code> which will be used to obtain the stack trace
+     * @param t the <code>Throwable</code> which will be used to obtain the stack trace
     */
     public static void logError(Object errorData, Throwable t)
     {
@@ -241,7 +241,7 @@ public class PcmlMessageLog
      *
      * @deprecated Use java.lang.Throwable.printStackTrace(PrintWriter w).
      *
-     * @param throwable the <code>Throwable</code> which will be used to obtain the stack trace
+     * @param t the <code>Throwable</code> which will be used to obtain the stack trace
     */
     public static void printStackTrace(Throwable t)
     {

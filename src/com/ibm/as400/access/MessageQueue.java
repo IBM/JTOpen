@@ -1773,7 +1773,7 @@ Sends an inquiry message to the message queue.
     * <LI>{@link com.ibm.as400.access.MessageFile#SUBSTITUTE_FORMATTING_CHARACTERS MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS} - the MessageFile class replaces
     * AS/400 formatting characters with new line and space characters.
     * </UL>
-    * @param value The help text formatting value.
+    * @param helpTextFormatting The help text formatting value.
     **/
   public void setHelpTextFormatting(int helpTextFormatting)
   {

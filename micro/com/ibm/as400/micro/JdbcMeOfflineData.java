@@ -78,7 +78,7 @@ abstract public class JdbcMeOfflineData
     /**
      *  Create an offline data repository, destroying the current one if it exists.
      *
-     *  @param dbName  The name of the offline database.
+     *  @param name  The name of the offline database.
      *  @param dbCreator The unique offline database creator identifier.
      *  @param dbType  The unique offline database type identifier.
      *
@@ -113,7 +113,7 @@ abstract public class JdbcMeOfflineData
      *  ignored depending on which J2ME profile
      *  is currently being used by this implementation.
      *
-     *  @param dbName  The name of the offline database.
+     *  @param name  The name of the offline database.
      *  @param dbCreator The unique offline database creator identifier.
      *  @param dbType  The unique offline database type identifier.
      *  @param createIfNecessary Create the database if one has not already been created.

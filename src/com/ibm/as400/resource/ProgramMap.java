@@ -139,7 +139,7 @@ Adds a map entry for array elements.
 @param dataName         The data name in the PCML definition.
 @param countName        The data name in the PCML defintion which specifies
                         the size of the array.
-@param valueMap         The value map, or null if there is none.
+@param map         The value map, or null if there is none.
 **/
     public void add(Object id, String programName, String dataName, String countName, ValueMap map)
     {

@@ -1469,7 +1469,7 @@ implements CallableStatement
     This driver does not support the type map.
     
     @param  parameterIndex  The parameter index (1-based).
-    @param  type            The type map.  This is not used.
+    @param  typeMap            The type map.  This is not used.
     @return                 The parameter value or null if the value is SQL NULL.
     
     @exception  SQLException    If the statement is not open,
@@ -1517,7 +1517,7 @@ implements CallableStatement
     This driver does not support the type map.
         
     @param  parameterName   The parameter name.
-    @param  type            The type map.  This is not used.
+    @param  typeMap            The type map.  This is not used.
     @return                 The parameter value or null if the value is SQL NULL.
         
     @exception  SQLException    If the statement is not open,
@@ -1723,7 +1723,7 @@ implements CallableStatement
     Returns the value of an SQL CHAR or VARCHAR output
     parameter as a Java String object.
     
-    @param  parameterIndex  The parameter name.
+    @param  parameterName  The parameter name.
     @return                 The parameter value or null if the value is SQL NULL.
     
     @exception  SQLException    If the statement is not open,
@@ -2360,7 +2360,7 @@ implements CallableStatement
     Sets an input parameter to a BigDecimal value.  The driver converts
     this to an SQL NUMERIC value.
     
-    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterName  The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
     
@@ -2389,7 +2389,7 @@ implements CallableStatement
     are available.  The driver converts this to an SQL VARBINARY
     value.
         
-    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterName  The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
     @param  length          The number of bytes in the stream.
@@ -2569,10 +2569,10 @@ implements CallableStatement
     calendar other than the default.  The driver converts this
     to an SQL DATE value.
         
-    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterName   The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
-    @param  calendar        The calendar.
+    @param  cal        The calendar.
         
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
@@ -2800,7 +2800,7 @@ implements CallableStatement
     @param  parameterName   The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
-    @param  targetSQLType   The SQL type code defined in java.sql.Types.
+    @param  targetSqlType   The SQL type code defined in java.sql.Types.
     
     @exception  SQLException    If the statement is not open,
                                 the index is not valid,
@@ -2833,7 +2833,7 @@ implements CallableStatement
     @param  parameterName   The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
-    @param  targetSQLType   The SQL type code defined in java.sql.Types.
+    @param  targetSqlType   The SQL type code defined in java.sql.Types.
     @param  scale           The number of digits after the decimal
                             if sqlType is DECIMAL or NUMERIC.
     
@@ -2945,10 +2945,10 @@ implements CallableStatement
     other than the default.  The driver converts this to an SQL TIME
     value.
         
-    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterName   The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
-    @param  calendar        The calendar.
+    @param  cal        The calendar.
         
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter
@@ -3003,10 +3003,10 @@ implements CallableStatement
     calendar other than the default.  The driver converts this to
     an SQL TIMESTAMP value.
         
-    @param  parameterIndex  The parameter index (1-based).
+    @param  parameterName   The parameter name.
     @param  parameterValue  The parameter value or null to set
                             the value to SQL NULL.
-    @param  calendar        The calendar.
+    @param  cal        The calendar.
         
     @exception  SQLException    If the statement is not open,
                                 the index is not valid, the parameter

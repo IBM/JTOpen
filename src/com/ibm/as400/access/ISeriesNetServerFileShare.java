@@ -250,7 +250,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
 
   /**
    Sets the list of file extensions for the share.  The file extensions list determines which files are converted by the server.
-   @param The file extensions list.
+   @param extensions The file extensions list.
    **/
   public void setFileExtensions(String[] extensions)
   {

@@ -385,7 +385,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
    /**
     *  Set the html document end tags.
     *
-    *  @param html The end tags.
+    *  @param end The end tags.
     **/
 	public void setDocumentEnd(String end)
 	{
@@ -398,7 +398,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
    /**
     *  Sets the html document starting tags.
     *
-    * @param html The starting tags.
+    * @param head The starting tags.
     **/
    public void setDocumentHead(String head)
 	{

@@ -40,7 +40,7 @@ public final class NLS
   //@B0A
   /**
    * Returns a best-guess Java encoding given a CCSID. 
-   * @param The coded character set identifier (CCSID), e.g. 37.
+   * @param ccsid The coded character set identifier (CCSID), e.g. 37.
    * @return The encoding that maps to the given CCSID, or null
    * if one is not known.
    * @see #encodingToCCSID
@@ -55,7 +55,7 @@ public final class NLS
   //@B0A
   /**
    * Returns a best-guess CCSID given a Java encoding.
-   * @param The encoding, e.g. "Cp037".
+   * @param encoding The encoding, e.g. "Cp037".
    * @return The CCSID that maps to the given encoding, or -1
    * if one is not known.
    * @see #ccsidToEncoding
@@ -76,7 +76,7 @@ public final class NLS
    * Note that the CCSID returned will be the preferred server CCSID, i.e. 
    * usually EBCDIC. So, the locale string representing English "en" will
    * return the single-byte EBCDIC CCSID of 37.
-   * @param The locale string, e.g. "de_CH".
+   * @param localeString The locale string, e.g. "de_CH".
    * @return The CCSID that maps the given locale string, or -1
    * if one is not known.
   **/
@@ -103,7 +103,7 @@ public final class NLS
    * Note that the CCSID returned will be the preferred server CCSID, i.e. 
    * usually EBCDIC. So, the Locale representing English ({@link java.util.Locale#ENGLISH Locale.ENGLISH})
    * will return the single-byte EBCDIC CCSID of 37.
-   * @param The Locale object.
+   * @param locale The Locale object.
    * @return The CCSID that maps the given locale, or -1
    * if one is not known.
   **/
@@ -119,7 +119,7 @@ public final class NLS
    * Returns a best-guess National Language Version (NLV) string given a Java locale string.
    * If there is no known mapping for the given Locale or one of its parents (e.g. "en" is a parent of "en_US"),
    * then "" is returned.
-   * @param The locale string, e.g. "de_CH".
+   * @param localeString The locale string, e.g. "de_CH".
    * @return The NLV string (e.g. "2924") that maps the given locale, or "" if one is not known.
   **/
   public static String localeToNLV(String localeString)
@@ -143,7 +143,7 @@ public final class NLS
    * Returns a best-guess National Language Version (NLV) string given a Java Locale object.
    * If there is no known mapping for the given Locale or one of its parents (e.g. "en" is a parent of "en_US"),
    * then "" is returned.
-   * @param The Locale object.
+   * @param locale The Locale object.
    * @return The NLV string (e.g. "2924") that maps the given locale, or "" if one is not known.
   **/
   public static String localeToNLV(Locale locale)

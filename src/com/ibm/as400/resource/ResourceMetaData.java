@@ -369,7 +369,7 @@ Indicates if the value is read-only.
 /**
 Indicates if the value is limited to the possible values.
 
-@param valueLimited         true if the value is limited to
+@return          true if the value is limited to
                             the possible values, false if other values
                             are allowed.
 **/

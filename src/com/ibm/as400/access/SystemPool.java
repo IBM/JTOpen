@@ -1271,7 +1271,7 @@ public class SystemPool
       *</p>
       *    The default value for messages logging is true.
       *
-      * @param value The value indicating whether messages reporting that a
+      * @param log The value indicating whether messages reporting that a
       *              change was made are written to the current job's job log
       *              and to the QHST message log.
       * @exception AS400Exception If the AS/400 system returns an error

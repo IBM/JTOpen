@@ -3633,7 +3633,7 @@ implements DatabaseMetaData
     @exception   SQLException  This exception is never thrown.
     @since Modification 5
     **/
-    public ResultSet getSuperTables (String catalog, String schemaPatern, String typeNamePatter)
+    public ResultSet getSuperTables (String catalog, String schemaPattern, String typeNamePattern)
     throws SQLException
     {
         // We return an empty result set because this is not supported by our driver
@@ -3668,7 +3668,7 @@ implements DatabaseMetaData
     @exception   SQLException  This exception is never thrown.
     @since Modification 5
     **/
-    public ResultSet getSuperTypes (String catalog, String schemaPatern, String typeNamePattern)
+    public ResultSet getSuperTypes (String catalog, String schemaPattern, String typeNamePattern)
     throws SQLException
     {
         // We return an empty result set because this is not supported by our driver

@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ import java.io.Serializable;
  **/
 public class ProgramParameter implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -65,9 +65,9 @@ public class ProgramParameter implements Serializable
     transient byte[] compressedInputData_ = null;  // Input data compressed.
 
     // List of property change event bean listeners.
-    private transient PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
+    private transient PropertyChangeSupport propertyChangeListeners_;
     // List of vetoable change event bean listeners.
-    private transient VetoableChangeSupport vetoableChangeListeners_ = new VetoableChangeSupport(this);
+    private transient VetoableChangeSupport vetoableChangeListeners_;
 
     /**
      Constructs a ProgramParameter object.
@@ -203,6 +203,10 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
+        if (propertyChangeListeners_ == null)
+        {
+          propertyChangeListeners_ = new PropertyChangeSupport(this);
+        }
         propertyChangeListeners_.addPropertyChangeListener(listener);
     }
 
@@ -217,6 +221,10 @@ public class ProgramParameter implements Serializable
         {
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
+        }
+        if (vetoableChangeListeners_ == null)
+        {
+          vetoableChangeListeners_ = new VetoableChangeSupport(this);
         }
         vetoableChangeListeners_.addVetoableChangeListener(listener);
     }
@@ -300,8 +308,8 @@ public class ProgramParameter implements Serializable
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "De-serializing ProgramParameter object.");
         in.defaultReadObject();
 
-        propertyChangeListeners_ = new PropertyChangeSupport(this);
-        vetoableChangeListeners_ = new VetoableChangeSupport(this);
+//        propertyChangeListeners_ = new PropertyChangeSupport(this);
+//        vetoableChangeListeners_ = new VetoableChangeSupport(this);
     }
 
     /**
@@ -316,7 +324,7 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        propertyChangeListeners_.removePropertyChangeListener(listener);
+        if (propertyChangeListeners_ != null) propertyChangeListeners_.removePropertyChangeListener(listener);
     }
 
     /**
@@ -331,7 +339,7 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        vetoableChangeListeners_.removeVetoableChangeListener(listener);
+        if (vetoableChangeListeners_ != null) vetoableChangeListeners_.removeVetoableChangeListener(listener);
     }
 
     /**
@@ -344,15 +352,15 @@ public class ProgramParameter implements Serializable
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting input data:", inputData);
         byte[] oldValue = inputData_;
         byte[] newValue = inputData;
-        vetoableChangeListeners_.fireVetoableChange("inputData", oldValue, newValue);
+        if (vetoableChangeListeners_ != null) vetoableChangeListeners_.fireVetoableChange("inputData", oldValue, newValue);
         nullParameter_ = false;
         inputData_ = inputData;
-        propertyChangeListeners_.firePropertyChange("inputData", oldValue, newValue);
+        if (propertyChangeListeners_ != null) propertyChangeListeners_.firePropertyChange("inputData", oldValue, newValue);
     }
 
     /**
      Sets the parameter to null.  Calling this method will clear any set input data or output data length.  Setting input data or an output data length will make the parameter not null.
-     @param  inputData  The parameter data to be used as input to the program.
+     @param  nullParameter  The parameter data to be used as input to the program.
      **/
     public void setNullParameter(boolean nullParameter)
     {
@@ -383,12 +391,17 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
             throw new ExtendedIllegalArgumentException("outputDataLength (" + outputDataLength + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-        Integer oldValue = new Integer(outputDataLength_);
-        Integer newValue = new Integer(outputDataLength);
-        vetoableChangeListeners_.fireVetoableChange("outputDataLength", oldValue, newValue);
+        Integer oldValue = null;
+        Integer newValue = null;
+        if (vetoableChangeListeners_ != null || propertyChangeListeners_ != null)
+        {
+          oldValue = new Integer(outputDataLength_);
+          newValue = new Integer(outputDataLength);
+        }
+        if (vetoableChangeListeners_ != null) vetoableChangeListeners_.fireVetoableChange("outputDataLength", oldValue, newValue);
         nullParameter_ = false;
         outputDataLength_ = outputDataLength;
-        propertyChangeListeners_.firePropertyChange("outputDataLength", oldValue, newValue);
+        if (propertyChangeListeners_ != null) propertyChangeListeners_.firePropertyChange("outputDataLength", oldValue, newValue);
     }
 
     /**
@@ -409,10 +422,15 @@ public class ProgramParameter implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
             throw new ExtendedIllegalArgumentException("parameterType (" + parameterType + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-        Integer oldValue = new Integer(parameterType_);
-        Integer newValue = new Integer(parameterType);
-        vetoableChangeListeners_.fireVetoableChange("parameterType", oldValue, newValue);
+        Integer oldValue = null;
+        Integer newValue = null;
+        if (vetoableChangeListeners_ != null || propertyChangeListeners_ != null)
+        {
+          oldValue = new Integer(parameterType_);
+          newValue = new Integer(parameterType);
+        }
+        if (vetoableChangeListeners_ != null) vetoableChangeListeners_.fireVetoableChange("parameterType", oldValue, newValue);
         parameterType_ = parameterType;
-        propertyChangeListeners_.firePropertyChange("parameterType", oldValue, newValue);
+        if (propertyChangeListeners_ != null) propertyChangeListeners_.firePropertyChange("parameterType", oldValue, newValue);
     }
 }

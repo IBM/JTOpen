@@ -62,7 +62,7 @@ public PersistenceException(Throwable t) {
 /**
  * Returns the list of associated AS/400 messages; null if not available.
  *
- * @param messageList
+ * @return
  *		com.ibm.as400.access.AS400Message[]
  */
 public AS400Message[] getMessageList() {

@@ -3143,7 +3143,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Sets the OS/400 server's transaction isolation.
-    *  @param String transactionIsolation The transaction isolation level.
+    *  @param transactionIsolation The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>
     *    <li> "none"

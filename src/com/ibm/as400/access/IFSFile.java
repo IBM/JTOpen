@@ -234,7 +234,7 @@ public class IFSFile
    path name is of <i>directory</i>, followed by the separator character
    and <i>name</i>.
    @param system The AS400 that contains the file.
-   @param path The directory path name.
+   @param directory The directory path name.
    @param name The file name.
    **/
   public IFSFile(AS400  system,

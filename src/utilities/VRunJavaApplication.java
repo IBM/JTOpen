@@ -81,7 +81,7 @@ public class VRunJavaApplication
     /**
      *  Starts the utility.
      *
-     *  @param arg Command line arguments.  See the prolog of this
+     *  @param args Command line arguments.  See the prolog of this
      *             class for information on the command line parameters.
     **/
     public static void main (String[] args)

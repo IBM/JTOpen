@@ -57,9 +57,8 @@ public final class DataQueue
      *  
      *  @param  system  The system on which the data queue exists.
      *  @param  path  The fully qualified integrated file system path name of the data queue.
-     *  @param  buffer  the buffer into which the data is read.
      *
-     *  @return the total number of bytes read into the buffer.  If no entries were available, null is returned.
+     *  @return The bytes that were read.  If no entries were available, null is returned.
      *
      *  @exception  IOException  If an error occurs while communicating with the server.
      *  @exception  MEException  If an error occurs while processing the ToolboxME request.

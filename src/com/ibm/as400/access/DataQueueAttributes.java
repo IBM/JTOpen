@@ -417,7 +417,7 @@ public class DataQueueAttributes implements Serializable
 
     /**
      Sets whether sender information is stored with each data queue entry.
-     @param  saveSenderInformation  true if sender information is saved; false otherwise.
+     @param  saveSenderInfo  true if sender information is saved; false otherwise.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSaveSenderInfo(boolean saveSenderInfo) throws PropertyVetoException

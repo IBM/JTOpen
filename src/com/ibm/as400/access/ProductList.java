@@ -346,7 +346,7 @@ public class ProductList
    * <LI>{@link #PRODUCT_OPTION_ALL PRODUCT_OPTION_ALL}
    * <LI>{@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE}
    * </UL>
-   * @param The product option.
+   * @param option The product option.
   **/
   public void setProductOption(String option)
   {

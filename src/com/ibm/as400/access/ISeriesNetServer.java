@@ -1198,7 +1198,7 @@ implements Serializable
    Sets the value of the "authentication method" attribute.
    This attribute indicates the authentication method used to authenticate users.
    <i>Note: This attribute is available only if the iSeries server has OS/400 release <b>V5R2</b> or later.</i>
-   @param  The value of the "authentication method" attribute.
+   @param value The value of the "authentication method" attribute.
    Valid values are {@link #ENCRYPTED_PASSWORDS ENCRYPTED_PASSWORDS}, {@link #KERBEROS_V5_TOKENS KERBEROS_V5_TOKENS}, and {@link #KERBEROS_OR_PASSWORDS KERBEROS_OR_PASSWORDS}.
    **/
   public void setAuthenticationMethod(int value)
@@ -2572,7 +2572,7 @@ implements Serializable
 
   /**
    Refreshes the attribute values of the session object, from the current values on the server.
-   @param connection The session.
+   @param session The session.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.
@@ -2623,7 +2623,7 @@ implements Serializable
   /**
    Refreshes the attribute values of the share object, from the currently in-effect values on the server.
    Note: This overwrites any attribute changes that have been made but not yet committed.
-   @param connection The share.
+   @param share The share.
    @exception  AS400SecurityException  If a security or authority error occurs.
    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
    @exception  InterruptedException  If this thread is interrupted.

@@ -645,7 +645,7 @@ connections when the com.ibm.sslight package is in
 the classpath.   The secure port number can be set
 only if the proxy server is not running.
 
-@param port The port to use for accepting Secure
+@param securePort The port to use for accepting Secure
             Sockets Layer (SSL) connections from
             clients.
 **/

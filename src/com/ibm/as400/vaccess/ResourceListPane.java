@@ -471,7 +471,7 @@ Removes a property change listener.
 /**
 Sets whether pop-up menus are enabled.
 
-@param true to enable pop-up menus, false otherwise.
+@param allowActions true to enable pop-up menus, false otherwise.
        The default is true.
 **/
     public void setAllowActions(boolean allowActions)

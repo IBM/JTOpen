@@ -666,7 +666,7 @@ Initializes the transient data.
 /**
 Indicates if the node is a leaf.
 
-@param  true if the node if a leaf; false otherwise.
+@return  true if the node if a leaf; false otherwise.
 **/
     public boolean isLeaf ()
     {
@@ -844,7 +844,7 @@ Removes a working listener.
 /**
 Sets the job name.  The default is *ALL.
 
-@param jobName The job name, or *ALL to list jobs with any name.
+@param name The job name, or *ALL to list jobs with any name.
 
 @exception PropertyVetoException If the change is vetoed.
 
@@ -873,7 +873,7 @@ Sets the job name.  The default is *ALL.
 /**
 Sets the job number.  The default is *ALL.
 
-@param jobNumber The job number, or *ALL to list jobs with any number.
+@param number The job number, or *ALL to list jobs with any number.
 
 @exception PropertyVetoException If the change is vetoed.
 
@@ -923,7 +923,7 @@ Sets the AS/400 system on which the list resides.
 /**
 Sets the job user.  The default is *ALL.
 
-@param userName The job user.
+@param user The job user.
 
 @exception PropertyVetoException If the change is vetoed.
 

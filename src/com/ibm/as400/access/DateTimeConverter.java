@@ -53,7 +53,6 @@ public class DateTimeConverter
   /**
    * Converts date and time values from the input format to the requested output format.
    *
-   * @param system The AS/400 system.
    * @param data The date and time value to be converted.
    * @param inFormat The input date and time format.
    * Possible values are:

@@ -416,7 +416,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
   /**
     Sets the time to live (in seconds) an entry remains in the clustered hash table.
     This value must be greater than or equal to 60 seconds. The time out will be truncated to the nearest minute. If the value is -1, the entry will never expire.
-    @param key The value of the time to live. The default for the timeToLive is 60 seconds.
+    @param timeToLive The value of the time to live. The default for the timeToLive is 60 seconds.
   **/
   public void setTimeToLive(int timeToLive)
   {

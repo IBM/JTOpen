@@ -3420,10 +3420,10 @@ implements Serializable
   /**
    * Constructs a Job object.
    * @param system The system.
-   * @param name The job name. Specify JOB_NAME_CURRENT to indicate the job that this
+   * @param jobName The job name. Specify JOB_NAME_CURRENT to indicate the job that this
    * program is running in.
-   * @param user The user name. This must be USER_NAME_BLANK if the job name is JOB_NAME_CURRENT.
-   * @param number The job number. This must be JOB_NUMBER_BLANK if job name is JOB_NAME_CURRENT.
+   * @param userName The user name. This must be USER_NAME_BLANK if the job name is JOB_NAME_CURRENT.
+   * @param jobNumber The job number. This must be JOB_NUMBER_BLANK if job name is JOB_NAME_CURRENT.
   **/
   public Job(AS400 system,
              String jobName,
@@ -9024,7 +9024,7 @@ Sets the date the job is scheduled to become active.
 /**
 Sets the date and time the job is scheduled to become active.
 
-@param scheduleDate The date and time the job is scheduled to become active.
+@param scheduleTime The date and time the job is scheduled to become active.
 
 @exception AS400Exception                  If the AS/400 system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.

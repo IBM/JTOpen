@@ -99,7 +99,7 @@ public class BidiConversionProperties implements Serializable
 
     /**
      Sets the bidi numeric ordering round trip property.  This property is false by default.
-     @param  bidiImplicitReordering  true to use the bidi numeric ordering round trip property; false otherwise.
+     @param  bidiNumericOrderingRoundTrip  true to use the bidi numeric ordering round trip property; false otherwise.
      **/
     public void setBidiNumericOrderingRoundTrip(boolean bidiNumericOrderingRoundTrip)
     {

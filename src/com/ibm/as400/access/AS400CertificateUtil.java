@@ -280,8 +280,8 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
      * The property listener object is added to a list of property change listeners.
      * It can be removed with the removePropertyChangeListener() method.
      *
+     * @param l The property change listener.
      * @see #removePropertyChangeListener
-     * @param listener The property change listener.
      */
     public void addPropertyChangeListener(PropertyChangeListener l) {
         changes_.addPropertyChangeListener(l);
@@ -330,7 +330,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * Deletes the certificate from the repository. Throws ExtendedIOException
    * if the certificate is not present in the repository.
    *
-   * @param certificateHandle The AS400 certificate handle of the certificate to be deleted from the repository.
+   * @param certificatehandle The AS400 certificate handle of the certificate to be deleted from the repository.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception ExtendedIllegalArgumentException If invalid certificate handle.
@@ -357,7 +357,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS4/00 library of the user space may also be specified as %CURLIB% or %LIBL%.
    * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
    * @param firstCertificateToReturn  The first certificate in the user space to return. The first certificate in the user space is at location 0.
-   * @param bufferSize  The number of kilobytes allocated for the returned certificates.  Increasing this value for remote invocations will require more client memory and longer transmission times. The recommended default buffer size is 128 kilobytes. The minimum buffer size allowed is 8 kilobytes.
+   * @param buffSize  The number of kilobytes allocated for the returned certificates.  Increasing this value for remote invocations will require more client memory and longer transmission times. The recommended default buffer size is 128 kilobytes. The minimum buffer size allowed is 8 kilobytes.
    *
    * @return  An array of AS400Certificates which fit in a buffer of size bufferSize.
    *
@@ -511,7 +511,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *
    * @param userSpaceName  The fully qualified integrated file system path name of the user space to get the certificates, for example, /QSYS.LIB/MYLIB.LIB/MYUSRSPC.USRSPC.  The ten character AS/400 library of the user space may also be specified as %CURLIB% or %LIBL%.
    * See {@link com.ibm.as400.access.QSYSObjectPathName QSYSObjectPathName}
-   * @param bufferSize  The number of kilobytes allocated for the returned certificates.
+   * @param buffSize  The number of kilobytes allocated for the returned certificates.
    *   Increasing this value for remote invocations will require more client memory and longer transmission times. The recommended default buffer size is 128 kilobytes. The minimum buffer size allowed is 8 kilobytes.
    *
    * @return  An array of AS400Certificates which fit in a buffer of size bufferSize.
@@ -606,7 +606,7 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
    *   Returns certificates starting from the last call to getNextCertificates.
    * @see AS400CertificateUtil#listCertificates
    *
-   * @param bufferSize   The number of kiloBytes allocated for the returned certificates. Increasing this value for remote invocations will require more client memory and longer transmission times. The minimum buffer size allowed is 8 kilobytes.
+   * @param buffSize   The number of kiloBytes allocated for the returned certificates. Increasing this value for remote invocations will require more client memory and longer transmission times. The minimum buffer size allowed is 8 kilobytes.
    *
    * @return  An array of AS400Certificates which fit in a buffer of size bufferSize.
    *  Null is returned if all certificates have been successfully retrieved.
@@ -762,8 +762,8 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
     /**
      * Removes this listener.
      *
+     * @param l The AS400CertificateListener.
      * @see #addAS400CertificateListener
-     * @param listener The AS400CertificateListener.
      */
     public synchronized void removeAS400CertificateListener(AS400CertificateListener l) {
         certListeners_.removeElement(l);
@@ -773,8 +773,8 @@ abstract public class AS400CertificateUtil implements java.io.Serializable
     /**
      * Removes this property change listener.
      *
+     * @param l The property change listener.
      * @see #addPropertyChangeListener
-     * @param listener The property change listener.
      */
     public void removePropertyChangeListener(PropertyChangeListener l) {
         changes_.removePropertyChangeListener(l);

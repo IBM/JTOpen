@@ -196,7 +196,7 @@ public class Permission
 
     /**
      * Constructs a Permission object.
-     * @param system The server.
+     * @param as400 The server.
      * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
@@ -236,7 +236,7 @@ public class Permission
      *    If the second component of the path is not QSYS.LIB, the parameter is ignored.
      *        
      * 
-     * @param system The server.
+     * @param as400 The server.
      * @param fileName The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
      * @param pathMayStartWithIASP True if the path may start with an  
      *                independent auxiliary storage pool (IASP) name; false otherwise.
@@ -947,7 +947,7 @@ public class Permission
      * permission.setAuthorizationList("*NONE");
      * System.out.println("The authorization list of fred.lib is " + permissin.geAuthorizationList();
      * </pre></blockquote></p>
-     * @param authorizationList The authorizations list of the object.
+     * @param autList The authorizations list of the object.
      *
     **/
     public synchronized void setAuthorizationList(String autList)

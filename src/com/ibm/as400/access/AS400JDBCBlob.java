@@ -293,7 +293,7 @@ Returns the position at which a pattern is found in the BLOB.
   @param position The position (1-based) in the BLOB where writes should start.
   @param bytesToWrite The array of bytes to be written to this BLOB.
   @param offset The offset into the array at which to start reading bytes (0-based).
-  @param length The number of bytes to be written to the BLOB from the array of bytes.
+  @param lengthOfWrite The number of bytes to be written to the BLOB from the array of bytes.
   @return The number of bytes written.
 
   @exception SQLException If there is an error accessing the BLOB or if the position

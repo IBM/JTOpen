@@ -273,7 +273,7 @@ public class PTFGroup
     /**
     * Specifies whether information from all related PTF groups should be included when the list of
     * PTFs or related PTF groups are returned.  By default the information is not included.
-    * @param value, true if information from all related PTF groups should be included, false otherwise.
+    * @param value true if information from all related PTF groups should be included, false otherwise.
     **/
     public void includeRelatedPTFGroups(boolean value)
     {

@@ -497,8 +497,8 @@ public class HTMLTree implements HTMLTagElement, java.io.Serializable
     /**
      *  Sorts a vector of objects.
      *
-     *  @param  collaotr The Collator, or null if the default Collator should be used.
-     *  @param  objects The objects.
+     *  @param  collator The Collator, or null if the default Collator should be used.
+     *  @param  list The objects.
      *
      *  @return The sorted Vector.
      **/

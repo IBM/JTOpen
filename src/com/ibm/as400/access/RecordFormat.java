@@ -1048,7 +1048,7 @@ public class RecordFormat implements Serializable
    * definition on the AS/400.  If the record format ID is less than 10 characters,
    * it is padded to 10 characters in length with spaces.
    *
-   * @param type  The record format ID.
+   * @param id  The record format ID.
   **/
   public void setRecordFormatID(String id)
   {

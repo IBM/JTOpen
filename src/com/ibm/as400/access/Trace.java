@@ -1323,7 +1323,7 @@ public class Trace
   /**
     Sets thread tracing on or off.  The actual tracing does not happen
     unless tracing is on.
-    @param  traceError  If true, thread tracing is on;
+    @param  traceThread  If true, thread tracing is on;
                         otherwise, thread tracing is off.
     @see  Trace#setTraceOn
    **/

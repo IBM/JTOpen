@@ -194,7 +194,6 @@ public class ProductLicense implements java.io.Serializable
     /**
     *   Constructs a default ProductLicense object. The AS400 system,
     *   product, feature and release must be set for requesting a license.
-    *   @param system the AS/400 that the license will be requested from.
     **/
     public ProductLicense()
     {
@@ -209,8 +208,8 @@ public class ProductLicense implements java.io.Serializable
     *   Constructs a ProductLicense object for an AS400 system, product, feature,
     *   and release.
     *   @param  system  the AS/400 from which the license will be requested.
-    *   @param  product the product identifier.  For example, "5769JC1".
-    *   @param  feature the product feature.  For example, "5050".
+    *   @param  productID the product identifier.  For example, "5769JC1".
+    *   @param  featureID the product feature.  For example, "5050".
     *   @param  release the product release.  For example, "V4R5M0".
     **/
     public ProductLicense(AS400 system, String productID, String featureID, String release)
@@ -839,7 +838,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Sets the feature identifier for this license.
-    *   @param  feature the product feature.  For example, "5050".
+    *   @param  featureID the product feature.  For example, "5050".
     **/
     public void setFeature(String featureID)
     {
@@ -870,7 +869,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Sets the product identifier for this license.
-    *   @param  product the product identifier.  For example, "5769JC1".
+    *   @param  productID the product identifier.  For example, "5769JC1".
     **/
     public void setProductID(String productID)
     {
@@ -900,7 +899,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Sets the product release for this license.
-    *   @param  release the product release.  For example, "V4R5M0".
+    *   @param  releaseLevel the product release.  For example, "V4R5M0".
     **/
     public void setReleaseLevel(String releaseLevel)
     {

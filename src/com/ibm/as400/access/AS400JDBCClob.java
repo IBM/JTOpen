@@ -231,7 +231,7 @@ Returns the position at which a pattern is found in the CLOB.
   The stream begins at position <i>position</i>, and the CLOB will be truncated 
   after the last character of the write.
   
-  @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+  @param position The position (1-based) in the CLOB where writes should start.
   @return An OutputStream object to which data can be written by an application.
   @exception SQLException If there is an error accessing the CLOB or if the position
   specified is greater than the length of the CLOB.
@@ -262,7 +262,7 @@ Returns the position at which a pattern is found in the CLOB.
   this CLOB.  The stream begins at position <i>position</i>, and the CLOB will 
   be truncated after the last character of the write.
 
-  @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+  @param position The position (1-based) in the CLOB where writes should start.
   @return An OutputStream object to which data can be written by an application.
   @exception SQLException If there is an error accessing the CLOB or if the position
   specified is greater than the length of the CLOB.
@@ -329,7 +329,7 @@ Returns the position at which a pattern is found in the CLOB.
   characters written will start from <i>offset</i> in the string that was provided by the
   application.
 
-  @param positionToStartWriting The position (1-based) in the CLOB where writes should start.
+  @param position The position (1-based) in the CLOB where writes should start.
   @param string The string that will be written to the CLOB.
   @param offset The offset into string to start reading characters (0-based).
   @param lengthOfWrite The number of characters to write.

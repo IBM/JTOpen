@@ -415,7 +415,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  implicitly closed.  In addition, all warnings and pending updates
      *  are cleared.
      *
-     *  @param  rowNumber   The relative row number.  If the relative row
+     *  @param  rows   The relative row number.  If the relative row
      *               number is positive, this positions the cursor
      *               after the current position.  If the relative
      *               row number is negative, this positions the
@@ -540,7 +540,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  implicitly closed.  In addition, all warnings and pending updates
      *  are cleared.
      *
-     *  @param  rowNumber   The absolute row number.  If the absolute row
+     *  @param  row   The absolute row number.  If the absolute row
      *               number is positive, this positions the cursor
      *               with respect to the beginning of the result set.
      *               If the absolute row number is negative, this

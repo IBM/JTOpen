@@ -1283,7 +1283,7 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     /** 
      * Sets the AS/400 system. 
      *
-     * @param as400 The AS/400 system from which the system status information
+     * @param system The AS/400 system from which the system status information
      *              will be retrieved.
      * @exception PropertyVetoException If the change is vetoed.
     **/

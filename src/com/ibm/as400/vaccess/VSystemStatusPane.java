@@ -565,7 +565,7 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
    /**
     * Set the state of modify action of all the pools.
     *
-    * @param allowModify The boolean value.
+    * @param allow The boolean value.
    **/
    public void setAllowModifyAllPools(boolean allow)
    {
@@ -600,7 +600,7 @@ public class  VSystemStatusPane extends JPanel implements Serializable //@B0C
     * Sets the root, or the AS/400 resource, from which all information
     * for the model is gathered.
     *
-    * @param vNode The root, or the AS/400 resource, from which all
+    * @param root The root, or the AS/400 resource, from which all
     *              information for the model is gathered. 
     * @exception PropertyVetoException If the proposed change to root
     *            is unacceptable.

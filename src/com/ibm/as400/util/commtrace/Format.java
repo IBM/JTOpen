@@ -151,7 +151,7 @@ public class Format {
 	* Initializes the MRI.<br>
 	* Formats the Prolog.<br>
 	* Sets up the Filters.<br>
-	* @param properties The FormatProperties object to filter by.
+	* @param prop The FormatProperties object to filter by.
 	* @param outfile The file to write the formatted trace data to.
 	* @param infile The name of the file to read from.
 	*/

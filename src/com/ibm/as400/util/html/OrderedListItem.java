@@ -319,7 +319,7 @@ public class OrderedListItem extends HTMLListItem
      *  thus possible to create a non-sequential list. Values are automatically converted to the TYPE attribute, if present, 
      *  of the parent OL element or current LI element.  The number value must be a positive integer.
      *
-     *  @param start The ordered list item value.
+     *  @param value The ordered list item value.
      *
      **/
     public void setValue(int value)

@@ -823,7 +823,7 @@ in the query.
 The default is no schemas, so no tables will be listed.
 This property is bound and constrained.
 
-@param       schemas   The schemas for which tables will be listed.
+@param       tableSchemas   The schemas for which tables will be listed.
 @exception  PropertyVetoException   If the change is vetoed.
 **/
 public void setTableSchemas (String[] tableSchemas)

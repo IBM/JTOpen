@@ -90,7 +90,7 @@ public class  VUserAndGroup
     
     /**
     Constructs a VUserAndGroup object.
-    @param system   The AS/400 system in which the user information resides.
+    @param as400   The AS/400 system in which the user information resides.
     **/ 
     public VUserAndGroup(AS400 as400)
     {
