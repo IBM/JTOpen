@@ -851,7 +851,56 @@ abstract public class PrintObject implements java.io.Serializable
         return aValue;                                          // @B2C
     }
 
+//@ABA begin
 
+    /**
+     * Returns an attribute of the object that is a Integer type attribute.
+     *
+     * @param attributeID Identifies which attribute to retrieve.
+     * See the following links for the attribute IDs that are valid for each
+     * particular subclass.<UL>
+     * <LI> <A HREF="../../../../AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="../../../../OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="../../../../PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="../../../../PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="../../../../SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</A>
+     * </UL>
+     *
+     * @return The value of the attribute.
+     *
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         the server is not at the correct level.
+     **/
+    public Integer getSingleIntegerAttribute(int attributeID)
+      throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              IOException,
+              InterruptedException,
+              RequestNotSupportedException
+    {
+        Integer aValue = null;                                  
+        if ((attrs != null) && (impl_ == null)                  
+            &&  (cpID_.converter_ != null)) {                   
+            aValue = attrs.getIntValue(attributeID);            
+        }                                                       
+        if (aValue == null) {                                   
+            if (impl_ == null)                                  
+                chooseImpl();                                   
+            aValue = impl_.getSingleIntegerAttribute(attributeID);    
+            // update the attrs, since updateAttrs may have     
+            // been called on the remote side...                
+            attrs = impl_.getAttrValue();                       
+        }                                                       
+        return aValue;                                          
+    }
+//@ABA end
 
     /**
      * Returns an attribute of the object that is a Float type attribute.
@@ -900,7 +949,55 @@ abstract public class PrintObject implements java.io.Serializable
         return aValue;                                          // @B2C
     }
 
+//@ABA begin
+/**
+     * Returns an attribute of the object that is a Float type attribute.
+     *
+     * @param attributeID Identifies which attribute to retrieve.
+     * See the following links for the attribute IDs that are valid for each
+     * particular subclass.<UL>
+     * <LI> <A HREF="../../../../AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="../../../../OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="../../../../PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="../../../../PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="../../../../SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</A>
+     * </UL>
+     *
+     * @return The value of the attribute.
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         the server is not at the correct level.
+     **/
+    public Float getSingleFloatAttribute(int attributeID)
+       throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              IOException,
+              InterruptedException,
+              RequestNotSupportedException
+    {
+        Float aValue = null;                                    
+        if ((attrs != null) && (impl_ == null)                  
+            &&  (cpID_.converter_ != null)) {                   
+            aValue = attrs.getFloatValue(attributeID);          
+        }                                                       
+        if (aValue == null) {                                   
+            if (impl_ == null)                                  
+                chooseImpl();                                   
+            aValue = impl_.getSingleFloatAttribute(attributeID);      
+            // update the attrs, since updateAttrs may have     
+            // been called on the remote side...                
+            attrs = impl_.getAttrValue();                       
+        }                                                       
+        return aValue;                                          
+    }
 
+//@ABA end
 
     /**
      * Returns an attribute of the object that is a String type attribute.
@@ -950,7 +1047,56 @@ abstract public class PrintObject implements java.io.Serializable
         return str;                                             // @B2C
     }
 
+//@ABA
+    /**
+     * Returns an attribute of the object that is a String type attribute.
+     *
+     * @param attributeID Identifies which attribute to retrieve.
+     * See the following links for the attribute IDs that are valid for each
+     * particular subclass.<UL>
+     * <LI> <A HREF="../../../../AFPResourceAttrs.html">AFP Resource Attributes</A>
+     * <LI> <A HREF="../../../../OutputQueueAttrs.html">Output Queue Attributes</A>
+     * <LI> <A HREF="../../../../PrinterAttrs.html">Printer Attributes</A>
+     * <LI> <A HREF="../../../../PrinterFileAttrs.html">Printer File Attributes</A>
+     * <LI> <A HREF="../../../../SpooledFileAttrs.html">Spooled File Attributes</A>
+     * <LI> <A HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</A>
+     * </UL>
+     *
+     * @return The value of the attribute.
+     *
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         the server is not at the correct level.
+     **/
+    public String getSingleStringAttribute(int attributeID)
+       throws AS400Exception,
+              AS400SecurityException,
+              ErrorCompletingRequestException,
+              IOException,
+              InterruptedException,
+              RequestNotSupportedException
+    {
+        String str = null;                                      
+        if ((attrs != null) && (impl_ == null)                  
+            &&  (cpID_.converter_ != null)) {                   
+            str = attrs.getStringValue(attributeID);            
+        }                                                       
+        if (str == null) {                                      
+            if (impl_ == null)                                  
+            chooseImpl();                                   
+            str = impl_.getSingleStringAttribute(attributeID);  
+            // update the attrs, since updateAttrs may have     
+            // been called on the remote side...               
+            attrs = impl_.getAttrValue();                       
+        }                                                      
+        return str;                                            
+    }
 
+//@ABA end
 
     /**
      * Returns the server on which this object exists.

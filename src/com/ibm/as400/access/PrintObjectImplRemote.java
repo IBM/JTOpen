@@ -28,7 +28,6 @@ implements PrintObjectImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright; // @A5C - Copyright change
     NPCPAttribute       attrs;
     private AS400ImplRemote system_; // @A6C - changed from AS400 to AS400ImplRemote
     private NPCPID      cpID_;
