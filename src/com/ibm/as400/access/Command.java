@@ -227,7 +227,7 @@ public class Command implements Serializable
   private boolean loadedDescription_ = false;
 
   // List of property change event bean listeners.
-  private transient PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
+  private transient PropertyChangeSupport propertyChangeListeners_;
 
 
   /**
@@ -288,6 +288,10 @@ public class Command implements Serializable
     if (listener == null)
     {
       throw new NullPointerException("listener");
+    }
+    synchronized(this)
+    {
+      if (propertyChangeListeners_ == null) propertyChangeListeners_ = new PropertyChangeSupport(this);
     }
     propertyChangeListeners_.addPropertyChangeListener(listener);
   }
@@ -1010,10 +1014,10 @@ public class Command implements Serializable
 
 
   // Called on construct or after de-serialization
-  private void initializeTransient()
-  {
-    propertyChangeListeners_ = new PropertyChangeSupport(this);
-  }
+//  private void initializeTransient()
+//  {
+//    propertyChangeListeners_ = new PropertyChangeSupport(this);
+//  }
 
 
   /**
@@ -1435,7 +1439,7 @@ public class Command implements Serializable
     {
       throw new NullPointerException("listener");
     }
-    propertyChangeListeners_.removePropertyChangeListener(listener);
+    if (propertyChangeListeners_ != null) propertyChangeListeners_.removePropertyChangeListener(listener);
   }
 
 
@@ -1458,10 +1462,13 @@ public class Command implements Serializable
       // In case you want to switch commands on-the-fly.
       refreshed_ = false;
       refreshedXML_ = false;
+      refreshedXML2_ = false;
       refreshedHelpIDs_ = false;
       refreshedHelpText_ = false;
+      refreshedParsedXML_ = false;
+      loadedDescription_ = false;
 
-      propertyChangeListeners_.firePropertyChange("path", old, path);
+      if (propertyChangeListeners_ != null) propertyChangeListeners_.firePropertyChange("path", old, path);
     }
   }
 
@@ -1482,10 +1489,13 @@ public class Command implements Serializable
 
       refreshed_ = false;
       refreshedXML_ = false;
+      refreshedXML2_ = false;
       refreshedHelpIDs_ = false;
       refreshedHelpText_ = false;
+      refreshedParsedXML_ = false;
+      loadedDescription_ = false;
 
-      propertyChangeListeners_.firePropertyChange("system", old, system);
+      if (propertyChangeListeners_) propertyChangeListeners_.firePropertyChange("system", old, system);
     }
   }
 
