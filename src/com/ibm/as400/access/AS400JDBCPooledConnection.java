@@ -110,7 +110,10 @@ public class AS400JDBCPooledConnection implements PooledConnection
          
       if (handle_ != null) 
          handle_.invalidate();            // notify the handle.
-      ((AS400JDBCConnection)connection_).pseudoClose();                    // @A3C
+        //@H1D ((AS400JDBCConnection)connection_).pseudoClose();                    // @A3C
+        //@H1 When PooledConnection.close() is called, the actual physical connection to 
+        //@H1 the server needs to be closed.
+        connection_.close();    //@H1D
 
       properties_.clear();                // Reset the usage timers.
 
