@@ -320,7 +320,25 @@ public class HMRI extends ListResourceBundle
       { "PROP_NAME_SHARE_NAME", "shareName"},                                                       // @D1A
       { "PROP_DESC_SHARE_NAME", "The NetServer share name."},                                       // @D1A
       { "PROP_NAME_SHARE_PATH", "sharePath"},                                                       // @D1A
-      { "PROP_DESC_SHARE_PATH", "The NetServer share path."}                                        // @D1A 
+      { "PROP_DESC_SHARE_PATH", "The NetServer share path."},                                        // @D1A 
+
+      { "PROP_NAME_ALT", "alt"},                                        // @D2A
+      { "PROP_DESC_ALT", "The alternate text."},                 // @D2A
+      { "PROP_NAME_BORDER", "border"},                                        // @D2A
+      { "PROP_DESC_BORDER", "The thickness of the border around the image."},                 // @D2A
+      { "PROP_HI_DESC_NAME", "The name of the image." },                                             // @D2A
+      { "PROP_NAME_HSPACE", "hspace"},                                        // @D2A
+      { "PROP_DESC_HSPACE", "The horizontal space around the image."},                 // @D2A
+      { "PROP_NAME_VSPACE", "vspace"},                                        // @D2A
+      { "PROP_DESC_VSPACE", "The vertical space around the image."},                 // @D2A
+
+      { "PROP_NAME_COLLATOR", "collator"},                                                          // @D2A
+      { "PROP_DESC_COLLATOR", "The class that performs locale-sensitive String comparisons."},                 // @D2A
+
+      { "PROP_NAME_EXPAND", "Expand"},                                                          // @D3A
+      { "PROP_NAME_COMPRESS", "Compress"},                                                   // @D3A
+      { "PROP_NAME_WORK", "Work with document"},                                           // @D3A
+
 
    };
 
