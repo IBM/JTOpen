@@ -93,10 +93,10 @@ implements Clob
     {
         try {                                                                   // @A1A
             //@C2D return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @A1C
-            return new ConvTableReader (new AS400JDBCInputStream (locator_), converter_.getCcsid()); // @C2A
+            return new ConvTableReader (new AS400JDBCInputStream (locator_), converter_.getCcsid(), 0); // @C2A // @J0M
         }                                                                       // @A1A
         catch (UnsupportedEncodingException e) {                                // @A1A
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);                // @A1A
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);                // @A1A
             return null;                                                        // @A1A
         }                                                                       // @A1A
     }
@@ -163,14 +163,11 @@ were placed in the Vector as the user called setString on the CLOB.
     {
         --start;                                                                // @B2A
 
-        //@H1 This is an unnecessary flow to the server.  The server will report an error
-        //@H1 if our start or length numbers are invalid.
-        //@H1D long end = start + length - 1;                                   // @G7A
-        //@H1D long lengthOfLocatorInChars = locator_.getLengthInCharacters();  // @G7A
-        //@H1D if (end >= lengthOfLocatorInChars)                               // @G7A          
-        //@H1D    || (start >= lengthOfLocatorInChars) ||                       // @G7A
-        if ((start < 0) || (length < 0))                                            // @G7A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);        // @G7A
+        long end = start + length - 1;                                   // @G7A
+        long lengthOfLocatorInChars = locator_.getLengthInCharacters();  // @G7A
+        if ((start < 0) || (length < 0) || end >= lengthOfLocatorInChars // @G7A          
+           || (start >= lengthOfLocatorInChars))                         // @G7A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);        // @G7A
 
         // @C4 A graphic locator means two bytes per character.  Locator_.retrieveData
         //     expects bytes, but this method has input parms (start/length) in 
@@ -295,7 +292,7 @@ were placed in the Vector as the user called setString on the CLOB.
     throws SQLException
     {
         if (positionToStartWriting <= 0 || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return new AS400JDBCLobOutputStream (this, positionToStartWriting); 
     }
@@ -319,7 +316,7 @@ were placed in the Vector as the user called setString on the CLOB.
     throws SQLException
     {
         if (positionToStartWriting <= 0 || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return new AS400JDBCLobWriter (this, positionToStartWriting);  
     }
@@ -345,7 +342,7 @@ were placed in the Vector as the user called setString on the CLOB.
     {
         // Validate the parameters.
         if ((positionToStartWriting < 1) || (string == null) || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         positionToStartWriting--;
 
@@ -357,7 +354,7 @@ were placed in the Vector as the user called setString on the CLOB.
 
 
     //@G4A  JDBC 3.0
-    /**
+   /**
     Writes a String to this CLOB, starting at position <i>positionToStartWriting</i> in the CLOB.  
     The CLOB will be truncated after the last character written.  The <i>lengthOfWrite</i>
     characters written will start from <i>offset</i> in the string that was provided by the
@@ -377,9 +374,10 @@ were placed in the Vector as the user called setString on the CLOB.
     public int setString (long positionToStartWriting, String string, int offset, int lengthOfWrite)
     throws SQLException
     {
-        // Validate the parameters
-        if ((lengthOfWrite < 0) || (offset < 0) || (string == null) || positionToStartWriting > locator_.getLength())  //@H3C
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+       // Validate the parameters
+        if ((lengthOfWrite < 0) || (offset < 0) || (string == null) || positionToStartWriting > locator_.getLength() //@H3C
+            || (offset + lengthOfWrite) > string.length())  //@H4C  Add cases
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         //@H3D offset--;
 

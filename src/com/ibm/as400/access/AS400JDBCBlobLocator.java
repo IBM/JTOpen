@@ -34,7 +34,7 @@ implements Blob
 
 
     // Private data.
-    private JDLobLocator    locator_;
+    private JDLobLocator    locator_; 
     private Vector          bytesToUpdate_;            //@G5A
     private Vector          positionsToStartUpdates_;  //@G5A
     private Object          internalLock_;             //@G5A
@@ -64,7 +64,7 @@ Returns the entire BLOB as a stream of uninterpreted bytes.
 @exception  SQLException    If an error occurs.
 **/
     public InputStream getBinaryStream ()
-        throws SQLException
+    throws SQLException
     {
         return new AS400JDBCInputStream (locator_);
     }
@@ -84,17 +84,14 @@ Returns part of the contents of the BLOB.
                             or an error occurs.
 **/
     public byte[] getBytes (long start, int length)
-        throws SQLException
+    throws SQLException
     {
         --start;                                                        // @B3A
-        //@H1 This is an unnecessary flow to the server.  The server will report an error
-        //@H1 if our start or length numbers are invalid.
-        //@H1D long end = start + length - 1;                                        // @G7A
-        //@H1D long currentLengthOfLocator = locator_.getLength();  // @G7A
-        //@H1D if (end >= currentLengthOfLocator)    // @G7A
-        //@H1D|| (start >= currentLengthOfLocator) ||      
-        if ((start < 0) || (length < 0))    //@G7A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);  // @G7A
+        long end = start + length - 1;                                        // @G7A
+        long currentLengthOfLocator = locator_.getLength();  // @G7A
+        if ((start < 0) || (length < 0) || end >= currentLengthOfLocator    // @G7A
+          || (start >= currentLengthOfLocator) )    //@G7A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);  // @G7A
         DBLobData data = locator_.retrieveData ((int) start, length);   // @B1C
         int actualLength = data.getLength ();
         byte[] bytes = new byte[actualLength];
@@ -171,7 +168,7 @@ Returns the length of the BLOB.
 @exception SQLException     If an error occurs.
 **/
     public long length ()
-        throws SQLException
+    throws SQLException
     {
         // @C1D // There is no way currently to efficiently compute the        @A1A
         // @C1D // actual length of the BLOB.  We have 2 choices:              @A1A
@@ -205,12 +202,12 @@ This method is not supported.
                             or an error occurs.
 **/
     public long position (byte[] pattern, long start)
-        throws SQLException
+    throws SQLException
     {
         // Validate the parameters.                                             // @B2A
         --start;                                                                // @B3A
         if ((start < 0) || (start >= length()) || (pattern == null))            // @B2A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);    // @B2A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    // @B2A
 
         return -1; // @A1C return locator_.position ("?", pattern, start);
     }
@@ -232,12 +229,12 @@ This method is not supported.
                             or an error occurs.
 **/
     public long position (Blob pattern, long start)
-        throws SQLException
+    throws SQLException
     {
         // Validate the parameters.                                             // @B2A
         --start;                                                                // @B3A
         if ((start < 0) || (start >= length()) || (pattern == null))            // @B2A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);    // @B2A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    // @B2A
 
         return -1; // @A1A
         // @A1D if (pattern instanceof AS400JDBCBlobLocator)
@@ -264,7 +261,7 @@ This method is not supported.
     throws SQLException
     {
         if ((positionToStartWriting <= 0) || (positionToStartWriting > locator_.getLength()))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return new AS400JDBCLobOutputStream (this, positionToStartWriting);
     }
@@ -273,24 +270,24 @@ This method is not supported.
 
     //@G4A  JDBC 3.0
     /**
-    Writes an array of bytes to this BLOB, starting at position <i>positionToStartWriting</i> 
-    in the BLOB.  The BLOB will be truncated after the last byte written.  
-    
-    @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
-    @param bytesToWrite The array of bytes to be written to this BLOB.
-    @return The number of bytes written to the BLOB.
-
-    @exception SQLException If there is an error accessing the BLOB or if the position
-    specified is greater than the length of the BLOB.
-    
-    @since Modification 5
-    **/
+     Writes an array of bytes to this BLOB, starting at position <i>positionToStartWriting</i> 
+     in the BLOB.  The BLOB will be truncated after the last byte written.  
+     
+     @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
+     @param bytesToWrite The array of bytes to be written to this BLOB.
+     @return The number of bytes written to the BLOB.
+ 
+     @exception SQLException If there is an error accessing the BLOB or if the position
+     specified is greater than the length of the BLOB.
+     
+     @since Modification 5
+     **/
     public int setBytes (long positionToStartWriting, byte[] bytesToWrite)
     throws SQLException
     {
         if ((positionToStartWriting < 1) || (bytesToWrite == null) || (bytesToWrite.length < 0) || 
             positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         positionToStartWriting--;
 
@@ -303,30 +300,31 @@ This method is not supported.
 
     //@G4A  JDBC 3.0
     /**
-    Writes all or part of the byte array the application passes in to this BLOB, 
-    starting at position <i>positionToStartWriting</i> in the BLOB.  
-    The BLOB will be truncated after the last byte written.  The <i>lengthOfWrite</i>
-    bytes written will start from <i>offset</i> in the bytes that were provided by the
-    application.
+   Writes all or part of the byte array the application passes in to this BLOB, 
+   starting at position <i>positionToStartWriting</i> in the BLOB.  
+   The BLOB will be truncated after the last byte written.  The <i>lengthOfWrite</i>
+   bytes written will start from <i>offset</i> in the bytes that were provided by the
+   application.
 
-    @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
-    @param bytesToWrite The array of bytes to be written to this BLOB.
+   @param positionToStartWriting The position (1-based) in the BLOB where writes should start.
+   @param bytesToWrite The array of bytes to be written to this BLOB.
    @param offset The offset into the array at which to start reading bytes (0-based).
-    @param length The number of bytes to be written to the BLOB from the array of bytes.
-    @return The number of bytes written.
+   @param length The number of bytes to be written to the BLOB from the array of bytes.
+   @return The number of bytes written.
 
-    @exception SQLException If there is an error accessing the BLOB or if the position
-    specified is greater than the length of the BLOB.
-    
-    @since Modification 5
-    **/
+   @exception SQLException If there is an error accessing the BLOB or if the position
+   specified is greater than the length of the BLOB.
+   
+   @since Modification 5
+   **/
     public int setBytes (long positionToStartWriting, byte[] bytesToWrite, int offset, int length)
     throws SQLException
     {
         // Validate parameters
         if ((length < 0) || (offset < 0) || (bytesToWrite == null) || (bytesToWrite.length < 0)   //@H3C
-            || positionToStartWriting > locator_.getLength())
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            || (positionToStartWriting <= 0) || positionToStartWriting > locator_.getLength() || 
+            (offset + length > bytesToWrite.length))                            //@H4A Added cases
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         //@H3D offset--;
 

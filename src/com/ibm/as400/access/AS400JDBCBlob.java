@@ -140,7 +140,7 @@ Returns part of the contents of the BLOB.
         --start;                                                        // @B1A
         long end = start + length - 1;
         if ((start < 0) || (length < 0) || (end >= length_) || (start >= length_))   // @B2C
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
 	    // Copy the bytes.
         byte[] result = new byte[length];
@@ -186,7 +186,7 @@ Returns the position at which a pattern is found in the BLOB.
         // Validate the parameters.
         --start; // @B1A
         if ((start < 0) || (start >= length_) || (pattern == null))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return byteSearch (data_.getRawBytes (), data_.getOffset (), pattern, (int) start);
     }
@@ -214,7 +214,7 @@ Returns the position at which a pattern is found in the BLOB.
         // Validate the parameters.
         --start; // @B1A
         if ((start < 0) || (start >= length_) || (pattern == null))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return byteSearch (data_.getRawBytes (), data_.getOffset (),
                            pattern.getBytes (0, (int) pattern.length ()), 
@@ -240,7 +240,7 @@ Returns the position at which a pattern is found in the BLOB.
     throws SQLException
     {
         if ((positionToStartWriting <= 0) || (positionToStartWriting > length_))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return new AS400JDBCLobOutputStream (this, positionToStartWriting);
     }
@@ -267,14 +267,14 @@ Returns the position at which a pattern is found in the BLOB.
         // Validate parameters.
         if ((positionToStartWriting > length_) || (positionToStartWriting <= 0) || 
             (bytesToWrite == null) || (bytesToWrite.length < 0))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         positionToStartWriting--;
 
         length_ = (int)positionToStartWriting + bytesToWrite.length;  //@G5D + 1; Do not add one to this length.  
 
         if ((positionToStartWriting >= length_))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         byte[] data = new byte[length_];
         System.arraycopy (data_.getRawBytes(), data_.getOffset(), data, 0, (int)positionToStartWriting);
@@ -311,8 +311,10 @@ Returns the position at which a pattern is found in the BLOB.
     {
         // Validate parameters
         if ((lengthOfWrite < 0) || (offset < 0) || (bytesToWrite == null) ||        //@H2C
-            (bytesToWrite.length < 0))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
+            (bytesToWrite.length < 0) 
+            || (positionToStartWriting <= 0) ||           //@H3A Added cases
+            (positionToStartWriting > length_) || (offset + lengthOfWrite > bytesToWrite.length)) //@H3A Added cases
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
 
         //@H2D offset--;
         byte[] newData = new byte[lengthOfWrite];
@@ -338,7 +340,7 @@ Returns the position at which a pattern is found in the BLOB.
     throws SQLException
     {
         if ((lengthOfBLOB < 0) || (lengthOfBLOB > length_))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         byte[] newData = new byte[(int)lengthOfBLOB];
         System.arraycopy(data_.getRawBytes(), data_.getOffset(), newData, 0, (int)lengthOfBLOB);

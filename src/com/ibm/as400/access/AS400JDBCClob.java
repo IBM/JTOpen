@@ -73,7 +73,7 @@ Returns the entire CLOB as a stream of ASCII characters.
             return new ByteArrayInputStream (data_.getBytes ("ISO8859_1"));
         }
         catch (UnsupportedEncodingException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);    // @C2C
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);    // @C2C
             return null;
         }
     }
@@ -114,7 +114,7 @@ Returns part of the contents of the CLOB.
         --start;                                                        // @B1A
         long end = start + length - 1;
         if ((start < 0) || (length < 0) || (end >= length_) || (start >= length_))    // @B2C
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         // Generate the substring.
         return data_.substring ((int) start, (int) start + length);
@@ -158,7 +158,7 @@ Returns the position at which a pattern is found in the CLOB.
         // Validate the parameters.
         --start;                                                            // @B1A
         if ((start < 0) || (start >= length_) || (pattern == null))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return data_.indexOf (pattern, (int) start);
     }
@@ -186,7 +186,7 @@ Returns the position at which a pattern is found in the CLOB.
         // Validate the parameters.
         --start;                                                                // @B1A
         if ((start < 0) || (start >= length_) || (pattern == null))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return data_.indexOf (pattern.getSubString (1, (int) pattern.length ()), (int) start); // @C1C
     }
@@ -209,7 +209,7 @@ Returns the position at which a pattern is found in the CLOB.
     throws SQLException
     {
         if (positionToStartWriting <= 0 || positionToStartWriting > length_)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         //Didn't decrement the position here even though clobs are 1-based and output streams
         //are 0-based because output stream uses this number for what position to call
@@ -236,7 +236,7 @@ Returns the position at which a pattern is found in the CLOB.
     throws SQLException
     {
         if (positionToStartWriting <= 0 || positionToStartWriting > length_)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         //Didn't decrement the position here even though clobs are 1-based and writers
         //are 0-based because writer uses this number for what position to call
@@ -265,7 +265,7 @@ Returns the position at which a pattern is found in the CLOB.
     {
         // Validate the parameters.
         if ((positionToStartWriting > length_) || (positionToStartWriting <= 0) || (stringToWrite == null))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         positionToStartWriting--;
 
@@ -299,8 +299,8 @@ Returns the position at which a pattern is found in the CLOB.
     public int setString (long positionToStartWriting, String string, int offset, int lengthOfWrite)
     throws SQLException
     {
-        if ((lengthOfWrite < 0) || (offset < 0) || (string == null))            //@H2C
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+        if ((lengthOfWrite < 0) || (offset < 0) || (string == null) || ((offset + lengthOfWrite) > string.length()))  //@H2C @H3A Added case
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         //@H2D offset--;
 
