@@ -23,7 +23,7 @@ import java.util.Vector;
 
 /**
 The AS400ToolboxJarMaker class is used to generate a smaller
-JAR or ZIP file from the shipped <i>AS/400 Toolbox for Java</i>
+JAR or ZIP file from the shipped <i>IBM Toolbox for Java</i>
 JAR or ZIP file, based on the user's requirements.
 <p>
 In addition, AS400ToolboxJarMaker can also be used to:
@@ -41,7 +41,7 @@ or AS400ToolboxJarMaker can be run as a command line program, as follows:
 </blockquote>
 AS400ToolboxJarMaker extends the functionality of JarMaker by
 additionally allowing the user to specify one or more
-<i>AS/400 Toolbox for Java</i> components,
+<i>IBM Toolbox for Java</i> components,
 languages, and/or CCSIDs, and whether or not to include
 Java Beans files that are associated with the specified components.
 
@@ -53,7 +53,8 @@ Java Beans files that are associated with the specified components.
 <dt><b><code>-source </b></code><var>sourceJarFile</var>
 <dd>
 Specifies the source JAR or ZIP file from which to derive
-the destination JAR or ZIP file.  The source file is typically <code>jt400.jar</code>.
+the destination JAR or ZIP file.  The source file is expected to contain the IBM Toolbox for Java product, and is typically named <code>jt400.jar</code>.
+To process a JAR or ZIP other than the Toolbox, use {@link JarMaker JarMaker}.
 If a relative path is specified, the path is assumed to be relative to
 the current directory.
 If this option is specified as the first positional argument,
@@ -153,12 +154,12 @@ The default split size is 2 megabytes (2048 kilobytes).
 <p>
 <dt><b><code>-component </b></code><var>componentID1[,componentID2[...] ] </var>
 <dd>
-The <i>AS/400 Toolbox for Java</i> components that are required.
+The <i>IBM Toolbox for Java</i> components that are required.
 Entries are separated by commas (no spaces), and are case insensitive.
 The -component option may be abbreviated to -c.
 <br>
 See the list of <a href="../componentList.html">components</a>
-that are supported by <i>AS/400 Toolbox for Java</i>.
+that are supported by <i>IBM Toolbox for Java</i>.
 
 <p>
 <dt><b><code>-beans </b></code>
@@ -203,7 +204,7 @@ Entries are separated by commas (no spaces).
 The -ccsid option may be abbreviated to -cc.
 By default, all CCSIDs are included.
 See the list of <a href="../ccsidList.html">CCSIDs and encodings</a>
-that are specifically supported by <i>AS/400 Toolbox for Java</i>.
+that are specifically supported by <i>IBM Toolbox for Java</i>.
 
 <p>
 <dt><b><code>-ccsidExcluded </b></code><var>ccsid1[,ccsid2[...]]</var>
@@ -215,7 +216,7 @@ and a warning message is sent to <code>System.err</code>.
 The -ccsidExcluded option may be abbreviated to -cx or -ccx.
 By default, all CCSIDs are included.
 See the list of <a href="../ccsidList.html">CCSIDs and encodings</a>
-that are specifically supported by <i>AS/400 Toolbox for Java</i>.
+that are specifically supported by <i>IBM Toolbox for Java</i>.
 
 <p>
 <dt><b><code>-noProxy </b></code>
@@ -1785,7 +1786,7 @@ public class AS400ToolboxJarMaker extends JarMaker
 
 
   /**
-   Specifies required <i>AS/400 Toolbox for Java</i> components.
+   Specifies required <i>IBM Toolbox for Java</i> components.
    Java Beans files associated with the components are <em>not</em>
    automatically included.
    <br>Note: This augments any previously specified components.
@@ -1803,7 +1804,7 @@ public class AS400ToolboxJarMaker extends JarMaker
 
 
   /**
-   Specifies required <i>AS/400 Toolbox for Java</i> components.
+   Specifies required <i>IBM Toolbox for Java</i> components.
    <br>Note: This augments any previously specified components.
    If an unrecognized component is specified, a warning message is
    sent to <code>System.err</code>, and the component is ignored.

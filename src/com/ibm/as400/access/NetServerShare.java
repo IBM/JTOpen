@@ -23,8 +23,8 @@ import java.util.Vector;
 /**
  The NetServerShare class represents a NetServer share.
 
- @see NetServer#listFileShares()
- @see NetServer#listPrintShares()
+ @see NetServer#listFileShares
+ @see NetServer#listPrintShares
 **/
 
 public abstract class NetServerShare
@@ -75,6 +75,8 @@ extends ChangeableResource
 
   /**
    Attribute ID for "user count".  This identifies a read-only Integer attribute, which represents the number of connections that are currently made to a share.
+   <br>Note: If the NetServer has not been started, this attribute's reported value will be -1.
+   See {@link NetServer#isStarted() NetServer.isStarted()} and {@link NetServer#start() NetServer.start()}.
    **/
   public static final String USER_COUNT = "USER_COUNT";
   static {
@@ -411,7 +413,7 @@ extends ChangeableResource
 
         if (share != null)
         {
-          // Copy the information from the API record to the NetServerSession attributes.
+          // Copy the information from the API record to the NetServerShare attributes.
           Object[] values = openListAttributeMap.getValues(attributeIDs, system, document, null, indices);
           for (int ii = 0; ii < values.length; ++ii) {
             share.initializeAttributeValue(attributeIDs[ii], values[ii]);
@@ -454,11 +456,10 @@ extends ChangeableResource
 
   /**
    Lists the connections currently associated with this share.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @return  The current connections to the share.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   public ResourceList listConnections()
     throws ResourceException

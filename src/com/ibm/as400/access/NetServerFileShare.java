@@ -19,7 +19,7 @@ import com.ibm.as400.data.ProgramCallDocument;
 
 /**
  The NetServerFileShare class represents a NetServer file server share.
- NetServerFileShare objects are created and returned by <code>NetServer.listFileShares()</code>.
+ NetServerFileShare objects are created and returned by {@link NetServer#listFileShares() NetServer.listFileShares()}.
  <p>
  <i>Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.</i>
  <p>
@@ -78,7 +78,6 @@ For String-valued attributes, if the current actual value of the corresponding p
 </pre>
 </blockquote>
 
- @see NetServer#listFileShares()
 **/
 
 public class NetServerFileShare
@@ -172,13 +171,11 @@ extends NetServerShare
    **/
   public static final String PERMISSION = "PERMISSION";
   /**
-   Attribute value indicating "read only" permission to a share.
-   @see #PERMISSION
+   {@link #PERMISSION PERMISSION} attribute value indicating "read only" permission to a share.
    **/
   public static final Integer PERMISSION_READ_ONLY = new Integer(1);
   /**
-   Attribute value indicating "read/write" permission to a share.
-   @see #PERMISSION
+   {@link #PERMISSION PERMISSION} attribute value indicating "read/write" permission to a share.
    **/
   public static final Integer PERMISSION_READ_WRITE = new Integer(2);
   static {

@@ -24,8 +24,8 @@ import java.io.Serializable;
 
 /**
  The ProgramParameter class is used with ProgramCall and ServiceProgramCall to pass parameter data to a program, from a program, or both.  Input data is passed to a program as a byte array with <i>setInputData</i>.  Output data is requested from a program by specifying the amount of data to return with <i>setOutputDataLength</i>.  To get the output data once the program has run use <i>getOutputData</i>.  These values may also be set on the constructor.
- @see  ProgramCall
- @see  ServiceProgramCall
+ @see com.ibm.as400.access.ProgramCall
+ @see com.ibm.as400.access.ServiceProgramCall
  **/
 public class ProgramParameter implements Serializable
 {
@@ -125,6 +125,7 @@ public class ProgramParameter implements Serializable
     /**
      Constructs a ProgramParameter object.  An input parameter is created, since a byte array containing parameter data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
+        Valid values are {@link #PASS_BY_VALUE PASS_BY_VALUE} and {@link #PASS_BY_REFERENCE PASS_BY_REFERENCE}.  The default is PASS_BY_VALUE.
      @param  inputData  The parameter data to be used as input to the program.
      **/
     public ProgramParameter(int parameterType, byte[] inputData)
@@ -142,6 +143,7 @@ public class ProgramParameter implements Serializable
     /**
      Constructs a ProgramParameter object.  An output parameter is created, since the size of the output data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
+        Valid values are {@link #PASS_BY_VALUE PASS_BY_VALUE} and {@link #PASS_BY_REFERENCE PASS_BY_REFERENCE}.  The default is PASS_BY_VALUE.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
     public ProgramParameter(int parameterType, int outputDataLength)
@@ -164,6 +166,7 @@ public class ProgramParameter implements Serializable
     /**
      Constructs ProgramParameter object.  A parameter that is both an input and an output parameter is created, since both data passed to the program and the amount of data returned from the program are passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
+        Valid values are {@link #PASS_BY_VALUE PASS_BY_VALUE} and {@link #PASS_BY_REFERENCE PASS_BY_REFERENCE}.  The default is PASS_BY_VALUE.
      @param  inputData  The parameter data to be used as input to the program.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
@@ -188,7 +191,6 @@ public class ProgramParameter implements Serializable
     /**
      Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this ProgramParameter.  It can be removed with removePropertyChangeListener.
      @param  listener  The PropertyChangeListener.
-     @see  #removePropertyChangeListener
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
@@ -204,7 +206,6 @@ public class ProgramParameter implements Serializable
     /**
      Adds a VetoableChangeListener.  The specified VetoableChangeListeners <b>vetoableChange</b> method will be called each time the value of any constrained property is changed.
      @param  listener  The VetoableChangeListener.
-     @see  #removeVetoableChangeListener
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -260,10 +261,10 @@ public class ProgramParameter implements Serializable
     /**
      Returns the program parameter type.  The type indicates if data is passed by reference or passed by value.  The type attribute is used by ServiceProgramCall.
      @return  The program parameter type.  The type is one of the following:
-     <UL>
-     <LI>PASS_BY_VALUE  The parameter is passed as data.
-     <LI>PASS_BY_REFERENCE  The parameter is passed as a reference.
-     </UL>
+     <ul>
+     <li>{@link #PASS_BY_VALUE PASS_BY_VALUE} - The parameter is passed as data.
+     <li>{@link #PASS_BY_REFERENCE PASS_BY_REFERENCE} - The parameter is passed as a reference.
+     </ul>
      **/
     public int getParameterType()
     {
@@ -293,7 +294,6 @@ public class ProgramParameter implements Serializable
     /**
      Removes this PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
      @param  listener  The PropertyChangeListener.
-     @see  #addPropertyChangeListener
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
@@ -309,7 +309,6 @@ public class ProgramParameter implements Serializable
     /**
      Removes this VetoableChangeListener.  If the VetoableChangeListener is not on the list, nothing is done.
      @param  listener  The VetoableChangeListener.
-     @see  #addVetoableChangeListener
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -368,10 +367,10 @@ public class ProgramParameter implements Serializable
     /**
      Sets the type of program parameter.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of the program parameter.  The type must be one of the following:
-     <UL>
-     <LI>PASS_BY_VALUE  The parameter is passed as data.
-     <LI>PASS_BY_REFERENCE  The parameter is passed as a reference.
-     </UL>
+     <ul>
+     <li>{@link #PASS_BY_VALUE PASS_BY_VALUE} - The parameter is passed as data.
+     <li>{@link #PASS_BY_REFERENCE PASS_BY_REFERENCE} - The parameter is passed as a reference.
+     </ul>
      The default is PASS_BY_VALUE.
      @exception  PropertyVetoException  If the change is vetoed.
      **/

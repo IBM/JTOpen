@@ -22,14 +22,14 @@ import java.util.Vector;
 /**
  The NetServerConnection class represents a NetServer share connection.
  <p>
- Note: A <b>session</b> corresponds to a workstation.  A workstation could be a Windows Terminal Server or it could be a single PC on someone's desktop.  A <b>connection</b> corresponds to a specific user who has mapped a drive and has files opened or spooled output on a print queue.  Since a <b>session</b> can have multiple users, a <b>connection</b> shows a particular user's statistics on that session.
+ Note: A <b>session</b> (represented by class {@link NetServerSession NetServerSession}) corresponds to a workstation.  A workstation could be a Windows Terminal Server or it could be a single PC on someone's desktop.  A <b>connection</b> (represented by this class) corresponds to a specific user who has mapped a drive and has files opened or spooled output on a print queue.  Since a <b>session</b> can have multiple users, a <b>connection</b> shows a particular user's statistics on that session.
  <p>
  NetServerConnection objects are created and returned by the following methods:
  <ul>
- <li> NetServer.listSessionConnections()
- <li> NetServer.listShareConnections()
- <li> NetServerShare.listConnections()
- <li> NetServerSession.listConnections()
+ <li>{@link NetServer#listSessionConnections() NetServer.listSessionConnections}
+ <li>{@link NetServer#listShareConnections() NetServer.listShareConnections}
+ <li>{@link NetServerShare#listConnections() NetServerShare.listConnections}
+ <li>{@link NetServerSession#listConnections() NetServerSession.listConnections}
  </ul>
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
@@ -41,9 +41,9 @@ import java.util.Vector;
 <li>{@link #USER USER}
 </ul>
 
-<p>Use any of the above attribute IDs with
+<p>Use any of the above attribute IDs with the
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue(java.lang.Object) getAttributeValue}
-to access the attribute values for a NetServerConnection.
+method to access the attribute values for a NetServerConnection.
 <br>
 Note: For the above attributes, getAttributeValue() should never return null.
 For String-valued attributes, if the current actual value of the corresponding property on the server is blank, getAttributeValue() will return "" (an empty String).
@@ -174,13 +174,11 @@ extends Resource
    **/
   public static final String TYPE = "TYPE";
   /**
-   Attribute value indicating "read only" permission to a share.
-   @see #TYPE
+   {@link #TYPE TYPE} attribute value indicating "read only" permission to a share.
    **/
   public static final Integer TYPE_DISK_DRIVE = new Integer(0);
   /**
-   Attribute value indicating "read/write" permission to a share.
-   @see #TYPE
+   {@link #TYPE TYPE} attribute value indicating "read/write" permission to a share.
    **/
   public static final Integer TYPE_SPOOLED_OUTPUT_QUEUE = new Integer(1);
   static {
@@ -207,6 +205,8 @@ extends Resource
   /**
    Attribute ID for "number of connection users".  This identifies a read-only Integer
    attribute, which represents the number of users on a connection.
+   <br>Note: If the NetServer has not been started, this attribute's reported value will be -1.
+   See {@link NetServer#isStarted() NetServer.isStarted()} and {@link NetServer#start() NetServer.start()}.
    **/
   /*public*/ static final String USER_COUNT = "USER_COUNT";
   static {
@@ -404,13 +404,12 @@ extends Resource
 
   /**
    Lists connections currently associated with the NetServer.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @param sys The system.
    @param type Type of connections to list: SHARE or SESSION.
    @return  Information about current connections.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   static ResourceList list(AS400 sys, int type)
     throws ResourceException
@@ -452,13 +451,12 @@ extends Resource
 
   /**
    Returns a list of the connections associated with a specific resource (share or session).
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @param sys The system.
    @param connectionType The type of connection.  Valid values are SHARE and SESSION.
    @param qualifier The list qualifier.  This identifies the share or session.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   private static ResourceList list(AS400 system, int connectionType, String qualifier)
     throws ResourceException
@@ -527,12 +525,11 @@ extends Resource
 
   /**
    Returns a list of the connections associated with a specific session.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @param sys The system.
    @param sessionName The session name.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   static ResourceList listConnectionsForSession(AS400 sys, String sessionName)
     throws ResourceException
@@ -543,12 +540,11 @@ extends Resource
 
   /**
    Returns a list of the connections associated with a specific share.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @param sys The system.
    @param shareName The share name.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   static ResourceList listConnectionsForShare(AS400 sys, String shareName)
     throws ResourceException

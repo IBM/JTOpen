@@ -558,11 +558,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * Machine.
     *  <p>Valid values include:
     *  <ul>
-    *  <li>"default" (base the implementation on the environment)
     *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
-    *  The default value is "default".
+    *  The default value is "toolbox".
     **/
     public String getDriver()
     {
@@ -2501,11 +2500,10 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * param driver The driver value.
     *  <p>Valid values include:
     *  <ul>
-    *  <li>"default" (base the implementation on the environment)
     *  <li>"toolbox" (use the IBM Toolbox for Java JDBC driver)
     *  <li>"native" (use the IBM Developer Kit for Java JDBC driver)
     *  </ul>
-    *  The default value is "default".
+    *  The default value is "toolbox".
     **/
     public void setDriver(String driver)
     {

@@ -19,7 +19,7 @@ import com.ibm.as400.data.ProgramCallDocument;
 
 /**
  The NetServerPrintShare class represents a NetServer print server share.
- NetServerPrintShare objects are created and returned by <code>NetServer.listPrintShares()</code>.
+ NetServerPrintShare objects are created and returned by {@link NetServer#listPrintShares() NetServer.listPrintShares()}.
  <p>
  <i>Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.</i>
 <p>
@@ -77,7 +77,6 @@ For String-valued attributes, if the current actual value of the corresponding p
 </pre>
 </blockquote>NetServerPrintShare
 
- @see NetServer#listPrintShares()
 **/
 
 public class NetServerPrintShare
@@ -182,23 +181,19 @@ extends NetServerShare
    **/
   public static final String SPOOLED_FILE_TYPE = "SPOOLED_FILE_TYPE";
   /**
-   Attribute value indicating spooled file type "User ASCII".
-   @see #SPOOLED_FILE_TYPE
+   {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating spooled file type "User ASCII".
    **/
   public static final Integer SPOOLED_FILE_TYPE_USER_ASCII = new Integer(1);
   /**
-   Attribute value indicating spooled file type "Advanced Function Printing".
-   @see #SPOOLED_FILE_TYPE
+   {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating spooled file type "Advanced Function Printing".
    **/
   public static final Integer SPOOLED_FILE_TYPE_AFP = new Integer(2);
   /**
-   Attribute value indicating spooled file type "SNA character string".
-   @see #SPOOLED_FILE_TYPE
+   {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating spooled file type "SNA character string".
    **/
   public static final Integer SPOOLED_FILE_TYPE_SCS = new Integer(3);
   /**
-   Attribute value indicating "Automatic type sensing".
-   @see #SPOOLED_FILE_TYPE
+   {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating "Automatic type sensing".
    **/
   public static final Integer SPOOLED_FILE_TYPE_AUTO_DETECT = new Integer(4);
 

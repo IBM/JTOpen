@@ -931,9 +931,9 @@ public class Permission
      * Sets the authorizations list of the object. For example:
      * <p><blockquote><pre>
      * Permission permisson = new Permisson(new AS400(),"/QSYS.LIB/FRED.LIB";
-     * permission.setAuthorizatinList("testautl");
+     * permission.setAuthorizationList("testautl");
      * System.out.println("The authorization list of fred.lib is " + permissin.geAuthorizationList();
-     * permission.setAuthorizatinList("*NONE");
+     * permission.setAuthorizationList("*NONE");
      * System.out.println("The authorization list of fred.lib is " + permissin.geAuthorizationList();
      * </pre></blockquote></p>
      * @param authorizationList The authorizations list of the object.

@@ -22,9 +22,9 @@ import java.util.Vector;
 /**
  The NetServerSession class represents a NetServer session.
  <p>
- Note: A <b>session</b> corresponds to a workstation.  A workstation could be a Windows Terminal Server or it could be a single PC on someone's desktop.  A <b>connection</b> corresponds to a specific user who has mapped a drive and has files opened or spooled output on a print queue.  Since a <b>session</b> can have multiple users, a <b>connection</b> shows a particular user's statistics on that session.
+ Note: A <b>session</b> (represented by this class) corresponds to a workstation.  A workstation could be a Windows Terminal Server or it could be a single PC on someone's desktop.  A <b>connection</b> (represented by class {@link NetServerConnection NetServerConnection}) corresponds to a specific user who has mapped a drive and has files opened or spooled output on a print queue.  Since a <b>session</b> can have multiple users, a <b>connection</b> shows a particular user's statistics on that session.
  <p>
- NetServerSession objects are created and returned by <code>NetServer.listSessions()</code>.
+ NetServerSession objects are created and returned by {@link NetServer#listSessions() NetServer.listSessions()}.
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>
@@ -81,8 +81,6 @@ For String-valued attributes, if the current actual value of the corresponding p
 </pre>
 </blockquote>
 
- @see NetServer#listSessions()
- @see NetServerConnection
 **/
 
 
@@ -445,11 +443,10 @@ extends Resource
 
   /**
    Lists the current sessions.
-   The returned ResourceList contains NetServerSession objects.
+   The returned ResourceList contains {@link NetServerSession NetServerSession} objects.
    @return  Information about the current sessions.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerSession
    **/
   static ResourceList list(AS400 system)
     throws ResourceException
@@ -516,11 +513,10 @@ extends Resource
 
   /**
    Lists the connections currently associated with this session.
-   The returned ResourceList contains NetServerConnection objects.
+   The returned ResourceList contains {@link NetServerConnection NetServerConnection} objects.
    @return  The current connections for the session.
 
    @exception ResourceException  If an error occurs.
-   @see NetServerConnection
    **/
   public ResourceList listConnections()
     throws ResourceException
