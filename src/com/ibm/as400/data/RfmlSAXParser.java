@@ -315,9 +315,9 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver {
       {
         return super.resolveEntity(publicId, systemId);
       }
-      catch(IOException ioe) // For Xerces 4.0
+      catch(Exception e) // Xerces 4.0 delcares it throws an IOException here, but 3.2 does not.
       {
-        if (Trace.isTraceErrorOn()) ioe.printStackTrace(Trace.getPrintWriter());
+        if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
         return null;
       }
     }
