@@ -221,6 +221,9 @@
   </xsl:if>
 
 <!-- Generate the parameter syntax summary table using the CDML file as input  -->                        
+  
+  <xsl:text>&#xa;</xsl:text>
+  <hr width="100%" size="2" /><xsl:text>&#xa;</xsl:text>
   <xsl:text>&#xa;</xsl:text>
   <div>
   <xsl:text>&#xa;</xsl:text>                                                         
