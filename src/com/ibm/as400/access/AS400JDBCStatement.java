@@ -100,6 +100,7 @@ implements Statement
 	            AS400JDBCResultSet		resultSet_;             // private protected
     private     int                     rowCountEstimate_;                              // @ECA
 	private     boolean                 rpbCreated_;
+	private     boolean                 rpbQueryTimeoutChanged_;                //@EFA
 	private     boolean                 rpbSyncNeeded_;
 	            JDPackageManager        packageManager_;        // private protected
 	            int                     resultSetConcurrency_;  // private protected
@@ -165,6 +166,7 @@ Constructs an AS400JDBCStatement object.
         resultSetConcurrency_   = resultSetConcurrency;
         resultSetType_          = resultSetType;
         rpbCreated_             = false;
+        rpbQueryTimeoutChanged_ = false;  //@EFA
         rpbSyncNeeded_          = true;
 		settings_               = new SQLConversionSettings (connection_);
         sqlWarning_             = null;
@@ -2088,7 +2090,8 @@ is the number of seconds that the driver will wait for a
 SQL statement to execute.
 
 @param  queryTimeout    The query timeout limit (in seconds)
-                        or 0 for no limit.  The default is 0.
+                        or 0 for no limit.  The default is the job's query timeout limit
+			value unless this method is explicitly called.
 
 @exception      SQLException    If the statement is not open
                                 or the input value is not valid.
@@ -2109,6 +2112,7 @@ SQL statement to execute.
                 // Since we store the query timeout in the RPB, we need
                 // to sync it after a change.
                 rpbSyncNeeded_ = true;
+                rpbQueryTimeoutChanged_ = true;  //@EFA
             }
     
             if (JDTrace.isTraceOn())
@@ -2138,18 +2142,21 @@ statement.
    		        request.setCursorName (cursor_.getName (), connection_.getConverter ());
   		    	if (packageManager_.isEnabled())
    			        request.setLibraryName (packageManager_.getLibraryName (), connection_.getConverter ());
-   			    if (queryTimeout_ > 0)
-       			    request.setQueryTimeout (queryTimeout_);
-       			else
-       			    request.setQueryTimeout (-1);
-    	        connection_.send (request, id_);
-	        }
-   		    catch (DBDataStreamException e) {
-    		    JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-    	    }
+            if (rpbQueryTimeoutChanged_)  //@EFA
+          {
+              if (queryTimeout_ > 0)
+            request.setQueryTimeout (queryTimeout_);
+              else
+            request.setQueryTimeout (-1);
+          }
+                  connection_.send (request, id_);
+              }
+              catch (DBDataStreamException e) {
+                JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+              }
 
-	        rpbCreated_ = true;
-	        rpbSyncNeeded_ = false;
+              rpbCreated_ = true;
+              rpbSyncNeeded_ = false;
 	    }
 	}
 
