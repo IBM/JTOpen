@@ -44,39 +44,38 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <PRE>
 - <i>Various:</i> Deleted unnecessary static "Copyright" string.
 - <i>Various:</i> Javadoc updates, including those reported by Jack Woehr.
-- Print: Add ATTR_AUTOEND to attribute list.
-- JDBC: Make sure serverCommitMode_ always maps to the JDBC isolation level.
-- JDBC: Fixed JTOpen Bug 4034. Use job CCSID if column label CCSID is 65535.
-- Security: CPF3C3C message from ProfileTokenCredential.
-- RFML: Fixed ArrayIndexOutOfBoundsException in RecordFormatDocument.toByteArray().
+- Connection: Added SecureAS400 constructor that takes a profile token.
+- Connection: Added pluggable signon handler (SignonHandler).
+- Connection: Attempt to detect and warn if multiple Toolbox versions on path.
+- IFS: Deprecated confusing IFSRandomAccessFile constructor, added a better one.
+- JDBC: Added a connect method.
 - JDBC: Added support for variable length field compression.
 - JDBC: Check for null SocketProperties before setting it on the AS400 object.
-- Permission: Preserve leading/trailing blanks in filename.
-- Subsystem: Added Subsystem class.
-- IFS: Deprecated confusing IFSRandomAccessFile constructor, added a better one.
-- Print: Clarified that certain attributes are only available when a Writer is active to the Printer.
-- JDBC: Added a connect method.
-- JDBC: Return column name from data format when there is no column label.
-- Connection: Added pluggable signon handler (SignonHandler).
-- JDBC: Fixed JTOpen Bug 4121.  See if command contains "SELECT" after uppercasing.
-- Print: Added getInputStream() that takes a PrintParameterList as a parameter.
-- Print: Added ATTR_AUTOEND as valid to retrieve.
-- RFML: Relocated excess-input check in setValues().
-- Print: Method getAttributeName(): Add AT_READ_BUFFERS_SEQ.
-- Message queue: Retrieve user's message queue instead of assuming default path.
-- RLA: Enable authentication to DDM server with a profile token.
-- JDBC: Send new isolation level for XA transactions.
-- JavaApplicationCall: Added getCommandCall().
 - JDBC: Do not resend isolation level if it is same as current value.
-- ObjectDescription: Added new method getValueAsString().
-- RFML: Improved error message when RFML doc is missing header.
+- JDBC: Fixed JTOpen Bug 4034. Use job CCSID if column label CCSID is 65535.
+- JDBC: Fixed JTOpen Bug 4121.  See if command contains "SELECT" after uppercasing.
+- JDBC: Fixed JTOpen Bug 4148. Always close PreparedStatement used to update row.
+- JDBC: Make sure serverCommitMode_ always maps to the JDBC isolation level.
+- JDBC: Output DISTINCT for TYPE_NAME of distinct column in DatabaseMetaData.getColumns().
+- JDBC: Return column name from data format when there is no column label.
+- JDBC: Send new isolation level for XA transactions.
+- JDBC: Throw SQLException when convert to raw bytes, except in some cases.
+- JavaApplicationCall: Added getCommandCall().
 - Job: Fixed JTOpen bug 1143395. Update max library list size.
 - Job: Throw exception when read-only value is specified on setValue().
-- Connection: Attempt to detect and warn if multiple Toolbox versions on path.
-- Connection: Added SecureAS400 constructor that takes a profile token.
-- JDBC: Fixed JTOpen Bug 4148. Always close PreparedStatement used to update row.
-- JDBC: Throw SQLException when convert to raw bytes, except in some cases.
-- JDBC: Output DISTINCT for TYPE_NAME of distinct column in DatabaseMetaData.getColumns().
+- Message queue: Retrieve user's message queue instead of assuming default path.
+- ObjectDescription: Added new method getValueAsString().
+- Permission: Preserve leading/trailing blanks in filename.
+- Print: Add ATTR_AUTOEND to attribute list.
+- Print: Added getInputStream() that takes a PrintParameterList as a parameter.
+- Print: Clarified that certain attributes are only available when a Writer is active to the Printer.
+- Print: Method getAttributeName(): Add AT_READ_BUFFERS_SEQ.
+- RFML: Fixed ArrayIndexOutOfBoundsException in RecordFormatDocument.toByteArray().
+- RFML: Improved error message when RFML doc is missing header.
+- RFML: Relocated excess-input check in setValues().
+- RLA: Enable authentication to DDM server with a profile token.
+- Security: CPF3C3C message from ProfileTokenCredential.
+- Subsystem: Added Subsystem class.
 </PRE>
 
 <HR>
