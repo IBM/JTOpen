@@ -799,6 +799,9 @@ public class CommandHelpRetriever
      **/
     public void setOutputLocation(String location)
     {
+	if (location == null)					//@A1A
+	    throw new NullPointerException("location");		//@A1A
+
         synchronized(this)
         {
             outputDirectory_ = location;
