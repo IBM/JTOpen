@@ -1904,12 +1904,8 @@ public class IFSFile
   //@A7A Added function to return an array of files in a directory.
   /**
    Lists the integrated file system objects in the directory represented by this object. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list() list} method, but attribute information may become inconsistent with the server.  
-
-   This method returns a list of libraries on the server when the IFSFile object represents the root of the QSYS file system.  For example, the following returns a list of libraries on the server.
-   <pre>
-   IFSFile file = new IFSFile(system, "/QSYS.LIB");
-   IFSFile[] libraries = file.listFiles();
-   </pre>
+   <p>
+   When the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
@@ -1933,12 +1929,8 @@ public class IFSFile
   //@A7A Added function to return an array of files in a directory.
   /**
    Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter) list} method, but attribute information may become inconsistent with the server.  
-
-   This method returns a list of libraries on the server when the IFSFile object represents the root of the QSYS file system.  For example, the following returns a list of libraries on the server.
-   <pre>
-   IFSFile file = new IFSFile(system, "/QSYS.LIB");
-   IFSFile[] libraries = file.listFiles(filter);
-   </pre>
+   <p>
+   When the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
    @param filter A file object filter.
    @return An array of objects in the directory. This list does not
@@ -1963,12 +1955,8 @@ public class IFSFile
   //@A7A Added function to return an array of files in a directory.
   /**
    Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter,String) list} method, but attribute information may become inconsistent with the server.  
-
-   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
-   <pre>
-   IFSFile file = new IFSFile(system, "/QSYS.LIB");
-   IFSFile[] libraries = file.listFiles(filter, "*");
-   </pre>
+   <p>
+   When <code>pattern</code> is "*" and the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match. Acceptable
@@ -2013,12 +2001,8 @@ public class IFSFile
   //@A7A Added function to return an array of files in a directory.
   /**
    Lists the integrated file system objects in the directory represented by this object that match <i>pattern</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(String) list} method, but attribute information may become inconsistent with the server.  
-
-   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
-   <pre>
-   IFSFile file = new IFSFile(system, "/QSYS.LIB");
-   IFSFile[] libraries = file.listFiles("*");
-   </pre>
+   <p>
+   When <code>pattern</code> is "*" and the IFSFile object represents the root of the QSYS file system, this method may return a partial list of the contents of the directory.
 
    @param pattern The pattern that all filenames must match. Acceptable characters
    are wildcards (*) and
