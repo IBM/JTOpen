@@ -308,6 +308,7 @@ public class SpooledFileListItem
   **/
   public Date getCreationDate()
   {
+    if (dateOpened_ == null) return null;
     Calendar c = Calendar.getInstance();
     c.clear();
     c.set(Integer.parseInt(dateOpened_.substring(0,3)) + 1900,// year
@@ -360,6 +361,7 @@ public class SpooledFileListItem
   **/
   public String getDeviceType()
   {
+    if (deviceType_ == null) return null;
     if (deviceType_.equals(DEVICE_TYPE_PRINTER)) return DEVICE_TYPE_PRINTER;
     if (deviceType_.equals(DEVICE_TYPE_DISKETTE)) return DEVICE_TYPE_DISKETTE;
     return deviceType_;
@@ -549,6 +551,7 @@ public class SpooledFileListItem
   **/
   public String getPrinterAssignment()
   {
+    if (printerAssigned_ == null) return null;
     if (printerAssigned_.equals(ASSIGNED_SPECIFIC)) return ASSIGNED_SPECIFIC;
     if (printerAssigned_.equals(ASSIGNED_MULTIPLE)) return ASSIGNED_MULTIPLE;
     if (printerAssigned_.equals(ASSIGNED_NONE)) return ASSIGNED_NONE;
@@ -595,6 +598,7 @@ public class SpooledFileListItem
   **/
   public String getSchedule()
   {
+    if (spooledFileSchedule_ == null) return null;
     if (spooledFileSchedule_.equals(SCHEDULE_IMMEDIATE)) return SCHEDULE_IMMEDIATE;
     if (spooledFileSchedule_.equals(SCHEDULE_FILE_END)) return SCHEDULE_FILE_END;
     if (spooledFileSchedule_.equals(SCHEDULE_JOB_END)) return SCHEDULE_JOB_END;
@@ -638,6 +642,7 @@ public class SpooledFileListItem
   **/
   public String getStatus()
   {
+    if (status_ == null) return null;
     if (status_.equals(STATUS_READY)) return STATUS_READY;
     if (status_.equals(STATUS_OPEN)) return STATUS_OPEN;
     if (status_.equals(STATUS_CLOSED)) return STATUS_CLOSED;
