@@ -816,65 +816,17 @@ public class Command implements Serializable
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
-    boolean added = false;
+//    boolean added = false;
     xmlHelpText_ = null;
-    String prdLib = getXMLProductLibrary();
+//    String prdLib = getXMLProductLibrary();
     String pGroup = getXMLPanelGroup();
     if (pGroup != null)
     {
-      if (prdLib != null)
-      {
-        // Add the product library to the library list
-        // otherwise the API won't find the help text.
-        // First, check to see if it's there.
-        Job job = new Job(system_); // Current job
-        String[] userLibraries = job.getUserLibraryList();
-        String[] sysLibraries = job.getSystemLibraryList();
-        String curLibrary = job.getCurrentLibrary();
-        boolean exists = false;
-        if (curLibrary.trim().equalsIgnoreCase(prdLib))
-        {
-          exists = true;
-        }
-        for (int i=0; i<userLibraries.length && !exists; ++i)
-        {
-          if (userLibraries[i].trim().equalsIgnoreCase(prdLib))
-          {
-            exists = true;
-          }
-        }
-        for (int i=0; i<sysLibraries.length && !exists; ++i)
-        {
-          if (sysLibraries[i].trim().equalsIgnoreCase(prdLib))
-          {
-            exists = true;
-          }
-        }
-        if (!exists)
-        {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpText: Adding "+prdLib+" to library list.");
-          // We have to try to add it.
-          String addlible = "ADDLIBLE LIB("+prdLib+")";
-          CommandCall cc = new CommandCall(system_, addlible);
-          added = cc.run();
-        }
-      }
-
       PanelGroupHelpIdentifier[] ids = getXMLHelpIdentifiers();
       String[] helpIDs = new String[ids.length];
       for (int i=0; i<ids.length; ++i) helpIDs[i] = ids[i].getName();
       PanelGroup panelGroup = new PanelGroup(system_, pGroup);
       String helpResults = panelGroup.getHelpText(helpIDs);
-
-      // Remove the product library from the library list if we added it.
-      if (added)
-      {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+prdLib+" from library list.");
-        // We have to try to add it.
-        String rmvlible = "RMVLIBLE LIB("+prdLib+")";
-        CommandCall cc = new CommandCall(system_, rmvlible);
-        cc.run();
-      }
 
       xmlHelpText_ = helpResults;
     }
@@ -888,6 +840,8 @@ public class Command implements Serializable
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
     helpIDs_ = null;
+    xmlPanelGroup_ = null;
+    xmlProductLibrary_ = null;
     String xml = getXML();
     CommandHelpHandler handler = new CommandHelpHandler();
     //SAXParser parser = new SAXParser();
@@ -898,9 +852,50 @@ public class Command implements Serializable
     //parser.setContentHandler(handler);
     parser.parse(new InputSource(new StringReader(xml)), handler);
     String panelGroup = handler.getPanelGroup();
+    String prodLib = handler.getProductLibrary();
+    boolean added = false;
     if (panelGroup != null)
     {
-      panelGroup = panelGroup.trim();
+      xmlPanelGroup_ = panelGroup.trim();
+      if (prodLib != null)
+      {
+        xmlProductLibrary_ = prodLib.trim();
+        // Add the product library to the library list
+        // otherwise the API used by PanelGroup won't find the help text.
+        // First, check to see if it's there.
+        Job job = new Job(system_); // Current job
+        String[] userLibraries = job.getUserLibraryList();
+        String[] sysLibraries = job.getSystemLibraryList();
+        String curLibrary = job.getCurrentLibrary();
+        boolean exists = false;
+        if (curLibrary.trim().equalsIgnoreCase(xmlProductLibrary_))
+        {
+          exists = true;
+        }
+        for (int i=0; i<userLibraries.length && !exists; ++i)
+        {
+          if (userLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
+          {
+            exists = true;
+          }
+        }
+        for (int i=0; i<sysLibraries.length && !exists; ++i)
+        {
+          if (sysLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
+          {
+            exists = true;
+          }
+        }
+        if (!exists)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpText: Adding "+xmlProductLibrary_+" to library list.");
+          // We have to try to add it.
+          String addlible = "ADDLIBLE LIB("+xmlProductLibrary_+")";
+          CommandCall cc = new CommandCall(system_, addlible);
+          added = cc.run();
+        }
+      }
+
       Vector keywords = handler.getKeywords();
       String helpID = handler.getHelpID();
       String[] ids = new String[keywords.size() + 3];
@@ -913,11 +908,17 @@ public class Command implements Serializable
       }
       PanelGroup pg = getHelpPanelGroup();
       helpIDs_ = pg.getHelpIdentifiers(ids);
+
+      // Remove the product library from the library list if we added it.
+      if (added)
+      {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+xmlProductLibrary_+" from library list.");
+        String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";
+        CommandCall cc = new CommandCall(system_, rmvlible);
+        cc.run();
+      }
+
     }
-    String prodLib = handler.getProductLibrary();
-    if (prodLib != null) prodLib = prodLib.trim();
-    xmlProductLibrary_ = prodLib;
-    xmlPanelGroup_ = panelGroup;
     refreshedHelpIDs_ = true;
   }
 
