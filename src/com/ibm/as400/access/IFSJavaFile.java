@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.beans.PropertyVetoException;
 
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.File;
@@ -23,13 +24,13 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 /**
- * The IFSJavaFile class represents a file in the AS/400
- * integrated file system.
+ * The IFSJavaFile class represents a file in the
+ * integrated file system of the iSeries server.
  * <br>
  *
  * IFSJavaFile extends the java.io.File class and allows programs
  * to be written for the java.io.File interface and still access
- * the AS/400 integrated file system.
+ * the iSeries integrated file system.
  *
  * IFSFile should be considered as an alternate to java.io.File class.
  * <p>
@@ -40,21 +41,21 @@ import java.net.MalformedURLException;
  * java.io.File, is needed.  For example, you have written code
  * that accesses the native file system.  Now you want to move
  * the design to a networked file system.  More particularly,
- * you need to move the code to the AS/400 integrated file system.
- * When a program is being ported and needs to use the AS/400
+ * you need to move the code to the iSeries integrated file system.
+ * When a program is being ported and needs to use the iSeries
  * integrated file system, IFSJavaFile is a good choice.
  * IFSJavaFile also provides SecurityManager features defined in
  * java.io.File.
  * <p>
  * <li>
- * If you need to take full advantage of the AS/400 integrated file
+ * If you need to take full advantage of the iSeries integrated file
  * system, IFSFile is more useful.  IFSFile is written to
- * handle more of the specific AS/400 integrated file system details.
+ * handle more of the specific iSeries integrated file system details.
  * <p>
  * <li>
- * java.io.File can be used to access the AS/400 file system
- * if you use a product like Client Access/400 to map a local drive
- * to the AS/400 integrated file system.
+ * java.io.File can be used to access the iSeries file system
+ * if you use a product like iSeries Access for Windows to map a local drive
+ * to the iSeries integrated file system.
  * <p>
  * </ul>
  *
@@ -74,14 +75,14 @@ import java.net.MalformedURLException;
  *     java.io.File than IFSFile.  It is designed to enable
  *     a plug-in fit for previously written java.io.File code.
  * <li>IFSJavaFile always implements a SecurityManager using
- *     AS/400 security.  The SecurityManager provides authority
+ *     iSeries security.  The SecurityManager provides authority
  *     checks.  It throws security exceptions when illegal access
  *     attempts are made.
  * </ol>
  *
  * <p>
  * The following example demonstrates the use of IFSJavaFile.  It shows how a few lines
- * of platform specific code enable the creation of a file on either the AS/400 or
+ * of platform specific code enable the creation of a file on either the iSeries or
  * the local client.
  * <pre>
  *     int location            = ON_THE_AS400;
@@ -147,10 +148,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 // Because pathSeparator, pathSeparatorChar, separator and separatorChar are declared final in java.io.File, we cannot override them.
 
 /**
- * Constructs an IFSJavaFile object.
- * It creates a default IFSJavaFile instance.
- *
- * @since IFSFile
+ * Creates a default IFSJavaFile instance.
 **/
   public IFSJavaFile()
   {
@@ -158,7 +156,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   }
 
 /**
- * Creates a <code>IFSJavaFile</code> whose path name is given by <i>path</i>.
+ * Creates a new IFSJavaFile instance whose path name is given by <i>path</i>.
  *
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
 **/
@@ -174,14 +172,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   }
 
 /**
- * Constructs an IFSJavaFile object.
- * It creates a <code>IFSJavaFile</code> instance using <i>path</i>,
- * followed by the separator character, followed by <i>name</i>.
+ * Creates a new IFSJavaFile instance from a parent pathname string and a child pathname string.
  *
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
  * @param   name   The name of the IFSJavaFile object.
- *
- * @see  #getPath()
 **/
   private IFSJavaFile (String path, String name)
   {
@@ -196,13 +190,10 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   }
 
 /**
- * Constructs an IFSJavaFile object.
- * It creates a <code>IFSJavaFile</code> on <i>system</i> that has a path name of <i>path</i>.
+ * Creates a new IFSJavaFile instance for the specified system, using a file pathname string.
  *
  * @param   system The AS400 that contains the IFSJavaFile.
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
- *
- * @since IFSFile
 **/
   public IFSJavaFile(AS400 system, String path)
   {
@@ -214,16 +205,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   }
 
 /**
- * Constructs an IFSJavaFile object.
- * It creates a IFSJavaFile on <i>system</i> that has a
- * path name of <i>path</i>, followed by the separator
- * character, followed by <i>name</i>.
+ * Creates a new IFSJavaFile instance for the specified system, from a parent pathname string and a child pathname string.
  *
  * @param   system The AS400 that contains the IFSJavaFile.
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
  * @param   name   The name of the IFSJavaFile object.
- *
- * @since IFSFile
 **/
   public IFSJavaFile(AS400 system, String path, String name)
   {
@@ -235,9 +221,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   }
 
 /**
- * Constructs an IFSJavaFile object.
- * It creates a <code>IFSJavaFile</code> with the specified <i>name</i>
- * in the specified <i>directory</i>.
+ * Creates a new IFSJavaFile instance from a parent abstract pathname and a child pathname string.
  * <p>
  * The directory argument cannot be <code>null</code>.  The constructed
  * <code>IFSJavaFile</code> instance uses the following settings taken from
@@ -251,8 +235,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @param   directory The directory where the IFSJavaFile is or will be stored.
  * @param   name      The name of the IFSJavaFile object.
- *
- * @see  #getPath()
 **/
   public IFSJavaFile(IFSJavaFile directory, String name)
   {
@@ -280,18 +262,11 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   }
 
 /**
- * Constructs an IFSJavaFile object.
- * It creates a IFSJavaFile on <i>system</i>
- * that has a path name of <i>directory</i>, followed
- * by the separator character, followed by <i>name</i>.
+ * Creates a new IFSJavaFile instance for the specified system, from a parent abstract pathname and a child pathname string.
  *
  * @param   system    The AS400 that contains the IFSJavaFile.
  * @param   directory The directory where the IFSJavaFile is or will be stored.
  * @param   name      The name of the IFSJavaFile object.
- *
- * @see  #getPath()
- *
- * @since IFSFile
 **/
   public IFSJavaFile(AS400 system, IFSJavaFile directory, String name)
   {
@@ -304,16 +279,9 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 //@A3A Added a new constructor to support building an IFSJavaFile from a IFSFile.
 /**
- * Constructs an IFSJavaFile object.
- * It creates a IFSJavaFile on <i>system</i>
- * that has a path name of <i>directory</i>, followed
- * by the separator character, followed by <i>name</i>.
+ * Creates a new IFSJavaFile instance from an IFSFile object.
  *
- * @param   file  An IFSFile file.
- *
- * @see  #getPath()
- *
- * @since IFSFile
+ * @param   file  An IFSFile object.
 **/
   IFSJavaFile(IFSFile file)
   {
@@ -432,8 +400,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @param   file The <code>IFSJavaFile</code> to be compared.
  *
- * @return  <code>0</code> if this IFSJavaFile path equals <code>file's</code> path;
- *          a value less than <code>0</code> if this IFSJavaFile path is less than the <code>file's</code>
+ * @return  <code>0</code> if this IFSJavaFile path equals <code>file</code>'s path;
+ *          a value less than <code>0</code> if this IFSJavaFile path is less than the <code>file</code>'s
  *          path; and a value greater than <code>0</code> if this IFSJavaFile path is greater
  *          than the <code>file's</code> path.
  *
@@ -444,12 +412,34 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return getPath().compareTo(file.getPath());
   }
 
+// @A7a
 /**
- * Compares the path of IFSJavaFile with <code>Object's</code> path.
- * If the Object is a IFSJavaFile, this function
- * behaves like <code>compareTo(IFSJavaFile)</code>.  Otherwise, it
- * throws a <code>ClassCastException</code> (IFSJavaFiles are
- * comparable only to other IFSJavaFiles).
+ * Compares the path of IFSJavaFile with a <code>File</code>'s path.
+ *
+ * <p>Note:<br>The comparison is case sensitive.
+ *
+ * @param   file The <code>File</code> to be compared.
+ *
+ * @return  <code>0</code> if this IFSJavaFile path equals the argument's path;
+ *          a value less than <code>0</code> if this IFSJavaFile path is less than the argument's
+ *          path; and a value greater than <code>0</code> if this IFSJavaFile path is greater
+ *          than the argument's path.
+ *
+ * @since JDK1.2
+**/
+  public int compareTo(File file)
+  {
+    return getPath().compareTo(file.getPath());
+  }
+
+/**
+ * Compares the path of IFSJavaFile with an <code>Object</code>'s path.
+ * If the other object is an IFSJavaFile,
+ * then this function behaves like compareTo(IFSJavaFile).
+ * If the other object is a java.io.File,
+ * then this function behaves like compareTo(File).
+ * Otherwise, it throws a <code>ClassCastException</code>, since
+ * IFSJavaFile is comparable only to File and IFSJavaFile.
  *
  * <p>Note:<br>The comparison is case sensitive.
  *
@@ -464,7 +454,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 **/
   public int compareTo(Object obj)
   {
-    return compareTo((IFSJavaFile)obj);
+    if (obj instanceof IFSJavaFile) return compareTo((IFSJavaFile)obj);  // @A7c
+    else return compareTo((File)obj);                                    // @A7c
   }
 
   /**
@@ -473,7 +464,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
    * check for existence and the file creation is a
    * single atomic operation.
    * @return true if the file is created, false otherwise.
-   * @exception IOException If an I/O error occurs while communicating with the AS/400.
+   * @exception IOException If an I/O error occurs while communicating with the iSeries server.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean createNewFile()
@@ -621,7 +612,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @return an IFSJavaFile object based on the canonical path name
  *         of the current object.
  *
- * @exception IOException If an I/O error occurs while communicating with the AS/400.
+ * @exception IOException If an I/O error occurs while communicating with the iSeries server.
  * @see #getCanonicalPath
 **/
   // @D1 - new method because of changes to java.io.file in Java 2.
@@ -640,7 +631,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * @return The canonical path name for this IFSJavaFile.
  *
- * @exception IOException If an I/O error occurs while communicating with the AS/400.
+ * @exception IOException If an I/O error occurs while communicating with the iSeries server.
 **/
   public String getCanonicalPath() throws IOException
   {
@@ -702,8 +693,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * </pre>
  *
  * @return The parent directory if one exists; <code>null</code> otherwise.
- *
- * @see  #getPath()
 **/
   public String getParent()
   {
@@ -771,8 +760,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * Returns the system that this object references.
  *
  * @return The system object.
- *
- * @since IFSFile
 **/
   public AS400 getSystem()
   {
@@ -863,7 +850,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 
 /**
- * Indicates if the IFSJavaFile is hidden.  On the AS/400, a file is
+ * Indicates if the IFSJavaFile is hidden.  On the iSeries server, a file is
  * hidden if its hidden attribute is set.
  *
  * @return <code>true</code> if the file is hidden; <code>false</code> otherwise.
@@ -1072,8 +1059,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  file.list (ac);
  *
  *</pre>
- *
- * @since IFSFile
 **/
   public String[] list(IFSFileFilter filter)
   {
@@ -1111,8 +1096,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          to the file name filter object have cached file attribute information.
  *          Maintaining references to these IFSFile objects after the list operation
  *          increases the chances that their file attribute information will not be valid.
- *
- * @since IFSFile
 **/
   public String[] list(IFSFileFilter filter, String pattern)
   {
@@ -1149,8 +1132,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          is not a directory, null is returned.  If this IFSJavaFile
  *          is an empty directory, or the pattern does not match any
  *          files, an empty string array is returned.
- *
- * @since IFSFile
 **/
   public String[] list(String pattern)
   {
@@ -1178,8 +1159,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the AS/400.  This means attribute information can
- * become inconsistent with the AS/400.
+ * will not be refreshed from the iSeries server.  This means attribute information can
+ * become inconsistent with the iSeries server.
  * @return An array of objects in the directory.
  * This list does not include the current directory
  * or the parent directory.  If this IFSJavaFile is not
@@ -1196,8 +1177,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the AS/400.  This means attribute information can
- * become inconsistent with the AS/400.
+ * will not be refreshed from the iSeries server.  This means attribute information can
+ * become inconsistent with the iSeries server.
  *
  * @param   filter The file name filter.
  *
@@ -1276,12 +1257,90 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return newFiles;
   }
 
+// @A7a
+/**
+ * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
+ * With the use of this function, attribute information is cached and
+ * will not be refreshed from the iSeries server.  This means attribute information can
+ * become inconsistent with the iSeries server.
+ *
+ * @param   filter The file filter.
+ *
+ * @return  An array of objects in the directory that satisfy
+ * the file filter. This list does not include the current
+ * directory or the parent directory.  If this IFSJavaFile is not
+ * a directory, null is returned. If this IFSJavaFile is an empty
+ * directory, or the file filter does
+ * not match any files, an empty object array is returned.
+ * The IFSJavaFile object passed to the file filter object has cached
+ * file attribute information.  Maintaining references to these
+ * IFSJavaFile objects after the list operation increases the
+ * chances that their file attribute information will not be valid.
+ * <p>
+ * The following example demonstrates the use of this method:
+ * <pre>
+ *  class AcceptClass implements java.io.FileFilter
+ *  {
+ *    public boolean accept(java.io.File file)
+ *    {
+ *      if (file.getName().startsWith ("IFS"))
+ *        return true;
+ *      return false;
+ *    }
+ *  }
+ * <br>
+ *  IFSJavaFile file = new IFSJavaFile(new AS400("enterprise"), path);
+ *  AcceptClass ac = new AcceptClass();
+ *  file.listFiles (ac);
+ *</pre>
+**/
+  public File[] listFiles(FileFilter filter)
+  {
+    IFSFile[] files = null;
+    try
+    {
+      files = ifsFile_.listFiles0(null, "*", -1, null);
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log (Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
+    }
+    catch (IOException e)
+    {
+      Trace.log (Trace.ERROR, e);
+      return null;
+    }
+
+    if (files == null)
+    {
+      return null;
+    }
+
+    // Fill in the Vector
+    Vector v = new Vector();
+    for (int i = 0 ; i < files.length ; i++)
+    {
+      IFSJavaFile file = new IFSJavaFile(files[i]);
+      if ((filter == null) || filter.accept(file))
+      {
+        v.addElement(file);
+      }
+    }
+
+    // Create the array
+    IFSJavaFile newFiles[] = new IFSJavaFile[v.size()];
+    v.copyInto(newFiles);
+
+    return newFiles;
+  }
+
 //@A3A Added support for IFSFile.listFiles().
 /**
  * Lists the files in the IFSJavaFile directory that satisfy <i>file name filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the AS/400.  This means attribute information can
- * become inconsistent with the AS/400.
+ * will not be refreshed from the iSeries server.  This means attribute information can
+ * become inconsistent with the iSeries server.
  * @param   filter The file name filter.
  *
  * @return  An array of objects in the directory that
@@ -1313,8 +1372,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  file.listFiles (ac);
  *
  *</pre>
- *
- * @since IFSFile
 **/
   public File[] listFiles(IFSFileFilter filter)
   {
@@ -1325,8 +1382,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i> and
  * <i>pattern</i>.  With the use of this function, attribute information is cached and
- * will not be refreshed from the AS/400.  This means attribute information can
- * become inconsistent with the AS/400.
+ * will not be refreshed from the iSeries server.  This means attribute information can
+ * become inconsistent with the iSeries server.
  *
  * <p>Note:<br>If the file does not match <i>pattern</i>, it will not be processed by <i>filter</i>.
  *
@@ -1343,8 +1400,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          to the file name filter object has cached file attribute information.
  *          Maintaining references to these IFSFile objects after the list operation
  *          increases the chances that their file attribute information will not be valid.
- *
- * @since IFSFile
 **/
   public File[] listFiles(IFSFileFilter filter, String pattern)
   {
@@ -1377,8 +1432,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that match <i>pattern</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the AS/400.  This means attribute information can
- * become inconsistent with the AS/400.
+ * will not be refreshed from the iSeries server.  This means attribute information can
+ * become inconsistent with the iSeries server.
  *
  * @param   pattern The pattern that all filenames must match.
  *          Acceptable characters are wildcards (* - matches
@@ -1391,8 +1446,6 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          is not a directory, null is returned.  If this IFSJavaFile
  *          is an empty directory, or the pattern does not match any
  *          files, an empty string array is returned.
- *
- * @since IFSFile
 **/
   public File[] listFiles(String pattern)
   {
@@ -1405,13 +1458,13 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Lists the file system roots for the integrated file system
- * of the AS/400.  The integrated file system of the AS/400 has
+ * of the iSeries server.  The iSeries integrated file system has
  * only one root -- "/".
  *
  * @return  An array of IFSJavaFile objects that represent the
  *          file system roots of the integrated file system
- *          of the AS/400.  Since the integrated file system
- *          of the AS/400 has only one root, the returned
+ *          of the iSeries server.  Since the iSeries integrated file system
+ *          has only one root, the returned
  *          array contains only one element.
 **/
   //@D1a New method because of changes in Java 2.
@@ -1532,6 +1585,28 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     return (returnCode == IFSReturnCodeRep.SUCCESS);
   }
 
+// @A7a
+/**
+ * Renames the IFSJavaFile to have the path name of <i>dest</i>.
+ * Wildcards are not permitted in this file name.
+ *
+ * @param   dest An object specifying the new filename.
+ *          If this object is not an IFSJavaFile, the rename will fail.
+ *
+ * @return  <code>true</code> if the renaming succeeds;
+ *          <code>false</code> otherwise.
+**/
+  public boolean renameTo(File dest)
+  {
+    try {
+      return renameTo((IFSJavaFile)dest);
+    }
+    catch (ClassCastException e) {
+      Trace.log (Trace.ERROR, e);
+      return false;
+    }
+  }
+
 
 /**
  * Sets the last modified time of the file named by this
@@ -1609,7 +1684,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Marks the file named by this IFSJavaFile object so that only
- * read operations are allowed.  On the AS/400, a file is marked
+ * read operations are allowed.  On the iSeries server, a file is marked
  * read only by setting the read only attribute of the file.
  *
  * @return <code>true</code> if the read only attribute is set; <code>false</code> otherwise.
@@ -1633,7 +1708,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Sets the system.
  *
- * @param   system The AS/400 system object.
+ * @param   system The iSeries system object.
  *
  * @return  <code>true</code> if the system was set;
  *          <code>false</code> otherwise.
@@ -1666,8 +1741,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 /**
  * Converts the abstract path name into a <code>file:</code> URL.
- * The AS/400 file/directory will be accessed and if it is a directory the
- * resulting URL will end with the AS/400 separator character
+ * The iSeries file/directory will be accessed and if it is a directory the
+ * resulting URL will end with the iSeries separator character
  * (forward slash).  The server name will be obtained from
  * the AS400 object.  If the path name or AS400 object has
  * not been set, a NullPointerException will be thrown.
