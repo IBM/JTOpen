@@ -165,7 +165,7 @@ abstract class PcmlDocNode extends PcmlNode
 
     // Get the fully qualified name of the document element
     // The qualified name is the concatentation of the names
-    // of all anscestors and the name of "this" with each
+    // of all ancestors and the name of "this" with each
     // name separated by a period.
     public String getQualifiedName()
     {
@@ -174,7 +174,7 @@ abstract class PcmlDocNode extends PcmlNode
             return m_QualName;
         }
 
-        String anscestor;
+        String ancestor;
         String myName = getName();
 
         // If the node does not have a parent return and empty string.
@@ -198,9 +198,9 @@ abstract class PcmlDocNode extends PcmlNode
             return "";
         }
 
-        anscestor = ((PcmlDocNode)getParent()).getQualifiedName();
+        ancestor = ((PcmlDocNode)getParent()).getQualifiedName();
 
-        if ( anscestor.equals("") )
+        if ( ancestor.equals("") )
         {
             if ( getParent().getParent() != null )
             {
@@ -214,23 +214,23 @@ abstract class PcmlDocNode extends PcmlNode
         }
         else
         {
-            m_QualName = anscestor + "." + myName;
+            m_QualName = ancestor + "." + myName;
             return m_QualName;
         }
     }
 
     // Get the fully qualified name of the document element
     // for use in exceptions.
-    // Whereas getQualifiedName() returns an emptry string if
+    // Whereas getQualifiedName() returns an empty string if
     // any of the ancestors is not named, this method
     // returns a full name with a child number for
     // any unnamed ancestors.
     // The qualified name is the concatentation of the names
-    // of all anscestors and the name of "this" with each
+    // of all ancestors and the name of "this" with each
     // name separated by a period.
     public String getNameForException()
     {
-        String anscestor;
+        String ancestor;
         String myName = getName();
 
         if ( getParent() == null )
@@ -246,15 +246,15 @@ abstract class PcmlDocNode extends PcmlNode
             myName = "[" + Integer.toString( getChildNbr() ) + "]";
         }
 
-        anscestor = ((PcmlDocNode)getParent()).getQualifiedName();
+        ancestor = ((PcmlDocNode)getParent()).getQualifiedName();
 
-        if ( anscestor.equals("") )
+        if ( ancestor.equals("") )
         {
             return myName;
         }
         else
         {
-            return anscestor + "." + myName;
+            return ancestor + "." + myName;
         }
     }
 
