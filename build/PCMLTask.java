@@ -51,6 +51,7 @@ public class PCMLTask extends MatchingTask
     java.clearArgs();
     java.setClassname("com.ibm.as400.data.ProgramCallDocument");
     java.setClasspath(classpath_);
+    java.setFork(true); // Otherwise JDK 1.4 throws NoClassDefFoundError on sun/reflect/SerializationConstructorAccessorImpl
     Commandline.Argument arg1 = java.createArg();
     arg1.setValue("-serialize");
     Commandline.Argument arg2 = java.createArg();
