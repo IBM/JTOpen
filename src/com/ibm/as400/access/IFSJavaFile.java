@@ -195,7 +195,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Creates a new IFSJavaFile instance for the specified system, using a file pathname string.
  *
- * @param   system The AS400 that contains the IFSJavaFile.
+ * @param   system The system that contains the IFSJavaFile.
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
 **/
   public IFSJavaFile(AS400 system, String path)
@@ -210,7 +210,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Creates a new IFSJavaFile instance for the specified system, from a parent pathname string and a child pathname string.
  *
- * @param   system The AS400 that contains the IFSJavaFile.
+ * @param   system The system that contains the IFSJavaFile.
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
  * @param   name   The name of the IFSJavaFile object.
 **/
@@ -267,7 +267,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Creates a new IFSJavaFile instance for the specified system, from a parent abstract pathname and a child pathname string.
  *
- * @param   system    The AS400 that contains the IFSJavaFile.
+ * @param   system    The system that contains the IFSJavaFile.
  * @param   directory The directory where the IFSJavaFile is or will be stored.
  * @param   name      The name of the IFSJavaFile object.
 **/

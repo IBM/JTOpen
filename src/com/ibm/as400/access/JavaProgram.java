@@ -596,7 +596,7 @@ public class JavaProgram implements Serializable
     }
 
     /**
-    Gets the AS400 Version.
+    Gets the OS/400 or i5/OS version.
     **/
     private String getVersion(char[] version)
     {
@@ -615,7 +615,7 @@ public class JavaProgram implements Serializable
     /**
     Sets the name of the system to search for a Java Program.
     
-    @param system - the AS400 system
+    @param system  The system
     **/
     public void setSystem(AS400 system)
     {

@@ -557,7 +557,7 @@ public class JavaApplicationCall implements Serializable
      *  </UL>
      *
      * @return The value of the job name.
-     * @since OS/400 V5R3M0
+     * @since i5/OS V5R3M0
     **/
     public String getJobName() // @F0A
     {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JavaApplicationCallThread.java
 //                                                                             
@@ -60,7 +60,7 @@ class JavaApplicationCallThread extends Thread
 
 
     /**
-        Closes sockets communicating with AS/400.
+        Closes sockets communicating with server.
     **/
     void closeSockets()
     {
@@ -72,7 +72,7 @@ class JavaApplicationCallThread extends Thread
         // is out of the sockets.  This code will not wait
         // forever.  This thread is the one that called
         // the Java API.  Since it has control again, the
-        // Java program on the AS/400 is done.  We just have
+        // Java program on the server is done.  We just have
         // to get all the data out of the sockets.
         long localCounter = readCounter_;
 
@@ -161,7 +161,7 @@ class JavaApplicationCallThread extends Thread
      }
 
     /**
-        Returns the standard error come from the application running on AS/400.
+        Returns the standard error come from the application running on the server.
     **/
     String getStandardErrorString()
     {
@@ -186,7 +186,7 @@ class JavaApplicationCallThread extends Thread
     }
 
     /**
-        Returns the standard output come from the application running on AS/400.
+        Returns the standard output come from the application running on the server.
     **/
     String getStandardOutString()
     {
@@ -245,7 +245,7 @@ class JavaApplicationCallThread extends Thread
 
 
     /**
-        Sends the standard input to the application running on AS/400.
+        Sends the standard input to the application running on the server.
     **/
     void sendStandardInString(String s)
     {
