@@ -410,13 +410,13 @@ public class UserList implements Serializable
         if (listOffset < -1)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'listOffset' is not valid:", listOffset);
-            throw new ExtendedIllegalArgumentException("listOffset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("listOffset (" + listOffset + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
         if (number < 0 && listOffset != -1)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'number' is not valid:", number);
-            throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("number (" + number + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
         if (handle_ == null || closeHandle_) load();

@@ -1,15 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename:  AS400Message.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2004 International Business Machines Corporation and     
-// others.  All rights reserved.                                                
-//                                                                             
-///////////////////////////////////////////////////////////////////////////////
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2005 International Business Machines Corporation and
+// others.  All rights reserved.
+//
+//////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
@@ -17,7 +17,6 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 /**
  The AS400Message class represents a message returned from a server.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
@@ -29,8 +28,6 @@ import java.util.GregorianCalendar;
  **/
 public class AS400Message implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     /**
@@ -70,23 +67,23 @@ public class AS400Message implements Serializable
 
     /**
      Message type for notify (exception already handled when API is called) messages.
-     **/                                                                // @F4C
+     **/
     public static final int NOTIFY = 14;
 
     /**
      Message type for escape (exception already handled when API is called) messages.
-     **/                                                                // @F4C
+     **/
     public static final int ESCAPE = 15;
 
     /**
      Message type for notify (exception not handled when API is called) messages.
      **/
-    public static final int NOTIFY_NOT_HANDLED = 16;                    // @F4A
+    public static final int NOTIFY_NOT_HANDLED = 16;
 
     /**
      Message type for escape (exception not handled when API is called) messages.
      **/
-    public static final int ESCAPE_NOT_HANDLED = 17;                    // @F4A
+    public static final int ESCAPE_NOT_HANDLED = 17;
 
     /**
      Message type for reply, not validity checked messages.
@@ -128,8 +125,8 @@ public class AS400Message implements Serializable
 
     // Date and time message sent.
     private Calendar date_;
-    private String dateSent_; //@G0A
-    private String timeSent_; //@G0A
+    private String dateSent_;
+    private String timeSent_;
 
     // Filename of message file message is from.
     private String fileName_;
@@ -170,8 +167,8 @@ public class AS400Message implements Serializable
         text_ = text;
     }
 
-    // @F3A - This is used by some native code.
-        // Constructs an AS400Message object. It uses the specified ID, text, file, library, severity, type, substitution text, and help.
+    // This is used by some native code.
+    // Constructs an AS400Message object. It uses the specified ID, text, file, library, severity, type, substitution text, and help.
     // @param  id  The ID for the message.
     // @param  text  The message text.
     // @param  fileName  The message file name.
@@ -207,7 +204,7 @@ public class AS400Message implements Serializable
         help_ = help;
     }
 
-    // @F3A - This is used by some native code.
+    // This is used by some native code.
     // Constructs an AS400Message object.  It uses the specified ID, text, file, library, severity, type, substitution text, help, date, time, and reply when supplied.  All of the parameters are optional.
     // @param  id  Optional.  The ID for the message.
     // @param  text  Optional.  The message text.
@@ -249,7 +246,6 @@ public class AS400Message implements Serializable
         defaultReply_ = defaultReply;
     }
 
-
     /**
      Returns the date and time the message was sent.  The returned Calendar object will have the following fields set:
      <ul>
@@ -265,9 +261,9 @@ public class AS400Message implements Serializable
     public Calendar getDate()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting date: " + date_);
-        if (date_ == null && (dateSent_ != null || timeSent_ != null)) //@G0C
+        if (date_ == null && (dateSent_ != null || timeSent_ != null))
         {
-          setDate(); //@G0C
+          setDate();
         }
         return date_;
     }
@@ -295,11 +291,11 @@ public class AS400Message implements Serializable
     /**
      Returns the message help.
      <p>Message formatting characters may appear in the message help and are defined as follows:
-     <UL>
-     <LI>&N - Force the text to a new line indented to column 2.  If the text is longer than 1 line, the next lines should be indented to column 4 until the end of the text or another format control character is found.
-     <LI>&P - Force the text to a new line indented to column 6.  If the text is longer than 1 line, the next lines should start in column 4 until the end of the text or another format control character is found.
-     <LI>&B - Force the text to a new line starting in column 4.  If the text is longer than 1 line, the next lines should start in column 6 until the end of the text or another format control character is found.
-     </UL>
+     <ul>
+     <li>&N - Force the text to a new line indented to column 2.  If the text is longer than 1 line, the next lines should be indented to column 4 until the end of the text or another format control character is found.
+     <li>&P - Force the text to a new line indented to column 6.  If the text is longer than 1 line, the next lines should start in column 4 until the end of the text or another format control character is found.
+     <li>&B - Force the text to a new line starting in column 4.  If the text is longer than 1 line, the next lines should start in column 6 until the end of the text or another format control character is found.
+     </ul>
      <i>Usage hint:</i> If getHelp() returns null, try "priming" the AS400Message object by first calling load(), then getHelp().
      @return  The message help, or null if it is not set.
      **/
@@ -354,10 +350,7 @@ public class AS400Message implements Serializable
     }
 
     /**
-     Returns the substitution data.  This is unconverted data used to fill in the replacement characters in the message.
-     To convert the data to something useful, see the {@link com.ibm.as400.access.CharConverter CharConverter} class
-     for String conversions (CHAR fields) and the {@link com.ibm.as400.access.BinaryConverter BinaryConverter} class for
-     integer (BIN fields) and other numeric conversions.
+     Returns the substitution data.  This is unconverted data used to fill in the replacement characters in the message.  To convert the data to something useful, see the {@link com.ibm.as400.access.CharConverter CharConverter} class for String conversions (CHAR fields) and the {@link com.ibm.as400.access.BinaryConverter BinaryConverter} class for integer (BIN fields) and other numeric conversions.
      @return  The subsitution data, or null if not set.
      **/
     public byte[] getSubstitutionData()
@@ -402,11 +395,8 @@ public class AS400Message implements Serializable
         return type_;
     }
 
-    // @D5c -- this method used to do all the work.  That code is now in
-    // the load method that takes the formatting type.
     /**
-     Loads additional message information from the server.
-     If this message does not have an associated message file, this method does nothing.
+     Loads additional message information from the server.  If this message does not have an associated message file, this method does nothing.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
@@ -415,17 +405,12 @@ public class AS400Message implements Serializable
      **/
     public void load() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-       load(MessageFile.DEFAULT_FORMATTING);
+       load(MessageFile.NO_FORMATTING);
     }
 
-    // @D5a -- new method that is built from the original load() method.
     /**
-     Loads additional message information from the server.
-     If this message does not have an associated message file, this method does nothing.
-     @param  helpTextFormatting Formatting performed on the help text.  Valid
-             values for this parameter are defined in the MessageFile
-             class.  They are no formatting, return formatting characters,
-             and replace (substitute) formatting characters.
+     Loads additional message information from the server.  If this message does not have an associated message file, this method does nothing.
+     @param  helpTextFormatting  Formatting performed on the help text.  Valid values for this parameter are defined in the MessageFile class.  They are no formatting, return formatting characters, and replace (substitute) formatting characters.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
@@ -441,28 +426,19 @@ public class AS400Message implements Serializable
             return;
         }
 
-        //@G1A
-        if (libraryName_ == null || fileName_ == null ||
-            libraryName_.trim().length() == 0 || fileName_.trim().length() == 0)
+        if (libraryName_ == null || fileName_ == null || libraryName_.trim().length() == 0 || fileName_.trim().length() == 0)
         {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No message file associated with this message: "+toString());
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No message file associated with this message: " + toString());
           return;
         }
 
         // Create message file object and get message from it.
         MessageFile file = new MessageFile(system_, QSYSObjectPathName.toPath(libraryName_, fileName_, "MSGF"));
 
-        try                                                 // @D5a
-        {                                                   // @D5a
-           file.setHelpTextFormatting(helpTextFormatting);  // @D5a
-        }                                                   // @D5a
-        catch (PropertyVetoException pve)                   // @D5a
-        {}                                                  // @D5a
-
-
-
         try
         {
+           file.setHelpTextFormatting(helpTextFormatting);
+
             AS400Message retrievedMessage = file.getMessage(id_, substitutionData_);
 
             // Set message field that are not already set.
@@ -492,16 +468,13 @@ public class AS400Message implements Serializable
         }
     }
 
-
-    //@G0A
     private void setDate()
     {
       if (dateSent_ == null && timeSent_ == null)
       {
         return;
       }
-      if (dateSent_ != null && dateSent_.trim().length() == 0 &&
-          timeSent_ != null && timeSent_.trim().length() == 0)
+      if (dateSent_ != null && dateSent_.trim().length() == 0 && timeSent_ != null && timeSent_.trim().length() == 0)
       {
         dateSent_ = null;
         timeSent_ = null;
@@ -511,21 +484,20 @@ public class AS400Message implements Serializable
       date_.clear();
       if (dateSent_ != null && dateSent_.trim().length() > 0)
       {
-        date_.set(Calendar.YEAR, Integer.parseInt(dateSent_.substring(0,3))+1900);
-        date_.set(Calendar.MONTH, Integer.parseInt(dateSent_.substring(3,5))-1);
-        date_.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateSent_.substring(5,7)));
+        date_.set(Calendar.YEAR, Integer.parseInt(dateSent_.substring(0, 3)) + 1900);
+        date_.set(Calendar.MONTH, Integer.parseInt(dateSent_.substring(3, 5)) - 1);
+        date_.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateSent_.substring(5, 7)));
       }
       if (timeSent_ != null && timeSent_.trim().length() > 0)
       {
-        date_.set(Calendar.HOUR, Integer.parseInt(timeSent_.substring(0,2)));
-        date_.set(Calendar.MINUTE, Integer.parseInt(timeSent_.substring(2,4)));
-        date_.set(Calendar.SECOND, Integer.parseInt(timeSent_.substring(4,6)));
+        date_.set(Calendar.HOUR, Integer.parseInt(timeSent_.substring(0, 2)));
+        date_.set(Calendar.MINUTE, Integer.parseInt(timeSent_.substring(2, 4)));
+        date_.set(Calendar.SECOND, Integer.parseInt(timeSent_.substring(4, 6)));
       }
       dateSent_ = null;
       timeSent_ = null;
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
     }
-
 
     // Sets the date sent and time sent.
     // @param  dateSent  The date sent.
@@ -533,12 +505,9 @@ public class AS400Message implements Serializable
     void setDate(String dateSent, String timeSent)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting date, date: " + dateSent + " time: " + timeSent);
-      dateSent_ = dateSent; //@G0A
-      timeSent_ = timeSent; //@G0A
-      //@G0D  date_ = new GregorianCalendar(Integer.parseInt(dateSent.substring(0, 3)) + 1900 /* year */, Integer.parseInt(dateSent.substring(3, 5)) - 1 /* month is zero based in Calendar class */, Integer.parseInt(dateSent.substring(5, 7)) /* day */, Integer.parseInt(timeSent.substring(0, 2)) /* hour */, Integer.parseInt(timeSent.substring(2, 4)) /* minute */, Integer.parseInt(timeSent.substring(4, 6)) /* second */);
-      //@G0D  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
+      dateSent_ = dateSent;
+      timeSent_ = timeSent;
     }
-
 
     // Sets the default reply.
     // @param  defaultReply  The default reply.
@@ -629,23 +598,21 @@ public class AS400Message implements Serializable
         return "AS400Message (ID: " + id_ + " text: " + text_ + "):" + super.toString();
     }
 
-
-    // returns the original 'toString' value.  In mod 3 toString was
-    // changed to return its current value.  This method is added
-    // for those parts of the Toolbox that still need the value in
-    // in the old format.
-    // @D1a -- new method
+    // returns the original 'toString' value.  In mod 3 toString was changed to return its current value.  This method is added for those parts of the Toolbox that still need the value in in the old format.
     String toStringM2()
     {
-        StringBuffer buffer = new StringBuffer ();
-        String id = getID();                // @F1A
-        String text = getText();            // @F1A
-        if (id != null) {                   // @F1C
-            buffer.append (id);             // @F1C
-            buffer.append (" ");
+        StringBuffer buffer = new StringBuffer();
+        String id = getID();
+        String text = getText();
+        if (id != null)
+        {
+            buffer.append(id);
+            buffer.append(" ");
         }
-        if (text != null)                   // @F1C
-            buffer.append (text);           // @F1C
-        return buffer.toString().trim ();
+        if (text != null)
+        {
+            buffer.append(text);
+        }
+        return buffer.toString().trim();
     }
 }
