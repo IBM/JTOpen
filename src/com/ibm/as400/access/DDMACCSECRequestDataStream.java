@@ -22,14 +22,8 @@ class DDMACCSECRequestDataStream extends DDMDataStream
     super();
     if (useEncryptedPassword)
     {
-      if (useStrongEncryption) //@B0A
-      {
-        data_ = new byte[40]; //@B0A - the SECTKN is 20 bytes in this case, not 8.
-      }
-      else //@B0A
-      {
-        data_ = new byte[28];
-      }
+//@B1C - The SECTKN is only 8 bytes. It's the PASSWORD that is 20 bytes.
+      data_ = new byte[28];
     }
     else
     {
@@ -48,14 +42,7 @@ class DDMACCSECRequestDataStream extends DDMDataStream
 
     if (useEncryptedPassword)
     {
-      if (useStrongEncryption) //@B0A
-      {
-        set16bit(34, 6); //@B0A - Set total length remaining after header
-      }
-      else //@B0A
-      {
-        set16bit(22, 6); // Set total length remaining after header
-      }
+      set16bit(22, 6); // Set total length remaining after header
     }
     else
     {
@@ -79,15 +66,8 @@ class DDMACCSECRequestDataStream extends DDMDataStream
       }
       
       // Need to send a client seed as the security token
-      if (useStrongEncryption) //@B0A
-      {
-        //@B0: The SECTKN is 20 bytes in this case, not 8.
-        set16bit(24, 16); //@B0A - Set length of this+remaining SECTKN bytes
-      }
-      else //@B0A
-      {
-        set16bit(12, 16); // Set length of this+remaining SECTKN bytes
-      }
+//@B1C - The SECTKN is 8 bytes and the PASSWORD is 20 bytes.
+      set16bit(12, 16); // Set length of this+remaining SECTKN bytes
       set16bit(DDMTerm.SECTKN, 18); // Set SECTKN code point
 
       // This code taken from AS400XChgRandSeedDS constructor.  Generate the client seed.  We generate a "random" seed using the current time in milliseconds.  This seed will be used to encrypt the password.
@@ -109,8 +89,8 @@ class DDMACCSECRequestDataStream extends DDMDataStream
       
       //@B0: If we are using strong encryption, the SECTKN is 20 bytes, but the seed is still only 8.
       // So, we leave the rest of the bytes set to 0. This is just to appease the DDM server.
-
-      // Set value of SECTKN for client seed
+      //@B1: Not anymore. The DDM server changed to correctly accept an 8-byte SECTKN. It reports
+      // that a bad token was sent if we still try to send a 20-byte token.
     }
     else
     {
