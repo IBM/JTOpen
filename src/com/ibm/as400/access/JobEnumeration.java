@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ import java.util.*;
 **/
 class JobEnumeration implements Enumeration
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private Job[] jobCache_;
   private JobList list_;
@@ -38,6 +38,16 @@ class JobEnumeration implements Enumeration
     numJobs_ = length;
     tracker_ = tracker;
     tracker_.set(true);
+  }
+
+  /**
+   * Sets our tracker free if we are garbage collected, so that our parent JobList
+   * knows we are done without it having to actually maintain a hard reference to us.
+  **/
+  protected void finalize() throws Throwable
+  {
+    tracker_.set(false);
+    super.finalize();
   }
 
   public final boolean hasMoreElements()

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ import java.util.Vector;
 **/
 public class JobList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   static final long serialVersionUID = 5L;
 
@@ -1007,7 +1007,21 @@ more calls to the server. The block size used internally by the Enumeration is s
         if (trackers_ == null) trackers_ = new Vector();
       }
     }
-    trackers_.addElement(tracker);
+
+    synchronized(trackers_)
+    {
+      tracker.set(true);
+      trackers_.addElement(tracker);
+
+      // Remove dead trackers to prevent a memory leak.
+      // JobEnumerations whose hasMoreElements() return false, or those who
+      // have been garbage collected, will all have their freed their trackers.
+      for (int i=trackers_.size()-1; i >= 0; --i)
+      {
+        Tracker t = (Tracker)trackers_.elementAt(i);
+        if (!t.isSet()) trackers_.removeElementAt(i);
+      }
+    }
 
     return new JobEnumeration(this, length_, tracker);
   }
