@@ -146,7 +146,7 @@ class ConnectionList
     sys.setInUse(true);
     connectionList_.addElement(sys);  
 
-    ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys, ConnectionPoolEvent.CONNECTION_CREATED); //@A5C
+    ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys.getAS400Object(), ConnectionPoolEvent.CONNECTION_CREATED); //@A5C
     poolListeners.fireConnectionCreatedEvent(poolEvent);  
     if (log_ != null)
       log(loader_.getText("CL_CREATED", new String[] {systemName_, userID_} ));
