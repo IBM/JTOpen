@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,14 +24,14 @@ import java.io.BufferedOutputStream;
  * stateful character conversion. That is, it wraps an underlying
  * OutputStream and caches/writes the appropriate number of bytes
  * for the given Unicode characters and CCSID/encoding.
- * This class exists primarily for the use
- * of the IFSText classes, but other components are free to use it
- * as well.
+ * This is especially useful when converting Strings and characters to 
+ * a mixed-byte CCSID, and you don't want to have to keep track of
+ * which shift state the conversion stream is in between writes.
  * @see ConvTableReader
 **/
 public class ConvTableWriter extends OutputStreamWriter
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 //@B0D  OutputStream lock_ = null;
   BufferedOutputStream os_ = null;
@@ -159,17 +159,21 @@ public class ConvTableWriter extends OutputStreamWriter
       for(int i=0; i<reps; ++i)
       {
         flush();
-        System.arraycopy(c, off+(i*cache_.length), cache_, 0, c.length);
+        System.arraycopy(c, off+(i*cache_.length), cache_, 0, cache_.length); //@C0C
+        nextWrite_ = cache_.length; //@C0A
       }
       int leftover = len % cache_.length;
-      for(int i=0; i<leftover; ++i)
-      {
-        if(nextWrite_ == cache_.length)
-        {
-          flush();
-        }
-        cache_[nextWrite_++] = c[off+(reps*cache_.length)+i];
-      }
+      flush(); //@C0A
+      System.arraycopy(c, off+(reps*cache_.length), cache_, 0, leftover); //@C0A
+      nextWrite_ = leftover; //@C0A
+//@C0D      for(int i=0; i<leftover; ++i)
+//@C0D      {
+//@C0D        if(nextWrite_ == cache_.length)
+//@C0D        {
+//@C0D          flush();
+//@C0D        }
+//@C0D        cache_[nextWrite_++] = c[off+(reps*cache_.length)+i];
+//@C0D      }
       if(Trace.isTraceOn() && Trace.isTraceConversionOn())
       {
         Trace.log(Trace.CONVERSION, "Added to ConvTableWriter("+this.toString()+") cache: "+off+","+len+","+nextWrite_+","+cache_.length, ConvTable.dumpCharArray(cache_, nextWrite_));
