@@ -674,7 +674,7 @@ Returns the converter for this connection.
 
 /**
 Returns the converter for the specified CCSID, unless
-it is 0 or -1 (i.e. probably set for a non-text field), in
+it is 0 or 65535 (i.e. probably set for a non-text field), in
 which case it returns the converter for this connection.
 This is useful for code that handles all types of fields
 in a generic manner.
@@ -689,7 +689,7 @@ in a generic manner.
     {
         try {
             switch(ccsid) {                                                                 // @E3A
-            case -1:                                                                        // @E3A
+            case 65535:   //@ELC                                                            // @E3A
             case 0:                                                                         // @E3A
             case 1:                                                                         // @E3A
                 return converter_;                                                          // @E3A
