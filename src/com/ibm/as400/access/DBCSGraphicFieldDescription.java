@@ -117,7 +117,7 @@ public class DBCSGraphicFieldDescription extends FieldDescription implements Var
     // Because the byte length of a DBCSGraphicFieldDescription is twice
     // the number of characters, we divide by two, since "length" is the
     // number of characters.
-    StringBuffer len = new StringBuffer(new Integer(length_/2).toString());
+/*    StringBuffer len = new StringBuffer(new Integer(length_/2).toString());
     if (len.length() < 5)
     {
       int blanksNeeded = 5 - len.length();
@@ -126,6 +126,10 @@ public class DBCSGraphicFieldDescription extends FieldDescription implements Var
         len.insert(0, " ");
       }
     }
+*/    
+    String len = String.valueOf(length_);
+    int numSpaces = 5-len.length();
+    for (int i=0; i<numSpaces; ++i) desc.append(' ');
     // Length columns (5)
     desc.append(len);
     // Type column (1)

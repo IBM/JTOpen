@@ -108,7 +108,7 @@ public class PackedDecimalFieldDescription extends FieldDescription implements S
       desc.append(" ");
     }
     // Get length as 5 digit string, right justified
-    StringBuffer len = new StringBuffer(new Integer(length_).toString());
+/*    StringBuffer len = new StringBuffer(new Integer(length_).toString());
     if (len.length() < 5)
     {
       int blanksNeeded = 5 - len.length();
@@ -117,6 +117,10 @@ public class PackedDecimalFieldDescription extends FieldDescription implements S
         len.insert(0, " ");
       }
     }
+*/    
+    String len = String.valueOf(length_);
+    int numSpaces = 5-len.length();
+    for (int i=0; i<numSpaces; ++i) desc.append(' ');
     // Length columns (5)
     desc.append(len.toString());
     // Type column (1)
