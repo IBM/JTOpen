@@ -1094,6 +1094,7 @@ public class IFSFile
 
     // The name is everything after the last occurrence of the
     // file separator character.
+    // (Unless quoted, e.g. /parent/"/filename", in which case the name is "/filename", quotes included.)
     int index = path_.lastIndexOf(separatorChar);
     if (index >= 0)
     {
@@ -1109,6 +1110,28 @@ public class IFSFile
     else
     {
       name = path_;
+    }
+
+    // If name contains exactly 1 quote, and there's another quote earlier in the path, back up to the separator character before the prior quote.
+    int quoteIndex = name.indexOf('"');
+    if (quoteIndex >= 0)  // name includes at least 1 quote
+    {
+      if (quoteIndex == name.lastIndexOf('"')) // we only captured 1 quote
+      {
+        int priorQuoteIndex = path_.lastIndexOf('"', index);
+        if (priorQuoteIndex >= 0)  // there's an earlier quote in path
+        {
+          int priorSeparatorIndex = path_.lastIndexOf(separatorChar, priorQuoteIndex);
+          if (priorSeparatorIndex >= 0) // there's a separator prior to 1st quote
+          {
+            name = path_.substring(priorSeparatorIndex+1);
+          }
+          else // no separator, so back up to beginning of path
+          {
+            name = path_;
+          }
+        }
+      }
     }
 
     return name;
