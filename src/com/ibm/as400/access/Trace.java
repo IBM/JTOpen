@@ -50,6 +50,8 @@ import java.util.Hashtable;                                         // $W1A
   <li>PCML<br>
   This category is used to determine how PCML interprets the data that is 
   sent to and from the server.    
+  <li>JDBC<br>
+  This category is used to include JDBC data in the standard Toolbox trace.
   </ul>
 
   <P>
