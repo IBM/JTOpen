@@ -2608,32 +2608,36 @@ implements Connection
     /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
+    eWLM correlators require OS/400 V5R3 or later servers.  This request is ignored when running to OS/400 V5R2 or earlier servers.
     
     @param bytes The eWLM correlator value
     **/
     public void setDB2eWLMCorrelator(byte[] bytes)
     throws SQLException //@eWLM
     {
-         try                                                                                 
-          {          
-             if(bytes == null)
-             {
-                 if(JDTrace.isTraceOn())
-                     JDTrace.logInformation(this, "Correlator is null");
-             }
-             DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
-                                                        id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
-                                                        + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);   
-             request.seteWLMCorrelator(bytes);                                
-             DBReplyRequestedDS reply = sendAndReceive(request);                 
-             int errorClass = reply.getErrorClass();
-             if(errorClass != 0)
-                 JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());        
-          }                                                                                   
-          catch(DBDataStreamException e)                                                      
-          {                                                                                   
-              JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             
-          }                                                                                   
+        if(vrm_ >= JDUtilities.vrm530)
+        {
+            try                                                                                 
+            {          
+                if(bytes == null)
+                {
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "Correlator is null");
+                }
+                DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                                                            id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                                                            + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);   
+                request.seteWLMCorrelator(bytes);                                
+                DBReplyRequestedDS reply = sendAndReceive(request);                 
+                int errorClass = reply.getErrorClass();
+                if(errorClass != 0)
+                    JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());        
+            }                                                                                   
+            catch(DBDataStreamException e)                                                      
+            {                                                                                   
+                JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             
+            }                                                                                   
+        }
     }
 
 

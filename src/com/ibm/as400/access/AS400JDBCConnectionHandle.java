@@ -1111,6 +1111,7 @@ ResultSet.CONCUR_READ_ONLY.
   /**
     Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
     If the value is null, all ARM/eWLM implementation will be turned off.
+    eWLM correlators require OS/400 V5R3 or later servers.  This request is ignored when running to OS/400 V5R2 or earlier servers.
     
     @param bytes The eWLM correlator value
     **/
