@@ -885,6 +885,7 @@ public class ObjectDescription
    * @param path The fully-qualified integrated file system path to the object.
    * Special values for the library portion of the path include %CURLIB% and
    * %LIBL%. Only external object types are allowed for the object type.
+   * Consider using {@link QSYSObjectPathName QSYSObjectPathName} to compose the fully-qualified path string.
   **/
   public ObjectDescription(AS400 system, String path)
   {
