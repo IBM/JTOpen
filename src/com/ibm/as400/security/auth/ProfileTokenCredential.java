@@ -79,7 +79,7 @@ import java.util.Random;
  *   pt.setSystem(system);
  *   pt.setTimeoutInterval(60);
  *   pt.setTokenType(ProfileTokenCredential.TYPE_SINGLE_USE);
- *   pt.setToken("USERID", "PASSWORD");
+ *   pt.setTokenExtended("USERID", "PASSWORD");
  *
  *  // Swap the thread identity, retrieving a credential to
  *  // swap back to the original identity later.
@@ -538,7 +538,7 @@ public final class ProfileTokenCredential extends AS400Credential
             else if (isReusable) setTokenType(TYPE_MULTIPLE_USE_NON_RENEWABLE);
                 else setTokenType(TYPE_SINGLE_USE);
         // Generate the token
-        setToken(pr, password);
+        setTokenExtended(pr, password);
     }
 
     /**
@@ -958,7 +958,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * <p> This method requires a special value to be specified for 
     * the user password parameter. If you need to validate a user password, 
-    * see the {@link #setToken(AS400Principal, String)}.
+    * see the {@link #setTokenExtended(AS400Principal, String)}.
     *
     * <p> The <i>system</i> property must be set prior to invoking this method.
     *
@@ -1019,7 +1019,7 @@ public final class ProfileTokenCredential extends AS400Credential
     *
     * <p> This method requires a special value to be specified for 
     * the user password parameter. If you need to validate a user 
-    * password, see the {@link #setToken(String, String)}.
+    * password, see the {@link #setTokenExtended(String, String)}.
     * 
     * <p> The <i>system</i> property must be set prior to invoking this method.
     *
@@ -1156,7 +1156,7 @@ public final class ProfileTokenCredential extends AS400Credential
     */
     public void setTokenExtended(AS400Principal principal, String password) 
             throws PropertyVetoException, AS400SecurityException {
-        setToken(principal.getUserProfileName(), password);
+        setTokenExtended(principal.getUserProfileName(), password);
     }
 
     //$A2
