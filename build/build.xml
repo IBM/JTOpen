@@ -15,14 +15,9 @@
 // 
 //
 // Pre-requisites:
-//   - JDK 1.4.1 (or higher*)
+//   - JDK 1.4.1 (or higher)
 //   - Apache Ant 1.5
 //   - CVS client (to download source)
-//
-// *Note: When building using JDK 1.4, the ToolboxME classes will be skipped
-//        because the preverify tool does not understand JDK 1.4 class files.
-//        Also, the javadoc will be skipped because there is currently a bug
-//        in the JDK 1.4 javadoc utility that throws an exception.
 //
 // 1. In this file, change the value of the "build" property to be the directory
 //    where you want the JTOpen files to be downloaded and built to. It
