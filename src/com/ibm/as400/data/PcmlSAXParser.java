@@ -13,12 +13,15 @@
 
 package com.ibm.as400.data;
 
+// import com.ibm.xml.parsers.ValidatingSAXParser;
 import org.apache.xerces.parsers.SAXParser;             // @C2C
-import org.xml.sax.Attributes;                          // @C2C
-import org.xml.sax.helpers.DefaultHandler;              // @C2C
+import org.xml.sax.AttributeList;                       // @C3C
+import org.xml.sax.HandlerBase;                         // @C3C
 import org.xml.sax.InputSource;
+import org.xml.sax.Parser;                              // @C3A
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.ParserFactory;               // @C3A
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -80,7 +83,7 @@ class PcmlSAXParser extends DefaultHandler {                                // @
         } catch (org.xml.sax.SAXException se) {                                     // @C2A
         }
         parser.setErrorHandler(xh);
-        parser.setContentHandler(this);                                             // @C2C
+        parser.setDocumentHandler(this);                                            // @C3C
         
         // Create an InputSource for passing to the parser.
         // Wrap any SAXExceptions as ParseExceptions.
@@ -282,7 +285,7 @@ class PcmlSAXParser extends DefaultHandler {                                // @
     ****************************************************************/
 
     /** Start element. */
-    public void startElement(String namespaceURI, String localname, String tagName, Attributes xmlAttrs) {  // @C2C
+    public void startElement(String tagName, AttributeList xmlAttrs) {      // @C3C
         
         PcmlDocNode newNode = null;
 
@@ -291,7 +294,7 @@ class PcmlSAXParser extends DefaultHandler {                                // @
         PcmlAttributeList attrs = new PcmlAttributeList(xmlAttrs.getLength());
         for (int attr = 0; attr < xmlAttrs.getLength(); attr++)
         {
-            attrs.addAttribute( new PcmlAttribute(xmlAttrs.getRawName(attr),        // @C2C
+            attrs.addAttribute( new PcmlAttribute(xmlAttrs.getName(attr),   // @C3C
                                                   xmlAttrs.getValue(attr),
                                                   (true | false)) );
         }
@@ -336,7 +339,7 @@ class PcmlSAXParser extends DefaultHandler {                                // @
     } // startElement(String,AttributeList)
 
     /** End element. */
-    public void endElement(String namespaceURI, String localname, String element) {     // @C2C
+    public void endElement(String name) {               // @C3C
         
         m_currentNode = (PcmlDocNode) m_currentNode.getParent();
 
