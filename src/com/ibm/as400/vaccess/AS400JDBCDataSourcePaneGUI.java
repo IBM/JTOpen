@@ -17,7 +17,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
 
    public Object[][] getContents() { return contents; }
    static final Object[][] contents = {
-      {"@FileEditorBounds", "63,101,368,323"},
+      {"@FileEditorBounds", "31,101,428,323"},
       {"@GenerateBeans", "1"},
       {"@GenerateHandlers", "1"},
       {"@Serialize", "1"},
@@ -78,7 +78,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_FORMAT.AJDSP_TIME_GROUPBOX", "Time"},
       {"AJDSP_FORMAT.AJDSP_TIME_SEP_COMBOBOX.EditorBounds", "29,99,454,250"},
       {"AJDSP_FORMAT.AJDSP_TIME_SEP_LABEL", "Separator:  "},
-      {"AJDSP_FORMAT.EditorBounds", "308,80,972,648"},
+      {"AJDSP_FORMAT.EditorBounds", "245,280,972,648"},
       {"AJDSP_GENERAL", "General"},
       {"AJDSP_GENERAL.AJDSP_AS400SERVER_LABEL", "AS/400 system:"},
       {"AJDSP_GENERAL.AJDSP_AS400SERVER_TEXTBOX", ""},
@@ -165,7 +165,11 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_SERVER.AJDSP_DFT_LIBS_TEXTBOX", ""},
       {"AJDSP_SERVER.AJDSP_DFT_SQLLIB_LABEL", "SQL default library:"},
       {"AJDSP_SERVER.AJDSP_SQL_DEFLIB_TEXTBOX", ""},
-      {"AJDSP_SERVER.EditorBounds", "277,76,972,648"},
+      {"AJDSP_SERVER.DECIMALPROPSGRPBOX", "Decimal properties"},
+      {"AJDSP_SERVER.EditorBounds", "515,39,719,554"},
+      {"AJDSP_SERVER.MAX_PRECISIONLBL", "Maximum precision  (31 or 63):"},
+      {"AJDSP_SERVER.MAX_SCALE_LBL", "Maximum scale  (0-63):"},
+      {"AJDSP_SERVER.MIN_DIV_SCALE_LBL", "Minimum divide scale  (0-9):"},
       {"AJDSP_SERVER1", "Server"},
       {"AJDSP_SORTHEX", "HEX values"},
       {"AJDSP_SORTJOB", "Job profile"},
@@ -303,7 +307,8 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_TIMESEP_PERIOD", ".  (period)"},
       {"AJDSP_TRANSLATION", "Translation"},
       {"AJDSP_TRANSLATION.AJDSP_TRANSLATE_65535_CHECKBOX", "Translate CCSID 65535"},
-      {"AJDSP_TRANSLATION.EditorBounds", "12,12,972,648"},
+      {"AJDSP_TRANSLATION.AJDSP_TRANSLATE_HEX_CHECKBOX", "Interpret SQL hexadecimal constants as binary data"},
+      {"AJDSP_TRANSLATION.EditorBounds", "20,102,715,554"},
       {"AJDSP_USE_SERVER_JOB", "Use server job value"},
       {"AJDSP_USE_UID_DEFAULT", "Use Default"}
    };

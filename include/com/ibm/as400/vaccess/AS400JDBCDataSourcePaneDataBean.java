@@ -37,6 +37,12 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
     private String m_sDefaultLibraries;
     private Object m_oCommitMode;
     private ChoiceDescriptor[] m_cdCommitMode;
+    private Object m_oMaxPrecision;                                             //@A2A
+    private ChoiceDescriptor[] m_cdMaxPrecision;                                //@A2A
+    private Object m_oMaxScale;                                                 //@A2A
+    private ChoiceDescriptor[] m_cdMaxScale;                                    //@A2A
+    private Object m_oMinDivideScale;                                           //@A2A
+    private ChoiceDescriptor[] m_cdMinDivideScale;                              //@A2A
     
     // Package Tab
     private boolean m_bEnableExtDynamic;
@@ -71,6 +77,7 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
     
     // Translation Tab
     private boolean m_bTranslate65535;
+    private boolean m_bTranslateHex;                                           //@A2A
     
     // Format Tab
     private Object m_oNamingConvention;
@@ -209,6 +216,51 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
         return m_cdCommitMode;
     }
     
+    public Object getMaxPrecision()
+    {
+        return m_oMaxPrecision;
+    }
+
+    public void setMaxPrecision(Object o)
+    {
+        m_oMaxPrecision = o;
+    }
+
+    public ChoiceDescriptor[] getMaxPrecisionChoices()
+    {
+        return m_cdMaxPrecision;
+    }
+
+    public Object getMaxScale()
+    {
+        return m_oMaxScale;
+    }
+
+    public void setMaxScale(Object o)
+    {
+        m_oMaxScale = o;
+    }
+
+    public ChoiceDescriptor[] getMaxScaleChoices()
+    {
+        return m_cdMaxScale;
+    }
+
+    public Object getMinDivideScale()
+    {
+        return m_oMinDivideScale;
+    }
+
+    public void setMinDivideScale(Object o)
+    {
+        m_oMinDivideScale = o;
+    }
+
+    public ChoiceDescriptor[] getMinDivideScaleChoices()
+    {
+        return m_cdMinDivideScale;
+    }
+
     /////////////////
     // Package Tab //
     /////////////////
@@ -652,6 +704,16 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
         m_bTranslate65535 = b;
     }
     
+    public boolean isTranslateHex()                                             //@A2A
+    {                                                                           //@A2A
+        return m_bTranslateHex;                                                 //@A2A
+    }                                                                           //@A2A
+
+    public void setTranslateHex(boolean b)                                      //@A2A
+    {                                                                           //@A2A
+        m_bTranslateHex = b;                                                    //@A2A
+    }                                                                           //@A2A
+   
     ////////////////
     // Format Tab //
     ////////////////
@@ -916,6 +978,30 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
         scratchString = AS400JDBCDataSourcePane.resource_Loader.getString("AJDSP_COMMIT_RR");
         m_cdCommitMode[4] = new ChoiceDescriptor("AJDSP_COMMIT_RR", scratchString); 
         
+        m_oMaxPrecision     = null;                                                         //@A2A
+        m_cdMaxPrecision    = new ChoiceDescriptor[2];                                      //@A2A
+        m_cdMaxPrecision[0] = new ChoiceDescriptor("AJDSP_MAXPREC_31", "31");               //@A2A
+        m_cdMaxPrecision[1] = new ChoiceDescriptor("AJDSP_MAXPREC_63", "63");               //@A2A
+        
+        m_oMaxScale     = null;                                                             //@A2A
+        m_cdMaxScale    = new ChoiceDescriptor[3];                                          //@A2A
+        m_cdMaxScale[0] = new ChoiceDescriptor("AJDSP_MAXSCALE_0", "0");                    //@A2A
+        m_cdMaxScale[1] = new ChoiceDescriptor("AJDSP_MAXSCALE_31", "31");                  //@A2A
+        m_cdMaxScale[2] = new ChoiceDescriptor("AJDSP_MAXSCALE_63", "63");                  //@A2A
+        
+        m_oMinDivideScale     = null;                                                       //@A2A
+        m_cdMinDivideScale    = new ChoiceDescriptor[10];                                   //@A2A
+        m_cdMinDivideScale[0] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_0", "0");           //@A2A
+        m_cdMinDivideScale[1] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_1", "1");           //@A2A
+        m_cdMinDivideScale[2] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_2", "2");           //@A2A
+        m_cdMinDivideScale[3] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_3", "3");           //@A2A
+        m_cdMinDivideScale[4] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_4", "4");           //@A2A
+        m_cdMinDivideScale[5] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_5", "5");           //@A2A
+        m_cdMinDivideScale[6] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_6", "6");           //@A2A
+        m_cdMinDivideScale[7] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_7", "7");           //@A2A
+        m_cdMinDivideScale[8] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_8", "8");           //@A2A
+        m_cdMinDivideScale[9] = new ChoiceDescriptor("AJDSP_MINDIVSCALE_9", "9");           //@A2A
+        
         // Package Tab
         m_bEnableExtDynamic = false;
         m_sPackage = "";
@@ -1119,6 +1205,7 @@ public class AS400JDBCDataSourcePaneDataBean extends Object
         
         // Translation Tab
         m_bTranslate65535 = false;
+        m_bTranslateHex   = false;                                                      //@A2A
         
         // Format Tab
         m_oNamingConvention = null;

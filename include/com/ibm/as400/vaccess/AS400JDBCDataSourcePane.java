@@ -466,6 +466,51 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
     {
         dataSource.setTransactionIsolation("serializable");
     }
+
+    scratchName = ((ChoiceDescriptor)m_dataBean.getMaxPrecision()).getTitle();              //@A4A
+    if (scratchName.equals("31"))                                                           //@A4A
+        dataSource.setMaximumPrecision(31);                                                 //@A4A
+    else                                                                                    //@A4A
+        dataSource.setMaximumPrecision(63);                                                 //@A4A
+    
+    scratchName = ((ChoiceDescriptor)m_dataBean.getMaxScale()).getTitle();                  //@A4A
+    if (scratchName.equals("0"))                                                            //@A4A
+        dataSource.setMaximumPrecision(0);                                                  //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("31"))                                                           //@A4A
+        dataSource.setMaximumPrecision(31);                                                 //@A4A
+    else                                                                                    //@A4A
+        dataSource.setMaximumPrecision(63);                                                 //@A4A
+
+    scratchName = ((ChoiceDescriptor)m_dataBean.getMinDivideScale()).getTitle();            //@A4A
+    if (scratchName.equals("0"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(0);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("1"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(1);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("2"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(2);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("3"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(3);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("4"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(4);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("5"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(5);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("6"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(6);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("7"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(7);                                                //@A4A
+    else                                                                                    //@A4A
+    if (scratchName.equals("8"))                                                            //@A4A
+        dataSource.setMinimumDivideScale(8);                                                //@A4A
+    else                                                                                    //@A4A
+        dataSource.setMinimumDivideScale(9);                                                //@A4A
     
     // Package Tab
     dataSource.setExtendedDynamic(m_dataBean.isEnableExtDynamic());
@@ -661,6 +706,7 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
     // Translation Tab
     
     dataSource.setTranslateBinary(m_dataBean.isTranslate65535());
+    dataSource.setTranslateHex(m_dataBean.isTranslateHex());                                //@A4A
     
     // Format Tab
         
@@ -885,6 +931,51 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
       m_dataBean.setCommitMode(new ChoiceDescriptor("AJDSP_COMMIT_RR", scratchString));  
   }
   
+  int nValue = dataSource.getMaximumPrecision();                                        //@A4A
+  if (nValue == 63)                                                                     //@A4A
+    m_dataBean.setMaxPrecision(new ChoiceDescriptor("63", "63"));                       //@A4A
+  else                                                                                  //@A4A
+    m_dataBean.setMaxPrecision(new ChoiceDescriptor("31", "31"));                       //@A4A
+  
+  nValue = dataSource.getMaximumScale();                                                //@A4A
+  if (nValue == 63)                                                                     //@A4A
+    m_dataBean.setMaxScale(new ChoiceDescriptor("63", "63"));                           //@A4A
+  else                                                                                  //@A4A
+  if (nValue >= 31)                                                                     //@A4A
+    m_dataBean.setMaxScale(new ChoiceDescriptor("31", "31"));                           //@A4A
+  else                                                                                  //@A4A
+    m_dataBean.setMaxScale(new ChoiceDescriptor("0", "0"));                             //@A4A
+
+  int nValue = dataSource.getMinimumDivideScale();                                      //@A4A
+  if (nValue == 0)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("0", "0"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 1)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("1", "1"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 2)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("2", "2"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 3)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("3", "3"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 4)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("4", "4"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 5)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("5", "5"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 6)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("6", "6"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 7)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("7", "7"));                       //@A4A
+  else                                                                                  //@A4A
+  if (nValue == 8)                                                                      //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("8", "8"));                       //@A4A
+  else                                                                                  //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("9", "9"));                       //@A4A
+  
   // Package Tab
   m_dataBean.setEnableExtDynamic(dataSource.isExtendedDynamic());
   m_dataBean.setPackage(dataSource.getPackage());
@@ -1083,6 +1174,7 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
      
   // Translation Tab
   m_dataBean.setTranslate65535(dataSource.isTranslateBinary());
+  m_dataBean.setTranslateHex(dataSource.getTranslateHex().equals("binary"));                        //@A4A
   
   // Format Tab
   
