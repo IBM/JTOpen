@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ import java.io.BufferedInputStream;
 **/
 public class ConvTableReader extends InputStreamReader
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 //@B0D  InputStream lock_ = null;
   BufferedInputStream is_ = null;
@@ -191,7 +191,7 @@ public class ConvTableReader extends InputStreamReader
       checkOpen();
       if(nextRead_ >= nextWrite_)
       {
-        if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+        if(Trace.traceOn_)
         {
           Trace.log(Trace.CONVERSION, "Filling cache for reader "+ccsid_+" ["+toString()+"]: "+nextRead_+","+nextWrite_+","+cache_.length);
         }
@@ -200,7 +200,7 @@ public class ConvTableReader extends InputStreamReader
           int numRead = is_.read(b_cache_, 0, 1024);
           if(numRead == -1)
           {
-            if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+            if(Trace.traceOn_)
             {
               Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
             }
@@ -218,7 +218,7 @@ public class ConvTableReader extends InputStreamReader
             int numRead = is_.read(b_cache_, 1, 2048);
             if(numRead == -1)
             {
-              if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+              if(Trace.traceOn_)
               {
                 Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
               }
@@ -244,7 +244,7 @@ public class ConvTableReader extends InputStreamReader
             int numRead = is_.read(b_cache_, 0, 2048);
             if(numRead == -1)
             {
-              if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+              if(Trace.traceOn_)
               {
                 Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
               }
@@ -277,7 +277,7 @@ public class ConvTableReader extends InputStreamReader
             }
             else
             {
-              if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+              if(Trace.traceOn_)
               {
                 Trace.log(Trace.ERROR, "Error in mixed-byte cache algorithm.");
               }
@@ -343,7 +343,7 @@ public class ConvTableReader extends InputStreamReader
 
           if(numRead == 0 && c == -1)
           {
-            if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+            if(Trace.traceOn_)
             {
               Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
             }
@@ -362,7 +362,7 @@ public class ConvTableReader extends InputStreamReader
           int numRead = is_.read(b_cache_, 0, 1024); //@B1C
           if(numRead == -1)
           {
-            if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+            if(Trace.traceOn_)
             {
               Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
             }
@@ -373,7 +373,7 @@ public class ConvTableReader extends InputStreamReader
           nextWrite_ = s.length();
           nextRead_ = 0;
         }
-        if(Trace.isTraceOn() && Trace.isTraceConversionOn())
+        if(Trace.traceOn_)
         {
           Trace.log(Trace.CONVERSION, "Filled cache for reader: "+nextRead_+","+nextWrite_+","+cache_.length, ConvTable.dumpCharArray(cache_, nextWrite_));
         }
@@ -450,7 +450,7 @@ public class ConvTableReader extends InputStreamReader
         tableType_ = SB_TABLE;
       }
       else if(table_ instanceof ConvTableDoubleMap ||
-              table_ instanceof ConvTable1200 ||
+              table_ instanceof ConvTable1202 || //@C1C
               table_ instanceof ConvTable13488)
       {
         tableType_ = DB_TABLE;
@@ -465,20 +465,20 @@ public class ConvTableReader extends InputStreamReader
       }
       else
       {
-        if(Trace.isTraceOn() && Trace.isTraceErrorOn())
+        if(Trace.traceOn_ && Trace.isTraceErrorOn())
         {
           Trace.log(Trace.ERROR, "Unknown conversion table type: "+table_.getClass());
         }
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
-      if(Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
+      if(Trace.traceOn_)
       {
         Trace.log(Trace.CONVERSION, "ConvTableReader initialized with CCSID "+ccsid_+", encoding "+getEncoding()+", string type "+type_+", and table type "+tableType_+".");
       }
     }
     catch(UnsupportedEncodingException uee)
     {
-      if(Trace.isTraceOn() && Trace.isTraceErrorOn())
+      if(Trace.traceOn_ && Trace.isTraceErrorOn())
       {
         Trace.log(Trace.ERROR, "The specified CCSID is not supported in the current JVM nor by the Toolbox: "+ccsid_+"/"+getEncoding(), uee);
       }
