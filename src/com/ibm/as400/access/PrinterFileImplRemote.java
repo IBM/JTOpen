@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: PrinterFileImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -51,9 +51,9 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE);    // code page
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNT);    // coded font
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONTROLCHAR); // control character       @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONVERT_LINEDATA); // convert line data  @C1A            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONVERT_LINEDATA); // convert line data  @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIES);      // copies (total)
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CORNER_STAPLE); // corner staple         @C1A            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CORNER_STAPLE); // corner staple         @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSDATA);    // contains DBCS character set
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSEXTENSN); // process DBCS extension char
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSROTATE);  // rotate DBCS characters
@@ -62,12 +62,13 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DESCRIPTION); // text description
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DFR_WRITE);   // defer write
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);      // print on both sides of pape
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edgestich number 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edgestich number
                                                                       // of staples              @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_STPL_OFFSET_INFO);// edgestitch info offset @A6A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF); // edgestitch reference @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // edgestitch reference
-                                                                            //  offset   @C1A 
-                     
+                                                                            //  offset   @C1A
+
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ENDPAGE);     // ending page number to print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);    // the error handling when pri
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FILESEP);     // number of file separators
@@ -110,6 +111,7 @@ implements PrinterFileImpl
                                                                       // number of staple       @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch
                                                                       // reference              @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);// sad stitch offset @A6A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);        // whether to save after print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SRCDRWR);     // source drawer
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOL);       // spool the data
@@ -130,9 +132,9 @@ implements PrinterFileImpl
 
     private static NPCPIDPrinterFile buildIDCodePoint(String IFSPrinterFileName)
     {
-	    QSYSObjectPathName ifsPath = new QSYSObjectPathName(IFSPrinterFileName, "FILE");
+            QSYSObjectPathName ifsPath = new QSYSObjectPathName(IFSPrinterFileName, "FILE");
 
-	    return new NPCPIDPrinterFile(ifsPath.getObjectName(), ifsPath.getLibraryName());
+            return new NPCPIDPrinterFile(ifsPath.getObjectName(), ifsPath.getLibraryName());
     }
 
 
@@ -177,29 +179,29 @@ implements PrinterFileImpl
              IOException,
              InterruptedException
     {
-	    NPDataStream sendDS = new NPDataStream(NPConstants.PRINTER_FILE);       // @B1C
-	    NPDataStream returnDS = new NPDataStream(NPConstants.PRINTER_FILE);     // @B1C
+            NPDataStream sendDS = new NPDataStream(NPConstants.PRINTER_FILE);       // @B1C
+            NPDataStream returnDS = new NPDataStream(NPConstants.PRINTER_FILE);     // @B1C
         NPSystem  npSystem = NPSystem.getSystem(getSystem());
 
-	    NPCPAttribute  cpCPFMessage = new NPCPAttribute();
-	    NPCPAttribute  cpNewAttrs = attributes.getAttrCodePoint();
+            NPCPAttribute  cpCPFMessage = new NPCPAttribute();
+            NPCPAttribute  cpNewAttrs = attributes.getAttrCodePoint();
 
-	    sendDS.setAction(NPDataStream.CHANGE_ATTRIBUTES);
+            sendDS.setAction(NPDataStream.CHANGE_ATTRIBUTES);
         sendDS.addCodePoint(getIDCodePoint());
-	    sendDS.addCodePoint(cpNewAttrs);
+            sendDS.addCodePoint(cpNewAttrs);
 
-	    returnDS.addCodePoint(cpCPFMessage);
+            returnDS.addCodePoint(cpCPFMessage);
 
-	    npSystem.makeRequest(sendDS, returnDS);
+            npSystem.makeRequest(sendDS, returnDS);
 
-	    // we changed the printer file attributes on the host,
-	    // merge those changed attributes into our current attributes
-	    // here.
-	    if (attrs == null) {
-	        attrs = new NPCPAttribute();
-	    }
+            // we changed the printer file attributes on the host,
+            // merge those changed attributes into our current attributes
+            // here.
+            if (attrs == null) {
+                attrs = new NPCPAttribute();
+            }
 
-	    attrs.addUpdateAttributes(cpNewAttrs);
+            attrs.addUpdateAttributes(cpNewAttrs);
     }
 
 }

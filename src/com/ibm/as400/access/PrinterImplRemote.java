@@ -1,20 +1,20 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (AS/400 Toolbox for Java - OSS version)
+//
 // Filename: PrinterImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2000 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
 /**
- * The  Printer class represents an iSeries server printer.
+ * The Printer class represents an iSeries server printer.
  * An instance of this class can be used to manipulate an individual
  * iSeries server printer.
  *
@@ -59,34 +59,35 @@ class PrinterImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMFEED);    // type of paperfeed to be use
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMTYPE);    // name of the form to be used @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMTYPEMSG); // form type message option @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_HELDSTS);     // held status @A2A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLDPNDSTS);  // hold pending status @A2A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_IMGCFG);      // Image configuration @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBUSER);     // name of the user that created file @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HELDSTS);     // held status @A2A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLDPNDSTS);  // hold pending status @A2A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IMGCFG);      // Image configuration @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBUSER);     // name of the user that created file @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MFGTYPE);     // manufacturer's type & model
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MSGQUELIB);   // message queue library name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MSGQUE);      // message queue name
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_ONJOBQSTS);   // on job queue status @A2A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);   // output queue library @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);      // output queue @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQSTS);     // output queue status @A3A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ONJOBQSTS);   // on job queue status @A2A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);   // output queue library @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);      // output queue @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQSTS);     // output queue status @A3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERALLSTS);  // printer overall status @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_POINTSIZE);   // the default font's point size
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);     // printer
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);  // printer dev type @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_COLOR_SUP);// Color supported indicator @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DS); // Data Stream supported    @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM_COLOR);// Pages per minute (color printing) @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM); // Papers per minute (monochrome printing) @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DUPLEX_SUP);// Duplex supported indicator @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_LOCATION);// Published location description @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_RMTLOCNAME); // remote loc of the printer device @A5A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);   // spool file name @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);     // spool file number @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTEDBY);   // started by @A1A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM); // System Driver Progrm - AT_SYS_DRV_PGM @A6A
-    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);    // user data @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDRV);     // User driver program name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);  // printer dev type @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_COLOR_SUP);// Color supported indicator @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DS); // Data Stream supported    @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM_COLOR);// Pages per minute (color printing) @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM); // Papers per minute (monochrome printing) @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DUPLEX_SUP);// Duplex supported indicator @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_LOCATION);// Published location description @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RMTLOCNAME); // remote loc of the printer device @A5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);   // spool file name @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);     // spool file number @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTEDBY);   // started by @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM); // System driver program @A6A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);    // user data @A1A
+            //attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDRV);     // User driver program name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USER_DRIVER_PROG); // User driver program name @A6A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJ);   // User defined object
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJLIB);// User defined object library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJTYP);// User defined object type

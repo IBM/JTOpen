@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SpooledFileImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -169,7 +169,6 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONSTBCK_OVL);  // Constant back overlay  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHARID);        // Character ID  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET_LIB);   // character set library name @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHR_RTT_CMDS); // DBCS character rotation commands @D3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET);       // character set name @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_COLOR);         // Color   @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODFNT_ARRAY);  // coded font array @D1A
@@ -181,7 +180,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CURPAGE);       // current page
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI_CHANGES);   // Characters per inch changes  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);          // date file was opened
- //           attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_END);    date spooled file creation ended @C5A@D3D
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_END);      // date spooled file creation ended @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_BEGAN_FILE); // date writer began processing file
                                                                         //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_CMPL_FILE); // date writer finished processing file
@@ -193,7 +192,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT);      // DBCS-coded font name      @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT_SIZE); // DBCS-coded font point size @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSROTATE);    // rotate DBCS characters
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSSISO);      // DBCS SI/SO positioning            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSSISO);      // DBCS SI/SO positioning
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DECIMAL_FMT);   // Decimal format  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DDS);           // DDS  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DOUBLEWIDE);    // Double-wide characters  @D1A
@@ -203,10 +202,11 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edge stitch number of staples @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF); // edge stitch reference  @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // edge stitch reference offset @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);      // the error handling when printing            
+       //     attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_STPL_OFFSET_INFO); edgestitch info offset @A6D
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);      // the error handling when printing
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIELD_OUTLIN);  // Field outlining  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FILESEP);       // number of file separators
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FOLDREC);       // wrap text to next line            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FOLDREC);       // wrap text to next line
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONT_CHANGES);  // Font changes   @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONTID);        // Font identifier to use (default)
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONTRESFMT);    // Font resolution for formatting  @D1A
@@ -219,12 +219,12 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVL_ACR);     // front overlay offset across
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVL_DWN);     // front overlay offset down
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLAY);      // *front side overlay name
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLLIB);     // *front side overlay library            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLLIB);     // *front side overlay library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRAPHICS);        // Graphic   @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRAPHICS_TOK);    // Grapics token  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRPLVL_IDXTAG);// Group level index tags   @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_HIGHLIGHT);       // Highlight   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLD);          // hold the spool file            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLD);          // hold the spool file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPDSPASSTHRU);  // IPDS pass-through  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_CCSID); // IPP attributes-charset  @C1AC4C
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ID);       // IPP job ID              @C1A
@@ -249,7 +249,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MULTIUP);       // logical pages per physical side
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NETWORK);       // network were output was created @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES);      // number of bytes to read/write
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES_SPLF); // number of bytes contained w/in splf @C5A            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES_SPLF); // number of bytes contained w/in splf @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMRSC_LIB_ENT);//Number of user resource library list entries @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OFFICEVISION);  // OfficeVision  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OS4_CRT_AFP);   // OS/400-created AFPDS @D1A
@@ -259,14 +259,14 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);     // *output queue library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERFLOW);      // overflow line number
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFN);        // *Page definition library @C5A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFNLIB);     // *Page definition library name @C5A            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFNLIB);     // *Page definition library name @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_GROUPS);   // Page groups  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELEN);       // page length in measurement method
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELVLIDXTAG); // Page level index tags   @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_ROTATE);   // Page rotate  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGES);         // number of pages in spool file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGEWIDTH);     // page width in measurement method
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGRTT);        // degree of page rotation            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGRTT);        // degree of page rotation
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PGM_OPN_LIB);   // Program that opened the file library name @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PGM_OPN_FILE);  // Program that opened file name  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_POINTSIZE);     // the default font's point size
@@ -284,7 +284,8 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLCHAR);       // character to replace unprintables with
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLUNPRT);      // replace unprintable characters
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES);  // saddle stitch number of staples  @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch reference                  @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch reference @C1A
+                //      attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);  sad stich info offset @A6D
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);          // whether to save after printing or not
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCHEDULE);      // when available to the writer
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // allow separator page to be printed @C3A
@@ -301,12 +302,12 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // system where output was created @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM);   // system driver program  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // time spooled file was opened at
-    //        attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);     ending time which spooled file was created @C5A@D3D
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);      // ending time which spooled file was created @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // time writer began processing file
                                                                         //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE); // time writer finished processing file
                                                             //               @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TRC1403);       // Trc for 1403  @D1A                                           
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TRC1403);       // Trc for 1403  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_UNITOFMEAS);    // unit of measure
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERCMT);       // user comment
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);      // user data
@@ -319,12 +320,12 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERGEN_DATA);  // User who created file  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USER_DFN_TXT);  // User-defined text  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RSC_LIB_LIST);  // User resource library list @D1A
-    	}
+        }
     }
 
 
 
-    // @C6A - (added method)  
+    // @C6A - (added method)
     /**
      * Creates a copy of the spooled file this object represents.  The
      * new spooled file is created on the specified output queue.
@@ -343,7 +344,7 @@ implements SpooledFileImpl
      * @exception RequestNotSupportedException If the requested function is not supported because the
      *                                          AS/400 system is not at the correct level.
      **/
-    public NPCPIDSplF copy(OutputQueueImpl outputQueue) 
+    public NPCPIDSplF copy(OutputQueueImpl outputQueue)
       throws AS400Exception,
              AS400SecurityException,
              ErrorCompletingRequestException,
@@ -351,18 +352,18 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-       
-    	NPDataStream sendDS   = new NPDataStream(NPConstants.SPOOLED_FILE);       
-    	NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);    
+
+        NPDataStream sendDS   = new NPDataStream(NPConstants.SPOOLED_FILE);
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);
         NPSystem npSystem     = NPSystem.getSystem(getSystem());
 
-    	NPCPAttribute cpCPFMessage = new NPCPAttribute();
-    	NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)outputQueue).getIDCodePoint(); 
+        NPCPAttribute cpCPFMessage = new NPCPAttribute();
+        NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)outputQueue).getIDCodePoint();
 
         sendDS.setAction(NPDataStream.COPY);
         sendDS.addCodePoint(getIDCodePoint());
         sendDS.addCodePoint(tgtOutQID);
-        
+
         NPCPIDSplF splfID = new NPCPIDSplF();
         returnDS.addCodePoint(splfID);
         returnDS.addCodePoint(cpCPFMessage);
@@ -383,17 +384,17 @@ implements SpooledFileImpl
                 case NPDataStream.RET_INV_REQ_ACT:
                     throw new RequestNotSupportedException(curLevel,
                                                            RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
-    
+
                     // any other error is either an unexpected error or an error
                     // completing request
                 default:
-                    Trace.log(Trace.ERROR, "SpooledFileImplRemote::copy - An exception was thrown attempting to " + 
+                    Trace.log(Trace.ERROR, "SpooledFileImplRemote::copy - An exception was thrown attempting to " +
                                    "copy the spooled file. RC = " + rc);
-     
+
                     break;
             }
             return null;
-        }   
+        }
     }
 
 
@@ -442,12 +443,12 @@ implements SpooledFileImpl
            cpMsgHandle_ = new NPCPMsgHandle();
         }
     }
-// @D2A  retrieve only one attribute 
+// @D2A  retrieve only one attribute
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-        String x = Copyright.copyright;     
-	if (!fAttrIDsToRtvBuilt_) {
-	    attrsToRetrieve_.addAttrID(attrToRtv);
+        String x = Copyright.copyright;
+        if (!fAttrIDsToRtvBuilt_) {
+            attrsToRetrieve_.addAttrID(attrToRtv);
         }
         return attrsToRetrieve_;
     }
@@ -457,7 +458,7 @@ implements SpooledFileImpl
 
     NPCPAttributeIDList getAttrIDsToRetrieve()
     {
-	if (!fAttrIDsToRtvBuilt_) {
+        if (!fAttrIDsToRtvBuilt_) {
             buildAttrIDsToRtv();
         }
         return attrsToRetrieve_;
@@ -605,27 +606,27 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-    	NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-    	NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
             NPSystem npSystem = NPSystem.getSystem(getSystem());
 
-    	NPCPAttribute  cpCPFMessage = new NPCPAttribute();
-    	// make a copy of the target spooled file ID codepoint so we can
-    	// change its ID
-    	NPCPIDSplF tgtSplfID = new NPCPIDSplF((NPCPIDSplF)((SpooledFileImplRemote)targetSpooledFile).getIDCodePoint()); // @A4C
+        NPCPAttribute  cpCPFMessage = new NPCPAttribute();
+        // make a copy of the target spooled file ID codepoint so we can
+        // change its ID
+        NPCPIDSplF tgtSplfID = new NPCPIDSplF((NPCPIDSplF)((SpooledFileImplRemote)targetSpooledFile).getIDCodePoint()); // @A4C
 
         // must change the ID of the target splf ID from a SPOOLED_FILE_ID codepoint
         // to a TARGET_SPOOLED_FILE_ID codpoint
         tgtSplfID.setID(NPCodePoint.TARGET_SPOOLED_FILE_ID);
-    	sendDS.setAction(NPDataStream.MOVE);
+        sendDS.setAction(NPDataStream.MOVE);
         sendDS.addCodePoint(getIDCodePoint());
-    	sendDS.addCodePoint(tgtSplfID);
+        sendDS.addCodePoint(tgtSplfID);
 
-    	returnDS.addCodePoint(cpCPFMessage);
+        returnDS.addCodePoint(cpCPFMessage);
 
-    	npSystem.makeRequest(sendDS, returnDS);
+        npSystem.makeRequest(sendDS, returnDS);
 
-    	// update the spooled file attributes
+        // update the spooled file attributes
         updateAttrs(getAttrIDsToRetrieve());
     }
 
@@ -655,12 +656,12 @@ implements SpooledFileImpl
              InterruptedException,
              RequestNotSupportedException
     {
-    	NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
-    	NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.SPOOLED_FILE);       // @B1C
+        NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);     // @B1C
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
-    	NPCPAttribute  cpCPFMessage = new NPCPAttribute();
-    	NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)targetOutputQueue).getIDCodePoint();  // @A4C
+        NPCPAttribute  cpCPFMessage = new NPCPAttribute();
+        NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)targetOutputQueue).getIDCodePoint();  // @A4C
 
         sendDS.setAction(NPDataStream.MOVE);
         sendDS.addCodePoint(getIDCodePoint());
@@ -808,25 +809,25 @@ implements SpooledFileImpl
         returnDS.addCodePoint(cpMsgHandle_);
 
         int rc = npSystem.makeRequest(sendDS, returnDS);
-    	switch(rc)
-    	{
-    	    case 0:
-    		fMsgRetrieved_ = true;
-    		break;
-    	    case NPDataStream.RET_SPLF_NO_MESSAGE:
-    		// This should throw a non-runtime exception so the caller may
-    		// catch it.
-    		Trace.log(Trace.ERROR, "No spooled file message waiting.");
-    		throw new ErrorCompletingRequestException(
-    		            ErrorCompletingRequestException.SPOOLED_FILE_NO_MESSAGE_WAITING);
-    	    default:
-    		// Throw some other internal/unexpected error or something here
-    		// create new RC for this
-    		//throw new InternalErrorException(InternalErrorException.UNKNOWN,
-    		//                                  "NPServer Error RC = " + rc);
-    		Trace.log(Trace.ERROR, "Unexpected Error.");
-    		throw new InternalErrorException(InternalErrorException.UNKNOWN);
-    	}
+        switch(rc)
+        {
+            case 0:
+                fMsgRetrieved_ = true;
+                break;
+            case NPDataStream.RET_SPLF_NO_MESSAGE:
+                // This should throw a non-runtime exception so the caller may
+                // catch it.
+                Trace.log(Trace.ERROR, "No spooled file message waiting.");
+                throw new ErrorCompletingRequestException(
+                            ErrorCompletingRequestException.SPOOLED_FILE_NO_MESSAGE_WAITING);
+            default:
+                // Throw some other internal/unexpected error or something here
+                // create new RC for this
+                //throw new InternalErrorException(InternalErrorException.UNKNOWN,
+                //                                  "NPServer Error RC = " + rc);
+                Trace.log(Trace.ERROR, "Unexpected Error.");
+                throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        }
 
     }  // retrieveMessage()
 

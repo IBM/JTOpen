@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: PrintObjectListImplRemote.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2002 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -72,7 +72,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
   throws AS400Exception,
   AS400SecurityException,
   ErrorCompletingRequestException,
-  InterruptedException, 
+  InterruptedException,
   IOException,
   RequestNotSupportedException
   {
@@ -121,7 +121,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
             if (reply == null)
             {
               // throw execption - internal error.
-              fMoreData = false;   
+              fMoreData = false;
               Trace.log(Trace.ERROR, "buildList: Null reply from AS400Server.receive()!");
               throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
             }
@@ -270,7 +270,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
       cpattrList_ = null;             // @A5A
       numItems_ = 0; //@CRS
       anyException_ = null;
-    } 
+    }
 
     // tell any listeners the list was closed.
     firePrintObjectList(PrintObjectListEvent.CLOSED, null, null, null); // @A5C
@@ -299,7 +299,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     PrintObjectListEvent event;
 
     // Now that we know we have listeners, we construct
-    // the event object. We could have passed an event 
+    // the event object. We could have passed an event
     // oject to firePrintObjectList() but that would be
     // extra overhead if there were no listeners.
     if (exception !=null)
@@ -440,9 +440,9 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
 
 
   /**
-   * Builds the list asynchronously.  This method starts a thread 
-   * to build the list and then returns. The caller may register 
-   * listeners to obtain status about the list, or call isCompleted(), 
+   * Builds the list asynchronously.  This method starts a thread
+   * to build the list and then returns. The caller may register
+   * listeners to obtain status about the list, or call isCompleted(),
    * waitForItem(), or waitForListToComplete().
    **/
   public void openAsynchronously()
@@ -487,7 +487,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     AS400ImplRemote theSystem = getSystem(); // @A4C - changed to AS400ImplRemote   // @A1A
     if (theSystem != null)
     {                                           // @A1A
-      NPSystem npSystem = NPSystem.getSystem(theSystem);              // @A1A 
+      NPSystem npSystem = NPSystem.getSystem(theSystem);              // @A1A
       if (npSystem != null)                                           // @A1A
       {
         // @A1A
@@ -500,6 +500,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     cpattrList_ = new Vector();                                     // @A5A
     numItems_ = 0;
     completed_ = false;                                             // @A2A
+    closed_ = false;                                                // @A6A
     anyException_ = null;                                           // @A2A
 
     // tell any listeners the list was opened.                         // @A2A
@@ -535,7 +536,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
       // @A2A
       rethrowException();                                             // @A2A
     }                                                                  // @A2A
-  }    
+  }
 
 
 
@@ -665,7 +666,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     else
     {
       attrsToRetrieve_ = new NPCPAttributeIDList();
-    }   
+    }
 
     for (int i = 0; i<attributes.length; i++)
     {
@@ -751,7 +752,7 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     attrsToRetrieve_ = attrsToRetrieve;
     idFilter_ = idFilter;
     selection_ = selection;
-    typeOfObject_ = typeOfObject;      
+    typeOfObject_ = typeOfObject;
   }
 
 
@@ -886,5 +887,5 @@ abstract class PrintObjectListImplRemote implements PrintObjectListImpl, Runnabl
     waiting_ = false;
   }
 
-}  
+}
 
