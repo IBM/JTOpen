@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: UserSpace.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,13 +22,13 @@ import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 
 /**
-The UserSpace class represents a user space on the AS/400.
+The UserSpace class represents a user space on the iSeries or AS/400 server.
 **/
 
 public class UserSpace
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -188,6 +188,14 @@ public class UserSpace
    **/
    private synchronized void connect() throws IOException, AS400SecurityException
    {
+       // @D4 change: This code used to signon twice.  The getting a converter
+       //     will cause a signon to get the ccsid of the job, and the signon
+       //     call at the end of the routine will also force a signon.  The
+       //     problem is getConverter does not throw exceptions so if the password
+       //     is bad we will try to signon twice with a bad password.  The solution
+       //     is to force a signon before getting a converter using a method that
+       //     throws an exception.  Since we now do this inside the if check there
+       //     is no reason to do it again at the end.
        if (implementation_ == null)
        {
            // Ensure that the system has been set.
@@ -221,7 +229,7 @@ public class UserSpace
            implementation_.setPath(userSpacePathName_);
            implementation_.setSystem(system_.getImpl());
 
-
+           system_.signon(false);                                           // @D4a
            ConverterImpl conv = (new Converter(system_.getCcsid(), system_)).impl;
 
            implementation_.setConverter(conv);
@@ -231,7 +239,10 @@ public class UserSpace
            // Set the connection flag, commits system and path parameters.
            connected_ = true;
        }
+       else                                             // @D4a
+       {                                                // @D4a
        system_.signon(false);
+       }                                                // @D4a
    }
 
    /**
