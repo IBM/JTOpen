@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Converter.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ import java.io.UnsupportedEncodingException;
  **/
 class Converter implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -42,7 +42,6 @@ class Converter implements Serializable
 
     /**
      * Gets a Converter object from the pool using a "best guess" based on the default Locale.
-     * @deprecated Replaced by Converter(int, AS400).
      **/
     Converter()
     {
@@ -63,7 +62,6 @@ class Converter implements Serializable
      * Constructs a character set conversion object using the specified character encoding.
      * @param  encoding  the name of a character encoding.
      * @exception  UnsupportedEncodingException  If the encoding is not supported.
-     * @deprecated Replaced by Converter(int, AS400).
      **/
     Converter(String encoding) throws UnsupportedEncodingException
     {
@@ -77,7 +75,6 @@ class Converter implements Serializable
      * @param  ccsid  the CCSID of the AS/400 text.
      * @param  system  the 400 to go to for table
      * @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
-     * @deprecated Replaced by Converter(int, AS400).
      **/
     Converter(int ccsid) throws UnsupportedEncodingException
     {

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Text.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,19 +17,23 @@ import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 
 /**
-   The AS400Text class provides
-   character set conversion between Java String objects and
+   The AS400Text class provides character set conversion between Java String objects and
    AS/400 native code pages.
+   <P>Note that in the past few releases, several constructors were deprecated because
+   they did not accept an AS400 system object as an argument. Due to recent changes in 
+   the behavior of the character conversion routines, this system object is no longer
+   necessary, except when the AS400Text object is to be passed as a parameter on a
+   Toolbox Proxy connection. Since this case is extremely rare, it is more beneficial
+   not to have the constructors issue deprecation warnings.
+   @see com.ibm.as400.access.CharConverter
 **/
 public class AS400Text implements AS400DataType
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
     static final long serialVersionUID = 4L;
-
-
 
   private int length_;
   private int ccsid_ = 65535;
@@ -44,11 +48,6 @@ public class AS400Text implements AS400DataType
     Constructs an AS400Text object.
     It uses the most likely CCSID based on the default locale.
     @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
-
-    @deprecated Replaced by AS400Text(int, AS400).
-    Any AS400Text object that is created without
-    specifying an AS400 system object on its constructor may
-    not behave as expected in certain environments.
   **/
   public AS400Text(int length)
   {
@@ -65,12 +64,6 @@ public class AS400Text implements AS400DataType
     Constructs an AS400Text object.
     @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
     @param  ccsid  The CCSID of the AS/400 text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
-
-    @deprecated Replaced by AS400Text(int, int, AS400).
-    Any AS400Text object that is created without
-    specifying an AS400 system object on its constructor may
-    not behave as expected in certain environments.
-
   **/
   public AS400Text(int length, int ccsid)
   {
@@ -93,12 +86,6 @@ public class AS400Text implements AS400DataType
     Constructs AS400Text object.
     @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
     @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
-
-    @deprecated Replaced by AS400Text(int, int, AS400).
-    Any AS400Text object that is created without
-    specifying an AS400 system object on its constructor may
-    not behave as expected in certain environments.
-
   **/
   public AS400Text(int length, String encoding)
   {
