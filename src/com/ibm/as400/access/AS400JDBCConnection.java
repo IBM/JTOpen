@@ -172,7 +172,7 @@ implements Connection
     private JDProperties                properties_;
     private boolean                     readOnly_;
     //@P0D private BitSet                      requestPending_;                // @DAC
-    private final boolean[] requestPending_ = new boolean[MAX_STATEMENTS_]; //@P0A
+    //@P1Dprivate final boolean[] requestPending_ = new boolean[MAX_STATEMENTS_]; //@P0A
     private AS400Server                 server_;
     private int                         serverFunctionalLevel_;         // @E7A
     private String                      serverJobIdentifier_ = null;    // @E8A
@@ -2222,7 +2222,7 @@ implements Connection
                 heldRequests_ = null;                                                       // @E5A
                                                                       
                 server_.send(actualRequest);                // @E5A @F7M
-                requestPending_[id] = leavePending; //@P0A @F7M
+//@P1D                requestPending_[id] = leavePending; //@P0A @F7M
             }                                                                               // @E5A
 
             // @E5D if (DEBUG_REQUEST_CHAINING_ == true) {
@@ -2363,7 +2363,7 @@ implements Connection
             }
 
             //@P0D requestPending_.set(id);                                                        // @DAC
-            requestPending_[id] = true; //@P0A
+//@P1D            requestPending_[id] = true; //@P0A
 
             if (DEBUG_COMM_TRACE_ > 0)
             {
@@ -2462,7 +2462,7 @@ implements Connection
                                                                       
                 reply = (DBReplyRequestedDS)server_.sendAndReceive(actualRequest);          // @E5C @F7M
                 //@P0D requestPending_.clear(id);
-                requestPending_[id] = false; //@P0A @F7M
+//@P1D                requestPending_[id] = false; //@P0A @F7M
             }                                                                               // @E5A
 
             reply.parse(dataCompression_);                                                  // @E5A
