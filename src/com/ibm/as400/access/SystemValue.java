@@ -351,7 +351,7 @@ public class SystemValue implements Serializable
     }
 
     /**
-     Returns the length (in bytes) of this system value's data value component.  For system values that are of type TYPE_ARRAY, this method returns the total size of the data value.
+     Returns the length (in bytes) of this system value's data value component.  For system values that are of type {@link SystemValueList#TYPE_ARRAY TYPE_ARRAY}, this method returns the total size of the data value.
      @return  The size.
      **/
     public int getSize()
@@ -380,11 +380,11 @@ public class SystemValue implements Serializable
     /**
      Returns the type for this system value.  Possible values are:
      <ul>
-     <li>TYPE_ARRAY - The data contained by this system value is a String[] object.
-     <li>TYPE_DATE - The data contained by this system value is a Date object.
-     <li>TYPE_DECIMAL - The data contained by this system value is a BigDecimal object.
-     <li>TYPE_INTEGER - The data contained by this system value is an Integer object.
-     <li>TYPE_STRING - The data contained by this system value is a String object.
+     <li>{@link SystemValueList#TYPE_ARRAY TYPE_ARRAY} - The data contained by this system value is a String[] object.
+     <li>{@link SystemValueList#TYPE_DATE TYPE_DATE} - The data contained by this system value is a Date object.
+     <li>{@link SystemValueList#TYPE_DECIMAL TYPE_DECIMAL} - The data contained by this system value is a BigDecimal object.
+     <li>{@link SystemValueList#TYPE_INTEGER TYPE_INTEGER} - The data contained by this system value is an Integer object.
+     <li>{@link SystemValueList#TYPE_STRING TYPE_STRING} - The data contained by this system value is a String object.
      </ul>
      @see  SystemValueList
      @return  The return type.
@@ -403,6 +403,9 @@ public class SystemValue implements Serializable
 
     /**
      Returns the current value of this system value.
+     Use {@link #getType getType()} to determine the type of the returned object.
+     For example, some system values are represented as arrays of String.
+     @see #getType
      @return  The data.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -587,6 +590,9 @@ public class SystemValue implements Serializable
 
     /**
      Sets the value for this system value.
+     Use {@link #getType getType()} to determine the type of object to set.
+     For example, some system values are represented as arrays of String.
+     @see #getType
      @param  value  The data.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.

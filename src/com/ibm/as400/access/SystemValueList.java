@@ -360,7 +360,7 @@ public class SystemValueList implements Serializable
         SystemValueList.list.put("QSCANFSCTL",   new SystemValueInfo("QSCANFSCTL", SERVER_TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, VRM530, ResourceBundleLoader.getSystemValueText("QSCANFSCTL_DES")));
         SystemValueList.list.put("QTIMADJ",   new SystemValueInfo("QTIMADJ", SERVER_TYPE_CHAR, 28, 1, TYPE_STRING, GROUP_DATTIM, VRM530, ResourceBundleLoader.getSystemValueText("QTIMADJ_DES")));
         SystemValueList.list.put("QTIMZON",   new SystemValueInfo("QTIMZON", SERVER_TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_DATTIM, VRM530, ResourceBundleLoader.getSystemValueText("QTIMZON_DES")));
-        SystemValueList.list.put("QTHDRSCAFN", new SystemValueInfo("QTHDRSCAFN", SERVER_TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QTHDRSCAFN_DES")));
+        SystemValueList.list.put("QTHDRSCAFN", new SystemValueInfo("QTHDRSCAFN", SERVER_TYPE_CHAR, 10, 2, TYPE_ARRAY, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QTHDRSCAFN_DES")));
         SystemValueList.list.put("QTHDRSCADJ", new SystemValueInfo("QTHDRSCADJ", SERVER_TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, VRM530, ResourceBundleLoader.getSystemValueText("QTHDRSCADJ_DES")));
 
         // V5R4 system values.
