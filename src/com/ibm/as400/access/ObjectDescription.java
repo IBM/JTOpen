@@ -901,10 +901,10 @@ public class ObjectDescription
     if (objectName == null) throw new NullPointerException("name");
     if (objectType == null) throw new NullPointerException("type");
     system_ = system;
-    QSYSObjectPathName.toPath(objectLibrary, objectName, objectType); // Verify valid values.
-    library_ = objectLibrary.toUpperCase().trim();
-    name_ = objectName.toUpperCase().trim();
-    type_ = objectType.toUpperCase().trim();
+    QSYSObjectPathName pn = new QSYSObjectPathName(objectLibrary, objectName, objectType); // Verify valid values.
+    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
+    name_ = pn.getObjectName();
+    type_ = pn.getObjectType();
   }
 
   /**
@@ -913,9 +913,10 @@ public class ObjectDescription
   ObjectDescription(AS400 sys, String lib, String name, String type, byte status)
   {
     system_ = sys;
-    library_ = lib.toUpperCase().trim();
-    name_ = name.toUpperCase().trim();
-    type_ = type.toUpperCase().trim();
+    QSYSObjectPathName pn = new QSYSObjectPathName(lib, name, type); // Verify valid values.
+    library_ = pn.getLibraryName(); // Use the QSYSObjectPathName in case the object names are quoted.
+    name_ = pn.getObjectName();
+    type_ = pn.getObjectType();
     status_ = status;
   }
 
