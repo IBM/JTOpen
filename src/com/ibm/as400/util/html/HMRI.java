@@ -311,7 +311,9 @@ public class HMRI extends ListResourceBundle
       { "PROP_FLE_NAME_NAME", "Name" },                                                             // @C1A
       { "PROP_FLE_NAME_SIZE", "Size" },                                                             // @C1A
       { "PROP_FLE_NAME_TYPE", "Type" },                                                             // @C1A
-      { "PROP_FLE_NAME_MODIFIED", "Modified" }                                                      // @C1A
+      { "PROP_FLE_NAME_MODIFIED", "Modified" },                                                     // @C1A
+
+      { "PROP_DESC_LOCATION", "The bookmark location of the resource link within a document."}      // @C2A
 
    };
 

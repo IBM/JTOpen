@@ -173,8 +173,8 @@ public class ServletHyperlink extends HTMLHyperlink
          if (getProperties() != null)
             l.setProperties(new Properties(getProperties()));
 
-         if (getAnchor() != null)                  //$A3A
-            l.setAnchor(getAnchor());              //$A3A
+         if (getLocation() != null)                  //$A3A
+            l.setLocation(getLocation());            //$A3A
 
          if (getLink() != null)
             l.setLink(getLink());
@@ -345,9 +345,12 @@ public class ServletHyperlink extends HTMLHyperlink
       buffer.append("<a href=\"");
       buffer.append(url);
 
-      String anchor = getAnchor();                    //$A3A
-      if (anchor != null)                             //$A3A
-         buffer.append(anchor);                       //$A3A
+      String location = getLocation();                //$A3A
+      if (location != null)                           //$A3A
+      {
+         buffer.append("#");                          //$A3A
+         buffer.append(location);                     //$A3A
+      }
       
       buffer.append("\"");
 

@@ -115,7 +115,14 @@ public class HTMLHyperlinkBeanInfo extends SimpleBeanInfo
         dir.setDisplayName(loader_.getText("PROP_NAME_DIRECTION"));                                          //$B3A
         dir.setShortDescription(loader_.getText("PROP_DESC_DIRECTION"));                                     //$B3A
 
-        properties_ = new PropertyDescriptor[] { link, name, properties, target, text, title, lang, dir };   //$B3C
+        PropertyDescriptor location = new PropertyDescriptor("location", beanClass, "getLocation", "setLocation");    //$B4A
+        location.setBound(true);                                                                             //$B4A
+        location.setConstrained(true);                                                                       //$B4A
+        location.setDisplayName(loader_.getText("PROP_NAME_LOCATION"));                                      //$B4A
+        location.setShortDescription(loader_.getText("PROP_DESC_LOCATION"));                                 //$B4A
+
+        properties_ = new PropertyDescriptor[] { link, name, properties, target, text,                       //$B4C
+                                                 title, lang, dir, location };                               //$B4C
       }
       catch (Exception e)
       {

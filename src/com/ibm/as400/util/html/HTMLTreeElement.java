@@ -50,7 +50,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet#2043557?a=s&hc=2043557" name="2043557">-</a>
+*  <a href="/servlet/myServlet?a=s&hc=2043557#2043557" name="2043557">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -375,10 +375,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
                URLParser parser = new URLParser(iconUrl_.getLink());
                iconUrl_.setLink(parser.getURI());                          //$A3C
                iconUrl_.setText(iconTag);
-
-               StringBuffer anchor = new StringBuffer("#");                //$A3A
-               anchor.append(hcStr);                                       //$A3A
-               iconUrl_.setAnchor(anchor.toString());                      //$A3A
+               iconUrl_.setLocation(hcStr);                                //$A3A
 
             }
             catch (PropertyVetoException e)

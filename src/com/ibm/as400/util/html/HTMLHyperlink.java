@@ -71,7 +71,7 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
    private String target_;                // The target frame for the link resource.
    private String text_;                  // The text to be used to represent the link.
    private String title_;                 // The title for the link resource.
-   private String anchor_;                // The anchor (ie - #AnchorName) for the link resource.  // $B4A
+   private String location_;              // The bookmark location (ie - #location) for the link resource.  // $B4A
 
    private String lang_;        // The primary language used to display the tags contents.  //$B1A
    private String dir_;         // The direction of the text interpretation.                //$B1A
@@ -153,8 +153,8 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
       HTMLHyperlink l = new HTMLHyperlink();
 		try
 		{
-         if (anchor_ != null)                     //$B4A
-            l.setAnchor(anchor_);                 //$B4A
+         if (location_ != null)                   //$B4A
+            l.setLocation(location_);             //$B4A
 
          if (link_ != null)
 				l.setLink(link_);
@@ -181,16 +181,6 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
 		{ /* Ignore */ }    
 
       return l;
-   }
-
-
-   /**
-    *  Returns the <i>anchor</i> of the resource link.
-    *  @return The anchor.
-    **/
-   public String getAnchor()
-   {
-      return anchor_;
    }
 
 
@@ -254,6 +244,17 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
    {
       return link_;
    }
+
+
+   /**
+    *  Returns the bookmark <i>locatoin</i> of the resource link.
+    *  @return The location.
+    **/
+   public String getLocation()
+   {
+      return location_;
+   }
+
 
    /**
    *  Returns the bookmark name.
@@ -377,8 +378,11 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
          }
       }
 
-      if (anchor_ != null)                           //$B4A
-         buffer.append(anchor_);                     //$B4A
+      if (location_ != null)                           //$B4A
+      {
+         buffer.append("#");                           //$B4A
+         buffer.append(location_);                     //$B4A
+      }
 
       buffer.append("\"");
 
@@ -442,24 +446,6 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
 
 
    /**
-    *  Sets the anchor of the resource link.  The anchor
-    *  is denoted with the # symbol  at the end of the 
-    *  link followed by an achor name. (ie - http://myPage.html#myAnchor)
-    **/
-   public void setAnchor(String anchor)                                  //$B4A
-   {
-      if (anchor == null)
-         throw new NullPointerException("anchor");
-
-      String old = anchor_;
-
-      anchor_ = anchor;
-
-      changes_.firePropertyChange("anchor", old, anchor);
-   }
-
-
-   /**
     *  Sets the <i>direction</i> of the text interpretation.
     *  @param dir The direction.  One of the following constants
     *  defined in HTMLConstants:  LTR or RTL.
@@ -509,6 +495,25 @@ public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, j
 
         changes_.firePropertyChange("lang", old, lang );
     }
+
+
+    /**
+     *  Sets the bookmark location of the resource link within a document.  The location
+     *  is denoted with the # symbol at the end of the 
+     *  link followed by a <i>location</i>. (ie - http://myPage.html#myBookmarkLocation)
+     *  @param location The location.
+     **/
+   public void setLocation(String location)                                  //$B4A
+   {
+      if (location == null)
+         throw new NullPointerException("location");
+
+      String old = location_;
+
+      location_ = location;
+
+      changes_.firePropertyChange("location", old, location);
+   }
 
 
    /**

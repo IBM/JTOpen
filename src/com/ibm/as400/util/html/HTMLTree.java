@@ -81,7 +81,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet#2043557?a=e&hc=2043557" name="2043557">+</a>
+*  <a href="/servlet/myServlet?a=e&hc=2043557#2043557" name="2043557">+</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -109,7 +109,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet#2043557?a=s&hc=2043557" name="2043557">-</a>
+*  <a href="/servlet/myServlet?a=s&hc=2043557#2043557" name="2043557">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -118,7 +118,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet#2043712?a=s&hc=2043712" name="2043712">-</a>
+*  <a href="/servlet/myServlet?a=s&hc=2043712#2043712" name="2043712">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebServer/anotherWebPage">Another Web Page</a></td>
