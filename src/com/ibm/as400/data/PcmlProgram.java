@@ -26,6 +26,7 @@ import java.beans.PropertyVetoException;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;                                  // @C1A
+import java.io.ByteArrayOutputStream;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -559,8 +560,9 @@ class PcmlProgram extends PcmlDocNode
                         outputSize = structNode.getOutputsize(noDimensions);
                         if (usage == PcmlDocNode.INPUT || usage == PcmlDocNode.INPUTOUTPUT)
                         {
-                            bytes = new byte[outputSize];           // @A2M
-                            structNode.toBytes(bytes, 0, noDimensions);
+                            ByteArrayOutputStream buf = new ByteArrayOutputStream(outputSize);
+                            structNode.toBytes(buf, 0, noDimensions);
+                            bytes = buf.toByteArray();
                             // Dump the data stream if trace is turned on
                             PcmlMessageLog.traceParameter(getPath(), child.getNameForException(), bytes); // @A1C
                         }
@@ -575,8 +577,9 @@ class PcmlProgram extends PcmlDocNode
                         outputSize = dataNode.getOutputsize(noDimensions);
                         if (usage == PcmlDocNode.INPUT || usage == PcmlDocNode.INPUTOUTPUT)
                         {
-                            bytes = new byte[outputSize];           // @A2M
-                            dataNode.toBytes(bytes, 0, noDimensions);
+                            ByteArrayOutputStream buf = new ByteArrayOutputStream(outputSize);
+                            dataNode.toBytes(buf, 0, noDimensions);
+                            bytes = buf.toByteArray();
                             // Dump the data stream if trace is turned on
                             PcmlMessageLog.traceParameter(getPath(), child.getNameForException(), bytes); // @A1C
                         }
