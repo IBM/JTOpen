@@ -216,13 +216,32 @@ public class MessageFile extends Object implements Serializable
     **/
     public static String substituteFormattingCharacters(String sourceText)
     {
+        // To preserve behavior, assume not BiDi
+        return substituteFormattingCharacters(sourceText, false);       // @D6a 
+        // String targetText = sourceText;                              // @D6d
+        // targetText = replaceText(targetText, "&N", "\n");            // @D6d
+        // targetText = replaceText(targetText, "&P", "\n      ");      // @D6d
+        // targetText = replaceText(targetText, "&B", "\n    ");        // @D6d
+        // return targetText;                                           // @D6d
+    }
+
+                                                                                 
+    // @D6 new method                                                                              
+    static String substituteFormattingCharacters(String sourceText, boolean bidi)
+    {
         String targetText = sourceText;
         targetText = replaceText(targetText, "&N", "\n");
         targetText = replaceText(targetText, "&P", "\n      ");
         targetText = replaceText(targetText, "&B", "\n    ");
+        
+        if (bidi)
+        {
+           targetText = replaceText(targetText, "N&", "\n");
+           targetText = replaceText(targetText, "P&", "\n      ");
+           targetText = replaceText(targetText, "B&", "\n    ");
+        }
         return targetText;
     }
-
 
 
     /**
@@ -531,7 +550,8 @@ public class MessageFile extends Object implements Serializable
         }                                                                        // @D2m
         else                                                                     // @D2m
         {                                                                        // @D2m
-           substLen = new byte[] {0,0,4,0};                                      // @D2m
+           // @D7d substLen = new byte[] {0,0,4,0};                              // @D2m
+           substLen = BinaryConverter.intToByteArray(substitutionText.length);   // @D7a
            replace  = text10Type.toBytes( "*YES" );                              // @D2m
         }                                                                        // @D2m
                                                                                  // @D2m
@@ -624,7 +644,11 @@ public class MessageFile extends Object implements Serializable
            // @E1D helpText = replaceText(helpText, "&N", "\n");               //@D1a    // @D2m
            // @E1D helpText = replaceText(helpText, "&P", "\n      ");         //@D1a    // @D2m
            // @E1D helpText = replaceText(helpText, "&B", "\n    ");           //@D1a    // @D2m
-            helpText = substituteFormattingCharacters(helpText);                 // @E1A
+           
+            boolean bidi = false;                                        // @D6a
+            if (sys_ != null)                                            // @D6a
+               bidi = AS400BidiTransform.isBidiCcsid(sys_.getCcsid());   // @D6a
+            helpText = substituteFormattingCharacters(helpText, bidi);   // @D6c // @E1A  
         }                                                              //@D1a    // @D2m
         msg.setHelp(helpText);                                         //@D1c    // @D2m
                                                                                  // @D2m
