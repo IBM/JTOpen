@@ -34,10 +34,10 @@ class PoolInformationFormat extends RecordFormat
     super();
     AS400Bin4 bin4 = new AS400Bin4();
     AS400Text text10 = new AS400Text(10, sys.getCcsid(), sys);
-    addFieldDescription(new BinaryFieldDescription(bin4, "poolIdentifier"));
+    addFieldDescription(new BinaryFieldDescription(bin4, "poolIdentifier"));  // system-related pool ID
     addFieldDescription(new BinaryFieldDescription(bin4, "poolSize"));
     addFieldDescription(new BinaryFieldDescription(bin4, "reservedSize"));
-    addFieldDescription(new BinaryFieldDescription(bin4, "maximumActiveThreads"));
+    addFieldDescription(new BinaryFieldDescription(bin4, "activityLevel"));  // maximum active threads
     addFieldDescription(new BinaryFieldDescription(bin4, "databaseFaults"));
     addFieldDescription(new BinaryFieldDescription(bin4, "databasePages"));
     addFieldDescription(new BinaryFieldDescription(bin4, "nonDatabaseFaults"));
@@ -45,7 +45,7 @@ class PoolInformationFormat extends RecordFormat
     addFieldDescription(new BinaryFieldDescription(bin4, "activeToWait"));
     addFieldDescription(new BinaryFieldDescription(bin4, "waitToIneligible"));
     addFieldDescription(new BinaryFieldDescription(bin4, "activeToIneligible"));
-    addFieldDescription(new CharacterFieldDescription(text10, "poolName"));
+    addFieldDescription(new CharacterFieldDescription(text10, "poolName")); // in the case of private (subsystem) pools, this will be a number (1-10)
     addFieldDescription(new CharacterFieldDescription(text10, "subsystemName"));
     addFieldDescription(new CharacterFieldDescription(text10, "subsystemLibraryName"));
     addFieldDescription(new CharacterFieldDescription(text10, "pagingOption"));
