@@ -1747,6 +1747,7 @@ public class AS400 implements Serializable
 
     /**
      Indicates if any service is currently connected through this object.
+     <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.
      @return  true if any service is connected; false otherwise.
      **/
     public boolean isConnected()
