@@ -29,6 +29,7 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -86,14 +87,23 @@ source file name.  For example, if the source file is <code>myfile.jar</code>,
 then the default destination file would be <code>myfileSmall.jar</code>.
 
 <p>
-<dt><b><code>-requiredFile </b></code><var>jarEntry1[,jarEntry2[...] ] </var>
+<dt><b><code>-fileRequired </b></code><var>jarEntry1[,jarEntry2[...] ] </var>
 <dd>
 The files in the source JAR or ZIP file that are to be copied to the destination.
 Entries are separated by commas (no spaces).
 The specified files, along with all of their dependencies,
 will be considered required.
 Files are specified in JAR entry name syntax, such as <code>com/ibm/as400/access/DataQueue.class</code>.
-The -requiredFile option may be abbreviated to -rf.
+The -fileRequired option may be abbreviated to -f.
+
+<p>
+<dt><b><code>-fileExcluded </b></code><var>jarEntry1[,jarEntry2[...] ] </var>
+<dd>
+The files in the source JAR or ZIP file that are to be excluded from the destination,
+and from dependency analysis.
+Entries are separated by commas (no spaces).
+Files are specified in JAR entry name syntax, such as <code>com/ibm/as400/access/DataQueue.class</code>.
+The -fileExcluded option may be abbreviated to -fx.
 
 <p>
 <dt><b><code>-additionalFile </b></code><var>file1[,file2[...] ] </var>
@@ -130,6 +140,14 @@ No additional dependency analysis is done on the files in a package,
 unless they are explicitly specified as required files.
 
 <p>
+<dt><b><code>-packageExcluded </b></code><var>package1[,package2[...] ] </var>
+<dd>
+The packages that are to be excluded.
+Entries are separated by commas (no spaces).
+The -packageExcluded option may be abbreviated to -px.
+Package names are specified in standard syntax, such as <code>com.ibm.component</code>.
+
+<p>
 <dt><b><code>-extract </b></code><var>[baseDirectory]</var>
 <dd>
 Extracts the desired entries of the source JAR or ZIP file
@@ -147,7 +165,7 @@ The default base directory is the current directory.
 <dt><b><code>-split </b></code><var>[splitSize]</var>
 <dd>
 Splits the source JAR or ZIP file into smaller JAR or ZIP files.
-No ZIP entries are added or excluded;
+No ZIP entries are added or removed;
 the entries in the source JAR or ZIP file are simply distributed
 among the destination JAR or ZIP files.
 The split size is in units of kilobytes (1024 bytes),
@@ -182,9 +200,11 @@ The default is non-verbose.
 <p>
 At least one of the following options must be specified:
 <ul compact>
-<li>-requiredFile
+<li>-fileRequired
+<li>-fileExcluded
 <li>-additionalFile
 <li>-package
+<li>-packageExcluded
 <li>-extract
 <li>-split
 </ul>
@@ -217,11 +237,11 @@ do the following:
 import utilities.JarMaker;
 <p>
 // Set up the list of required files.
-Vector classList = new Vector ();
+Vector classList = new Vector();
 classList.addElement ("mypackage/MyClass1.class");
 classList.addElement ("mypackage/MyClass2.class");
-JarMaker jm = new JarMaker ();
-jm.setRequiredFiles (classList);
+JarMaker jm = new JarMaker();
+jm.setFilesRequired (classList);
 <p>
 // Make a new JAR file, that contains only MyClass1, MyClass2,
 // and their dependencies.
@@ -233,7 +253,7 @@ Alternatively, the above action can be performed directly
 from the command line as follows:
 <pre>
 java utilities.JarMaker -source myJar.jar
-        -requiredFile mypackage/MyClass1.class,mypackage/MyClass2.class
+        -fileRequired mypackage/MyClass1.class,mypackage/MyClass2.class
 </pre>
 
 </em>
@@ -246,7 +266,7 @@ java utilities.JarMaker -source myJar.jar
 
 public class JarMaker
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
   // Constants.
@@ -264,10 +284,15 @@ public class JarMaker
   private static final int    BUFFER_SIZE              = 2*1024; // bytes
   private static final int    SPLIT_SIZE_KBYTES        = 2*1024; // kilobytes
   private static final char   FILE_SEPARATOR =
-    System.getProperty ("file.separator").charAt (0);
-  static final File CURRENT_DIR = new File (System.getProperty ("user.dir"));
+    System.getProperty("file.separator").charAt(0);
+  static final File CURRENT_DIR = new File(System.getProperty("user.dir"));
+  // Constants for copyVector() method:
   static final boolean        CHECK_DUPS               = true;           // @A3a
   static final boolean        NO_CHECK_DUPS            = false;          // @A3a
+  // Constants for removeElements() method:
+  static final int            STARTS_WITH   = 1;
+  static final int            ENDS_WITH     = 2;
+  static final int            CONTAINS      = 3;
 
   // Variables.
 
@@ -276,21 +301,26 @@ public class JarMaker
   private File sourceJarFile_;       // Source JAR or ZIP file.
   private File destinationJarFile_;  // Destination JAR or ZIP file.
 
-  // Required files (ZIP entries) specified by user (String's).
-  private Vector requiredJarEntries_      = new Vector (); // Never null.
+  // Required files (ZIP entries), as specified by user. (String objects)
+  private Vector filesRequired_      = new Vector(); // Never null.
+  // Files (ZIP entries) to be excluded, as specified by user. (String objects)
+  private Vector filesExcluded_      = new Vector(); // Never null.
+
   // Packages specified by user (String's).
-  private Vector packages_                = new Vector (); // Never null.
-  // Additional files specified by user (File's).
-  private Hashtable additionalFiles_      = new Hashtable ();
+  private Vector packages_                = new Vector(); // Never null.
+  // Packages to exclude (String's).
+  private Vector packagesExcluded_        = new Vector(); // Never null.
+ // Additional files specified by user (File's).
+  private Hashtable additionalFiles_      = new Hashtable();
                          // Key=File, value=base directory (File).
                          // Never null.
   boolean excludeSomeDependencies_; // Indicates whether -excludeSomeDependencies was specified.    @A4a
-  Vector dependenciesToExclude_      = new Vector (); // Never null.
+  Vector dependenciesToExclude_      = new Vector(); // Never null.
   // Dependendencies which should be ignored.   @A4a
 
   private boolean extract_ = false;  // Whether or not to do an extract.
   // Base directory for extracting.
-  private File baseDirectoryForExtract_ = new File (System.getProperty ("user.dir"));
+  private File baseDirectoryForExtract_ = new File(System.getProperty("user.dir"));
 
   private boolean split_ = false;  // Whether or not to do a split.
   private int splitSize_ = SPLIT_SIZE_KBYTES;  // kilobytes
@@ -304,17 +334,17 @@ public class JarMaker
   private String jarEntryDefaultPrefixDotted_;
                              // Same as jarEntryDefaultPrefix_,
                              // but with slashes replaced by dots.
-  private transient Vector eventListeners_    = new Vector ();
+  private transient Vector eventListeners_    = new Vector();
 
   // Invocation arguments.  This is used only when JarMaker is invoked
   // from the command line.
-  private Arguments arguments_ = new Arguments ();
+  private Arguments arguments_ = new Arguments();
 
 
   /**
    Constructs a JarMaker object.
    **/
-  public JarMaker ()
+  public JarMaker()
   {
   }
 
@@ -325,23 +355,59 @@ public class JarMaker
 
    @param jarEntryDefaultPrefix Default prefix for use when parsing class files.
    **/
-  JarMaker (String jarEntryDefaultPrefix)
+  JarMaker(String jarEntryDefaultPrefix)
   {
     jarEntryDefaultPrefix_ = jarEntryDefaultPrefix;
-    jarEntryDefaultPrefixDotted_ = jarEntryDefaultPrefix.replace ('/', '.');
+    jarEntryDefaultPrefixDotted_ = jarEntryDefaultPrefix.replace('/', '.');
   }
 
 
   //@A1a
   // Adds an element to a Vector, only if not already a member.
   // @return false if object was already a member of the vector. 
-  static boolean addElement (Vector vector, Object object)
+  static boolean addElement(Vector vector, Object object)
   {
-    if (vector.contains (object))
+    if (vector.contains(object))
       return false;
 
-    vector.addElement (object);
+    vector.addElement(object);
     return true;
+  }
+
+
+  // Removes elements (matching a pattern) from a Vector of Strings.
+  // If patternLocation==STARTS_WITH, namePattern is a "startsWith" pattern.
+  // If patternLocation==ENDS_WITH, namePattern is an "endsWith" pattern.
+  // Otherwise, namePattern is a "contains String" pattern.
+  static void removeElements(Vector vector, String namePattern, int patternLocation)
+  {
+    Vector entriesToRemove = new Vector();
+    Enumeration e = vector.elements();
+    while (e.hasMoreElements())
+    {
+      String entry = (String)e.nextElement();
+      boolean removeEntry = false;
+      switch (patternLocation) {
+        case STARTS_WITH:
+          if (entry.startsWith(namePattern)) removeEntry = true;
+          break;
+        case ENDS_WITH:
+          if (entry.endsWith(namePattern)) removeEntry = true;
+          break;
+        default:  // CONTAINS
+          if (entry.indexOf(namePattern) != -1) removeEntry = true;
+      }
+      if (removeEntry) {
+        // Note: Must not remove elements from underneath the current Enumeration.
+        entriesToRemove.addElement(entry);
+        if (/*verbose_ ||*/ DEBUG) {
+          System.out.println("Excluding entry: " + entry);
+        }
+      }
+    }
+    Enumeration e2 = entriesToRemove.elements();
+    while (e2.hasMoreElements())
+      vector.removeElement((String)e2.nextElement());
   }
 
 
@@ -350,10 +416,10 @@ public class JarMaker
 
    @param listener The listener.
    **/
-  public synchronized void addJarMakerListener (JarMakerListener listener)
+  public synchronized void addJarMakerListener(JarMakerListener listener)
   {
-    if (listener == null) throw new NullPointerException ("listener");
-    eventListeners_.addElement (listener);
+    if (listener == null) throw new NullPointerException("listener");
+    eventListeners_.addElement(listener);
   }
 
 
@@ -366,24 +432,53 @@ public class JarMaker
    The list should contain only <code>String</code> objects.
    @param jarMap A map of the source JAR or ZIP file.
    **/
-  static void addPackageFiles (Vector neededJarEntries, JarMap jarMap, Vector packages)
+  static void addPackageFiles(Vector neededJarEntries, JarMap jarMap, Vector packages)
     throws IOException
   {
     // Load the entry names associated with any required packages.
     // Note that these files will not be explicitly analyzed.
-    Enumeration pkgs = packages.elements ();
-    while (pkgs.hasMoreElements ())
+    Enumeration pkgs = packages.elements();
+    while (pkgs.hasMoreElements())
     {
-      String packageName = (String)pkgs.nextElement ();
-      String packagePrefix = packageName.replace ('.', '/');
+      String packageName = (String)pkgs.nextElement();
+      String packagePrefix = packageName.replace('.', '/');
       Vector entriesInPackage =
-        getEntryNamesForPackage (packagePrefix, jarMap);
-      if (entriesInPackage.size () == 0) {
-        System.err.println ("Error: Specified package not found in source file:");
-        System.err.println ("       " + packageName);
-        throw new ZipException (packageName);
+        getEntryNamesForPackage(packagePrefix, jarMap);
+      if (entriesInPackage.size() == 0) {
+        System.err.println("Error: Specified package not found in source file:");
+        System.err.println("       " + packageName);
+        throw new ZipException(packageName);
       }
-      copyVectorToFrom(neededJarEntries, entriesInPackage, CHECK_DUPS);  // @A3c
+      copyVector(entriesInPackage, neededJarEntries, CHECK_DUPS);  // @A3c
+    }
+  }
+
+
+  /**
+   Removes files for any specified packages from the additional files list.
+
+   @param neededJarEntries The current list of required files
+   and their dependencies.
+   The list should contain only <code>String</code> objects.
+   @param jarMap A map of the source JAR or ZIP file.
+   **/
+  static void removePackageFiles(Vector neededJarEntries, JarMap jarMap, Vector packages)
+    throws IOException
+  {
+    // Load the entry names associated with any required packages.
+    Enumeration pkgs = packages.elements();
+    while (pkgs.hasMoreElements())
+    {
+      String packageName = (String)pkgs.nextElement();
+      String packagePrefix = packageName.replace('.', '/');
+      Vector entriesInPackage =
+        getEntryNamesForPackage(packagePrefix, jarMap);
+      if (entriesInPackage.size() == 0) {
+        System.err.println("Error: Specified package not found in source file:");
+        System.err.println("       " + packageName);
+        throw new ZipException(packageName);
+      }
+      removeElements(neededJarEntries, entriesInPackage);
     }
   }
 
@@ -402,7 +497,7 @@ public class JarMaker
    This should be a Vector of Strings.
    @exception IOException If an I/O error occurs when reading the JAR file.
    **/
-  Vector adjustDependencies1 (Vector neededJarEntries, JarMap jarMap)
+  Vector adjustDependencies1(Vector neededJarEntries, JarMap jarMap)
     throws IOException
   {
     return neededJarEntries;
@@ -423,12 +518,16 @@ public class JarMaker
    This should be a Vector of Strings.
    @exception IOException If an I/O error occurs when reading the JAR file.
    **/
-  Vector adjustDependencies2 (Vector neededJarEntries, JarMap jarMap)
+  Vector adjustDependencies2(Vector neededJarEntries, JarMap jarMap)
     throws IOException
   {
+    // Remove excluded packages.
+    removePackageFiles(neededJarEntries, jarMap, packagesExcluded_);
+
     // Load the entry names associated with any required packages.
     // Note that these files will not be explicitly analyzed.
     addPackageFiles(neededJarEntries, jarMap, packages_);            // @A3a
+
     return neededJarEntries;
   }
 
@@ -442,51 +541,51 @@ public class JarMaker
    @param jarMap A map of the source JAR or ZIP file.
    @exception IOException If an I/O error occurs when reading the source file.
    **/
-  void analyzeJarEntry ( String jarEntryName,
+  void analyzeJarEntry( String jarEntryName,
                          Vector unanalyzedEntries,
                          Vector referencedJarEntries,
                          JarMap jarMap )
     throws IOException
   {
-    fireAnalysisEvent (true, jarEntryName);
-    if (jarEntryName.endsWith (CLASS_SUFFIX))
+    fireAnalysisEvent(true, jarEntryName);
+    if (jarEntryName.endsWith(CLASS_SUFFIX))
     {
           if (excludeSomeDependencies_ &&
-              dependenciesToExclude_.contains (jarEntryName))    // @A4a
+              dependenciesToExclude_.contains(jarEntryName))    // @A4a
           {
             if (verbose_ || DEBUG)
-              System.out.println ("\nExcluding entry from dependency analysis: " +
+              System.out.println("\nExcluding entry from dependency analysis: " +
                                   jarEntryName + "\n");      // @A4a
-            addElement (referencedJarEntries, jarEntryName); // keep this one.
+            addElement(referencedJarEntries, jarEntryName); // keep this one.
           }
           else
           {
             // Start with list of directly referenced entries.
             Vector referencedEntries =
-              getReferencedEntries (jarEntryName, jarMap);
+              getReferencedEntries(jarEntryName, jarMap);
             if (DEBUG_REF) {
-              System.out.println (jarEntryName + " references: ");
-              Enumeration e1 = referencedEntries.elements (); // entry names
-              while (e1.hasMoreElements ())
-                System.out.println ("   " + (String)e1.nextElement ());
+              System.out.println(jarEntryName + " references: ");
+              Enumeration e1 = referencedEntries.elements(); // entry names
+              while (e1.hasMoreElements())
+                System.out.println("   " + (String)e1.nextElement());
             }
             // Now recurse through the list and add indirectly referenced entries.
-            Enumeration e = referencedEntries.elements (); // entry names
-            while (e.hasMoreElements ())
+            Enumeration e = referencedEntries.elements(); // entry names
+            while (e.hasMoreElements())
             {
-              String entryName = (String)e.nextElement ();
-              if (unanalyzedEntries.contains (entryName))
+              String entryName = (String)e.nextElement();
+              if (unanalyzedEntries.contains(entryName))
               {
-                unanalyzedEntries.removeElement (entryName);
-                analyzeJarEntry (entryName, unanalyzedEntries,
+                unanalyzedEntries.removeElement(entryName);
+                analyzeJarEntry(entryName, unanalyzedEntries,
                                    referencedJarEntries, jarMap);
-                addElement (referencedJarEntries, entryName);
+                addElement(referencedJarEntries, entryName);
               }
             }
           }
     }
     else {}  // Not a class file, so no analysis to do
-    fireAnalysisEvent (false, jarEntryName);
+    fireAnalysisEvent(false, jarEntryName);
   }
 
 
@@ -499,77 +598,73 @@ public class JarMaker
    @param entryName Name for the ZIP entry.
    @exception IOException If an I/O error occurs when reading the JAR file.
    **/
-   private static void constructManifestEntry (StringBuffer buffer, File file,
+   private static void constructManifestEntry(StringBuffer buffer, File file,
                                                String entryName)
      throws IOException
    {
-     // Example manifest entries:
-     // 
-     // Name: com/ibm/as400/access/AS400ByteArray.class
-     // Digest-Algorithms: SHA MD5 
-     // SHA-Digest: diom/+QXViCgOLRF2ucHqkhUkz4=
-     // MD5-Digest: OMRr0qBhIlntnZGq42CwyA==
-     // 
-     // Name: com/ibm/as400/access/CommandCall.class
-     // Java-Bean: True
-     // Digest-Algorithms: SHA MD5 
-     // SHA-Digest: zm8IltVIiLFO6Y0zG697L6wjDWg=
-     // MD5-Digest: E5LW18EC5bBmBH8evb89Sw==
-
-     String line1 = new String ("Name: " + entryName);
-     String line2 = new String ("Digest-Algorithms: SHA MD5");
+     String line1 = new String("Name: " + entryName);
+     String line2 = new String("Digest-Algorithms: SHA MD5");
      String line3 = null;  // SHA-Digest: <value>
      String line4 = null;  // MD5-Digest: <value>
-     byte[] fileContents = getBytes (file); // read file into byte array
+     byte[] fileContents = getBytes(file); // read file into byte array
      try
      {
-       MessageDigest shaMD = MessageDigest.getInstance ("SHA");
-       byte[] shaDigest = shaMD.digest (fileContents);
-       line3 = new String ("SHA-Digest: " + shaDigest);
+       MessageDigest shaMD = MessageDigest.getInstance("SHA");
+       byte[] shaDigest = shaMD.digest(fileContents);
+       line3 = new String("SHA-Digest: " + shaDigest);
      }
      catch (NoSuchAlgorithmException e) {
        if (DEBUG)
-         System.err.println ("Debug: Warning: Manifest entry " +
+         System.err.println("Debug: Warning: Manifest entry " +
                              "will contain no SHA digest:");
-         System.err.println ("       " + file.getAbsolutePath ());
+         System.err.println("       " + file.getAbsolutePath());
      }
 
      try
      {
-       MessageDigest md5MD = MessageDigest.getInstance ("MD5");
-       byte[] md5Digest = md5MD.digest (fileContents);
-       line4 = new String ("MD5-Digest: " + md5Digest);
+       MessageDigest md5MD = MessageDigest.getInstance("MD5");
+       byte[] md5Digest = md5MD.digest(fileContents);
+       line4 = new String("MD5-Digest: " + md5Digest);
      }
      catch (NoSuchAlgorithmException e) {
        if (DEBUG)
-         System.err.println ("Debug: Warning: Manifest entry " +
+         System.err.println("Debug: Warning: Manifest entry " +
                              "will contain no MD5 digest:");
-         System.err.println ("       " + file.getAbsolutePath ());
+         System.err.println("       " + file.getAbsolutePath());
      }
 
      if ((line1 != null && line2 != null) &&
          (line3 != null || line4 != null))
      {
-       buffer.append (line1);
-       buffer.append ('\n');
-       buffer.append (line2);
-       buffer.append ('\n');
+       buffer.append(line1);
+       buffer.append('\n');
+       buffer.append(line2);
+       buffer.append('\n');
        if (line3 != null)
        {
-         buffer.append (line3);
-         buffer.append ('\n');
+         buffer.append(line3);
+         buffer.append('\n');
        }
        if (line4 != null)
        {
-         buffer.append (line4);
-         buffer.append ('\n');
+         buffer.append(line4);
+         buffer.append('\n');
        }
-       buffer.append ('\n'); // terminate the section with a zero-length line
+       buffer.append('\n'); // terminate the section with a zero-length line
      }
      else
-       System.err.println ("Error: Failed to construct manifest entry for file");
-       System.err.println ("       " + file.getAbsolutePath ());
+       System.err.println("Error: Failed to construct manifest entry for file");
+       System.err.println("       " + file.getAbsolutePath());
    }
+
+
+   // Utility method to determine if an int array contains a specific value.
+   // Assumes that the array is sorted in ascending order.
+  final static boolean contains(int[] list, int element)
+  {
+    if (Arrays.binarySearch(list, element) >= 0) return true;
+    else return false;
+  }
 
 
   /**
@@ -581,7 +676,7 @@ public class JarMaker
    @exception IOException If an I/O error occurs when reading the input stream
                           or writing to the output stream.
    **/
-  private static void copyBytes (InputStream inStream, OutputStream outStream,
+  private static void copyBytes(InputStream inStream, OutputStream outStream,
                              long bytesToCopy)
     throws IOException
   {
@@ -591,10 +686,10 @@ public class JarMaker
     boolean done = false;
     while (!done && totalBytes < bytesToCopy)
     {
-      bytesRead = inStream.read (buffer, 0, buffer.length);
+      bytesRead = inStream.read(buffer, 0, buffer.length);
       if (bytesRead == -1) done = true;
       else {
-        outStream.write (buffer, 0, bytesRead);
+        outStream.write(buffer, 0, bytesRead);
         totalBytes += bytesRead;
       }
     }
@@ -604,51 +699,51 @@ public class JarMaker
   /**
    Copies a file onto another file (replacing it if it exists).
    **/
-    static void copyFile (File sourceFile, File destinationFile)
+    static void copyFile(File sourceFile, File destinationFile)
         throws IOException
     {
       if (sourceFile == null)
-        throw new NullPointerException ("sourceFile");
+        throw new NullPointerException("sourceFile");
       if (destinationFile == null)
-        throw new NullPointerException ("destinationFile");
+        throw new NullPointerException("destinationFile");
       BufferedInputStream source = null;
       BufferedOutputStream destination = null;
-      String parentDirName = destinationFile.getParent ();
+      String parentDirName = destinationFile.getParent();
       if (parentDirName == null)
-        throw new NullPointerException ("parentDirectory");
-      File outFileDir = new File (parentDirName);
-      if (!outFileDir.exists () && !outFileDir.mkdirs ())
-        throw new IOException (outFileDir.getAbsolutePath () +
+        throw new NullPointerException("parentDirectory");
+      File outFileDir = new File(parentDirName);
+      if (!outFileDir.exists() && !outFileDir.mkdirs())
+        throw new IOException(outFileDir.getAbsolutePath() +
                                ": Cannot create directory.");
       byte[] buffer = new byte[BUFFER_SIZE];
       try
       {
         source =
-          new BufferedInputStream (new FileInputStream (sourceFile),
+          new BufferedInputStream(new FileInputStream(sourceFile),
                                    BUFFER_SIZE);
         destination =
-          new BufferedOutputStream (new FileOutputStream (destinationFile),
+          new BufferedOutputStream(new FileOutputStream(destinationFile),
                                     BUFFER_SIZE);
         boolean done = false;
         while (!done)
         {
-          int bytesRead = source.read (buffer);
+          int bytesRead = source.read(buffer);
           if (bytesRead == -1) done = true;
-          else destination.write (buffer, 0, bytesRead);
+          else destination.write(buffer, 0, bytesRead);
         }
-        destination.flush ();
+        destination.flush();
       }
       catch (IOException e) {
-        System.err.println ("Error: IOException when copying file");
-        System.err.println ("       " + destinationFile.getAbsolutePath () + ":");
-        System.err.println (e.toString ());
-        if (DEBUG) e.printStackTrace (System.err);
+        System.err.println("Error: IOException when copying file");
+        System.err.println("       " + destinationFile.getAbsolutePath() + ":");
+        System.err.println(e.toString());
+        if (DEBUG) e.printStackTrace(System.err);
         throw e;
       }
       finally
       {
-        if (source != null) { source.close (); }
-        if (destination != null) { destination.close (); }
+        if (source != null) { source.close(); }
+        if (destination != null) { destination.close(); }
       }
     }
 
@@ -656,13 +751,25 @@ public class JarMaker
   /**
    Copies (appends) a vector into another vector.
    **/
-  static void copyVectorToFrom (Vector toList, Vector fromList, boolean checkDups)
+  static void copyVector(Vector fromList, Vector toList, boolean checkDups)
   {
-    Enumeration e = fromList.elements ();
-    while (e.hasMoreElements ()) {
-      Object element = e.nextElement ();
+    Enumeration e = fromList.elements();
+    while (e.hasMoreElements()) {
+      Object element = e.nextElement();
       if (!checkDups || !toList.contains(element))
-        toList.addElement (element);
+        toList.addElement(element);
+    }
+  }
+
+
+  /**
+   Removes the entries listed in one vector from another vector.
+   **/
+  static void removeElements(Vector list, Vector entriesToRemove)
+  {
+    Enumeration e = entriesToRemove.elements();
+    while (e.hasMoreElements()) {
+      list.remove(e.nextElement());
     }
   }
 
@@ -670,35 +777,35 @@ public class JarMaker
   /**
    Copies a ZIP entry from an input stream to an output stream.
    **/
-  static void copyZipEntry (ZipEntry inZipEntry,
+  static void copyZipEntry(ZipEntry inZipEntry,
                             InputStream inStream,
                             ZipOutputStream zipOutStream)
     throws IOException
   {
-    if (inZipEntry == null)   throw new NullPointerException ("inZipEntry");
-    if (inStream == null)  throw new NullPointerException ("inStream");
-    if (zipOutStream == null) throw new NullPointerException ("zipOutStream");
+    if (inZipEntry == null)   throw new NullPointerException("inZipEntry");
+    if (inStream == null)  throw new NullPointerException("inStream");
+    if (zipOutStream == null) throw new NullPointerException("zipOutStream");
 
     // Create a new ZipEntry for the output ZipFile
-    ZipEntry outZipEntry = new ZipEntry (inZipEntry.getName ());
+    ZipEntry outZipEntry = new ZipEntry(inZipEntry.getName());
     outZipEntry.setComment(inZipEntry.getComment());
 
-    long crc = inZipEntry.getCrc ();
-    if ( crc != -1 ) outZipEntry.setCrc (crc);
+    long crc = inZipEntry.getCrc();
+    if ( crc != -1 ) outZipEntry.setCrc(crc);
 
-    outZipEntry.setExtra (inZipEntry.getExtra ());
+    outZipEntry.setExtra(inZipEntry.getExtra());
 
-    int method = inZipEntry.getMethod ();
-    if ( method != -1 ) outZipEntry.setMethod (method);
+    int method = inZipEntry.getMethod();
+    if ( method != -1 ) outZipEntry.setMethod(method);
 
-    long size = inZipEntry.getSize ();
-    if ( size != -1 ) outZipEntry.setSize (size);
+    long size = inZipEntry.getSize();
+    if ( size != -1 ) outZipEntry.setSize(size);
 
-    long time = inZipEntry.getTime ();
-    if (time != -1) outZipEntry.setTime (time);
+    long time = inZipEntry.getTime();
+    if (time != -1) outZipEntry.setTime(time);
 
     // Put the entry into the output ZIP file.
-    zipOutStream.putNextEntry (outZipEntry);
+    zipOutStream.putNextEntry(outZipEntry);
 
     // If the entry is not a directory, then there is also data to write.
     byte[] buffer = new byte [BUFFER_SIZE];
@@ -708,10 +815,10 @@ public class JarMaker
       int totalBytes = 0;
       boolean done = false;
       while (!done && totalBytes < size) {
-        bytesRead = inStream.read (buffer);
+        bytesRead = inStream.read(buffer);
         if (bytesRead == -1) done = true;
         else {
-          zipOutStream.write (buffer,0,bytesRead);
+          zipOutStream.write(buffer,0,bytesRead);
           totalBytes += bytesRead;
         }
       }
@@ -723,14 +830,14 @@ public class JarMaker
    Calculates the size of the zip metadata that will be associated
    with a given list of directory names.
    **/
-  private static int determineDirMetadataSize (Vector dirNames,
+  private static int determineDirMetadataSize(Vector dirNames,
                                                int baseMetadataPerZipEntry)
   {
     int result = 0;
-    Enumeration e = dirNames.elements ();
-    while (e.hasMoreElements ()) {
-      String dirName = (String)e.nextElement ();
-      result += dirName.length ();
+    Enumeration e = dirNames.elements();
+    while (e.hasMoreElements()) {
+      String dirName = (String)e.nextElement();
+      result += dirName.length();
       result += baseMetadataPerZipEntry;
     }
     return result;
@@ -750,13 +857,13 @@ public class JarMaker
    or writing the extracted files.
    @exception ZipException If a ZIP error occurs when reading the source file.
    **/
-  public File extract (File sourceJarFile)
+  public File extract(File sourceJarFile)
     throws FileNotFoundException, IOException, ZipException
   {
-    if (sourceJarFile == null) throw new NullPointerException ("sourceJarFile");
+    if (sourceJarFile == null) throw new NullPointerException("sourceJarFile");
     // Default: Extract into current directory.
-    File outputDirectory = new File (System.getProperty ("user.dir"));
-    extract (sourceJarFile, outputDirectory);
+    File outputDirectory = new File(System.getProperty("user.dir"));
+    extract(sourceJarFile, outputDirectory);
     return outputDirectory;
   }
 
@@ -773,64 +880,64 @@ public class JarMaker
    or writing the extracted files.
    @exception ZipException If a ZIP error occurs when reading the source file.
    **/
-  public void extract (File sourceJarFile, File outputDirectory)
+  public void extract(File sourceJarFile, File outputDirectory)
     throws FileNotFoundException, IOException, ZipException
   {
-    if (sourceJarFile == null) throw new NullPointerException ("sourceJarFile");
+    if (sourceJarFile == null) throw new NullPointerException("sourceJarFile");
     if (outputDirectory == null)
-      throw new NullPointerException ("outputDirectory");
-    if (!sourceJarFile.exists ())
-      throw new FileNotFoundException (sourceJarFile.getAbsolutePath ());
+      throw new NullPointerException("outputDirectory");
+    if (!sourceJarFile.exists())
+      throw new FileNotFoundException(sourceJarFile.getAbsolutePath());
     if (verbose_ || DEBUG) {
-      System.out.println ("Source file is " + sourceJarFile.getAbsolutePath ());
-      System.out.println ("Output directory is " + outputDirectory.getAbsolutePath ());
+      System.out.println("Source file is " + sourceJarFile.getAbsolutePath());
+      System.out.println("Output directory is " + outputDirectory.getAbsolutePath());
     }
 
     BufferedOutputStream destinationFile = null;
-    String basePath = outputDirectory.getAbsolutePath ();
+    String basePath = outputDirectory.getAbsolutePath();
     JarMap jarMap = null;
 
     // Warn the user if additional files were specified.
-    if (additionalFiles_.size () != 0)
-      System.err.println ("Warning: Additional files were specified.  " +
+    if (additionalFiles_.size() != 0)
+      System.err.println("Warning: Additional files were specified.  " +
                           "They are ignored by extract().");
     try
     {
       // Make a map of the source JAR or ZIP file.
-      jarMap = new JarMap (sourceJarFile, verbose_);
+      jarMap = new JarMap(sourceJarFile, verbose_);
 
       // Get list of the names of the ZIP entries that will be extracted.
-      Vector referencedJarEntries = identifyDependencies (jarMap);
+      Vector referencedJarEntries = identifyDependencies(jarMap);
 
       // Make sure to copy the Manifest also.
       if (jarMap.hasManifest() &&
-          !referencedJarEntries.contains (MANIFEST_ENTRY_NAME))
+          !referencedJarEntries.contains(MANIFEST_ENTRY_NAME))
       {
-        int dirIndex = referencedJarEntries.indexOf (MANIFEST_DIR_NAME);
+        int dirIndex = referencedJarEntries.indexOf(MANIFEST_DIR_NAME);
         if (dirIndex == -1) {
-          referencedJarEntries.insertElementAt (MANIFEST_DIR_NAME, 0);
+          referencedJarEntries.insertElementAt(MANIFEST_DIR_NAME, 0);
           dirIndex = 0;
         }
-        referencedJarEntries.insertElementAt (MANIFEST_ENTRY_NAME, dirIndex+1);
+        referencedJarEntries.insertElementAt(MANIFEST_ENTRY_NAME, dirIndex+1);
       }
 
       // Copy the referenced files to the destination.
-      if (verbose_ || DEBUG) System.out.println ("Extracting files");
-      Enumeration e = referencedJarEntries.elements ();
-      while (e.hasMoreElements ())
+      if (verbose_ || DEBUG) System.out.println("Extracting files");
+      Enumeration e = referencedJarEntries.elements();
+      while (e.hasMoreElements())
       {
-        String entryName = (String)e.nextElement ();
+        String entryName = (String)e.nextElement();
 
         // If the entry represents a directory, simply create the
         // directory.  Otherwise extract the file.
-        String filePath = generateFilePath (basePath, entryName);
-        if (DEBUG) System.out.println (filePath);
-        else if (verbose_) System.out.print (".");
-        if (entryName.endsWith ("/"))
+        String filePath = generateFilePath(basePath, entryName);
+        if (DEBUG) System.out.println(filePath);
+        else if (verbose_) System.out.print(".");
+        if (entryName.endsWith("/"))
         { // Simply create the directory.  Remove the final separator.
-          File outFileDir = new File (filePath.substring (0, filePath.length()-1));
-          if (!outFileDir.exists () && !outFileDir.mkdirs ())
-            throw new IOException (outFileDir.getAbsolutePath () +
+          File outFileDir = new File(filePath.substring(0, filePath.length()-1));
+          if (!outFileDir.exists() && !outFileDir.mkdirs())
+            throw new IOException(outFileDir.getAbsolutePath() +
                                    ": Cannot create directory.");
         }
         else
@@ -840,14 +947,14 @@ public class JarMaker
 
           // Open the destination file for writing.
           destinationFile =
-            new BufferedOutputStream (new FileOutputStream (filePath),
+            new BufferedOutputStream(new FileOutputStream(filePath),
                                       BUFFER_SIZE);
 
           // Gather information from the source file.
-          ZipEntry entry = jarMap.getEntry (entryName);
+          ZipEntry entry = jarMap.getEntry(entryName);
           if (entry == null)
-            throw new FileNotFoundException (entryName);
-          InputStream inStream = jarMap.getInputStream (entry);
+            throw new FileNotFoundException(entryName);
+          InputStream inStream = jarMap.getInputStream(entry);
 
           // Design note: Experimentation reveals that ZipFile.getInputStream()
           // actually returns a java.util.zip.InflaterInputStream object,
@@ -855,52 +962,52 @@ public class JarMaker
 
           if (DEBUG_ZIP)
           {
-            int avail = inStream.available ();
-            long entrySize = entry.getSize ();
-            long compressedSize = entry.getCompressedSize ();
-            if (avail == entrySize) System.out.println ("Debug: Sizes match");
+            int avail = inStream.available();
+            long entrySize = entry.getSize();
+            long compressedSize = entry.getCompressedSize();
+            if (avail == entrySize) System.out.println("Debug: Sizes match");
             else
             {
-              System.out.println ("Debug: File sizes mismatch for " +
-                                  entry.getName ());
-              System.out.println ("   available   = " + avail);
-              System.out.println ("   compressed  = " + compressedSize);
-              System.out.println ("   uncompressed= " + entrySize);
+              System.out.println("Debug: File sizes mismatch for " +
+                                  entry.getName());
+              System.out.println("   available   = " + avail);
+              System.out.println("   compressed  = " + compressedSize);
+              System.out.println("   uncompressed= " + entrySize);
             }
           }
           // Copy the referenced file to the destination.
-          copyBytes (inStream, destinationFile, entry.getSize ());
-          destinationFile.flush ();
-          destinationFile.close ();
+          copyBytes(inStream, destinationFile, entry.getSize());
+          destinationFile.flush();
+          destinationFile.close();
           destinationFile = null;
-          inStream.close ();
+          inStream.close();
         }
       }  // ... while
     }
     catch (ZipException e) {
-      System.err.println ("Error: ZipException when extracting source file");
-      System.err.println ("       " + sourceJarFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: ZipException when extracting source file");
+      System.err.println("       " + sourceJarFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     catch (IOException e) {
-      System.err.println ("Error: IOException when extracting source file");
-      System.err.println ("       " + sourceJarFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: IOException when extracting source file");
+      System.err.println("       " + sourceJarFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     finally
     {
-      if (DEBUG) System.out.println ();
-      if (jarMap != null) { jarMap.close (); }
+      if (DEBUG) System.out.println();
+      if (jarMap != null) { jarMap.close(); }
 
       if (destinationFile != null)
       {
         if (verbose_ || DEBUG)
-          System.out.println ("Closing destination file");
-        destinationFile.close ();
+          System.out.println("Closing destination file");
+        destinationFile.close();
       }
     }
 
@@ -915,24 +1022,24 @@ public class JarMaker
    otherwise fires a <code>dependencyAnalysisCompleted</code> event.
    @param entryName The name of the ZIP entry.
    **/
-  private void fireAnalysisEvent (boolean start, String entryName)
+  private void fireAnalysisEvent(boolean start, String entryName)
   {
     Vector targets;
     synchronized (this)
     {
-      targets = (Vector) eventListeners_.clone ();
+      targets = (Vector) eventListeners_.clone();
     }
-    JarMakerEvent event = new JarMakerEvent (this, entryName);
-    for (int i = 0; i < targets.size (); i++)
+    JarMakerEvent event = new JarMakerEvent(this, entryName);
+    for (int i = 0; i < targets.size(); i++)
     {
-      JarMakerListener target = (JarMakerListener)targets.elementAt (i);
+      JarMakerListener target = (JarMakerListener)targets.elementAt(i);
       if (start)
       {
-        target.dependencyAnalysisStarted (event);
+        target.dependencyAnalysisStarted(event);
       }
       else
       {
-        target.dependencyAnalysisCompleted (event);
+        target.dependencyAnalysisCompleted(event);
       }
     }
   }
@@ -952,21 +1059,21 @@ public class JarMaker
    added to the destination file.
    @return The list of needed additional ZIP directory entries.
    **/
-  private static Vector generateDirEntries (String entryName,
+  private static Vector generateDirEntries(String entryName,
                                             Vector listSoFar)
   {
-    Vector outList = new Vector ();
-    String pathPrefix = entryName.substring (0, entryName.lastIndexOf ("/")+1);
-    if (pathPrefix.length () != 0)
+    Vector outList = new Vector();
+    String pathPrefix = entryName.substring(0, entryName.lastIndexOf("/")+1);
+    if (pathPrefix.length() != 0)
     {
-      int slashPos = pathPrefix.indexOf ("/");
+      int slashPos = pathPrefix.indexOf("/");
       while (slashPos != -1 &&
              slashPos < entryName.length()-1)
       {
-        String subPrefix = pathPrefix.substring (0, slashPos+1);
-        if (!listSoFar.contains (subPrefix))
-          outList.addElement (subPrefix);
-        slashPos = pathPrefix.indexOf ("/", slashPos+1);
+        String subPrefix = pathPrefix.substring(0, slashPos+1);
+        if (!listSoFar.contains(subPrefix))
+          outList.addElement(subPrefix);
+        slashPos = pathPrefix.indexOf("/", slashPos+1);
       }
     }
     return outList;
@@ -982,11 +1089,11 @@ public class JarMaker
    @param baseDirectory The base directory for the file.
    @param entryName The ZIP entry name.
    **/
-  static String generateFilePath (File baseDirectory,
+  static String generateFilePath(File baseDirectory,
                                   String entryName)
   {
-    if (baseDirectory == null) throw new NullPointerException ("baseDirectory");
-    return generateFilePath (baseDirectory.getAbsolutePath (), entryName);
+    if (baseDirectory == null) throw new NullPointerException("baseDirectory");
+    return generateFilePath(baseDirectory.getAbsolutePath(), entryName);
   }
 
 
@@ -996,20 +1103,20 @@ public class JarMaker
    @param basePath The absolute path of the base directory for the file.
    @param entryName The ZIP entry name.
    **/
-  static String generateFilePath (String basePath, String entryName)
+  static String generateFilePath(String basePath, String entryName)
   {
-    if (basePath == null) throw new NullPointerException ("basePath");
-    if (entryName == null) throw new NullPointerException ("entryName");
-    StringBuffer pathBuf = new StringBuffer (basePath.trim());
-    if (pathBuf.charAt (pathBuf.length ()-1) != FILE_SEPARATOR)
-      pathBuf.append (FILE_SEPARATOR);
+    if (basePath == null) throw new NullPointerException("basePath");
+    if (entryName == null) throw new NullPointerException("entryName");
+    StringBuffer pathBuf = new StringBuffer(basePath.trim());
+    if (pathBuf.charAt(pathBuf.length()-1) != FILE_SEPARATOR)
+      pathBuf.append(FILE_SEPARATOR);
 
     // Replace all occurrences of "/" with fileSeparator.
     StringBuffer convertedName =
-      new StringBuffer (entryName.trim().replace ('/',FILE_SEPARATOR));
+      new StringBuffer(entryName.trim().replace('/',FILE_SEPARATOR));
 
-    pathBuf.append (convertedName);
-    String path = pathBuf.toString ();
+    pathBuf.append(convertedName);
+    String path = pathBuf.toString();
 
     return path;
   }
@@ -1022,18 +1129,18 @@ public class JarMaker
                    second arg is the "base path" for the first arg.
    @return         The derived ZIP entry names - a map of (File, String).
    **/
-  private static Hashtable generateJarEntryMap (Hashtable fileList)
+  private static Hashtable generateJarEntryMap(Hashtable fileList)
   {
     Hashtable entryNames;
-    if (fileList.size () != 0) entryNames = new Hashtable (fileList.size ());
-    else entryNames = new Hashtable ();
-    Enumeration e = fileList.keys ();
-    while (e.hasMoreElements ())
+    if (fileList.size() != 0) entryNames = new Hashtable(fileList.size());
+    else entryNames = new Hashtable();
+    Enumeration e = fileList.keys();
+    while (e.hasMoreElements())
     {
-      File file = (File)e.nextElement ();
-      File baseDir = (File)fileList.get (file);
-      String entryName = generateJarEntryName (file, baseDir);
-      entryNames.put (file, entryName);
+      File file = (File)e.nextElement();
+      File baseDir = (File)fileList.get(file);
+      String entryName = generateJarEntryName(file, baseDir);
+      entryNames.put(file, entryName);
     }
     return entryNames;
   }
@@ -1046,31 +1153,31 @@ public class JarMaker
    @param baseDir  The base directory for the file.
    @return         The derived ZIP entry name.
    **/
-  private static String generateJarEntryName (File file, File baseDir)
+  private static String generateJarEntryName(File file, File baseDir)
   {
-    if (DEBUG) System.out.println ("Debug: File = " + file.getAbsolutePath () +
+    if (DEBUG) System.out.println("Debug: File = " + file.getAbsolutePath() +
                                    ", baseDir = " + baseDir.getAbsolutePath());
     // Strip off the base path, if it matches the beginning of the file path.
-    String filePath = file.getAbsolutePath ();
-    String basePath = baseDir.getAbsolutePath ();
-    if (filePath.startsWith (basePath))
-      filePath = filePath.substring (basePath.length ());
+    String filePath = file.getAbsolutePath();
+    String basePath = baseDir.getAbsolutePath();
+    if (filePath.startsWith(basePath))
+      filePath = filePath.substring(basePath.length());
     else
     {
-      System.err.println ("Warning: File path does not begin with " +
+      System.err.println("Warning: File path does not begin with " +
                           "base path for additional files.");
-      System.err.println ("   File path: " + filePath);
-      System.err.println ("   Base path: " + basePath);
+      System.err.println("   File path: " + filePath);
+      System.err.println("   Base path: " + basePath);
     }
 
     // Replace all filepath separators with "/".
-    String entryName = filePath.replace (FILE_SEPARATOR, '/');
+    String entryName = filePath.replace(FILE_SEPARATOR, '/');
 
     // Remove leading filepath separator if present.
-    if (entryName.startsWith ("/"))
-      entryName = entryName.substring (1);
+    if (entryName.startsWith("/"))
+      entryName = entryName.substring(1);
 
-    if (DEBUG) System.out.println ("Debug: Generated entry name: "+entryName);
+    if (DEBUG) System.out.println("Debug: Generated entry name: "+entryName);
 
     return entryName;
   }
@@ -1084,12 +1191,12 @@ public class JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>java.io.File</code> objects.
    **/
-  public Vector getAdditionalFiles ()
+  public Vector getAdditionalFiles()
   {
-    Vector files = new Vector ();
-    Enumeration e = additionalFiles_.keys ();
-    while (e.hasMoreElements ())
-      files.addElement ((File)e.nextElement ());
+    Vector files = new Vector();
+    Enumeration e = additionalFiles_.keys();
+    while (e.hasMoreElements())
+      files.addElement((File)e.nextElement());
     return files;
   }
 
@@ -1100,27 +1207,27 @@ public class JarMaker
     @return The contents of the specified file as a byte array.
     @exception IOException If an I/O error occurs when reading the file.
     **/
-   static byte[] getBytes (File file)
+   static byte[] getBytes(File file)
      throws IOException
    {
-     long fileSize = file.length ();
+     long fileSize = file.length();
      byte[] buffer = new byte[(int)fileSize];
-     InputStream inStream = new FileInputStream (file);
+     InputStream inStream = new FileInputStream(file);
      try
      {
-       int bytesRead = inStream.read (buffer);
+       int bytesRead = inStream.read(buffer);
        if (bytesRead < fileSize)
-         throw new IOException (file.getAbsolutePath () +
+         throw new IOException(file.getAbsolutePath() +
                                 ": Failed to read entire file.");
      }
      catch (IOException e) {
-       System.err.println ("Error: IOException when reading file");
-       System.err.println ("       " + file.getAbsolutePath () + ":");
-       System.err.println (e.toString ());
-       if (DEBUG) e.printStackTrace (System.err);
+       System.err.println("Error: IOException when reading file");
+       System.err.println("       " + file.getAbsolutePath() + ":");
+       System.err.println(e.toString());
+       if (DEBUG) e.printStackTrace(System.err);
        throw e;
      }
-     finally { if (inStream != null) inStream.close (); }
+     finally { if (inStream != null) inStream.close(); }
      return buffer;
    }
 
@@ -1131,40 +1238,40 @@ public class JarMaker
 
    @return The destination JAR or ZIP file.
    **/
-  File getDestinationJar () { return destinationJarFile_; }
+  File getDestinationJar() { return destinationJarFile_; }
 
 
   /**
    Returns the names of ZIP entries associated with a specific package.
 
    @param packagePrefix The ZIP entry prefix for the package of interest.
-                        Excludes the final '/'.
+                        Does not include the final '/'.
                         May be zero-length, indicating the default package.
    @param jarMap A map of the JAR or ZIP file.
    @return The names of the ZIP entries for the specified package (Strings).
    **/
-  private static Vector getEntryNamesForPackage (String packagePrefix,
+  private static Vector getEntryNamesForPackage(String packagePrefix,
                                          JarMap jarMap)
   {
-    Vector entriesInPackage = new Vector ();
-    int prefixLength = packagePrefix.length ();
-    Enumeration e = jarMap.elements ();
-    while (e.hasMoreElements ())
+    Vector entriesInPackage = new Vector();
+    int prefixLength = packagePrefix.length();
+    Enumeration e = jarMap.elements();
+    while (e.hasMoreElements())
     {
-      String entryName = (String)e.nextElement ();
+      String entryName = (String)e.nextElement();
       switch (prefixLength)
       {
         case 0:  // No package specifier, so assume the default package.
-          if (entryName.indexOf ('/') == -1)
-            entriesInPackage.addElement (entryName);
+          if (entryName.indexOf('/') == -1)
+            entriesInPackage.addElement(entryName);
           if (DEBUG)
-            System.out.println ("getEntryNamesForPackage: " +
+            System.out.println("getEntryNamesForPackage: " +
                                 "Zero-length packagePrefix encountered.");
           break;
         default:
-          if (entryName.startsWith (packagePrefix) &&
-              entryName.lastIndexOf ('/') == prefixLength)
-            entriesInPackage.addElement (entryName);
+          if (entryName.startsWith(packagePrefix) &&
+              entryName.lastIndexOf('/') == prefixLength)
+            entriesInPackage.addElement(entryName);
       }
     }
     return entriesInPackage;
@@ -1179,7 +1286,7 @@ public class JarMaker
    @return The directory at the base of the tree into which the
    source JAR or ZIP file will be extracted.
    **/
-  File getExtractionDirectory () { return baseDirectoryForExtract_; }
+  File getExtractionDirectory() { return baseDirectoryForExtract_; }
 
 
   /**
@@ -1192,36 +1299,42 @@ public class JarMaker
 
    @exception IOException If an I/O error occurs when reading the JAR or ZIP file.
    **/
-  private Vector getReferencedEntries (String jarEntryName, JarMap jarMap)
+  private Vector getReferencedEntries(String jarEntryName, JarMap jarMap)
     throws IOException
   {
     if (DEBUG && false)
-      System.out.println ("Debug: getReferencedEntries (" + jarEntryName + ")");
+      System.out.println("Debug: getReferencedEntries(" + jarEntryName + ")");
 
     // Open up the class file and process its bytecodes, looking
     // for referenced files.
-    if (verbose_) System.out.print (".");
-    ZipEntry entry = jarMap.getEntry (jarEntryName);
-    String entryName = entry.getName ();
+    if (verbose_) System.out.print(".");
+    ZipEntry entry = jarMap.getEntry(jarEntryName);
+    String entryName = entry.getName();
     String contextPackageName = "";
-    int finalSlashPos = entryName.lastIndexOf ('/');
+    int finalSlashPos = entryName.lastIndexOf('/');
     if (finalSlashPos != -1)
       contextPackageName =
-        entryName.substring (0, finalSlashPos).replace ('/','.');
-    InputStream inStream = jarMap.getInputStream (entry);
-    Vector classIndexes = prescanForClassIndexes (inStream,
+        entryName.substring(0, finalSlashPos).replace('/','.');
+    InputStream inStream = jarMap.getInputStream(entry);
+    Vector classIndexes = prescanForClassIndexes(inStream,
                                                   contextPackageName,
                                                   jarMap);
-    inStream.close ();
-    inStream = jarMap.getInputStream (entry);
-    Vector referenced = processBytecodeStream (inStream,
+    inStream.close();
+    inStream = jarMap.getInputStream(entry);
+    Vector referenced = processBytecodeStream(inStream,
                                                contextPackageName,
                                                jarMap,
                                                classIndexes);
-    inStream.close ();
+    inStream.close();
 
     return referenced;
   }
+
+
+  /**
+   @deprecated Use getFilesRequired() instead.
+   **/
+  public Vector getRequiredFiles() { return filesRequired_; }
 
 
   /**
@@ -1231,7 +1344,17 @@ public class JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>String</code> objects.
    **/
-  public Vector getRequiredFiles () { return requiredJarEntries_; }
+  public Vector getFilesRequired() { return filesRequired_; }
+
+
+  /**
+   Returns the names of the required files specified by the user.
+
+   @return The names of required files specified by the user.
+   The list will be empty if none has been specified.
+   The list will contain only <code>String</code> objects.
+   **/
+  public Vector getFilesExcluded() { return filesExcluded_; }
 
 
   /**
@@ -1241,7 +1364,17 @@ public class JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>String</code> objects.
    **/
-  public Vector getPackages () { return packages_; }
+  public Vector getPackages() { return packages_; }
+
+
+  /**
+   Returns the names of the packages that are to be excluded from the output.
+
+   @return The names of the excluded packages specified by the user.
+   The list will be empty if none has been specified.
+   The list will contain only <code>String</code> objects.
+   **/
+  public Vector getPackagesExcluded() { return packagesExcluded_; }
 
 
   /**
@@ -1250,7 +1383,7 @@ public class JarMaker
 
    @return The source JAR or ZIP file.
    **/
-  File getSourceJar () { return sourceJarFile_; }
+  File getSourceJar() { return sourceJarFile_; }
 
 
   /**
@@ -1260,7 +1393,7 @@ public class JarMaker
    @return The maximum file size for the destination JAR or ZIP files;
    in units of kilobytes (1024 bytes).
    **/
-  int getSplitSize () { return splitSize_; }
+  int getSplitSize() { return splitSize_; }
 
 
   /**
@@ -1269,7 +1402,7 @@ public class JarMaker
 
    @return The command line arguments that were not recognized.
    **/
-  String [] getUnrecognizedArgs () { return arguments_.getUnrecognized (); }
+  String [] getUnrecognizedArgs() { return arguments_.getUnrecognized(); }
 
 
   /**
@@ -1281,95 +1414,83 @@ public class JarMaker
    This will be a Strings, sorted alphabetically.
    @exception IOException If an I/O error occurs when reading the JAR file.
    **/
-  private Vector identifyDependencies (JarMap jarMap)
+  private Vector identifyDependencies(JarMap jarMap)
     throws IOException
   {
     if (verbose_ || DEBUG)
-      System.out.println ("Analyzing source file");
+      System.out.println("Analyzing source file");
 
     // Set up lists.
-    Vector referencedJarEntries = new Vector ();  // referenced entry names
-    Vector unanalyzedEntries = new Vector (); // entry names not yet looked at
-    Enumeration e = jarMap.entries (); // all entries in the jar
-    while (e.hasMoreElements ())
+    Vector referencedJarEntries = new Vector();  // referenced entry names
+    Vector unanalyzedEntries = new Vector(); // entry names not yet looked at
+    Enumeration e = jarMap.entries(); // all entries in the jar
+    while (e.hasMoreElements())
     {
-      unanalyzedEntries.addElement (((ZipEntry)e.nextElement()).getName ());
+      unanalyzedEntries.addElement(((ZipEntry)e.nextElement()).getName());
     }
     // We don't need to do dependency analysis on the manifest entry.
-    unanalyzedEntries.removeElement (MANIFEST_ENTRY_NAME);
-
-    // @A3D:
-    // // Preload the entry names associated with any required packages.
-    // // Note that these files will not be explicitly analyzed.
-    //Enumeration pkgs = packages_.elements ();
-    //while (pkgs.hasMoreElements ())
-    //{
-    //  String packageName = (String)pkgs.nextElement ();
-    //  String packagePrefix = packageName.replace ('.', '/');
-    //  Vector entriesInPackage =
-    //    getEntryNamesForPackage (packagePrefix, jarMap);
-    //  if (entriesInPackage.size () == 0) {
-    //    System.err.println ("Error: Specified package not found in source file:");
-    //    System.err.println ("       " + packageName);
-    //    throw new ZipException (packageName);
-    //  }
-    //  copyVectorToFrom(referencedJarEntries, entriesInPackage, true);
-    //}
+    unanalyzedEntries.removeElement(MANIFEST_ENTRY_NAME);
 
     // Give the subclass an opportunity to modify the list.
-    requiredJarEntries_ = adjustDependencies1 (requiredJarEntries_, jarMap);
+    Vector filesToInclude = new Vector();
+    copyVector(filesRequired_, filesToInclude, NO_CHECK_DUPS);
+    copyVector(filesExcluded_, dependenciesToExclude_, CHECK_DUPS);
+    filesToInclude = adjustDependencies1(filesToInclude, jarMap);
 
     // Start marking referenced files, starting with the required files
     // that were specified.
-    if (requiredJarEntries_.size () == 0)
+    if (filesToInclude.size() == 0)
     {
       if (verbose_ || DEBUG)
-        System.out.println ("No required JAR or ZIP entries were specified");
+        System.out.println("No required JAR or ZIP entries were specified");
     }
     else
     {
       if (verbose_ || DEBUG)
-        System.out.println ("Analyzing " + requiredJarEntries_.size () +
+        System.out.println("Analyzing " + filesToInclude.size() +
                             " required entries, starting with " +
-                            requiredJarEntries_.elementAt (0) + ".");
-      Enumeration reqEntries = requiredJarEntries_.elements ();
-      while (reqEntries.hasMoreElements ())
+                            filesToInclude.elementAt(0) + ".");
+      Enumeration reqEntries = filesToInclude.elements();
+      while (reqEntries.hasMoreElements())
       {
-        String entryName = (String)reqEntries.nextElement ();
-        if (DEBUG) System.out.print (":");
+        String entryName = (String)reqEntries.nextElement();
+        if (DEBUG) System.out.print(":");
         // Verify that the source JAR or ZIP actually contains the required file.
-        if (!jarMap.contains (entryName)) {
-          System.err.println ("Warning: The source file does not contain " +
+        if (!jarMap.contains(entryName)) {
+          System.err.println("Warning: The source file does not contain " +
                               "the specified required file: " + entryName);
-          requiredJarEntries_.removeElement (entryName);
+          filesToInclude.removeElement(entryName);
         }
-        else if (unanalyzedEntries.contains (entryName))
+        else if (unanalyzedEntries.contains(entryName))
         {
-          unanalyzedEntries.removeElement (entryName);
-          analyzeJarEntry (entryName, unanalyzedEntries,
+          unanalyzedEntries.removeElement(entryName);
+          analyzeJarEntry(entryName, unanalyzedEntries,
                            referencedJarEntries, jarMap);
-          addElement (referencedJarEntries, entryName);
+          addElement(referencedJarEntries, entryName);
         }
       }
-      if (verbose_ || DEBUG) System.out.println ();
+      if (verbose_ || DEBUG) System.out.println();
     }
 
-    if (referencedJarEntries.size () == 0 && packages_.size() == 0)  // @A3c
+    if (referencedJarEntries.size() == 0 && packages_.size() == 0)  // @A3c
     { // Assume user wants all the files copied.
       if (DEBUG)
-        System.out.println ("Debug: identifyDependencies(): " +
+        System.out.println("Debug: identifyDependencies(): " +
                             "Adding all files to list");
-      copyVectorToFrom(referencedJarEntries, jarMap.getEntryNames(), NO_CHECK_DUPS);  // @A3c
+      copyVector(jarMap.getEntryNames(), referencedJarEntries, NO_CHECK_DUPS);  // @A3c
     }
 
     // Give the subclass an opportunity to modify the list.
-    referencedJarEntries = adjustDependencies2 (referencedJarEntries, jarMap);
+    referencedJarEntries = adjustDependencies2(referencedJarEntries, jarMap);
+
+    // Make sure the "excluded files" don't end up in the jar.
+    removeElements(referencedJarEntries, filesExcluded_);
 
     // Sort the list alphabetically.
-    referencedJarEntries = sortStrings (referencedJarEntries);
+    referencedJarEntries = sortStrings(referencedJarEntries);
 
     // Add directory entries, e.g. com/, com/ibm/, com/ibm/myproduct/
-    referencedJarEntries = insertDirectoryEntries (referencedJarEntries);
+    referencedJarEntries = insertDirectoryEntries(referencedJarEntries);
 
     return referencedJarEntries;
   }
@@ -1388,32 +1509,32 @@ public class JarMaker
    Assumed to be sorted alphabetically.
    @return The list with directory entries added.
    **/
-  private static Vector insertDirectoryEntries (Vector oldList)
+  private static Vector insertDirectoryEntries(Vector oldList)
   {
-    String priorPrefix = new String ("");
-    Vector newList = new Vector (oldList.size ());
-    Enumeration e = oldList.elements ();
-    while (e.hasMoreElements ())
+    String priorPrefix = new String("");
+    Vector newList = new Vector(oldList.size());
+    Enumeration e = oldList.elements();
+    while (e.hasMoreElements())
     {
-      String listEntry = (String)e.nextElement ();
-      String prefix = listEntry.substring (0, listEntry.lastIndexOf ("/")+1);
-      if (!prefix.equals (priorPrefix))
+      String listEntry = (String)e.nextElement();
+      String prefix = listEntry.substring(0, listEntry.lastIndexOf("/")+1);
+      if (!prefix.equals(priorPrefix))
       {
         priorPrefix = prefix;
         // Add any parent directories if not already in list.
-        int slashPos = prefix.indexOf ("/");
+        int slashPos = prefix.indexOf("/");
         while (slashPos != -1)
         {
-          String subPrefix = prefix.substring (0, slashPos+1);
-          if (!(newList.contains (subPrefix)) &&
-              !(subPrefix.equals (listEntry)))
+          String subPrefix = prefix.substring(0, slashPos+1);
+          if (!(newList.contains(subPrefix)) &&
+              !(subPrefix.equals(listEntry)))
           {
-            newList.addElement (subPrefix);
+            newList.addElement(subPrefix);
           }
-          slashPos = prefix.indexOf ("/",slashPos+1);
+          slashPos = prefix.indexOf("/",slashPos+1);
         }
       }
-      newList.addElement (listEntry);
+      newList.addElement(listEntry);
     }
     return newList;
   }
@@ -1425,7 +1546,7 @@ public class JarMaker
    @return <code>true</code> if extract was specified,
            <code>false</code> otherwise.
    **/
-  boolean isExtract () { return extract_; }
+  boolean isExtract() { return extract_; }
 
 
   /**
@@ -1434,7 +1555,7 @@ public class JarMaker
    @return <code>true</code> if sufficient info was specified,
            <code>false</code> otherwise.
    **/
-  boolean isOptionInfoSufficient () { return arguments_.isOptionInfoSufficient(); }
+  boolean isOptionInfoSufficient() { return arguments_.isOptionInfoSufficient(); }
 
 
   /**
@@ -1443,7 +1564,7 @@ public class JarMaker
    @return <code>true</code> if split was specified,
            <code>false</code> otherwise.
    **/
-  boolean isSplit () { return split_; }
+  boolean isSplit() { return split_; }
 
 
   /**
@@ -1452,7 +1573,7 @@ public class JarMaker
    @return <code>true</code> if <code>verbose</code> mode has been set;
    <code>false</code> otherwise.
    **/
-  boolean isVerbose () { return verbose_; }
+  boolean isVerbose() { return verbose_; }
 
 
   /**
@@ -1467,13 +1588,13 @@ public class JarMaker
    @exception ZipException If a ZIP error occurs when reading the source file
    or writing the destination file.
    **/
-  public File makeJar (File sourceJarFile)
+  public File makeJar(File sourceJarFile)
     throws FileNotFoundException, IOException, ZipException
   {
-    if (sourceJarFile == null) throw new NullPointerException ("sourceJarFile");
+    if (sourceJarFile == null) throw new NullPointerException("sourceJarFile");
     File destinationJarFile =
-      setupDefaultDestinationJarFile (sourceJarFile);
-    makeJar (sourceJarFile, destinationJarFile);
+      setupDefaultDestinationJarFile(sourceJarFile);
+    makeJar(sourceJarFile, destinationJarFile);
     return destinationJarFile;
   }
 
@@ -1490,34 +1611,33 @@ public class JarMaker
    @exception ZipException If a ZIP error occurs when reading the source file
    or writing the destination file.
    **/
-  public void makeJar (File sourceJarFile, File destinationJarFile)
+  public void makeJar(File sourceJarFile, File destinationJarFile)
     throws FileNotFoundException, IOException, ZipException
   {
     if (sourceJarFile == null)
-      throw new NullPointerException ("sourceJarFile");
+      throw new NullPointerException("sourceJarFile");
     if (destinationJarFile == null)
-      throw new NullPointerException ("destinationJarFile");
-    if (!sourceJarFile.exists ())
-      throw new FileNotFoundException (sourceJarFile.getAbsolutePath ());
-    if (destinationJarFile.exists () && !destinationJarFile.canWrite ()) {
-      System.err.println ("Error: Cannot write file");
-      System.err.println ("       " + destinationJarFile.getAbsolutePath ());
-      throw new IOException (destinationJarFile.getAbsolutePath ());
+      throw new NullPointerException("destinationJarFile");
+    if (!sourceJarFile.exists())
+      throw new FileNotFoundException(sourceJarFile.getAbsolutePath());
+    if (destinationJarFile.exists() && !destinationJarFile.canWrite()) {
+      System.err.println("Error: Cannot write file");
+      System.err.println("       " + destinationJarFile.getAbsolutePath());
+      throw new IOException(destinationJarFile.getAbsolutePath());
     }
 
     if (verbose_ || DEBUG) {
-      System.out.println ("Source file is " + sourceJarFile.getAbsolutePath ());
-      System.out.println ("Destination file is " +
-                          destinationJarFile.getAbsolutePath ());
+      System.out.println("Source file is " + sourceJarFile.getAbsolutePath());
+      System.out.println("Destination file is " +
+                          destinationJarFile.getAbsolutePath());
     }
 
     // Check that the destination files isn't the source file.
-    if (destinationJarFile.getAbsolutePath ().equals
-        (sourceJarFile.getAbsolutePath ()))
+    if (destinationJarFile.getAbsolutePath().equals(sourceJarFile.getAbsolutePath()))
     {
-      System.err.println ("Error: Destination file is same as source file.");
-      throw new IllegalArgumentException ("destinationJarFile (" +
-                                destinationJarFile.getAbsolutePath () + ")");
+      System.err.println("Error: Destination file is same as source file.");
+      throw new IllegalArgumentException("destinationJarFile(" +
+                                destinationJarFile.getAbsolutePath() + ")");
     }
 
     JarMap jarMap = null;    // Map of entries in the source JAR or ZIP.
@@ -1529,22 +1649,22 @@ public class JarMaker
     try
     {
       // Make a map of the source file.
-      jarMap = new JarMap (sourceJarFile, verbose_);
+      jarMap = new JarMap(sourceJarFile, verbose_);
 
       // Get sorted list of the names of the entries that will be required
       // in the destination file.
-      Vector referencedJarEntries = identifyDependencies (jarMap);
+      Vector referencedJarEntries = identifyDependencies(jarMap);
 
       // Verify the existence of any "additional files" that were specified.
-      Enumeration e1 = additionalFiles_.keys ();
-      while (e1.hasMoreElements ())
+      Enumeration e1 = additionalFiles_.keys();
+      while (e1.hasMoreElements())
       {
-        File file = (File)e1.nextElement ();
+        File file = (File)e1.nextElement();
         if (!file.exists() || !file.isFile())
         {
-          System.err.println ("Error: A specified additional file was not found:");
-          System.err.println ("       " + file.getAbsolutePath ());
-          throw new FileNotFoundException (file.getAbsolutePath ());
+          System.err.println("Error: A specified additional file was not found:");
+          System.err.println("       " + file.getAbsolutePath());
+          throw new FileNotFoundException(file.getAbsolutePath());
         }
       }
 
@@ -1553,107 +1673,107 @@ public class JarMaker
       // withhold the existing ZIP entry from the destination file.
 
       // Make a map of (File) to (ZIP entry name)
-      Hashtable additionalFilesMap = generateJarEntryMap (additionalFiles_);
+      Hashtable additionalFilesMap = generateJarEntryMap(additionalFiles_);
 
       // Open a stream for writing to the destination file.
       if (verbose_ || DEBUG)
       {
         System.out.println();
-        System.out.println ("Opening destination file " +
-                            destinationJarFile.getAbsolutePath ());
+        System.out.println("Opening destination file " +
+                            destinationJarFile.getAbsolutePath());
       }
       bufferedOutStream =
-        new BufferedOutputStream (new FileOutputStream (destinationJarFile),
+        new BufferedOutputStream(new FileOutputStream(destinationJarFile),
                                   BUFFER_SIZE);
-      zipOutStream = new ZipOutputStream (bufferedOutStream);
+      zipOutStream = new ZipOutputStream(bufferedOutStream);
 
       // Regenerate the manifest file.  We need to read it completely before
       // writing, so we can set up the ZIP entry with the correct size.
 
-      if (jarMap.hasManifest ())
+      if (jarMap.hasManifest())
       {
-        manifestMap = new ManifestMap (jarMap);
-        StringBuffer buffer = new StringBuffer ();
+        manifestMap = new ManifestMap(jarMap);
+        StringBuffer buffer = new StringBuffer();
 
         // Copy the manifest header entries if present.
-        String manifestHeader = manifestMap.getHeader ();
-        if (manifestHeader.length () != 0)
-          buffer.append (manifestHeader);
+        String manifestHeader = manifestMap.getHeader();
+        if (manifestHeader.length() != 0)
+          buffer.append(manifestHeader);
 
         // Copy manifest entries for all referenced files.
-        Enumeration e3 = manifestMap.elements ();
-        while (e3.hasMoreElements ())
+        Enumeration e3 = manifestMap.elements();
+        while (e3.hasMoreElements())
         {
-          String fileName = (String)e3.nextElement ();
-          if (referencedJarEntries.contains (fileName) &&
-              !additionalFilesMap.contains (fileName))
+          String fileName = (String)e3.nextElement();
+          if (referencedJarEntries.contains(fileName) &&
+              !additionalFilesMap.contains(fileName))
           {
-            String manifestEntryText = (String)(manifestMap.get (fileName));
-            buffer.append (manifestEntryText);
+            String manifestEntryText = (String)(manifestMap.get(fileName));
+            buffer.append(manifestEntryText);
           }
         }
 
         // Create manifest entries for any additional files.
-        if (additionalFiles_.size () != 0)
+        if (additionalFiles_.size() != 0)
         {
-          if (verbose_ || DEBUG) System.out.println ("Creating manifest entries " +
+          if (verbose_ || DEBUG) System.out.println("Creating manifest entries " +
                                             "for additional files");
-          Enumeration af = additionalFiles_.keys ();
-          while (af.hasMoreElements ())
+          Enumeration af = additionalFiles_.keys();
+          while (af.hasMoreElements())
           {
-            File file = (File)af.nextElement ();
-            String entryName = (String)(additionalFilesMap.get (file));
-            constructManifestEntry (buffer, file, entryName);
+            File file = (File)af.nextElement();
+            String entryName = (String)(additionalFilesMap.get(file));
+            constructManifestEntry(buffer, file, entryName);
           }
         }
 
         // Now that we know how big the new manifest file is,
         // write it to the destination JAR.
-        byte[] bufferBytes = buffer.toString ().getBytes ();
-        ZipEntry newManifestEntry = new ZipEntry (MANIFEST_ENTRY_NAME);
-        newManifestEntry.setSize (bufferBytes.length);
-        zipOutStream.putNextEntry (newManifestEntry);
-        zipOutStream.write (bufferBytes);
-        zipOutStream.flush ();
-        bufferedOutStream.flush ();  // java bug 4077821
-        zipOutStream.closeEntry ();
-        bufferedOutStream.flush ();  // this might be overkill
+        byte[] bufferBytes = buffer.toString().getBytes();
+        ZipEntry newManifestEntry = new ZipEntry(MANIFEST_ENTRY_NAME);
+        newManifestEntry.setSize(bufferBytes.length);
+        zipOutStream.putNextEntry(newManifestEntry);
+        zipOutStream.write(bufferBytes);
+        zipOutStream.flush();
+        bufferedOutStream.flush();  // java bug 4077821
+        zipOutStream.closeEntry();
+        bufferedOutStream.flush();  // this might be overkill
       }
 
       // Copy the referenced files to the destination.
       if (DEBUG)
-        System.out.println ("Debug: Copying referenced ZIP entries (" +
-                            referencedJarEntries.size () + ")");
-      Vector directoriesSoFar = new Vector (); // directory entries created
-      Enumeration refEntries = referencedJarEntries.elements ();
-      while (refEntries.hasMoreElements ())
+        System.out.println("Debug: Copying referenced ZIP entries(" +
+                            referencedJarEntries.size() + ")");
+      Vector directoriesSoFar = new Vector(); // directory entries created
+      Enumeration refEntries = referencedJarEntries.elements();
+      while (refEntries.hasMoreElements())
       {
-        String referencedEntry = (String)refEntries.nextElement ();
-        if (verbose_) System.out.print (".");
-        if (DEBUG) System.out.println (referencedEntry);
+        String referencedEntry = (String)refEntries.nextElement();
+        if (verbose_) System.out.print(".");
+        if (DEBUG) System.out.println(referencedEntry);
 
         // Copy this entry if it's not also in the "additional files" list.
-        if (!additionalFilesMap.contains (referencedEntry))
+        if (!additionalFilesMap.contains(referencedEntry))
         {
-          if (referencedEntry.endsWith ("/"))
-            directoriesSoFar.addElement (referencedEntry);
+          if (referencedEntry.endsWith("/"))
+            directoriesSoFar.addElement(referencedEntry);
 
           // Gather information from the source file.
-          ZipEntry entry = jarMap.getEntry (referencedEntry);
+          ZipEntry entry = jarMap.getEntry(referencedEntry);
           if (entry == null)
           {
             // Tolerate missing directory entries in source jar.
-            if (referencedEntry.endsWith ("/")) {
-              if (DEBUG) System.err.println (referencedEntry +
+            if (referencedEntry.endsWith("/")) {
+              if (DEBUG) System.err.println(referencedEntry +
                            ": Missing directory entry in source file.");
             }
             else
-              throw new IOException (referencedEntry +
+              throw new IOException(referencedEntry +
                                      ": No such entry in source file.");
           }
           else
           {
-            InputStream inStream = jarMap.getInputStream (entry);
+            InputStream inStream = jarMap.getInputStream(entry);
             // Design note - ZipFile.getInputStream() returns a 
             // java.util.zip.InflaterInputStream object.  Therefore
             // the current implementation causes each ZIP entry to be
@@ -1664,98 +1784,98 @@ public class JarMaker
             // (See Java bug 4085767)
 
             // Copy the ZIP entry to the destination file.
-            copyZipEntry (entry, inStream, zipOutStream);
-            zipOutStream.flush ();
-            bufferedOutStream.flush (); // java bug 4077821
-            zipOutStream.closeEntry ();
-            bufferedOutStream.flush (); // this might be overkill
-            inStream.close ();
+            copyZipEntry(entry, inStream, zipOutStream);
+            zipOutStream.flush();
+            bufferedOutStream.flush(); // java bug 4077821
+            zipOutStream.closeEntry();
+            bufferedOutStream.flush(); // this might be overkill
+            inStream.close();
           }
         }
       }  // ... while
-      if (verbose_ || DEBUG) System.out.println ();
+      if (verbose_ || DEBUG) System.out.println();
 
 
       // Copy any additional files to destination file.
 
-      if (DEBUG) System.out.println ("Debug: Copying " +
-                                      additionalFiles_.size () +
+      if (DEBUG) System.out.println("Debug: Copying " +
+                                      additionalFiles_.size() +
                                       " additional files");
-      Enumeration addlFiles = additionalFiles_.keys ();
-      while (addlFiles.hasMoreElements ())
+      Enumeration addlFiles = additionalFiles_.keys();
+      while (addlFiles.hasMoreElements())
       {
-        File file = (File)addlFiles.nextElement ();
+        File file = (File)addlFiles.nextElement();
 
         // Prepare to copy the file to the destination file.
-        String entryName = (String)(additionalFilesMap.get (file));
+        String entryName = (String)(additionalFilesMap.get(file));
 
         // Make sure any needed directory entries get added first.
         Vector dirsToAdd =
-          generateDirEntries (entryName, directoriesSoFar);
-        Enumeration de = dirsToAdd.elements ();
-        while (de.hasMoreElements ()) {
-          String dirName = (String)de.nextElement ();
-          ZipEntry dirEntry = new ZipEntry (dirName);
-          dirEntry.setSize (0);
-          zipOutStream.putNextEntry (dirEntry);
-          zipOutStream.flush ();
-          bufferedOutStream.flush ();  // java bug 4077821
-          zipOutStream.closeEntry ();
-          bufferedOutStream.flush ();  // this might be overkill
-          directoriesSoFar.addElement (dirName);
+          generateDirEntries(entryName, directoriesSoFar);
+        Enumeration de = dirsToAdd.elements();
+        while (de.hasMoreElements()) {
+          String dirName = (String)de.nextElement();
+          ZipEntry dirEntry = new ZipEntry(dirName);
+          dirEntry.setSize(0);
+          zipOutStream.putNextEntry(dirEntry);
+          zipOutStream.flush();
+          bufferedOutStream.flush();  // java bug 4077821
+          zipOutStream.closeEntry();
+          bufferedOutStream.flush();  // this might be overkill
+          directoriesSoFar.addElement(dirName);
         }
 
-        ZipEntry entry = new ZipEntry (entryName);
-        entry.setSize (file.length ());
+        ZipEntry entry = new ZipEntry(entryName);
+        entry.setSize(file.length());
 
-        // TBD: Need to verify timestamps on the various platforms,
+        // Note for future enhancement: Verify timestamps on the various platforms,
         // since lastModified() is system dependent.  Javadoc says:
         // "The return value is system dependent and should only be
         // used to compare with other values returned by last modified.
         // It should not be interpreted as an absolute time."
-        entry.setTime (file.lastModified ());
+        entry.setTime(file.lastModified());
 
         InputStream inStream =
-          new BufferedInputStream (new FileInputStream (file), BUFFER_SIZE);
+          new BufferedInputStream(new FileInputStream(file), BUFFER_SIZE);
         // Copy the entry to the destination file.
-        zipOutStream.putNextEntry (entry);
-        copyBytes (inStream, zipOutStream, entry.getSize ());
-        zipOutStream.flush ();
-        bufferedOutStream.flush (); // java bug 4077821
-        zipOutStream.closeEntry ();
-        bufferedOutStream.flush (); // this might be overkill
-        inStream.close ();
+        zipOutStream.putNextEntry(entry);
+        copyBytes(inStream, zipOutStream, entry.getSize());
+        zipOutStream.flush();
+        bufferedOutStream.flush(); // java bug 4077821
+        zipOutStream.closeEntry();
+        bufferedOutStream.flush(); // this might be overkill
+        inStream.close();
       }
     }
     catch (ZipException e) {
-      System.err.println ("Error: ZipException when writing file");
-      System.err.println ("       " + destinationJarFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: ZipException when writing file");
+      System.err.println("       " + destinationJarFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     catch (IOException e) {
-      System.err.println ("Error: IOException when writing file");
-      System.err.println ("       " + destinationJarFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: IOException when writing file");
+      System.err.println("       " + destinationJarFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     finally
     {
-      if (DEBUG) System.out.println ();
-      if (manifestMap != null) { manifestMap.close (); }
-      if (jarMap != null) { jarMap.close (); }
+      if (DEBUG) System.out.println();
+      if (manifestMap != null) { manifestMap.close(); }
+      if (jarMap != null) { jarMap.close(); }
 
       if (zipOutStream != null)
       {
         if (verbose_ || DEBUG)
-          System.out.println ("Closing destination file");
-        try { zipOutStream.close (); } catch (Exception e) {}  // @A1c
+          System.out.println("Closing destination file");
+        try { zipOutStream.close(); } catch (Exception e) {}  // @A1c
       }
       if (bufferedOutStream != null)
       {
-        try { bufferedOutStream.close (); } catch (Exception e) {} // @A1c
+        try { bufferedOutStream.close(); } catch (Exception e) {} // @A1c
       }
 
     }
@@ -1769,12 +1889,12 @@ public class JarMaker
    @param tolerateUnrecognizedArgs Whether to tolerate unrecognized args.
    @return An indication of whether the parse succeeded.
    **/
-  boolean parseArgs (String[] args, boolean tolerateUnrecognizedArgs)
+  boolean parseArgs(String[] args, boolean tolerateUnrecognizedArgs)
   {
     boolean succeeded = false;
     // Wipe the slate clean, in case this JarMaker object is being recycled.
-    reset ();
-    if (arguments_.parse (args, this, tolerateUnrecognizedArgs))
+    reset();
+    if (arguments_.parse(args, this, tolerateUnrecognizedArgs))
       succeeded = true;
     return succeeded;
   }
@@ -1795,87 +1915,87 @@ public class JarMaker
   // The .class file format is documented at:
   //       http://java.sun.com/docs/books/vmspec/html/ClassFile.doc.html
   //
-  private Vector prescanForClassIndexes (InputStream inStream,
+  private Vector prescanForClassIndexes(InputStream inStream,
                                       String contextPackageName,
                                       JarMap jarMap)
     throws IOException
   {
     // Initialization.
-    Vector classIndexes = new Vector ();  // List of constant_pool indexes
+    Vector classIndexes = new Vector();  // List of constant_pool indexes
                                           // for class names.
-    DataInputStream dataInput = new DataInputStream (inStream);
+    DataInputStream dataInput = new DataInputStream(inStream);
 
     // Read the prefix information.
-    dataInput.readInt ();       // Magic.
-    dataInput.readShort ();     // Minor version.
-    dataInput.readShort ();     // Major version.
+    dataInput.readInt();       // Magic.
+    dataInput.readShort();     // Minor version.
+    dataInput.readShort();     // Major version.
 
     // Read the constant pool.  Constant pool indices are
     // numbered from 1 to constantPoolCount - 1.
-    short cpCount = dataInput.readShort ();
+    short cpCount = dataInput.readShort();
     if (DEBUG_CP)
-      System.out.println ("Constant pool count = " + cpCount);
+      System.out.println("Constant pool count = " + cpCount);
 
     for (short cpIndex = 1; cpIndex < cpCount; ++cpIndex)
     {
       // Read the tag.
-      byte tag = dataInput.readByte ();
+      byte tag = dataInput.readByte();
       if (DEBUG_CP)
-        System.out.println ("Tag number " + cpIndex + " = " + tag);
+        System.out.println("Tag number " + cpIndex + " = " + tag);
 
       // If a "class" entry in the constant_pool pointed to this index
       // for its class name, verify that this entry is a utf8 entry.
       if (DEBUG_CP &&
           (tag != 1) &&
-          (classIndexes.contains (new Short (cpIndex))))
-        System.err.println ("Error: Class file format");
+          (classIndexes.contains(new Short(cpIndex))))
+        System.err.println("Error: Class file format");
 
       // Decide what to do based on the tag.
       switch (tag)
       {
         case 1: // CONSTANT_Utf8
-          short length = dataInput.readShort ();
-          dataInput.skipBytes (length);
+          short length = dataInput.readShort();
+          dataInput.skipBytes(length);
           break;
 
         case 3: // CONSTANT_Integer
         case 4: // CONSTANT_Float
-          dataInput.skipBytes (4);    // Bytes.
+          dataInput.skipBytes(4);    // Bytes.
           break;
 
         case 5: // CONSTANT_Long
         case 6: // CONSTANT_Double
-          dataInput.skipBytes (8);    // Bytes.
+          dataInput.skipBytes(8);    // Bytes.
           ++cpIndex;                  // These take up 2 slots!
           break;
 
         case 7: // CONSTANT_Class
-          short nameIndex = dataInput.readShort ();
+          short nameIndex = dataInput.readShort();
           if (DEBUG_CP)
-            System.out.println ("Found class constant pointing to index "
+            System.out.println("Found class constant pointing to index "
                                 + nameIndex);
-          classIndexes.addElement (new Short (nameIndex));
+          classIndexes.addElement(new Short(nameIndex));
           break;
 
         case 8: // CONSTANT_String
-          dataInput.skipBytes (2);    // String index.
+          dataInput.skipBytes(2);    // String index.
           break;
 
         case 9: // CONSTANT_Fieldref
         case 10: // CONSTANT_Methodref
         case 11: // CONSTANT_InterfaceMethodref
-          dataInput.skipBytes (2);    // Class index.
-          dataInput.skipBytes (2);    // Name and type index.
+          dataInput.skipBytes(2);    // Class index.
+          dataInput.skipBytes(2);    // Name and type index.
           break;
 
         case 12: // CONSTANT_NameAndType
-          dataInput.skipBytes (2);    // Name index.
-          dataInput.skipBytes (2);    // Descriptor index.
+          dataInput.skipBytes(2);    // Name index.
+          dataInput.skipBytes(2);    // Descriptor index.
           break;
 
         default:
           if (DEBUG_CP)
-            System.out.println ("Ignoring unrecognized tag during prescan: " + tag);
+            System.out.println("Ignoring unrecognized tag during prescan: " + tag);
           break;
       }
     }
@@ -1900,44 +2020,44 @@ public class JarMaker
   // The .class file format is documented at:
   //       http://java.sun.com/docs/books/vmspec/html/ClassFile.doc.html
   //
-  private Vector processBytecodeStream (InputStream inStream,
+  private Vector processBytecodeStream(InputStream inStream,
                                         String packagePrefix,
                                         JarMap jarMap,
                                         Vector classIndexes)
     throws IOException
   {
     // Initialization.
-    Vector allReferences = new Vector (); // Resulting list of references.
-    DataInputStream dataInput = new DataInputStream (inStream);
+    Vector allReferences = new Vector(); // Resulting list of references.
+    DataInputStream dataInput = new DataInputStream(inStream);
 
     // Read the prefix information.
-    dataInput.readInt ();       // Magic.
-    dataInput.readShort ();     // Minor version.
-    dataInput.readShort ();     // Major version.
+    dataInput.readInt();       // Magic.
+    dataInput.readShort();     // Minor version.
+    dataInput.readShort();     // Major version.
 
     // Read the constant pool.  Constant pool indices are
     // numbered from 1 to constantPoolCount - 1.
-    short cpCount = dataInput.readShort ();
+    short cpCount = dataInput.readShort();
     if (DEBUG_CP)
-      System.out.println ("Constant pool count = " + cpCount);
+      System.out.println("Constant pool count = " + cpCount);
     for (short cpIndex = 1; cpIndex < cpCount; ++cpIndex)
     {
       // Read the tag.
-      byte tag = dataInput.readByte ();
+      byte tag = dataInput.readByte();
       if (DEBUG_CP)
-        System.out.println ("Tag number " + cpIndex + " = " + tag);
+        System.out.println("Tag number " + cpIndex + " = " + tag);
 
       // If a "class" entry in the constant_pool pointed to this index
       // for its class name, verify that this entry is a utf8 entry.
       if (DEBUG_CP)
-        if ((tag != 1) && (classIndexes.contains (new Short (cpIndex))))
-          System.err.println ("Error: Class file format");
+        if ((tag != 1) && (classIndexes.contains(new Short(cpIndex))))
+          System.err.println("Error: Class file format");
 
       // Decide what to do based on the tag.
       switch (tag)
       {
         case 1: // CONSTANT_Utf8
-          short length = dataInput.readShort ();
+          short length = dataInput.readShort();
           if (length <= 0)
           {
             if (DEBUG_CP)
@@ -1946,52 +2066,52 @@ public class JarMaker
           else
           {
             byte[] bytes = new byte[length];
-            dataInput.readFully (bytes);
+            dataInput.readFully(bytes);
             String referencedJarEntry =
-              processUtf8 (cpIndex, new String (bytes,"UTF8"),
+              processUtf8(cpIndex, new String(bytes,"UTF8"),
                            classIndexes, packagePrefix, jarMap);
             if (referencedJarEntry != null)
-              allReferences.addElement (referencedJarEntry);
+              allReferences.addElement(referencedJarEntry);
           }
           break;
 
         case 3: // CONSTANT_Integer
         case 4: // CONSTANT_Float
-          dataInput.skipBytes (4);    // Bytes.
+          dataInput.skipBytes(4);    // Bytes.
           break;
 
         case 5: // CONSTANT_Long
         case 6: // CONSTANT_Double
-          dataInput.skipBytes (8);    // Bytes.
+          dataInput.skipBytes(8);    // Bytes.
           ++cpIndex;                  // These take up 2 slots!
           break;
 
         case 7: // CONSTANT_Class
-          short nameIndex = dataInput.readShort ();
+          short nameIndex = dataInput.readShort();
           if (DEBUG_CP)
-            System.out.println ("Found class constant pointing to index "
+            System.out.println("Found class constant pointing to index "
                                 + nameIndex);
           break;
 
         case 8: // CONSTANT_String
-          dataInput.skipBytes (2);    // String index.
+          dataInput.skipBytes(2);    // String index.
           break;
 
         case 9: // CONSTANT_Fieldref
         case 10: // CONSTANT_Methodref
         case 11: // CONSTANT_InterfaceMethodref
-          dataInput.skipBytes (2);    // Class index.
-          dataInput.skipBytes (2);    // Name and type index.
+          dataInput.skipBytes(2);    // Class index.
+          dataInput.skipBytes(2);    // Name and type index.
           break;
 
         case 12: // CONSTANT_NameAndType
-          dataInput.skipBytes (2);    // Name index.
-          dataInput.skipBytes (2);    // Descriptor index.
+          dataInput.skipBytes(2);    // Name index.
+          dataInput.skipBytes(2);    // Descriptor index.
           break;
 
         default:
           if (DEBUG_CP)
-            System.out.println ("Ignoring unrecognized tag: " + tag);
+            System.out.println("Ignoring unrecognized tag: " + tag);
           break;
       }
     }
@@ -2011,37 +2131,37 @@ public class JarMaker
    @returns The name of the referenced ZIP entry name.
    <code>null</code> if a corresponding ZIP entry was not found in source file.
    **/
-  private String processUtf8 (short cpIndex,
+  private String processUtf8(short cpIndex,
                             String literal,
                             Vector classIndexes,
                             String contextPackageName,
                             JarMap jarMap)
   {
-    if (DEBUG_CP) System.out.println ("processUtf8 (" + literal + ")");
+    if (DEBUG_CP) System.out.println("processUtf8(" + literal + ")");
     String result = null;
 
     // If this index was flagged as one with a CONSTANT_class
     // structure, then it is a referenced class.
-    if (classIndexes.contains (new Short (cpIndex)))
+    if (classIndexes.contains(new Short(cpIndex)))
     {
       // Also verify that the class is in the source file, and
       // not the JDK or some primitive class like [[B (byte array).
       String classFileName = literal + CLASS_SUFFIX;
-      if (jarMap.contains (classFileName))
+      if (jarMap.contains(classFileName))
         result = classFileName;
     }
 
     // Check if this could be a reference to a properties
     // file or a class loaded with Class.forName().
-    else if ((contextPackageName.length () != 0 &&
-              literal.startsWith (contextPackageName)) ||
+    else if ((contextPackageName.length() != 0 &&
+              literal.startsWith(contextPackageName)) ||
              ((jarEntryDefaultPrefix_ != null) &&
-              ((literal.startsWith (jarEntryDefaultPrefix_)) ||
-               (literal.startsWith (jarEntryDefaultPrefixDotted_)))))
+              ((literal.startsWith(jarEntryDefaultPrefix_)) ||
+               (literal.startsWith(jarEntryDefaultPrefixDotted_)))))
     {
       // Check if it might be a properties file.
-      String propertiesFileName = literal.replace ('.','/') + ".properties";
-      if (jarMap.contains (propertiesFileName))
+      String propertiesFileName = literal.replace('.','/') + ".properties";
+      if (jarMap.contains(propertiesFileName))
         result = propertiesFileName;
 
       // Check if it is a class loaded with Class.forName().
@@ -2051,8 +2171,8 @@ public class JarMaker
         // a class file, both, or neither.  For example, there might be
         // both "foo.class" and "foo.properties" in the source JAR or ZIP.
       {
-        String classFileName = literal.replace ('.','/') + CLASS_SUFFIX;
-        if (jarMap.contains (classFileName))
+        String classFileName = literal.replace('.','/') + CLASS_SUFFIX;
+        if (jarMap.contains(classFileName))
           result = classFileName;
       }
     }
@@ -2063,47 +2183,47 @@ public class JarMaker
 
     // These references do not necessarily include the package name.
     // Thus we use the contextPackageName to make our best guess.
-    // TBD - May need to add logic to look for other occurrences
+    // Note for future enhancement - May need to add logic to look for other occurrences
     // of the file in other packages within the source JAR or ZIP.
 
     else
     {
       String suffix = null;
-      int dotPos = literal.lastIndexOf ('.');
-      if (dotPos != -1) suffix = literal.substring (dotPos).toLowerCase ();
+      int dotPos = literal.lastIndexOf('.');
+      if (dotPos != -1) suffix = literal.substring(dotPos).toLowerCase();
       if ((suffix != null) &&
-          (suffix.equals (".gif")  ||
-           suffix.equals (".jpg")  ||
-           suffix.equals (".html") ||
-           suffix.equals (".pdml") ||
-           suffix.equals (".pcml") ||
-           suffix.equals (".ser")))
+          (suffix.equals(".gif")  ||
+           suffix.equals(".jpg")  ||
+           suffix.equals(".html") ||
+           suffix.equals(".pdml") ||
+           suffix.equals(".pcml") ||
+           suffix.equals(".ser")))
       {
         String gifFileName = null;
-        if (contextPackageName.length () != 0)
+        if (contextPackageName.length() != 0)
         {
-          gifFileName = contextPackageName.replace ('.','/') +
+          gifFileName = contextPackageName.replace('.','/') +
                          "/" + literal;
-          if (jarMap.contains (gifFileName))  // try with package prefix
+          if (jarMap.contains(gifFileName))  // try with package prefix
             result = gifFileName;
-          else if (jarMap.contains (literal)) // try with no package prefix
+          else if (jarMap.contains(literal)) // try with no package prefix
             result = literal;
           else if (DEBUG)
-            System.err.println ("Debug: Referenced file not found in jar: " +
+            System.err.println("Debug: Referenced file not found in jar: " +
                                 literal);
         }
-        else if (jarMap.contains (literal)) // try with no package prefix
+        else if (jarMap.contains(literal)) // try with no package prefix
           result = literal;
         else if (DEBUG)
-          System.err.println ("Debug: JAR does not contain referenced file: " +
+          System.err.println("Debug: JAR does not contain referenced file: " +
                               literal);
       }
       else if (DEBUG_CP)
       {
         int endIndex = 80;  // just print out the first 80 chars
-        if (literal.length () < 80) endIndex = literal.length ();
-        System.out.println ("processUtf8: Ignoring reference: " +
-                            literal.substring (0,endIndex));
+        if (literal.length() < 80) endIndex = literal.length();
+        System.out.println("processUtf8: Ignoring reference: " +
+                            literal.substring(0,endIndex));
       }
     }
     return result;
@@ -2115,10 +2235,10 @@ public class JarMaker
 
    @param listener The listener.
    **/
-  public synchronized void removeJarMakerListener (JarMakerListener listener)
+  public synchronized void removeJarMakerListener(JarMakerListener listener)
   {
-    if (listener == null) throw new NullPointerException ("listener");
-    eventListeners_.removeElement (listener);
+    if (listener == null) throw new NullPointerException("listener");
+    eventListeners_.removeElement(listener);
   }
 
 
@@ -2126,20 +2246,22 @@ public class JarMaker
    Resets the JarMaker object to a clean, default state,
    to facilitate object reuse.
    **/
-  public void reset ()
+  public void reset()
   {
     sourceJarFile_ = null;
     destinationJarFile_ = null;
-    requiredJarEntries_.removeAllElements ();
-    packages_.removeAllElements ();
-    additionalFiles_.clear ();
+    filesRequired_.removeAllElements();
+    filesExcluded_.removeAllElements();
+    packages_.removeAllElements();
+    packagesExcluded_.removeAllElements();
+    additionalFiles_.clear();
     verbose_ = false;
     extract_ = false;
-    baseDirectoryForExtract_ = new File (System.getProperty ("user.dir"));
+    baseDirectoryForExtract_ = new File(System.getProperty("user.dir"));
     split_ = false;
     splitSize_ = SPLIT_SIZE_KBYTES;
-    eventListeners_.removeAllElements ();
-    arguments_ = new Arguments ();
+    eventListeners_.removeAllElements();
+    arguments_ = new Arguments();
 
     // Note: jarEntryDefaultPrefix_ and jarEntryDefaultPrefixDotted_
     // are set in the constructor only, so leave them unchanged.
@@ -2161,11 +2283,11 @@ public class JarMaker
    destination JAR or ZIP file.
    The list should contain only <code>java.io.File</code> objects.
    **/
-  public void setAdditionalFiles (Vector fileList)
+  public void setAdditionalFiles(Vector fileList)
   {
     // Default: Base directory is current directory.
-    File baseDirectory = new File (System.getProperty ("user.dir"));
-    setAdditionalFiles (fileList, baseDirectory);
+    File baseDirectory = new File(System.getProperty("user.dir"));
+    setAdditionalFiles(fileList, baseDirectory);
   }
 
 
@@ -2190,21 +2312,21 @@ public class JarMaker
    and class <code>MyClass</code> is in package <code>com.ibm.myproduct</code>,
    then the base directory should be set to <code>C:\dir1\subdir2</code>.
    **/
-  public void setAdditionalFiles (Vector fileList, File baseDirectory)
+  public void setAdditionalFiles(Vector fileList, File baseDirectory)
   {
     if (fileList == null)
-      throw new NullPointerException ("fileList");
+      throw new NullPointerException("fileList");
     if (baseDirectory == null)
-      throw new NullPointerException ("baseDirectory");
+      throw new NullPointerException("baseDirectory");
     // Check for nulls and for correct element type.
-    fileList = validateList (fileList, "additionalFile",
+    fileList = validateList(fileList, "additionalFile",
                              "java.io.File", verbose_);
-    Enumeration e = fileList.elements ();
-    while (e.hasMoreElements ())
+    Enumeration e = fileList.elements();
+    while (e.hasMoreElements())
     {
-      File file = (File)e.nextElement ();
-      if (!additionalFiles_.containsKey (file))
-        additionalFiles_.put (file, baseDirectory);
+      File file = (File)e.nextElement();
+      if (!additionalFiles_.containsKey(file))
+        additionalFiles_.put(file, baseDirectory);
     }
     // Postpone verification of files' existence until we need to read them,
     // since we don't want setter throwing "file not found" exceptions.
@@ -2217,9 +2339,9 @@ public class JarMaker
 
    @param destinationJarFile The destination JAR or ZIP file.
    **/
-  void setDestinationJar (File destinationJarFile) {
+  void setDestinationJar(File destinationJarFile) {
     if (destinationJarFile == null)
-      throw new NullPointerException ("destinationJarFile");
+      throw new NullPointerException("destinationJarFile");
     destinationJarFile_ = destinationJarFile;
   }
 
@@ -2231,7 +2353,7 @@ public class JarMaker
    @param extract If <code>true</code>, turn extract mode on;
    otherwise turn extract mode off.
    **/
-  void setExtract (boolean extract) { extract_ = extract; }
+  void setExtract(boolean extract) { extract_ = extract; }
 
 
   /**
@@ -2241,7 +2363,7 @@ public class JarMaker
 
    @param baseDirectory The base directory for the extraction.
    **/
-  void setExtractionDirectory (File baseDirectory)
+  void setExtractionDirectory(File baseDirectory)
   { baseDirectoryForExtract_ = baseDirectory; }
 
 
@@ -2258,14 +2380,42 @@ public class JarMaker
    @param packages The required packages.
    The list should contain only <code>String</code> objects.
   **/
-  public void setPackages (Vector packages)
+  public void setPackages(Vector packages)
   {
     if (packages == null)
-      throw new NullPointerException ("packageList");
+      throw new NullPointerException("packages");
     // Check for nulls and for correct element type.
-    packages = validateList (packages, "packageName",
+    packages = validateList(packages, "packageName",
                              "java.lang.String", verbose_);
-    copyVectorToFrom (packages_, packages, CHECK_DUPS);  // @A3c
+    copyVector(packages, packages_, CHECK_DUPS);  // @A3c
+  }
+
+
+  /**
+   Specifies the names of packages that are to be excluded from the output.
+   Packages are specified in standard syntax, such as <code>com.ibm.component</code>.
+   <br>Note: This augments any previously specified packages.
+
+   @param packages The packages to be excluded.
+   The list should contain only <code>String</code> objects.
+  **/
+  public void setPackagesExcluded(Vector packages)
+  {
+    if (packages == null)
+      throw new NullPointerException("packages");
+    // Check for nulls and for correct element type.
+    packages = validateList(packages, "packageName",
+                             "java.lang.String", verbose_);
+    copyVector(packages, packagesExcluded_, CHECK_DUPS);
+  }
+
+
+  /**
+   @deprecated Use setFilesRequired() instead.
+   **/
+  public void setRequiredFiles(Vector entryList)
+  {
+    setFilesRequired(entryList);
   }
 
 
@@ -2280,14 +2430,36 @@ public class JarMaker
    @param entryList The names of required JAR or ZIP entries.
    The list should contain only <code>String</code> objects.
    **/
-  public void setRequiredFiles (Vector entryList)
+  public void setFilesRequired(Vector entryList)
   {
     if (entryList == null)
-      throw new NullPointerException ("entryList");
+      throw new NullPointerException("entryList");
     // Check for nulls and for correct element type.
-    entryList = validateList (entryList, "requiredFile",
+    entryList = validateList(entryList, "entryName",
                               "java.lang.String", verbose_);
-    copyVectorToFrom (requiredJarEntries_, entryList, CHECK_DUPS);  // @A3c
+    copyVector(entryList, filesRequired_, CHECK_DUPS);  // @A3c
+  }
+
+
+  /**
+   Specifies the names of entries in the source JAR or ZIP file that are to be excluded from the target.
+   The names are specified in JAR entry name syntax, such as
+   <code>com/ibm/component/className.class</code>.
+   <br>Note: This augments any previously specified excluded entries.
+   This method does not verify the existence of the specified entries
+   in the source file.
+
+   @param entryList The names of JAR or ZIP entries to be excluded.
+   The list should contain only <code>String</code> objects.
+   **/
+  public void setFilesExcluded(Vector entryList)
+  {
+    if (entryList == null)
+      throw new NullPointerException("entryList");
+    // Check for nulls and for correct element type.
+    entryList = validateList(entryList, "entryName",
+                              "java.lang.String", verbose_);
+    copyVector(entryList, filesExcluded_, CHECK_DUPS);
   }
 
 
@@ -2297,10 +2469,10 @@ public class JarMaker
 
    @param sourceJarFile The source JAR or ZIP file.
    **/
-  void setSourceJar (File sourceJarFile)
+  void setSourceJar(File sourceJarFile)
   {
     if (sourceJarFile == null)
-      throw new NullPointerException ("sourceJarFile");
+      throw new NullPointerException("sourceJarFile");
     sourceJarFile_ = sourceJarFile;
   }
 
@@ -2312,7 +2484,7 @@ public class JarMaker
    @param split If <code>true</code>, turn split mode on;
    otherwise turn split mode off.
    **/
-  void setSplit (boolean split) { split_ = split; }
+  void setSplit(boolean split) { split_ = split; }
 
 
   /**
@@ -2323,7 +2495,7 @@ public class JarMaker
    @param splitSize The maximum file size for the destination JAR or ZIP files;
    in units of kilobytes (1024 bytes).
    **/
-  void setSplitSize (int splitSize) { splitSize_ = splitSize; }
+  void setSplitSize(int splitSize) { splitSize_ = splitSize; }
 
 
   /**
@@ -2333,19 +2505,19 @@ public class JarMaker
    @param sourceJarFile The source JAR or ZIP file.
    @return              A default destination JAR or ZIP file.
    **/
-  static File setupDefaultDestinationJarFile (File sourceJarFile)
+  static File setupDefaultDestinationJarFile(File sourceJarFile)
   {
-    String sourceJarName = sourceJarFile.getName ();
-    int index = sourceJarName.lastIndexOf ('.');
+    String sourceJarName = sourceJarFile.getName();
+    int index = sourceJarName.lastIndexOf('.');
     String destinationJarName;
     String suffix = "Small";
     if (index == -1)
       destinationJarName = sourceJarName + suffix;
     else
-      destinationJarName = sourceJarName.substring (0, index)
-        + suffix + sourceJarName.substring (index);
+      destinationJarName = sourceJarName.substring(0, index)
+        + suffix + sourceJarName.substring(index);
     // Put it in the current directory.
-    return new File (CURRENT_DIR, destinationJarName);
+    return new File(CURRENT_DIR, destinationJarName);
   }
 
 
@@ -2358,25 +2530,25 @@ public class JarMaker
    @param suffix The suffix to append to the name.
    @return A destination JAR or ZIP file.
    **/
-  private static File setupSplitJarFile (File sourceJarFile, int suffix)
+  private static File setupSplitJarFile(File sourceJarFile, int suffix)
   {
-    String sourceJarName = sourceJarFile.getName ();
+    String sourceJarName = sourceJarFile.getName();
     String destinationJarName;
-    int index = sourceJarName.lastIndexOf ('.');
+    int index = sourceJarName.lastIndexOf('.');
     if (index == -1)
       destinationJarName = sourceJarName + suffix;
     else
-      destinationJarName = sourceJarName.substring (0, index)
-        + Integer.toString (suffix) + sourceJarName.substring (index);
+      destinationJarName = sourceJarName.substring(0, index)
+        + Integer.toString(suffix) + sourceJarName.substring(index);
     // Put it in the current directory.
-    return new File (CURRENT_DIR, destinationJarName);
+    return new File(CURRENT_DIR, destinationJarName);
   }
 
 
   /**
    Sets <code>verbose</code> mode 'on'.
   **/
-  public void setVerbose () { setVerbose (true); }
+  public void setVerbose() { setVerbose(true); }
 
 
   /**
@@ -2385,7 +2557,7 @@ public class JarMaker
    @param verbose If <code>true</code>, turn verbose mode on;
    otherwise turn verbose mode off.
    **/
-  public void setVerbose (boolean verbose) { verbose_ = verbose; }
+  public void setVerbose(boolean verbose) { verbose_ = verbose; }
 
 
   /**
@@ -2394,26 +2566,26 @@ public class JarMaker
    @param originalList The list of Strings to sort.
    @return The sorted list.
    **/
-  static Vector sortStrings (Vector originalList)
+  static Vector sortStrings(Vector originalList)
   {
-    Vector sortedList = new Vector (originalList.size ());
-    Enumeration e = originalList.elements ();
-    while (e.hasMoreElements ())
+    Vector sortedList = new Vector(originalList.size());
+    Enumeration e = originalList.elements();
+    while (e.hasMoreElements())
     {
-      String oldEntry = (String)e.nextElement ();
+      String oldEntry = (String)e.nextElement();
       boolean done = false;
-      int insertionPosition = sortedList.size ();  // default: add at end
-      Enumeration sorted = sortedList.elements ();
-      for (int i=0; !done && sorted.hasMoreElements (); ++i)
+      int insertionPosition = sortedList.size();  // default: add at end
+      Enumeration sorted = sortedList.elements();
+      for (int i=0; !done && sorted.hasMoreElements(); ++i)
       {
-        String sortedEntry = (String)sorted.nextElement ();
-        if ((oldEntry.compareTo (sortedEntry)) < 0)
+        String sortedEntry = (String)sorted.nextElement();
+        if ((oldEntry.compareTo(sortedEntry)) < 0)
         {
           insertionPosition = i;
           done = true;
         }
       }
-      sortedList.insertElementAt (oldEntry, insertionPosition);
+      sortedList.insertElementAt(oldEntry, insertionPosition);
     }
     return sortedList;
   }
@@ -2422,7 +2594,7 @@ public class JarMaker
   /**
    Splits the specified JAR or ZIP file into smaller JAR or ZIP files
    whose size does not exceed 2 megabytes.
-   No files are added or excluded; the entries in the source file
+   No files are added or removed; the entries in the source file
    are simply distributed among the generated JAR or ZIP files.
    If any single file within the source JAR or ZIP file exceeds
    2 megabytes, a warning is printed to <code>System.err</code>.
@@ -2436,17 +2608,17 @@ public class JarMaker
    @exception ZipException If a ZIP error occurs when reading the source file
    or writing a generated file.
    **/
-  public Vector split (File sourceJarFile)
+  public Vector split(File sourceJarFile)
     throws FileNotFoundException, IOException, ZipException
   {
-    return split (sourceJarFile, SPLIT_SIZE_KBYTES);
+    return split(sourceJarFile, SPLIT_SIZE_KBYTES);
   }
 
 
   /**
    Splits the specified source JAR or ZIP file into smaller JAR or ZIP files
    whose size does not exceed the specified number of kilobytes.
-   No files are added or excluded; the entries in the source file
+   No files are added or removed; the entries in the source file
    are simply distributed among the destination files.
    If any single file within the source file exceeds
    the specified size, a warning is printed to <code>System.err</code>.
@@ -2462,26 +2634,26 @@ public class JarMaker
    @exception ZipException If a ZIP error occurs when reading the source file
    or writing a generated file.
    **/
-  public Vector split (File sourceJarFile, int splitSizeKbytes)
+  public Vector split(File sourceJarFile, int splitSizeKbytes)
     throws FileNotFoundException, IOException, ZipException
   {
     if (sourceJarFile == null)
-      throw new NullPointerException ("sourceJarFile");
+      throw new NullPointerException("sourceJarFile");
     if (splitSizeKbytes < 1)
-      throw new IllegalArgumentException ("splitSizeKbytes (" +
+      throw new IllegalArgumentException("splitSizeKbytes (" +
                                           splitSizeKbytes + ")");
-    if (!sourceJarFile.exists ())
-      throw new FileNotFoundException (sourceJarFile.getAbsolutePath ());
+    if (!sourceJarFile.exists())
+      throw new FileNotFoundException(sourceJarFile.getAbsolutePath());
     if (verbose_ || DEBUG) {
-      System.out.println ("Source file is " +
-                          sourceJarFile.getAbsolutePath ());
-      System.out.println ("Split size is " + splitSizeKbytes + " kilobytes");
+      System.out.println("Source file is " +
+                          sourceJarFile.getAbsolutePath());
+      System.out.println("Split size is " + splitSizeKbytes + " kilobytes");
     }
 
-    Vector destJarList = new Vector ();
+    Vector destJarList = new Vector();
     JarMap jarMap = null;
     ManifestMap manifestMap = null;
-    Long splitSizeLong = new Long (splitSizeKbytes);
+    Long splitSizeLong = new Long(splitSizeKbytes);
     long splitSize = splitSizeLong.longValue() * 1024; // Kbytes -> bytes
     File currentOutputFile = null;
 
@@ -2491,26 +2663,26 @@ public class JarMaker
       // on the chance that the user might actually want to keep them.
 
       int outFileIndex = 0;
-      currentOutputFile = setupSplitJarFile (sourceJarFile, outFileIndex++);
+      currentOutputFile = setupSplitJarFile(sourceJarFile, outFileIndex++);
 
       // Simplest case: If the source file is smaller than splitSize,
       // just copy it to a single destination file.
-      if (sourceJarFile.length () <= splitSize)
+      if (sourceJarFile.length() <= splitSize)
       {
-        copyFile (sourceJarFile, currentOutputFile);
-        destJarList.addElement (currentOutputFile);
+        copyFile(sourceJarFile, currentOutputFile);
+        destJarList.addElement(currentOutputFile);
         return destJarList;
       }
 
       // Make a map of the source file.
-      if (DEBUG) System.out.println ("Debug: Making JarMap");
-      jarMap = new JarMap (sourceJarFile, verbose_);
-      manifestMap = new ManifestMap (jarMap);
-      boolean manifestExists = jarMap.hasManifest ();
-      int baseMetadataPerZipEntry = jarMap.getSizeOfZipMetadataPerEntry ();
+      if (DEBUG) System.out.println("Debug: Making JarMap");
+      jarMap = new JarMap(sourceJarFile, verbose_);
+      manifestMap = new ManifestMap(jarMap);
+      boolean manifestExists = jarMap.hasManifest();
+      int baseMetadataPerZipEntry = jarMap.getSizeOfZipMetadataPerEntry();
 
       // Get size of ZIP "end of central directory" record.
-      int baseMetadataPerZip = jarMap.getSizeOfZipMetadataPerZip ();
+      int baseMetadataPerZip = jarMap.getSizeOfZipMetadataPerZip();
       // Allow for ZIP metadata for the Manifest entry.
       if (manifestExists)
         baseMetadataPerZip +=
@@ -2521,41 +2693,41 @@ public class JarMaker
       //     http://www.pkware.com/download.html
 
       // Gather names of entries to write to the next output file.
-      Vector entriesToWriteNext = new Vector (); // ZIP entry names (String's)
+      Vector entriesToWriteNext = new Vector(); // ZIP entry names (String's)
       // Running total (compressed) size of entries:
       long cumulativeSize = baseMetadataPerZip;
 
-      Vector directoriesSoFar = new Vector ();
-      Vector dirsToAddForThisEntry = new Vector ();
+      Vector directoriesSoFar = new Vector();
+      Vector dirsToAddForThisEntry = new Vector();
 
-      Enumeration e = jarMap.elements ();
-      while (e.hasMoreElements ())
+      Enumeration e = jarMap.elements();
+      while (e.hasMoreElements())
       {
-        String entryName = (String)e.nextElement ();
-        ZipEntry entry = jarMap.getEntry (entryName);
+        String entryName = (String)e.nextElement();
+        ZipEntry entry = jarMap.getEntry(entryName);
         if (entry == null)
-          throw new RuntimeException ("Programming error: No JarMap entry for " +
+          throw new RuntimeException("Programming error: No JarMap entry for " +
                                       entryName);
-        if (entry.isDirectory ()) directoriesSoFar.addElement (entryName);
+        if (entry.isDirectory()) directoriesSoFar.addElement(entryName);
 
         // Get the uncompressed size of this ZIP entry.
         // Design note: Since we're not sure we'll be able
         // to recompress it to the original compressed size, err on the
         // conservative side, rather than risk generating an oversize file.
-        long entrySize = entry.getSize ();
+        long entrySize = entry.getSize();
         long entryMetadataSize = baseMetadataPerZipEntry + 2*(entryName.length());
 
         // Add size of comment.
         String comment = entry.getComment();
-        if (comment != null) entryMetadataSize += comment.length ();
+        if (comment != null) entryMetadataSize += comment.length();
 
         // Add size of extra field data (twice, since it will appear
         // in both the Local Field Header and in the Central Directory).
-        byte[] extraFieldData = entry.getExtra ();
+        byte[] extraFieldData = entry.getExtra();
         if (extraFieldData != null) {
           entryMetadataSize += 2*extraFieldData.length;
           if (false && DEBUG_ZIP)
-            System.out.println ("Debug: extraFieldData.length = " +
+            System.out.println("Debug: extraFieldData.length = " +
                                 extraFieldData.length);
         }
 
@@ -2563,14 +2735,14 @@ public class JarMaker
         // This is the uncompressed size,
         // so we will err on the conservative side.
         if (manifestExists)
-          entryMetadataSize += manifestMap.getEntrySize (entryName);
+          entryMetadataSize += manifestMap.getEntrySize(entryName);
 
         // Add the size of metadata for any additional directory entries
         // that will be needed for this entry.
         dirsToAddForThisEntry =
-          generateDirEntries (entryName, directoriesSoFar);
+          generateDirEntries(entryName, directoriesSoFar);
         int directoriesMetadataSize =
-          determineDirMetadataSize (dirsToAddForThisEntry,
+          determineDirMetadataSize(dirsToAddForThisEntry,
                                     baseMetadataPerZipEntry); 
 
         // If the size of this single entry equals or exceeds the split size,
@@ -2579,51 +2751,51 @@ public class JarMaker
              directoriesMetadataSize)
             >= splitSize)
         { 
-          Vector entryToWriteNow = new Vector ();
-          entryToWriteNow.addElement (entryName);
-          writeJarEntries (entryToWriteNow, currentOutputFile, jarMap, manifestMap, splitSize, verbose_);
-          if (currentOutputFile.length () > splitSize)
+          Vector entryToWriteNow = new Vector();
+          entryToWriteNow.addElement(entryName);
+          writeJarEntries(entryToWriteNow, currentOutputFile, jarMap, manifestMap, splitSize, verbose_);
+          if (currentOutputFile.length() > splitSize)
           {
-            System.err.println ("Warning: Oversize ZIP entry " + entryName);
-            System.err.println ("         was written to file " +
-                                currentOutputFile.getAbsolutePath ()+".");
+            System.err.println("Warning: Oversize ZIP entry " + entryName);
+            System.err.println("         was written to file " +
+                                currentOutputFile.getAbsolutePath()+".");
           }
-          destJarList.addElement (currentOutputFile);
-          currentOutputFile = setupSplitJarFile (sourceJarFile, outFileIndex++);
+          destJarList.addElement(currentOutputFile);
+          currentOutputFile = setupSplitJarFile(sourceJarFile, outFileIndex++);
         }
         else
         {
           if ((cumulativeSize + entrySize + entryMetadataSize +
                directoriesMetadataSize) > splitSize)
           { // Flush the buffer before adding this entry.
-            writeJarEntries (entriesToWriteNext, currentOutputFile,
+            writeJarEntries(entriesToWriteNext, currentOutputFile,
                              jarMap, manifestMap, splitSize, verbose_);
-            entriesToWriteNext.removeAllElements ();
-            destJarList.addElement (currentOutputFile);
-            currentOutputFile = setupSplitJarFile (sourceJarFile, outFileIndex++);
+            entriesToWriteNext.removeAllElements();
+            destJarList.addElement(currentOutputFile);
+            currentOutputFile = setupSplitJarFile(sourceJarFile, outFileIndex++);
             cumulativeSize = baseMetadataPerZip;
 
             // Recalculate the size of metadata for needed directories.
-            directoriesSoFar.removeAllElements ();
+            directoriesSoFar.removeAllElements();
             dirsToAddForThisEntry =
-              generateDirEntries (entryName, directoriesSoFar);
+              generateDirEntries(entryName, directoriesSoFar);
             directoriesMetadataSize =
-              determineDirMetadataSize (dirsToAddForThisEntry,
+              determineDirMetadataSize(dirsToAddForThisEntry,
                                         baseMetadataPerZipEntry); 
           }
-          entriesToWriteNext.addElement (entryName);
-          copyVectorToFrom (directoriesSoFar, dirsToAddForThisEntry, NO_CHECK_DUPS);  // @A3c
+          entriesToWriteNext.addElement(entryName);
+          copyVector(dirsToAddForThisEntry, directoriesSoFar, NO_CHECK_DUPS);  // @A3c
           cumulativeSize += (entrySize + entryMetadataSize +
                              directoriesMetadataSize);
         }
       }  // end of 'while'
 
       // Write any pending entries.
-      if (entriesToWriteNext.size () != 0) {
-        writeJarEntries (entriesToWriteNext, currentOutputFile,
+      if (entriesToWriteNext.size() != 0) {
+        writeJarEntries(entriesToWriteNext, currentOutputFile,
                          jarMap, manifestMap, splitSize, verbose_);
-        entriesToWriteNext.removeAllElements ();
-        destJarList.addElement (currentOutputFile);
+        entriesToWriteNext.removeAllElements();
+        destJarList.addElement(currentOutputFile);
       }
 
       // Design note - ZipFile.getInputStream() returns a 
@@ -2635,24 +2807,24 @@ public class JarMaker
       // find a way to copy entries without decompressing.
     }
     catch (ZipException e) {
-      System.err.println ("Error: ZipException when splitting file");
-      System.err.println ("       " + sourceJarFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: ZipException when splitting file");
+      System.err.println("       " + sourceJarFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     catch (IOException e) {
-      System.err.println ("Error: IOException when splitting file");
-      System.err.println ("       " + sourceJarFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: IOException when splitting file");
+      System.err.println("       " + sourceJarFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     finally
     {
-      if (DEBUG) System.out.println ();
-      if (manifestMap != null) { manifestMap.close (); }
-      if (jarMap != null) { jarMap.close (); }
+      if (DEBUG) System.out.println();
+      if (manifestMap != null) { manifestMap.close(); }
+      if (jarMap != null) { jarMap.close(); }
 
     }
 
@@ -2676,54 +2848,54 @@ public class JarMaker
    @exception IllegalArgumentException If any element is not of correct
    class, or is out of range.
    **/
-  static Vector validateList (Vector oldList, String parmName,
+  static Vector validateList(Vector oldList, String parmName,
                               String className, boolean verbose)
   {
-    if (oldList == null) throw new NullPointerException ("list");
-    if (parmName == null) throw new NullPointerException ("parmName");
-    if (className == null) throw new NullPointerException ("className");
+    if (oldList == null) throw new NullPointerException("list");
+    if (parmName == null) throw new NullPointerException("parmName");
+    if (className == null) throw new NullPointerException("className");
     // Note: The above exceptions would be due to internal programming errors.
     Class expectedClass = null;
-    try { expectedClass = Class.forName (className); }
+    try { expectedClass = Class.forName(className); }
     catch (ClassNotFoundException e) { // This can only happen if JarMaker has defect
-      throw new RuntimeException ("Programming error: Class not found: " +
+      throw new RuntimeException("Programming error: Class not found: " +
                                   className);
     }
 
-    Vector newList = new Vector (oldList.size ());
-    Enumeration e = oldList.elements ();
-    for (int i=0; e.hasMoreElements (); i++)
+    Vector newList = new Vector(oldList.size());
+    Enumeration e = oldList.elements();
+    for (int i=0; e.hasMoreElements(); i++)
     {
-      Object element = e.nextElement ();
+      Object element = e.nextElement();
       if (element == null)
-        throw new NullPointerException (parmName);
-      if (!(expectedClass.isInstance (element))) {
-        String actualClass = element.getClass ().getName ();
-        throw new IllegalArgumentException (parmName +
+        throw new NullPointerException(parmName);
+      if (!(expectedClass.isInstance(element))) {
+        String actualClass = element.getClass().getName();
+        throw new IllegalArgumentException(parmName +
                                    " (object of class " + actualClass + ")");
       }
       if (element instanceof Integer) {
-        int value = ((Integer)element).intValue ();
+        int value = ((Integer)element).intValue();
         if (value < 0)
-          throw new IllegalArgumentException (parmName + " (" + value + ")");
+          throw new IllegalArgumentException(parmName + " (" + value + ")");
       }
       else if (element instanceof String) {
-        String elem = ((String)element).trim ();  // strip leading/trailing blanks
-        if (elem.length () == 0)
-          throw new IllegalArgumentException (parmName + " ()");
+        String elem = ((String)element).trim();  // strip leading/trailing blanks
+        if (elem.length() == 0)
+          throw new IllegalArgumentException(parmName + "()");
         element = elem;
       }
-      if (!newList.contains (element))
-        newList.addElement (element);
+      if (!newList.contains(element))
+        newList.addElement(element);
       else if (DEBUG) {
-        System.err.print ("Debug: Ignoring duplicate list entry: ");
+        System.err.print("Debug: Ignoring duplicate list entry: ");
         if (element instanceof String)
-          System.err.println ((String)element);
+          System.err.println((String)element);
         else if (element instanceof File)
-          System.err.println (((File)element).getPath ());
+          System.err.println(((File)element).getPath());
         else if (element instanceof Integer)
-          System.err.println (((Integer)element).toString ());
-        else System.err.println (parmName + " at offset " + i);
+          System.err.println(((Integer)element).toString());
+        else System.err.println(parmName + " at offset " + i);
       }
     }
     return newList;
@@ -2747,17 +2919,17 @@ public class JarMaker
    @exception ZipException If a ZIP error occurs when reading the source file
    or writing the destination file.
    **/
-  private static void writeJarEntries (Vector entryNames, File outFile,
+  private static void writeJarEntries(Vector entryNames, File outFile,
                                        JarMap jarMap, ManifestMap manifestMap,
                                        long splitSize, boolean verbose)
     throws FileNotFoundException, IOException, ZipException
   {
-    if (entryNames == null) throw new NullPointerException ("entryNames");
-    if (outFile == null) throw new NullPointerException ("outFile");
-    if (jarMap == null) throw new NullPointerException ("jarMap");
-    if (manifestMap == null) throw new NullPointerException ("manifestMap");
+    if (entryNames == null) throw new NullPointerException("entryNames");
+    if (outFile == null) throw new NullPointerException("outFile");
+    if (jarMap == null) throw new NullPointerException("jarMap");
+    if (manifestMap == null) throw new NullPointerException("manifestMap");
 
-    if (verbose) System.out.println ("writeJarEntries( " +
+    if (verbose) System.out.println("writeJarEntries( " +
                                    outFile.getName() + " )");
     ZipOutputStream zipOutStream = null;
     BufferedOutputStream bufferedOutStream = null;
@@ -2766,89 +2938,88 @@ public class JarMaker
     try
     {
       // Set up a stream through which to write the file.
-      bufferedOutStream = new BufferedOutputStream
-        (new FileOutputStream (outFile), BUFFER_SIZE);
-      zipOutStream = new ZipOutputStream (bufferedOutStream);
+      bufferedOutStream = new BufferedOutputStream(new FileOutputStream(outFile), BUFFER_SIZE);
+      zipOutStream = new ZipOutputStream(bufferedOutStream);
 
       // Build the manifest (if needed).
-      StringBuffer manifestBuffer = new StringBuffer ();
-      if (jarMap.hasManifest ())
+      StringBuffer manifestBuffer = new StringBuffer();
+      if (jarMap.hasManifest())
       {
-        String manifestHeader = manifestMap.getHeader ();
-        if (manifestHeader.length () != 0)
-          manifestBuffer.append (manifestHeader);
+        String manifestHeader = manifestMap.getHeader();
+        if (manifestHeader.length() != 0)
+          manifestBuffer.append(manifestHeader);
 
-        Enumeration e = entryNames.elements ();
-        while (e.hasMoreElements ())
+        Enumeration e = entryNames.elements();
+        while (e.hasMoreElements())
         {
-          String entryName = (String)e.nextElement ();
-          String manifestText = manifestMap.get (entryName);
+          String entryName = (String)e.nextElement();
+          String manifestText = manifestMap.get(entryName);
           if (manifestText != null)
-            manifestBuffer.append (manifestText);
+            manifestBuffer.append(manifestText);
         }
       }
 
       // Write the manifest to the file.
-      if (manifestBuffer.length () != 0)
+      if (manifestBuffer.length() != 0)
       {
-        byte[] bufferBytes = manifestBuffer.toString ().getBytes ();
-        ZipEntry newManifestEntry = new ZipEntry (MANIFEST_ENTRY_NAME);
-        newManifestEntry.setSize (bufferBytes.length);
+        byte[] bufferBytes = manifestBuffer.toString().getBytes();
+        ZipEntry newManifestEntry = new ZipEntry(MANIFEST_ENTRY_NAME);
+        newManifestEntry.setSize(bufferBytes.length);
 
         try {
-          zipOutStream.putNextEntry (newManifestEntry);
-          zipOutStream.write (bufferBytes);
-          zipOutStream.flush ();
-          bufferedOutStream.flush (); // java bug 4077821
-          zipOutStream.closeEntry ();
-          bufferedOutStream.flush (); // this might be overkill
+          zipOutStream.putNextEntry(newManifestEntry);
+          zipOutStream.write(bufferBytes);
+          zipOutStream.flush();
+          bufferedOutStream.flush(); // java bug 4077821
+          zipOutStream.closeEntry();
+          bufferedOutStream.flush(); // this might be overkill
         }
         catch (ZipException e) {
-          System.err.println ("Error: ZipException for manifest entry");
-          System.err.println ("       " + newManifestEntry.getName () + ":");
-          System.err.println (e.toString ());
-          if (DEBUG) e.printStackTrace (System.err);
+          System.err.println("Error: ZipException for manifest entry");
+          System.err.println("       " + newManifestEntry.getName() + ":");
+          System.err.println(e.toString());
+          if (DEBUG) e.printStackTrace(System.err);
           throw e;
         }
         catch (IOException e) {
-          System.err.println ("Error: IOException for manifest entry");
-          System.err.println ("       " + newManifestEntry.getName () + ":");
-          System.err.println (e.toString ());
-          if (DEBUG) e.printStackTrace (System.err);
+          System.err.println("Error: IOException for manifest entry");
+          System.err.println("       " + newManifestEntry.getName() + ":");
+          System.err.println(e.toString());
+          if (DEBUG) e.printStackTrace(System.err);
           throw e;
         }
       }
 
       // Write the entries to the file.
-      Vector directoriesSoFar = new Vector (); // directory entries created
-      Enumeration e1 = entryNames.elements ();
-      while (e1.hasMoreElements ())
+      Vector directoriesSoFar = new Vector(); // directory entries created
+      Enumeration e1 = entryNames.elements();
+      while (e1.hasMoreElements())
       {
-        String entryName = (String)e1.nextElement ();
-        ZipEntry entry = jarMap.getEntry (entryName);
+        String entryName = (String)e1.nextElement();
+        ZipEntry entry = jarMap.getEntry(entryName);
         if (entry == null)
-          System.err.println ("Error: Entry not found in source file: " +
+          System.err.println("Error: Entry not found in source file: " +
                               entryName);
         else
         {
           // Make sure any needed 'directory' entries get added first.
           Vector dirsToAdd =
-            generateDirEntries (entryName, directoriesSoFar);
-          Enumeration e2 = dirsToAdd.elements ();
-          while (e2.hasMoreElements ()) {
-            String dirName = (String)e2.nextElement ();
-            ZipEntry dirEntry = new ZipEntry (dirName);
-            dirEntry.setSize (0);
-            zipOutStream.putNextEntry (dirEntry);
-            zipOutStream.flush ();
-            bufferedOutStream.flush (); // java bug 4077821
-            zipOutStream.closeEntry ();
-            bufferedOutStream.flush (); // this might be overkill
-            directoriesSoFar.addElement (dirName);
+            generateDirEntries(entryName, directoriesSoFar);
+          Enumeration e2 = dirsToAdd.elements();
+          while (e2.hasMoreElements()) {
+            String dirName = (String)e2.nextElement();
+            ZipEntry dirEntry = new ZipEntry(dirName);
+            dirEntry.setSize(0);
+            zipOutStream.putNextEntry(dirEntry);
+            zipOutStream.flush();
+            bufferedOutStream.flush(); // java bug 4077821
+            zipOutStream.closeEntry();
+            bufferedOutStream.flush(); // this might be overkill
+            directoriesSoFar.addElement(dirName);
           }
 
           // Get an input stream from which to read the ZIP entry.
-          inStream = jarMap.getInputStream (entry);
+          inStream = jarMap.getInputStream(entry);
           // Design note - ZipFile.getInputStream() returns a 
           // java.util.zip.InflaterInputStream object.  Therefore
           // the current implementation causes each ZIP entry to be
@@ -2858,42 +3029,42 @@ public class JarMaker
           // find a way to copy the entry without decompressing.
 
           // Copy the ZIP entry to the destination file.
-          copyZipEntry (entry, inStream, zipOutStream);
-          zipOutStream.flush ();
-          bufferedOutStream.flush (); // java bug 4077821
-          zipOutStream.closeEntry ();
-          bufferedOutStream.flush (); // this might be overkill
-          inStream.close ();
+          copyZipEntry(entry, inStream, zipOutStream);
+          zipOutStream.flush();
+          bufferedOutStream.flush(); // java bug 4077821
+          zipOutStream.closeEntry();
+          bufferedOutStream.flush(); // this might be overkill
+          inStream.close();
 
           // If this is a directory entry, remember that we've seen it.
-          if (entry.isDirectory ())
-            directoriesSoFar.addElement (entryName);
+          if (entry.isDirectory())
+            directoriesSoFar.addElement(entryName);
         }
       }  // end of 'while' loop
 
-      if (outFile.length () > splitSize)
-        System.err.println ("Error: Generated file exceeds specified size:");
-        System.err.println ("       " + outFile.getAbsolutePath ());
+      if (outFile.length() > splitSize)
+        System.err.println("Error: Generated file exceeds specified size:");
+        System.err.println("       " + outFile.getAbsolutePath());
     }
     catch (ZipException e) {
-      System.err.println ("Error: ZipException when writing to file");
-      System.err.println ("       " + outFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: ZipException when writing to file");
+      System.err.println("       " + outFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     catch (IOException e) {
-      System.err.println ("Error: IOException when writing to file");
-      System.err.println ("       " + outFile.getAbsolutePath () + ":");
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
+      System.err.println("Error: IOException when writing to file");
+      System.err.println("       " + outFile.getAbsolutePath() + ":");
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
       throw e;
     }
     finally
     {
-      if (inStream != null) { inStream.close (); }
-      if (zipOutStream != null) { zipOutStream.close (); }
-      if (bufferedOutStream != null) { bufferedOutStream.close (); }
+      if (inStream != null) { inStream.close(); }
+      if (zipOutStream != null) { zipOutStream.close(); }
+      if (bufferedOutStream != null) { bufferedOutStream.close(); }
     }
   }
 
@@ -2903,70 +3074,72 @@ public class JarMaker
 
    @param args The command line arguments.
    **/
-  public static void main (String[] args)
+  public static void main(String[] args)
   {
     try
     {
-      JarMaker jm = new JarMaker ();
+      JarMaker jm = new JarMaker();
 
-      if (jm.parseArgs (args, false))
+      if (jm.parseArgs(args, false))
       {
-        if (jm.isSplit ())  // -split overrides all other options
+        if (jm.isSplit())  // -split overrides all other options
         {
-          File srcJar = jm.getSourceJar ();
-          int splitSize = jm.getSplitSize ();
-          jm.split (srcJar, splitSize); // unpack required files
+          File srcJar = jm.getSourceJar();
+          int splitSize = jm.getSplitSize();
+          jm.split(srcJar, splitSize); // unpack required files
         }
-        else if (jm.isExtract ())
+        else if (jm.isExtract())
         {
-          File srcJar = jm.getSourceJar ();
-          File outputDir = jm.getExtractionDirectory ();
-          jm.extract (srcJar, outputDir); // unpack required files
+          File srcJar = jm.getSourceJar();
+          File outputDir = jm.getExtractionDirectory();
+          jm.extract(srcJar, outputDir); // unpack required files
         }
         else
         {
-          File srcJar = jm.getSourceJar ();
-          File destJar = jm.getDestinationJar ();
-          jm.makeJar (srcJar, destJar); // create a new JAR file
+          File srcJar = jm.getSourceJar();
+          File destJar = jm.getDestinationJar();
+          jm.makeJar(srcJar, destJar); // create a new JAR file
         }
       }
-      else System.exit (1);
+      else System.exit(1);
     }
     catch (Exception e) {
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
-      System.exit (1);
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
+      System.exit(1);
     }
     catch (Error e) {
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
-      System.exit (1);
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
+      System.exit(1);
     }
 
-    System.exit (0);
+    System.exit(0);
   }
 
 
 
   class Arguments
   {
-    private Vector unrecognizedArgs_ = new Vector ();
+    private Vector unrecognizedArgs_ = new Vector();
     private boolean optionsAreSufficient_;
 
     private boolean expectingSource_;
     private boolean expectingDestination_;
-    private boolean expectingJarEntry_;
+    private boolean expectingFileRequired_;
+    private boolean expectingFileExcluded_;
     private boolean expectingAdditionalFile_;
     private boolean expectingFilesDir_;
     private boolean expectingPackage_;
+    private boolean expectingPackageExcluded_;
     private boolean expectingExtractionDir_;
     private boolean expectingSplitSize_;
 
 
-    String [] getUnrecognized ()
+    String [] getUnrecognized()
     {
       String [] stringArray = new String [unrecognizedArgs_.size()];
-      unrecognizedArgs_.copyInto (stringArray);
+      unrecognizedArgs_.copyInto(stringArray);
       return stringArray;
     }
 
@@ -2976,7 +3149,7 @@ public class JarMaker
      @return <code>true</code> if sufficient info was specified,
      <code>false</code> otherwise.
      **/
-    boolean isOptionInfoSufficient () { return optionsAreSufficient_; }
+    boolean isOptionInfoSufficient() { return optionsAreSufficient_; }
 
     /**
      Parses and validates the arguments specified on the command line.
@@ -2986,24 +3159,26 @@ public class JarMaker
      @param tolerateUnrecognizedArgs Whether to tolerate unrecognized args.
      @return An indication of whether the parse succeeded.
      **/
-    boolean parse (String[] args, JarMaker jmaker,
+    boolean parse(String[] args, JarMaker jmaker,
                    boolean tolerateUnrecognizedArgs)
     {
       boolean destinationWasSpecified = false;
-      Vector requiredJarEntries = null; // Strings
+      Vector filesRequired = null; // Strings
+      Vector filesExcluded = null; // Strings
       Vector additionalFiles = null; // Files
       File additionalFilesDir = null;
       Vector packages = null; // Strings
+      Vector packagesExcluded = null; // Strings
       String extractionDirName = null;
       boolean succeeded = true;
 
-      unrecognizedArgs_ = new Vector ();
+      unrecognizedArgs_ = new Vector();
 
       if (args.length == 0)
       {
-        System.err.println ("Error: No options were specified.");
+        System.err.println("Error: No options were specified.");
         // Don't print usage info yet if a subclass will complete the parse.
-        if (!tolerateUnrecognizedArgs) printUsage (System.err);
+        if (!tolerateUnrecognizedArgs) printUsage(System.err);
         return false;
       }
 
@@ -3014,81 +3189,101 @@ public class JarMaker
       for (int i = 0; i < args.length; ++i)
       {
         // Check for option tag.
-        if (args[i].charAt (0) == '-')
+        if (args[i].charAt(0) == '-')
         {
-          resetExpectations ();
+          String arg = args[i].toLowerCase();
+          resetExpectations();
           priorTokenWasUnrecognized = false;
 
           // sourceFile tag
-          if ((args[i].equalsIgnoreCase ("-s")) ||
-              (args[i].equalsIgnoreCase ("-source")))
+          if (arg.equals("-s") ||
+              arg.startsWith("-src") ||
+              arg.startsWith("-so")) {
             expectingSource_ = true;
-          // expect the next token to be source
+            // expect the next token to be source
+          }
 
           // destinationFile tag
-          else if ((args[i].equalsIgnoreCase ("-d")) ||
-                   (args[i].equalsIgnoreCase ("-destination")))
+          else if (arg.equals("-d") ||
+                   arg.startsWith("-dest")) {
             expectingDestination_ = true;
-          // expect the next token to be destination
+            // expect the next token to be destination
+          }
 
-          // requiredFile tag
-          else if ((args[i].equalsIgnoreCase ("-rf")) ||
-                   (args[i].equalsIgnoreCase ("-requiredFile")) ||
-                   (args[i].equalsIgnoreCase ("-requiredFiles")))
-            expectingJarEntry_ = true;
-          // expect the next token(s) to be file(s)
+          // fileExcluded tag
+          else if (arg.equals("-fx") ||
+                   arg.startsWith("-fileex") ||
+                   arg.startsWith("-filesex")) {
+            expectingFileExcluded_ = true;
+            // expect the next token(s) to be file(s)
+          }
 
-          // additionalFile tag
-          else if ((args[i].equalsIgnoreCase ("-af")) ||
-                   (args[i].equalsIgnoreCase ("-additionalFile")) ||
-                   (args[i].equalsIgnoreCase ("-additionalFiles")))
-            expectingAdditionalFile_ = true;
-          // expect the next token(s) to be file(s)
+          // fileRequired tag
+          else if (arg.equals("-fr") ||
+                   arg.startsWith("-file") ||
+                   arg.equals("-rf") ||
+                   arg.startsWith("-req")) {
+            expectingFileRequired_ = true;
+            // expect the next token(s) to be file(s)
+          }
 
           // additionalFilesDirectory tag
-          else if ((args[i].equalsIgnoreCase ("-afd")) ||
-                   (args[i].equalsIgnoreCase ("-additionalFilesDirectory")))
+          else if (arg.equals("-afd") ||
+                   arg.startsWith("-additionalfilesdir")) {
             expectingFilesDir_ = true;
-          // expect the next token to be directory
+            // expect the next token to be directory
+          }
+
+          // additionalFile tag
+          else if (arg.equals("-af") ||
+                   arg.startsWith("-additional")) {
+            expectingAdditionalFile_ = true;
+            // expect the next token(s) to be file(s)
+          }
+
+          // packageExcluded tag
+          else if (arg.equals("-px") ||
+                   arg.startsWith("-packageex") ||
+                   arg.startsWith("-packagesex")) {
+            expectingPackageExcluded_ = true;
+            // expect the next token(s) to be package(s)
+          }
 
           // package tag
-          else if ((args[i].equalsIgnoreCase ("-p")) ||
-                   (args[i].equalsIgnoreCase ("-package")) ||
-                   (args[i].equalsIgnoreCase ("-packages")))
+          else if (arg.equals("-p") ||
+                   arg.startsWith("-package")) {
             expectingPackage_ = true;
-          // expect the next token(s) to be package(s)
+            // expect the next token(s) to be package(s)
+          }
 
           // extract tag
-          else if ((args[i].equalsIgnoreCase ("-x")) ||
-                   (args[i].equalsIgnoreCase ("-extract")))
-          {
-            jmaker.setExtract (true);
+          else if (arg.equals("-x") ||
+                   arg.startsWith("-extract")) {
+            jmaker.setExtract(true);
             expectingExtractionDir_ = true;
             // the next token, if not a tag, is base dir
           }
 
           // split tag
-          else if ((args[i].equalsIgnoreCase ("-sp")) ||
-                   (args[i].equalsIgnoreCase ("-split")))
-          {
-            jmaker.setSplit (true);
+          else if (arg.startsWith("-sp")) {
+            jmaker.setSplit(true);
             expectingSplitSize_ = true;
             // the next token, if not a tag, is split size
           }
 
           // verbose tag
-          else if ((args[i].equalsIgnoreCase ("-v")) ||
-                   (args[i].equalsIgnoreCase ("-verbose")))
-            jmaker.setVerbose (true);
+          else if (arg.startsWith("-v")) {
+            jmaker.setVerbose(true);
+          }
 
           // help tag
-          else if ((args[i].equalsIgnoreCase ("-h")) ||
-                   (args[i].equalsIgnoreCase ("-help")))
+          else if (arg.startsWith("-h")) {
             requestedUsageInfo_ = true;
+          }
 
           else
           {
-            unrecognizedArgs_.addElement (args[i]);
+            unrecognizedArgs_.addElement(args[i]);
             if (!tolerateUnrecognizedArgs) {
               System.err.println("Error: Unrecognized option: " + args[i]);
               priorTokenWasUnrecognized = true;
@@ -3102,7 +3297,7 @@ public class JarMaker
         {
           if (priorTokenWasUnrecognized)
           {
-            unrecognizedArgs_.addElement (args[i]);
+            unrecognizedArgs_.addElement(args[i]);
             if (!tolerateUnrecognizedArgs) {
               System.err.println("Error: Argument after unrecognized option: " +
                                  args[i]);
@@ -3113,55 +3308,84 @@ public class JarMaker
           else if (thisIsFirstToken || expectingSource_)
           {
             expectingSource_ = false;
-            setSourceJar (new File (args[i]));
+            setSourceJar(new File(args[i]));
           }
 
           else if (expectingDestination_)
           {
             expectingDestination_ = false;
-            setDestinationJar (new File (args[i]));
+            setDestinationJar(new File(args[i]));
             destinationWasSpecified = true; // remember not to take the default
           }
 
-          else if (expectingJarEntry_)
+          else if (expectingFileRequired_)
           {
             // Parse the list of ZIP entries, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
-              expectingJarEntry_ = false;
-              if (requiredJarEntries == null)
-                requiredJarEntries = new Vector (st.countTokens ());
-              while (st.hasMoreTokens ())
-                requiredJarEntries.addElement (st.nextToken ());
+              expectingFileRequired_ = false;
+              if (filesRequired == null)
+                filesRequired = new Vector(st.countTokens());
+              while (st.hasMoreTokens())
+                filesRequired.addElement(st.nextToken());
+            }
+          }
+
+          else if (expectingFileExcluded_)
+          {
+            // Parse the list of ZIP entries, separated by commas.
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
+            {
+              expectingFileExcluded_ = false;
+              if (filesExcluded == null)
+                filesExcluded = new Vector(st.countTokens());
+              while (st.hasMoreTokens())
+                filesExcluded.addElement(st.nextToken());
             }
           }
 
           else if (expectingPackage_)
           {
             // Parse the list of packages, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
               expectingPackage_ = false;
-              if (packages == null)
-                packages = new Vector (st.countTokens ());
-              while (st.hasMoreTokens ())
-                packages.addElement (st.nextToken ());
+              if (packages == null) {
+                packages = new Vector(st.countTokens());
+              }
+              while (st.hasMoreTokens())
+                packages.addElement(st.nextToken());
+            }
+          }
+
+          else if (expectingPackageExcluded_)
+          {
+            // Parse the list of packages, separated by commas.
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
+            {
+              expectingPackageExcluded_ = false;
+              if (packagesExcluded == null)
+                packagesExcluded = new Vector(st.countTokens());
+              while (st.hasMoreTokens())
+                packagesExcluded.addElement(st.nextToken());
             }
           }
 
           else if (expectingAdditionalFile_)
           {
             // Parse the list of files, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
               expectingAdditionalFile_ = false;
               if (additionalFiles == null)
-                additionalFiles = new Vector (st.countTokens ());
-              while (st.hasMoreTokens ()) {
-                additionalFiles.addElement (new File (st.nextToken ()));
+                additionalFiles = new Vector(st.countTokens());
+              while (st.hasMoreTokens()) {
+                additionalFiles.addElement(new File(st.nextToken()));
               }
             }
           }
@@ -3169,13 +3393,13 @@ public class JarMaker
           else if (expectingFilesDir_)
           {
             expectingFilesDir_ = false;
-            additionalFilesDir = new File (args[i]);
+            additionalFilesDir = new File(args[i]);
           }
 
           else if (expectingExtractionDir_)
           {
             expectingExtractionDir_ = false;
-            jmaker.setExtractionDirectory (new File (args[i]));
+            jmaker.setExtractionDirectory(new File(args[i]));
           }
 
           else if (expectingSplitSize_)
@@ -3183,33 +3407,33 @@ public class JarMaker
             expectingSplitSize_ = false;
             int size = 0;
             boolean badValue = false;
-            try { size = Integer.parseInt (args[i]); }
+            try { size = Integer.parseInt(args[i]); }
             catch (NumberFormatException e) {
-              System.err.println ("Error: Non-integer split size: " + args[i]);
+              System.err.println("Error: Non-integer split size: " + args[i]);
               succeeded = false;
               badValue = true;
             }
             if (!badValue)
-              jmaker.setSplitSize (size);
+              jmaker.setSplitSize(size);
           }
 
           else  // None of the above.
           {
-            unrecognizedArgs_.addElement (args[i]);
+            unrecognizedArgs_.addElement(args[i]);
             if (!tolerateUnrecognizedArgs) {
-              System.err.println ("Error: Unrecognized argument: " + args[i]);
+              System.err.println("Error: Unrecognized argument: " + args[i]);
               succeeded = false;
             }
           }
 
           priorTokenWasUnrecognized = false;
-          resetExpectations (); // We expect the next token to be an option
+          resetExpectations(); // We expect the next token to be an option
         }
 
         thisIsFirstToken = false;
       }  // end of 'for' loop
 
-      resetExpectations ();  // clean up
+      resetExpectations();  // clean up
 
       if (requestedUsageInfo_)
       {
@@ -3217,27 +3441,29 @@ public class JarMaker
           return succeeded;  // let the subclass print the usage info
         else
         {
-          printUsage (System.out);
+          printUsage(System.out);
           return false;
         }
       }
 
-      if (jmaker.getSourceJar () == null)
+      if (jmaker.getSourceJar() == null)
       {
         System.err.println("Error: Source JAR or ZIP file was not specified.");
         succeeded = false;
       }
 
-      else if (jmaker.isSplit ())
+      else if (jmaker.isSplit())
       {
         optionsAreSufficient_ = true;
-        jmaker.setExtract (false);  // '-split' overrides '-extract'
+        jmaker.setExtract(false);  // '-split' overrides '-extract'
         if ((destinationWasSpecified == true) ||
-            (requiredJarEntries != null) ||
+            (filesRequired != null) ||
+            (filesExcluded != null) ||
             (packages != null) ||
+            (packagesExcluded != null) ||
             (additionalFiles != null))
         {
-          System.err.println ("Warning: When -split is specified, " +
+          System.err.println("Warning: When -split is specified, " +
                               "all other options are ignored, except " +
                               "-source, and -verbose.");
         }
@@ -3246,19 +3472,21 @@ public class JarMaker
       else  // not a split
       {
         // Check for sufficient options.
-        if ((requiredJarEntries == null) &&
+        if ((filesRequired == null) &&
+            (filesExcluded == null) &&
             (additionalFiles == null) &&
             (packages == null) &&
-            (!jmaker.isExtract ()))
+            (packagesExcluded == null) &&
+            (!jmaker.isExtract()))
         {
-          if (unrecognizedArgs_.size () == 0 || !tolerateUnrecognizedArgs) {
+          if (unrecognizedArgs_.size() == 0 || !tolerateUnrecognizedArgs) {
             System.err.println("Error: Need to specify more options.");
             succeeded = false;
           }
         }
         else optionsAreSufficient_ = true;
 
-        if (jmaker.isExtract ())
+        if (jmaker.isExtract())
         {
           if ((destinationWasSpecified == true) ||
               (additionalFiles != null))
@@ -3273,30 +3501,42 @@ public class JarMaker
         // Wrap up.
         if (!destinationWasSpecified)
         {
-          File destJar = JarMaker.setupDefaultDestinationJarFile (jmaker.getSourceJar());
-          jmaker.setDestinationJar (destJar);
+          File destJar = JarMaker.setupDefaultDestinationJarFile(jmaker.getSourceJar());
+          jmaker.setDestinationJar(destJar);
         }
 
         // Set any additional files.
         if (additionalFilesDir == null)
-          additionalFilesDir = new File (System.getProperty ("user.dir"));
+          additionalFilesDir = new File(System.getProperty("user.dir"));
         if (additionalFiles != null)
-          setAdditionalFiles (additionalFiles, additionalFilesDir);
+          setAdditionalFiles(additionalFiles, additionalFilesDir);
 
         // Set other lists, now that they've been accumulated.
-        if (requiredJarEntries != null)
-          setRequiredFiles (requiredJarEntries);
+
+        if (filesRequired != null)
+          setFilesRequired(filesRequired);
+
+        if (filesExcluded != null)
+          setFilesExcluded(filesExcluded);
 
         if (packages != null)
         {
-          if (packages.size () > 0)
-            setPackages (packages);
+          if (packages.size() > 0)
+            setPackages(packages);
           else succeeded = false;  // bogus packages
         }
+
+        if (packagesExcluded != null)
+        {
+          if (packagesExcluded.size() > 0)
+            setPackagesExcluded(packagesExcluded);
+          else succeeded = false;  // bogus packages
+        }
+
       }
 
       if (!tolerateUnrecognizedArgs && !succeeded)
-        printUsage (System.err);
+        printUsage(System.err);
 
       return succeeded;
     }
@@ -3306,49 +3546,55 @@ public class JarMaker
 
      @param output   The output stream.
      **/
-    private void printUsage (PrintStream output)
+    private void printUsage(PrintStream output)
     {
-      output.println ("");
-      output.println ("Usage: ");
-      output.println ("");
-      output.println ("  JarMaker -source sourceJarFile");
-      output.println ("           [-destination jarFile]");
-      output.println ("           [-requiredFile entry1[,entry2[...]]]");
-      output.println ("           [-additionalFile file1[,file2[...]]]");
-      output.println ("           [-additionalFilesDirectory directory");
-      output.println ("           [-package pkg1[,pkg2[...]]]");
-      output.println ("           [-extract [directory]]");
-      output.println ("           [-split [kilobytes]]");
-      output.println ("           [-verbose]");
-      output.println ("           [-help]");
-      output.println ("");
-      output.println ("At least one of the following options must be specified: ");
-      output.println ("-requiredFile, -additionalFile, -package, -extract, -split");
+      output.println("");
+      output.println("Usage: ");
+      output.println("");
+      output.println("  JarMaker -source sourceJarFile");
+      output.println("           [-destination jarFile]");
+      output.println("           [-fileRequired entry1[,entry2[...]]]");
+      output.println("           [-fileExcluded entry1[,entry2[...]]]");
+      output.println("           [-additionalFile file1[,file2[...]]]");
+      output.println("           [-additionalFilesDirectory directory");
+      output.println("           [-package pkg1[,pkg2[...]]]");
+      output.println("           [-packageExcluded pkg1[,pkg2[...]]]");
+      output.println("           [-extract [directory]]");
+      output.println("           [-split [kilobytes]]");
+      output.println("           [-verbose]");
+      output.println("           [-help]");
+      output.println("");
+      output.println("At least one of the following options must be specified: ");
+      output.println("-fileRequired, -fileExcluded, -additionalFile, -package, -packageExcluded, -extract, -split");
     }
 
-    private void resetExpectations ()
+    private void resetExpectations()
     {
       if (expectingSource_)
-        System.err.println ("Warning: No file specified after -source.");
+        System.err.println("Warning: No file specified after -source.");
       if (expectingDestination_)
-        System.err.println ("Warning: No file specified after -destination.");
-      if (expectingJarEntry_)
-        System.err.println ("Warning: No file specified after -requiredFile.");
+        System.err.println("Warning: No file specified after -destination.");
+      if (expectingFileRequired_)
+        System.err.println("Warning: No file specified after -fileRequired.");
       if (expectingAdditionalFile_)
-        System.err.println ("Warning: No file specified after -additionalFile.");
+        System.err.println("Warning: No file specified after -additionalFile.");
       if (expectingFilesDir_)
-        System.err.println ("Warning: No directory specified after -additionalFilesDirectory.");
+        System.err.println("Warning: No directory specified after -additionalFilesDirectory.");
       if (expectingPackage_)
-        System.err.println ("Warning: No package specified after -package.");
+        System.err.println("Warning: No package specified after -package.");
+      if (expectingPackageExcluded_)
+        System.err.println("Warning: No package specified after -packageExcluded.");
+
       // Don't warn about missing extraction directory, assume user wants default.
       // Don't warn about missing split size, assume user wants default.
 
       expectingSource_ = false;
       expectingDestination_ = false;
-      expectingJarEntry_ = false;
+      expectingFileRequired_ = false;
       expectingAdditionalFile_ = false;
       expectingFilesDir_ = false;
       expectingPackage_ = false;
+      expectingPackageExcluded_ = false;
       expectingExtractionDir_ = false;
       expectingSplitSize_ = false;
     }
@@ -3366,7 +3612,7 @@ public class JarMaker
     // Names of all entries (except for the Manifest) in the JAR file.
     // Entries are arranged in alphabetical order.
     // Never null.
-    private Vector entryList_ = new Vector ();
+    private Vector entryList_ = new Vector();
 
     private File jarFile_;
     private boolean verbose_;
@@ -3380,39 +3626,38 @@ public class JarMaker
      @exception IOException If an I/O error occurs when reading the JAR file.
      @exception ZipException If a ZIP error occurs when reading the JAR file.
      **/
-    JarMap (File jarFile, boolean verbose)
+    JarMap(File jarFile, boolean verbose)
       throws IOException, ZipException
     {
-      if (DEBUG) System.out.println ("Debug: Entered JarMap constructor");
       if (jarFile == null)
-        throw new NullPointerException ("jarFile");
+        throw new NullPointerException("jarFile");
 
-      if (!jarFile.isFile ())
-        throw new FileNotFoundException (jarFile.getAbsolutePath ());
+      if (!jarFile.isFile())
+        throw new FileNotFoundException(jarFile.getAbsolutePath());
 
-      if (DEBUG) System.out.println ("Debug: Creating ZipFile");
-      zipFile_ = new ZipFile (jarFile);
+      if (DEBUG) System.out.println("Debug: Creating ZipFile");
+      zipFile_ = new ZipFile(jarFile);
       jarFile_ = jarFile;
       verbose_ = verbose;
 
-      if (DEBUG) System.out.println ("Debug: Getting manifest");
-      manifest_ = zipFile_.getEntry (MANIFEST_ENTRY_NAME);
+      if (DEBUG) System.out.println("Debug: Getting manifest");
+      manifest_ = zipFile_.getEntry(MANIFEST_ENTRY_NAME);
 
       // Avoid having to sort the entry name list,
       // since this can take a very long time if there are many
       // entries in the source zip or JAR file.
-      if (DEBUG) System.out.println ("Debug: Gathering entry names");
+      if (DEBUG) System.out.println("Debug: Gathering entry names");
       InputStream inStream =
-        new BufferedInputStream (new FileInputStream (jarFile), BUFFER_SIZE);
-      ZipInputStream zipInStream = new ZipInputStream (inStream);
-      ZipEntry entry = zipInStream.getNextEntry ();
+        new BufferedInputStream(new FileInputStream(jarFile), BUFFER_SIZE);
+      ZipInputStream zipInStream = new ZipInputStream(inStream);
+      ZipEntry entry = zipInStream.getNextEntry();
       while (entry != null)
       {
-        entryList_.addElement (entry.getName ());
-        entry = zipInStream.getNextEntry ();
+        entryList_.addElement(entry.getName());
+        entry = zipInStream.getNextEntry();
       }
-      zipInStream.close ();
-      inStream.close ();
+      zipInStream.close();
+      inStream.close();
 
       // Design note: ZipFile.entries() does not preserve the
       // original sequencing of the ZIP entries.
@@ -3423,61 +3668,60 @@ public class JarMaker
       //   http://developer.java.sun.com/developer/bugParade/bugs/4079029.html
 
       // Leave the Manifest out of the ZIP entry list.
-      entryList_.removeElement (MANIFEST_ENTRY_NAME);
-      if (DEBUG) System.out.println ("Debug: Exiting JarMap constructor");
+      entryList_.removeElement(MANIFEST_ENTRY_NAME);
     }
 
     // Closes this JarMap.
-    void close ()
+    void close()
     {
-      if (verbose_ || DEBUG) System.out.println ("Closing source file");
-      entryList_.removeAllElements ();
+      if (verbose_ || DEBUG) System.out.println("Closing source file");
+      entryList_.removeAllElements();
       manifest_ = null;
       if (zipFile_ != null)
       {
-        try { zipFile_.close (); }
+        try { zipFile_.close(); }
         catch (Exception e) {
-          System.err.println ("Error: While closing source file:");
-          System.err.println (e.toString ());
-          if (DEBUG) e.printStackTrace (System.err);
+          System.err.println("Error: While closing source file:");
+          System.err.println(e.toString());
+          if (DEBUG) e.printStackTrace(System.err);
         }
         zipFile_ = null;
       }
     }
 
     // Indicates whether the JAR contains the specified entry.
-    boolean contains (String entryName)
-    { return entryList_.contains (entryName); }
+    boolean contains(String entryName)
+    { return entryList_.contains(entryName); }
 
     // Returns the names of all entries in the JAR (except for the Manifest).
     // These are String objects.
-    Enumeration elements () { return entryList_.elements (); }
+    Enumeration elements() { return entryList_.elements(); }
 
     // Returns an enumeration of all the entries in the JAR file
     // (including the Manifest).
     // These are ZipEntry objects.
-    Enumeration entries () { return zipFile_.entries (); }
+    Enumeration entries() { return zipFile_.entries(); }
 
     // Returns the names of all entries in the JAR (except for the Manifest).
     // These are String objects.
-    Vector getEntryNames ()
+    Vector getEntryNames()
     { return entryList_; }
 
 
     // Returns the entries (String objects).
-    ZipEntry getEntry (String entryName)
-    { return zipFile_.getEntry (entryName); }
+    ZipEntry getEntry(String entryName)
+    { return zipFile_.getEntry(entryName); }
 
     // Returns an input stream for reading the specified entry in the jar.
-    InputStream getInputStream (ZipEntry entry)
+    InputStream getInputStream(ZipEntry entry)
       throws IOException, ZipException
-    { return zipFile_.getInputStream (entry); }
+    { return zipFile_.getInputStream(entry); }
 
     // Returns the Manifest as a ZIP entry.
     // Returns null if the JAR contains no manifest.
-    ZipEntry getManifest () { return manifest_; }
+    ZipEntry getManifest() { return manifest_; }
 
-    int getSizeOfZipMetadataPerZip ()
+    int getSizeOfZipMetadataPerZip()
     {
       int result = 0;
       // Add size of fixed fields in the End of Central Directory Record:
@@ -3487,7 +3731,7 @@ public class JarMaker
       return result;
     }
 
-    int getSizeOfZipMetadataPerEntry ()
+    int getSizeOfZipMetadataPerEntry()
       throws IOException, UnsupportedEncodingException
     {
       // Total length of all fixed-length zip fields per ZIP entry.
@@ -3495,7 +3739,7 @@ public class JarMaker
     }
 
     // Indicates whether the JAR has a manifest entry.
-    boolean hasManifest () { return (manifest_ != null); }
+    boolean hasManifest() { return(manifest_ != null); }
 
   }
 
@@ -3508,12 +3752,12 @@ public class JarMaker
     // Names of all entries in the JAR file's manifest.
     // Entries are in the order in which they appear in the manifest.
     // Never null.
-    private Vector entryList_ = new Vector ();
+    private Vector entryList_ = new Vector();
 
     // Map of all entries in the JAR file's manifest.
     // Key=entry name, value=String (uncompressed text of the manifest entry).
     // Never null.
-    private Hashtable entryMap_ = new Hashtable ();
+    private Hashtable entryMap_ = new Hashtable();
 
     // A map of the JAR which contains this Manifest.
     private JarMap jarMap_;
@@ -3525,126 +3769,126 @@ public class JarMaker
      @exception IOException If an I/O error occurs when reading the JAR file.
      @exception ZipException If a ZIP error occurs when reading the JAR file.
      **/
-    ManifestMap (JarMap jarMap)
+    ManifestMap(JarMap jarMap)
       throws IOException, ZipException
     {
       if (jarMap == null)
-        throw new NullPointerException ("jarMap");
+        throw new NullPointerException("jarMap");
 
       jarMap_ = jarMap;
 
-      ZipEntry manifestEntry = jarMap_.getEntry (MANIFEST_ENTRY_NAME);
+      ZipEntry manifestEntry = jarMap_.getEntry(MANIFEST_ENTRY_NAME);
       if (manifestEntry == null)
-        System.err.println ("Warning: Source file has no manifest." +
+        System.err.println("Warning: Source file has no manifest." +
                             "  No manifest will be created.");
       else
       {
         // Set up for reading.  We must use a reader because we
         // are dealing with text.
-        BufferedReader reader = new BufferedReader (new InputStreamReader (jarMap.getInputStream (manifestEntry)));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(jarMap.getInputStream(manifestEntry)));
 
         // Read the manifest file.
-        if (DEBUG) System.out.println ("Debug: Analyzing manifest");
+        if (DEBUG) System.out.println("Debug: Analyzing manifest");
         boolean alreadySawVersion = false;
         boolean alreadySawRequiredVersion = false;
         String line;
-        while (reader.ready ())
+        while (reader.ready())
         {
-          line = reader.readLine ();
+          line = reader.readLine();
           if (line != null)         // @A1a
           {
-            if (line.startsWith (MANIFEST_NAME_KEYWORD)) // is this a "name" line
+            if (line.startsWith(MANIFEST_NAME_KEYWORD)) // is this a "name" line
             {
-              StringBuffer buffer = new StringBuffer ();
-              String entryName = line.substring (MANIFEST_NAME_KEYWORD.length ()).trim ();
-              if (DEBUG_MANIFEST) System.out.println ("Manifest entry: ");
-              if (DEBUG_MANIFEST) System.out.println (line);
-              buffer.append (line);
-              buffer.append ('\n');
+              StringBuffer buffer = new StringBuffer();
+              String entryName = line.substring(MANIFEST_NAME_KEYWORD.length()).trim();
+              if (DEBUG_MANIFEST) System.out.println("Manifest entry: ");
+              if (DEBUG_MANIFEST) System.out.println(line);
+              buffer.append(line);
+              buffer.append('\n');
               // Copy the rest of this manifest section.
               // (sections are terminated by zero-length line)
-              while (reader.ready () && (line.length () != 0))
+              while (reader.ready() && (line.length() != 0))
               {
-                line = reader.readLine ();
-                if (DEBUG_MANIFEST) System.out.println (line);
+                line = reader.readLine();
+                if (DEBUG_MANIFEST) System.out.println(line);
                 if (line != null)  // @A1a
                 {
-                  buffer.append (line);
-                  buffer.append ('\n');
+                  buffer.append(line);
+                  buffer.append('\n');
                 }
               }
-              String string = buffer.toString ();
-              entryMap_.put (entryName, string);
-              entryList_.addElement (entryName); // this will preserve the sequence
+              String string = buffer.toString();
+              entryMap_.put(entryName, string);
+              entryList_.addElement(entryName); // this will preserve the sequence
             }
             else if (!alreadySawVersion &&
-                     line.startsWith (MANIFEST_VERSION_KEYWORD))
+                     line.startsWith(MANIFEST_VERSION_KEYWORD))
             {                                       // "Manifest-Version:"
               alreadySawVersion = true;
               if (DEBUG_MANIFEST) {
-                String version = line.substring (MANIFEST_VERSION_KEYWORD.length ()).trim ();
-                System.out.println ("Manifest version: " + version);
+                String version = line.substring(MANIFEST_VERSION_KEYWORD.length()).trim();
+                System.out.println("Manifest version: " + version);
               }
-              entryMap_.put (MANIFEST_VERSION_KEYWORD, line + '\n');
+              entryMap_.put(MANIFEST_VERSION_KEYWORD, line + '\n');
             }
             else if (!alreadySawRequiredVersion &&
-                     line.startsWith (MANIFEST_REQVERS_KEYWORD))
+                     line.startsWith(MANIFEST_REQVERS_KEYWORD))
             {                                       // "Required-Version:"
               alreadySawRequiredVersion = true;
               if (DEBUG_MANIFEST) {
-                String version = line.substring (MANIFEST_REQVERS_KEYWORD.length ()).trim ();
-                System.out.println ("Required version: " + version);
+                String version = line.substring(MANIFEST_REQVERS_KEYWORD.length()).trim();
+                System.out.println("Required version: " + version);
               }
-              entryMap_.put (MANIFEST_REQVERS_KEYWORD, line + '\n');
+              entryMap_.put(MANIFEST_REQVERS_KEYWORD, line + '\n');
             }
           }
         }  // ... while
-        reader.close ();
+        reader.close();
       }
     }
 
     // Closes this ManifestMap.
-    void close ()
+    void close()
     {
-      if (verbose_ || DEBUG) System.out.println ("Closing manifest");
-      entryList_.removeAllElements ();
-      entryMap_.clear ();
+      if (verbose_ || DEBUG) System.out.println("Closing manifest");
+      entryList_.removeAllElements();
+      entryMap_.clear();
       jarMap_ = null;
     }
 
     // Indicates whether there is a manifest entry for the specified ZIP entry.
-    boolean contains (String entryName)
-    { return entryList_.contains (entryName); }
+    boolean contains(String entryName)
+    { return entryList_.contains(entryName); }
 
     // Returns names of all entries in the manifest.  These are String objects.
-    Enumeration elements () { return entryList_.elements (); }
+    Enumeration elements() { return entryList_.elements(); }
 
     // Returns the manifest text for the specified entry.
-    String get (String entryName)
-    { return (String)(entryMap_.get (entryName)); }
+    String get(String entryName)
+    { return (String)(entryMap_.get(entryName)); }
 
     // Returns the uncompressed size of the specified entry in the manifest.
     // If there is no such entry in the manifest, returns zero.
     // Design note: For better precision, figure out how to get the
     // compressed size.
-    int getEntrySize (String entryName)
+    int getEntrySize(String entryName)
     {
       int size = 0;
-      String entryText = (String)(entryMap_.get (entryName));
-      if (entryText != null) size = entryText.length ();
+      String entryText = (String)(entryMap_.get(entryName));
+      if (entryText != null) size = entryText.length();
       return size;
     }
 
     // Returns the manifest header information.
     // If no header info, returns zero-length string.
-    String getHeader ()
+    String getHeader()
     {
-      String version = get (MANIFEST_VERSION_KEYWORD);
-      String reqVersion = get (MANIFEST_REQVERS_KEYWORD);
-      StringBuffer buffer = new StringBuffer ();
-      if (version != null) buffer.append (version);
-      if (reqVersion != null) buffer.append (reqVersion);
-      return buffer.toString ();
+      String version = get(MANIFEST_VERSION_KEYWORD);
+      String reqVersion = get(MANIFEST_REQVERS_KEYWORD);
+      StringBuffer buffer = new StringBuffer();
+      if (version != null) buffer.append(version);
+      if (reqVersion != null) buffer.append(reqVersion);
+      return buffer.toString();
     }
 
   }

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
+//                                                      
 // JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ToolboxJarMaker.java
@@ -19,6 +19,7 @@ import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Arrays;
 
 
 /**
@@ -74,14 +75,23 @@ source file name.  For example, if the source file is <code>jt400.jar</code>,
 then the default destination file would be <code>jt400Small.jar</code>.
 
 <p>
-<dt><b><code>-requiredFile </b></code><var>jarEntry1[,jarEntry2[...] ] </var>
+<dt><b><code>-fileRequired </b></code><var>jarEntry1[,jarEntry2[...] ] </var>
 <dd>
 The files in the source JAR or ZIP file that are to be copied to the destination.
 Entries are separated by commas (no spaces).
 The specified files, along with all of their dependencies,
 will be considered required.
 Files are specified in JAR entry name syntax, such as <code>com/ibm/as400/access/DataQueue.class</code>.
-The -requiredFile option may be abbreviated to -rf.
+The -fileRequired option may be abbreviated to -fr.
+
+<p>
+<dt><b><code>-fileExcluded </b></code><var>jarEntry1[,jarEntry2[...] ] </var>
+<dd>
+The files in the source JAR or ZIP file that are to be excluded from the destination,
+and from dependency analysis.
+Entries are separated by commas (no spaces).
+Files are specified in JAR entry name syntax, such as <code>com/ibm/as400/access/DataQueue.class</code>.
+The -fileExcluded option may be abbreviated to -fx.
 
 <p>
 <dt><b><code>-additionalFile </b></code><var>file1[,file2[...] ] </var>
@@ -118,6 +128,14 @@ No additional dependency analysis is done on the files in a package,
 unless they are explicitly specified as required files.
 
 <p>
+<dt><b><code>-packageExcluded </b></code><var>package1[,package2[...] ] </var>
+<dd>
+The packages that are to be excluded.
+Entries are separated by commas (no spaces).
+The -packageExcluded option may be abbreviated to -px.
+Package names are specified in standard syntax, such as <code>com.ibm.component</code>.
+
+<p>
 <dt><b><code>-extract </b></code><var>[baseDirectory]</var>
 <dd>
 Extracts the desired entries of the source JAR into the specified base directory,
@@ -135,7 +153,7 @@ The default base directory is the current directory.
 <dt><b><code>-split </b></code><var>[splitSize]</var>
 <dd>
 Splits the source JAR or ZIP file into smaller JAR or ZIP files.
-No ZIP entries are added or excluded;
+No ZIP entries are added or removed;
 the entries in the source JAR or ZIP file are simply distributed
 among the destination JAR or ZIP files.
 The split size is in units of kilobytes (1024 bytes),
@@ -219,6 +237,15 @@ See the list of <a href="doc-files/ccsidList.html">CCSIDs and encodings</a>
 that are specifically supported by <i>IBM Toolbox for Java</i>.
 
 <p>
+<dt><b><code>-excludeSomeDependencies </b></code>
+<dd>
+Indicates that AS400ToolboxJarMaker is allowed to selectively limit
+dependency expansion, and exclude certain classes, components and packages
+that are unlikely to be needed.
+By default, this option is not in effect; that is, all directly- and
+indirectly-referenced files in the source JAR file are included.
+
+<p>
 <dt><b><code>-noProxy </b></code>
 <dd>
 Specifies that proxy-related class files should <em>not</em> be included.
@@ -246,9 +273,11 @@ The default is non-verbose.
 <p>
 At least one of the following options must be specified:
 <ul compact>
-<li>-requiredFile
+<li>-fileRequired
+<li>-fileExcluded
 <li>-additionalFile
 <li>-package
+<li>-packageExcluded
 <li>-extract
 <li>-split
 <li>-component
@@ -256,6 +285,7 @@ At least one of the following options must be specified:
 <li>-ccsid
 <li>-ccsidExcluded
 <li>-noProxy
+<li>-excludeSomeDependencies
 </ul>
 
 <p>
@@ -294,7 +324,7 @@ by class <code>com.ibm.as400.access.JDSQLStatement</code>,
 using the current directory as the base directory for output, do the following:
 <pre>
 java utilities.AS400ToolboxJarMaker -extract -s jt400.jar
-     -rf com/ibm/as400/access/JDSQLStatement.class
+     -fr com/ibm/as400/access/JDSQLStatement.class
 </pre>
 Any additional files could then be manually copied into appropriate locations
 in the directory tree, and a customized JAR file could be generated using the
@@ -338,7 +368,7 @@ will not be put in the JAR unless explicitly specified.
 
 public class AS400ToolboxJarMaker extends JarMaker
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
   // Constants.
@@ -360,87 +390,105 @@ public class AS400ToolboxJarMaker extends JarMaker
     "ConnectionPool",  // @A2a
     "NetServer"        // @A3a
     };
+
+  // Component abbreviations can be specified on the -component option.
+  static final String[] VALID_COMPONENT_ABBREVS = {
+    "AS400", "CmdCall", "DA", "DD", "DQ",
+    "DigCert", "FTP", "IFS", "JAAS",
+    "JavaApp",
+    "JDBC", "Job", "Msg", "DataType",
+    "Prt", "PgmCall", "RLA", "Secure",
+    "SvcPgmCall", "SysStat", "SysVal",
+    "Trace", "User", "UserSpc",
+    "AS400V", "CmdCallV", "DQV",
+    "IFSV", "JavaAppV",
+    "JDBCV", "JobV",
+    "MsgV", "PrtV", "PgmCallV",
+    "RLAV", "UserV",
+    "ConnPool",
+    "NetS"
+    };
   // Note: The following list must be kept in sync with VALID_COMPONENTS.
 
   /** Constant for specifying the <b>AS400</b> component. **/
-  public static final Integer AS400 = new Integer (0);
+  public static final Integer AS400 = new Integer(0);
   /** Constant for specifying the <b>Command Call</b> component. **/
-  public static final Integer COMMAND_CALL = new Integer (1);
+  public static final Integer COMMAND_CALL = new Integer(1);
   /** Constant for specifying the <b>Data Area</b> component. **/
-  public static final Integer DATA_AREA = new Integer (2);
+  public static final Integer DATA_AREA = new Integer(2);
   /** Constant for specifying the <b>Data Description</b> component. **/
-  public static final Integer DATA_DESCRIPTION = new Integer (3);
+  public static final Integer DATA_DESCRIPTION = new Integer(3);
   /** Constant for specifying the <b>Data Queue</b> component. **/
-  public static final Integer DATA_QUEUE = new Integer (4);
+  public static final Integer DATA_QUEUE = new Integer(4);
   /** Constant for specifying the <b>Digital Certificate</b> component. **/
-  public static final Integer DIGITAL_CERTIFICATE = new Integer (5);
+  public static final Integer DIGITAL_CERTIFICATE = new Integer(5);
   /** Constant for specifying the <b>FTP</b> component. **/
-  public static final Integer FTP = new Integer (6);
+  public static final Integer FTP = new Integer(6);
   /** Constant for specifying the <b>Integrated File System</b> component. **/
-  public static final Integer INTEGRATED_FILE_SYSTEM = new Integer (7);
+  public static final Integer INTEGRATED_FILE_SYSTEM = new Integer(7);
   /** Constant for specifying the <b>JAAS</b> component. **/
-  public static final Integer JAAS = new Integer (8);
+  public static final Integer JAAS = new Integer(8);
   /** Constant for specifying the <b>Java Application Call</b> component. **/
-  public static final Integer JAVA_APPLICATION_CALL = new Integer (9);
+  public static final Integer JAVA_APPLICATION_CALL = new Integer(9);
   /** Constant for specifying the <b>JDBC</b> component. **/
-  public static final Integer JDBC = new Integer (10);
+  public static final Integer JDBC = new Integer(10);
   /** Constant for specifying the <b>Job</b> component. **/
-  public static final Integer JOB = new Integer (11);
+  public static final Integer JOB = new Integer(11);
   /** Constant for specifying the <b>Message Queue</b> component. **/
-  public static final Integer MESSAGE = new Integer (12);
+  public static final Integer MESSAGE = new Integer(12);
   /** Constant for specifying the <b>Numeric Data Types</b> component. **/
-  public static final Integer NUMERIC_DATA_TYPES = new Integer (13);
+  public static final Integer NUMERIC_DATA_TYPES = new Integer(13);
   /** Constant for specifying the <b>Network Print</b> component. **/
-  public static final Integer PRINT = new Integer (14);
+  public static final Integer PRINT = new Integer(14);
   /** Constant for specifying the <b>Program Call</b> component. **/
-  public static final Integer PROGRAM_CALL = new Integer (15);
+  public static final Integer PROGRAM_CALL = new Integer(15);
   /** Constant for specifying the <b>Record Level Access</b> component. **/
-  public static final Integer RECORD_LEVEL_ACCESS = new Integer (16);
+  public static final Integer RECORD_LEVEL_ACCESS = new Integer(16);
   /** Constant for specifying the <b>Secure AS400</b> component.
    This component performs SSL (Secure Sockets Layer) processing. **/
-  public static final Integer SECURE_AS400 = new Integer (17);
+  public static final Integer SECURE_AS400 = new Integer(17);
   /** Constant for specifying the <b>Service Program Call</b> component. **/
-  public static final Integer SERVICE_PROGRAM_CALL = new Integer (18);
+  public static final Integer SERVICE_PROGRAM_CALL = new Integer(18);
   /** Constant for specifying the <b>System Status</b> component. **/
-  public static final Integer SYSTEM_STATUS = new Integer (19);
+  public static final Integer SYSTEM_STATUS = new Integer(19);
   /** Constant for specifying the <b>System Value</b> component. **/
-  public static final Integer SYSTEM_VALUE = new Integer (20);
+  public static final Integer SYSTEM_VALUE = new Integer(20);
   /** Constant for specifying the <b>Trace</b> component. **/
-  public static final Integer TRACE = new Integer (21);
+  public static final Integer TRACE = new Integer(21);
   /** Constant for specifying the <b>User</b> component. **/
-  public static final Integer USER = new Integer (22);
+  public static final Integer USER = new Integer(22);
   /** Constant for specifying the <b>User Space</b> component. **/
-  public static final Integer USER_SPACE = new Integer (23);
+  public static final Integer USER_SPACE = new Integer(23);
   /** Constant for specifying the <b>Visual AS400</b> component. **/
-  public static final Integer AS400_VISUAL = new Integer (24);
+  public static final Integer AS400_VISUAL = new Integer(24);
   /** Constant for specifying the <b>Visual Command Call</b> component. **/
-  public static final Integer COMMAND_CALL_VISUAL = new Integer (25);
+  public static final Integer COMMAND_CALL_VISUAL = new Integer(25);
   /** Constant for specifying the <b>Visual Data Queue</b> component. **/
-  public static final Integer DATA_QUEUE_VISUAL = new Integer (26);
+  public static final Integer DATA_QUEUE_VISUAL = new Integer(26);
   /** Constant for specifying the <b>Visual Integrated File System </b> component. **/
-  public static final Integer INTEGRATED_FILE_SYSTEM_VISUAL = new Integer (27);
+  public static final Integer INTEGRATED_FILE_SYSTEM_VISUAL = new Integer(27);
   /** Constant for specifying the <b>Visual Java Application Call</b> component. **/
-  public static final Integer JAVA_APPLICATION_CALL_VISUAL = new Integer (28);
+  public static final Integer JAVA_APPLICATION_CALL_VISUAL = new Integer(28);
   /** Constant for specifying the <b>Visual JDBC</b> component. **/
-  public static final Integer JDBC_VISUAL = new Integer (29);  // and Visual SQL
+  public static final Integer JDBC_VISUAL = new Integer(29);  // and Visual SQL
   /** Constant for specifying the <b>Visual Job</b> component. **/
-  public static final Integer JOB_VISUAL = new Integer (30);
+  public static final Integer JOB_VISUAL = new Integer(30);
   /** Constant for specifying the <b>Visual Message Queue</b> component. **/
-  public static final Integer MESSAGE_VISUAL = new Integer (31);
+  public static final Integer MESSAGE_VISUAL = new Integer(31);
   /** Constant for specifying the <b>Visual Network Print</b> component. **/
-  public static final Integer PRINT_VISUAL = new Integer (32);
+  public static final Integer PRINT_VISUAL = new Integer(32);
   /** Constant for specifying the <b>Visual Program Call</b> component. **/
-  public static final Integer PROGRAM_CALL_VISUAL = new Integer (33);
+  public static final Integer PROGRAM_CALL_VISUAL = new Integer(33);
   /** Constant for specifying the <b>Visual Record Level Access</b> component. **/
-  public static final Integer RECORD_LEVEL_ACCESS_VISUAL = new Integer (34);
+  public static final Integer RECORD_LEVEL_ACCESS_VISUAL = new Integer(34);
   /** Constant for specifying the <b>Visual User</b> component. **/
-  public static final Integer USER_VISUAL = new Integer (35);
+  public static final Integer USER_VISUAL = new Integer(35);
   /** Constant for specifying the <b>Connection Pool</b> component. **/
-  public static final Integer CONNECTION_POOL = new Integer (36);  // @A2a
+  public static final Integer CONNECTION_POOL = new Integer(36);  // @A2a
   /** Constant for specifying the <b>NetServer</b> component. **/
-  public static final Integer NETSERVER = new Integer (37);  // @A3a
+  public static final Integer NETSERVER = new Integer(37);  // @A3a
 
-  private static final Integer NO_SUCH_COMPONENT = new Integer (-1);
+  private static final Integer NO_SUCH_COMPONENT = new Integer(-1);
 
 
 
@@ -453,36 +501,45 @@ public class AS400ToolboxJarMaker extends JarMaker
   static final String DEFAULT_SOURCE_JAR_NAME = "jt400.jar";
 
   // The components specified by the user (Integer's).
-  private Vector components_ = new Vector ();  // Never null.
+  private Vector components_ = new Vector();  // Never null.
 
   // The languages (locales) specified by the user (String's).
-  private Vector languages_ = new Vector ();  // Never null.
+  private Vector languages_ = new Vector();  // Never null.
 
   // Directory where language files (if languages are specified).
   // are to be searched for.  Default is the current directory.
-  private File languageDirectory_ = new File (System.getProperty ("user.dir"));
+  private File languageDirectory_ = new File(System.getProperty("user.dir"));
 
   // The CCSIDs specified by the user (Integer's).
-  private Vector ccsids_= new Vector ();  // Never null.
+  private Vector ccsids_= new Vector();  // Never null.
   // The excluded CCSIDs specified by the user (Integer's).
-  private Vector ccsidsExcluded_= new Vector ();  // Never null.
+  private Vector ccsidsExcluded_= new Vector();  // Never null.
 
-  // Whether proxy files are to excluded.
-  private boolean noProxy_;  // If true, then exclude proxy files.
+  private boolean noProxy_;  // If true, exclude proxy files.
+
+  private boolean excludeResource_; // exclude resource pkg
+  private boolean excludeJDBC_;     // exclude JDBC classes
+  private boolean excludeRLA_;      // exclude RLA classes
+  private boolean excludeSysVal_;   // exclude SystemValue classes
+  private boolean excludeDirEntryClass_; // exclude DirectoryEntry* classes
+  private boolean excludeSecAuth_; // exclude security.auth dependencies
+  private boolean excludeValidationList_; // exclude ValidationList classes
+  private boolean excludePathOptimizer_;  // exclude AS400ClassPathOptimizer class
+  private boolean excludeBidi_;  // exclude some BIDI classes
 
   // Invocation arguments.  This is used only when AS400ToolboxJarMaker
   // is invoked from the command line.
-  private Arguments arguments_ = new Arguments ();
+  private Arguments arguments_ = new Arguments(); // class defined in JarMaker
 
 
   /**
    Constructs an AS400ToolboxJarMaker object.
    **/
-  public AS400ToolboxJarMaker ()
+  public AS400ToolboxJarMaker()
   {
-    super ("com/ibm/as400"); // Default entry-name prefix.
-    File defaultSourceJar = new File (DEFAULT_SOURCE_JAR_NAME);
-    setSourceJar (defaultSourceJar);
+    super("com/ibm/as400"); // Default entry-name prefix.
+    File defaultSourceJar = new File(DEFAULT_SOURCE_JAR_NAME);
+    setSourceJar(defaultSourceJar);
   }
 
 
@@ -496,17 +553,17 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list should contain only <code>String</code> objects.
    @param jarMap A map of the source JAR or ZIP file.
    **/
-  private void addLanguageFiles (File baseDirectory,
+  private void addLanguageFiles(File baseDirectory,
                                  Vector neededJarEntries, JarMap jarMap)
   {
     // Note: If any of the arguments is null, it is due to an
     // internal programming error.
     if (baseDirectory == null)
-      throw new NullPointerException ("baseDirectory");
+      throw new NullPointerException("baseDirectory");
     if (neededJarEntries == null)
-      throw new NullPointerException ("neededJarEntries");
+      throw new NullPointerException("neededJarEntries");
     if (jarMap == null)
-      throw new NullPointerException ("jarMap");
+      throw new NullPointerException("jarMap");
 
     // Get a list of the MRI files in the source jar.
     // The list should look something like:
@@ -516,61 +573,61 @@ public class AS400ToolboxJarMaker extends JarMaker
     //        rather than "*.properties".  This design handles that.)
 
     // Make a list of the MRI files in the "needed JAR entries" list.
-    Vector neededLanguageEntries = new Vector ();  // String's
-    Enumeration e = neededJarEntries.elements ();
-    while (e.hasMoreElements ())
+    Vector neededLanguageEntries = new Vector();  // String's
+    Enumeration e = neededJarEntries.elements();
+    while (e.hasMoreElements())
     {
-      String entryName = (String)e.nextElement ();
+      String entryName = (String)e.nextElement();
       // See if the filename has "MRI" in it.
-      if (entryName.lastIndexOf ("MRI") > entryName.lastIndexOf ('/'))
-        neededLanguageEntries.addElement (entryName);
+      if (entryName.lastIndexOf("MRI") > entryName.lastIndexOf('/'))
+        neededLanguageEntries.addElement(entryName);
     }
 
-    if (languages_.size () != 0)
+    if (languages_.size() != 0)
     {
       // Add the language-specific *MRI_xx_XX.[properties|class] files to
       // the "additional files" list.
-      Vector filesToAdd = new Vector ();
-      Enumeration e1 = languages_.elements ();
-      while (e1.hasMoreElements ())
+      Vector filesToAdd = new Vector();
+      Enumeration e1 = languages_.elements();
+      while (e1.hasMoreElements())
       {
-        String languageSuffix = (String)e1.nextElement ();
-        Enumeration e2 = neededLanguageEntries.elements ();
-        while (e2.hasMoreElements ())
+        String languageSuffix = (String)e1.nextElement();
+        Enumeration e2 = neededLanguageEntries.elements();
+        while (e2.hasMoreElements())
         {
-          String entryName = (String)e2.nextElement ();
+          String entryName = (String)e2.nextElement();
           // Insert the language ID after the "MRI".
-          String newEntryName = addMriSuffix (entryName, languageSuffix);
-          String filePath = generateFilePath (languageDirectory_, newEntryName);
-          if (DEBUG) System.out.println ("Debug: Adding MRI file " + filePath);
-          filesToAdd.addElement (new File (filePath));
+          String newEntryName = addMriSuffix(entryName, languageSuffix);
+          String filePath = generateFilePath(languageDirectory_, newEntryName);
+          if (DEBUG) System.out.println("Debug: Adding MRI file " + filePath);
+          filesToAdd.addElement(new File(filePath));
         }
       }
 
       // Add the list of language files to the additional files list.
-      setAdditionalFiles (filesToAdd, baseDirectory);
+      setAdditionalFiles(filesToAdd, baseDirectory);
     }
     else // User specified no specific languages.
     {
       // Go through the list of referenced MRI files,
       // and mark as "needed" the corresponding _en and _en_US
       // entries if they exist.
-      Enumeration e1 = neededLanguageEntries.elements ();
-      while (e1.hasMoreElements ())
+      Enumeration e1 = neededLanguageEntries.elements();
+      while (e1.hasMoreElements())
       {
-        String entryName = (String)e1.nextElement ();
-        String entryName_en = addMriSuffix (entryName, "en");
-        String entryName_en_US = addMriSuffix (entryName, "en_US");
+        String entryName = (String)e1.nextElement();
+        String entryName_en = addMriSuffix(entryName, "en");
+        String entryName_en_US = addMriSuffix(entryName, "en_US");
         if (DEBUG) {
-          System.out.println ("Debug: entryName_en    = " + entryName_en);
-          System.out.println ("       entryName_en_US = " + entryName_en_US);
+          System.out.println("Debug: entryName_en    = " + entryName_en);
+          System.out.println("       entryName_en_US = " + entryName_en_US);
         }
-        if (jarMap.contains (entryName_en) &&
-            !neededJarEntries.contains (entryName_en))
-          neededJarEntries.addElement (entryName_en);
-        if (jarMap.contains (entryName_en_US) &&
-            !neededJarEntries.contains (entryName_en_US))
-          neededJarEntries.addElement (entryName_en_US);
+        if (jarMap.contains(entryName_en) &&
+            !neededJarEntries.contains(entryName_en))
+          neededJarEntries.addElement(entryName_en);
+        if (jarMap.contains(entryName_en_US) &&
+            !neededJarEntries.contains(entryName_en_US))
+          neededJarEntries.addElement(entryName_en_US);
       }
     }
   }
@@ -582,13 +639,13 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param languageSuffix The language suffix to insert.  For example, "en_US".
    @return The constructed entry name, with suffix inserted.
    **/
-  private static String addMriSuffix (String entryName, String languageSuffix)
+  private static String addMriSuffix(String entryName, String languageSuffix)
   {
     // Insert the language ID into the entry name after the "MRI".
-    int insertionPosition = entryName.lastIndexOf ("MRI") + 3;
-    StringBuffer buf = new StringBuffer (entryName);
-    buf.insert (insertionPosition, "_"+languageSuffix);
-    return buf.toString ();
+    int insertionPosition = entryName.lastIndexOf("MRI") + 3;
+    StringBuffer buf = new StringBuffer(entryName);
+    buf.insert(insertionPosition, "_"+languageSuffix);
+    return buf.toString();
   }
 
 
@@ -602,14 +659,14 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list should contain only <code>String</code> objects.
    @param jarMap A map of the source JAR or ZIP file.
    **/
-  private static void addPcmlFiles (Vector neededJarEntries, JarMap jarMap)
+  private static void addPcmlFiles(Vector neededJarEntries, JarMap jarMap)
   {
     // Note: If any of the arguments is null, it is due to an
     // internal programming error.
     if (neededJarEntries == null)
-      throw new NullPointerException ("neededJarEntries");
+      throw new NullPointerException("neededJarEntries");
     if (jarMap == null)
-      throw new NullPointerException ("jarMap");
+      throw new NullPointerException("jarMap");
 
     // Get a list of the PCML files in the source jar.
     // The list should look something like:
@@ -618,28 +675,28 @@ public class AS400ToolboxJarMaker extends JarMaker
     // That is, look for any files with names ending ".pcml" or ".pcml.ser".
 
     // Make a list of the PCML files in the source jar file.
-    Enumeration e = jarMap.elements ();
+    Enumeration e = jarMap.elements();
     Vector neededPcmlEntries = new Vector();
-    while (e.hasMoreElements ())
+    while (e.hasMoreElements())
     {
-      String entryName = (String)e.nextElement ();
+      String entryName = (String)e.nextElement();
       // See if the filename ends with ".pcml" or ".pcml.ser".
-      if (entryName.endsWith (".pcml") || entryName.endsWith (".pcml.ser"))
-        neededPcmlEntries.addElement (entryName);
+      if (entryName.endsWith(".pcml") || entryName.endsWith(".pcml.ser"))
+        neededPcmlEntries.addElement(entryName);
     }
 
     // Go through the list of PCML files contained in the source jar file,
     // and mark as "needed" any that have a corresponding class file in the
     // "needed files" list.
-    Enumeration e1 = neededPcmlEntries.elements ();
-    while (e1.hasMoreElements ())
+    Enumeration e1 = neededPcmlEntries.elements();
+    while (e1.hasMoreElements())
     {
-      String pcmlEntryName = (String)e1.nextElement ();
+      String pcmlEntryName = (String)e1.nextElement();
       // Get the associated class file entry name.
-      String classEntryName = getClassEntryForPcml (pcmlEntryName);
-      if (neededJarEntries.contains (classEntryName) &&
-          !neededJarEntries.contains (pcmlEntryName))
-        neededJarEntries.addElement (pcmlEntryName);
+      String classEntryName = getClassEntryForPcml(pcmlEntryName);
+      if (neededJarEntries.contains(classEntryName) &&
+          !neededJarEntries.contains(pcmlEntryName))
+        neededJarEntries.addElement(pcmlEntryName);
     }
   }
 
@@ -658,11 +715,11 @@ public class AS400ToolboxJarMaker extends JarMaker
    This should be a Vector of Strings.
    @exception IOException If an error occurs when reading the source file.
    **/
-  Vector adjustDependencies1 (Vector neededJarEntries, JarMap jarMap)
+  Vector adjustDependencies1(Vector neededJarEntries, JarMap jarMap)
     throws IOException
   {
     // Add selected ConvTableXXX files, per -ccsid list.
-    if (ccsids_.size () == 0)
+    if (ccsids_.size() == 0)
     { // User specified no particular ccsids.
       // We will add *all* of the ccsids (if appropriate) in adjustDependencies2().
     }
@@ -670,31 +727,40 @@ public class AS400ToolboxJarMaker extends JarMaker
     {
       // If the IFS component was specified, be sure to include
       // the "old Unicode" ccsid.  @A0a
-      if (components_.contains (INTEGRATED_FILE_SYSTEM))
+      if (components_.contains(INTEGRATED_FILE_SYSTEM))
         addElement(ccsids_, new Integer(61952));
 
       // In all cases, be sure to include the "new Unicode" ccsid.  @A2a
       addElement(ccsids_, new Integer(13488));
 
       // Add the ConvTableXXX's for the selected CCSIDs.
-      Enumeration e3 = ccsids_.elements ();
-      while (e3.hasMoreElements ())
+      Enumeration e3 = ccsids_.elements();
+      while (e3.hasMoreElements())
       {
-        Integer ccsid = (Integer)e3.nextElement ();
-        String entry = CAIA + "ConvTable" + ccsid.toString () +
+        Integer ccsid = (Integer)e3.nextElement();
+        String entry = CAIA + "ConvTable" + ccsid.toString() +
           CLASS_SUFFIX;
-        if (!neededJarEntries.contains (entry))
+        if (!neededJarEntries.contains(entry))
         {
-          if (jarMap.contains (entry))
+          if (jarMap.contains(entry))
           {
-            neededJarEntries.addElement (entry);
+            neededJarEntries.addElement(entry);
           }
           else
-            System.err.println ("Warning: No entry in source file for " +
-                                "CCSID " + ccsid.toString () + ".");
+            System.err.println("Warning: No entry in source file for " +
+                                "CCSID " + ccsid.toString() + ".");
         }
       }
 
+    }
+
+    if (noProxy_)
+    {
+      addElement(dependenciesToExclude_, "com/ibm/as400/access/ProxyClientConnection.class");
+      addElement(dependenciesToExclude_, "com/ibm/as400/access/ProxyReturnValue.class");
+      if (verbose_ || DEBUG) {
+        System.out.println("Excluding Proxy* class dependencies.");
+      }
     }
 
     // See if user gave the OK to selectively limit dependency expansion.  @A4a
@@ -705,22 +771,27 @@ public class AS400ToolboxJarMaker extends JarMaker
       // direct dependents (DBBaseReplyDS and DBDSPool), but we *can* exclude
       // the files that *those* classes depend on.                      @A4a
 
-      // If the 'access' package isn't on the packages list,
-      // and neither JDBC nor Visual JDBC is on the components list,
+      // If neither JDBC nor Visual JDBC is on the components list,
       // and DBReplyRequestedDS isn't on the required files list,
       // then exclude a couple of JDBC files.                           @A4a
-      if (!(getPackages().contains ("com.ibm.as400.access")) &&
-          !(components_.contains (JDBC)) &&
-          !(components_.contains (JDBC_VISUAL)))
+      boolean accessPackageWasSpecified = getPackages().contains("com.ibm.as400.access");
+      if (!accessPackageWasSpecified &&
+          !(components_.isEmpty()) &&
+          !(components_.contains(JDBC)) &&
+          !(components_.contains(JDBC_VISUAL)))
       {
-        if (!getRequiredFiles().contains("com/ibm/as400/access/DBBaseReplyDS.class"))
+        excludeJDBC_ = true;
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding JDBC classes.");
+        }
+        if (!getFilesRequired().contains("com/ibm/as400/access/DBBaseReplyDS.class"))
         {
           addElement(dependenciesToExclude_, "com/ibm/as400/access/DBBaseReplyDS.class");
           if (verbose_ || DEBUG) {
             System.out.println("Excluding dependency: " + "com/ibm/as400/access/DBBaseReplyDS.class");
           }
 
-          if (!getRequiredFiles().contains("com/ibm/as400/access/DBDSPool.class"))
+          if (!getFilesRequired().contains("com/ibm/as400/access/DBDSPool.class"))
           {
             addElement(dependenciesToExclude_, "com/ibm/as400/access/DBDSPool.class");
             if (verbose_ || DEBUG) {
@@ -736,29 +807,194 @@ public class AS400ToolboxJarMaker extends JarMaker
       // In V5R2 we added method getServerJob() that returns a Job object,
       // and we intend to deprecate getJob().                           @A4a
 
-      // TBD: If we're dealing with a V5R1 jt400.jar file, don't exclude RJob.
-      // TBD: Deprecate the getJob() method of CommandCall and ProgramCall.  @A4a
+      // Note: If we're dealing with a pre-V5R2 jt400.jar file, the user will need to specify RJob as a "required file" if they want to use it.
+      // Eventually: Remove the getJob() method of CommandCall and ProgramCall.
 
       // If the 'resource' package isn't on the packages list,
       // and neither RJob nor JobLog is on the required files list,
       // and neither Job nor Visual Job is on the components list,
-      // then add RJob to the list of files to exclude.                 @A4a
-      if (!(getPackages().contains ("com.ibm.as400.resource")) &&
-          !(getRequiredFiles().contains("com/ibm/as400/resource/RJob.class")) &&
-          !(getRequiredFiles().contains("com/ibm/as400/access/JobLog.class")) &&
-          !(components_.contains (JOB)) &&
-          !(components_.contains (JOB_VISUAL)))
+      // then exclude the 'resource' package.
+      if (!(getPackages().contains("com.ibm.as400.resource")) &&
+          !(getFilesRequired().contains("com/ibm/as400/resource/RJob.class")) &&
+          !(getFilesRequired().contains("com/ibm/as400/access/JobLog.class")) &&
+          !(components_.isEmpty()) &&
+          !(components_.contains(JOB)) &&
+          !(components_.contains(JOB_VISUAL)))
       {
+        excludeResource_ = true;
         addElement(dependenciesToExclude_, "com/ibm/as400/resource/RJob.class");
         if (verbose_ || DEBUG) {
-          System.out.println("Excluding dependency: " + "com/ibm/as400/resource/RJob.class");
+          System.out.println("Excluding package com.ibm.as400.resource");
         }
       }
-    }
+
+      // If RecordLevelAccess and RecordLevelAccessVisual aren't on the components list,
+      // and the required files list contains no file named com/ibm/as400/access/DDM*,
+      // then exclude DDM* classes.
+      if (!accessPackageWasSpecified &&
+          !(containsPattern(getFilesRequired(), "com/ibm/as400/access/DDM")) &&
+          !(containsPattern(getFilesRequired(), "com/ibm/as400/access/Record")) &&
+          !(components_.isEmpty()) &&
+          !(components_.contains(RECORD_LEVEL_ACCESS)) &&
+          !(components_.contains(RECORD_LEVEL_ACCESS_VISUAL)) &&
+          !(components_.contains(DATA_DESCRIPTION)))
+      {
+        excludeRLA_ = true;
+        addElement(dependenciesToExclude_, "com/ibm/as400/access/Record.class");
+        addElement(dependenciesToExclude_, "com/ibm/as400/access/CharacterFieldDescription.class");
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding Record Level Access classes.");
+        }
+      }
+
+      // If SystemValue isn't on the components list,
+      // and the required files list contains no file named com/ibm/as400/access/SystemValue*,
+      // then exclude SV* classes.
+      if (!accessPackageWasSpecified &&
+          !(containsPattern(getFilesRequired(), "com/ibm/as400/access/SystemValue")) &&
+          !(containsPattern(getFilesRequired(), "com/ibm/as400/access/SV")) &&
+          !(components_.isEmpty()) &&
+          !(components_.contains(SYSTEM_VALUE)))
+      {
+        excludeSysVal_ = true;
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding System Value classes.");
+        }
+      }
+
+
+      // If the required files list doesn't contain com.ibm.as400.security.auth.ProfileTokenCredential,
+      // then exclude that class.
+      if (!(getPackages().contains("com.ibm.as400.security.auth")) &&
+          !(getFilesRequired().contains("com/ibm/as400/security/auth/ProfileTokenCredential.class")))
+      {
+        excludeSecAuth_ = true;
+        addElement(dependenciesToExclude_, "com/ibm/as400/security/auth/ProfileTokenCredential.class");
+        addElement(dependenciesToExclude_, "com/ibm/as400/security/auth/AS400Credential.class");
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding ProfileTokenCredential dependencies.");
+        }
+      }
+
+
+      // If User and UserVisual aren't on the components list,
+      // and the required files list contains no file named com/ibm/as400/access/Directory*,
+      // then exclude Directory* classes.
+      if (!accessPackageWasSpecified &&
+          !(containsPattern(getFilesRequired(), "com/ibm/as400/access/Directory")) &&
+          !(components_.isEmpty()) &&
+          !(components_.contains(USER)) &&
+          !(components_.contains(USER_VISUAL)))
+      {
+        excludeDirEntryClass_ = true;
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding DirectoryEntry classes.");
+        }
+      }
+
+      // If components list doesn't include Job or Visual Job,
+      // and Job.class isn't on the required files list,
+      // then exclude Job.class from dependency analysis.
+      if (!accessPackageWasSpecified &&
+          !(components_.isEmpty()) &&
+          !(components_.contains(JOB)) &&
+          !(components_.contains(JOB_VISUAL)))
+      {
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding Job classes from dependency analysis.");
+        }
+        if (!getFilesRequired().contains("com/ibm/as400/access/Job.class"))
+        {
+          addElement(dependenciesToExclude_, "com/ibm/as400/access/Job.class");
+          if (verbose_ || DEBUG) {
+            System.out.println("Excluding dependency: " + "com/ibm/as400/access/Job.class");
+          }
+        }
+      }
+
+
+      // If the required files list contains no file named com/ibm/as400/access/ValidationList*,
+      // then exclude ValidationList* classes.
+      if (!accessPackageWasSpecified &&
+          !(containsPattern(getFilesRequired(), "com/ibm/as400/access/ValidationList")))
+      {
+        excludeValidationList_ = true;
+        addElement(dependenciesToExclude_, "com/ibm/as400/access/ValidationList.class");
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding ValidationList classes.");
+        }
+      }
+
+
+      // If the required files list doesn't contain com/ibm/as400/util/AS400ClassPathOptimizer,
+      // then exclude it.
+      if (!(getPackages().contains("com.ibm.as400.util")) &&
+          !(getFilesRequired().contains("com/ibm/as400/util/AS400ClassPathOptimizer.class")))
+      {
+        excludePathOptimizer_ = true;
+        // This class is small, no need to add it to the exclusions list.
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding AS400ClassPathOptimizer.");
+        }
+      }
+
+      // If the specified languages don't include 'he' and 'ar', and no BIDI CCSID was specified, exclude some BIDI classes.
+      if (isOkToExcludeBidi(components_, languages_, ccsids_))
+      {
+        excludeBidi_ = true;
+      }
+
+    }  // if excludeSomeDependencies_
 
     return neededJarEntries;
   }
 
+  private final static boolean isOkToExcludeBidi(Vector components, Vector languages, Vector ccsidList)
+  {
+    // If caller indicated no specific language or CCSID, assume they want all languages and CCSIDs.
+    if (languages.isEmpty() && ccsidList.isEmpty()) return false;
+
+    // If caller specified either Arabic nor Hebrew, we'll definitely need Bidi classes.
+    if (languages.contains("ar") || 
+        languages.contains("he"))
+      return false;
+
+    // Caller specified a language, neither Arabic nor Hebrew.
+    // If no bidi CCSID was specified, then exclude *Bidi* and Arabic* classes.
+
+    if (ccsidList.isEmpty()) return true;
+
+    // Convert CCSIDs vector to an array of int, for quick searching.
+    int[] ccsids = new int[ccsidList.size()];
+    for (int i=0; i<ccsids.length; i++) {
+      ccsids[i] = ((Integer)ccsidList.get(i)).intValue();
+    }
+    Arrays.sort(ccsids);  // sort into ascending order for quick searching
+
+    // See if a bidi CCSID was specified.
+    if (contains(ccsids, 1046) ||
+        contains(ccsids, 1089) ||
+        contains(ccsids, 1255) ||
+        contains(ccsids, 1256) ||
+        contains(ccsids, 12708) ||
+        contains(ccsids, 420) ||
+        contains(ccsids, 424) ||
+        contains(ccsids, 425) ||
+        contains(ccsids, 5351) ||
+        contains(ccsids, 62211) ||
+        contains(ccsids, 62224) ||
+        contains(ccsids, 62235) ||
+        contains(ccsids, 62245) ||
+        contains(ccsids, 62251) ||
+        contains(ccsids, 8612) ||
+        contains(ccsids, 862) ||
+        contains(ccsids, 864) ||
+        contains(ccsids, 916))
+    {
+      return false;  // a bidi CCSID was specified, so don't exclude bidi classes
+    }
+    else return true; // OK to exclude
+  }
 
   /**
    Adds or removes ZIP entry names from the dependencies list,
@@ -774,7 +1010,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    This should be a Vector of Strings.
    @exception IOException If an error occurs when reading the source file.
    **/
-  Vector adjustDependencies2 (Vector neededJarEntries, JarMap jarMap)
+  Vector adjustDependencies2(Vector neededJarEntries, JarMap jarMap)
     throws IOException
   {
 
@@ -789,10 +1025,10 @@ public class AS400ToolboxJarMaker extends JarMaker
 
     // See if ConvTable.class was referenced.  If so, make sure we end up with
     // exactly the ConvTableXXX entries that we need, no more and no less.
-    if (neededJarEntries.contains (new String(CAIA + "ConvTable" + CLASS_SUFFIX)))
+    if (neededJarEntries.contains(new String(CAIA + "ConvTable" + CLASS_SUFFIX)))
     {  // Some or all of the ConvTableXXX files are needed, so include the right ones.
 
-      if (ccsids_.size () == 0)
+      if (ccsids_.size() == 0)
       { // User specified no particular ccsids, so include them all.
 
         if (jarIsPreMod4)
@@ -800,17 +1036,17 @@ public class AS400ToolboxJarMaker extends JarMaker
         }
         else
         {  // The ConvTableXXX files need to be added explicitly.
-          Vector entriesToAdd = new Vector ();
-          Enumeration e = jarMap.elements ();
-          while (e.hasMoreElements ())
+          Vector entriesToAdd = new Vector();
+          Enumeration e = jarMap.elements();
+          while (e.hasMoreElements())
           {
-            String entry = (String)e.nextElement ();
+            String entry = (String)e.nextElement();
             // We are looking for entries like "..../ConvTableXXX.yyyy",
             // where xxx is an integer greater than 0.
-            String className = entry.substring (1 + entry.lastIndexOf ('/'));
-            if (className.startsWith ("ConvTable") &&
-                Character.isDigit (className.charAt (9))) // char after "ConvTable"
-              entriesToAdd.addElement (entry);
+            String className = entry.substring(1 + entry.lastIndexOf('/'));
+            if (className.startsWith("ConvTable") &&
+                Character.isDigit(className.charAt(9))) // char after "ConvTable"
+              entriesToAdd.addElement(entry);
           }
 
           // Determine the dependencies for the ConvTableXXX's.
@@ -819,16 +1055,16 @@ public class AS400ToolboxJarMaker extends JarMaker
           Vector referencedJarEntries = new Vector();
           while (enum.hasMoreElements())
           {
-            String entryName = (String)enum.nextElement ();
-            if (unanalyzedEntries.contains (entryName))
+            String entryName = (String)enum.nextElement();
+            if (unanalyzedEntries.contains(entryName))
             {
-              unanalyzedEntries.removeElement (entryName);
-              analyzeJarEntry (entryName, unanalyzedEntries,
+              unanalyzedEntries.removeElement(entryName);
+              analyzeJarEntry(entryName, unanalyzedEntries,
                                referencedJarEntries, jarMap);
-              addElement (referencedJarEntries, entryName);
+              addElement(referencedJarEntries, entryName);
             }
           }
-          copyVectorToFrom (neededJarEntries, referencedJarEntries, CHECK_DUPS); // @A3c
+          copyVector(referencedJarEntries, neededJarEntries, CHECK_DUPS); // @A3c
         }
       }  // ... no particular ccsids were specified.
 
@@ -845,51 +1081,51 @@ public class AS400ToolboxJarMaker extends JarMaker
           // Weed out any unneeded ConvTableXXX entries that get dragged in
           // (because their names are all referenced in ConvTable.java).
         {
-          if (ccsids_.size () != 0)  // Did the user specify any particular CCSIDs.
+          if (ccsids_.size() != 0)  // Did the user specify any particular CCSIDs.
           {
             // First clear all ConvTableXXX entries from the dependencies list.
-            Vector entriesToRemove = new Vector ();
-            Enumeration e = neededJarEntries.elements ();
-            while (e.hasMoreElements ())
+            Vector entriesToRemove = new Vector();
+            Enumeration e = neededJarEntries.elements();
+            while (e.hasMoreElements())
             {
-              String entry = (String)e.nextElement ();
+              String entry = (String)e.nextElement();
               // We are looking for entries like "..../ConvTableXXX.yyyy",
               // where xxx is an integer greater than 0.
-              String className = entry.substring (1 + entry.lastIndexOf ('/'));
-              if (className.startsWith ("ConvTable") &&
-                  Character.isDigit (className.charAt (9))) // char after "ConvTable"
-                entriesToRemove.addElement (entry);
+              String className = entry.substring(1 + entry.lastIndexOf('/'));
+              if (className.startsWith("ConvTable") &&
+                  Character.isDigit(className.charAt(9))) // char after "ConvTable"
+                entriesToRemove.addElement(entry);
             }
-            Enumeration e2 = entriesToRemove.elements ();
-            while (e2.hasMoreElements ())
+            Enumeration e2 = entriesToRemove.elements();
+            while (e2.hasMoreElements())
             {
-              neededJarEntries.removeElement ((String)e2.nextElement());
+              neededJarEntries.removeElement((String)e2.nextElement());
             }
 
             // If the IFS component was specified, be sure to include
             // the "old Unicode" ccsid.  @A0a
-            if (components_.contains (INTEGRATED_FILE_SYSTEM))
+            if (components_.contains(INTEGRATED_FILE_SYSTEM))
               addElement(ccsids_, new Integer(61952));
 
             // In all cases, be sure to include the "new Unicode" ccsid.  @A2a
             addElement(ccsids_, new Integer(13488));
 
             // Now add back in the ConvTableXXX's for the selected CCSIDs.
-            Enumeration e3 = ccsids_.elements ();
-            while (e3.hasMoreElements ())
+            Enumeration e3 = ccsids_.elements();
+            while (e3.hasMoreElements())
             {
-              Integer ccsid = (Integer)e3.nextElement ();
-              String entry = CAIA + "ConvTable" + ccsid.toString () +
+              Integer ccsid = (Integer)e3.nextElement();
+              String entry = CAIA + "ConvTable" + ccsid.toString() +
                 CLASS_SUFFIX;
-              if (!neededJarEntries.contains (entry))
+              if (!neededJarEntries.contains(entry))
               {
-                if (jarMap.contains (entry))
+                if (jarMap.contains(entry))
                 {
-                  neededJarEntries.addElement (entry);
+                  neededJarEntries.addElement(entry);
                 }
                 else
-                  System.err.println ("Warning: No entry in source file for " +
-                                      "CCSID " + ccsid.toString () + ".");
+                  System.err.println("Warning: No entry in source file for " +
+                                      "CCSID " + ccsid.toString() + ".");
               }
             }
           }
@@ -898,21 +1134,24 @@ public class AS400ToolboxJarMaker extends JarMaker
     }  // ... include the right ConvTableXXX files, per the -ccsid list.
 
     // Remove selected ConvTableXXX files, per -ccsidExcluded list.
-    if (ccsidsExcluded_.size () != 0)
+    if (ccsidsExcluded_.size() != 0)
     {
-      Enumeration e = ccsidsExcluded_.elements ();
-      while (e.hasMoreElements ())
+      Enumeration e = ccsidsExcluded_.elements();
+      while (e.hasMoreElements())
       {
-        Integer ccsid = (Integer)e.nextElement ();
-        String entry = CAIA + "ConvTable" + ccsid.toString () +
+        Integer ccsid = (Integer)e.nextElement();
+        String entry = CAIA + "ConvTable" + ccsid.toString() +
           CLASS_SUFFIX;
-        neededJarEntries.removeElement (entry);
-        if (!jarMap.contains (entry))
-          System.err.println ("Warning: No entry in source file for " +
-                              "excluded CCSID " + ccsid.toString () + ".");
+        neededJarEntries.removeElement(entry);
+        if (!jarMap.contains(entry))
+          System.err.println("Warning: No entry in source file for " +
+                              "excluded CCSID " + ccsid.toString() + ".");
       }
     }
 
+
+    // Remove excluded packages.
+    removePackageFiles(neededJarEntries, jarMap, getPackagesExcluded());
 
     // Load the entry names associated with any required packages.
     // Note that these files will not be explicitly analyzed.
@@ -922,52 +1161,117 @@ public class AS400ToolboxJarMaker extends JarMaker
     // Note: Regardless of language selection, don't remove the base MRI files.
     // That way, we always have a last-ditch default for messages (English),
     // no matter what locale the JAR file is used in.
-    addLanguageFiles (languageDirectory_, neededJarEntries, jarMap);
+    addLanguageFiles(languageDirectory_, neededJarEntries, jarMap);
 
     // Add any needed PCML files to the "additional files" list.
-    addPcmlFiles (neededJarEntries, jarMap);                        // @A3a
+    addPcmlFiles(neededJarEntries, jarMap);                        // @A3a
 
     // If -noproxy option was specified, remove proxy files.
     if (noProxy_)
     {
-      Vector entriesToRemove = new Vector ();
-      Enumeration e = neededJarEntries.elements ();
-      while (e.hasMoreElements ())
+      Vector entriesToRemove = new Vector();
+      Enumeration e = neededJarEntries.elements();
+      while (e.hasMoreElements())
       {
-        String entry = (String)e.nextElement ();
+        String entry = (String)e.nextElement();
         // We are looking for entries like:
         //    "..../###Proxy.class",
         //    "..../###ProxyImpl.class",
         //    "..../Proxy###.class",
         //    "..../Px###.class",
-        String className = entry.substring (1 + entry.lastIndexOf ('/'));
-        if (className.endsWith (CLASS_SUFFIX))
+        String className = entry.substring(1 + entry.lastIndexOf('/'));
+        if (className.endsWith(CLASS_SUFFIX))
         {
           className = className.substring(0,className.lastIndexOf(CLASS_SUFFIX));
-          if ((className.endsWith ("Proxy")) ||
-              (className.endsWith ("ProxyImpl")) ||
-              (className.startsWith ("Proxy")) ||
-              (className.startsWith ("Px")) )
+          if ((className.endsWith("Proxy")) ||
+              (className.endsWith("ProxyImpl")) ||
+              (className.startsWith("Proxy")) ||
+              (className.startsWith("Px")) )
           {
-            entriesToRemove.addElement (entry);
+            entriesToRemove.addElement(entry);
             if (verbose_ || DEBUG) {
               System.out.println("Excluding proxy class: " + className);
             }
           }
         }
       }
-      Enumeration e2 = entriesToRemove.elements ();
-      while (e2.hasMoreElements ())
-        neededJarEntries.removeElement ((String)e2.nextElement ());
+      Enumeration e2 = entriesToRemove.elements();
+      while (e2.hasMoreElements())
+        neededJarEntries.removeElement((String)e2.nextElement());
+    }
+
+    if (excludeJDBC_)
+    {
+      neededJarEntries.removeElement("com/ibm/as400/access/DBDSPool.class");
+      // Note: The AS400 class has dependencies on some DB* classes.
+    }
+
+    if (excludeResource_)
+    {
+      removeElements(neededJarEntries, "com/ibm/as400/resource/", STARTS_WITH);
+    }
+
+    if (excludeRLA_)
+    {
+      removeElements(neededJarEntries, "com/ibm/as400/access/Record", STARTS_WITH);
+      removeElements(neededJarEntries, "FieldDescription.class", ENDS_WITH);
+    }
+
+    if (excludeSysVal_)
+    {
+      removeElements(neededJarEntries, "com/ibm/as400/access/SV", STARTS_WITH);
+    }
+
+    if (excludeSecAuth_)
+    {
+      // The AS400 class needs ProfileTokenCredential, which needs some other security.auth classes, so add them back in.
+      addElement(neededJarEntries, "com/ibm/as400/security/auth/ProfileTokenCredential.class");
+      addElement(neededJarEntries, "com/ibm/as400/security/auth/AS400Credential.class");
+      addElement(neededJarEntries, "com/ibm/as400/security/auth/AS400BasicAuthenticationCredential.class");
+      addElement(neededJarEntries, "com/ibm/as400/security/auth/AS400SwappableCredential.class");
+    }
+
+    if (excludeDirEntryClass_)
+    {
+      removeElements(neededJarEntries, "com/ibm/as400/access/DirectoryEntry", STARTS_WITH);
+    }
+
+    if (excludeValidationList_)
+    {
+      neededJarEntries.removeElement("com/ibm/as400/access/PersistenceException.class");
+      removeElements(neededJarEntries, "com/ibm/as400/access/ValidationList", STARTS_WITH);
+    }
+
+    if (excludePathOptimizer_)
+    {
+      neededJarEntries.removeElement("com/ibm/as400/util/AS400ClassPathOptimizer.class");
+    }
+
+    if (excludeBidi_)
+    {
+      // Note: ConverterImplRemote needs several Bidi* classes regardless.
+      removeElements(neededJarEntries, "Arabic", CONTAINS);
     }
 
     // Make sure that the copyright gets included.
-    if (jarMap.contains (COPYRIGHT_ENTRY_NAME))
+    if (jarMap.contains(COPYRIGHT_ENTRY_NAME))
     {
-      addElement (neededJarEntries, COPYRIGHT_ENTRY_NAME);
+      addElement(neededJarEntries, COPYRIGHT_ENTRY_NAME);
     }
 
     return neededJarEntries;
+  }
+
+  private static boolean containsPattern(Vector list, String pattern)
+  {
+    Enumeration enum = list.elements();
+    while (enum.hasMoreElements()) {
+      String elem = (String)enum.nextElement();
+      if (elem.startsWith(pattern)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 
@@ -978,7 +1282,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    @return The names of the ZIP entries that comprise the "base dependency list"
            for the specified component.  (String's)
    **/
-  private static Vector getBaseDependenciesForComponent (Integer comp,
+  private static Vector getBaseDependenciesForComponent(Integer comp,
                                                  boolean includeBeans)
   {
     // Implementation note:  These are the base dependency lists for the
@@ -986,9 +1290,9 @@ public class AS400ToolboxJarMaker extends JarMaker
     // to be updated in future releases, as components are added and
     // as component designs evolve.
 
-    Vector deps = new Vector (); // base ZIP entries for component
+    Vector deps = new Vector(); // base ZIP entries for component
 
-    if (comp.equals (AS400))
+    if (comp.equals(AS400))
     {
       deps.addElement   (CAIA+"AS400.class");
       if (includeBeans)
@@ -1168,6 +1472,8 @@ public class AS400ToolboxJarMaker extends JarMaker
     }
     else if (comp.equals (NETSERVER))  // @A3a
     {
+      deps.addElement   (CAIA+"ISeriesNetServer.class");
+      // TBD: The following NetServer* classes are deprecated in favor of ISeriesNetServer.  Delete them from JarMaker eventually.
       deps.addElement   (CAIA+"NetServer.class");
       if (includeBeans)
       {
@@ -1236,7 +1542,6 @@ public class AS400ToolboxJarMaker extends JarMaker
       deps.addElement   (CAIA+"KeyedFile.class");  // extends AS400File
       deps.addElement   (CAIA+"SequentialFile.class");
       deps.addElement   (CAIA+"DDMAS400MessageReply.class"); // extends DDMReplyDataStream
-      deps.addElement   (CAIA+"DDMConnection.class");
       deps.addElement   (CAIA+"DDMEndUnitOfWorkReply.class");
       deps.addElement   (CAIA+"DDMObjectDataStream.class"); // extends DDMDataStream
       deps.addElement   (CAIA+"DDMRecordCache.class");
@@ -1506,8 +1811,8 @@ public class AS400ToolboxJarMaker extends JarMaker
     }
 
     else  // none of the above component values
-      throw new IllegalArgumentException ("component (" +
-                                          comp.intValue () + ")");
+      throw new IllegalArgumentException("component (" +
+                                          comp.intValue() + ")");
 
     return deps;
   }
@@ -1520,7 +1825,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>Integer</code> objects.
    **/
-  public Vector getCCSIDs () { return ccsids_; }
+  public Vector getCCSIDs() { return ccsids_; }
 
 
   /**
@@ -1530,7 +1835,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>Integer</code> objects.
    **/
-  public Vector getCCSIDsExcluded () { return ccsidsExcluded_; }
+  public Vector getCCSIDsExcluded() { return ccsidsExcluded_; }
 
 
   // @A3a
@@ -1540,7 +1845,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param pcmlEntryName The PCML entry name.
    @return The name of the class file corresponding to a PCML file.
    **/
-  private static String getClassEntryForPcml (String pcmlEntryName)
+  private static String getClassEntryForPcml(String pcmlEntryName)
   {
     int suffixPos = pcmlEntryName.lastIndexOf(".pcml");
     return (pcmlEntryName.substring(0,suffixPos) + ".class");
@@ -1554,19 +1859,28 @@ public class AS400ToolboxJarMaker extends JarMaker
    @return The associated ID for the component, or <code>NO_SUCH_COMPONENT</code>
            if the component name is not recognized.
    **/
-  private static Integer getComponentID (String componentName)
+  private static Integer getComponentID(String componentName)
   {
-    String comp = componentName.trim ();
+    String comp = componentName.trim();
     Integer id = NO_SUCH_COMPONENT;  // default
 
-    for (int i=0; i<VALID_COMPONENTS.length; ++i)
-    {
-      if (comp.equalsIgnoreCase (VALID_COMPONENTS[i]))
+    for (int i=0; i<VALID_COMPONENTS.length; ++i) {
+      if (comp.equalsIgnoreCase(VALID_COMPONENTS[i]))
       {
-        id = new Integer (i);
+        id = new Integer(i);
         break;
       }
     }
+    if (id == NO_SUCH_COMPONENT) { // check abbreviations
+      for (int i=0; i<VALID_COMPONENT_ABBREVS.length; ++i) {
+        if (comp.equalsIgnoreCase(VALID_COMPONENT_ABBREVS[i]))
+        {
+          id = new Integer(i);
+          break;
+        }
+      }
+    }
+
     return id;
   }
 
@@ -1580,7 +1894,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    See <a href="doc-files/componentList.html">component list</a> for
    a list of integer values and associated components.
    **/
-  public Vector getComponents () { return components_; }
+  public Vector getComponents() { return components_; }
 
 
   /**
@@ -1589,7 +1903,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    This value is set by <code>setLanguageDirectory()</code>.
    @return The base directory for the language files.
    **/
-  public File getLanguageDirectory () { return languageDirectory_; }
+  public File getLanguageDirectory() { return languageDirectory_; }
 
 
   /**
@@ -1602,7 +1916,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list will be empty if none has been specified.
    The list will contain only <code>String</code> objects.
    **/
-  public Vector getLanguages () { return languages_; }
+  public Vector getLanguages() { return languages_; }
 
 
   /**
@@ -1614,7 +1928,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    @return The shipped suffix most closely matching that ID;
            <code>null</code> if the language is not supported.
    **/
-  private static String getShippedLanguageSuffixFor (String langId,
+  private static String getShippedLanguageSuffixFor(String langId,
                                                      boolean verbose)
   {
     // Shipped suffixes are: de, de_CH, es, fr, fr_BE, fr_CA, fr_CH,
@@ -1626,37 +1940,37 @@ public class AS400ToolboxJarMaker extends JarMaker
     // added or dropped in subsequent releases of the Toolbox.
 
     String result = null;
-    String id = normalizeLanguageSuffix (langId);
+    String id = normalizeLanguageSuffix(langId);
 
-    if      (id.startsWith ("en")) {
+    if      (id.startsWith("en")) {
       if (verbose)
-        System.out.println ("English MRI files are included by default.");
+        System.out.println("English MRI files are included by default.");
     }
-    else if (id.startsWith ("de_CH"))  result = "de_CH";
-    else if (id.startsWith ("de"))     result = "de";
-    else if (id.startsWith ("es"))     result = "es";
-    else if (id.startsWith ("fr_BE"))  result = "fr_BE";
-    else if (id.startsWith ("fr_CA"))  result = "fr_CA";
-    else if (id.startsWith ("fr_CH"))  result = "fr_CH";
-    else if (id.startsWith ("fr"))     result = "fr";
-    else if (id.startsWith ("it_CH"))  result = "it_CH";
-    else if (id.startsWith ("it"))     result = "it";
-    else if (id.startsWith ("ja"))     result = "ja";
-    else if (id.startsWith ("ko"))     result = "ko";
-    else if (id.startsWith ("zh_TW"))  result = "zh_TW";
-    else if (id.startsWith ("zh"))     result = "zh";
-    else if (id.startsWith ("cs"))     result = "cs";  // added in mod1
-    else if (id.startsWith ("hu"))     result = "hu";  // added in mod1
-    else if (id.startsWith ("pl"))     result = "pl";  // added in mod1
+    else if (id.startsWith("de_CH"))  result = "de_CH";
+    else if (id.startsWith("de"))     result = "de";
+    else if (id.startsWith("es"))     result = "es";
+    else if (id.startsWith("fr_BE"))  result = "fr_BE";
+    else if (id.startsWith("fr_CA"))  result = "fr_CA";
+    else if (id.startsWith("fr_CH"))  result = "fr_CH";
+    else if (id.startsWith("fr"))     result = "fr";
+    else if (id.startsWith("it_CH"))  result = "it_CH";
+    else if (id.startsWith("it"))     result = "it";
+    else if (id.startsWith("ja"))     result = "ja";
+    else if (id.startsWith("ko"))     result = "ko";
+    else if (id.startsWith("zh_TW"))  result = "zh_TW";
+    else if (id.startsWith("zh"))     result = "zh";
+    else if (id.startsWith("cs"))     result = "cs";  // added in mod1
+    else if (id.startsWith("hu"))     result = "hu";  // added in mod1
+    else if (id.startsWith("pl"))     result = "pl";  // added in mod1
 
     else {
-      System.err.println ("Warning: Unsupported language ID specified: " +
+      System.err.println("Warning: Unsupported language ID specified: " +
                           langId + ".");
       result = id;  // try it anyway, it might be a new one
     }
 
     if (DEBUG)
-      System.out.println ("Debug: Specified language suffix " + langId +
+      System.out.println("Debug: Specified language suffix " + langId +
                           " maps to " + result);
     return result;
   }
@@ -1668,33 +1982,33 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param language The language suffix.
    @return The normalized version of the suffix.  Never returns null.
    **/
-  private static String normalizeLanguageSuffix (String language)
+  private static String normalizeLanguageSuffix(String language)
   {
     String result;
     String languageID = language;
 
     // Strip off any leading or trailing blanks, underscores.
-    String id = language.trim ();
-    while (id.charAt (0) == '_')
-      id = id.substring (1);
-    while (id.endsWith ("_"))
-      id = id.substring (0, id.length ()-1);
+    String id = language.trim();
+    while (id.charAt(0) == '_')
+      id = id.substring(1);
+    while (id.endsWith("_"))
+      id = id.substring(0, id.length()-1);
 
-    if (id.length () < 2)
-      throw new IllegalArgumentException ("language (" + language + ")");
-    else if (id.indexOf ("_") == 2)
+    if (id.length() < 2)
+      throw new IllegalArgumentException("language (" + language + ")");
+    else if (id.indexOf("_") == 2)
       languageID = id;
     else {
-      StringBuffer buf = new StringBuffer (id);
-      buf.insert (2, '_');
-      languageID = buf.toString ();
+      StringBuffer buf = new StringBuffer(id);
+      buf.insert(2, '_');
+      languageID = buf.toString();
     }
 
     // Lower-case the chars before the first underscore, and uppercase the rest.
-    String part1 = languageID.substring (0,2).toLowerCase ();
-    String part2 = languageID.substring (2).toUpperCase ();
+    String part1 = languageID.substring(0,2).toLowerCase();
+    String part2 = languageID.substring(2).toUpperCase();
     result = part1 + part2;
-    if (DEBUG) System.out.println ("Debug: Normalized language specifier: " +
+    if (DEBUG) System.out.println("Debug: Normalized language specifier: " +
                                     result);
     return result;
   }
@@ -1705,15 +2019,15 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param args The command line arguments.
    @return An indication of whether the parse succeeded.
    **/
-  private boolean parseArgs (String[] args)
+  private boolean parseArgs(String[] args)
   {
     boolean succeeded = false;
 
     // Wipe the slate clean, in case this AS400ToolboxJarMaker object is
     // being recycled.
-    reset ();
+    reset();
 
-    succeeded = arguments_.parse (args, this);
+    succeeded = arguments_.parse(args, this);
     return succeeded;
   }
 
@@ -1722,18 +2036,18 @@ public class AS400ToolboxJarMaker extends JarMaker
    Resets the AS400ToolboxJarMaker object to a clean, default state,
    to facilitate object reuse.
    **/
-  public void reset ()
+  public void reset()
   {
-    super.reset ();
-    arguments_ = new Arguments ();
-    File defaultSourceJar = new File (DEFAULT_SOURCE_JAR_NAME);
-    setSourceJar (defaultSourceJar);
+    super.reset();
+    arguments_ = new Arguments();
+    File defaultSourceJar = new File(DEFAULT_SOURCE_JAR_NAME);
+    setSourceJar(defaultSourceJar);
 
-    components_.removeAllElements ();
-    languages_.removeAllElements ();
-    languageDirectory_ = new File (System.getProperty ("user.dir"));
-    ccsids_.removeAllElements ();
-    ccsidsExcluded_.removeAllElements ();
+    components_.removeAllElements();
+    languages_.removeAllElements();
+    languageDirectory_ = new File(System.getProperty("user.dir"));
+    ccsids_.removeAllElements();
+    ccsidsExcluded_.removeAllElements();
   }
 
 
@@ -1750,24 +2064,24 @@ public class AS400ToolboxJarMaker extends JarMaker
    See <a href="doc-files/ccsidList.html">CCSIDs and encodings</a>
    for valid values.
    **/
-  public void setCCSIDs (Vector ccsidList)
+  public void setCCSIDs(Vector ccsidList)
   {
     if (ccsidList == null)
-      throw new NullPointerException ("ccsidList");
+      throw new NullPointerException("ccsidList");
     // Check for nulls and for correct element type.
-    ccsidList = validateList (ccsidList, "CCSID",
+    ccsidList = validateList(ccsidList, "CCSID",
                               "java.lang.Integer", verbose_);
-    Enumeration e = ccsidList.elements ();
-    while (e.hasMoreElements ())
+    Enumeration e = ccsidList.elements();
+    while (e.hasMoreElements())
     {
-      Integer ccsid = (Integer)e.nextElement ();
-      addElement (ccsids_, ccsid);
-      if (ccsidsExcluded_.contains (ccsid))
+      Integer ccsid = (Integer)e.nextElement();
+      addElement(ccsids_, ccsid);
+      if (ccsidsExcluded_.contains(ccsid))
       {
-        System.err.println ("Warning: CCSID " + ccsid.intValue () +
+        System.err.println("Warning: CCSID " + ccsid.intValue() +
                             ", specified for both inclusion " +
                             "and exclusion, will be included.");
-        ccsidsExcluded_.removeElement (ccsid);
+        ccsidsExcluded_.removeElement(ccsid);
       }
       //@A1a
       // If adding an ebcdic mixed-byte ccsid, also add associated ccsids
@@ -1776,36 +2090,36 @@ public class AS400ToolboxJarMaker extends JarMaker
       {
         case  930:
         case 5026:
-          addElement (ccsids_, new Integer(290));
-          addElement (ccsids_, new Integer(300));
+          addElement(ccsids_, new Integer(290));
+          addElement(ccsids_, new Integer(300));
           break;
 
         case  933:
         case 1364:
-          addElement (ccsids_, new Integer(833));
-          addElement (ccsids_, new Integer(834));
+          addElement(ccsids_, new Integer(833));
+          addElement(ccsids_, new Integer(834));
           break;
 
         case  935:
         case 1388:
-          addElement (ccsids_, new Integer(836));
-          addElement (ccsids_, new Integer(837));
+          addElement(ccsids_, new Integer(836));
+          addElement(ccsids_, new Integer(837));
           break;
 
         case  937:
-          addElement (ccsids_, new Integer( 37));
-          addElement (ccsids_, new Integer(835));
+          addElement(ccsids_, new Integer( 37));
+          addElement(ccsids_, new Integer(835));
           break;
 
         case  939:
         case 5035:
-          addElement (ccsids_, new Integer(1027));
-          addElement (ccsids_, new Integer( 300));
+          addElement(ccsids_, new Integer(1027));
+          addElement(ccsids_, new Integer( 300));
           break;
 
         case 1399:
-          addElement (ccsids_, new Integer( 5123));
-          addElement (ccsids_, new Integer(16684));
+          addElement(ccsids_, new Integer( 5123));
+          addElement(ccsids_, new Integer(16684));
           break;
 
         default:
@@ -1823,24 +2137,24 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param ccsidList The CCSIDs to be excluded.
    The list should contain only <code>Integer</code> objects.
    **/
-  public void setCCSIDsExcluded (Vector ccsidList)
+  public void setCCSIDsExcluded(Vector ccsidList)
   {
     if (ccsidList == null)
-      throw new NullPointerException ("ccsidList");
+      throw new NullPointerException("ccsidList");
     // Check for nulls and for correct element type.
-    ccsidList = validateList (ccsidList, "CCSID",
+    ccsidList = validateList(ccsidList, "CCSID",
                               "java.lang.Integer", verbose_);
-    Enumeration e = ccsidList.elements ();
-    while (e.hasMoreElements ())
+    Enumeration e = ccsidList.elements();
+    while (e.hasMoreElements())
     {
-      Integer ccsid = (Integer)e.nextElement ();
+      Integer ccsid = (Integer)e.nextElement();
       // See if the CCSID was also specified to be *included*.
-      if (ccsids_.contains (ccsid))
-        System.err.println ("Warning: CCSID " + ccsid.intValue () +
+      if (ccsids_.contains(ccsid))
+        System.err.println("Warning: CCSID " + ccsid.intValue() +
                             ", specified for both exclusion " +
                             "and inclusion, will be included.");
       else
-        addElement (ccsidsExcluded_, ccsid);
+        addElement(ccsidsExcluded_, ccsid);
     }
   }
 
@@ -1857,9 +2171,9 @@ public class AS400ToolboxJarMaker extends JarMaker
    The list should contain only <code>Integer</code> objects.
    See <a href="doc-files/componentList.html">component list</a> for valid values.
    **/
-  public void setComponents (Vector components)
+  public void setComponents(Vector components)
   {
-    setComponents (components, false); // do not include beans
+    setComponents(components, false); // do not include beans
   }
 
 
@@ -1875,27 +2189,27 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param includeBeans Whether or not Java Beans files associated
    with the components are to be included.
    **/
-  public void setComponents (Vector components, boolean includeBeans)
+  public void setComponents(Vector components, boolean includeBeans)
   {
     if (components == null)
-      throw new NullPointerException ("componentList");
+      throw new NullPointerException("componentList");
     // Check for nulls and for correct element type.
-    components = validateList (components, "component",
+    components = validateList(components, "component",
                                "java.lang.Integer", verbose_);
-    Vector filesForComponents = new Vector ();
-    Enumeration e = components.elements ();
-    while (e.hasMoreElements ())
+    Vector filesForComponents = new Vector();
+    Enumeration e = components.elements();
+    while (e.hasMoreElements())
     {
-      Integer comp = (Integer)e.nextElement ();
-      if (addElement (components_, comp)) // if not already in list...
+      Integer comp = (Integer)e.nextElement();
+      if (addElement(components_, comp)) // if not already in list...
       {
-        Vector filesForThisComp = getBaseDependenciesForComponent (comp, includeBeans);
-        copyVectorToFrom (filesForComponents, filesForThisComp, CHECK_DUPS); // @A3c
+        Vector filesForThisComp = getBaseDependenciesForComponent(comp, includeBeans);
+        copyVector(filesForThisComp, filesForComponents, CHECK_DUPS); // @A3c
       }
     }
 
     // Add the component files to list of required files.
-    setRequiredFiles (filesForComponents);
+    setFilesRequired(filesForComponents);
   }
 
 
@@ -1913,10 +2227,10 @@ public class AS400ToolboxJarMaker extends JarMaker
 
    @param baseDirectory The base directory for the language files.
    **/
-  public void setLanguageDirectory (File baseDirectory)
+  public void setLanguageDirectory(File baseDirectory)
   {
     if (baseDirectory == null)
-      throw new NullPointerException ("baseDirectory");
+      throw new NullPointerException("baseDirectory");
     else
       languageDirectory_ = baseDirectory;
   }
@@ -1940,21 +2254,21 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param languages The languages to be supported.
    The list should contain only <code>String</code> objects.
    **/
-  public void setLanguages (Vector languages)
+  public void setLanguages(Vector languages)
   {
     if (languages == null)
-      throw new NullPointerException ("languageList");
+      throw new NullPointerException("languageList");
     // Check for nulls and for correct element type.
-    languages = validateList (languages, "language",
+    languages = validateList(languages, "language",
                               "java.lang.String", verbose_);
 
     // Map the specified languages to the actual shipped MRI name extensions.
-    Enumeration e = languages.elements ();
-    while (e.hasMoreElements ())
+    Enumeration e = languages.elements();
+    while (e.hasMoreElements())
     {
-      String specifiedLanguage = (String)e.nextElement ();  // e.g. "fr_CA"
-      String mriSuffix = getShippedLanguageSuffixFor (specifiedLanguage, verbose_);
-      addElement (languages_, mriSuffix);
+      String specifiedLanguage = (String)e.nextElement();  // e.g. "fr_CA"
+      String mriSuffix = getShippedLanguageSuffixFor(specifiedLanguage, verbose_);
+      addElement(languages_, mriSuffix);
     }
     // Note: Postpone calling setAdditionalFiles() until we need to, since
     // it needs to read the source JAR file and therefore may throw exceptions.
@@ -1970,7 +2284,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param excludeProxies Whether or not proxy-only files
    are to be excluded.
    **/
-  public void setProxyFilesExcluded (boolean excludeProxies)
+  public void setProxyFilesExcluded(boolean excludeProxies)
   {
     noProxy_ = excludeProxies;
   }
@@ -1981,7 +2295,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    Specifies whether AS400ToolboxJarMaker is allowed to selectively limit
    dependency expansion, and exclude certain components and packages
    that are unlikely to be needed.
-   By default, this option is disabled, that is, all directly- and
+   By default, this option is not in effect; that is, all directly- and
    indirectly-referenced files in the source JAR file are included.
    Examples of files that may be excluded from the output:
    <ul>
@@ -1993,7 +2307,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param excludeSomeDependencies Whether or not AS400ToolboxJarMaker should
    selectively limit dependency expansion.
    **/
-  public void setExcludeSomeDependencies (boolean excludeSomeDependencies)
+  public void setExcludeSomeDependencies(boolean excludeSomeDependencies)
   {
     excludeSomeDependencies_ = excludeSomeDependencies;
   }
@@ -2004,47 +2318,47 @@ public class AS400ToolboxJarMaker extends JarMaker
 
    @param args The command line arguments.
    **/
-  public static void main (String[] args)
+  public static void main(String[] args)
   {
     try
     {
-      AS400ToolboxJarMaker jm = new AS400ToolboxJarMaker ();
+      AS400ToolboxJarMaker jm = new AS400ToolboxJarMaker();
 
-      if (jm.parseArgs (args))
+      if (jm.parseArgs(args))
       {
-        if (jm.isSplit ())  // -split overrides all other options
+        if (jm.isSplit())  // -split overrides all other options
         {
-          File srcJar = jm.getSourceJar ();
-          int splitSize = jm.getSplitSize ();
-          jm.split (srcJar, splitSize); // unpack required files
+          File srcJar = jm.getSourceJar();
+          int splitSize = jm.getSplitSize();
+          jm.split(srcJar, splitSize); // unpack required files
         }
-        else if (jm.isExtract ())
+        else if (jm.isExtract())
         {
-          File srcJar = jm.getSourceJar ();
-          File outputDir = jm.getExtractionDirectory ();
-          jm.extract (srcJar, outputDir); // unpack required files
+          File srcJar = jm.getSourceJar();
+          File outputDir = jm.getExtractionDirectory();
+          jm.extract(srcJar, outputDir); // unpack required files
         }
         else
         {
-          File srcJar = jm.getSourceJar ();
-          File destJar = jm.getDestinationJar ();
-          jm.makeJar (srcJar, destJar); // create a new JAR file
+          File srcJar = jm.getSourceJar();
+          File destJar = jm.getDestinationJar();
+          jm.makeJar(srcJar, destJar); // create a new JAR file
         }
       }
-      else System.exit (1);
+      else System.exit(1);
     }
     catch (Exception e) {
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
-      System.exit (1);
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
+      System.exit(1);
     }
     catch (Error e) {
-      System.err.println (e.toString ());
-      if (DEBUG) e.printStackTrace (System.err);
-      System.exit (1);
+      System.err.println(e.toString());
+      if (DEBUG) e.printStackTrace(System.err);
+      System.exit(1);
     }
 
-    System.exit (0);
+    System.exit(0);
   }
 
 
@@ -2064,7 +2378,7 @@ public class AS400ToolboxJarMaker extends JarMaker
      @param jmaker The object to apply the arguments to.
      @return An indication of whether the parse succeeded.
      **/
-    boolean parse (String[] arguments, AS400ToolboxJarMaker jmaker)
+    boolean parse(String[] arguments, AS400ToolboxJarMaker jmaker)
     {
       Vector components = null; // Strings
       Vector languages = null; // Strings
@@ -2075,25 +2389,25 @@ public class AS400ToolboxJarMaker extends JarMaker
       boolean succeeded = true;
 
       // Submit the arguments to the superclass first.
-      if (!jmaker.parseArgs (arguments, true)) // 2nd arg tells superclass
+      if (!jmaker.parseArgs(arguments, true)) // 2nd arg tells superclass
       {                                 // to tolerate unrecognized options.
-        printUsage (System.err);
+        printUsage(System.err);
         return false;
       }
 
       // Get the args that the superclass didn't recognize.
-      String[] args = jmaker.getUnrecognizedArgs ();
+      String[] args = jmaker.getUnrecognizedArgs();
       if (DEBUG)
       {
-        System.out.print ("Debug: Arguments: ");
+        System.out.print("AS400ToolboxJarMaker.parse(): Arguments: ");
         for (int i=0; i<args.length; i++)
-          System.out.print (args[i] + " ");
-        System.out.println ();
+          System.out.print(args[i] + " ");
+        System.out.println();
       }
 
       if (args.length == 0) {
         if (requestedUsageInfo_) {
-          printUsage (System.out);
+          printUsage(System.out);
           return false;
         }
         else
@@ -2106,63 +2420,61 @@ public class AS400ToolboxJarMaker extends JarMaker
       for (int i = 0; i < args.length; ++i)
       {
         // Check for option tag.
-        if (args[i].charAt (0) == '-')
+        if (args[i].charAt(0) == '-')
         {
-          resetExpectations ();
+          String arg = args[i].toLowerCase();
+          resetExpectations();
           priorTokenWasUnrecognized = false;
 
           // component tag
-          if ((args[i].equalsIgnoreCase ("-c")) ||
-              (args[i].equalsIgnoreCase ("-component")) ||
-              (args[i].equalsIgnoreCase ("-components")))
+          if (arg.equals("-c") ||
+              arg.startsWith("-comp"))
             expectingComponent_ = true;
           // expect the next token(s) to be component(s)
 
-          // language tag
-          else if ((args[i].equalsIgnoreCase ("-l")) ||
-                   (args[i].equalsIgnoreCase ("-language")) ||
-                   (args[i].equalsIgnoreCase ("-languages")))
-            expectingLanguage_ = true;
-          // expect the next token(s) to be language(s)
-
           // languageDirectory tag
-          else if ((args[i].equalsIgnoreCase ("-ld")) ||
-                   (args[i].equalsIgnoreCase ("-languageDirectory")))
+          else if (arg.equals("-ld") ||
+                   arg.startsWith("-langdir") ||
+                   arg.startsWith("-languagedir"))
             expectingLanguageDir_ = true;
           // expect the next token to be directory
 
-          // ccsid tag
-          else if ((args[i].equalsIgnoreCase ("-cc")) ||
-                   (args[i].equalsIgnoreCase ("-ccsid")) ||
-                   (args[i].equalsIgnoreCase ("-ccsids")))
-            expectingCcsid_ = true;
-          // expect the next token(s) to be CCSID(s)
+          // language tag
+          else if (arg.equals("-l") ||
+                   arg.startsWith("-lang"))
+            expectingLanguage_ = true;
+          // expect the next token(s) to be language(s)
 
           // ccsidExcluded tag
-          else if ((args[i].equalsIgnoreCase ("-cx")) ||
-                   (args[i].equalsIgnoreCase ("-ccx")) ||
-                   (args[i].equalsIgnoreCase ("-ccsidExcluded")) ||
-                   (args[i].equalsIgnoreCase ("-ccsidsExcluded")))
+          else if (arg.equals("-cx") ||
+                   arg.equals("-ccx") ||
+                   arg.startsWith("-ccsidex") ||
+                   arg.startsWith("-ccsidsex"))
             expectingCcsidExcluded_ = true;
           // expect the next token(s) to be CCSID(s)
 
+          // ccsid tag
+          else if (arg.equals("-cc") ||
+                   arg.startsWith("-ccsid"))
+            expectingCcsid_ = true;
+          // expect the next token(s) to be CCSID(s)
+
           // beans tag
-          else if ((args[i].equalsIgnoreCase ("-b")) ||
-                   (args[i].equalsIgnoreCase ("-beans")))
+          else if (arg.equals("-b") ||
+                   arg.startsWith("-bean"))
             includeBeans = true;
 
           // noProxy tag
-          else if ((args[i].equalsIgnoreCase ("-np")) ||
-                   (args[i].equalsIgnoreCase ("-noProxy")) ||
-                   (args[i].equalsIgnoreCase ("-noProxies")))
+          else if (arg.equals("-np") ||
+                   arg.startsWith("-noprox"))
           {
             noProxy_ = true;
             noProxySpecified = true;
           }
 
           // excludeSomeDependencies tag                                @A4a
-          else if ((args[i].equalsIgnoreCase ("-xd")) ||
-                   (args[i].equalsIgnoreCase ("-excludeSomeDependencies")))
+          else if (arg.equals("-xd") ||
+                   arg.startsWith("-excludesome"))
           {
             excludeSomeDependencies_ = true;
           }
@@ -2187,32 +2499,32 @@ public class AS400ToolboxJarMaker extends JarMaker
           else if (expectingComponent_)
           {
             // Parse the list of components, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
               expectingComponent_ = false;
               if (components == null)
-                components = new Vector (st.countTokens ());
+                components = new Vector(st.countTokens());
               boolean badComponent = false;
-              while (st.hasMoreTokens ()) {
-                String token = st.nextToken ();
-                Integer component = getComponentID (token);
-                if (component.equals (NO_SUCH_COMPONENT))
+              while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                Integer component = getComponentID(token);
+                if (component.equals(NO_SUCH_COMPONENT))
                 {
-                  System.err.println ("Error: Invalid component name: " + token);
+                  System.err.println("Error: Invalid component name: " + token);
                   badComponent = true;
                   succeeded = false;
                 }
                 else
-                  addElement (components, component);
+                  addElement(components, component);
               }
               if (badComponent && jmaker.isVerbose())
               {
-                System.err.println ("The recognized components are:");
+                System.err.println("The recognized components are:");
                 int j;
                 for (j=0; j<VALID_COMPONENTS.length-1; ++j)
-                  System.err.print (VALID_COMPONENTS[j] + ", ");
-                System.err.println (VALID_COMPONENTS[j]);
+                  System.err.print(VALID_COMPONENTS[j] + ", ");
+                System.err.println(VALID_COMPONENTS[j]);
               }
             }
           }
@@ -2220,43 +2532,43 @@ public class AS400ToolboxJarMaker extends JarMaker
           else if (expectingLanguage_)
           {
             // Parse the list of languages, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
               expectingLanguage_ = false;
               if (languages == null)
-                languages = new Vector (st.countTokens ());
-              while (st.hasMoreTokens ())
-                addElement (languages, st.nextToken ());
+                languages = new Vector(st.countTokens());
+              while (st.hasMoreTokens())
+                addElement(languages, st.nextToken());
             }
           }
 
           else if (expectingLanguageDir_)
           {
             expectingLanguageDir_ = false;
-            jmaker.setLanguageDirectory (new File (args[i]));
+            jmaker.setLanguageDirectory(new File(args[i]));
           }
 
           else if (expectingCcsid_)
           {
             // Parse the list of CCSIDs, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
               expectingCcsid_ = false;
               if (ccsids == null)
-                ccsids = new Vector (st.countTokens ());
-              while (st.hasMoreTokens ())
+                ccsids = new Vector(st.countTokens());
+              while (st.hasMoreTokens())
               {
-                String token = st.nextToken ();
+                String token = st.nextToken();
                 Integer ccsid = null;
-                try { ccsid = new Integer (token); }
+                try { ccsid = new Integer(token); }
                 catch (NumberFormatException e) {
-                  System.err.println ("Error: Non-integer CCSID value: " + token);
+                  System.err.println("Error: Non-integer CCSID value: " + token);
                   succeeded = false;
                   continue; // skip to next token in list
                 }
-                addElement (ccsids, ccsid);
+                addElement(ccsids, ccsid);
               }
             }
           }
@@ -2264,41 +2576,41 @@ public class AS400ToolboxJarMaker extends JarMaker
           else if (expectingCcsidExcluded_)
           {
             // Parse the list of CCSIDs, separated by commas.
-            StringTokenizer st = new StringTokenizer (args[i], ",");
-            if (st.countTokens () != 0)
+            StringTokenizer st = new StringTokenizer(args[i], ",");
+            if (st.countTokens() != 0)
             {
               expectingCcsidExcluded_ = false;
               if (ccsidsExcluded == null)
-                ccsidsExcluded = new Vector (st.countTokens ());
-              while (st.hasMoreTokens ())
+                ccsidsExcluded = new Vector(st.countTokens());
+              while (st.hasMoreTokens())
               {
-                String token = st.nextToken ();
+                String token = st.nextToken();
                 Integer ccsid = null;
-                try {ccsid = new Integer (token);}
+                try {ccsid = new Integer(token);}
                 catch (NumberFormatException e) {
-                  System.err.println ("Error: Non-integer CCSID value: " + token);
+                  System.err.println("Error: Non-integer CCSID value: " + token);
                   succeeded = false;
                   continue; // skip to next token in list
                 }
-                addElement (ccsidsExcluded, ccsid);
+                addElement(ccsidsExcluded, ccsid);
               }
             }
           }
 
           else  // None of the above.
           {
-            System.err.println ("Error: Unrecognized argument: " + args[i]);
+            System.err.println("Error: Unrecognized argument: " + args[i]);
             succeeded = false;
           }
 
           priorTokenWasUnrecognized = false;
-          resetExpectations (); // We expect the next token to be an option
+          resetExpectations(); // We expect the next token to be an option
         }
       }  // end of 'for' loop
 
-      resetExpectations ();  // clean up
+      resetExpectations();  // clean up
 
-      if (jmaker.isSplit ())
+      if (jmaker.isSplit())
       {
         if ((components != null) ||
             (includeBeans == true) ||
@@ -2306,7 +2618,7 @@ public class AS400ToolboxJarMaker extends JarMaker
             (ccsids != null) ||
             (ccsidsExcluded != null))
         {
-          System.err.println ("Warning: When -split is specified, " +
+          System.err.println("Warning: When -split is specified, " +
                               "all other options are ignored, except " +
                               "-source and -verbose.");
         }
@@ -2314,12 +2626,13 @@ public class AS400ToolboxJarMaker extends JarMaker
       else  // not a split
       {
         // Check for sufficient options.
-        if (!jmaker.isOptionInfoSufficient () && // enough options for superclass
-            (components == null) &&
-            (languages == null) &&
-            (ccsids == null) &&
-            (ccsidsExcluded == null) &&
-            (noProxySpecified == false))
+        if (!jmaker.isOptionInfoSufficient() && // enough options for superclass
+            components == null &&
+            languages == null &&
+            ccsids == null &&
+            ccsidsExcluded == null &&
+            noProxySpecified == false &&
+            excludeSomeDependencies_ == false)
         {
           System.err.println("Error: Need to specify more options.");
           succeeded = false;
@@ -2327,22 +2640,22 @@ public class AS400ToolboxJarMaker extends JarMaker
 
         // Set any languages.
         if (languages != null)
-          setLanguages (languages);
+          setLanguages(languages);
 
         if (components != null)
         {
-          if (components.size () != 0)
-            setComponents (components, includeBeans);
+          if (components.size() != 0)
+            setComponents(components, includeBeans);
           else succeeded = false;  // bogus components
         }
         if (ccsids != null)
-          setCCSIDs (ccsids);
+          setCCSIDs(ccsids);
         if (ccsidsExcluded != null)
-          setCCSIDsExcluded (ccsidsExcluded);
+          setCCSIDsExcluded(ccsidsExcluded);
       }
 
       if (!succeeded)
-        printUsage (System.err);
+        printUsage(System.err);
 
       return succeeded;
     }
@@ -2352,50 +2665,52 @@ public class AS400ToolboxJarMaker extends JarMaker
 
      @param output   The output stream.
      **/
-    private void printUsage (PrintStream output)
+    private void printUsage(PrintStream output)
     {
-      output.println ();
-      output.println ("Usage: ");
-      output.println ();
-      output.println ("  AS400ToolboxJarMaker [-source jarFile]");
-      output.println ("                       [-destination jarFile]");
-      output.println ("                       [-requiredFile entry1[,entry2[...]]]");
-      output.println ("                       [-additionalFile file1[,file2[...]]]");
-      output.println ("                       [-additionalFilesDirectory directory");
-      output.println ("                       [-package pkg1[,pkg2[...]]]");
-      output.println ("                       [-extract [directory]]");
-      output.println ("                       [-split [kilobytes]]");
-      output.println ("                       [-component comp1[,comp2[...]]]");
-      output.println ("                       [-beans]");
-      output.println ("                       [-language language1[,language2[...]]]");
-      output.println ("                       [-languageDirectory directory");
-      output.println ("                       [-ccsid ccsid1[,ccsid2[...]]]");
-      output.println ("                       [-ccsidExcluded ccsid1[,ccsid2[...]]]");
-      output.println ("                       [-noProxy]");
-      output.println ("                       [-excludeSomeDependencies]");  // @A4a
-      output.println ("                       [-verbose]");
-      output.println ("                       [-help]");
-      output.println ();
-      output.println ("At least one of the following options must be specified: ");
-      output.println ("-requiredFile, -additionalFile, -package, -extract, -split, " +
+      output.println();
+      output.println("Usage: ");
+      output.println();
+      output.println("  AS400ToolboxJarMaker [-source jarFile]");
+      output.println("           [-destination jarFile]");
+      output.println("           [-fileRequired entry1[,entry2[...]]]");
+      output.println("           [-fileExcluded entry1[,entry2[...]]]");
+      output.println("           [-additionalFile file1[,file2[...]]]");
+      output.println("           [-additionalFilesDirectory directory");
+      output.println("           [-package pkg1[,pkg2[...]]]");
+      output.println("           [-packageExcluded pkg1[,pkg2[...]]]");
+      output.println("           [-extract [directory]]");
+      output.println("           [-split [kilobytes]]");
+      output.println("           [-component comp1[,comp2[...]]]");
+      output.println("           [-beans]");
+      output.println("           [-language language1[,language2[...]]]");
+      output.println("           [-languageDirectory directory");
+      output.println("           [-ccsid ccsid1[,ccsid2[...]]]");
+      output.println("           [-ccsidExcluded ccsid1[,ccsid2[...]]]");
+      output.println("           [-noProxy]");
+      output.println("           [-excludeSomeDependencies]");  // @A4a
+      output.println("           [-verbose]");
+      output.println("           [-help]");
+      output.println();
+      output.println("At least one of the following options must be specified: ");
+      output.println("-fileRequired, -fileExcluded, -additionalFile, -package, -packageExcluded, -extract, -split, " +
                       "-component, -language, -ccsid, -ccsidExcluded, -noProxy");
-      output.println ();
-      output.println ("The -excludeSomeDependencies option is not recommended " +
+      output.println();
+      output.println("The -excludeSomeDependencies option is not recommended " +
                       "for pre-V5R2 Toolbox JAR files.");
     }
 
-    private void resetExpectations ()
+    private void resetExpectations()
     {
       if (expectingComponent_)
-        System.err.println ("Warning: No component specified after -component.");
+        System.err.println("Warning: No component specified after -component.");
       if (expectingLanguage_)
-        System.err.println ("Warning: No language specified after -language.");
+        System.err.println("Warning: No language specified after -language.");
       if (expectingLanguageDir_)
-        System.err.println ("Warning: No directory specified after -languageDirectory.");
+        System.err.println("Warning: No directory specified after -languageDirectory.");
       if (expectingCcsid_)
-        System.err.println ("Warning: No CCSID specified after -ccsid.");
+        System.err.println("Warning: No CCSID specified after -ccsid.");
       if (expectingCcsidExcluded_)
-        System.err.println ("Warning: No CCSID specified after -ccsidExcluded.");
+        System.err.println("Warning: No CCSID specified after -ccsidExcluded.");
 
       expectingComponent_ = false;
       expectingLanguage_ = false;
