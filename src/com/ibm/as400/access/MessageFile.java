@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MessageFile.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ import java.beans.PropertyVetoException;
 
 /**
   * The MessageFile class
-  * allows a user to get a message from an AS/400 message file.
+  * allows a user to get a message from an OS/400 message file.
   * It returns an AS400Message object which contains the message.
   * The calling program can optionally supply substitution text for the message.
   *
@@ -608,10 +608,11 @@ public class MessageFile extends Object implements Serializable
         parms[9] = new ProgramParameter(errorcode, 100);                         // @D2m
                                                                                  // @D2m
         pgm.setThreadSafe(true);  // @B2A
-        if (pgm.run( "/QSYS.LIB/QMHRTVM.PGM", parms )==false)                    // @D2m
+        if (!pgm.run("/QSYS.LIB/QMHRTVM.PGM", parms))                    // @D2m
         {                                                                        // @D2m
-            AS400Message message = pgm.getMessageList()[0];                      // @D2m
-            throw new IOException(message.toStringM2());                         // @D2m @D3c
+//            AS400Message message = pgm.getMessageList()[0];                      // @D2m
+//            throw new IOException(message.toStringM2());                         // @D2m @D3c
+          throw new AS400Exception(pgm.getMessageList());
         }                                                                        // @D2m
                                                                                  // @D2m
         byte[] retData = parms[0].getOutputData();                               // @D2m
