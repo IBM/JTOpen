@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConversionMaps.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ import java.util.Hashtable;
 
 abstract class ConversionMaps
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   // To prevent rehashing of a Hashtable as it's being built, we construct it with
   // a certain number of entries. However, the default load factor for a table is .75, 
@@ -65,8 +65,14 @@ abstract class ConversionMaps
   // Some encodings are supported by the AS/400 but not by the Toolbox. The
   // ConvTable code handles this.
   // Based on http://java.sun.com/products/jdk/1.2/docs/guide/internat/encoding.doc.html
-  // Also based on the AS/400 JVM's table of encodings to CCSIDS found at
-  // http://w3pclan.rchland.ibm.com/idweb/v4r5/ic2924/info/java/rzaha/fileenc.htm
+
+  //@C0C
+  // V5R1 JVM encodings: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/fileenc.htm
+  // V5R1 JVM locales: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/locales.htm
+  
+  //@C0A - See also http://java.sun.com/j2se/1.4/docs/guide/intl/encoding.doc.html
+  // and http://java.sun.com/j2se/1.4/docs/guide/intl/locale.doc.html
+
   static 
   {
     // 137+ possible Java encodings. 13 have unknown CCSIDs.
@@ -351,6 +357,7 @@ abstract class ConversionMaps
     localeCcsidMap_.put("de_DE_EURO", "1141"); //@A4A
     localeCcsidMap_.put("de_LU_EURO", "1141"); //@A4A
     localeCcsidMap_.put("el", "875");
+    localeCcsidMap_.put("el_GR_EUROR", "4971"); //@C0A
     localeCcsidMap_.put("en", "37");
     localeCcsidMap_.put("en_BE", "500");
     localeCcsidMap_.put("en_CN", "1388"); //@A1C - was 935
@@ -376,6 +383,7 @@ abstract class ConversionMaps
     localeCcsidMap_.put("is", "871");
     localeCcsidMap_.put("it", "280");
     localeCcsidMap_.put("it_CH", "500");
+    localeCcsidMap_.put("it_IT_EURO", "1144"); //@C0A
     localeCcsidMap_.put("iw", "424");
     localeCcsidMap_.put("ja", "1399"); //@A4C - was 930 @A1C - was 5026
     localeCcsidMap_.put("ji", "424");
