@@ -71,6 +71,7 @@ public class GridLayoutFormPanel extends LayoutFormPanel
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
+    private String cellDir_; // The direction of the text interpretation used on each table cell.
 
 
     /**
@@ -133,6 +134,18 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     }
 
     /**
+     * Returns the <i>direction</i> of the text interpretation that is
+     * used for each cell in the grid. Use {@link #getDirection getDirection}
+     * to determine the direction used for the overall table.
+     * @return The direction of the text.
+     * @see #setCellDirection
+    **/
+    public String getCellDirection()
+    {
+      return cellDir_;
+    }
+
+    /**
     *  Returns the number of columns in the layout.
     *  @return The number of columns.
     **/
@@ -149,6 +162,18 @@ public class GridLayoutFormPanel extends LayoutFormPanel
     public String getDirection()                               //$B1A
     {
         return dir_;
+    }
+
+    /**
+     * Returns the cell direction attribute tag.
+    **/
+    String getCellDirectionAttributeTag()
+    {
+      if (cellDir_ != null && cellDir_.length() > 0)
+      {
+        return " dir=\"" + cellDir_ + "\"";
+      }
+      return "";
     }
 
 
@@ -214,7 +239,9 @@ public class GridLayoutFormPanel extends LayoutFormPanel
                 s.append("<tr>\n");
 
             HTMLTagElement e = getElement(i);
-            s.append("<td>");
+            s.append("<td");
+            s.append(getCellDirectionAttributeTag());
+            s.append(">");
             s.append(e.getTag());
             s.append("</td>\n");
 
@@ -262,6 +289,26 @@ public class GridLayoutFormPanel extends LayoutFormPanel
         if (listener == null)
             throw new NullPointerException ("listener");
         vetos_.removeVetoableChangeListener(listener);
+    }
+
+    /**
+     * Sets the <i>direction</i> of the text interpretation for
+     * each cell in the grid. Use {@link #setDirection setDirection}
+     * to set the direction for the overall table.
+     * @param dir The direction. One of the following constants
+     * defined in HTMLConstants:  LTR or RTL.
+     * @see com.ibm.as400.util.html.HTMLConstants
+    **/
+    public void setCellDirection(String dir)
+    {
+      if (dir == null) throw new NullPointerException("dir");
+      // If direction is not one of the valid HTMLConstants, throw an exception.
+      if (!dir.equals(HTMLConstants.LTR) && !dir.equals(HTMLConstants.RTL))
+      {
+        throw new ExtendedIllegalArgumentException("dir", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+
+      cellDir_ = dir;
     }
 
     /**
