@@ -498,6 +498,13 @@ Adds a variable length string parameter.
     // number of bytes the string needs to occupy so that it works
     // for both single-byte and double-byte strings.
     byte[] rawBytes = converter.stringToByteArray (value);
+                                   
+        if (rawBytes.length > 65535)                                            // @E9a
+        {                                                                       // @E9a
+            if (JDTrace.isTraceOn())                                            // @E9a
+                JDTrace.logInformation (this, "Warning, SQL statement probably too long"); // @E9a
+        }                                                                       // @E9a
+
     lock (rawBytes.length + 4, codePoint);
 
     set16bit (converter.getCcsid(), currentOffset_);        // CCSID
