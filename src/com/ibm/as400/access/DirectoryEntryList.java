@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,7 @@ import java.util.Hashtable;
  * AS400 system = new AS400();
  * DirectoryEntryList list = new DirectoryEntryList(system);
  * // Retrieves all of the entries that map to user profiles that begin with the letter 'B'.
+ * list.addSelection(DirectoryEntryList.USER_PROFILE, "B*");
  * DirectoryEntry[] entries = list.getEntries();
  * </pre>
  *
@@ -44,7 +45,7 @@ import java.util.Hashtable;
 **/
 public class DirectoryEntryList
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
   
   private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
