@@ -436,7 +436,16 @@ public class AS400Text implements AS400DataType
     // We can't pad the String after the transform if we're bidi.
     if (AS400BidiTransform.isBidiCcsid(ccsid_)) // We can use ccsid_ since we already called setTable().
     {
-      int numPadBytes = length_ - toConvert.length();
+      int realLength = toConvert.length();
+      if (ccsid_ == 13488 || ccsid_ == 61952) // Cases where we are Bidi, but we are DBCS.
+      {
+        realLength = realLength * 2;
+      }
+      int numPadBytes = length_ - realLength;
+      if (ccsid_ == 13488 || ccsid_ == 61952) // Cases where we are Bidi, but we are DBCS.
+      {
+        numPadBytes = numPadBytes / 2;
+      }
       if (numPadBytes > 0)
       {
         char[] cbuf = toConvert.toCharArray();
