@@ -1,34 +1,16 @@
-//////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-//
-// OCO Source Materials
-//
-// The Source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office
-//
-// 5722-JC1
-// (C) Copyright IBM Corp. 2002
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:    StatementHandler.java
-//
-// Description:  See comments below
-//
-// Classes:      StatementHandler
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-//  Flg=PTR/DCR   Release       Date        Userid     Comments
-//        D98585.1  v5r2m0.jacl  09/11/01   wiedrich  Created.
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: StatementHandler.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
 package com.ibm.as400.micro;
 
 import java.io.*;
@@ -41,7 +23,9 @@ needed by the JDBC-ME driver with the JDBC Statement interface.
 **/
 class StatementHandler
 {
-    private JDBCMEService service_;
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
+    private JdbcMeService service_;
     private MicroDataInputStream in_;
     private MicroDataOutputStream out_;
 
@@ -50,7 +34,7 @@ class StatementHandler
     Constructor.  Creates a new JDBC-ME handler for Statement
     objects.
     **/
-    public StatementHandler(JDBCMEService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
+    public StatementHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
         service_ = jdbcme;
         in_ = in;
@@ -85,7 +69,7 @@ class StatementHandler
     of closing any ResultSets that are open under it as well.
     Unlike most of the methods of this class, if an exception occurs
     while closing the Statement, this method will not report it back
-    to the caller in any way.  It is simply swollowed and a message
+    to the caller in any way.  It is simply swallowed and a message
     is logged concerning the failure.
     <P>
     The data flow is as follows:
@@ -173,6 +157,7 @@ class StatementHandler
                 // output the updateCount
                 out_.writeInt(statement.getUpdateCount());
             }
+            out_.flush();
         }
         catch (SQLException e)
         {

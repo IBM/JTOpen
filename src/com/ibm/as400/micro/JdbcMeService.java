@@ -1,34 +1,16 @@
-//////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-//
-// OCO Source Materials
-//
-// The Source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office
-//
-// 5722-JC1
-// (C) Copyright IBM Corp. 2002
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:    JdbcMeService.java
-//
-// Description:  See comments below
-//
-// Classes:      JdbcMeService
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-//  Flg=PTR/DCR   Release       Date        Userid     Comments
-//        D98585.1  v5r2m0.jacl  09/11/01   wiedrich  Created.
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: JdbcMeService.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
 package com.ibm.as400.micro;
 
 import com.ibm.as400.access.Trace;
@@ -36,8 +18,10 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 
-class JDBCMEService implements Service
+class JdbcMeService implements Service
 {
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
     private Vector connections_;
     private Vector statements_;
     private Hashtable statementresults_; // DOMINO
@@ -63,7 +47,7 @@ class JDBCMEService implements Service
     Constructor so we do not have to pass the streams around in all
     the helper functions.
     **/
-    public JDBCMEService()
+    public JdbcMeService()
     {
         // Create the data structures to hold our JDBC objects.
         connections_ = new Vector();
@@ -157,6 +141,7 @@ class JDBCMEService implements Service
                 int objectId = getNextObjectId();
                 map_.put(new Integer(objectId), new Integer(c.hashCode()));
                 out_.writeInt(objectId);
+                out_.flush();
             }
             catch (SQLException e)
             {
@@ -302,7 +287,7 @@ class JDBCMEService implements Service
      */
     public void addResultSet(Statement s, ResultSet rs) throws SQLException 
     {     // DOMINO
-        // The Stupid DOMINO Jdbc driver doesn't implement
+        // The DOMINO Jdbc driver doesn't implement
         // the getStatement() method. We can't use it
         // here. 'lotus.jdbc.domino.DominoDriver'
         //// Statement s = rs.getStatement();
@@ -398,6 +383,7 @@ class JDBCMEService implements Service
             s = "null";
 
         out_.writeUTF(s);
+        out_.flush();
     }
 
 
@@ -407,7 +393,7 @@ class JDBCMEService implements Service
     public int getNextObjectId()
     {
         // TODO:  at some point, it should be changed to reuse opened
-        // object ids from wholes that get created in its map.
+        // object ids from holes that get created in its map.
         int returnValue = NextObjectId_;
         NextObjectId_++;
         
@@ -498,7 +484,7 @@ class JDBCMEService implements Service
         //        a value value passed in and stuff like
         //        that.  Also, the function should be broken
         //        out so that appropriate JavaDoc can be
-        //        created for it.  This is just lazy...
+        //        created for it.  
         int type = in_.readInt();
         if ((type == MEConstants.DATA_FLOW_ALL) ||
             (type == MEConstants.DATA_FLOW_LIMITED) ||
@@ -506,6 +492,7 @@ class JDBCMEService implements Service
         {
             dataFlowType_ = type;
             out_.writeInt(1);
+            out_.flush();
         }
         else
         {
@@ -522,6 +509,7 @@ class JDBCMEService implements Service
         out_.writeInt(-1);
         out_.writeUTF("JDBC");
         out_.writeUTF(message);
+        out_.flush();
     }
 
 }

@@ -1,34 +1,16 @@
-//////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-//
-// OCO Source Materials
-//
-// The Source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office
-//
-// 5722-JC1
-// (C) Copyright IBM Corp. 2001
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:    ConnectionHandler.java
-//
-// Description:  See comments below
-//
-// Classes:      ConnectionHandler
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-//  Flg=PTR/DCR   Release        Date         Userid     Comments
-//      D98585.1      v5r2m0      09/11/2001  wiedrich  Created.
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: ConnectionHandler.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
 package com.ibm.as400.micro;
 
 import java.io.*;
@@ -43,14 +25,16 @@ import com.ibm.as400.access.Trace;
  **/
 class ConnectionHandler
 {
-    private JDBCMEService service_;
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
+    private JdbcMeService service_;
     private MicroDataInputStream in_;
     private MicroDataOutputStream out_;
     
     /**
     Constructor.  Creates a JDBC-ME handler for Connection objects.
     **/
-    public ConnectionHandler(JDBCMEService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
+    public ConnectionHandler(JdbcMeService jdbcme, MicroDataInputStream in, MicroDataOutputStream out)
     {
         service_ = jdbcme;
         in_ = in;
@@ -158,6 +142,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(s);
             out_.writeInt(objectId);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -196,6 +181,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(s);
             out_.writeInt(objectId);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -241,6 +227,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(ps);
             out_.writeInt(objectId);
+            out_.flush();
 
             ResultSetMetaData rsmd = ps.getMetaData();
             
@@ -257,6 +244,7 @@ class ConnectionHandler
                     out_.writeInt(rsmd.getColumnType(i + 1));
                 }
             }
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -303,6 +291,7 @@ class ConnectionHandler
             // Put the object into our map
             int objectId = service_.mapObject(ps);
             out_.writeInt(objectId);
+            out_.flush();
 
             ResultSetMetaData rsmd = ps.getMetaData();
             
@@ -319,6 +308,7 @@ class ConnectionHandler
                     out_.writeInt(rsmd.getColumnType(i + 1));
                 }
             }
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -347,7 +337,7 @@ class ConnectionHandler
             boolean b = in_.readBoolean();
             connection.setAutoCommit(b);
             out_.writeInt(1);
-
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -376,6 +366,7 @@ class ConnectionHandler
             int level = in_.readInt();
             connection.setTransactionIsolation(level);
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -403,6 +394,7 @@ class ConnectionHandler
         {
             connection.commit();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -430,6 +422,7 @@ class ConnectionHandler
         {
             connection.rollback();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {

@@ -1,26 +1,16 @@
-////////////////////////////////////////////////////////////////////////
-// IBM Confidential
-//
-// OCO Source Materials
-//
-// The Source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office
-//
-// 5769-SS1
-// (C) Copyright IBM Corp. 1999,1999
-////////////////////////////////////////////////////////////////////////
-// File Name:    ResourceBundleLoader_h.java
-//
-// Classes:      ResourceBundleLoader_h                                                                                                                                                                        
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: ResourceBundleLoader_m.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////
-// CHANGE ACTIVITY:
-//   $A0=PTR/DCR   Release   Date            Userid    Comments
-//           D98585      V5R2      07/30/2001  wiedrich  Created
-// 
-// END CHANGE ACTIVITY
-////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.micro;
 
 import java.util.MissingResourceException;
@@ -32,6 +22,8 @@ import java.util.ResourceBundle;
 **/
 class ResourceBundleLoader_m
 {
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
    private static MissingResourceException resourceException_;
 
    private static ResourceBundle resources_;

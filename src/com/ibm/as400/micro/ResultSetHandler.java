@@ -1,34 +1,16 @@
-//////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-//
-// OCO Source Materials
-//
-// The Source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office
-//
-// 5722-JC1
-// (C) Copyright IBM Corp. 2002
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:    ResultSetHandler.java
-//
-// Description:  See comments below
-//
-// Classes:      ResultSetHandler
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-//  Flg=PTR/DCR   Release       Date        Userid     Comments
-//        D98585.1  v5r2m0.jacl  09/11/01   wiedrich  Created.
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: ResultSetHandler.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
 package com.ibm.as400.micro;
 
 import java.io.*;
@@ -42,6 +24,8 @@ import java.util.*;
  **/
 class ResultSetHandler
 {
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
     JdbcMeService service_;
     MicroDataInputStream in_;
     MicroDataOutputStream out_;
@@ -196,6 +180,7 @@ class ResultSetHandler
         {
             rs.deleteRow();
             out_.writeInt(1);  // Today, we will always say we worked today.
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -243,6 +228,7 @@ class ResultSetHandler
             // Update the row.
             rs.insertRow();
             out_.writeInt(1); // Today we will always say this worked today.
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -281,6 +267,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -319,6 +307,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -357,6 +347,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -395,6 +387,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -434,6 +428,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -473,6 +469,8 @@ class ResultSetHandler
             }
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -503,6 +501,7 @@ class ResultSetHandler
         {
             rs.beforeFirst();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -532,6 +531,7 @@ class ResultSetHandler
         {
             rs.afterLast();
             out_.writeInt(1);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -565,6 +565,7 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -598,6 +599,8 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -631,6 +634,8 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -664,6 +669,8 @@ class ResultSetHandler
                 out_.writeInt(1);
             else
                 out_.writeInt(0);
+
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -696,7 +703,7 @@ class ResultSetHandler
         {
             // Just in case we are sitting around on the insert row...
             // I am not sure if I can get away with such 'skimpy' logic
-            // here... there might be wholes where we return the wrong thing.
+            // here... there might be holes where we return the wrong thing.
             rs.moveToCurrentRow();
             rsmd = rs.getMetaData();
             count = rsmd.getColumnCount();
@@ -710,6 +717,7 @@ class ResultSetHandler
             // Update the row.
             rs.updateRow();
             out_.writeInt(1); // We will always say this worked today.
+            out_.flush();
         }
         catch (SQLException e)
         {
@@ -775,9 +783,10 @@ class ResultSetHandler
                 System.out.println("DATA_FLOW_ALL: This isn't implemented yet.");
                 break;
             default:
-                System.out.println("getDataFlowType(): Just what the heck did you ask for here? " + service_.getDataFlowType());
+                System.out.println("getDataFlowType(): Unknown data flow type - " + service_.getDataFlowType());
                 break;
             }
+            out_.flush();
         }
         catch (SQLException e)
         {
