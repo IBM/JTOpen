@@ -4481,7 +4481,7 @@ use information for the job when job accounting is active.
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    return(String)getValue(ACCOUNTING_CODE);
+    return((String)getValue(ACCOUNTING_CODE)).trim(); //@E2C
   }
 
 
@@ -5543,7 +5543,7 @@ beginning a long wait.
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    return((String)getValue(ELIGIBLE_FOR_PURGE)).equals(ELIGIBLE_FOR_PURGE_YES);
+    return((String)getValue(ELIGIBLE_FOR_PURGE)).trim().equals(ELIGIBLE_FOR_PURGE_YES); //@E2C
   }
 
 
@@ -5871,11 +5871,11 @@ subsystem description for the subsystem in which the job is running.
     String subsystem = ((String)getValue(SUBSYSTEM)).trim();
     if (subsystem.length() > 10)
     {
-    String name = subsystem.substring(0, 10).trim();
-    String lib = subsystem.substring(10, subsystem.length());
-    String path = QSYSObjectPathName.toPath(lib, name, "SBSD");
-    return path;
-  }
+      String name = subsystem.substring(0, 10).trim();
+      String lib = subsystem.substring(10, subsystem.length());
+      String path = QSYSObjectPathName.toPath(lib, name, "SBSD");
+      return path;
+    }
     return subsystem;
   }
 
