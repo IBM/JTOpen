@@ -1,31 +1,15 @@
-////////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-// OCO Source Materials
-// 5722-JC1
-// (C) Copyright IBM Corp. 2001
-//
-// The source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office.
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:  MEException.java
-//
-// Class Name:  MEException
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-//  Flg=PTR/DCR     Release     Date       Userid   Comments
-//        D98585     v5r2m0.jacl  22/02/01   wrightj   Created.
-//                      v5r2m0.jacl  03/05/01   wiedrich Modified.
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
+//                                                                             
+// Filename: MEException.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.micro;
 
@@ -36,6 +20,8 @@ package com.ibm.as400.micro;
  **/
 public final class MEException extends Exception
 {
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+
     // THE SECURITY RETURN CODES (range 0 - 20).
 
     /**
