@@ -16,7 +16,7 @@
 //
 // Pre-requisites:
 //   - JDK 1.3 (or higher*)
-//   - Apache Ant
+//   - Apache Ant 1.5
 //   - CVS client (to download source)
 //
 // *Note: When building using JDK 1.4, the ToolboxME classes will be skipped
@@ -32,7 +32,7 @@
 //    with how to run builds using Ant.
 //    See http://jakarta.apache.org/ant to download and read up on it.
 //    For those with less time on their hands, get the binary from:
-//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.4.1/bin/
+//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.5Beta1/bin/
 //    Once installed, add the ant.jar to your CLASSPATH.
 //    To run a build:
 //      java org.apache.tools.ant.Main target1 target2 target3 ...
@@ -335,6 +335,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
+           debuglevel="lines"
            fork="true">
       <classpath refid="jtopen.includes"/>
     </javac>
@@ -352,6 +353,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
+           debuglevel="lines"
            fork="true">
       <classpath refid="jtopen.includes-xerces-4.0"/>
     </javac>
@@ -369,6 +371,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
+           debuglevel="lines"
            fork="true">
       <classpath>
         <pathelement path="${include}"/>
@@ -391,6 +394,7 @@
            memoryMaximumSize="256m"
            failonerror="true"
            debug="on"
+           debuglevel="lines"
            fork="true">
       <classpath>
         <pathelement path="${include}"/>
@@ -412,6 +416,7 @@
            destdir="${output-micro}"
            failonerror="true"
            debug="on"
+           debuglevel="lines"
            fork="true">
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
@@ -758,7 +763,8 @@
   <target name="micro" depends="init,jar-jt400Micro" unless="compileIncludesExist-1.4"/>
   
   <target name="micro-preverify" depends="init,compile-micro" unless="compileIncludesExist-1.4">
-    <exec dir="${bin}" executable="preverify" failonerror="true" vmlauncher="false">
+    <echo>Pre-verifying Micro Edition classes</echo>
+    <exec dir="${bin}" executable="./preverify" failonerror="true" vmlauncher="false">
       <arg line="-d ${output-micro-verified} -classpath ${include}/midpapi.zip ${output-micro}"/>
     </exec>
   </target>
