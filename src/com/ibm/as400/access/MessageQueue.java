@@ -83,6 +83,7 @@ public class MessageQueue implements Serializable
 
 
   static final long serialVersionUID = 5L;
+  static final int VRM_530 = AS400.generateVRM(5, 3, 0);
 
 
 /**
@@ -863,7 +864,7 @@ need replies.
       }
     }
     int selectionCriteriaLength = selectionCriteria.length();
-    boolean v5r3OrGreater = system_.getVRM() >= JDUtilities.vrm530;     //@K1A
+    boolean v5r3OrGreater = system_.getVRM() >= VRM_530;                //@K1A
     byte[] selectionInfo;                                               //@K1C
     if(v5r3OrGreater)                                                   //@K1A
         selectionInfo = new byte[84+selectionCriteriaLength];           //@K1A
