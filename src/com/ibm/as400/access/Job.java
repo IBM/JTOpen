@@ -24,8 +24,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
-import java.text.SimpleDateFormat;
-
+import java.text.DateFormat;
+import java.text.ParseException;
 
 /**
 The Job class represents an OS/400 job.  In order to access a job,
@@ -44,12 +44,12 @@ OS/400 program or command runs, do something like the following:
 AS400 sys = new AS400();
 ProgramCall pgm = new ProgramCall(sys);
 pgm.setThreadSafe(true); // indicates the program is to be run on-thread
-String jobNumber = pgm.getJob().getNumber();
+String jobNumber = pgm.getServerJob().getNumber();
 </pre>
 
 @see com.ibm.as400.access.JobList
-@see com.ibm.as400.access.CommandCall#getJob
-@see com.ibm.as400.access.ProgramCall#getJob
+@see com.ibm.as400.access.CommandCall#getServerJob
+@see com.ibm.as400.access.ProgramCall#getServerJob
 **/
 public class Job
 implements Serializable
@@ -1610,7 +1610,7 @@ implements Serializable
    * Constant indicating that the job will run as scheduled.
    * @see #JOB_QUEUE_STATUS
   **/
-  public static final String JOB_QUEUE_STATUS_SCHEDULE = "SCD";
+  public static final String JOB_QUEUE_STATUS_SCHEDULED = "SCD";
 
   /**
    * Constant indicating that the job is being held on the job queue.
@@ -2548,6 +2548,7 @@ implements Serializable
    * <UL>
    * <LI>{@link #PRINTER_DEVICE_NAME_SYSTEM_VALUE PRINTER_DEVICE_NAME_SYSTEM_VALUE}
    * <LI>{@link #PRINTER_DEVICE_NAME_WORK_STATION PRINTER_DEVICE_NAME_WORK_STATION}
+   * <LI>{@link #PRINTER_DEVICE_NAME_INITIAL_USER PRINTER_DEVICE_NAME_INITIAL_USER}
    * </UL>
    * <P>Type: String
    * @see #getPrinterDeviceName
@@ -2567,6 +2568,13 @@ implements Serializable
    * @see #PRINTER_DEVICE_NAME
   **/
   public static final String PRINTER_DEVICE_NAME_WORK_STATION = "*WRKSTN";
+
+  /**
+   * Constant indicating that the printer device name specified in the user profile under
+   * which this thread was initially running is used.
+   * @see #PRINTER_DEVICE_NAME
+  **/
+  public static final String PRINTER_DEVICE_NAME_INITIAL_USER = "*USRPRF";
 
   /**
    * Job attribute representing the libraries that contain product information
@@ -3513,7 +3521,7 @@ implements Serializable
    * @see #hold
    * @see #release
   **/
-  public void end(int delay) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+  public void end(int delay) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, UnsupportedEncodingException
   {
     if (delay < -1)
     {
@@ -3590,7 +3598,18 @@ implements Serializable
         date = dateTime.getTime();
         break;
       default :
-        date = new Date(str);
+        try
+        {
+          date = DateFormat.getInstance().parse(str);
+        }
+        catch(ParseException pe)
+        {
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.ERROR, "Could not parse date string '"+str+"' for key "+key+":", pe);
+            date = null;
+          }
+        }
         break;
     }
     return date;
@@ -4830,7 +4849,7 @@ Returns the status of the job on the job queue.
         <li>{@link #JOB_QUEUE_STATUS_BLANK JOB_QUEUE_STATUS_BLANK }  - The job is not on a job queue.
         <li>{@link #JOB_QUEUE_STATUS_SCHEDULED JOB_QUEUE_STATUS_SCHEDULED }  - The job will run as scheduled.
         <li>{@link #JOB_QUEUE_STATUS_HELD JOB_QUEUE_STATUS_HELD }  - The job is being held on the job queue.
-        <li>{@link #JOB_QUEUE_STATUS_RELEASED JOB_QUEUE_STATUS_RELEASED }  - The job is ready to be selected.
+        <li>{@link #JOB_QUEUE_STATUS_READY JOB_QUEUE_STATUS_READY }  - The job is ready to be selected.
         </ul>
 
 @exception AS400Exception                  If the AS/400 system returns an error message.
@@ -6814,7 +6833,6 @@ of work identifier.
     //setValueInternal(key, val.toString());
 
     String dateString = null;
-    SimpleDateFormat dateFormat;
     Calendar dateTime = Calendar.getInstance();
     dateTime.setTime(val);
 
@@ -7073,7 +7091,7 @@ Sets the country ID.
                     <ul>
                     <li>{@link #COUNTRY_ID_SYSTEM_VALUE COUNTRY_ID_SYSTEM_VALUE }  - The
                         system value QCNTRYID is used.
-                    <li>{@link #COUNTRY_ID_USER_PROFILE COUNTRY_ID_USER_PROFILE }  - The
+                    <li>{@link #COUNTRY_ID_INITIAL_USER COUNTRY_ID_INITIAL_USER }  - The
                         country ID specified in the user profile under which this thread
                         was initially running is used.
                     </ul>

@@ -38,6 +38,22 @@ public class JobList implements Serializable
 
   static final long serialVersionUID = 5L;
 
+  /**
+   * Constant indicating that all the jobs are returned.
+   * @deprecated Use the selection constant that corresponds to the
+   * particular job selection criteria you are filtering.
+   * For example, to select jobs for all job names, do:
+   * <CODE>
+   * JobList list = new JobList(system);
+   * list.addJobSelectionCriteria(JobList.SELECTION_JOB_NAME, JobList.SELECTION_JOB_NAME_ALL);
+   * </CODE>
+   * For backwards compatibility, this has the same effect:
+   * <CODE>
+   * JobList list = new JobList(system);
+   * list.setName(JobList.SELECTION_JOB_NAME_ALL);
+   * </CODE>
+  **/
+  public static final String ALL = "*ALL";
   
   /**
    * Selection type used for job selection based on job name.
@@ -193,10 +209,10 @@ public class JobList implements Serializable
    * Selection type used for job selection based on active job status.
    * Multiple selection values are allowed for this selection type.
    * The selection value corresponding to this selection type is a String.
-   * See {@link com.ibm.a400.access.Job#ACTIVE_JOB_STATUS Job.ACTIVE_JOB_STATUS} for allowed values.
+   * See {@link com.ibm.as400.access.Job#ACTIVE_JOB_STATUS Job.ACTIVE_JOB_STATUS} for allowed values.
    * By default no selection values are specified for this selection type.
-   * This value is only used when the value for PRIMARY_JOB_STATUS_ACTIVE is true.
-   * @see #PRIMARY_JOB_STATUS_ACTIVE
+   * This value is only used when the value for SELECTION_PRIMARY_JOB_STATUS_ACTIVE is true.
+   * @see #SELECTION_PRIMARY_JOB_STATUS_ACTIVE
    * @see com.ibm.as400.access.Job#ACTIVE_JOB_STATUS
   **/
   public static final int SELECTION_ACTIVE_JOB_STATUS =             8;
@@ -206,8 +222,8 @@ public class JobList implements Serializable
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a Boolean.
    * The default is true.
-   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
-   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * This value is only used when the value for SELECTION_PRIMARY_JOB_STATUS_JOBQ is true.
+   * @see #SELECTION_PRIMARY_JOB_STATUS_JOBQ
    * @see com.ibm.as400.access.Job#JOB_QUEUE_STATUS
   **/
   public static final int SELECTION_JOB_QUEUE_STATUS_SCHEDULE =    9;
@@ -217,8 +233,8 @@ public class JobList implements Serializable
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a Boolean.
    * The default is true.
-   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
-   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * This value is only used when the value for SELECTION_PRIMARY_JOB_STATUS_JOBQ is true.
+   * @see #SELECTION_PRIMARY_JOB_STATUS_JOBQ
    * @see com.ibm.as400.access.Job#JOB_QUEUE_STATUS
   **/
   public static final int SELECTION_JOB_QUEUE_STATUS_HELD =        10;
@@ -228,8 +244,8 @@ public class JobList implements Serializable
    * Only one selection value is allowed for this selection type.
    * The selection value corresponding to this selection type is a Boolean.
    * The default is true.
-   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
-   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * This value is only used when the value for SELECTION_PRIMARY_JOB_STATUS_JOBQ is true.
+   * @see #SELECTION_PRIMARY_JOB_STATUS_JOBQ
    * @see com.ibm.as400.access.Job#JOB_QUEUE_STATUS
   **/
   public static final int SELECTION_JOB_QUEUE_STATUS_READY =       11;
@@ -240,8 +256,8 @@ public class JobList implements Serializable
    * The selection value corresponding to this selection type is a String
    * representing the fully-qualified integrated file system name for an OS/400 job queue.
    * By default no selection values are specified for this selection type.
-   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
-   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * This value is only used when the value for SELECTION_PRIMARY_JOB_STATUS_JOBQ is true.
+   * @see #SELECTION_PRIMARY_JOB_STATUS_JOBQ
    * @see com.ibm.as400.access.QSYSObjectPathName
    * @see com.ibm.as400.access.Job#JOB_QUEUE
   **/
@@ -321,6 +337,34 @@ public class JobList implements Serializable
   **/
   public static final int SELECTION_JOB_TYPE_ENHANCED =            17;
 
+  /**
+   * Selection value indicating all the batch job types will be selected.
+   * @see #SELECTION_JOB_TYPE_ENHANCED
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_IMMEDIATE
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_MRT
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER
+  **/
+  public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH = new Integer(200);
+
+  /**
+   * Selection value indicating all the interactive job types will be selected.
+   * @see #SELECTION_JOB_TYPE_ENHANCED
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_GROUP
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP
+  **/
+  public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE = new Integer(900);
+
+  /**
+   * Selection value indicating all the prestart job types will be selected.
+   * @see #SELECTION_JOB_TYPE_ENHANCED
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_BATCH
+   * @see com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_COMM
+  **/
+  public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART = new Integer(1600);
 
 
   private AS400 system_;
@@ -1582,10 +1626,11 @@ Removes a VetoableChangeListener.
 
 /**
 Sets the job name that describes which jobs are returned.
-The default is ALL.  This takes effect the next time the
+The default is SELECTION_JOB_NAME_ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
-@param name The job name, or {@link #ALL ALL} for all job names.
+@param name The job name, or {@link #SELECTION_JOB_NAME_ALL SELECTION_JOB_NAME_ALL} for all job names.
 @exception PropertyVetoException If the change is vetoed.
+@see #addJobSelectionCriteria
 @see #getName
 **/
   public void setName(String name) throws PropertyVetoException
@@ -1614,10 +1659,11 @@ list of jobs is retrieved or refreshed.
 
 /**
 Sets the job number that describes which jobs are returned.
-The default is ALL.  This takes effect the next time the
+The default is SELECTION_JOB_NUMBER_ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
-@param number The job number, or {@link #ALL ALL} for all job numbers.
+@param number The job number, or {@link #SELECTION_JOB_NUMBER_ALL SELECTION_JOB_NUMBER_ALL} for all job numbers.
 @exception PropertyVetoException If the change is vetoed.
+@see #addJobSelectionCriteria
 @see #getNumber
 **/
   public void setNumber(String number) throws PropertyVetoException
@@ -1678,10 +1724,11 @@ has established a connection to the server.
 
 /**
 Sets the user name value that describes which jobs are returned.
-The default is ALL.  This takes effect the next time the
+The default is SELECTION_USER_NAME_ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
-@param user The user name, or {@link #ALL ALL} for all user names.
+@param user The user name, or {@link #SELECTION_USER_NAME_ALL SELECTION_USER_NAME_ALL} for all user names.
 @exception PropertyVetoException If the change is vetoed.
+@see #addJobSelectionCriteria
 @see #getUser
 **/
   public void setUser(String user) throws PropertyVetoException
