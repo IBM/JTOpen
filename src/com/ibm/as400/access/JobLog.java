@@ -345,7 +345,7 @@ oldest to newest.
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
     ProgramParameter[] parms2 = new ProgramParameter[7];
-    int len = 400*number;
+    int len = 700*number;
     parms2[0] = new ProgramParameter(len); // receiver variable
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
@@ -355,9 +355,26 @@ oldest to newest.
     parms2[6] = errorCode_;
 
     ProgramCall pc2 = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parms2);
-    if (!pc2.run())
+    boolean success = pc2.run();
+    AS400Message[] msgs = pc2.getMessageList();
+    while (!success && msgs != null && msgs.length == 1 && msgs[0].getID().equalsIgnoreCase("GUI0002"))
     {
-      throw new AS400Exception(pc2.getMessageList());
+      len = len*2;
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling JobLog QGYGTLE again after GUI0002 with an updated length of "+len+".");
+      try
+      {
+        parms2[0].setOutputDataLength(len);
+        parms2[1].setInputData(BinaryConverter.intToByteArray(len));
+      }
+      catch (PropertyVetoException pve)
+      {
+      }
+      success = pc2.run();
+      msgs = pc2.getMessageList();
+    }
+    if (!success)
+    {
+      throw new AS400Exception(msgs);
     }
 
     byte[] listInfo = parms2[3].getOutputData();
