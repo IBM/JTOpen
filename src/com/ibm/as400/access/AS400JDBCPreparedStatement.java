@@ -916,7 +916,11 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
           numSuccessful = batchSize;
           for (int i=0; i<batchSize; ++i)
           {
-            updateCounts[i] = 1; //@CRS - Does the host server tell us how many rows were affected for each statement in the batch?
+            // The host server does not currently report the update counts for each statement in
+            // the batch.  We use -2 here because that is the constant for Statement.SUCCESS_NO_INFO
+            // as of JDBC 3.0 and JDK 1.4. When we change to build against JDK 1.4 instead of 1.3,
+            // we can change this to use the actual constant.
+            updateCounts[i] = -2;
           }
         }
         else
