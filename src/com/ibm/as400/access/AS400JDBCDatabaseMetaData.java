@@ -4030,6 +4030,16 @@ implements DatabaseMetaData
                 //  '0007'x = tables and views
                 //  '0008'x = tables and system tables
                 //  '0009'x = views and system tables
+                //  '000A'x = alias files                                       //@K1A
+                //  '000B'x = tables and materialized query tables              //@K1A
+                //  '000C'x = views and materialized query tables               //@K1A
+                //  '000D'x = system tables and materialized query tables       //@K1A
+                //  '000E'x = tables, views, and materialized query tables      //@K1A
+                //  '000F'x = tables, system tables, and materialized query tables  //@K1A
+                //  '0010'x = views, system tables, and materizlized query tables   //@K1A
+                //  '0011'x = materialized query tables                             //@K1A
+                //
+                //   Options '000B'x - '0011'x are for V5R3 or higher systems
                 //
                 // If null is specified, file attributes is set to 1.
                 //
@@ -4043,6 +4053,7 @@ implements DatabaseMetaData
                     boolean typeTable       = false;  // false = don't include table type
                     boolean typeView        = false;
                     boolean typeSystemTable = false;
+                    boolean typeMQTable     = false;  //@K1A
 
                     // Walk thru table types to determine which ones we need to include
                     for (int i = 0; i < tableTypes.length; ++i)
@@ -4053,6 +4064,8 @@ implements DatabaseMetaData
                             typeView = true;  // Include views
                         else if (tableTypes[i].equalsIgnoreCase ("SYSTEM TABLE"))
                             typeSystemTable = true;  // Include system tables
+                        else if (tableTypes[i].equalsIgnoreCase ("MATERIALIZED QUERY TABLE") && connection_.getVRM() >= JDUtilities.vrm530)   //@K1A
+                            typeMQTable = true;                                                 //@K1A
                     }   // end of for loop
 
 
@@ -4062,17 +4075,39 @@ implements DatabaseMetaData
                         {
                             if (typeSystemTable)
                                 fileAttribute = 1;  // All
+                            else if(typeMQTable)                                    //@K1A
+                                fileAttribute = 14; //tables, views, and MQT's      //@K1A
                             else
                                 fileAttribute = 7;  // Tables and views
                         }
-                        else
-                        {             // Not views
-                            if (typeSystemTable)
+                        else if(typeSystemTable)                                    //@K1A   Not Views
+                        {                                                           //@K1A
+                            if(typeMQTable)                                         //@K1A
+                                fileAttribute = 15;                                 //@K1A
+                            else                                                    //@K1A  
                                 fileAttribute = 8;  // Tables and system tables
-                            else
-                                fileAttribute = 4;  // Tables
-                        }
+                        }                                                           //@K1A
+                        else if(typeMQTable)                                        //@K1A  Not Views and not system tables
+                        {                                                           //@K1A
+                            fileAttribute = 11;                                     //@K1A
+                        }                                                           //@K1A
+                        else
+                            fileAttribute = 4;  // Tables
                     }   // end of if typeTable
+                    else if(typeMQTable)                //@K1A
+                    {                                   //@K1A
+                        if(typeView)                    //@K1A
+                        {                               //@K1A
+                            if(typeSystemTable)         //@K1A
+                                fileAttribute = 16;     //views, system tables, and MQT's   //@K1A
+                            else                                                            //@K1A
+                                fileAttribute = 12;     //views and MQT's                   //@K1A
+                        }                                                                   //@K1A
+                        else if(typeSystemTable)                                            //@K1A
+                            fileAttribute = 13;         //system tables and MQT's           //@K1A
+                        else                                                                //@K1A
+                            fileAttribute = 17;         //MQT's                             //@K1A
+                    }                                                                       //@K1A
                     else
                     {           // Not tables
                         if (typeView)
@@ -4309,15 +4344,32 @@ implements DatabaseMetaData
         SQLData[] sqlData = { new SQLVarchar (128, settings_)};
         int[] fieldNullables = {columnNoNulls}; // table types can not be null
 
-        Object[][] data = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
-            { JDTableTypeFieldMap.TABLE_TYPE_VIEW},
-            { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE}};
+        if(connection_.getVRM() < JDUtilities.vrm530)
+        {
+            Object[][] data = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
+                { JDTableTypeFieldMap.TABLE_TYPE_VIEW},
+                { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE}};        
 
-        JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
-        JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
+            JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
+            JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
 
-        return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
-                                       "Table Types");
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
+                                           "Table Types");
+        }
+        else
+        {
+            Object[][] data = { { JDTableTypeFieldMap.TABLE_TYPE_TABLE},
+                { JDTableTypeFieldMap.TABLE_TYPE_VIEW},
+                { JDTableTypeFieldMap.TABLE_TYPE_SYSTEM_TABLE},
+                { JDTableTypeFieldMap.TABLE_TYPE_MATERIALIZED_QUERY_TABLE}};        //@K1A
+
+            JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
+            JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);
+
+            return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
+                                           "Table Types");
+        }
+        
     }
 
 

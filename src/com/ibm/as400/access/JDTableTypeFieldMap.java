@@ -33,6 +33,7 @@ implements JDFieldMap
     static final String TABLE_TYPE_SYSTEM_TABLE  = "SYSTEM TABLE";
     static final String TABLE_TYPE_TABLE         = "TABLE";
     static final String TABLE_TYPE_VIEW          = "VIEW";
+    static final String TABLE_TYPE_MATERIALIZED_QUERY_TABLE = "MATERIALIZED QUERY TABLE";       //@K1A
 
 
     JDTableTypeFieldMap (int fromIndex)
@@ -61,6 +62,9 @@ implements JDFieldMap
                     return TABLE_TYPE_VIEW;
                 case 'S':
                     return TABLE_TYPE_SYSTEM_TABLE;
+                case 'M':                                           //@K1A
+                    return TABLE_TYPE_MATERIALIZED_QUERY_TABLE;     //@K1A
+
             }
         }
         else
