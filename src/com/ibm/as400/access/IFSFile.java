@@ -75,6 +75,8 @@ import java.util.Vector;
   * </pre>
   * </UL>
   *
+  *<P>Note: Because of a host server restriction, you cannot access files in QTEMP.LIB.
+  *
   * @see com.ibm.as400.access.FileEvent
   * @see #addFileListener(com.ibm.as400.access.FileListener)
   * @see #removeFileListener(com.ibm.as400.access.FileListener)
