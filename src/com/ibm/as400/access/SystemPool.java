@@ -133,9 +133,7 @@ public class SystemPool
      /**
       * Constructs a SystemPool object, to represent a subsystem (private) pool.
       *
-      * @param system The system.
-      * @param subsystemLibrary The name of the library where the subsystem resides.
-      * @param subsystemName The name of the subsystem that "owns" the pool.
+      * @param subsystem The subsystem that "owns" the pool.
       * @param sequenceNumber The ID number of the pool (a value from 1 to 10).
       * @param size The size of the system pool, in kilobytes.
       * @param activityLevel The activity level of the pool.
