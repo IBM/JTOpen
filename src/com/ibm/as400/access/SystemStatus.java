@@ -827,7 +827,7 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
     /**
      * Returns the number of system pools.
      *
-     * @return The number of the system pools.
+     * @return The number of system pools.
      * @exception AS400SecurityException If a security or authority error
      *            occurs.
      * @exception ErrorCompletingRequestException If an error occurs before
@@ -858,6 +858,50 @@ public class SystemStatus implements Serializable //@B0C - made Serializable
       Record rec = (Record)formatToRecordMap_.get(format0300_);
       return ((Integer)rec.getField("numberOfPools")).intValue();
     }    
+
+    /**
+     * Returns the processor sharing attribute.  This attribute indicates whether this partition is sharing processors. The following values are returned:
+     * <ul>
+     * <li>0: Partition does not share processors.
+     * <li>1: Partition shares processors (capped). The partition is limited to using its configured capacity.
+     * <li>2: Partition shares processors (uncapped). The partition can use more than its configured capacity.
+     * <ul>
+     *
+     * @return The processor sharing attribute.
+     * @exception AS400SecurityException If a security or authority error
+     *            occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before
+     *            the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with
+     *            the server.
+     * @exception ObjectDoesNotExistException If the server object does not
+     *            exist.
+     * @exception UnsupportedEncodingException If the character encoding is
+     *            not supported.
+    **/
+    public int getProcessorSharingAttribute()
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException,
+               UnsupportedEncodingException
+    {
+      String str = ((String)get("processorSharingAttribute")).trim();
+      try
+      {
+        return Integer.parseInt(str);
+      }
+      catch (NumberFormatException e)
+      {
+        Trace.log(Trace.ERROR, "Error parsing system status 'processor sharing attribute' string: '"+str+"'", e);
+        throw e;
+      }
+    }    
+
+
+
 
     /** 
      * Returns the value indicating whether the system is in restricted state.
