@@ -988,32 +988,21 @@ class DDMRequestDataStream extends DDMDataStream
               conv = ConverterImplRemote.getConverter(system.getCcsid(), system);
             }
             
+            // Note: We always write the entire field out to its full length, even if
+            // it is variable length. If it is variable length, it is marked as such and
+            // the database reads the 2-byte length and will ignore the remaining padding
+            // characters in the datastream, but nevertheless, they need to be there in
+            // order for subsequent key fields in the datastream to work.
+            text.setConverter(conv); // Set the converter into the AS400Text object (side effect of proxification)
+            fieldAsBytes = text.toBytes(toWrite); // Convert the Java String to AS/400 EBCDIC bytes using AS400Text, which will blank pad to the length of the field for us.
+
             if (varLength) // If we are variable length, need to write the 2-byte length header
             {
-              fieldAsBytes = conv.stringToByteArray(toWrite); // Convert the Java String to AS/400 EBCDIC bytes
-              if (fieldLength < fieldAsBytes.length) // If the converted data is too big to fit into the size specified by the AS400Text object
-              {
-                if (Trace.isTraceOn())
-                {
-                  Trace.log(Trace.ERROR, "DDM: Cannot convert value under CCSID ("+system.getCcsid()+"):\n" +
-                                         "     Specified field length ("+fieldLength+") not large enough for converted key: '"+toWrite+"'", fieldAsBytes);
-                }
-                throw new ExtendedIOException(toWrite, ExtendedIOException.CANNOT_CONVERT_VALUE);
-              }
               BinaryConverter.shortToByteArray((short)fieldAsBytes.length, lengthBytes, 0); // The length in bytes of the unpadded converted data
               keyAsBytes.write(lengthBytes, 0, lengthBytes.length); // Write the length
-            }
-            else
-            {
-              // If we are not variable length, we don't need to write the 2-byte length header.
-              // Instead, we need to write the entire String out into the data stream, to its full length...
-              // AS400Text will pad it for us.
-              text.setConverter(conv); // Set the converter into the AS400Text object (side effect of proxification)
-              fieldAsBytes = text.toBytes(toWrite); // Convert the data again using the AS400Text object, which will pad it.
-            }
-            
+            } // If we are not variable length, we don't need to write the 2-byte length header.
+
             keyAsBytes.write(fieldAsBytes, 0, fieldAsBytes.length); // Write the entire field out to the data stream
-                        
 
           }
         }
