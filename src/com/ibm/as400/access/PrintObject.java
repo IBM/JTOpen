@@ -170,7 +170,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY23">Date file opened (created)</A>. **/
     public static final int ATTR_DATE         = 0x0022;  // AT_DATE
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY202"> </A>. **/
-           static final int ATTR_DATE_END     = 0x00FD;  // 
+    public static final int ATTR_DATE_END     = 0x00FD;  // 
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY216">Date file last used</A>. **/
     public static final int ATTR_DATE_USED    = 0x010D;  // AT_DATE_FILE_USED
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY178">Date writer began processing spooled file</A>. **/
@@ -564,7 +564,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY114">Time file opened (created)</A>. **/
     public static final int ATTR_TIME         = 0x006E;  // time spooled file was opened (created)
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY204"> </A>. **/
-           static final int ATTR_TIME_END     = 0x00FE;  
+    public static final int ATTR_TIME_END     = 0x00FE;  
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY189">Time writer began procesing spooled file</A>. **/   /* @A7A*/
     public static final int ATTR_TIME_WTR_BEGAN_FILE = 0x00EC;  // time writer began file @A7A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY190">Time writer completed processing spooled file</A>. **/   /* @A7A*/
