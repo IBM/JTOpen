@@ -92,6 +92,7 @@ class JDSQLStatement
 
 
 
+    private boolean         canBeBatched_               = false;    // @H2A
     private String          correlationName_            = null;
     private String          csProcedure_                = null;     // @G4A
     private String          csSchema_                   = null;     // @G4A
@@ -104,7 +105,7 @@ class JDSQLStatement
     private boolean         isForFetchOrReadOnly_       = false;
     private boolean         isForUpdate_                = false;
     private boolean         isImmediatelyExecutable_    = false;
-    private boolean         isInsert_                   = false;
+            boolean         isInsert_                   = false;    // @H2C Made not private.
     private boolean         isSelect_                   = false;
     private boolean         isSet_                      = false;    // @F4A
     private boolean         isSubSelect_                = false;
@@ -215,7 +216,7 @@ class JDSQLStatement
 
         // Perf Note: numberOfParameters_ will default to 0.  Don't set it here.
 
-        boolean inComment = false;
+//@G8D        boolean inComment = false;
 
         //@G7 Skip removing comments if it is a CREATE statement smaller than 32KB
         //@G7 (Greater than 32KB would overflow the buffer, so we have to remove
@@ -288,47 +289,58 @@ class JDSQLStatement
                         // It is a multi-line commment - write over the '/*' characters
                         // and set the inComment flag.
                         outArray[++out] = ' ';
-                        inComment = true;
+//@G8D                            inComment = true;
+                            int numComments = 1; //@G8A - keep track of the nesting level
 
-                        // While we are not at the end....
-                        while (i < length - 1) {
-                            // if the next character is a '*' and there is at least one 
-                            // character left after that, and that character is a '/' (don't 
-                            // consume it immediately, we are ready to end the comment.
-                            if ((sqlArray[++i] == '*') && (i < length - 1) && (sqlArray[i + 1] == '/')) {
-                                inComment = false;
-                                // You still have to eat the character that you looked ahead to.
-                                ++i;
-                                break;
+                            //@G8C
+                            // Need to handle nested comments.
+                            // If we see a */, we've closed a comment block.
+                            // If we see another /*, we've started a new block.
+                            while (i < length - 1 && numComments > 0) //@G8C
+                            {
+                                char cur = sqlArray[++i]; //@G8A
+                                if (i < length-1)
+                                {
+                                  char next = sqlArray[i+1];
+                                  if (cur == '*' && next == '/')
+                                  {
+                                    --numComments;
+                                    ++i;
+                                  }
+                                  else if (cur == '/' && next == '*')
+                                  {
+                                    ++numComments;
+                                    ++i;
+                                  }
+                                }
                             }
+                        }
+                        else {
+                            // This was not a comment.  Output the characters we read.
+                            outArray[++out] = sqlArray[i-1];
+                            outArray[++out] = sqlArray[i];
                         }
                     }
                     else {
-                        // This was not a comment.  Output the characters we read.
-                        outArray[++out] = sqlArray[i-1];
+                        // Last character - must write the '/'
                         outArray[++out] = sqlArray[i];
                     }
-                }
-                else {
-                    // Last character - must write the '/'
+                    break;
+                case '?':
+                    // Write the character.
                     outArray[++out] = sqlArray[i];
+                    ++numberOfParameters_;
+                    break;
+                default: 
+                    // Write the character.
+                    outArray[++out] = sqlArray[i];
+                    break;
                 }
-                break;
-            case '?':
-                // Write the character.
-                outArray[++out] = sqlArray[i];
-                ++numberOfParameters_;
-                break;
-            default: 
-                // Write the character.
-                outArray[++out] = sqlArray[i];
-                break;
             }
-        }
 
-        // Now turn it back into a String for processing.
-        sql = new String(outArray, 0, ++out);
-        //@F6A end new code
+            // Now turn it back into a String for processing.
+            sql = new String(outArray, 0, ++out);
+            //@F6A end new code
         } //@G7A
 
         // If we want to process escape syntax, then treat the
@@ -464,9 +476,9 @@ class JDSQLStatement
             // Look for the string ROWS VALUES in the string.
             String upperCaseSql = value_.toUpperCase();
             int k = upperCaseSql.indexOf(ROWS_);
+            int len = upperCaseSql.length(); //@F2A @H2M
             if (k != -1)
             {
-                int len = upperCaseSql.length(); //@F2A
                 k += 4;
                 while (k < len && Character.isWhitespace(upperCaseSql.charAt(k))) //@F2C
                 {
@@ -476,6 +488,27 @@ class JDSQLStatement
                 {
                     nativeType_ = TYPE_BLOCK_INSERT;
                 }
+            }
+
+            //@H2A Look for VALUES clause to determine whether this statement can be block inserted.
+            //@H2A The server will throw out block insert statements that have values other than
+            //@H2A parameter markers, like "INSERT INTO TABLE VALUES (NULL, ?)".
+            int l = upperCaseSql.indexOf(VALUES_);                                        //@H2A
+            if (l != -1 )                                                                 //@H2A
+            {                                                                             //@H2A
+                l += 6;                                                                   //@H2A
+                while (l < len && Character.isWhitespace(upperCaseSql.charAt(l)))         //@H2A
+                {                                                                         //@H2A
+                    ++l;                                                                  //@H2A
+                }                                                                         //@H2A
+                                                                                          //@H2A
+                int lastParen = upperCaseSql.lastIndexOf(")");                            //@H2A
+                String valuesString = upperCaseSql.substring(l+1, lastParen);             //@H2A
+                StringTokenizer tokenizer = new StringTokenizer (valuesString, ", ?");    //@H2A
+                if (!tokenizer.hasMoreTokens())                                           //@H2A
+                {                                                                         //@H2A
+                    canBeBatched_ = true;                                                 //@H2A
+                }                                                                         //@H2A
             }
         }
         else if ((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
@@ -562,7 +595,7 @@ class JDSQLStatement
                 if (tokenizer_.hasMoreTokens())
                 {
                     token = tokenizer_.nextToken(); //@F3C
-                    
+
                     if (!token.startsWith(LPAREN_))
                     {
                        // The "@G6A" code is trying to fix our parsing of the 
@@ -692,6 +725,19 @@ class JDSQLStatement
         value_ = value_.trim();                                                         // @E1A
     }
 
+
+
+    //@H2A
+    /**
+    Indicates if the statement can be batched.
+    
+    @return     true if the statement can be batched;
+                false otherwise.
+    **/
+    boolean canBatch()
+    {
+        return canBeBatched_;
+    }
 
 
     /**
