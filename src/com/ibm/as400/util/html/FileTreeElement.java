@@ -146,7 +146,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
 
    /**
-    *  Constructs an FileTreeElement with the specified <i>file</i>.
+    *  Constructs a FileTreeElement with the specified <i>file</i>.
     *
     *  @param file The file.
     **/
@@ -262,9 +262,8 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
    public boolean isLeaf()
    {
       // We don't want the user to have to add the path and list properties to
-      // the TextUrl for the parent elements in the tree.  So this is the
-      // First
-      if (getTextUrl() != null && getTextUrl().getProperties() == null)
+      // the TextUrl for the parent elements in the tree.  
+      if (getTextUrl() != null /*&& getTextUrl().getProperties() == null*/)     // @B2C
          addProperties();
 
       if (!populated_)
