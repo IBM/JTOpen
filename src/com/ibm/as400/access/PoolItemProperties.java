@@ -116,14 +116,15 @@ class PoolItemProperties
    void setInUse(boolean inUse)
    {
       if (inUse)
-		{
-			lastUseTime_ = System.currentTimeMillis();         // set the active start time.
-			timesUsedCount_++;
-		}
-		else
-		{
+            {
+            timeIdleInPool_ = 0;                      //@B1A // reset the idle timer  
+            lastUseTime_ = System.currentTimeMillis();         // set the active start time.
+            timesUsedCount_++;
+            }
+        else
+            {
          timeIdleInPool_ = System.currentTimeMillis();      // start the idle timer.
-			lastUseTime_ = 0;                                  // no longer being used.
-		}
-   }
-}
+            lastUseTime_ = 0;                                  // no longer being used.
+            }
+    }
+    }

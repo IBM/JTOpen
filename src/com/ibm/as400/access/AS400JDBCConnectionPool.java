@@ -141,8 +141,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
               Trace.log(Trace.INFORMATION, poolConnection.toString());
 
             if ((!poolConnection.isInUse() && getMaxLifetime() !=-1 && poolConnection.getLifeSpan() > getMaxLifetime()) ||   //@B1C       // inactive connections only.
-                (getMaxInactivity() !=-1 && poolConnection.getInactivityTime() > getMaxInactivity()))  //@B1C
-            {
+                            (!poolConnection.isInUse() && getMaxInactivity() !=-1 && poolConnection.getInactivityTime() > getMaxInactivity()))  //@B1C //@B3C
+                            {
               if (trace)
                 Trace.log(Trace.INFORMATION, "Removing expired connection from the pool.");
 
@@ -423,11 +423,13 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   public Connection getConnection() throws ConnectionPoolException
   {
     AS400JDBCPooledConnection pooledConnection = null;
-    if (availablePool_.isEmpty())
-      fill(1);                         // Add a new connection.
 
     synchronized (availablePool_)
     {
+            //@B2M Moved following two lines into the synchronization block.
+            if (availablePool_.isEmpty())                                    //@B2M
+                fill(1);                         // Add a new connection.    //@B2M
+
       pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
 
       // Remove the pooled connection from the available list.
@@ -480,11 +482,13 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   AS400JDBCPooledConnection getPooledConnection() throws ConnectionPoolException
   {
     AS400JDBCPooledConnection pooledConnection = null;
-    if (availablePool_.isEmpty())
-      fill(1);                         // Add a new connection.
 
     synchronized (availablePool_)
     {
+            //@B2M Moved following two lines into the synchronization block.
+            if (availablePool_.isEmpty())                                    //@B2M
+                fill(1);                         // Add a new connection.    //@B2M
+
       pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
 
       // Remove the pooled connection from the available list.
