@@ -290,7 +290,7 @@ implements SQLData
     {
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(toString()));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -304,7 +304,7 @@ implements SQLData
     {
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_.trim()));
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(toString().trim()));
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())
@@ -331,7 +331,7 @@ implements SQLData
     public InputStream toBinaryStream()
     throws SQLException
     {
-        return new HexReaderInputStream(new StringReader(value_));
+        return new HexReaderInputStream(new StringReader(toString()));
     }
 
     public Blob toBlob()
@@ -339,7 +339,7 @@ implements SQLData
     {
         try
         {
-            return new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
+            return new AS400JDBCBlob(BinaryConverter.stringToBytes(toString()), maxLength_);
         }
         catch(NumberFormatException nfe)
         {
@@ -357,7 +357,7 @@ implements SQLData
         // If value equals "true", "false", "1", or "0", then return the
         // corresponding boolean, otherwise an empty string is
         // false, a non-empty string is true.
-        String trimmedValue = value_.trim();        
+        String trimmedValue = toString().trim();        
         return((trimmedValue.length() > 0) 
                && (! trimmedValue.equalsIgnoreCase("false"))
                && (! trimmedValue.equals("0")));
@@ -370,7 +370,7 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).byteValue();
+            return(new Double(toString().trim())).byteValue();
         }
         catch(NumberFormatException e)
         {
@@ -384,7 +384,7 @@ implements SQLData
     {
         try
         {
-            return BinaryConverter.stringToBytes(value_);
+            return BinaryConverter.stringToBytes(toString());
         }
         catch(NumberFormatException nfe)
         {
@@ -414,7 +414,7 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        return SQLDate.stringToDate(value_, settings_, calendar);
+        return SQLDate.stringToDate(toString(), settings_, calendar);
     }
 
     public double toDouble()
@@ -424,7 +424,7 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).doubleValue();
+            return(new Double(toString().trim())).doubleValue();
         }
         catch(NumberFormatException e)
         {
@@ -440,7 +440,7 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).floatValue();
+            return(new Double(toString().trim())).floatValue();
         }
         catch(NumberFormatException e)
         {
@@ -456,7 +456,7 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).intValue();
+            return(new Double(toString().trim())).intValue();
         }
         catch(NumberFormatException e)
         {
@@ -472,7 +472,7 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).longValue();
+            return(new Double(toString().trim())).longValue();
         }
         catch(NumberFormatException e)
         {
@@ -495,7 +495,7 @@ implements SQLData
 
         try
         {
-            return(new Double(value_.trim())).shortValue();
+            return(new Double(toString().trim())).shortValue();
         }
         catch(NumberFormatException e)
         {
@@ -523,14 +523,14 @@ implements SQLData
     throws SQLException
     {
         truncated_ = 0;
-        return SQLTime.stringToTime(value_, settings_, calendar);
+        return SQLTime.stringToTime(toString(), settings_, calendar);
     }
 
     public Timestamp toTimestamp(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
-        return SQLTimestamp.stringToTimestamp(value_, calendar);
+        return SQLTimestamp.stringToTimestamp(toString(), calendar);
     }
 
     public InputStream toUnicodeStream()
@@ -538,7 +538,7 @@ implements SQLData
     {
         try
         {
-            return new ReaderInputStream(new StringReader(value_), 13488);
+            return new ReaderInputStream(new StringReader(toString()), 13488);
         }
         catch(UnsupportedEncodingException e)
         {
