@@ -21,10 +21,6 @@ import java.io.*;
  * This class provides access to the specified printer's attributes via
  * the QGYRPRTA system API.
  * <P>
- * To determine a list of printer device descriptions on the iSeries system,
- * use the {@link com.ibm.as400.access.config.ConfigurationDescriptionList
- * ConfigurationDescriptionList} class.
- * <P>
  * This class uses the remote command host server to obtain printer information.
  * Use the {@link com.ibm.as400.access.Printer Printer} class to retrieve
  * similer information using the network print host server.
@@ -40,9 +36,18 @@ import java.io.*;
  * }
  * </PRE>
  * @see com.ibm.as400.access.Printer
+**/
+/* TBD: Add the following javadoc when ConfigurationDescriptionList class is created:
+ * <P>
+ * To determine a list of printer device descriptions on the iSeries system,
+ * use the {@link com.ibm.as400.access.config.ConfigurationDescriptionList
+ * ConfigurationDescriptionList} class.
+*/
+/* TBD: Add the following javadoc when config classes are created:
  * @see com.ibm.as400.access.config.ConfigurationDescriptionList
  * @see com.ibm.as400.access.config.PrinterDeviceDescription
-**/
+*/
+
 public class ISeriesPrinter implements Serializable
 {
   static final long serialVersionUID = -609299009457592116L;
@@ -900,8 +905,10 @@ public class ISeriesPrinter implements Serializable
    * </UL>
    * @return The separator drawer.
    * @see #getSeparatorDrawer
-   * @see com.ibm.as400.access.config.PrinterDeviceDescription
   **/
+/* TBD: Add when PrinterDeviceDescription class is created:
+   * @see com.ibm.as400.access.config.PrinterDeviceDescription
+*/
   public int getPendingSeparatorDrawer() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     if (!refreshed_) refresh();
@@ -936,8 +943,10 @@ public class ISeriesPrinter implements Serializable
    * <LI>-2 - Separator pages print from the separator drawer specified in the printer device description.
    * </UL>
    * @return The separator drawer.
-   * @see com.ibm.as400.access.config.PrinterDeviceDescription
   **/
+/* TBD: Add when PrinterDeviceDescription class is added:
+   * @see com.ibm.as400.access.config.PrinterDeviceDescription
+*/
   public int getSeparatorDrawer() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     if (!refreshed_) refresh();
