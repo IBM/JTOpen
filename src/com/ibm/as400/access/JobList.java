@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 
 /**
@@ -419,7 +420,7 @@ public class JobList implements Serializable
   private int[] sortKeys_ = new int[1];
   private boolean[] sortOrders_ = new boolean[1];
   
-  
+  private Vector trackers_; // Used to determine if there are open Enumerations still using us.
 
   /**
    * Constructs a JobList object. The system must be set before retrieving the list of jobs.
@@ -908,6 +909,19 @@ public class JobList implements Serializable
     if (Trace.traceOn_)
     {
       Trace.log(Trace.DIAGNOSTIC, "Closing job list with handle: ", handle_);
+      if (trackers_ != null)
+      {
+        int inUse = 0;
+        for (int i=0; i<trackers_.size(); ++i)
+        {
+          Tracker tracker = (Tracker)trackers_.elementAt(i);
+          if (tracker.isSet()) ++inUse;
+        }
+        if (inUse > 0)
+        {
+          Trace.log(Trace.WARNING, "The job list on the server is possibly in use by "+inUse+" or more enumerations as a result of a call to JobList.getJobs().");
+        }
+      }
     }
     ProgramParameter[] parms = new ProgramParameter[]
     {
@@ -947,9 +961,15 @@ public class JobList implements Serializable
 
 
 /**
-Returns the list of jobs in the job list.
-This is the same as calling getJobs(-1, getLength()).
-Calls {@link #load load()} implicitly if needed.
+Returns an Enumeration that wraps the list of jobs on the server.
+This method calls {@link #load load()} implicitly if needed.
+The Enumeration retrieves jobs from the server in blocks as needed when
+nextElement() is called.  This JobList should not be closed until the
+program is done processing elements out of the Enumeration.  That is, this
+method does not retrieve all of the jobs from the server up front -- it retrieves
+them as needed, which allows for a lower memory footprint versus
+more calls to the server. The block size used internally by the Enumeration is set to
+1000 jobs.
 
 @return An Enumeration of {@link com.ibm.as400.access.Job Job} objects.
 
@@ -976,7 +996,20 @@ Calls {@link #load load()} implicitly if needed.
       load(); // Need to get the length_
     }
     
-    return new JobEnumeration(this, length_);
+    // Use a tracker so we know if someone tries to close us, whether or not they
+    // have open Enumerations.  It's possible they do, and they are just done with
+    // them, but this is mostly for debugging purposes.
+    Tracker tracker = new Tracker();
+    if (trackers_ == null)
+    {
+      synchronized(this)
+      {
+        if (trackers_ == null) trackers_ = new Vector();
+      }
+    }
+    trackers_.addElement(tracker);
+
+    return new JobEnumeration(this, length_, tracker);
   }
 
   

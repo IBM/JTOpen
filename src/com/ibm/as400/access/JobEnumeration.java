@@ -30,21 +30,34 @@ class JobEnumeration implements Enumeration
   private int listOffset_ = 0;
   private int cachePos_ = 0;
 
-  JobEnumeration(JobList list, int length)
+  private Tracker tracker_;
+
+  JobEnumeration(JobList list, int length, Tracker tracker)
   {
     list_ = list;
     numJobs_ = length;
+    tracker_ = tracker;
+    tracker_.set(true);
   }
 
   public final boolean hasMoreElements()
   {
-    return counter_ < numJobs_;
+    if (counter_ < numJobs_)
+    {
+      return true;
+    }
+    else
+    {
+      tracker_.set(false);
+      return false;
+    }
   }
 
   public final Object nextElement()
   {
     if (counter_ >= numJobs_)
     {
+      tracker_.set(false);
       throw new NoSuchElementException();
     }
 
@@ -62,7 +75,7 @@ class JobEnumeration implements Enumeration
       {
         if (Trace.traceOn_)
         {
-          Trace.log(Trace.ERROR, "Exception while loading nextElement() in UserEnumeration:", e);
+          Trace.log(Trace.ERROR, "Exception while loading nextElement() in JobEnumeration:", e);
         }
         throw new NoSuchElementException();
       }
