@@ -2632,7 +2632,7 @@ implements PreparedStatement
                         sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));
                         sqlData.set (new ConvTableReader(parameterValue, 13488, 0, LOB_BLOCK_SIZE), null, length/2); // @J0M hacked this to use the scale parm for the length
                     } else {
-                        sqlData.set (JDUtilities.readerToString(new ConvTableReader(parameterValue, 13488, 0, LOB_BLOCK_SIZE), length), null, -1);
+                        sqlData.set (JDUtilities.readerToString(new ConvTableReader(parameterValue, 13488, 0, LOB_BLOCK_SIZE), length/2), null, -1);
                     }
                 } catch (UnsupportedEncodingException uee) {
                     /* do nothing */
