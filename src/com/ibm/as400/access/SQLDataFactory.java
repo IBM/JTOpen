@@ -579,7 +579,7 @@ specific AS/400 native type string.
             return new SQLBigint();                             // @D0A
 
         else if (nativeType.equals ("BLOB"))
-            return new SQLBlob (length - 4, settings);          // @D1C
+            return new SQLBlob (length, settings);          // @D1C @G1C Remove length-4
 
         else if (nativeType.equals ("CHAR"))
             return new SQLChar (length, false, settings);
@@ -594,10 +594,13 @@ specific AS/400 native type string.
             return new SQLVarchar (length, false, false, settings);     // @E1C
 
         else if (nativeType.equals ("CLOB"))
-            return new SQLClob (length - 4, false, settings);           // @D1C @E1C
+            return new SQLClob (length, false, settings);           // @D1C @E1C @G1C Remove length-4
 
         else if (nativeType.equals ("DATALINK"))
             return new SQLDatalink (length, settings);
+
+        else if (nativeType.equals ("DBCLOB"))           // @G2A
+            return new SQLClob (length, true, settings); // @G2A
 
         else if (nativeType.equals ("DATE"))
             return new SQLDate (settings);
