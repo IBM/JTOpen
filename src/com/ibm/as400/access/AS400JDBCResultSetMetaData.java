@@ -198,8 +198,13 @@ implements ResultSetMetaData
             //@G1A
             DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
             if(dataFormat != null)  //@KBA  The data format returned by the host server will be null for columns created by expressions, use old way
-                return dataFormat.getColumnLabel(convTable_);   //@KBA
+            {                      //@D9A
+                String columnLabel = dataFormat.getColumnLabel(convTable_); //@D9A
+                if(columnLabel != null)                                     //@D9A
+                    return columnLabel;                                     //@D9A
+                //@D9D return dataFormat.getColumnLabel(convTable_);   //@KBA
                 //@KBD return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getColumnLabel(convTable_);  //@G1A
+            }
         }                                                                                                    //@G1A
 
         //else use the "old way".

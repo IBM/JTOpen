@@ -160,10 +160,13 @@ class DBColumnDescriptorsDataFormat
             return columnLabel_;
         }
         // We weren't returned a column label, so try to return the base column name.
-        else if (baseColumnName_ != null)
-        {
-            return convTable.byteArrayToString (baseColumnName_, 0, baseColumnName_.length);
-        }
+        //@D9 If a alias is being used, the base column name will be different from the alias name
+        // We should be returning the alias name
+        
+        //@D9D else if (baseColumnName_ != null)
+        //@D9D {
+        //@D9D     return convTable.byteArrayToString (baseColumnName_, 0, baseColumnName_.length);
+        //@D9D }
         // We weren't returned a column label or a base column name, so return null.
         else
             return null;
