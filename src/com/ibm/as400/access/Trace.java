@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ import java.util.Hashtable;                                         // $W1A
 
 public class Trace
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -336,7 +336,6 @@ public class Trace
     }
 
     
-
 
     //@D2A
     /**
@@ -1027,8 +1026,8 @@ public class Trace
       traceDiagnostic_ = traceAll;
       traceError_      = traceAll;
       traceInfo_       = traceAll;
-      traceJDBC_       = traceAll; // @D5A
-      tracePCML_       = traceAll; // @D5A
+      setTraceJDBCOn(traceAll);    // @D6C
+      setTracePCMLOn(traceAll);    // @D6C
       traceProxy_      = traceAll;
       traceThread_     = traceAll; //@D3A
       traceWarning_    = traceAll;
