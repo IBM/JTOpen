@@ -260,8 +260,8 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
                if (file_ instanceof IFSJavaFile)                                   //$A1A
                   files[j] = new IFSJavaFile((IFSJavaFile)file_, list[j]);         //$A1A
                else                                                                //$A1A
-                  files[j] = new File(list[j]);                                    //$A1A
-            }                                                                      //$A1A
+                  files[j] = new File(file_, list[j]);                             //$A1A
+            }                                                                      //$A1A  @A5C
 
             for (int i=0; i<files.length; i++)
             {

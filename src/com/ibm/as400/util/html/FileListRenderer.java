@@ -49,88 +49,94 @@ public class FileListRenderer
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   
-   private HttpServletRequest request_;
-   private String uri_;
-   private String path_;
+
+    private HttpServletRequest request_;
+    private String uri_;
+    private String path_;
 
 
-   /**
-    *  Constructs a FileListRenderer with the specified <i>request</i>.
-    *
-    *  @param request The Http servlet request.
-    **/
-   public FileListRenderer(HttpServletRequest request)
-   {
-      if (request == null)
-         throw new NullPointerException("request");
+    /**
+     *  Constructs a FileListRenderer with the specified <i>request</i>.
+     *
+     *  @param request The Http servlet request.
+     **/
+    public FileListRenderer(HttpServletRequest request)
+    {
+        if (request == null)
+            throw new NullPointerException("request");
 
-      uri_ = request.getServletPath();
-      path_ = request.getPathInfo();
-   }
-   
+        uri_ = request.getServletPath();
+        path_ = request.getPathInfo();
+    }
 
-   /**
-    *  Return the directory name string.  A link to the calling servlet with the
-    *  directory included in the path info by default.  If the directory should 
-    *  not be added to the FileListElement, a null string should be returned.
-    *
-    *  @return The directory name string.
-    **/
-   public String getDirectoryName(File file)
-   {
-      if (file == null)
-         throw new NullPointerException("file");
 
-      String name = file.getName();
+    /**
+     *  Return the directory name string.  A link to the calling servlet with the
+     *  directory included in the path info by default.  If the directory should 
+     *  not be added to the FileListElement, a null string should be returned.
+     *
+     *  @return The directory name string.
+     **/
+    public String getDirectoryName(File file)
+    {   
+        if (file == null)
+            throw new NullPointerException("file");
 
-      StringBuffer buffer = new StringBuffer("<a href=\"");
-      buffer.append(uri_);
-      buffer.append(URLEncoder.encode(path_.replace('\\','/'), false));        // @A1C
-      buffer.append(path_.endsWith("/") ? "" :"/");
-      buffer.append(URLEncoder.encode(name, false));                           // @A1C
-      buffer.append("\">");
-      buffer.append(name);
-      buffer.append("</a>");
+        String name = file.getName();
 
-      return buffer.toString();
-   }
-   
-   
-   /**
-    *  Return the file name string.  The file name will be returned by default.  
-    *  If the file should not be displayed in the FileListElement, a null string 
-    *  should be returned.
-    *
-    *  @return The file name string.
-    **/
-   public String getFileName(File file)
-   {
-      if (file == null)
-         throw new NullPointerException("file");
+        StringBuffer buffer = new StringBuffer("<a href=\"");
+        buffer.append(uri_);
+        buffer.append(URLEncoder.encode(path_.replace('\\','/'), false));        // @A1C
+        buffer.append(path_.endsWith("/") ? "" :"/");
+        buffer.append(URLEncoder.encode(name, false));                           // @A1C
+        buffer.append("\">");
+        buffer.append(name);
+        buffer.append("</a>");
 
-      return file.getName();
-   }
+        return buffer.toString();
+    }
 
-   /**
-    *  Return the parent directory name string.  A link to the calling servlet with the 
-    *  parent directory included in the path info will be returned by default.  If the 
-    *  parent should not be display in the FileListElement, a null string should be returned.
-    *
-    *  @return The parent name string.
-    **/
-   public String getParentName(File file)
-   {
-      if (file == null)
-         throw new NullPointerException("file");
 
-      String parent = file.getParent();
+    /**
+     *  Return the file name string.  The file name will be returned by default.  
+     *  If the file should not be displayed in the FileListElement, a null string 
+     *  should be returned.
+     *
+     *  @return The file name string.
+     **/
+    public String getFileName(File file)
+    {
+        if (file == null)
+            throw new NullPointerException("file");
 
-      StringBuffer buffer = new StringBuffer("<a href=\"");
-      buffer.append(uri_);
-      buffer.append(parent!=null ? URLEncoder.encode(parent.replace('\\','/'), false) : "");  // @A1C
-      buffer.append("\">../ (Parent Directory)</a>");
+        return file.getName();
+    }
 
-      return buffer.toString();
-   }
+    /**
+     *  Return the parent directory name string.  A link to the calling servlet with the 
+     *  parent directory included in the path info will be returned by default.  If the 
+     *  parent should not be display in the FileListElement, a null string should be returned.
+     *
+     *  @return The parent name string.
+     **/
+    public String getParentName(File file)
+    {   
+        if (file == null)
+            throw new NullPointerException("file");
+
+        String parent = file.getParent();
+
+        if (parent != null)                                                                         // @A2A
+        {
+            StringBuffer buffer = new StringBuffer("<a href=\"");
+            buffer.append(uri_);
+            buffer.append(parent.startsWith("\\") ? "" : "/");                                      // @A2A
+            buffer.append(parent!=null ? URLEncoder.encode(parent.replace('\\','/'), false) : "");  // @A1C
+            buffer.append("\">../ (Parent Directory)</a>");
+            
+            return buffer.toString();
+        }
+        else                                                                                        // @A2A
+            return null;                                                                            // @A2A
+    }
 }

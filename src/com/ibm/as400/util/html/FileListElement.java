@@ -87,7 +87,9 @@ import com.ibm.as400.util.servlet.RowDataException;
 *  AS400 sys = new AS400(mySystem, myUserId, myPassword);
 *  <p>
 *  // The FileTreeElment will properly create the text url and pass the
-*  // file and path information through the httpservletrequest.
+*  // file and path information through the httpservletrequest.  If the
+*  // list is meant to display the contents of the local file system,
+*  // then only pass the HttpServletRequest on the constructor.
 *  FileListElement fileList = new FileListElement(sys, httpservletrequest);
 *  <p>
 *  // Output the content of the FileListElement.
@@ -305,7 +307,7 @@ import com.ibm.as400.util.servlet.RowDataException;
 *  </tr>
 *  </table>
 *  <P>
-*  FileTreeElement objects generate the following events:
+*  FileListElement objects generate the following events:
 *  <ul>
 *    <li>PropertyChangeEvent
 *  </ul>
@@ -316,356 +318,400 @@ public class FileListElement implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-	private AS400     system_;
-   private HTMLTable table_;
-	private HttpServletRequest request_;
-   private SimpleDateFormat   formatter_ = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
-   private FileListRenderer   renderer_;                   // @A4A
+    private AS400     system_;
+    private HTMLTable table_;
+    private HttpServletRequest request_;
+    private SimpleDateFormat   formatter_ = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
+    private FileListRenderer   renderer_;                   // @A4A
 
-   private boolean   sort_   = true;                       // @A2A                   
-   private Collator  collator_;                            // @A2A
-   private boolean   showParent_ = true;
+    private boolean   sort_   = true;                       // @A2A                   
+    private Collator  collator_;                            // @A2A
 
-   // Handles loading the appropriate resource bundle
-   private static ResourceBundleLoader_h loader_;         // @A5A
+    // Handles loading the appropriate resource bundle
+    private static ResourceBundleLoader_h loader_;         // @A5A
 
-   // The FileListElement default column headers.
-   private static String name = loader_.getText("PROP_FLE_NAME_NAME");                    // @A5A
-   private static String size = loader_.getText("PROP_FLE_NAME_SIZE");                    // @A5A
-   private static String type = loader_.getText("PROP_FLE_NAME_TYPE");                    // @A5A
-   private static String modified = loader_.getText("PROP_FLE_NAME_MODIFIED");            // @A5A
+    // The FileListElement default column headers.
+    private static String name = loader_.getText("PROP_FLE_NAME_NAME");                    // @A5A
+    private static String size = loader_.getText("PROP_FLE_NAME_SIZE");                    // @A5A
+    private static String type = loader_.getText("PROP_FLE_NAME_TYPE");                    // @A5A
+    private static String modified = loader_.getText("PROP_FLE_NAME_MODIFIED");            // @A5A
 
-   
 
-   transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-	
 
-   /**
-    *  Constructs a default FileTreeElement object.
+    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+
+
+    /**
+     *  Constructs a default FileListElement object.
+     **/
+    public FileListElement()
+    {
+    }
+
+
+    // @A7A
+    /**
+     *  Constructs an FileListElement for the local file system            
+     *  using the pathInfo from the specified <i>request</i>.  
+     *
+     *  Internally a java.io.File object will be used to retrieve 
+     *  the contents of the file system.                                    
+     *  
+     *  @param request The Http servlet request.
+     **/
+    public FileListElement(HttpServletRequest request)
+    {
+        setHttpServletRequest(request); 
+        setRenderer(new FileListRenderer(request));                              
+    }
+
+
+    /**
+     *  Constructs an FileListElement for an AS/400 file system
+     *  using the pathInfo from the specified <i>request</i>, and 
+     *  the designated <i>system</i>.
+     *
+     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+     *  used to retrieve the contents of the file system.  
+     *
+     *  @param system  The AS/400 system.
+     *  @param request The Http servlet request. 
+     **/
+    public FileListElement(AS400 system, HttpServletRequest request)
+    {
+        setSystem(system);
+        setHttpServletRequest(request); 
+        setRenderer(new FileListRenderer(request));                              // @A4A
+    }
+
+
+    /**
+     *  Constructs an FileListElement with the specified <i>system</i>, <i>request</i>, and <i>table</i>.
+     *
+     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+     *  used to retrieve the contents of the file system.  
+     *
+     *  @param system  The AS/400 system.
+     *  @param request The Http servlet request.
+     *  @param table   The HTML table.
+     **/
+    public FileListElement(AS400 system, HttpServletRequest request, HTMLTable table)
+    {
+        setSystem(system);
+        setHttpServletRequest(request);
+        setTable(table);
+        setRenderer(new FileListRenderer(request));                              // @A4A
+    }
+
+
+    /**
+     *  Adds a PropertyChangeListener.  The specified 
+     *  PropertyChangeListener's <b>propertyChange</b> 
+     *  method is called each time the value of any
+     *  bound property is changed.
+     *
+     *  @see #removePropertyChangeListener
+     *  @param listener The PropertyChangeListener.
     **/
-   public FileListElement()
-   {
-   }
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        changes_.addPropertyChangeListener(listener);
+    }
 
 
-   /**
-    *  Constructs an FileTreeElement with the specified <i>system</i>, and <i>request</i>.
-    *
-    *  @param system  The AS/400 system.
-    *  @param request The Http servlet request. 
-    **/
-	public FileListElement(AS400 system, HttpServletRequest request)
-	{
-      setSystem(system);
-      setHttpServletRequest(request); 
-      setRenderer(new FileListRenderer(request));                              // @A4A
-	}
+    /**
+     *  Returns the Http servlet request.
+     *
+     *  @return The request.
+     **/
+    public HttpServletRequest getHttpServletRequest()
+    {
+        return request_;
+    }
 
 
-   /**
-    *  Constructs an FileTreeElement with the specified <i>system</i>, <i>request</i>, and <i>table</i>.
-    *
-    *  @param system  The AS/400 system.
-    *  @param request The Http servlet request.
-    *  @param table   The HTML table.
-    **/
-	public FileListElement(AS400 system, HttpServletRequest request, HTMLTable table)
-	{
-      setSystem(system);
-      setHttpServletRequest(request);
-      setTable(table);
-      setRenderer(new FileListRenderer(request));                              // @A4A
-	}
+    /**
+     *  Return the file list renderer.
+     *
+     *  @return The renderer.
+     **/
+    public FileListRenderer getRenderer()
+    {
+        return renderer_;
+    }
 
 
-   /**
-    *  Adds a PropertyChangeListener.  The specified 
-    *  PropertyChangeListener's <b>propertyChange</b> 
-    *  method is called each time the value of any
-    *  bound property is changed.
-    *
-    *  @see #removePropertyChangeListener
-    *  @param listener The PropertyChangeListener.
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.addPropertyChangeListener(listener);
-   }
+    /**
+     *  Returns the AS/400 system.
+     *
+     *  @return The system.
+     *
+     **/
+    public AS400 getSystem()
+    {
+        return system_;
+    }
 
 
-   /**
-    *  Returns the Http servlet request.
-    *
-    *  @return The request.
-    **/
-   public HttpServletRequest getHttpServletRequest()
-   {
-      return request_;
-   }
+    /**
+     *  Returns the HTMLTable.
+     *
+     *  @return The table.
+     **/
+    public HTMLTable getTable()
+    {
+        return table_;
+    }
 
 
-   /**
-    *  Return the file list renderer.
-    *
-    *  @return The renderer.
-    **/
-   public FileListRenderer getRenderer()
-   {
-      return renderer_;
-   }
+    /**
+     *  Returns a string containing the list of files and directories
+     *  in the path defined in the HttpServletRequest.  
+     *
+     *  If the <i>system</i> has not been set, a java.io.File object 
+     *  will be created with the pathInfo from the HttpServletRequest
+     *  to retrieve the list of file and directories from the
+     *  local file system.
+     *
+     *  @return The list.
+     **/
+    public String list() 
+    {   
+        if (request_ == null)
+            throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
+        // @A7D - If a system_ object is not provided then a java.io.File object will be created with the
+        //        path info from the request.
+        //
+        //if (system_ == null)
+        //    throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-   /**
-    *  Returns the AS/400 system.
-    *
-    *  @return The system.
-    *
-    **/
-   public AS400 getSystem()
-   {
-      return system_;
-   }
+        if (Trace.isTraceOn())
+            Trace.log(Trace.INFORMATION, "Creating FileListElement list...");
 
-   
-   /**
-    *  Returns the HTMLTable.
-    *
-    *  @return The table.
-    **/
-   public HTMLTable getTable()
-   {
-      return table_;
-   }
+        StringBuffer buffer = new StringBuffer();
 
+        String path = request_.getPathInfo();                                         // @A3C
 
-   /**
-    *  Returns a string containing the list of files and directories
-    *  in the path defined in the HttpServletRequest.
-    *
-    *  @return The list.
-    **/
-   public String list() 
-	{
-      if (request_ == null)
-         throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      
-      if (system_ == null)
-         throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        if (path == null)
+            path = "/";
 
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Creating FileListElement list...");
+        try
+        {
+            File file;                                                                // @A7A
 
-      StringBuffer buffer = new StringBuffer();
+            // @A7A
+            // If a system_ object is not provided then a java.io.File object will be created with the
+            // path info from the request.
 
-      String path = request_.getPathInfo();                                         // @A3C
-      
-		if (path == null)
-         path = "/";
+            if (system_ != null)                                                      // @A7A
+                file = new IFSJavaFile(system_, path.replace('\\','/'));
+            else                                                                      // @A7A
+                file = new File(path);                                                // @A7A
 
-		try
-		{
-         IFSJavaFile file = new IFSJavaFile(system_, path.replace('\\','/'));
-         
-         if (Trace.isTraceOn())                                                  // @A6A
-            Trace.log(Trace.INFORMATION, "   FileListElement path: " + path);    // @A6A
+            if (Trace.isTraceOn())                                                    // @A6A
+                Trace.log(Trace.INFORMATION, "   FileListElement path: " + path);     // @A6A
 
-         // Create a table converter object.
-         HTMLTableConverter conv = new HTMLTableConverter();
-         
-         // Set the default table properties if the user has not set the table.
-         if (table_ == null)
-         {
-            table_ = new HTMLTable();
-            table_.setCellPadding(7);
+            // Create a table converter object.
+            HTMLTableConverter conv = new HTMLTableConverter();
 
-            // Set the converter meta data property.
-            conv.setUseMetaData(true);
-         }
-         else
-         {
-            // If the table has been set and the headers are empty, use
-            // the default headers from the meta data.
-            if (table_.getHeader() == null)
-               conv.setUseMetaData(true);
-         }
-
-         
-         
-         // Set the converter table property.
-         conv.setTable(table_);
-
-         ListMetaData metaData = new ListMetaData(4);
-       
-			metaData.setColumnName(0, "Name");
-			metaData.setColumnLabel(0, name);
-			metaData.setColumnType(0, RowMetaDataType.STRING_DATA_TYPE);
-              
-         metaData.setColumnName(1, "Size");                                      // @A3C
-			metaData.setColumnLabel(1, size);                                       // @A3C @A5C
-			metaData.setColumnType(1, RowMetaDataType.INTEGER_DATA_TYPE);           // @A3C
-
-			metaData.setColumnName(2, "Type");
-			metaData.setColumnLabel(2, type);                                       // @A5C
-			metaData.setColumnType(2, RowMetaDataType.STRING_DATA_TYPE);      
-         
-         metaData.setColumnName(3, "Modified");                                  // @A3C
-			metaData.setColumnLabel(3, modified);                                   // @A3C @A5C
-			metaData.setColumnType(3, RowMetaDataType.STRING_DATA_TYPE);            // @A3C
-         
-			ListRowData rowData = new ListRowData();
-			rowData.setMetaData(metaData);      
-
-         // Get the string to display from the renderer.  This allows          // @A4A
-         // the servlet more flexibility as to which files to display          // @A4A
-         // and how to display them.                                           // @A4A
-         String parentName = renderer_.getParentName(file);                    // @A4A
-         
-         if (parentName != null)                                               // @A4A
-         {
-            Object[] row = new Object[4];
-            
-            row[0] = parentName.replace('\\','/');                             // @A4C
-            row[1] = "";
-            row[2] = "";
-            row[3] = "";
-            
-            rowData.addRow(row);
-         }
-       
-         DirFilter dirFilter = new DirFilter();
-         
-         // Get the list of files that satisfy the directory filter.
-         String[] dlist = file.list(dirFilter);                                //$A1C
-         
-         if (dlist != null)                                                       // @A6A
-         {
-            if (sort_)                                                            // @A2A
-               dlist = sort(dlist);                                               // @A2A
-            
-            File[] dirList = new File[dlist.length];                              //$A1A
-            
-            // $A1D
-            // We don't want to require webservers to use JDK1.2 because
-            // most webserver JVM's are slower to upgrade to the latest JDK level.
-            // The most efficient way to create these file objects is to use
-            // the listFiles(filter) method in JDK1.2 which would be done
-            // like the following, instead of using the list(filter) method
-            // and then converting the returned string arrary into the appropriate
-            // File array.
-            // File[] dirList = file.listFiles(dirFilter);
-            
-            for (int j=0; j<dlist.length; ++j)                                    //$A1A
-            {                                                                     //$A1A
-               if (file instanceof IFSJavaFile)                                   //$A1A
-                  dirList[j] = new IFSJavaFile((IFSJavaFile)file, dlist[j]);      //$A1A
-               else                                                               //$A1A
-                  dirList[j] = new File(dlist[j]);                                //$A1A
-            }  
-                                                                               //$A1A
-            for (int i=0; i<dirList.length; i++)
+            // Set the default table properties if the user has not set the table.
+            if (table_ == null)
             {
-               // Get the string to display from the renderer.  This allows          // @A4A
-               // the servlet more flexibility as to which files to display          // @A4A
-               // and how to display them.                                           // @A4A
-               String dirName = renderer_.getDirectoryName(dirList[i]);              // @A4A
-               
-               if (dirName != null)                                                  // @A4A
-               {
-                  Object[] row = new Object[4];                  
-                  
-                  Date d = new Date(dirList[i].lastModified());                      // @A4C
-                  
-                  row[0] = dirName.replace('\\','/');                                // @A4C
-                  row[1] = "";                                                       // @A3C
-                  row[2] = "Directory";
-                  row[3] = formatter_.format(d);                                     // @A3C
-                  
-                  rowData.addRow(row);
-               }
+                table_ = new HTMLTable();
+                table_.setCellPadding(7);
+
+                // Set the converter meta data property.
+                conv.setUseMetaData(true);
             }
-         }
-            
-         HTMLFileFilter fileFilter = new HTMLFileFilter();
-
-         // Get the list of files that satisfy the file filter.
-         String[] flist = file.list(fileFilter);                                 //$A1C
-
-         if (flist != null)                                                         // @A6A
-         {
-            if (sort_)                                                              // @A2A
-               flist = sort(flist);                                                 // @A2A
-            
-            File[] fileList = new File[flist.length];                               //$A1A
-            
-            // $A1D
-            // We don't want to require webservers to use JDK1.2 because
-            // most webserver JVM's are slower to upgrade to the latest JDK level.
-            // The most efficient way to create these file objects is to use
-            // the listFiles(filter) method in JDK1.2 which would be done
-            // like the following, instead of using the list(filter) method
-            // and then converting the returned string arrary into the appropriate
-            // File array.
-            // File[] fileList = file.listFiles(fileFilter);
-            
-            for (int j=0; j<flist.length; ++j)                                      //$A1A
-            {                                                                       //$A1A
-               if (file instanceof IFSJavaFile)                                     //$A1A
-                  fileList[j] = new IFSJavaFile((IFSJavaFile)file, flist[j]);       //$A1A
-               else                                                                 //$A1A
-                  fileList[j] = new File(flist[j]);                                 //$A1A
-            }                                                                       //$A1A
-            
-            for (int i=0; i<fileList.length; i++)
+            else
             {
-               // Get the string to display from the renderer.  This allows          // @A4A
-               // the servlet more flexibility as to which files to display          // @A4A
-               // and how to display them.                                           // @A4A
-               String fileName = renderer_.getFileName(fileList[i]);                 // @A4A
-               
-               if (fileName != null)                                                 // @A4A
-               {
-                  Object[] row = new Object[4];          
-                  
-                  Date d = new Date(fileList[i].lastModified());                     
-                  
-                  row[0] = fileName.replace('\\','/');                               // @A4C
-                  row[1] = new Long(fileList[i].length());                             
-                  row[2] = "File";                                                   // @A3C
-                  row[3] = formatter_.format(d);                                       
-                  
-                  rowData.addRow(row);          
-               }
+                // If the table has been set and the headers are empty, use
+                // the default headers from the meta data.
+                if (table_.getHeader() == null)
+                    conv.setUseMetaData(true);
             }
-         }
-         
-         if (rowData.length() > 0)                                                   // @A6C
-			{
+
+
+
+            // Set the converter table property.
+            conv.setTable(table_);
+
+            ListMetaData metaData = new ListMetaData(4);
+
+            metaData.setColumnName(0, "Name");
+            metaData.setColumnLabel(0, name);
+            metaData.setColumnType(0, RowMetaDataType.STRING_DATA_TYPE);
+
+            metaData.setColumnName(1, "Size");                                      // @A3C
+            metaData.setColumnLabel(1, size);                                       // @A3C @A5C
+            metaData.setColumnType(1, RowMetaDataType.INTEGER_DATA_TYPE);           // @A3C
+
+            metaData.setColumnName(2, "Type");
+            metaData.setColumnLabel(2, type);                                       // @A5C
+            metaData.setColumnType(2, RowMetaDataType.STRING_DATA_TYPE);      
+
+            metaData.setColumnName(3, "Modified");                                  // @A3C
+            metaData.setColumnLabel(3, modified);                                   // @A3C @A5C
+            metaData.setColumnType(3, RowMetaDataType.STRING_DATA_TYPE);            // @A3C
+
+            ListRowData rowData = new ListRowData();
+            rowData.setMetaData(metaData);      
+
+            // Get the string to display from the renderer.  This allows          // @A4A
+            // the servlet more flexibility as to which files to display          // @A4A
+            // and how to display them.                                           // @A4A
+            String parentName = renderer_.getParentName(file);                    // @A4A
+
+            if (parentName != null)                                               // @A4A
+            {
+                Object[] row = new Object[4];
+
+                row[0] = parentName.replace('\\','/');                             // @A4C
+                row[1] = "";
+                row[2] = "";
+                row[3] = "";
+
+                rowData.addRow(row);
+            }
+
+            DirFilter dirFilter = new DirFilter();
+
+            // Get the list of files that satisfy the directory filter.
+            String[] dlist = file.list(dirFilter);                                //$A1C
+
+            if (dlist != null)                                                    // @A6A
+            {
+                if (sort_)                                                        // @A2A
+                    dlist = sort(dlist);                                          // @A2A
+
+                File[] dirList = new File[dlist.length];                          //$A1A
+
+                // $A1D
+                // We don't want to require webservers to use JDK1.2 because
+                // most webserver JVM's are slower to upgrade to the latest JDK level.
+                // The most efficient way to create these file objects is to use
+                // the listFiles(filter) method in JDK1.2 which would be done
+                // like the following, instead of using the list(filter) method
+                // and then converting the returned string arrary into the appropriate
+                // File array.
+                // File[] dirList = file.listFiles(dirFilter);
+
+                for (int j=0; j<dlist.length; ++j)                                    //$A1A
+                {
+                    //$A1A
+                    if (file instanceof IFSJavaFile)                                  //$A1A
+                        dirList[j] = new IFSJavaFile((IFSJavaFile)file, dlist[j]);    //$A1A
+                    else                                                              //$A1A
+                        dirList[j] = new File(file, dlist[j]);                        //$A1A @A7C
+                }  
+                //$A1A
+                for (int i=0; i<dirList.length; i++)
+                {
+                    // Get the string to display from the renderer.  This allows          // @A4A
+                    // the servlet more flexibility as to which files to display          // @A4A
+                    // and how to display them.                                           // @A4A
+                    String dirName = renderer_.getDirectoryName(dirList[i]);              // @A4A
+
+                    if (dirName != null)                                                  // @A4A
+                    {
+                        Object[] row = new Object[4];                  
+
+                        Date d = new Date(dirList[i].lastModified());                      // @A4C
+
+                        row[0] = dirName.replace('\\','/');                                // @A4C
+                        row[1] = "";                                                       // @A3C
+                        row[2] = "Directory";
+                        row[3] = formatter_.format(d);                                     // @A3C
+
+                        rowData.addRow(row);
+                    }
+                }
+            }
+
+            HTMLFileFilter fileFilter = new HTMLFileFilter();
+
+            // Get the list of files that satisfy the file filter.
+            String[] flist = file.list(fileFilter);                                     //$A1C
+
+            if (flist != null)                                                          // @A6A
+            {
+                if (sort_)                                                              // @A2A
+                    flist = sort(flist);                                                // @A2A
+
+                File[] fileList = new File[flist.length];                               //$A1A
+
+                // $A1D
+                // We don't want to require webservers to use JDK1.2 because
+                // most webserver JVM's are slower to upgrade to the latest JDK level.
+                // The most efficient way to create these file objects is to use
+                // the listFiles(filter) method in JDK1.2 which would be done
+                // like the following, instead of using the list(filter) method
+                // and then converting the returned string arrary into the appropriate
+                // File array.
+                // File[] fileList = file.listFiles(fileFilter);
+
+                for (int j=0; j<flist.length; ++j)                                      //$A1A
+                {
+                    //$A1A
+                    if (file instanceof IFSJavaFile)                                    //$A1A
+                        fileList[j] = new IFSJavaFile((IFSJavaFile)file, flist[j]);     //$A1A
+                    else                                                                //$A1A
+                        fileList[j] = new File(file, flist[j]);                         //$A1A @A7C
+                }                                                                       //$A1A
+
+                for (int i=0; i<fileList.length; i++)
+                {
+                    // Get the string to display from the renderer.  This allows          // @A4A
+                    // the servlet more flexibility as to which files to display          // @A4A
+                    // and how to display them.                                           // @A4A
+                    String fileName = renderer_.getFileName(fileList[i]);                 // @A4A
+
+                    if (fileName != null)                                                 // @A4A
+                    {
+                        Object[] row = new Object[4];          
+
+                        Date d = new Date(fileList[i].lastModified());                     
+
+                        row[0] = fileName.replace('\\','/');                               // @A4C
+                        row[1] = new Long(fileList[i].length());                             
+                        row[2] = "File";                                                   // @A3C
+                        row[3] = formatter_.format(d);                                       
+
+                        rowData.addRow(row);          
+                    }
+                }
+            }
+
+            if (rowData.length() > 0)                                                   // @A6C
+            {
+                if (Trace.isTraceOn())
+                    Trace.log(Trace.INFORMATION, "Generating FileListElement table...");
+
+                String[] Table = conv.convert(rowData);
+                buffer.append(Table[0]);
+            }
+        }
+        catch (PropertyVetoException e)
+        { /* Ignore */
+        }
+        catch (RowDataException rde)
+        {
             if (Trace.isTraceOn())
-               Trace.log(Trace.INFORMATION, "Generating FileListElement table...");
+                Trace.log(Trace.ERROR, rde);
+        }
 
-				String[] Table = conv.convert(rowData);
-            buffer.append(Table[0]);
-			}      
-      } 
-      catch (PropertyVetoException e)
-		{ /* Ignore */ } 
-      catch (RowDataException rde)
-      { 
-         if (Trace.isTraceOn())
-            Trace.log(Trace.ERROR, rde);
-      }
-
-      return buffer.toString();
-	}
+        return buffer.toString();
+    }
 
 
-   /**
-    *  Deserializes and initializes transient data.
-    **/
+    /**
+     *  Deserializes and initializes transient data.
+     **/
     private void readObject(java.io.ObjectInputStream in)          
-        throws java.io.IOException, ClassNotFoundException
+    throws java.io.IOException, ClassNotFoundException
     {
         in.defaultReadObject();
         changes_ = new PropertyChangeSupport(this);
@@ -679,12 +725,12 @@ public class FileListElement implements java.io.Serializable
     *  @see #addPropertyChangeListener
     *  @param listener The PropertyChangeListener.
    **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
-      changes_.removePropertyChangeListener(listener);
-   }
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        if (listener == null)
+            throw new NullPointerException("listener");
+        changes_.removePropertyChangeListener(listener);
+    }
 
 
     /**
@@ -694,16 +740,16 @@ public class FileListElement implements java.io.Serializable
      **/
     public void setHttpServletRequest(HttpServletRequest request)
     {
-       if (request == null)
-          throw new NullPointerException("request");
+        if (request == null)
+            throw new NullPointerException("request");
 
-       HttpServletRequest old = request_;
+        HttpServletRequest old = request_;
 
-       request_ = request;
+        request_ = request;
 
-       changes_.firePropertyChange("request", old, request_);
+        changes_.firePropertyChange("request", old, request_);
     }
-    
+
 
     /**
      *  Set the renderer for the FileListElement.  The default
@@ -713,14 +759,14 @@ public class FileListElement implements java.io.Serializable
      **/
     public void setRenderer(FileListRenderer renderer)
     {
-       if (renderer == null)
-          throw new NullPointerException("renderer");
+        if (renderer == null)
+            throw new NullPointerException("renderer");
 
-       FileListRenderer old = renderer_;
+        FileListRenderer old = renderer_;
 
-       renderer_ = renderer;
+        renderer_ = renderer;
 
-       changes_.firePropertyChange("renderer", old, renderer_);
+        changes_.firePropertyChange("renderer", old, renderer_);
     }
 
 
@@ -731,14 +777,14 @@ public class FileListElement implements java.io.Serializable
      **/
     public void setSystem(AS400 system)
     {
-       if (system == null)
-          throw new NullPointerException("system");
+        if (system == null)
+            throw new NullPointerException("system");
 
-       AS400 old = system_;
+        AS400 old = system_;
 
-       system_ = system;
+        system_ = system;
 
-       changes_.firePropertyChange("system", old, system_);
+        changes_.firePropertyChange("system", old, system_);
     }
 
 
@@ -750,14 +796,14 @@ public class FileListElement implements java.io.Serializable
      **/
     public void setTable(HTMLTable table)
     {
-       if (table == null)
-          throw new NullPointerException("table");
+        if (table == null)
+            throw new NullPointerException("table");
 
-       HTMLTable old = table;
+        HTMLTable old = table;
 
-       table_ = table;
+        table_ = table;
 
-       changes_.firePropertyChange("table", old, table_);
+        changes_.firePropertyChange("table", old, table_);
     }
 
 
@@ -768,8 +814,8 @@ public class FileListElement implements java.io.Serializable
      *              The default is true.
      **/
     public void sort(boolean sort)                         // @A2A
-    {  
-       sort_ = sort;
+    {
+        sort_ = sort;
     }
 
 
@@ -783,7 +829,7 @@ public class FileListElement implements java.io.Serializable
     private String[] sort (String[] list)                  // @A2A
     {
         String[] objectArray = list;
-        
+
         HTMLTree.sort2(objectArray);
 
         for (int i = 0; i < objectArray.length; ++i)
