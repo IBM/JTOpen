@@ -145,6 +145,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   private static final char AS400_SEPARATOR = '/';
   private static final String strFile = "file";
 
+  private static final boolean replace_ = (AS400_SEPARATOR != separatorChar); //@P2A
+
 // Because pathSeparator, pathSeparatorChar, separator and separatorChar are declared final in java.io.File, we cannot override them.
 
 /**
@@ -166,7 +168,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
     try
     {
-      ifsFile_.setPath(path.replace(separatorChar, AS400_SEPARATOR));
+      ifsFile_.setPath(replace_ ? path.replace(separatorChar, AS400_SEPARATOR) : path); //@P2C
     }
     catch (PropertyVetoException e) {}  // will never happen
   }
@@ -183,8 +185,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
     try
     {
-      ifsFile_.setPath((canonicalizeDirectory(path) + name)
-              .replace(separatorChar, AS400_SEPARATOR));
+      String canon = canonicalizeDirectory(path) + name; //@P2A
+      ifsFile_.setPath(replace_ ? canon.replace(separatorChar, AS400_SEPARATOR) : canon); //@P2C
     }
     catch (PropertyVetoException e) {}   // will never happen
   }
@@ -249,8 +251,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     String directoryPath = directory.getPath();
     try
     {
-      ifsFile_.setPath((canonicalizeDirectory(directoryPath) + name)
-              .replace(separatorChar, AS400_SEPARATOR));
+      String canon = canonicalizeDirectory(directoryPath) + name; //@P2A
+      ifsFile_.setPath(replace_ ? canon.replace(separatorChar, AS400_SEPARATOR) : canon); //@P2C
     }
     catch (PropertyVetoException e) {}   // will never happen
 
@@ -619,7 +621,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   public String getAbsolutePath()
   {
     String pathString = ifsFile_.getAbsolutePath();
-    if (pathString != null)
+    if (pathString != null && replace_) //@P2C
     {
       return pathString.replace(AS400_SEPARATOR, separatorChar);
     }
@@ -659,7 +661,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   public String getCanonicalPath() throws IOException
   {
     String pathString = ifsFile_.getCanonicalPath();
-    if (pathString != null)
+    if (pathString != null && replace_) //@P2C
     {
       return pathString.replace(AS400_SEPARATOR, separatorChar);
     }
@@ -720,7 +722,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   public String getParent()
   {
     String parentString = ifsFile_.getParent();
-    if (parentString != null)
+    if (parentString != null && replace_) //@P2C
     {
       return parentString.replace(AS400_SEPARATOR, separatorChar);
     }
@@ -772,7 +774,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
   public String getPath()
   {
     String pathString = ifsFile_.getPath();
-    if (pathString != null)
+    if (pathString != null && replace_) //@P2C
     {
       return pathString.replace(AS400_SEPARATOR, separatorChar);
     }
@@ -1591,7 +1593,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     try
     {
       lFile.setSystem(dest.getSystem());
-      lFile.setPath(dest.getPath().replace (separatorChar, AS400_SEPARATOR));
+      String destPath = dest.getPath(); //@P2A
+      lFile.setPath(replace_ ? destPath.replace(separatorChar, AS400_SEPARATOR) : destPath); //@P2C
       returnCode = ifsFile_.renameTo0(lFile);
     }
     catch (AS400SecurityException e)
@@ -1698,7 +1701,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
     try
     {
-      ifsFile_.setPath(path.replace (separatorChar, AS400_SEPARATOR));
+      ifsFile_.setPath(replace_ ? path.replace(separatorChar, AS400_SEPARATOR) : path); //@P2C
     }
     catch (PropertyVetoException e) {}  // will never happen
     return true;
@@ -1758,7 +1761,13 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 **/
   public String toString()
   {
-    return ifsFile_.toString().replace(AS400_SEPARATOR, separatorChar);
+    if (replace_)
+    {
+      return ifsFile_.toString().replace(AS400_SEPARATOR, separatorChar); 
+    }
+    return ifsFile_.toString();
+
+//    return replace_ ? ifsFile_.toString().replace(AS400_SEPARATOR, separatorChar) : ifsFile_.toString(); //@P2C
   }
 
 
