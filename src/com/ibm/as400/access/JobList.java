@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,14 +27,14 @@ import java.util.NoSuchElementException;
 
 
 /**
-The JobList class represents a list of OS/400 jobs. By default, all jobs are selected. To filter the list,
-use the {@link #addJobSelectionCriteria addJobSelectionCriteria()} method.
-<P>
-
+ * The JobList class represents a list of OS/400 jobs. By default, all jobs are selected. To filter the list,
+ * use the {@link #addJobSelectionCriteria addJobSelectionCriteria()} method.
+ *
+ * @see com.ibm.as400.access.Job
 **/
 public class JobList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   static final long serialVersionUID = 5L;
 
@@ -524,6 +524,17 @@ public class JobList implements Serializable
    * Adds a selection type and value to be used to filter the list of jobs. If a selection type
    * supports only one value, then the selection value used will be the one that was passed on
    * the most recent call to this method for that selection type.
+   *<P>
+   * By default, all jobs are selected, because most of the filter criteria settings default to true.
+   * To filter the list further, the job selection criteria
+   * should be set to false. For example, to retrieve a list of only active jobs, you would do:
+   * <PRE>
+   * JobList list = new JobList(system);
+   * list.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE, Boolean.TRUE);
+   * list.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ, Boolean.FALSE);
+   * list.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_OUTQ, Boolean.FALSE);
+   * Enumeration jobs = list.getJobs();
+   * </PRE>
    * <P>
    * The list of job selection criteria is maintained internally even when this JobList is closed and re-used.
    * To start over with a new set of job selection criteria, call {@link #clearJobSelectionCriteria clearJobSelectionCriteria()}.
