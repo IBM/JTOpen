@@ -360,7 +360,14 @@ Adds a byte array parameter.
   protected void addParameter(int codePoint, byte[] value)
   throws DBDataStreamException
   {
-    addParameter(codePoint, value, 0, value.length);
+      if(value == null){            //@eWLM     Can pass a null value in
+          //"Locks" the request datastream for addition of a parameter. This will determine if there is space left in the data byte array and grow it as needed.
+          lock(0, codePoint);       //@eWLM      Locks the datastream and adds the codepoint to it
+          unlock();                 //@eWLM     "Unlocks" the datastream
+          if(Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Value is null, sending only length and codepoint.");  //@eWLM
+      }                             //@eWLM
+      else                          //@eWLM
+          addParameter(codePoint, value, 0, value.length);
   }
 
   protected void addParameter(int codePoint, byte[] value, int offset, int length) throws DBDataStreamException

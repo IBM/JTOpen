@@ -1109,6 +1109,19 @@ ResultSet.CONCUR_READ_ONLY.
   }
 
   /**
+    Sets the eWLM Correlator.  It is assumed a valid correlator value is used.
+    If the value is null, all ARM/eWLM implementation will be turned off.
+    
+    @param bytes The eWLM correlator value
+    **/
+    public void setDB2eWLMCorrelator(byte[] bytes)
+    throws SQLException //@eWLM
+    {
+        validateConnection();
+        connection_.setDB2eWLMCorrelator(bytes);
+    }
+
+  /**
   *  This method is not supported.
   *  @exception          SQLException    If the connection is not open.
   **/

@@ -393,6 +393,18 @@ extends DBBaseRequestDS
         addParameter(0x3828, (byte)parserOption);
     }
      
+    // @eWLM - added support for an eWLM Correlator
+    /**
+       Sets the eWLM correlator in the datastream
+       If the value is null, all ARM/eWLM implementation is turned off.
+       @parm eWLM correlator
+       @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void seteWLMCorrelator(byte[] value)
+    throws DBDataStreamException
+    {
+        addParameter(0x3831, value);
+    }
 }
 
 
