@@ -14,6 +14,7 @@
 package com.ibm.as400.util.commtrace;
 
 import java.util.Properties;
+import com.ibm.as400.access.Trace;
 
 /**
  * A Internet Control Message Protocol v6 Header.<br>
@@ -24,6 +25,7 @@ public class ICMP6Header extends Header {
 	Field code= new Hex(rawheader.slice(8, 8));
 	Field checksum= new Hex(rawheader.slice(16, 16));
 
+	private static final String CLASS="ICMP6Header";
 	private static final String ICMPV6= "ICMPv6";
 	private static final String DATA= "Data";
 	private static final String TYPE= "Type";
@@ -67,6 +69,22 @@ public class ICMP6Header extends Header {
 			return (new Data(rawheader)).toString();
 		}
 
+		// Check for IP filtering
+		if (filter!=null) { // If filter is enabled
+			boolean print= false;
+			String port = filter.getPort();
+			
+			if(port==null) { // A port isn't specified, print the header
+				print=true;
+			}
+			if (!print) { // Don't print the packet
+				if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
+					Trace.log(Trace.INFORMATION,CLASS + ".toString() " + "Frame doesn't pass IP filter");
+				}
+				return ""; // Return empty record because it didn't pass the filter
+			}
+		}		
+		
 		Object[] args=
 			{
 				typeh,

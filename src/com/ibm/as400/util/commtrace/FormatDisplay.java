@@ -530,6 +530,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 				if(recsdisp>=ifsrecs) {
 					// Display the default cursor
 					((Component) l).setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					page=0; // User is viewing current page
 					return false;
 				}
 			} else {
@@ -543,6 +544,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 				if(recsdisp>=tcprecs) {
 					// Display the default cursor
 					((Component) l).setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+					page=0; // User is viewing current page
 					return false;
 				}
 			}

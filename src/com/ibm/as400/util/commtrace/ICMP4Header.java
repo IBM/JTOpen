@@ -14,6 +14,7 @@
 package com.ibm.as400.util.commtrace;
 
 import java.util.Properties;
+import com.ibm.as400.access.Trace;
 
 /**
  * A Internet Control Message Protocol V4 Header.<br>
@@ -24,6 +25,7 @@ public class ICMP4Header extends Header {
 	Field code= new Hex(rawheader.slice(8, 8));
 	Field checksum= new Hex(rawheader.slice(16, 16));
 
+	private static final String CLASS="ICMP4Header";
 	private static final String ECHRPLY= "Echo Reply";
 	private static final String DSTURCH= "Destination Unreachable";
 	private static final String SRCQCH= "Source Quench";
@@ -72,6 +74,22 @@ public class ICMP4Header extends Header {
 		if (rawheader.getBitSize() < getHeaderLen()) {
 			return (new Data(rawheader)).toString();
 		}
+		
+		// Check for IP filtering
+		if (filter!=null) { // If filter is enabled
+			boolean print= false;
+			String port = filter.getPort();
+			
+			if(port==null) { // A port isn't specified, print the header
+				print=true;
+			}
+			if (!print) { // Don't print the packet
+				if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {
+					Trace.log(Trace.INFORMATION,CLASS + ".toString() " + "Frame doesn't pass IP filter");
+				}
+				return ""; // Return empty record because it didn't pass the filter
+			}
+		}		
 
 		// Convert ICMP message from a number into a readable message
 		if (type == 0) {

@@ -214,7 +214,7 @@ public class CommTrace extends WindowAdapter {
 		MainFrame_.setForeground(Color.white);
 
 		MainFrame_.addWindowListener(this);
-		MainFrame_.setSize(500,300);
+		MainFrame_.setSize(525,300);
 		MainFrame_.setVisible(true);
     }
 

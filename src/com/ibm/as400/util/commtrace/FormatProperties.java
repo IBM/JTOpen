@@ -160,5 +160,4 @@ public class FormatProperties {
 	public String getProgress() {
 		return (String) prop_.getProperty(PROGRESS);
 	}	
-
 }

@@ -81,7 +81,8 @@ public class ARPHeader extends Header {
 		if(filter!=null) { // If filter is enabled
 			boolean print=false;
 			String IPaddr = filter.getIPAddress(),
-					IPaddr2 = filter.getSecondIPAddress();
+					IPaddr2 = filter.getSecondIPAddress(),
+					port = filter.getPort();
 
 			if(IPaddr==null && IPaddr2==null) {
 				print=true; 
@@ -100,6 +101,9 @@ public class ARPHeader extends Header {
 						(dstipaddr.toString().equals(IPaddr) 
 						|| dstipaddr.toString().equals(IPaddr2))) {
 				print=true; 
+			}
+			if(port!=null) {// Port is specified don't print
+				print=false;
 			}
 			if(!print) { // Don't print the packet
 				if (Trace.isTraceOn() && Trace.isTraceInformationOn()) {

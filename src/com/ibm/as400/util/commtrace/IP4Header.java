@@ -119,6 +119,11 @@ public class IP4Header extends Header {
 
 			if (IPaddr == null && IPaddr2 == null) {
 				print= true; // The filtering doesn't apply to this part of the header
+			} else if(IPaddr==null) {
+				// If either address matches we print this record
+				if (src.toString().equals(IPaddr2) || dst.toString().equals(IPaddr2)) {
+					print= true;
+				}
 			} else if (IPaddr.indexOf(':') != -1 || IPaddr.indexOf(':') != -1) {
 				print= true; // IPv6 Address so don't bother to try and filter ia
 				// If only one address is specified.

@@ -46,9 +46,9 @@ import com.ibm.as400.access.Trace;
  * A example program:<br>
  * 
  * <pre>
- * Properties prop = new Properties();
- * prop.setProperty(FormatProperties.FILTER,FormatProperties.FALSE);
- * Format f = new Format(args); // Read a local file
+ * Format f = new Format("/path/to/file");
+ * f.setFilterProperties(fmtprop); // Sets the filtering properties for this format
+ * f.formatProlog(); // Format the prolog
  * Prolog pro = f.getProlog();	
  * System.out.println(pro.toString());
  * if(!pro.invalidData()) { // The is not a valid trace
@@ -421,9 +421,6 @@ public class Format {
 
 	/** 
 	 * Creates a Format object on the given local file.<br>
-	 * Initializes the MRI.<br>
-	 * Formats the Prolog.<br>
-	 * Sets up the Filters.<br>
 	 * @param filename The file to format.
 	 */
 	public Format(String filename) {
@@ -443,7 +440,6 @@ public class Format {
 			}
 			return;
 		}
-		formatProlog();
 	}
 
 	/**
@@ -730,6 +726,11 @@ public class Format {
 			Thread progThread= new Thread(progress, "ProgDiag");
 			progress.setThread(progThread);
 			progThread.start();
+		}
+		
+		// If no output file specified use the same as the current trace but append the extension onto it.
+		if(outfile==null) {
+			
 		}
 
 		try {
@@ -1078,7 +1079,7 @@ public class Format {
 	 */
 	public String addBanner() {
 	    StringBuffer banner = new StringBuffer();
-		String record= ResourceBundleLoader_ct.getText("Frame");
+		String record= ResourceBundleLoader_ct.getText("Record");
 		String mac= ResourceBundleLoader_ct.getText("MACAddress");
 
 		banner.append(pro_.getTitle());

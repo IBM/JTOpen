@@ -96,7 +96,12 @@ public class IP6Header extends Header {
 			}
 			if (IPaddr == null && IPaddr2 == null) {
 				print= true; // The filtering doesn't apply to this header
-				// If only one address is specified.			
+				// If only one address is specified.	
+			} else if(IPaddr==null) {
+				// If either address matches we print this record
+				if (src.toString().equals(IPaddr2) || dst.toString().equals(IPaddr2)) {
+					print= true;
+				}		
 			} else if (IPaddr2 == null) {
 				// If either address matches we print this record
 				if (src.toString().equals(IPaddr) || dst.toString().equals(IPaddr)) {
@@ -151,8 +156,12 @@ public class IP6Header extends Header {
 				nextheaderh,
 				};
 
-		return Formatter.jsprintf(
-			"\t    "
+		String next= printnext(filter);
+		if (next == "") { // The header didn't pass the filter
+			return "";
+		} else {
+			return Formatter.jsprintf(
+				"\t    "
 				+ IPV6DATA
 				+ " . .:"
 				+ "  "
@@ -177,7 +186,8 @@ public class IP6Header extends Header {
 				+ ": {2}\n",
 			args)
 			+ printHexHeader()
-			+ printnext(filter);
+			+ next;
+		}
 	}
 
 	/**
