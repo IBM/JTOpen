@@ -47,6 +47,14 @@
 <!-- Set variable used to test if the command has one or more parameters.  -->  
 <xsl:variable name="HasParameters" select="//Parm"/>
 
+<!-- Set variable used to test if the command has an Examples section.     -->  
+<xsl:variable name="HasExamples" select="$CommandHelp!='__NO_HELP' and 
+      $CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]"/>
+
+<!-- Set variable used to test if the command has an Error Messages section.     -->  
+<xsl:variable name="HasErrorMessages" select="$CommandHelp!='__NO_HELP' and 
+      $CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]"/>
+
 
 <!-- 
 *********************************************************************************
@@ -201,9 +209,23 @@
    <td align="right" valign="top"><xsl:text>&#xa;</xsl:text>
    <a><xsl:attribute name="href">#<xsl:value-of select="@CmdName"/>.PARAMETERS.TABLE</xsl:attribute><xsl:value-of select="$_PARAMETERS"/></a>
    <br /><xsl:text>&#xa;</xsl:text>
-   <a><xsl:attribute name="href">#<xsl:value-of select="@CmdName"/>.COMMAND.EXAMPLES</xsl:attribute><xsl:value-of select="$_EXAMPLES"/></a>
+   <xsl:choose>
+    <xsl:when test="$HasExamples">
+      <a><xsl:attribute name="href">#<xsl:value-of select="$CommandHelpID"/>.COMMAND.EXAMPLES</xsl:attribute><xsl:value-of select="$_EXAMPLES"/></a>
+    </xsl:when>
+    <xsl:otherwise>
+      <a><xsl:attribute name="href">#<xsl:value-of select="@CmdName"/>.COMMAND.EXAMPLES</xsl:attribute><xsl:value-of select="$_EXAMPLES"/></a>
+    </xsl:otherwise>
+   </xsl:choose> 
    <br /><xsl:text>&#xa;</xsl:text>
-   <a><xsl:attribute name="href">#<xsl:value-of select="@CmdName"/>.ERROR.MESSAGES</xsl:attribute><xsl:value-of select="$_ERRORS"/></a>
+   <xsl:choose>
+    <xsl:when test="$HasErrorMessages">
+      <a><xsl:attribute name="href">#<xsl:value-of select="$CommandHelpID"/>.ERROR.MESSAGES</xsl:attribute><xsl:value-of select="$_ERRORS"/></a>
+    </xsl:when>
+    <xsl:otherwise>
+      <a><xsl:attribute name="href">#<xsl:value-of select="@CmdName"/>.ERROR.MESSAGES</xsl:attribute><xsl:value-of select="$_ERRORS"/></a>
+    </xsl:otherwise>
+   </xsl:choose> 
    </td><xsl:text>&#xa;</xsl:text>
    </tr><xsl:text>&#xa;</xsl:text>    
   </table>
@@ -303,56 +325,52 @@
     </xsl:for-each>
   </xsl:if>   
 
-<!-- Copy the Examples help section from the command help HTML file (if present)  -->
+ <!-- Copy the Examples help section from the command help HTML file (if present).
+     If the command has no online help or no examples help section, generate 
+     "stub" examples section so that the hypertext link at top of file is resolved.     -->
   <xsl:text>&#xa;</xsl:text>
   <hr width="100%" size="2" /><xsl:text>&#xa;</xsl:text>
-  <div><xsl:text>&#xa;</xsl:text>                                                         
-    <xsl:choose>
-      <xsl:when test="$CommandHelp!='__NO_HELP' and $CommandHelpDocument//div[a/@name=concat($CommandName,'.COMMAND.EXAMPLES')]">
-        <xsl:text/><a><xsl:attribute name="name">
-        <xsl:value-of select="$CommandName"/>.COMMAND.EXAMPLES</xsl:attribute></a>
-        <xsl:text>&#xa;</xsl:text>   
+  <xsl:choose>
+      <xsl:when test="$HasExamples">
         <xsl:copy-of select=
-             "$CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]"/>
+           "$CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]"/>
       </xsl:when>
       <xsl:otherwise>
+        <div><xsl:text>&#xa;</xsl:text>
         <xsl:text/><h3><a><xsl:attribute name="name">
            <xsl:value-of select="$CommandName"/>.COMMAND.EXAMPLES</xsl:attribute>
            <xsl:value-of select="$_EXAMPLES"/></a>
         </h3>
         <xsl:value-of select="$_NONE"/>   
+        <xsl:text>&#xa;</xsl:text>
+        </div>
       </xsl:otherwise>
-    </xsl:choose>    
-  <xsl:text>&#xa;</xsl:text>
-  </div>
-
-<!-- Add link to beginning of help file after the Examples section.              --> 
+  </xsl:choose>
+      
+ <!-- Add link to beginning of help file after the Examples section.                   -->
   <xsl:call-template name="AddLinkToTop"/>
 
-<!-- Copy the Error Messages help section from the command help HTML file (if present) -->
+ <!-- Copy the Error Messages help section from the command help HTML file (if present).
+     If the command has no online help or no error messages help section, generate a "stub" 
+     error messages section so that the hypertext link at top of file is resolved.     -->
   <xsl:text>&#xa;</xsl:text>
-  <hr width="100%" size="2" />
-  <xsl:text>&#xa;</xsl:text>
-  <div><xsl:text>&#xa;</xsl:text>                                                         
-    <xsl:choose>
-      <xsl:when test="$CommandHelp!='__NO_HELP' and
-                     $CommandHelpDocument//div[a/@name=concat($CommandName,'.ERROR.MESSAGES')]">
-        <xsl:text/><a><xsl:attribute name="name">
-        <xsl:value-of select="$CommandName"/>.ERROR.MESSAGES</xsl:attribute></a>
-        <xsl:text>&#xa;</xsl:text>   
+  <hr width="100%" size="2" /><xsl:text>&#xa;</xsl:text>
+  <xsl:choose>
+      <xsl:when test="$HasErrorMessages">
         <xsl:copy-of select=
-             "$CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]"/>
+           "$CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]"/>
       </xsl:when>
       <xsl:otherwise>
+        <div><xsl:text>&#xa;</xsl:text>                                                         
         <xsl:text/><h3><a><xsl:attribute name="name">
            <xsl:value-of select="$CommandName"/>.ERROR.MESSAGES</xsl:attribute>
            <xsl:value-of select="$_ERRORS"/></a>
         </h3>
         <xsl:value-of select="$_UNKNOWN"/>   
+        <xsl:text>&#xa;</xsl:text>
+        </div>
       </xsl:otherwise>
-    </xsl:choose>    
-  <xsl:text>&#xa;</xsl:text>
-  </div>
+  </xsl:choose>    
 
 <!-- Add link to beginning of help file after the Error messages section.             -->   
   <xsl:call-template name="AddLinkToTop"/>
