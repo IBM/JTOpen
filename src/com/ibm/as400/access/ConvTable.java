@@ -45,7 +45,7 @@ abstract class ConvTable
   // could use a smaller number to save space and those CCSIDs outside
   // the range just wouldn't get cached. However, 61952 is used
   // extensively, so we might as well max it out.
-  private static final int LARGEST_CCSID = 62245;
+  private static final int LARGEST_CCSID = 62251;
   private static final ConvTable[] ccsidPool_ = new ConvTable[LARGEST_CCSID+1]; //@P0A
 
   private static final Hashtable converterPool_ = new Hashtable();

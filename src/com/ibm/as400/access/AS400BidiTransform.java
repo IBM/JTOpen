@@ -160,7 +160,8 @@ public class AS400BidiTransform
         /*Hebrew.862*/   { 62242,   ST11 },
         /*Hebrew.916*/   { 62243,   ST11 },
         /*Hebrew.1255*/  { 62244,   ST11 },
-        /*Hebrew.424*/   { 62245,   ST10 }
+        /*Hebrew.424*/   { 62245,   ST10 },
+        /*Arabic.425*/   { 62251,   ST6  } // Used for OS/390
         };
 
     private final static int ccsidMax = ccsidTable.length - 1;
@@ -289,6 +290,7 @@ public class AS400BidiTransform
          case 62243:
          case 62244:
          case 62245:
+         case 62251:
            return true;
           default:
             return false;
