@@ -1290,7 +1290,7 @@ public class ObjectDescription
     parms[4] = new ProgramParameter(text10.toBytes("*"+type_)); // object type
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSROBJD.PGM", parms); // retrieve object description
-    pc.setThreadSafe(true);
+    // pc.setThreadSafe(true);
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
