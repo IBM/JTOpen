@@ -256,14 +256,40 @@ Returns the sender user name.
 **/
     public String getUser()
     {
-      if (sendingUser_ == "" && values_ != null)
-      {
-        String s = (String)values_.get(601);
-        if (s != null)
+        //Check if the system is a v5r3 or greater
+        boolean currentUser = false;                                                                    //@K1A
+        try                                                                                             //@K1A
+        {                                                                                               //@K1A
+            currentUser = messageQueue_.getSystem().getVRM() >= JDUtilities.vrm530;                     //@K1A
+        }                                                                                               //@K1A
+        catch(Exception e)                                                                              //@K1A
+        {                                                                                               //@K1A
+            //IF AS400SecurityException or IOException occurred                                         //@K1A
+            currentUser = false;                                                                        //@K1A
+        }                                                                                               //@K1A
+        if(currentUser)                                                                                 //@K1A
+        {                                                                                               //@K1A
+            //Use current user information
+            if (sendingUser_ == "" && values_ != null)                                                  //@K1A
+            {                                                                                           //@K1A
+                String s = (String)values_.get(607);                                                    //@K1A
+                if (s != null)                                                                          //@K1A
+                {                                                                                       //@K1A
+                    sendingUser_ = s.trim();                                                            //@K1A
+                }                                                                                       //@K1A
+            }                                                                                           //@K1A
+        }                                                                                               //@K1A
+        else                                                                                            //@K1A
         {
-          sendingUser_ = s.substring(10,20).trim();
-        }
-      }
+            if (sendingUser_ == "" && values_ != null)
+            {
+                String s = (String)values_.get(601);
+                if (s != null)
+                {
+                    sendingUser_ = s.substring(10,20).trim();
+                }
+            }
+        }                                                                                               //@K1A
       return sendingUser_;
     }
 
