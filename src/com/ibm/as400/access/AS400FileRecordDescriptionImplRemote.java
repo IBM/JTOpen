@@ -1183,7 +1183,13 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       { // Number of key fields is greater than 0
         for(int j = 0; j < numberOfKeyFields; ++j, ++keyRecordNumber)
         { // Add a key field description to the record format
-          rfs[i].addKeyFieldDescription(((String)keyRecords[keyRecordNumber].getField("APKEYF")).trim());
+          String keyFieldName = ((String)keyRecords[keyRecordNumber].getField("APKEYF")).trim();
+          // The DDS reference says that you can specify *NONE for a key field if you don't
+          // want it to actually be treated as a key field in a logical file.
+          if (!keyFieldName.equalsIgnoreCase("*NONE"))
+          {
+            rfs[i].addKeyFieldDescription(keyFieldName);
+          }
         }
       }
     }
