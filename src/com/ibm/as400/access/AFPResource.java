@@ -29,12 +29,9 @@ import java.beans.PropertyVetoException;
 public class AFPResource extends PrintObject
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
 
     public static final String  STR_FNTRSC  = "FNTRSC";
     public static final String  STR_FORMDF  = "FORMDF";
@@ -43,12 +40,11 @@ implements java.io.Serializable
     public static final String  STR_PAGSEG  = "PAGSEG";
     private static final String PATH        = "path";
 
-
     // constructor used internally (not externalized since it takes
     // an ID code point)
     AFPResource(AS400 system, NPCPIDAFPResource id, NPCPAttribute attrs)
     {
-        super(system, id, attrs, NPConstants.RESOURCE);  // @B1C
+        super(system, id, attrs, NPConstants.RESOURCE);
     }
 
 
@@ -64,7 +60,7 @@ implements java.io.Serializable
      **/
     public AFPResource()
     {
-        super(null, null, NPConstants.RESOURCE); // @B1C
+        super(null, null, NPConstants.RESOURCE);
 
         // Because of this constructor we will need to check the
         // run time state of AFPResource objects.
@@ -87,7 +83,7 @@ implements java.io.Serializable
     public AFPResource(AS400 system,
                        String resourceName)
     {
-        super(system, buildIDCodePoint(resourceName), null, NPConstants.RESOURCE); // @B1C
+        super(system, buildIDCodePoint(resourceName), null, NPConstants.RESOURCE);
 
         // The base class constructor checks for null system.
         // QSYSObjectPathName() checks for a null resourceName.
@@ -105,13 +101,11 @@ implements java.io.Serializable
     }
 
 
-
-    // A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
     void chooseImpl()
-    throws IOException, AS400SecurityException                              // @B1A
+    throws IOException, AS400SecurityException
     {
         // We need to get the system to connect to...
         AS400 system = getSystem();
@@ -140,7 +134,7 @@ implements java.io.Serializable
       * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       * @exception RequestNotSupportedException If the requested function is not supported because
-      *                                         the system is not at the correct level.
+      *                                         the server operating system is not at the correct level.
       **/
     public PrintObjectInputStream getInputStream()
         throws AS400Exception,
@@ -216,10 +210,10 @@ implements java.io.Serializable
             throw new NullPointerException( PATH );
         }
 
-        // check for connection...                                                  // @A1A
-        if (impl_ != null) {                                                        // @A1A
-            Trace.log(Trace.ERROR, "Cannot set property 'path' after connect.");    // @A1A
-            throw new ExtendedIllegalStateException( PATH , ExtendedIllegalStateException.PROPERTY_NOT_CHANGED ); // @A1A
+        // check for connection...
+        if (impl_ != null) {
+            Trace.log(Trace.ERROR, "Cannot set property 'path' after connect.");
+            throw new ExtendedIllegalStateException( PATH , ExtendedIllegalStateException.PROPERTY_NOT_CHANGED );
         }
 
         String oldPath = getPath();

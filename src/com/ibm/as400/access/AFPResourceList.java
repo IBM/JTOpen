@@ -23,8 +23,8 @@ import java.beans.PropertyVetoException;
   * used by a particular spooled file).  In addition,
   * font resources may be filtered by pel density.
   *
-  * To list and use AFP resources, your server must
-  * be at OS/400 V3R7 or later.
+  * To list and use AFP resources, your server operating system must
+  * be at V3R7 or later.
   *
   *@see AFPResource
   **/
@@ -33,11 +33,9 @@ import java.beans.PropertyVetoException;
 public class AFPResourceList extends PrintObjectList
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
 
     private SpooledFile spooledFileFilter_;
     private static final String RESOURCE_FILTER = "resourceFilter";
@@ -53,7 +51,7 @@ implements java.io.Serializable
      **/
     public AFPResourceList()
     {
-        super(NPConstants.RESOURCE, new NPCPSelRes()); // @B1C
+        super(NPConstants.RESOURCE, new NPCPSelRes());
         // Because of this constructor we will need to check the
         // the run time state of AFPResourceList objects.
     }
@@ -69,12 +67,10 @@ implements java.io.Serializable
      **/
     public AFPResourceList(AS400 system)
     {
-        super( NPConstants.RESOURCE, new NPCPSelRes(), system ); // @B1C
+        super( NPConstants.RESOURCE, new NPCPSelRes(), system );
     }
 
 
-
-    // @A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
@@ -123,7 +119,6 @@ implements java.io.Serializable
 
 
 
-    // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new AFPResource(system_, (NPCPIDAFPResource)cpid, cpattr);

@@ -25,7 +25,7 @@ package com.ibm.as400.access;
 
 class AFPResourceImplRemote extends PrintObjectImplRemote
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
