@@ -1,0 +1,174 @@
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// AS/400 Toolbox for Java - OSS version                                       
+//                                                                             
+// Filename: IFSChangeAttrsReq.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
+package com.ibm.as400.access;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+/**
+Change attributes request.
+**/
+class IFSChangeAttrsReq extends IFSDataStreamReq
+{
+  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+  private static final int FILE_HANDLE_OFFSET = 22;
+  private static final int CCSID_OFFSET = 26;
+  private static final int WORKING_DIR_HANDLE_OFFSET = 28;
+  private static final int ATTR_LIST_LEVEL_OFFSET = 32;
+  private static final int CREATE_DATE_OFFSET = 34;
+  private static final int MODIFY_DATE_OFFSET = 42;
+  private static final int ACCESS_DATE_OFFSET = 50;
+  private static final int SET_FLAGS_OFFSET = 58;
+  private static final int FIXED_ATTRS_OFFSET = 60;
+  private static final int FILE_SIZE_OFFSET = 64;
+  private static final int FILE_NAME_LL_OFFSET = 68;
+  private static final int FILE_NAME_CP_OFFSET = 72;
+  private static final int FILE_NAME_OFFSET = 74;
+  private static final int TEMPLATE_LENGTH = 48;
+
+/**
+Construct a change attributes request.
+@param fileHandle handle of file to change
+@param fileSize the desired file size in bytes
+**/
+  IFSChangeAttrsReq(int  fileHandle,
+                    int  fileSize)
+  {
+    super(20 + TEMPLATE_LENGTH);
+    setLength(data_.length);
+    setTemplateLen(TEMPLATE_LENGTH);
+    setReqRepID(0x000b);
+    set32bit(fileHandle, FILE_HANDLE_OFFSET);
+    set32bit(1, WORKING_DIR_HANDLE_OFFSET);
+    set16bit(1, ATTR_LIST_LEVEL_OFFSET);
+    setData(0L, CREATE_DATE_OFFSET);
+    setData(0L, MODIFY_DATE_OFFSET);
+    setData(0L, ACCESS_DATE_OFFSET);
+    set16bit(1, SET_FLAGS_OFFSET);
+    set32bit(fileSize, FILE_SIZE_OFFSET);
+  }
+
+/**
+Construct a change attributes request.
+@param fileHandle handle of file to change
+@param createDate the desired creation date (measured in milliseconds since
+January 1, 1970 00:00:00 GMT)
+@param modifyDate the desired last modification date (measured in milliseconds since
+January 1, 1970 00:00:00 GMT)
+@param accessDate the desired last access date (measured in milliseconds since
+January 1, 1970 00:00:00 GMT)
+**/
+  IFSChangeAttrsReq(int  fileHandle,
+                    long createDate,
+                    long modifyDate,
+                    long accessDate)
+  {
+    super(20 + TEMPLATE_LENGTH);
+    setLength(data_.length);
+    setTemplateLen(TEMPLATE_LENGTH);
+    setReqRepID(0x000b);
+    set32bit(fileHandle, FILE_HANDLE_OFFSET);
+    set32bit(1, WORKING_DIR_HANDLE_OFFSET);
+    set16bit(1, ATTR_LIST_LEVEL_OFFSET);
+    setDate(createDate, CREATE_DATE_OFFSET);
+    setDate(modifyDate, MODIFY_DATE_OFFSET);
+    setDate(accessDate, ACCESS_DATE_OFFSET);
+    set16bit(0, SET_FLAGS_OFFSET);
+  }
+
+/**
+Construct a change attributes request.
+@param fileName the name of the file to change
+@param fileNameCCSID file name CCSID
+@param fileSize the desired file size in bytes
+**/
+  IFSChangeAttrsReq(byte[] fileName,
+                    int    fileNameCCSID,
+                    int    fileSize)
+  {
+    super(20 + TEMPLATE_LENGTH + 6 + fileName.length);
+    setLength(data_.length);
+    setTemplateLen(TEMPLATE_LENGTH);
+    setReqRepID(0x000b);
+    set32bit(0, FILE_HANDLE_OFFSET);
+    set16bit(fileNameCCSID, CCSID_OFFSET);
+    set32bit(1, WORKING_DIR_HANDLE_OFFSET);
+    set16bit(1, ATTR_LIST_LEVEL_OFFSET);
+    setData(0L, CREATE_DATE_OFFSET);
+    setData(0L, MODIFY_DATE_OFFSET);
+    setData(0L, ACCESS_DATE_OFFSET);
+    set16bit(1, SET_FLAGS_OFFSET);
+    set32bit(fileSize, FILE_SIZE_OFFSET);
+
+    // Set the LL.
+    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+
+    // Set the code point.
+    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+
+    // Set the file name characters.
+    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+  }
+
+/**
+Construct a change attributes request.
+@param fileName the name of the file to change
+@param fileNameCCSID file name CCSID
+@param createDate the desired creation date (measured in milliseconds since
+January 1, 1970 00:00:00 GMT)
+@param modifyDate the desired last modification date (measured in milliseconds since
+January 1, 1970 00:00:00 GMT)
+@param accessDate the desired last access date (measured in milliseconds since
+January 1, 1970 00:00:00 GMT)
+**/
+  IFSChangeAttrsReq(byte[] fileName,
+                    int    fileNameCCSID,
+                    long   createDate,
+                    long   modifyDate,
+                    long   accessDate)
+  {
+    super(20 + TEMPLATE_LENGTH + 6 + fileName.length);
+    setLength(data_.length);
+    setTemplateLen(TEMPLATE_LENGTH);
+    setReqRepID(0x000b);
+    set32bit(0, FILE_HANDLE_OFFSET);
+    set16bit(fileNameCCSID, CCSID_OFFSET);
+    set32bit(1, WORKING_DIR_HANDLE_OFFSET);
+    set16bit(1, ATTR_LIST_LEVEL_OFFSET);
+    setDate(createDate, CREATE_DATE_OFFSET);
+    setDate(modifyDate, MODIFY_DATE_OFFSET);
+    setDate(accessDate, ACCESS_DATE_OFFSET);
+    set16bit(0, SET_FLAGS_OFFSET);
+
+    // Set the LL.
+    set32bit(fileName.length + 6, FILE_NAME_LL_OFFSET);
+
+    // Set the code point.
+    set16bit(0x0002, FILE_NAME_CP_OFFSET);
+
+    // Set the file name characters.
+    System.arraycopy(fileName, 0, data_, FILE_NAME_OFFSET, fileName.length);
+  }
+
+  // Get the copyright.
+  private static String getCopyright()
+  {
+    return Copyright.copyright;
+  }
+}
+
+
+
+

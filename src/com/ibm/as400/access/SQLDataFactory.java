@@ -1,0 +1,545 @@
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// AS/400 Toolbox for Java - OSS version                                       
+//                                                                             
+// Filename: SQLDataFactory.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
+package com.ibm.as400.access;
+
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
+
+
+
+/**
+<p>A factory that generates appropriate SQLData objects given
+various conditions.
+**/
+class SQLDataFactory
+{
+  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+
+/**
+Copyright.
+**/
+    static private String getCopyright ()
+    {
+        return Copyright.copyright;
+    }
+
+
+
+// @C2A
+/**
+Converts a String representation of a number in scientific 
+notation to a String representation without scientific
+notation.
+
+@param scientificNotation   The String representation of a number
+                            in scientific notation.
+@return                     The String representation without
+                            scientific notation.
+**/
+    static String convertScientificNotation (String scientificNotation)
+    {
+        // Check to see if it is indeed scientific notation.
+        int e = scientificNotation.indexOf ('E');
+        if (e < 0)
+            return scientificNotation;
+
+        // Parse the exponent.
+        int exponent = Integer.parseInt (scientificNotation.substring (e + 1));
+        
+        // Parse the sign.
+        boolean sign = (scientificNotation.charAt (0) != '-');            
+
+        // Parse the mantissa and pad with either trailing
+        // or leading 0's based on the sign and magnitude
+        // of the exponent.
+        StringBuffer buffer = new StringBuffer ();
+        if (exponent < 0) {
+            int digits = -exponent;
+            for (int i = 1; i <= digits; ++i)
+                buffer.append ('0');                
+            buffer.append (scientificNotation.substring (sign ? 0 : 1, e));                
+        }
+        else if (exponent > 0) {                    
+            buffer.append (scientificNotation.substring (sign ? 0 : 1, e));                
+            for (int i = 1; i <= exponent; ++i)
+                buffer.append ('0');                
+        }
+        String mantissa = buffer.toString ();
+
+        // All that is left is to move the decimal point.
+        // So we copy the digits, insert the decimal point
+        // at the correct place.
+        int decimalPoint = mantissa.indexOf ('.') + exponent;
+        if (exponent > 0)                                           // @C5A
+            ++decimalPoint;                                         // @C5A
+        buffer = new StringBuffer ();
+        int mantissaLength = mantissa.length();
+        for (int i = 0; i < mantissaLength; ++i) {
+            if (i == decimalPoint)
+                buffer.append ('.');
+            char ch = mantissa.charAt (i);                        
+            if (ch != '.') 
+                buffer.append (ch); 
+        }
+
+        // Strip leading and trailing 0's, if any.
+        int start = 0;
+        for (; buffer.charAt (start) == '0'; ++start);
+        int end = buffer.length () - 1;
+        for (; buffer.charAt (end) == '0'; --end);
+        String result = buffer.toString ().substring (start, end + 1);
+
+        // Add the sign and return.
+        return (sign ? "" : "-") + result;
+    }
+
+
+
+/**
+Compute the scale of an object.  This is the number
+of digits to the right of the decimal point.
+
+@param  object      A Java object.
+@return             the scale.
+**/
+    static int getScale (Object value)
+    {
+        int scale = 0;
+
+        String toString = value.toString();
+        int point = toString.indexOf ('.');
+        if (point != -1)
+            scale = toString.length () - point - 1;
+
+        return scale;
+    }
+
+
+
+/**
+Compute the precision of an object.  This is the
+total number of digits.
+
+@param  object      A Java object.
+@return             the precision.
+**/
+    static int getPrecision (Object value)
+    {
+        int precision = 0;
+
+        if (value instanceof Boolean)
+            precision = 1;
+
+        else {
+            String toString = value.toString();
+            int length = toString.length();
+            for (int i = 0; i < length; ++i)
+                if (Character.isDigit (toString.charAt (i)))
+                    ++precision;
+        }
+
+        return precision;
+    }
+
+
+
+/**
+Return a SQLData object corresponding to a
+a SQL type code defined in java.sql.Types.
+In the case where a SQL type code specifies a
+type that is not supported in DB2 for OS/400, then
+it will map to the next closest type.
+
+@param  sqlType     SQL type code defined in java.sql.Types.
+@param  maxLength   Max length of data.
+@param  precision   Precision of data.
+@param  scale       Scale of data.
+@param  settings    The conversion settings.
+@param  vrm         The AS/400 Version, Release, and Modification.
+@return             A SQLData object.
+
+@exception  SQLException    If no valid type can be
+                            mapped.
+**/
+
+    static SQLData newData (int sqlType,
+                            int maxLength,
+                            int precision,
+                            int scale,
+                            SQLConversionSettings settings,
+                            int vrm)                            // @D0C
+        throws SQLException
+    {
+        switch (sqlType) {                                      // @D0C
+
+        case Types.BIGINT:                                      // @D0A
+            if (vrm >= AS400JDBCConnection.BIGINT_SUPPORTED_)   // @D0A
+                return new SQLBigint();                         // @D0A
+            else
+                return new SQLInteger();
+
+        case Types.BINARY:
+            return new SQLBinary (maxLength, settings);
+
+        case Types.BLOB:
+            return new SQLBlob (maxLength - 4, settings);       // @D1C
+
+        case Types.CHAR:
+            return new SQLChar (maxLength, false, settings);
+
+        case Types.CLOB:
+            return new SQLClob (maxLength - 4, settings);       // @D1C
+
+        case Types.DATE:
+            return new SQLDate (settings);
+
+        case Types.DECIMAL:
+            return new SQLDecimal (precision, scale, settings);
+
+        case Types.DOUBLE:
+            return new SQLDouble (settings);
+
+        case Types.FLOAT:
+            return new SQLFloat (settings);
+
+        case Types.INTEGER:
+            return new SQLInteger ();
+
+        case Types.NUMERIC:
+            return new SQLNumeric (precision, scale, settings);
+
+        case Types.REAL:
+            return new SQLReal (settings);
+
+        case Types.SMALLINT:
+        case Types.TINYINT:                                     // @D0A
+        case Types.BIT:                                         // @D0A
+            return new SQLSmallint ();
+
+        case Types.TIME:
+            return new SQLTime (settings);
+
+        case Types.TIMESTAMP:
+            return new SQLTimestamp (settings);
+
+        case Types.VARBINARY:
+        case Types.LONGVARBINARY:                               // @D0A
+            return new SQLVarbinary (maxLength, false, settings);
+
+        case Types.VARCHAR:
+        case Types.LONGVARCHAR:                                 // @D0A
+            return new SQLVarchar (maxLength, settings);
+
+        default:
+            JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
+     		return null;
+
+        }
+    }
+
+
+
+/**
+Return a SQLData object corresponding to the
+specific AS/400 native type identifier.
+
+@param  connection      The connection.
+@param  id              The id.                                   
+@param  nativeType      An AS/400 native type identifier.
+@param  length          Length of data (in bytes).
+@param  precision       Precision of data.
+@param  scale           Scale of data.
+@param  ccsid           CCSID of data field.
+@param  translateBinary Indicates if binary fields should
+                        be translated.
+@param  settings        The conversion settings.
+@param  lobMaxSize      The lob max size.                                      @C3A
+@return                 A SQLData object.
+
+@exception  SQLException    If no valid type can be
+                            mapped.
+**/
+    static SQLData newData (AS400JDBCConnection connection,
+                            int id,
+                            int nativeType,
+                            int length,
+                            int precision,
+                            int scale,
+                            int ccsid,
+                            boolean translateBinary,
+                            SQLConversionSettings settings,
+                            int lobMaxSize)                                 // @C3A
+        throws SQLException
+    {
+        switch (nativeType) {
+
+        case 384:                           // Date.
+            return new SQLDate (settings);
+
+        case 388:                           // Time.
+            return new SQLTime (settings);
+
+        case 392:                           // Timestamp.
+            return new SQLTimestamp (settings);
+
+        case 396:                           // Datalink.
+            return new SQLDatalink (length - 2, settings);
+
+        case 404:                           // Blob.
+            return new SQLBlob (length - 4, settings);          // @D1C
+
+        case 408:                           // Clob.
+            if ((ccsid == -1) && (translateBinary == false))
+                return new SQLBlob (length - 4, settings);      // @D1C
+            else
+                return new SQLClob (length - 4, settings);      // @D1C
+        
+        case 412:                           // Dbclob.
+            return new SQLClob (length - 4, true, settings);    // @D1C
+
+        case 448:                           // Varchar.
+            if ((ccsid == -1) && (translateBinary == false))
+                return new SQLVarbinary (length - 2, false, settings);
+            else
+                return new SQLVarchar (length - 2, false, false, settings);
+
+        case 456:                           // Varchar long.
+            if ((ccsid == -1) && (translateBinary == false))
+                return new SQLVarbinary (length - 2, true, settings);
+            else
+                return new SQLVarchar (length - 2, false, true, settings);
+
+        case 452:                           // Char.
+            if ((ccsid == -1) && (translateBinary == false))
+                return new SQLBinary (length, settings);
+            else
+                return new SQLChar (length, false, settings);
+
+        case 464:                           // Graphic (pure DBCS).
+            return new SQLVarchar (length - 2, true, false, settings); // @C1C @C4C
+
+        case 472:                           // Graphic long (pure DBCS).
+            return new SQLVarchar (length - 2, true, true, settings); // @C1C @C4C
+
+        case 468:                           // Graphic fix (pure DBCS).
+            return new SQLChar (length, true, settings); // @C1C @C4C
+
+        case 480:                           // Float.
+            if (length == 4)
+                return new SQLReal (settings);
+            else
+                return new SQLDouble (settings);
+
+        case 484:                           // Packed decimal.
+            return new SQLDecimal (precision, scale, settings);
+
+        case 488:                           // Zoned decimal.
+            return new SQLNumeric (precision, scale, settings);
+
+        case 492:                           // Bigint.   // @D0A
+            return new SQLBigint();                      // @D0A
+
+        case 496:                           // Integer.
+            return new SQLInteger (scale);               // @A0C
+
+        case 500:                           // Smallint.
+            return new SQLSmallint (scale);              // @A0C
+
+        case 960:                           // Blob locator.
+            return new SQLBlobLocator (connection, id, lobMaxSize, settings);
+
+        case 964:                           // Clob locator.
+            if ((ccsid == -1) && (translateBinary == false))
+                return new SQLBlobLocator (connection, id, lobMaxSize, settings); 
+            else
+                return new SQLClobLocator (connection, id, lobMaxSize, settings); 
+        
+        case 968:                           // Dbclob locator.
+            return new SQLClobLocator (connection, id, lobMaxSize, true, settings);
+
+        default:
+            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            return null;
+        }
+    }
+
+
+
+/**
+Return a SQLData object corresponding to the
+specific AS/400 native type string.
+
+@param  nativeType  An AS/400 native type.
+@param  length      Length of data (in bytes).
+@param  precision   Precision of data.
+@param  scale       Scale of data.
+@param  settings    The conversion settings.
+@return             A SQLData object.
+
+@exception  SQLException    If no valid type can be
+                            mapped.
+**/
+//
+// In some cases, there are several different strings
+// that match a particular data type.  This is because,
+// different functions refer to the types with
+// different strings.
+//
+    static SQLData newData (String nativeType,
+                            int length,
+                            int precision,
+                            int scale,
+                            SQLConversionSettings settings)
+        throws SQLException
+    {
+        if (nativeType.equals ("BINARY"))
+            return new SQLBinary (length, settings);
+
+        else if (nativeType.equals("BIGINT"))                   // @D0A
+            return new SQLBigint();                             // @D0A
+
+        else if (nativeType.equals ("BLOB"))
+            return new SQLBlob (length - 4, settings);          // @D1C
+
+        else if (nativeType.equals ("CHAR"))
+            return new SQLChar (length, false, settings);
+
+        else if (nativeType.equals ("CHARACTE"))
+            return new SQLChar (length, false, settings);
+
+        else if (nativeType.equals ("CHARACTER"))
+            return new SQLChar (length, false, settings);
+
+        else if (nativeType.equals ("CHARACTER VARYING"))
+            return new SQLVarchar (length, settings);
+
+        else if (nativeType.equals ("CLOB"))
+            return new SQLClob (length - 4, settings);          // @D1C
+
+        else if (nativeType.equals ("DATALINK"))
+            return new SQLDatalink (length, settings);
+
+        else if (nativeType.equals ("DATE"))
+            return new SQLDate (settings);
+
+        else if (nativeType.equals ("DECIMAL"))
+            return new SQLDecimal (precision, scale, settings);
+
+        else if (nativeType.equals ("DOUBLE"))
+            return new SQLDouble (settings);
+
+        else if (nativeType.equals ("DOUBLE P"))
+            return new SQLDouble (settings);
+
+        else if (nativeType.equals ("DOUBLE PRECISION"))
+            return new SQLDouble (settings);
+
+        else if (nativeType.equals ("FLOAT")) {
+            if (length == 4)
+                return new SQLReal (settings);
+            else
+                return new SQLDouble (settings);
+        }
+
+        else if (nativeType.equals ("GRAPHIC"))
+            return new SQLChar (length, true, settings); // @C1C @C4C
+
+        else if (nativeType.equals ("GRAPHIC VARYING"))
+            return new SQLVarchar (length, settings); // @C1C @C4C
+
+        else if (nativeType.equals ("INTEGER"))
+            return new SQLInteger ();
+
+        else if (nativeType.equals ("NUMERIC"))
+            return new SQLNumeric (precision, scale, settings);
+
+        else if (nativeType.equals ("REAL"))
+            return new SQLReal (settings);
+
+        else if (nativeType.equals ("SMALLINT"))
+            return new SQLSmallint ();
+
+        else if (nativeType.equals ("TIME"))
+            return new SQLTime (settings);
+
+        else if (nativeType.equals ("TIMESTAM"))
+            return new SQLTimestamp (settings);
+
+        else if (nativeType.equals ("TIMESTAMP"))
+            return new SQLTimestamp (settings);
+
+        else if (nativeType.equals ("TIMESTMP"))
+            return new SQLTimestamp (settings);
+
+        else if (nativeType.equals ("VARBINARY"))
+            return new SQLVarbinary (length, false, settings);
+
+        else if (nativeType.equals ("VARCHAR"))
+            return new SQLVarchar (length, settings);
+
+        else if (nativeType.equals ("VARG"))
+            return new SQLVarchar (length, settings);
+
+        else if (nativeType.equals ("VARGRAPH"))
+            return new SQLVarchar (length, settings);
+
+        else {
+            JDError.throwSQLException (JDError.EXC_INTERNAL);
+     		return null;
+     	}
+    }
+
+
+
+/**
+Truncates the precision of a BigDecimal by removing digits from
+the left side of the decimal point.
+**/
+    public static BigDecimal truncatePrecision (BigDecimal bd, int precision)
+    {
+        boolean positive = bd.longValue () > 0;
+        StringBuffer buffer = new StringBuffer (positive ? "" : "-");
+        buffer.append (bd.toString ().substring (positive ? precision : precision + 1));
+        return new BigDecimal (buffer.toString ());
+    }
+
+
+
+/**
+Truncates the precision of a String representation of a number
+by removing digits from the right side of the decimal point.
+**/
+    public static String truncateScale (String value, int scale)
+    {
+        int point = value.indexOf ('.');
+        if (point >= 0) {
+            StringBuffer buffer = new StringBuffer (value);
+            for (int i = 1; i <= scale; ++i)
+                buffer.append ('0');
+            return buffer.toString ().substring (0, point + scale + 1);
+        }
+        else
+            return value;
+    }
+
+}

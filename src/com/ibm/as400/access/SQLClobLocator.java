@@ -1,0 +1,512 @@
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// AS/400 Toolbox for Java - OSS version                                       
+//                                                                             
+// Filename: SQLClobLocator.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
+package com.ibm.as400.access;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;                                 // @B3A
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;                // @B3A
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Calendar;
+
+
+
+class SQLClobLocator
+implements SQLLocator                                       // @B3C
+{
+  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+
+    // Private data.
+    private static final AS400Bin4  typeConverter_ = new AS400Bin4 ();
+
+    private boolean                 graphic_;
+    private AS400JDBCConnection     connection_;
+    private ConverterImplRemote     converter_;
+    private int                     id_;
+    private JDLobLocator            locator_;
+    private int                     maxLength_;
+    private SQLConversionSettings   settings_;
+    private int                     truncated_;
+
+
+
+    SQLClobLocator (AS400JDBCConnection connection,
+                    int id,
+                    int maxLength, 
+                    boolean graphic, 
+                    SQLConversionSettings settings)
+    {
+        connection_     = connection;
+        graphic_        = graphic;
+        id_             = id;
+        locator_        = new JDLobLocator (connection, id, maxLength);             // @B3C
+        maxLength_      = maxLength;
+        settings_       = settings;
+        truncated_      = 0;
+
+        try {
+            converter_      = graphic ? connection.getGraphicConverter ()
+                                      : connection.getConverter ();            
+        }
+        catch (SQLException e) {
+            converter_  = null;
+        }
+    }
+
+
+
+    SQLClobLocator (AS400JDBCConnection connection,
+                    int id,
+                    int maxLength, 
+                    SQLConversionSettings settings)
+    {
+        this (connection, id, maxLength, false, settings);
+    }
+
+
+
+    public Object clone ()
+    {
+        return new SQLClobLocator (connection_, id_, maxLength_, 
+                                   graphic_, settings_);
+    }
+
+
+
+    static private String getCopyright ()
+    {
+        return Copyright.copyright;
+    }
+
+
+
+    public void setHandle (int handle)                          // @B3A
+    {                                                           // @B3A
+        locator_.setHandle (handle);                            // @B3A
+    }                                                           // @B3A
+
+
+
+//---------------------------------------------------------//
+//                                                         //
+// CONVERSION TO AND FROM RAW BYTES                        //
+//                                                         //
+//---------------------------------------------------------//
+
+
+
+    public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+        throws SQLException
+    {
+        int locatorHandle = ((Integer) typeConverter_.toObject (rawBytes, offset)).intValue ();        
+        locator_.setHandle (locatorHandle);
+    }
+
+
+
+    public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
+        throws SQLException
+    {
+        typeConverter_.toBytes (locator_.getHandle (), rawBytes, offset);
+    }
+
+
+
+//---------------------------------------------------------//
+//                                                         //
+// SET METHODS                                             //
+//                                                         //
+//---------------------------------------------------------//
+
+
+
+    public void set (Object object, Calendar calendar, int scale)
+        throws SQLException
+    {
+        boolean set = false;                                                            // @B2A
+        
+        if (object instanceof String) {                                                 // @B3A
+            String string = (String) object;                                            // @B3A
+            byte[] bytes = converter_.stringToByteArray (string);                       // @B3A
+            locator_.writeData (0, bytes.length, bytes);                                // @B3A
+            set = true;                                                                 // @B3A
+        }                                                                               // @B3A
+        else {                                                                          // @B3A
+            try {                                                                       // @B2A
+                if (object instanceof Clob) {
+                    Clob clob = (Clob) object;
+                    int length = (int) clob.length ();
+                    String substring = clob.getSubString (1, length);                   // @D1
+                    locator_.writeData (0, length, converter_.stringToByteArray (substring));
+                    set = true;                                                         // @B2A
+                }
+            }
+            catch (NoClassDefFoundError e) {                                            // @B2C
+                // Ignore.  It just means we are running under JDK 1.1.                 // @B2C
+            }                                                                           // @B2C        
+        }                                                                               // @B3A
+    
+        if (! set)                                                                      // @B2C
+            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+    }
+
+
+
+//---------------------------------------------------------//
+//                                                         //
+// DESCRIPTION OF SQL TYPE                                 //
+//                                                         //
+//---------------------------------------------------------//
+
+
+
+    public String getCreateParameters ()
+    {
+        return AS400JDBCDriver.getResource ("MAXLENGTH"); 
+    }
+
+
+    public int getDisplaySize ()
+    {
+        if (graphic_)
+            return (maxLength_ / 2);
+        else
+            return maxLength_;
+    }
+
+
+    public String getLiteralPrefix ()
+    {
+        return null;
+    }
+
+
+    public String getLiteralSuffix ()
+    {
+        return null;
+    }
+
+
+    public String getLocalName ()
+    {
+        return "CLOB"; 
+    }
+
+
+    public int getMaximumPrecision ()
+    {
+        return 15728640;
+    }
+
+
+    public int getMaximumScale ()
+    {
+        return 0;
+    }
+
+
+    public int getMinimumScale ()
+    {
+        return 0;
+    }
+
+
+    public int getNativeType ()
+    {
+        if (graphic_) 
+            return 968;
+        else 
+            return 964;        
+    }
+
+
+    public int getPrecision ()
+    {
+        return maxLength_;
+    }
+
+
+    public int getRadix ()
+    {
+        return 0;
+    }
+
+
+    public int getScale ()
+    {
+        return 0;
+    }
+
+
+	public int getType ()
+	{
+		return java.sql.Types.CLOB;
+	}
+
+
+
+	public String getTypeName ()
+	{
+        if (graphic_)
+            return "DBCLOB";
+        else
+            return "CLOB";
+	}
+
+
+
+    public boolean isGraphic ()
+    {
+        return graphic_;
+    }
+
+
+
+    public boolean isSigned ()
+    {
+        return false;
+    }
+
+
+
+    public boolean isText ()
+    {
+        return true;
+    }
+
+
+
+
+//---------------------------------------------------------//
+//                                                         //
+// CONVERSIONS TO JAVA TYPES                               //
+//                                                         //
+//---------------------------------------------------------//
+
+
+
+    public int getActualSize ()
+    {
+        return maxLength_;
+    }
+
+
+
+    public int getTruncated ()
+    {
+        return 0;
+    }
+
+
+
+	public InputStream toAsciiStream ()
+	    throws SQLException
+	{
+	    return new AS400JDBCInputStream (locator_, converter_, "ISO8859_1");
+	}
+
+
+
+	public BigDecimal toBigDecimal (int scale)
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+
+
+
+	public InputStream toBinaryStream ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+	}
+
+
+
+	public Blob toBlob ()
+	    throws SQLException
+	{
+	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+	}
+
+
+
+	public boolean toBoolean ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return false;
+	}
+
+
+
+	public byte toByte ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return 0;
+	}
+
+
+
+	public byte[] toBytes ()
+	    throws SQLException
+	{
+	    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+	}
+
+
+
+	public Reader toCharacterStream ()
+	    throws SQLException
+	{
+       try {                                                                    // @B3A
+	        return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @B3C
+       }                                                                        // @B3A
+       catch (UnsupportedEncodingException e) {                                 // @B3A
+           JDError.throwSQLException (JDError.EXC_INTERNAL, e);                 // @B3A
+           return null;                                                         // @B3A
+       }                                                                        // @B3A
+	}
+
+
+
+	public Clob toClob ()
+	    throws SQLException
+	{
+	    return new AS400JDBCClobLocator (locator_, converter_);        
+	}
+
+
+
+	public Date toDate (Calendar calendar)
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+	}
+
+
+
+	public double toDouble ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return 0;
+	}
+
+
+
+	public float toFloat ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return 0;
+	}
+
+
+
+	public int toInt ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return 0;
+	}
+
+
+
+	public long toLong ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return 0;
+	}
+
+
+
+	public Object toObject ()
+	{
+	    return new AS400JDBCClobLocator (locator_, converter_);
+	}
+
+
+
+	public short toShort ()
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return 0;
+	}
+
+
+
+	public String toString ()
+	{
+        try {                                                                           // @C0A
+            DBLobData data = locator_.retrieveData (0, locator_.getMaxLength());        // @C0A
+            String value = converter_.byteArrayToString (data.getRawBytes (),           // @C0A
+                                                         data.getOffset (),             // @C0A
+                                                         data.getLength ());            // @C0A
+            return value;                                                               // @C0A
+        }                                                                               // @C0A
+        catch (SQLException e) {                                                        // @C0A
+            // toString() should not throw exceptions!                                  // @C0A
+            return super.toString();
+        }                                                                               // @C0A
+	}
+
+
+
+	public Time toTime (Calendar calendar)
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+	}
+
+
+
+	public Timestamp toTimestamp (Calendar calendar)
+	    throws SQLException
+	{
+		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+	}
+
+
+
+	public InputStream toUnicodeStream ()
+	    throws SQLException
+	{
+	    return new AS400JDBCInputStream (locator_, converter_, "UnicodeBigUnmarked"); // @B1C
+	}
+
+
+
+}
+
