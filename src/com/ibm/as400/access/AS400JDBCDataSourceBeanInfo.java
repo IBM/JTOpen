@@ -157,6 +157,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        extendedDynamic.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_EXTENDED_DYNAMIC"));
        extendedDynamic.setShortDescription(AS400JDBCDriver.getResource("EXTENDED_DYNAMIC_DESC"));
 
+       PropertyDescriptor fullOpen = new PropertyDescriptor("fullOpen", beanClass, "isFullOpen", "setFullOpen");    // @W1A
+       fullOpen.setBound(true);                                                                                     // @W1A
+       fullOpen.setConstrained(false);                                                                              // @W1A
+       fullOpen.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_FULL_OPEN"));                                 // @W1A
+       fullOpen.setShortDescription(AS400JDBCDriver.getResource("FULL_OPEN_DESC"));                                 // @W1A
+
        PropertyDescriptor lazyClose = new PropertyDescriptor("lazyClose", beanClass, "isLazyClose", "setLazyClose");    // @A1A
        lazyClose.setBound(true);                                                                                       // @A1A
        lazyClose.setConstrained(false);                                                                                 // @A1A
@@ -337,9 +343,9 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        user.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USER"));
        user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC"));
 
-       properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C
-          decimalSeparator, description, driver, errors, extendedDynamic, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear, 
-          packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, secondaryUrl, secure, serverName, sort, 
+       properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C 
+          decimalSeparator, description, driver, errors, extendedDynamic, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,                                //@W1c
+          packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, secondaryUrl, secure, serverName, sort,
           sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, transactionIsolation, translateBinary, user };
      }
      catch (Exception e)

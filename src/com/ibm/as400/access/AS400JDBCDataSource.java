@@ -822,6 +822,23 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 		return properties_.getBoolean(JDProperties.EXTENDED_DYNAMIC);
 	}
 
+  // @W1a
+  /**
+  *  Indicates whether the server fully opens a file when performing a query.
+  *  By default the server optimizes opens so they perform better.  In 
+  *  certain cases an optimized open will fail.  In some
+  *  cases a query will fail when a database performance monitor
+  *  is turned on even though the same query works with the monitor
+  *  turned off.  In this case set the full open property to true.
+  *  This disables optimization on the server.
+  *  @return true if files are fully opened; false otherwise.
+  *  The default value is false.
+  **/
+  public boolean isFullOpen()
+  {
+       return properties_.getBoolean(JDProperties.FULL_OPEN);
+  }
+
 	// @A1A
 	/**
 	*  Indicates whether to delay closing cursors until subsequent requests.
@@ -1427,6 +1444,37 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 		if (JDTrace.isTraceOn()) //@A8C 
 			JDTrace.logInformation (this, "extendedDynamic: " + extendedDynamic);  //@A8C
 	}
+
+  // @W1a new method
+  /**
+  *  Sets whether to fully open a file when performing a query.
+  *  By default the server optimizes opens so they perform better.  
+  *  In most cases optimization functions correctly and improves
+  *  performance.  Running a query repeatedly 
+  *  when a database performance monitor is turned on may fail
+  *  because of the optimization, however.
+  *  Leave this property set to its default (false) until
+  *  you experience errors running queries with monitors 
+  *  turned on.  At that time set the property to true which
+  *  will disable the optimization. 
+  *  @param fullOpen True to fully open a file (turn off optimizations), false
+  *          to allow optimizations.  The default value is false.
+  **/     
+  public void setFullOpen(boolean fullOpen)
+  {
+       Boolean oldValue = new Boolean(isFullOpen());
+       Boolean newValue = new Boolean(fullOpen);
+
+       if (fullOpen)
+            properties_.setString(JDProperties.FULL_OPEN, TRUE_);
+       else
+            properties_.setString(JDProperties.FULL_OPEN, FALSE_);
+
+       changes_.firePropertyChange("fullOpen", oldValue, newValue);
+
+       if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, "fullOpen: " + fullOpen);
+  }
 
 	// @A1A
 	/**
