@@ -1,4 +1,15 @@
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: AboutToolbox.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 //
 // AboutToolbox.  This program displays the Version, Release, and PTF 
 // level of the user's IBM Toolbox for Java.
@@ -12,27 +23,19 @@
 //    java utilities.AboutToolbox
 //
 //////////////////////////////////////////////////////////////////////////
-//
-// This code have not been thoroughly tested under all conditions.
-// IBM, therefore, cannot guarantee or imply reliability, serviceability,
-// or function of these programs.
-//
-// All programs contained herein are provided to you "AS IS" without any
-// warranties of any kind. The implied warranties of merchantability and
-// fitness for a particular purpose are expressly disclaimed.
-//
-// IBM Toolbox for Java
-// (C) Copyright IBM Corp. 1999
-// All rights reserved.
-// US Government Users Restricted Rights -
-// Use, duplication, or disclosure restricted
-// by GSA ADP Schedule Contract with IBM Corp.
-//
-//////////////////////////////////////////////////////////////////////////
+
 package utilities;
 
 import java.lang.reflect.*;
 
+/**
+ * Prints the current version of the Toolbox or JTOpen that is found in 
+ * the user's CLASSPATH.
+ * <P>
+ * Syntax: java utilities.AboutToolbox
+ * @see java.lang.Package
+ * @see com.ibm.as400.access.Copyright
+**/
 public class AboutToolbox
 {
    public static void main(String args[]) 
