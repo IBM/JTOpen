@@ -893,6 +893,7 @@ public class JobList implements Serializable
 /**
 Returns the list of jobs in the job list.
 This is the same as calling getJobs(-1, getLength()).
+Calls {@link #load load()} implicitly if needed.
 
 @return An Enumeration of {@link com.ibm.as400.access.Job Job} objects.
 

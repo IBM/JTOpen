@@ -17,6 +17,7 @@ import java.io.Serializable;
 
 /**
  The SocketProperties class represents a set of socket options the IBM Toolbox for Java will set on its client side sockets.  Setting the values on this object will not change any existing connection to the server.  The values retrieved from this object reflect only the values set into this object, not the properties of any actual connection to the server.
+<p>Socket properties are described in the javadoc for the JDK's <tt>java.net.Socket</tt> class. See the JDK documentation for further details.
  **/
 public class SocketProperties implements Serializable
 {
