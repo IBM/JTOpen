@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: RecordFormat.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -26,12 +26,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
 
 /**
- *The RecordFormat class represents the format of data returned from an AS/400 system.
+ *The RecordFormat class represents the format of data returned from an iSeries server.
  *It contains FieldDescription objects that describe the
- *data returned from an AS/400.  The RecordFormat class is used to generate a Record
- *object that can be used to access the data returned from the AS/400 as Java objects or
- *as byte arrays of AS/400 data.
- *For instance, the entries on an AS/400 data queue
+ *data returned from a server.  The RecordFormat class is used to generate a Record
+ *object that can be used to access the data returned from the server as Java objects or
+ *as byte arrays of server data.
+ *For instance, the entries on a server data queue
  *may have a specific format.  This format could be represented by a
  *RecordFormat object. The RecordFormat object could be used to generate a Record
  *object containing the data read from the data queue.  Based on the description of the
@@ -59,7 +59,7 @@ import java.beans.PropertyVetoException;
  *<p>
  *The RecordFormat class allows the user to do the following:
  *<ul>
- *<li>Describe the data returned from an AS/400.
+ *<li>Describe the data returned from a server.
  *<li>Retrieve a Record object containing data that is described by the RecordFormat.
  *</ul>
  *RecordFormat objects generate the following events:
@@ -83,7 +83,7 @@ import java.beans.PropertyVetoException;
 **/
 public class RecordFormat implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -149,7 +149,7 @@ public class RecordFormat implements Serializable
    *@param name The name of the record format.  The <i>name</i> is converted
    *to uppercase by this method.  When using this object with the record level
    *access classes, the <i>name</i> must be the name of the record format for
-   *the AS/400 file that is being described.
+   *the file that is being described.
   **/
   public RecordFormat(String name)
   {
@@ -287,8 +287,6 @@ public class RecordFormat implements Serializable
     vetos_.addVetoableChangeListener(listener); //@B0C
 //@B0D    currentVetoListeners_ = (Vector)vetoListeners_.clone();
   }
-
-//@B0D - removed getCopyright() method.
 
 
   //@B0A
@@ -748,7 +746,7 @@ public class RecordFormat implements Serializable
  /**
    * Returns the record format ID.
    * The record format ID corresponds to a record format ID within a page definition
-   * defined on the AS/400.
+   * defined on the server.
    *
    * @return  The record format ID.
   **/
@@ -1045,7 +1043,7 @@ public class RecordFormat implements Serializable
   /**
    * Sets the record format ID. The length of the record format ID must be 10 characters
    * or less.  The record format ID corresponds to a record format ID within a page
-   * definition on the AS/400.  If the record format ID is less than 10 characters,
+   * definition on the server.  If the record format ID is less than 10 characters,
    * it is padded to 10 characters in length with spaces.
    *
    * @param id  The record format ID.

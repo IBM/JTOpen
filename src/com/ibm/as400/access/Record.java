@@ -1,14 +1,14 @@
- ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: Record.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -34,9 +34,9 @@ import java.util.Vector;
  *<ul>
  *<li>An entry in a data queue.
  *<li>The parameter data provided to or returned by a program call.
- *<li>A record to be written to or read from an AS/400 file.
- *<li>Any data returned from the AS/400 that needs to be converted
- *between AS/400 format and Java format.
+ *<li>A record to be written to or read from a file on the server.
+ *<li>Any data returned from the server that needs to be converted
+ *between i5/OS format and Java format.
  *</ul>
  *Record objects generate the following events:
  *<ul>
@@ -56,13 +56,13 @@ import java.util.Vector;
 **/
 public class Record implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-    
+
     static final long serialVersionUID = 4L;
 
 
-  // The AS400 data for this record.
+  // The server data for this record.
   private byte[] as400Data_;
   // Array of the field descriptions that describe the fields in this record.
   // We initialize from RecordFormat.getFieldDescriptions() during construction
@@ -78,7 +78,7 @@ public class Record implements Serializable
   private boolean hasDependentFields_;
   // Indicates which fields have been converted to Java objects
   private boolean[] isConvertedToJava_;
-  // Indicates which fields have been converted to AS400 data .in the as400Data_ array
+  // Indicates which fields have been converted to server data in the as400Data_ array
   private boolean[] isConvertedToAS400_;
   // Name of the record
   private String name_ = "";
@@ -173,7 +173,7 @@ public class Record implements Serializable
    *provided for
    *the data for the field must equal the maximum field length for the field.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents)
     throws UnsupportedEncodingException
@@ -193,7 +193,7 @@ public class Record implements Serializable
    *the data for the field must equal the maximum field length for the field.
    *@param recordName The name to assign to the record.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents, String recordName)
     throws UnsupportedEncodingException
@@ -215,7 +215,7 @@ public class Record implements Serializable
    *@param offset The offset in <i>contents</i> at which to start.  The <i>offset</i> cannot
    *be less than zero.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents, int offset)
     throws UnsupportedEncodingException
@@ -321,7 +321,7 @@ public class Record implements Serializable
    *be less than zero.
    *@param recordName The name to assign to the record.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Record(RecordFormat recordFormat, byte[] contents, int offset, String recordName)
     throws UnsupportedEncodingException
@@ -394,7 +394,7 @@ public class Record implements Serializable
    * Tests this Record object for equality with the given object.
    * @param obj The Object to compare.
    * @return true if obj is a Record object and its record length, record number,
-   * record name, dependent fields, field values, and key field values equal this Record's; 
+   * record name, dependent fields, field values, and key field values equal this Record's;
    * false otherwise. Since there are so many pieces of data that determine whether
    * or not one Record equals another, the programmer may also want to consider using
    * Record.toString() and comparing the Strings for equality.
@@ -472,7 +472,7 @@ public class Record implements Serializable
   }
 
   /**
-   *Returns the contents of this record as a byte array of AS400 data.
+   *Returns the contents of this record as a byte array of server data.
    *Each field's contents will be placed into the byte array
    *based on the field description for the
    *field that is provided by the record format specified on construction of this object.
@@ -487,9 +487,9 @@ public class Record implements Serializable
    *@see Record#setRecordFormat
    *@return The contents of this record.
    *@exception CharConversionException If an error occurs when converting
-   *the contents of a field to AS400 data.
+   *the contents of a field to server data.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the contents of a field to AS400 data.
+   *the contents of a field to server data.
   **/
   public byte[] getContents()
     throws CharConversionException,
@@ -518,7 +518,7 @@ public class Record implements Serializable
       FieldDescription f;
       int variableFieldLength;
       for (int i = 0; i < fields_.length; ++i)
-      { // Convert each field to AS400 data
+      { // Convert each field to server data
         f = fieldDescriptions_[i];
         // Check for possible variable length field
         if (f instanceof VariableLengthFieldDescription)
@@ -543,11 +543,11 @@ public class Record implements Serializable
         // level access.
         dType = f.getDataType();
         if (fields_[i] != null)
-        { // Field has a value; convert it to AS400 data
+        { // Field has a value; convert it to server data
           offset += dType.toBytes(fields_[i], toBytes, offset);
         }
         else
-        { // Field is null; use the default value for the AS400 data to serve as a place holder for
+        { // Field is null; use the default value for the server data to serve as a place holder for
           // the field.
           offset += dType.toBytes(dType.getDefaultValue(), toBytes, offset);
         }
@@ -575,7 +575,7 @@ public class Record implements Serializable
    *@see Record#Record(com.ibm.as400.access.RecordFormat)
    *@see Record#setRecordFormat
    *@param out The stream to which to write the contents of the record.
-   *@exception IOException If an I/O error occurs while communicating with the AS/400.
+   *@exception IOException If an I/O error occurs while communicating with the server.
   **/
   public void getContents(OutputStream out)
     throws IOException
@@ -597,7 +597,7 @@ public class Record implements Serializable
    *             be between 0 and getNumberOfFields() - 1 inclusive.
    *@return The contents of the requested field.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Object getField(int index)
     throws UnsupportedEncodingException
@@ -630,7 +630,7 @@ public class Record implements Serializable
       { // Get the number of bytes returned for the field
         variableFieldLength = BinaryConverter.byteArrayToUnsignedShort(as400Data_, offset);
         offset += 2;
-        // Convert the AS400 data to a Java object
+        // Convert the server data to a Java object
         if ((f instanceof HexFieldDescription))
         { // Field is a hex field, no conversion is done on the data
           byte[] b = new byte[variableFieldLength];
@@ -669,7 +669,7 @@ public class Record implements Serializable
    *@param name The name of the field.
    *@return The contents of the requested field.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Object getField(String name)
     throws UnsupportedEncodingException
@@ -687,7 +687,7 @@ public class Record implements Serializable
    *@return The values of the fields in the record.  An array of size zero is
    *returned if the record format has not been set.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Object[] getFields()
     throws UnsupportedEncodingException
@@ -711,7 +711,7 @@ public class Record implements Serializable
    *An array of length 0 is returned if the record format has not been set
    *or if no key fields exist.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public Object[] getKeyFields()
     throws UnsupportedEncodingException
@@ -940,11 +940,11 @@ public class Record implements Serializable
       // level access.
       dType = fd.getDataType();
       if (fields_[i] != null) //@B1A
-      { // Field has a value; convert it to AS400 data
+      { // Field has a value; convert it to server data
         b.write(dType.toBytes(fields_[i]), 0, dType.getByteLength());
       }
       else //@B1A
-      { // Field is null; use the default value for the AS400 data to serve as a place holder for
+      { // Field is null; use the default value for the server data to serve as a place holder for
         // the field.
         b.write(dType.toBytes(dType.getDefaultValue()), 0, dType.getByteLength()); //@B1A
       }
@@ -1043,7 +1043,7 @@ public class Record implements Serializable
    *@param offset The offset within buf array from which to start reading.
    *@param length The number of bytes to read.
    *@returns The number of bytes read.
-   *@exception IOException If an I/O error occurs while communicating with the AS/400.
+   *@exception IOException If an I/O error occurs while communicating with the server.
    **/
   private int  readFromStream(InputStream in, byte[] buf, int offset, int length)
     throws IOException
@@ -1074,7 +1074,7 @@ public class Record implements Serializable
    *then continue on to restore the state (as necessary) of the remaining varaibles.
    *@param in The input stream from which to deserialize the object.
    *@exception ClassNotFoundException If the class being deserialized is not found.
-   *@exception IOException If an error occurs while communicating to the AS/400.
+   *@exception IOException If an error occurs while communicating to the server.
   **/
 
   private void readObject(java.io.ObjectInputStream in)
@@ -1154,7 +1154,7 @@ public class Record implements Serializable
    *@see Record#setRecordFormat
    *@param contents The data with which to set the contents of this record.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public void setContents(byte[] contents)
     throws UnsupportedEncodingException
@@ -1180,7 +1180,7 @@ public class Record implements Serializable
    *@param contents The data with which to set the contents of this record.
    *@param offset The offset in <i>contents</i> at which to start.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   public void setContents(byte[] contents, int offset)
     throws UnsupportedEncodingException
@@ -1249,7 +1249,7 @@ public class Record implements Serializable
           }
           // End @A1A
 
-          // Convert the AS400 data to a Java object
+          // Convert the server data to a Java object
           if (f instanceof HexFieldDescription)
           { // Field is a hex field, setDataType to indicate correct length
             newDataType = new AS400ByteArray(length);
@@ -1280,7 +1280,7 @@ public class Record implements Serializable
             variableFieldLength = BinaryConverter.byteArrayToUnsignedShort(contents, offset);
             offset += 2;
             recordLength_ += 2;
-            // Convert the AS400 data to a Java object
+            // Convert the server data to a Java object
             if ((f instanceof HexFieldDescription))
             { // Field is a hex field, no conversion is done on the data
               byte[] b = new byte[variableFieldLength];
@@ -1340,7 +1340,7 @@ public class Record implements Serializable
    *@see Record#Record(com.ibm.as400.access.RecordFormat)
    *@see Record#setRecordFormat
    *@param in The stream from which to read the data.
-   *@exception IOException If an I/O error occurs while communicating with the AS/400.
+   *@exception IOException If an I/O error occurs while communicating with the server.
   **/
   public void setContents(InputStream in)
     throws IOException
@@ -1427,11 +1427,11 @@ public class Record implements Serializable
       // level access.
       AS400DataType dType = f.getDataType();
       if (fields_[index] != null)
-      { // Field has a value; convert it to AS400 data
+      { // Field has a value; convert it to server data
         dType.toBytes(fields_[index], as400Data_, offset);
       }
       else
-      { // Field is null; use the default value for the AS400 data to serve as a place holder for
+      { // Field is null; use the default value for the server data to serve as a place holder for
         // the field.
         dType.toBytes(dType.getDefaultValue(), as400Data_, offset);
       }
