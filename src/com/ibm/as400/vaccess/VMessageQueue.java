@@ -183,8 +183,8 @@ Static initializer.
         VTableColumn fromJobNumberColumn = new VTableColumn (columnIndex++, VQueuedMessage.FROM_JOB_NUMBER_PROPERTY);
         fromJobNumberColumn.setCellRenderer (new VObjectCellRenderer ());
         fromJobNumberColumn.setHeaderRenderer (new VObjectHeaderRenderer ());
-        fromJobNumberColumn.setHeaderValue (fromJobColumnHeader_);
-        fromJobNumberColumn.setPreferredCharWidth (10);
+        fromJobNumberColumn.setHeaderValue (fromJobNumberColumnHeader_);  //@C1C
+        fromJobNumberColumn.setPreferredCharWidth (20);                   //@C1C
         detailsColumnModel_.addColumn (fromJobNumberColumn);
 
         // From program column.
