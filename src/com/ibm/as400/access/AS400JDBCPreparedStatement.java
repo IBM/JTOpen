@@ -1694,6 +1694,9 @@ implements PreparedStatement
 
                 // If the data is a locator, then set its handle.
                 if (sqlData instanceof SQLLocator) {
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle (parameterIndex));
+                    
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;
                     sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));
                     sqlData.set (parameterValue, null, length); // @J0M hacked this to use the scale parm for the length
