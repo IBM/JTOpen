@@ -179,7 +179,14 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
         // Prepare.
         prepared_ = true;
-        resultRow_ = commonPrepare(sqlStatement_);
+        //@L1A  Added try catch block around commonPrepare() for JTOpen Bug #3605 Statement not fully closed on error.
+        // If an error occurs in the preparing of the statement, we need to close any resources used by the PreparedStatement object.
+        try{                                                    
+            resultRow_ = commonPrepare(sqlStatement_);
+        }catch(SQLException e){
+            close();
+            throw e;
+        }
         executed_ = false;
 
         dataTruncation_ = connection.getProperties().getBoolean(JDProperties.DATA_TRUNCATION);
