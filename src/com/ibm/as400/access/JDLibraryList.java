@@ -46,10 +46,11 @@ Constructor.
   JDLibraryList (String list, String defaultSchema, String naming) // @C1C
   {
     boolean startsWithComma = false;                              // @E2a
+    String incomingList = list;
 
     // Initialize.
     defaultSchema_ = null;
-    if (defaultSchema != null)
+    if (!defaultSchema.equals("") || defaultSchema != null)
       if (defaultSchema.length() > 0)
         defaultSchema_ = defaultSchema.toUpperCase ();
 
@@ -145,8 +146,10 @@ Constructor.
         }
         else
         {
-          if (includesLibl)
+          if (includesLibl)                                                 //IF *LIBL was in the libraries connection property
             indicators_[i] = (liblPosition == -1) ? 'F' : 'L';
+          else if(incomingList.equals("") && !defaultSchema.equals(""))     //if libraries connection property was not specified and a default collection was put on the URL        //@K1A
+            indicators_[i] = (i == 0) ? 'F' : 'L';                                                                                                                                  //@K1A
           else
             indicators_[i] = (i == 0) ? 'C' : 'L';
           list_[i] = token;
