@@ -196,7 +196,7 @@ implements ResultSetMetaData
         if(extendedColumnDescriptors_ != null)                                                              //@G1A
         {
             //@G1A
-            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex);    //@KBA
+            DBColumnDescriptorsDataFormat dataFormat = extendedColumnDescriptors_.getColumnDescriptors(columnIndex, convTable_);    //@KBA  // Fix for JTOpen Bug 4034 The ccsid for the column may be 65535, if that is the case, we want to use the job's ccsid
             if(dataFormat != null)  //@KBA  The data format returned by the host server will be null for columns created by expressions, use old way
             {                      //@D9A
                 String columnLabel = dataFormat.getColumnLabel(convTable_); //@D9A

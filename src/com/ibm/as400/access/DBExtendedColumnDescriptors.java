@@ -105,6 +105,23 @@ class DBExtendedColumnDescriptors {
             return null;
     }
 
+    // Fix for JTOpen Bug 4034 - The CCSID for a column label may be 65535, if that is the case, we want to use the server job's ccsid.
+    public DBColumnDescriptorsDataFormat getColumnDescriptors (int columnIndex, ConvTable convTable)
+    throws SQLException
+    {    
+        // if variable column info length is 0, then no variable length column information
+        // was returned
+        int variableColumnInfoLength = getVariableColumnInfoLength(columnIndex);
+        if (variableColumnInfoLength > 0) {
+            int offsetToDescriptor = getVariableColumnInfoOffset (columnIndex);
+            DBColumnDescriptorsDataFormat columnDescriptorsDataFormat = new DBColumnDescriptorsDataFormat(convTable.getCcsid());  
+            columnDescriptorsDataFormat.overlay (data_, ((offset_ - 6) + offsetToDescriptor), variableColumnInfoLength);
+            return columnDescriptorsDataFormat;
+        }
+        else
+            return null;
+    }
+
 
 
     private int getExtendedColumnDescriptorOffset (int columnIndex)

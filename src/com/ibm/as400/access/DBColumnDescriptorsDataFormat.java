@@ -35,6 +35,7 @@ class DBColumnDescriptorsDataFormat
     // Column label is a string because we are given the CCSID in the field if we receive
     // a column label from the server.
     private String                 columnLabel_;  
+    private int                     jobCCSID_;                  // Fix for JTOpen Bug 4034
 
 
     /**
@@ -46,6 +47,17 @@ class DBColumnDescriptorsDataFormat
     {                                            
     }
 
+    // Fix for JTOpen Bug 4034
+    /**
+    Constructs a DBColumnDescriptorsDataFormat object.  Use this when overlaying
+    on a reply datastream.  The cached data will be set when overlay()
+    is called.
+    @param jobCCSID The ccsid of the server job.
+    **/
+    DBColumnDescriptorsDataFormat(int jobCCSID)                              
+    {                                            
+        jobCCSID_ = jobCCSID;
+    }
 
     /**
     Positions the overlay structure.  This reads the cached data only
@@ -80,6 +92,8 @@ class DBColumnDescriptorsDataFormat
             case 0x3902:
                 // column label (carries its own CCSID, so make it a String, not a byte array)
                 int ccsid = BinaryConverter.byteArrayToShort (rawBytes, offset + 6); 
+                if(ccsid == -1)             // Fix for JTOpen Bug 4034 - CCSID is 65535, use the server job's ccsid
+                    ccsid = jobCCSID_;      // Fix for JTOpen Bug 4034
                 try
                 {
                     columnLabel_ = (ConvTable.getTable(ccsid, null)).byteArrayToString(rawBytes, 
