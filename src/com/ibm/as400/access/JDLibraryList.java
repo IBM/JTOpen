@@ -52,6 +52,48 @@ Constructor.
     if (defaultSchema != null)
       if (defaultSchema.length() > 0)
         defaultSchema_ = defaultSchema.toUpperCase ();
+
+    // @F1: through v4r5 the server automatically added the default schema
+    //      to the front of the library list.  In v5r1 they stopped adding it.
+    //      ODBC Customers complained their apps no longer worked so ODBC changed
+    //      to add the default schema to the library list.  We will do the same
+    //      here because we will eventually have broken customers as well.  The
+    //      rules are add the default schema to the front of the library list
+    //      (1) for both SQL and system naming, (2) if it isn't already in the
+    //      list, (3) only if a default is specified (don't add the userid if SQL
+    //      naming).  Note we won't break the comma started list (@E2) since
+    //      that applies only if no default schema is specified.  If no default
+    //      is specified we don't change the list given to us by the user.
+    if (defaultSchema_ != null)                                      //@F1a
+    {                                                                //@F1a
+       if ((list != null) && (list.length() > 0))                    //@F1a
+       {                                                             //@F1a
+          // assume the deafult schema is not in the list            //@F1a
+          boolean alreadyInList = false;                             //@F1a
+                                                                     //@F1a
+          // does something in the list start with the default schema? //@F1a
+          if (list.toUpperCase().indexOf(defaultSchema_) >= 0)       //@F1a
+          {                                                          //@F1a
+             // Since something close is already in the list         //@F1a
+             // look at each token for an exact match.  The          //@F1a
+             // .indexOf() check will return a false positive if     //@F1a
+             // the default schema is DAW and a library in the       //@F1a
+             // list is DAWJDBC.  We do this extra processing        //@F1a
+             // only if there is a close match for performance       //@F1a
+             StringTokenizer tokenizer = new StringTokenizer (list, " ,:;");  //@F1a
+             while (tokenizer.hasMoreTokens ())                      //@F1a
+             {                                                       //@F1a
+                if (tokenizer.nextToken().toUpperCase().equals(defaultSchema_)) //@F1a
+                   alreadyInList = true;                             //@F1a
+             }                                                       //@F1a
+          }                                                          //@F1a
+          if (! alreadyInList)                                       //@F1a
+             list = defaultSchema_ + "," + list;                     //@F1a
+       }                                                             //@F1a
+       else                                                          //@F1a
+          list = defaultSchema_;                                     //@F1a
+    }                                                                //@F1a
+
     list_ = null;
     int liblPosition = -1;
 
