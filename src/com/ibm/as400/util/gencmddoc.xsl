@@ -1,17 +1,17 @@
 <?xml version="1.0"?> 
 
-<!--////////////////////////////////////////////////////////////////////
-//
-// LICENSED MATERIALS - PROPERTY OF IBM
-// 5722-JC1
-// 5722-SS1
-// (C) Copyright IBM Corp. 2002
-// All Rights Reserved
-// US Government Users Restricted Rights - Use,   
-// duplication or disclosure restricted by 
-// GSA ADP Schedule Contract with IBM Corp. 
-//
-////////////////////////////////////////////////////////////////////////-->
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: gencmddoc.xsl
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
 
 <!DOCTYPE xsl:stylesheet [
 <!-- entities for use in the generated output  -->
