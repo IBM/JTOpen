@@ -5,11 +5,11 @@
 <BODY>
 <H2>IBM Toolbox for Java - JTOpen version</H2>
 <PRE>
-Copyright (C) 1997-2003 International Business Machines Corporation and
+Copyright (C) 1997-2004 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: December 19, 2003
+Last updated: April 1, 2004
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -26,13 +26,58 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#43">Fixes and enhancements in JTOpen 4.3</A><BR>
 <A HREF="#42">Fixes and enhancements in JTOpen 4.2</A><BR>
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
 
 <HR>
-<H3><A NAME="#42">Fixes and enhancements in JTOpen 4.2</A></H3>
+<H3><A NAME="43">Fixes and enhancements in JTOpen 4.3</A></H3>
+<PRE>
+- Build: Added BidiConversionProperties to proxy jar.
+- Build: Added SystemProperties.class to jt400Servlet.jar.
+- CommandHelpRetriever: Added generateHTMLBytes() method.
+- CommandHelpRetriever: Set charset to UTF-8 instead of ISO-8859-1.
+- CommandHelpRetriever: Javadoc for generateHTML() now indicates the charset is UTF-8.
+- Data conversion: Added constant BidiStringType.NONE.
+- Data conversion: Fixed possible threadsafety issue with Bidi conversion.
+- Data conversion: Various fixes and enhancements related to bidi conversion.
+- Data conversion: Added class BidiConversionProperties.
+- Documentation: Various javadoc fixes, additions, and enhancements.
+- IFS: Fixed bug in IFSFile.mkdirs().
+- JDBC: DatabaseMetaData.getColumns(): Allow CHAR()/VARCHAR() FOR BIT DATA to be displayed instead of CHAR/VARCHAR.
+- JDBC: Added check for server functional level before setting Ctl timeout and lock wait.
+- JDBC: Added method AS400JDBCDriver.connect(AS400 system, boolean clone).
+- JDBC: Catch exceptions in the finalize() methods in AS400JDBCStatement and AS400JDBCResultSet.
+- JDBC: Allow binary string constants in the form of x'1234' and X'1234'.
+- JDBC: Treat the first character in an odd-length String or char[] as the lower nibble of a byte instead of the last character.
+- JDBC: Avoid optimization problem with JDK 1.3 BigDecimal.compareTo() method.
+- JDBC: AS400JDBCResultSet.updateRow() now uses the base column name instead of the column label.
+- JDBC: Changed SQLDBClobLocator.writeToServer() to use number of characters instead of number of bytes for the start offset.
+- JDBC: Changed autoCommit to trueAutoCommit to align with connection string property "true auto commit".
+- JDBC: JDBCProperties: Changed "bidirectional string type" to "bidi string type".
+- JDBC: SQLResultSetTableModel: Removed beforeFirst() call since stored procedures might not return a scrollable cursor if one is requested.
+- JDBC: AS400JDBCResultSet now returns null if a data mapping error occurs.
+- JDBC: SQLResultSetTableModel will now output "++++++++++++++" when a Data Mapping Error occurs.
+- JDBC: Use BidiConversionProperties class instead on only bidi string type.
+- JDBC: Added two connection properties "bidi implicit reordering" and "bidi numeric ordering".
+- Job: Return -1 on getQueuePriority() if job's status is *OUTQ.
+- JobList: Trace a warning message if there are open enumerations returned by a JobList and the JobList is being closed.
+- JobList: Invalidate all JobEnumerations created from a JobList which has been closed.
+- ObjectDescription: Tolerate additional error message in exists().
+- Print: Formdef is now handled on the server.
+- Print: Maintain lowercase for certain attributes.
+- Print: Retrieve AT_SYS_DRV_PGM attribute.  Added ATTR_CHR_RTT_CMDS attribute.
+- RFML: Rethrow IOException as SAXException on call to DefaultHandler.resolveEntity(), for compatibility with the IBM JDK.
+- RLA: Handle *NONE key field names in logical files.
+- SpooledFile: Retrieve ATTR_CHR_RTT_CMDS attribute.
+- SpooledFile: Don't retrieve ATTR_DATE_END or ATTR_TIME_END.
+- UserSpace: *SYSTEM domain was being sent to the server as *SYSTFM on a create().
+</PRE>
+
+<HR>
+<H3><A NAME="42">Fixes and enhancements in JTOpen 4.2</A></H3>
 <PRE>
 - Build: Created task to insert copyright strings into JTOpen-built class files.
 - Build: Added copyright strings to binary class files in CVS.
@@ -91,7 +136,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="#41">Fixes and enhancements in JTOpen 4.1</A></H3>
+<H3><A NAME="41">Fixes and enhancements in JTOpen 4.1</A></H3>
 <PRE>
 - Build: Include build directory in src.zip.
 - Build: Added xpcml.xsd to jt400.jar and jt400Native.jar
@@ -169,7 +214,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 </PRE>
 
 <HR>
-<H3><A NAME="#40">Fixes and enhancements in JTOpen 4.0</A></H3>
+<H3><A NAME="40">Fixes and enhancements in JTOpen 4.0</A></H3>
 <PRE>
 - Build: Compile with JDK 1.4 to eliminate dependencies, target JDK 1.1.
 - Build: Updated manifest files with new JTOpen version number.
