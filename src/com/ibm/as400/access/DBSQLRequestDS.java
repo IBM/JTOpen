@@ -67,6 +67,14 @@ extends DBBaseRequestDS
     public static final int FETCH_CURRENT       = 0x0006;
     public static final int FETCH_RELATIVE      = 0x0007;
 
+    //@F6A Constants for cursor sensitivity property (for >= v5r2 servers)
+    public static final int CURSOR_NOT_SCROLLABLE_ASENSITIVE  = 0;      
+    public static final int CURSOR_SCROLLABLE_ASENSITIVE      = 1;          
+    public static final int CURSOR_SCROLLABLE_INSENSITIVE     = 2; 
+    public static final int CURSOR_SCROLLABLE_SENSITIVE       = 3;
+    public static final int CURSOR_NOT_SCROLLABLE_SENSITIVE   = 4;       
+    public static final int CURSOR_NOT_SCROLLABLE_INSENSITIVE = 5;    
+
 
 /**
    Constructs a datastream for the SQL Server request functions.

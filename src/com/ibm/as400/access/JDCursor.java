@@ -267,7 +267,35 @@ Opens the cursor and describes the data format.
                                              0);
 
       request.setOpenAttributes (openAttributes);
+                //@F1 Even though multiple cases were required in AS400JDBCStatement, scrollable is 
+                //@F1 always false when openDescribe is called, so the cursor is always forward-only 
+                //@F1 and we need less cases here.  More cases would need to be added if the value 
+                //@F1 of scrollable was not always false (between sensitive and insensitive 
+                //@F1 resultSetType).  Right now, the value of false for scrollable always indicates 
+                //@F1 forward-only (not scrollable).  If this changed, instead of a boolean, we'd need  
+                //@F1 an int with sensitive/insensitive/forward-only passed in as the choices to this 
+                //@F1 method.
+                //@F1 If we are pre-V5R2, send what we always have.
+                if (connection_.getVRM() < JDUtilities.vrm520)              //@F1A
+                {
       request.setScrollableCursorFlag (scrollable ? 1 : 0);
+                }
+                else
+                {   //else check value of "cursor sensitivity" property
+                    if (!scrollable)
+                    {
+                        // If the property is set to the default value, send same value we always have.
+                        String cursorSensitivity = connection_.getProperties().getString(JDProperties.CURSOR_SENSITIVITY);    //@F1A
+                        if (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))                   //@F1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_ASENSITIVE);                //@F1A
+                        else if (cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_INSENSITIVE))             //@F1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_INSENSITIVE);               //@F1A
+                        else                                                                                                  //@F1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_NOT_SCROLLABLE_SENSITIVE);                 //@F1A
+                    }                                                                                                         //@F1A
+                    else //add more cases if this method starts being called with scrollable not always equal to false        //@F1A
+                        request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE); //@F1A
+                }
 
       reply = connection_.sendAndReceive (request, id_); //@P0C
 
