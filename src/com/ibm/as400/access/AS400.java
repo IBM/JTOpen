@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -34,7 +35,7 @@ import java.util.Vector;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
- Represents the authentication information and a set of connections to an iSeries server.
+ Represents the authentication information and a set of connections to a server.
  <p>If running under i5/OS or an older version of this operating system, the system name, user ID, and password do not need to be supplied.  These values default to the local system.  For the system name, the keyword localhost can be used to specify the local system.  For the user ID and password, *CURRENT can be used.
  <p>If running on another operating system to a server, the system name, user ID, and password need to be supplied.  If not supplied, the first open request associated with this object will prompt the workstation user.  Subsequent opens associated with the same object will not prompt the workstation user.  Keywords localhost and *CURRENT will not work when running from another operating system.
  <p>For example:
@@ -825,16 +826,17 @@ public class AS400 implements Serializable
     /**
      Connects to a service on the server.  Security is validated and a connection is established to the server.
      <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
-     @param  service  The name of the service.
-     <br>Valid services are:
-     <br>   FILE - IFS file classes.
-     <br>   PRINT - print classes.
-     <br>   COMMAND - command and program call classes.
-     <br>   DATAQUEUE - data queue classes.
-     <br>   DATABASE - JDBC classes.
-     <br>   RECORDACCESS - record level access classes.
-     <br>   CENTRAL - licence management classes.
-     <br>   SIGNON - sign-on classes.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>FILE - IFS file classes.
+     <li>PRINT - print classes.
+     <li>COMMAND - command and program call classes.
+     <li>DATAQUEUE - data queue classes.
+     <li>DATABASE - JDBC classes.
+     <li>RECORDACCESS - record level access classes.
+     <li>CENTRAL - licence management classes.
+     <li>SIGNON - sign-on classes.
+     </ul>
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the server.
      **/
@@ -917,16 +919,17 @@ public class AS400 implements Serializable
 
     /**
      Disconnects the service from the server.  All socket connections associated with this service and this object will be closed.
-     @param  service  The name of the service.
-     <br>Valid services are:
-     <br>   FILE - IFS file classes.
-     <br>   PRINT - print classes.
-     <br>   COMMAND - command and program call classes.
-     <br>   DATAQUEUE - data queue classes.
-     <br>   DATABASE - JDBC classes.
-     <br>   RECORDACCESS - record level access classes.
-     <br>   CENTRAL - licence management classes.
-     <br>   SIGNON - sign-on classes.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>FILE - IFS file classes.
+     <li>PRINT - print classes.
+     <li>COMMAND - command and program call classes.
+     <li>DATAQUEUE - data queue classes.
+     <li>DATABASE - JDBC classes.
+     <li>RECORDACCESS - record level access classes.
+     <li>CENTRAL - licence management classes.
+     <li>SIGNON - sign-on classes.
+     </ul>
      **/
     public void disconnectService(int service)
     {
@@ -1070,12 +1073,13 @@ public class AS400 implements Serializable
     }
 
     /**
-     Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the server has been made.
-     <br>Valid authentication schemes are:
-     <br>   AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
-     <br>   AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
-     <br>   AUTHENTICATION_SCHEME_PROFILE_TOKEN - profile tokens are used.
-     <br>   AUTHENTICATION_SCHEME_IDENTITY_TOKEN - identity tokens are used.
+     Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the server has been made.  Valid authentication schemes are:
+     <ul>
+     <li>AUTHENTICATION_SCHEME_PASSWORD - passwords are used.
+     <li>AUTHENTICATION_SCHEME_GSS_TOKEN - GSS tokens are used.
+     <li>AUTHENTICATION_SCHEME_PROFILE_TOKEN - profile tokens are used.
+     <li>AUTHENTICATION_SCHEME_IDENTITY_TOKEN - identity tokens are used.
+     </ul>
      @return  The authentication scheme in use for this object.
      **/
     public int getAuthenticationScheme()
@@ -1241,16 +1245,17 @@ public class AS400 implements Serializable
 
     /**
      Returns an array of Job objects representing the server jobs to which this object is connected.  This information is only available when connecting to servers at operating system release V5R2M0 and later.  The array will be of length zero if no connections are currently active.
-     @param  service  The name of the service.
-     <br>Valid services are:
-     <br>   FILE - IFS file classes.
-     <br>   PRINT - print classes.
-     <br>   COMMAND - command and program call classes.
-     <br>   DATAQUEUE - data queue classes.
-     <br>   DATABASE - JDBC classes.
-     <br>   RECORDACCESS - record level access classes.
-     <br>   CENTRAL - licence management classes.
-     <br>   SIGNON - sign-on classes.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>FILE - IFS file classes.
+     <li>PRINT - print classes.
+     <li>COMMAND - command and program call classes.
+     <li>DATAQUEUE - data queue classes.
+     <li>DATABASE - JDBC classes.
+     <li>RECORDACCESS - record level access classes.
+     <li>CENTRAL - licence management classes.
+     <li>SIGNON - sign-on classes.
+     </ul>
      @return  The array of job objects.
      **/
     public Job[] getJobs(int service)
@@ -1617,16 +1622,17 @@ public class AS400 implements Serializable
 
     /**
      Returns the service port stored in the service port table for the specified service.
-     @param  service  The name of the service.
-     <br>Valid services are:
-     <br>   FILE - IFS file classes.
-     <br>   PRINT - print classes.
-     <br>   COMMAND - command and program call classes.
-     <br>   DATAQUEUE - data queue classes.
-     <br>   DATABASE - JDBC classes.
-     <br>   RECORDACCESS - record level access classes.
-     <br>   CENTRAL - licence management classes.
-     <br>   SIGNON - sign-on classes.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>FILE - IFS file classes.
+     <li>PRINT - print classes.
+     <li>COMMAND - command and program call classes.
+     <li>DATAQUEUE - data queue classes.
+     <li>DATABASE - JDBC classes.
+     <li>RECORDACCESS - record level access classes.
+     <li>CENTRAL - licence management classes.
+     <li>SIGNON - sign-on classes.
+     </ul>
      @return  The port specified in the service port table.  The value USE_PORT_MAPPER will be returned if the service has not been set, and the service has not been connected.
      **/
     public int getServicePort(int service)
@@ -1803,16 +1809,17 @@ public class AS400 implements Serializable
     /**
      Indicates if a service is currently connected through this object.
      <p>A service is connected if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
-     @param  service  The name of the service.
-     <br>Valid services are:
-     <br>   FILE - IFS file classes.
-     <br>   PRINT - print classes.
-     <br>   COMMAND - command and program call classes.
-     <br>   DATAQUEUE - data queue classes.
-     <br>   DATABASE - JDBC classes.
-     <br>   RECORDACCESS - record level access classes.
-     <br>   CENTRAL - licence management classes.
-     <br>   SIGNON - sign-on classes.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>FILE - IFS file classes.
+     <li>PRINT - print classes.
+     <li>COMMAND - command and program call classes.
+     <li>DATAQUEUE - data queue classes.
+     <li>DATABASE - JDBC classes.
+     <li>RECORDACCESS - record level access classes.
+     <li>CENTRAL - licence management classes.
+     <li>SIGNON - sign-on classes.
+     </ul>
      @return  true if service is connected; false otherwise.
      **/
     public boolean isConnected(int service)
@@ -1941,6 +1948,35 @@ public class AS400 implements Serializable
         if (impl.indexOf ('.') == -1)
         {
             impl = "com.ibm.as400.access." + impl;
+        }
+
+        if (Trace.traceOn_)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "Checking for multiple Toolbox versions.");
+            try
+            {
+                String thisFileName = "com/ibm/as400/access/AS400.class";
+                String loadFileName = impl.replace('.', '/') + ".class";
+                URL thisUrl = Class.forName("com.ibm.as400.access.AS400").getClassLoader().getResource(thisFileName);
+                URL loadUrl = Class.forName(impl).getClassLoader().getResource(loadFileName);
+                if (thisUrl != null && loadUrl != null)
+                {
+                    String thisPath = thisUrl.getPath();
+                    String loadPath = loadUrl.getPath();
+                    Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class: " + thisPath);
+                    Trace.log(Trace.DIAGNOSTIC, "Path of loaded impl class: " + loadPath);
+                    String thisDirPath = thisPath.substring(0, thisPath.length() - thisFileName.length() - 2);
+                    String loadDirPath = loadPath.substring(0, loadPath.length() - loadFileName.length() - 2);
+                    if (!thisDirPath.equals(loadDirPath))
+                    {
+                        Trace.log(Trace.WARNING, "Found Toolbox classes in different locations: " + thisDirPath + ", " + loadDirPath);
+                    }
+                }
+            }
+            catch (Throwable e)
+            {
+                Trace.log(Trace.DIAGNOSTIC, e);
+            }
         }
 
         try
@@ -2689,7 +2725,7 @@ public class AS400 implements Serializable
 
     /**
      Sets the GSS credential for this object.  The GSS credential cannot be changed once a connection to the server has been established.  Using this method will set the authentication scheme to AUTHENTICATION_SCHEME_GSS_TOKEN.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any set profile token, identity token, or password.
-     @param  gssCredential  The GSS credential object.  The type of this must be org.ietf.jgss.GSSCredential, the object is set to type to object only to avoid a JDK release dependency.
+     @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
      **/
     public void setGSSCredential(Object gssCredential)
     {
@@ -2969,16 +3005,17 @@ public class AS400 implements Serializable
 
     /**
      Sets the service port in the service port table for the specified service for this system name.
-     @param  service  The name of the service.
-     <br>Valid services are:
-     <br>   FILE - IFS file classes.
-     <br>   PRINT - print classes.
-     <br>   COMMAND - command and program call classes.
-     <br>   DATAQUEUE - data queue classes.
-     <br>   DATABASE - JDBC classes.
-     <br>   RECORDACCESS - record level access classes.
-     <br>   CENTRAL - licence management classes.
-     <br>   SIGNON - sign-on classes.
+     @param  service  The name of the service.  Valid services are:
+     <ul>
+     <li>FILE - IFS file classes.
+     <li>PRINT - print classes.
+     <li>COMMAND - command and program call classes.
+     <li>DATAQUEUE - data queue classes.
+     <li>DATABASE - JDBC classes.
+     <li>RECORDACCESS - record level access classes.
+     <li>CENTRAL - licence management classes.
+     <li>SIGNON - sign-on classes.
+     </ul>
      @param  port  The port to use for this service.  The value USE_PORT_MAPPER can be used to specify that the next connection to this service should ask the port mapper server for the port number.
      **/
     public void setServicePort(int service, int port)
