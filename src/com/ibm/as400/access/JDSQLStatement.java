@@ -418,7 +418,8 @@ class JDSQLStatement
             hasReturnValueParameter_ = true;                                        // @E1A
             --numberOfParameters_;  // We will "fake" the first one.                // @E1A
         }                                                                           // @E1A
-        else if (firstWord.equals(CONNECT_) || firstWord.equals(CONNECTION_) || firstWord.equals(DISCONNECT_) || firstWord.equals(RELEASE_)) //@F1C
+        // @E10 moved Release to its own block
+        else if (firstWord.equals(CONNECT_) || firstWord.equals(CONNECTION_) || firstWord.equals(DISCONNECT_)) //@F1C @E10c
         {
             nativeType_ = TYPE_CONNECT;
 
@@ -431,6 +432,16 @@ class JDSQLStatement
                 isDRDADisconnect_ = true;               // @B1A
             }
         }
+        // @E10 now release can be both a DRDC connection release or a savepoint release
+        else if (firstWord.equals(RELEASE_))             //@E10a
+        {                                                //@E10a
+            String upperCaseSql = value_.toUpperCase();  //@E10a
+            int k = upperCaseSql.indexOf("SAVEPOINT");   //@E10a
+            if (k >= 0)                                  //@E10a
+               {}      // no need to do anything         //@E10a
+            else                                         //@E10a
+               nativeType_ = TYPE_CONNECT;               //@E10a
+        }                                                //@E10a
         else if (firstWord.equals(INSERT_))
         {
             isInsert_ = true;

@@ -186,6 +186,7 @@ implements Connection
     // the definition of each bit in the bit map are defined in Trace.java
     private int                         traceServer_ = 0;               // @j1a
 
+    private boolean mustSpecifyForUpdate_ = true;                       // @j31
 
 
     /**
@@ -1214,6 +1215,18 @@ implements Connection
         JDError.throwSQLException (JDError.EXC_MAX_STATEMENTS_EXCEEDED);
         return -1;
     }
+
+
+    // @j31a new method -- must the user have "for update" on their
+    //       SQL statement to get an updatable cursor.  The answer is
+    //       no for v5r2 and v5r1 servers with a PTF.  For V5R1 servers
+    //       without the PTF, v4r5, and earlier, the answer is yes.  
+    boolean getMustSpecifyForUpdate ()
+    {
+       return mustSpecifyForUpdate_;
+    }
+
+
 
 
 
@@ -2917,7 +2930,12 @@ implements Connection
         if (id > 0)
             name = "T_JDBCINTERNAL_" + id;
 
-        processSavepointRequest("SAVEPOINT " + name);   
+        // When creating the savepoint specify retain cursors.  That is the
+        // only option supported by the AS/400 at this time.  We have to specify
+        // it because the SQL default is close cursors.  Since we need to use 
+        // an option other than the default we have to specify it on the statement.
+        // Plus, the server will return an error if we don't specify it.  
+        processSavepointRequest("SAVEPOINT " + name + " ON ROLLBACK RETAIN CURSORS" );
 
         return(Savepoint)(Object) new AS400JDBCSavepoint(name, id);
     }
@@ -3111,9 +3129,9 @@ implements Connection
                 // to support altering the cursor type in the RPB.  (AmbiguousSelectOption(1)
                 // means read-only)
                 if (vrm_ >= JDUtilities.vrm520)                              // @J3a
-                {
-                    // @J3a
+                {                                                            // @J3a
                     request.setAmbiguousSelectOption(1);                     // @J3a
+                    mustSpecifyForUpdate_ = false;                           // @J31a
                 }                                                            // @J3a
 
 
@@ -3210,6 +3228,13 @@ implements Connection
             // Get the job number, but only if .                                                   @E8A
             if (serverFunctionalLevel_ >= 5)                                                    // @E8A
                 serverJobIdentifier_ = serverAttributes.getServerJobIdentifier(converter_);     // @E8A
+
+            // User no longer needs to specify "for update" on their SQL 
+            // statements if running to v5r1 with a PTF. (V5R2 and later
+            // is handled in another piece of code)           
+            if ((vrm_ == JDUtilities.vrm510) &&                     //@J31a
+                ( serverFunctionalLevel_ >= 10))                    //@J31a
+                mustSpecifyForUpdate_ = false;                      //@J31a
 
             if (JDTrace.isTraceOn ())
             {                                     // @C2C
