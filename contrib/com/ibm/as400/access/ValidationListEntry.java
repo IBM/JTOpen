@@ -1,6 +1,4 @@
-package com.kingland.as400.access;
-
-import com.ibm.as400.access.*;
+package com.ibm.as400.access;
 
 /**
  * Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.
