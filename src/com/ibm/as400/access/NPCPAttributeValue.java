@@ -197,9 +197,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
     {
        if (!NPAttribute.idIsValid(attrID))
        {
-          // throw some sorta programmer error exception here
-          throw(new ExtendedIllegalArgumentException("attrID("+ attrID +")",
-                             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        }
 
        if (fListOutOfDate_)
@@ -279,9 +278,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
        if (!NPAttribute.idIsValid(attrID))
        {
-          // throw some sorta programmer error exception here
-          throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        }
 
        if (fListOutOfDate_)
@@ -369,10 +367,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
                  // rcString = new String(attrString.get());
                  rcString = attrString.get();
               } else {
-                 //  throw an exception (illegalArgument exception)
-                 //  System.out.println(" This isn't a NPAttrString ");
-                 throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+                 throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
               }
           }
        }
@@ -387,9 +383,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
     {
        if (!NPAttribute.idIsValid(attrID))
        {
-          // throw some sorta programmer error exception here
-          throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        }
 
        if (fListOutOfDate_)
@@ -421,9 +416,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
        if (!NPAttribute.idIsValid(attrID))
        {
-          // throw some sorta programmer error exception here
-       throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                              ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        }
 
        if (fListOutOfDate_)
@@ -439,9 +433,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
              NPAttrBin4 attrBin4= (NPAttrBin4)attr;
              rcInt = new Integer(attrBin4.get());
           } else {
-             // throw an exception (wrongAttribute Type exception)
-          throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+             throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
           }
        }
 
@@ -456,9 +449,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
     {
        if (!NPAttribute.idIsValid(attrID))
        {
-          // throw some sorta programmer error exception here
-       throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                              ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        }
 
        if (fListOutOfDate_)
@@ -491,9 +483,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
        if (!NPAttribute.idIsValid(attrID))
        {
-          // throw some sorta programmer error exception here
-       throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                              ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        }
 
        if (fListOutOfDate_)
@@ -509,9 +500,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
              NPAttrFloat attrFloat= (NPAttrFloat)attr;
              rcFloat = new Float(attrFloat.get());
           } else {
-             // throw an exception (wrongAttribute Type exception)
-          throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                             ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+             throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
           }
        }
        return rcFloat;
@@ -555,9 +545,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
      {
          if (!NPAttribute.idIsValid(attrID))
          {
-             // throw some sorta programmer error exception here
-             throw(new ExtendedIllegalArgumentException("attrID("+attrID+")",
-                              ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+             throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
+                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
          }
          if (fListOutOfDate_)
          {

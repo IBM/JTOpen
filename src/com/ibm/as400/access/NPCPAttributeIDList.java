@@ -150,9 +150,8 @@ class NPCPAttributeIDList extends NPCodePoint implements Cloneable
     {
        if (!NPAttribute.idIsValid(ID))
        {
-          // throw some sorta programmer error exception here
-          throw(new ExtendedIllegalArgumentException("ID("+ID+")",
-						     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
+          throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(ID),
+						       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID));
        } else {
 
           if (fListOutOfDate_)
