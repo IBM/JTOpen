@@ -4472,6 +4472,11 @@ implements DatabaseMetaData
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
 
+        //@5WXVJX  Determine if translate hex is set to character.  If translate hex is character, than we only want to display
+        //CHAR() FOR BIT DATA and VARCHAR() FOR BIT DATA for the binary types.  If translate hex is binary, then we only want 
+        //to display BINARY AND VARBINARY for the binary types.  BINARY AND VARBINARY are only supported in V5R3 or higher.
+        boolean translateHexAsChar = connection_.getProperties().equals (JDProperties.TRANSLATE_HEX, JDProperties.TRANSLATE_HEX_CHARACTER); //@5WXVJX
+        
         // Initialize the data that makes up the contents
         // of the result set.
         // I changed this from an array to a Vector in order to make it            // @D0C
@@ -4479,7 +4484,8 @@ implements DatabaseMetaData
         Vector typeSamples = new Vector();                                         // @D0C
 
         typeSamples.addElement(new SQLChar(32765, settings_));              // @D0C
-        typeSamples.addElement(new SQLCharForBitData(32765, settings_));           // @M0A
+        if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX
+            typeSamples.addElement(new SQLCharForBitData(32765, settings_));           // @M0A
         typeSamples.addElement(new SQLDate(settings_));                            // @D0C
         typeSamples.addElement(new SQLDecimal(31, 31, settings_, connection_.getVRM(), connection_.getProperties())); // @M0C
         typeSamples.addElement(new SQLDouble(settings_));                          // @D0C
@@ -4495,7 +4501,8 @@ implements DatabaseMetaData
         typeSamples.addElement(new SQLLongVargraphic(16369, settings_));
         typeSamples.addElement(new SQLLongVarcharForBitData(32739, settings_));
         typeSamples.addElement(new SQLVarchar(32739, settings_));                  // @D0C
-        typeSamples.addElement(new SQLVarcharForBitData(32739, settings_));        // @M0A
+        if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX
+            typeSamples.addElement(new SQLVarcharForBitData(32739, settings_));        // @M0A
         typeSamples.addElement(new SQLVargraphic(16369, settings_));
         
         if (connection_.getVRM() >= JDUtilities.vrm440)
@@ -4517,8 +4524,11 @@ implements DatabaseMetaData
         
         if(connection_.getVRM() >= JDUtilities.vrm530)
         {
-            typeSamples.addElement(new SQLBinary(32765, settings_));
-            typeSamples.addElement(new SQLVarbinary(32739, settings_));
+            if(!translateHexAsChar)  //@5WXVJX
+            {
+                typeSamples.addElement(new SQLBinary(32765, settings_));
+                typeSamples.addElement(new SQLVarbinary(32739, settings_));
+            }
         }
         // @M0A - end new support
 
