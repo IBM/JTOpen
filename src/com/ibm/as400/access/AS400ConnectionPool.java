@@ -1,3 +1,4 @@
+// TBD: Revamp the synchronization logic???
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
@@ -865,6 +866,28 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   }
 
 
+  /**
+   * Get a list of the system names in the pool.
+   *
+   * @return     A list of the system names in the pool.
+   *             If the the pool is empty, returns a zero-length list.
+  **/  
+  public String[] getSystemNames()
+  {
+    Enumeration enum = as400ConnectionPool_.keys();
+    Vector hosts = new Vector();
+    while (enum.hasMoreElements())
+    {
+      String key = (String)enum.nextElement();
+      String host = key.substring(0, key.indexOf("/"));
+      if (!hosts.contains(host)) hosts.addElement(host);
+    }
+    String[] hostsArr = new String[hosts.size()];
+    hosts.copyInto(hostsArr);
+    return hostsArr;
+  }
+
+
   //@B2A
   /**
    * Get an enumeration of the systemName/userId pairs in the pool.
@@ -874,6 +897,62 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   public Enumeration getUsers()
   {
     return as400ConnectionPool_.keys();
+  }
+
+
+  /**
+   * Get a list of the userIds in the pool with connections to a specific system.
+   * UserIds are listed regardless of whether their connections are
+   * currently active or disconnected.
+   *
+   * @param systemName  The name of the system of interest.
+   * @return     A list of the userIds in the pool for system <tt>systemName</tt>.
+   *             If there are no userIDs for that system, empty list is returned.
+  **/  
+  public String[] getUsers(String systemName)
+  {
+    if (systemName == null) throw new NullPointerException("systemName");
+    return getUsers(systemName, false);
+  }
+
+
+  /**
+   * Get a list of the userIds in the pool with connections to a specific system.
+   * Only userIds with currently active (non-disconnected) connections are listed.
+   *
+   * @param systemName  The name of the system of interest.
+   * @return     A list of the connected userIds in the pool for system <tt>systemName</tt>.
+   *             If there are no connected userIDs for that system, empty list is returned.
+  **/  
+  public String[] getConnectedUsers(String systemName)
+  {
+    if (systemName == null) throw new NullPointerException("systemName");
+    return getUsers(systemName, true);
+  }
+
+
+  private String[] getUsers(String systemName, boolean listConnectedOnly)
+  {
+    Enumeration enum = as400ConnectionPool_.keys();
+    Vector users = new Vector();
+    systemName = systemName.toUpperCase().trim();
+    String compareKey = systemName+"/";
+    while (enum.hasMoreElements())
+    {
+      String key = (String)enum.nextElement();
+      if (key.startsWith(compareKey))
+      {
+        ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
+        if (!listConnectedOnly || connections.hasConnectedConnection())
+        {
+          String user = key.substring(key.indexOf("/")+1);
+          if (!users.contains(user)) users.addElement(user);
+        }
+      }
+    }
+    String[] usersArr = new String[users.size()];
+    users.copyInto(usersArr);
+    return usersArr;
   }
 
 
