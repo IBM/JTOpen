@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ArrayFieldDescription.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,13 +19,13 @@ import java.io.Serializable;
  *The  ArrayFieldDescription class represents the description of an array of data.
  *It allows:
  *<ul>
- *<li>The user to describe an array of AS/400 data.
- *<li>The Java program to describe an array of AS/400 data to the user.
+ *<li>The user to describe an array of server data.
+ *<li>The Java program to describe an array of server data to the user.
  *</ul>
 **/
 public class ArrayFieldDescription extends FieldDescription implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
