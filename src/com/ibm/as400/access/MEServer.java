@@ -1012,14 +1012,6 @@ public class MEServer implements Runnable
                     if (Trace.isTraceOn())
                         Trace.log(Trace.ERROR, pe);
                 }
-                catch (XmlException xe)
-                {
-                    Verbose.forcePrintln( ResourceBundleLoader.getText("ME_RFML_ERROR") );
-                    Verbose.println( xe.getMessage() );
-
-                    if (Trace.isTraceOn())
-                        Trace.log(Trace.ERROR, xe);
-                }
             }
         }
 
