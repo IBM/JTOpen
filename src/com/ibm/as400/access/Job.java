@@ -1512,6 +1512,13 @@ implements Serializable
   public static final String FUNCTION_TYPE_SPECIAL = "*";
 
   /**
+   * Constant indicating that the initial thread of the job should be used
+   * when retrieving the call stack.
+   * @see #getCallStack
+  **/
+  public static final long INITIAL_THREAD = -1;
+
+  /**
    * Job attribute representing how a job answers inquiry messages.
    * Possible values are:
    * <UL>
@@ -3957,6 +3964,155 @@ Returns a value which represents how this job handles break messages.
     return cacheChanges_;
   }
 
+
+
+/**
+   * Returns the call stack for the specified thread in this job. This method does not
+   * cache any information and always retrieves its data from the server every
+   * time it is called.
+   * @param threadID The thread identifier, or {@link #INITIAL_THREAD Job.INITIAL_THREAD} for the
+   * initial thread of this job.
+   * @return The array of call stack entries in this job's call stack.
+   * The element at index 0 is the oldest entry in the stack, and the last
+   * element in the array is the newest, or highest, entry in the stack.
+  **/
+  public CallStackEntry[] getCallStack(long threadID)
+  throws AS400Exception,
+  AS400SecurityException,
+  ConnectionDroppedException,
+  ErrorCompletingRequestException,
+  InterruptedException,
+  IOException,
+  ObjectDoesNotExistException,
+  UnsupportedEncodingException
+  {
+    if (threadID < 0 && threadID != INITIAL_THREAD)
+    {
+      throw new ExtendedIllegalArgumentException("threadID", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (!isConnected_)
+    {
+      if (system_ == null)
+      {
+        throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      if (name_ == null)
+      {
+        throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      if (user_ == null)
+      {
+        throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      if (number_ == null)
+      {
+        throw new ExtendedIllegalStateException("number", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+    }
+
+    ProgramParameter[] parms = new ProgramParameter[6];
+    int ccsid = system_.getCcsid();
+    CharConverter conv = new CharConverter(ccsid);
+    int len = 2000;
+    parms[0] = new ProgramParameter(len);
+    parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(len));
+    parms[2] = new ProgramParameter(conv.stringToByteArray("CSTK0100"));
+    byte[] threadJobId = new byte[56];
+    AS400Text text10 = new AS400Text(10, ccsid);
+    AS400Text text6 = new AS400Text(6, ccsid);
+    byte[] internal = getInternalJobIdentifier();
+    if (!name_.equals(JOB_NAME_INTERNAL))
+    {
+      internal = new byte[16];
+      for (int i=0; i<16; ++i) internal[i] = 0x40; // blanks
+    }
+    text10.toBytes(name_, threadJobId, 0);
+    text10.toBytes(user_, threadJobId, 10);
+    text6.toBytes(number_, threadJobId, 20);
+    System.arraycopy(internal, 0, threadJobId, 26, 16);
+    int threadType = (threadID == INITIAL_THREAD ? 2 : 0); // 0 = Specified, 1 = Current, 2 = Initial
+    long specifiedThread = (threadID == INITIAL_THREAD ? 0 : threadID);
+    BinaryConverter.intToByteArray(threadType, threadJobId, 44);
+    BinaryConverter.longToByteArray(specifiedThread, threadJobId, 48);
+    parms[3] = new ProgramParameter(threadJobId);
+    parms[4] = new ProgramParameter(conv.stringToByteArray("JIDF0100"));
+    parms[5] = new ProgramParameter(new byte[4]);
+
+    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QWVRCSTK.PGM", parms);
+    if (!pc.run())
+    {
+      throw new AS400Exception(pc.getMessageList());
+    }
+    byte[] data = parms[0].getOutputData();
+    int bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
+    int bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
+    while (bytesAvailable > bytesReturned)
+    {
+      try
+      {
+        len = bytesAvailable*2;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling QWVRCSTK again with receiver size of "+len);
+        parms[0].setOutputDataLength(len);
+        parms[1].setInputData(BinaryConverter.intToByteArray(len));
+      }
+      catch (PropertyVetoException pve) {}
+      if (!pc.run())
+      {
+        throw new AS400Exception(pc.getMessageList());
+      }
+      data = parms[0].getOutputData();
+      bytesReturned = BinaryConverter.byteArrayToInt(data, 0);
+      bytesAvailable = BinaryConverter.byteArrayToInt(data, 4);
+    }
+    int numEntriesAll = BinaryConverter.byteArrayToInt(data, 8);
+    int offset = BinaryConverter.byteArrayToInt(data, 12);
+    int numEntriesReturned = BinaryConverter.byteArrayToInt(data, 16);
+    if (numEntriesReturned != numEntriesAll)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Not all call stack entries were returned: total: "+numEntriesAll+", returned: "+numEntriesReturned);
+    }
+    threadID = BinaryConverter.byteArrayToLong(data, 20);
+    if (data[28] != 0x40)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Call stack entry information incomplete due to status: "+Integer.toHexString(0x00FF & data[28]));
+    }
+    CallStackEntry[] entries = new CallStackEntry[numEntriesReturned];
+    final int vrm530 = AS400.generateVRM(5,3,0);
+    boolean isV5R3 = system_.getVRM() >= vrm530;
+    for (int i=0; i<numEntriesReturned; ++i)
+    {
+      int entryLength = BinaryConverter.byteArrayToInt(data, offset);
+      int stmtIDDisp = BinaryConverter.byteArrayToInt(data, offset+4);
+      int numStmtID = BinaryConverter.byteArrayToInt(data, offset+8);
+      int procNameDisp = BinaryConverter.byteArrayToInt(data, offset+12);
+      int procNameLen = BinaryConverter.byteArrayToInt(data, offset+16);
+      int reqLevel = BinaryConverter.byteArrayToInt(data, offset+20);
+      String progName = conv.byteArrayToString(data, offset+24, 10).trim();
+      String progLib = conv.byteArrayToString(data, offset+34, 10).trim();
+      int miInstrNum = BinaryConverter.byteArrayToInt(data, offset+44);
+      String modName = conv.byteArrayToString(data, offset+48, 10).trim();
+      String modLib = conv.byteArrayToString(data, offset+58, 10).trim();
+      byte controlBound = data[offset+68];
+      long actGroupNum = BinaryConverter.byteArrayToUnsignedInt(data, offset+72);
+      String actGroupName = conv.byteArrayToString(data, offset+76, 10).trim();
+      String progASPName = conv.byteArrayToString(data, offset+88, 10).trim();
+      String progLibASP = conv.byteArrayToString(data, offset+98, 10).trim();
+      int progASPNum = BinaryConverter.byteArrayToInt(data, offset+108);
+      int progLibASPNum = BinaryConverter.byteArrayToInt(data, offset+112);
+      long actGroupNumLong = (isV5R3 ? BinaryConverter.byteArrayToLong(data, offset+116) : 0);
+      String[] statementIdentifiers = new String[numStmtID];
+      for (int c=0; c<numStmtID; ++c)
+      {
+        statementIdentifiers[c] = conv.byteArrayToString(data, offset+stmtIDDisp+(c*10), 10).trim();
+      }
+      String procName = (procNameDisp > 0 ? conv.byteArrayToString(data, offset+procNameDisp, procNameLen).trim() : null);
+      entries[i] = new CallStackEntry(this, threadID, reqLevel, progName, progLib, miInstrNum, modName, modLib,
+                                      controlBound, actGroupNum, actGroupName, progASPName, progLibASP,
+                                      progASPNum, progLibASPNum, actGroupNumLong, statementIdentifiers, procName);
+      offset += entryLength;
+    }
+    return entries;
+  }
 
 
 /**
