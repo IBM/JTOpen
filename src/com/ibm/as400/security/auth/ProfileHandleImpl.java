@@ -21,7 +21,6 @@ package com.ibm.as400.security.auth;
  */
 public interface ProfileHandleImpl extends AS400CredentialImpl {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Generates and returns a profile handle based on
  * the current OS/400 thread identity.

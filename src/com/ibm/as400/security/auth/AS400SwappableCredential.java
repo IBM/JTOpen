@@ -21,7 +21,6 @@ package com.ibm.as400.security.auth;
  */
 public interface AS400SwappableCredential {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Attempts to swap the OS/400 thread identity based on the
  * credential.

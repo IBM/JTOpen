@@ -20,7 +20,6 @@ package com.ibm.as400.security.auth;
  */
 public interface ProfileTokenImpl extends AS400CredentialImpl {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     /**
      * String constant for *NOPWD special value. 10 character blank
      * padded

@@ -21,7 +21,6 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 // AS400Impl defines the implementation interface for the AS400 object.
 interface AS400Impl
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     // Hook AS400 object up with connection events generated in ImplRemote.
     void addConnectionListener(ConnectionListener listener);
     // Map from CCSID to encoding string.

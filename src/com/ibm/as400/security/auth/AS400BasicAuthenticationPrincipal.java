@@ -20,7 +20,6 @@ package com.ibm.as400.security.auth;
  */
 public interface AS400BasicAuthenticationPrincipal {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Returns the user profile name.
  *

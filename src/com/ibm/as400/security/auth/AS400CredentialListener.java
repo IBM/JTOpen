@@ -19,7 +19,6 @@ package com.ibm.as400.security.auth;
  */
 public interface AS400CredentialListener {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Invoked when a create has been performed.
  *

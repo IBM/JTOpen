@@ -20,7 +20,6 @@ package com.ibm.as400.security.auth;
  */
 public interface AS400BasicAuthenticationCredential {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Returns text that can be displayed to prompt for the basic user
  * and password information used to initialize the credential.

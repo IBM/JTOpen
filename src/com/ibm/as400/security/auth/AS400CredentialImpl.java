@@ -26,7 +26,6 @@ package com.ibm.as400.security.auth;
  */
 interface AS400CredentialImpl {
 
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 /**
  * Destroy or clear sensitive information maintained
  * by the credential implementation.
