@@ -384,7 +384,7 @@
         <patternset refid="exclude.local.socket.implementation"/>
       </fileset>
       <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
+               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl,**/*.xsd"
                excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
@@ -415,7 +415,7 @@
         </patternset>
       </fileset>
       <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
+               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl,**/*.xsd"
                excludes="com/ibm/as400/vaccess/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
