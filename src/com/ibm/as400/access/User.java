@@ -1009,6 +1009,8 @@ Returns the user's object auditing value.
             value is *USRPRF.
         <li>"*ALL" - Object read and change operations are audited for the user
             if the object's auditing value is *USRPRF.
+        <li>"*NOTAVL" - The auditing value is not available, possibly because
+            the user of the AS400 connection does not have *ALLOBJ or *AUDIT special authority.
         </ul>
 **/
     public String getObjectAuditingValue()
@@ -1350,6 +1352,8 @@ Returns a list of action audit levels for the user.
         <li>"*SPLFDTA" - The user has the *SPLFDTA audit value specified in the user profile.
         <li>"*SYSMGT" - The user has the *SYSMGT audit value specified in the user profile.
         </ul>
+        This method may return an empty String[] if the user of the AS400 connection
+        does not have *ALLOBJ or *AUDIT special authority.
 **/
     public String[] getUserActionAuditLevel()
     {
