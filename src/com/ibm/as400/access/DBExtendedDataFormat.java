@@ -157,7 +157,7 @@ Copyright.
 
     public int getFieldCCSID (int fieldIndex)
 	{
-		return BinaryConverter.byteArrayToShort (rawBytes_,
+		return BinaryConverter.byteArrayToUnsignedShort (rawBytes_, //@B0C
 		    offset_ + 28 + (fieldIndex * REPEATED_LENGTH_));
 	}
 
