@@ -241,7 +241,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
 
         StringBuffer pathInfo = new StringBuffer(shareName_);                      // @B1A @CRS
         String remainingPath = absPath.substring(sharePath_.length()); //@CRS
-        if (remainingPath.charAt(0) != '/') pathInfo.append('/'); //@CRS
+        if (remainingPath.length() > 0 && remainingPath.charAt(0) != '/') pathInfo.append('/'); //@CRS  @KKC
         pathInfo.append(remainingPath);            // @B1A @CRS
 
         if (parameter_ != null) //@CRS
