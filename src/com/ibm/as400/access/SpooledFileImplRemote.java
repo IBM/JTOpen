@@ -16,10 +16,10 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The SpooledFile class represents an AS/400 spooled file.
- *  You can use an instance of this class to manipulate an individual
- *  AS/400 spooled file (hold, release, delete, send, read, and so on).
- * To create new spooled files on the AS/400, use the
+ * The SpooledFile class represents a server spooled file.
+ * You can use an instance of this class to manipulate an individual
+ * server spooled file (hold, release, delete, send, read, and so on).
+ * To create new spooled files on the server, use the
  * SpooledFileOutputStream class.
  *
  * See <a href="SpooledFileAttrs.html">Spooled File Attributes</a> for
@@ -143,184 +143,190 @@ implements SpooledFileImpl
         if (!fAttrIDsToRtvBuilt_)
         {
             fAttrIDsToRtvBuilt_ = true;
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_3812SCS);       // 3812 SCS @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ACCOUNT_CODE);  // accounting code @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_3812SCS);       // 3812 SCS (fonts)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ACCOUNT_CODE);  // Accounting code
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_AFP);           // AFP resources used
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_AFPRESOURCE);   // AFP Resource     @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ALIGN);         // align forms before printing
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ASCIITRANS);    // ASCII transparency  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ASPDEVICE);     // ASP Device   @D1A R530 attribute
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_AUX_POOL);      // Auxiliary storage pool @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BARCODE);       // Barcode  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKMGN_ACR);     // back margin across
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKMGN_DWN);     // back margin down
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVL_ACR);     // back overlay offset across
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVL_DWN);     // back overlay offset down
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVRLAY);      // *back side overlay name
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVRLLIB);     // *back side overlay library
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHAR_ID);       // set of graphic characters for this file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET_SIZE);   // character set point size  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE);      // code page @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNT);      // coded font
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNTLIB);   // coded font library name
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE_NAME_LIB);  // Code page library name  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE_NAME); // Code page name @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFONT_SIZE); // Coded font point size @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONSTBCK_OVL);  // Constant back overlay  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHARID);        // Character ID  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET_LIB);   // character set library name @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHR_RTT_CMDS); // DBCS character rotation commands @D3A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET);       // character set name @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_COLOR);         // Color   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODFNT_ARRAY);  // coded font array @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONTROLCHAR);   // control char @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIES);        // copies (total)
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIESLEFT);    // copies left to produce
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CORNER_STAPLE); // corner staple @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI);           // characters per inch
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CURPAGE);       // current page
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI_CHANGES);   // Characters per inch changes  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);          // date file was opened
- //           attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_END);    date spooled file creation ended @C5A@D3D
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_BEGAN_FILE); // date writer began processing file
-                                                                        //               @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_CMPL_FILE); // date writer finished processing file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_USED);    // Date file last used  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSCPI);       // DBCS CPI
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSDATA);      // contains DBCS character set data
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSEXTENSN);   // process DBCS extension characters
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT_LIB);  // DBCS-coded font library name  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT);      // DBCS-coded font name      @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT_SIZE); // DBCS-coded font point size @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSROTATE);    // rotate DBCS characters
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_AFPRESOURCE);   // AFP Resource
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ALIGN);         // Align page
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ASCIITRANS);    // ASCII transparency
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ASPDEVICE);     // Auxiliary storage pool device name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_AUX_POOL);      // Auxiliary storage pool
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BARCODE);       // Barcode
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKMGN_ACR);     // Back margin across
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKMGN_DWN);     // Back margin down
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVL_ACR);     // Back overlay offset across
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVL_DWN);     // Back overlay offset down
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVRLAY);      // Back side overlay name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_BKOVRLLIB);     // Back side overlay library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHAR_ID);       // Graphic character set
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHARID);        // Character ID
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHR_RTT_CMDS);  // DBCS character rotation commands
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET);        // Character set name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET_LIB);    // Character set library name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CHRSET_SIZE);   // Character set point size
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNT);      // *Coded font name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNTLIB);   // *Coded font library name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFONT_SIZE); // Coded font point size
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE);      // Code page
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE_NAME); // Code page name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE_NAME_LIB); // Code page library name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODFNT_ARRAY);  // Coded font array
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_COLOR);         // Color
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONSTBCK_OVL);  // Constant back overlay
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONTROLCHAR);   // Control character
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIES);        // Copies (total)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIESLEFT);    // Copies left to produce
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CORNER_STAPLE); // Corner staple
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI);           // Characters per inch
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI_CHANGES);   // Characters per inch changes
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CURPAGE);       // Current page
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);          // Date file opened (created)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_USED);     // Date file last used
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_BEGAN_FILE); // Date writer began processing file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_CMPL_FILE);  // Date writer finished processing file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT);      // DBCS coded font name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT_LIB);  // DBCS coded font library name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCS_FNT_SIZE); // DBCS coded font point size
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSCPI);       // DBCS characters per inch
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSDATA);      // Contains DBCS character set data
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSEXTENSN);   // Process DBCS extension characters
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSROTATE);    // Rotate DBCS characters
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSSISO);      // DBCS SI/SO positioning
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DECIMAL_FMT);   // Decimal format  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DDS);           // DDS  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DOUBLEWIDE);    // Double-wide characters  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DRAWERCHANGE);  // Drawer change   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);        // print on both sides of paper
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ENDPAGE);       // ending page number to print
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edge stitch number of staples @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF); // edge stitch reference  @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // edge stitch reference offset @C1A
-       //     attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_STPL_OFFSET_INFO); edgestitch info offset @A6D
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);      // the error handling when printing
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIELD_OUTLIN);  // Field outlining  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FILESEP);       // number of file separators
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FOLDREC);       // wrap text to next line
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONT_CHANGES);  // Font changes   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONTID);        // Font identifier to use (default)
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONTRESFMT);    // Font resolution for formatting  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMDEF);       // *Form definition name
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMDEFLIB);    // *Form definition library
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMFEED);      // type of paperfeed to be used
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMTYPE);      // name of the form to be used
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTMGN_ACR);     // front margin across
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTMGN_DWN);     // front margin down
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVL_ACR);     // front overlay offset across
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVL_DWN);     // front overlay offset down
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLAY);      // *front side overlay name
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLLIB);     // *front side overlay library
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRAPHICS);        // Graphic   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRAPHICS_TOK);    // Grapics token  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRPLVL_IDXTAG);// Group level index tags   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HIGHLIGHT);       // Highlight   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLD);          // hold the spool file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPDSPASSTHRU);  // IPDS pass-through  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_CCSID); // IPP attributes-charset  @C1AC4C
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ID);       // IPP job ID              @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_NAME);     // IPP job name            @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_NAME_NL);  // IPP job name NL         @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER); // IPP job original user   @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER_NL); // IPP job original user NL  @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_PRINTER_NAME);   // IPP printer name        @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_NL);   // IPP natural language         @C4A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DDS);           // DDS
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DECIMAL_FMT);   // Decimal format
+            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DOUBLEWIDE);    // Double wide characters
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DRAWERCHANGE);  // Drawer change
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);        // Print on both sides (duplex)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // Edge stitch number of staples
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF); // Edge stitch reference edge
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // Offset from edge stitch reference edge
+            // attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_STPL_OFFSET_INFO); edgestitch info offset
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_ENDPAGE);       // Ending page
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EXPIRATION_DATE); // Spool file expiration date
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);      // Print fidelity
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIELD_OUTLIN);  // Field outlining
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FILESEP);       // Number of file separators
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FOLDREC);       // Fold records
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONT_CHANGES);  // Font changes
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONTID);        // Font identifier
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FONTRESFMT);    // Font resolution for formatting
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMDEF);       // Form definition name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMDEFLIB);    // Form definition library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMFEED);      // Form feed
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMTYPE);      // Form type
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTMGN_ACR);     // Front margin across
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTMGN_DWN);     // Front margin down
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVL_ACR);     // Front overlay offset across
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVL_DWN);     // Front overlay offset down
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLAY);      // Front overlay name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLLIB);     // Front overlay library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRAPHICS);      // Graphics
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRAPHICS_TOK);  // Graphics token
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_GRPLVL_IDXTAG); // Group level index tags
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HIGHLIGHT);     // Highlight
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLD);          // Hold the spool file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPDSPASSTHRU);  // IPDS pass-through
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_CCSID); // IPP attributes-charset
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_NL);   // IPP natural language
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ID);    // IPP job ID
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_NAME);  // IPP job name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_NAME_NL);  // IPP job name NL
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER); // IPP job original user
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER_NL); // IPP job original user NL
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_PRINTER_NAME);    // IPP printer name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNAME);       // name of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNUMBER);     // number of the job that created file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBSYSTEM);     // System which job that created splf ran @C5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBSYSTEM);     // System which job that created splf ran
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBUSER);       // name of the user that created file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JUSTIFY);       // hardware justification
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LASTPAGE);      // last page that printed
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LINESPACING);   // line spacing @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LPI);           // lines per inch
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LPI_CHANGES);   // LPI changes  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_MAXRCDS);       // *maximum number of records allowed
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_MEASMETHOD);    // measurement method (*ROWCOL or *UOM)
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_MFGTYPE);       // manufacturer type and model  @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JUSTIFY);       // Justification
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LASTPAGE);      // Last page that printed
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LINESPACING);   // Line spacing
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LPI);           // Lines per inch
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_LPI_CHANGES);   // Lines per inch changes
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_MAXRCDS);       // Maximum records
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_MEASMETHOD);    // Measurement method (*ROWCOL or *UOM)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_MFGTYPE);       // Manufacturer type and model
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MULTIUP);       // logical pages per physical side
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NETWORK);       // network were output was created @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NETWORK);       // network were output was created
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES);      // number of bytes to read/write
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES_SPLF); // number of bytes contained w/in splf @C5A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMRSC_LIB_ENT);//Number of user resource library list entries @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OFFICEVISION);  // OfficeVision  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OS4_CRT_AFP);   // OS/400-created AFPDS @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPTY);        // output priority
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPUTBIN);     // output bin @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);        // *output queue
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);     // *output queue library
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERFLOW);      // overflow line number
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFN);        // *Page definition library @C5A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFNLIB);     // *Page definition library name @C5A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_GROUPS);   // Page groups  @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES_SPLF); // number of bytes contained w/in splf
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMRSC_LIB_ENT);// Number of user resource library list entries
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OFFICEVISION);  // OfficeVision
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OS4_CRT_AFP);   // i5/OS created AFPDS
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPTY);        // Output priority
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPUTBIN);     // Output bin
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);        // Output queue
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);     // Output queue library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERFLOW);      // Overflow line number
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFN);        // Page definition library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFNLIB);     // Page definition library name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_GROUPS);   // Page groups
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_ROTATE);   // Page rotate
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELEN);       // page length in measurement method
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELVLIDXTAG); // Page level index tags   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_ROTATE);   // Page rotate  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGES);         // number of pages in spool file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGEWIDTH);     // page width in measurement method
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGRTT);        // degree of page rotation
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PGM_OPN_LIB);   // Program that opened the file library name @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PGM_OPN_FILE);  // Program that opened file name  @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELVLIDXTAG); // Page level index tags
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGES);         // Number of pages in spool file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGES_EST);     // Number of pages is estimated 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGEWIDTH);     // Page width in measurement method
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGRTT);        // Degree of page rotation
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PGM_OPN_LIB);   // Program that opened the file library name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PGM_OPN_FILE);  // Program that opened file name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_POINTSIZE);     // the default font's point size
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTASSIGNED);   // printer assigned @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);    // printer dev type (data stream type (*SCS, *AFPDS, etc))
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTFILE);       // *printer file
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTFLIB);       // *printer file library
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);       // printer @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTQUALITY);    // print quality
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTTEXT);       // text printed at bottom of each page
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RCDFMT_DATA);   // Record format   @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RECLENGTH);     // record length
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_REDUCE);        // reduce output @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTASSIGNED);   // Printer assigned
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);    // Printer dev type (data stream type (*SCS, *AFPDS, etc))
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTFILE);       // Printer file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTFLIB);       // Printer file library
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);       // Printer (device name)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTQUALITY);    // Print quality
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTTEXT);       // Text printed at bottom of each page
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RCDFMT_DATA);   // Record format
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RECLENGTH);     // Record length
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_REDUCE);        // Reduce output
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RESTART);       // where to restart printing at
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLCHAR);       // character to replace unprintables with
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLUNPRT);      // replace unprintable characters
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES);  // saddle stitch number of staples  @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch reference @C1A
-                //      attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);  sad stich info offset @A6D
+            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES);  // Saddle stitch number of staples
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // Saddle stitch reference edge
+                //      attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_STPL_OFFSEINFO);  sad stich info offset
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);          // whether to save after printing or not
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCHEDULE);      // when available to the writer
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // allow separator page to be printed @C3A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_AUTH_METHOD); // spool file authentication method @C3A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SECURITY_METHOD); // spool file security method   @C3A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);       // spool file number
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFSTATUS);    // spool file status
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);     // spool file name
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_CREATOR);  // spool file creator @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SIZE);     // spool file size  @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCHEDULE);      // File available (schedule)
+            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // allow separator page to be printed
+            
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_AUTH_METHOD);     // Spooled file authentication method
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_CREATOR);         // Spooled file creator
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_RESTORED_DATE);   // Spooled file restored date 
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_RESTORED_TIME);   // Spooled file restored time
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SAVED_DATE);      // Spooled file saved date
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SAVED_TIME);      // Spooled file saved time
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SECURITY_METHOD); // Spooled file security method
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);       // Spooled file number
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFSTATUS);    // Spooled file status
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);     // Spooled file name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SIZE);     // Spooled file size
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SIZE_MULT);// Spooled file size multiplier
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SRCDRWR);       // source drawer
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTPAGE);     // starting page to print
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // system where output was created @A1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM);   // system driver program  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // time spooled file was opened at
-    //        attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);     ending time which spooled file was created @C5A@D3D
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // time writer began processing file
-                                                                        //               @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE); // time writer finished processing file
-                                                            //               @C1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TRC1403);       // Trc for 1403  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_UNITOFMEAS);    // unit of measure
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERCMT);       // user comment
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);      // user data
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFDATA);    // user define data
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFFILE);    // user define file @A1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SRCDRWR);       // Source drawer
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTPAGE);     // Starting page
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // System where output was created
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYS_DRV_PGM);   // System driver program
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // Time spooled file was opened at
+    //        attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);     ending time which spooled file was created
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // Time writer began processing file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE);  // Time writer finished processing file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TRC1403);       // Trc for 1403
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_UNITOFMEAS);    // Unit of measure
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERCMT);       // User comment
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);      // User data
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFDATA);    // User define data
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFFILE);    // User define file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJ);     // *User defined object
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJLIB);  // *User defined object library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJTYP);  // *User defined object type
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOPT);     // user defined options
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERGEN_DATA);  // User who created file  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USER_DFN_TXT);  // User-defined text  @D1A
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RSC_LIB_LIST);  // User resource library list @D1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOPT);     // User defined options
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERGEN_DATA);  // User who created file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_USER_DFN_TXT);  // User defined text
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_RSC_LIB_LIST);  // User resource library list
         }
     }
 
