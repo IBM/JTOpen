@@ -400,7 +400,16 @@ final class SQLDBClobLocator implements SQLLocator
     public Blob toBlob()
     throws SQLException
     {
-        return new AS400JDBCBlob(SQLBinary.stringToBytes(toString()), maxLength_);
+        try
+        {
+            return new AS400JDBCBlob(BinaryConverter.stringToBytes(toString()), maxLength_);
+        }
+        catch(NumberFormatException nfe)
+        {
+            // this DBClob contains non-hex characters
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
     }
 
     public boolean toBoolean()
@@ -420,7 +429,16 @@ final class SQLDBClobLocator implements SQLLocator
     public byte[] toBytes()
     throws SQLException
     {
-        return SQLBinary.stringToBytes(toString());
+        try
+        {
+            return BinaryConverter.stringToBytes(toString());
+        }
+        catch(NumberFormatException nfe)
+        {
+            // this DBClob contains non-hex characters
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
     }
 
     public Reader toCharacterStream()

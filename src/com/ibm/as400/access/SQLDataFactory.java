@@ -110,6 +110,10 @@ class SQLDataFactory
             result = "0";                                                           // @G3A  
         }                                                                           // @G3A  
 
+        // check to make sure we have more than just "."
+        if(result.equals("."))
+            result = "0.0";
+
         // Add the sign and return.
         return(sign ? "" : "-") + result;
     }

@@ -342,7 +342,16 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        return new AS400JDBCBlob(SQLBinary.stringToBytes(value_), maxLength_);
+        try
+        {
+            return new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
+        }
+        catch(NumberFormatException nfe)
+        {
+            // this DBClob contains non-hex characters
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
     }
 
     public boolean toBoolean()
@@ -363,7 +372,16 @@ final class SQLDBClob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        return SQLBinary.stringToBytes(value_);
+        try
+        {
+            return BinaryConverter.stringToBytes(value_);
+        }
+        catch(NumberFormatException nfe)
+        {
+            // this DBClob contains non-hex characters
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            return null;
+        }
     }
 
     public Reader toCharacterStream()

@@ -82,7 +82,17 @@ implements SQLData
     throws SQLException
     {
         if(object instanceof String)
-            value_ = SQLBinary.stringToBytes((String)object);                       // @F1A
+        {
+            try
+            {
+                value_ = BinaryConverter.stringToBytes((String)object);                       // @F1A
+            }
+            catch(NumberFormatException nfe)
+            {
+                // the String contains non-hex characters
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            }
+        }
 
         else if(object instanceof byte[])
             value_ = (byte[])object;                                                // @C1C
@@ -133,7 +143,7 @@ implements SQLData
 
         else if(object instanceof Reader)
         {
-            // value_ = SQLBinary.stringToBytes(JDUtilities.readerToString((Reader)object, scale));
+            // value_ = BinaryConverter.stringToBytes(JDUtilities.readerToString((Reader)object, scale));
 
             int length = scale; // hack to get the length into the set method
             if(length >= 0)
@@ -164,6 +174,11 @@ implements SQLData
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
                 }
+                catch(ExtendedIOException eie)
+                {
+                    // the Reader contains non-hex characters
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
+                }
                 catch(IOException ie)
                 {
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
@@ -179,7 +194,17 @@ implements SQLData
             value_ = ((Blob)object).getBytes(1, (int)((Blob)object).length());      // @C1C @E2C Blobs are 1 based.
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
-            value_ = SQLBinary.stringToBytes(((Clob)object).getSubString(1, (int)((Clob)object).length())); //@F1A
+        {
+            try
+            {
+                value_ = BinaryConverter.stringToBytes(((Clob)object).getSubString(1, (int)((Clob)object).length())); //@F1A
+            }
+            catch(NumberFormatException nfe)
+            {
+                // the Clob contains non-hex characters
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            }
+        }
 
         else
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -329,7 +354,7 @@ implements SQLData
         // return new ByteArrayInputStream(toBytes());
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(SQLBinary.bytesToString(toBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(toBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -400,7 +425,7 @@ implements SQLData
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new StringReader (new String(toBytes()));
-        return new StringReader(SQLBinary.bytesToString(toBytes())); //@F1A
+        return new StringReader(BinaryConverter.bytesToString(toBytes())); //@F1A
     }
 
     public Clob toClob()
@@ -409,7 +434,7 @@ implements SQLData
         // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new AS400JDBCClob(new String(toBytes()));
-        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes()), maxLength_); //@F1A
+        return new AS400JDBCClob(BinaryConverter.bytesToString(toBytes()), maxLength_); //@F1A
     }
 
     public Date toDate(Calendar calendar)
@@ -466,7 +491,7 @@ implements SQLData
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new String (toBytes());
-        return SQLBinary.bytesToString(toBytes()); //@F1A
+        return BinaryConverter.bytesToString(toBytes()); //@F1A
     }
 
     public Time toTime(Calendar calendar)
@@ -493,7 +518,7 @@ implements SQLData
         // return new ByteArrayInputStream(toBytes());
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(SQLBinary.bytesToString(toBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(toBytes())));
         }
         catch(UnsupportedEncodingException e)
         {

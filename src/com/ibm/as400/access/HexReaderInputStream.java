@@ -55,7 +55,15 @@ class HexReaderInputStream extends InputStream
       cached_ = false;
       char lo = (char)reader_.read();
       if (lo == -1) return -1;
-      return SQLBinary.charsToByte(cachedChar_, lo);
+
+      try
+      {
+          return BinaryConverter.charsToByte(cachedChar_, lo);
+      }
+      catch(NumberFormatException e)
+      {
+          throw new ExtendedIOException(ExtendedIOException.CANNOT_CONVERT_VALUE);
+      }
     }
     else
     {
@@ -63,7 +71,15 @@ class HexReaderInputStream extends InputStream
       if (hi == -1) return -1;
       char lo = (char)reader_.read();
       if (lo == -1) return -1;
-      return SQLBinary.charsToByte(hi, lo);
+
+      try
+      {
+          return BinaryConverter.charsToByte(hi, lo);
+      }
+      catch(NumberFormatException e)
+      {
+          throw new ExtendedIOException(ExtendedIOException.CANNOT_CONVERT_VALUE);
+      }
     }
   }
 
@@ -81,7 +97,14 @@ class HexReaderInputStream extends InputStream
       cached_ = false;
       char lo = (char)reader_.read();
       if (lo == -1) return -1;
-      b[off] = SQLBinary.charsToByte(cachedChar_, lo);
+      try
+      {
+          b[off] = BinaryConverter.charsToByte(cachedChar_, lo);
+      }
+      catch(NumberFormatException e)
+      {
+          throw new ExtendedIOException(ExtendedIOException.CANNOT_CONVERT_VALUE);
+      }
       return 1;
     }
     else
@@ -94,7 +117,14 @@ class HexReaderInputStream extends InputStream
         cachedChar_ = buf[numRead-1];
         --numRead;
       }
-      return SQLBinary.stringToBytes(buf, 0, numRead, b, off);
+      try
+      {
+          return BinaryConverter.stringToBytes(buf, 0, numRead, b, off);
+      }
+      catch(NumberFormatException e)
+      {
+          throw new ExtendedIOException(ExtendedIOException.CANNOT_CONVERT_VALUE);
+      }
     }
   }
 

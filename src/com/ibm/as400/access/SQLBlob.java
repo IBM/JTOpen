@@ -60,7 +60,8 @@ final class SQLBlob implements SQLData
         savedObject_ = null;
     }
 
-    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) throws SQLException
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
+    throws SQLException
     {
         if(savedObject_ != null) doConversion();
 
@@ -76,12 +77,84 @@ final class SQLBlob implements SQLData
             byte[] bytes = (byte[])object;
             truncated_ = (bytes.length > maxLength_ ? bytes.length-maxLength_ : 0);
         }
-        else if(!(object instanceof String) &&
-                (JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Blob)) &&
-                !(object instanceof Reader) &&
+        else if(object instanceof String)
+        {
+            byte[] bytes = null;
+            try
+            {
+                bytes = BinaryConverter.stringToBytes((String)object);
+            }
+            catch(NumberFormatException nfe)
+            {
+                // the String contains non-hex characters
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            }
+            object = bytes;
+            truncated_ = 0;
+        }
+        else if(object instanceof Reader)
+        {
+            int length = scale; // hack to get the length into the set method
+            byte[] bytes = null;
+            if(length >= 0)
+            {
+                try
+                {
+                    int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    HexReaderInputStream stream = new HexReaderInputStream((Reader)object);
+                    byte[] byteBuffer = new byte[blockSize];
+                    int totalBytesRead = 0;
+                    int bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    while(bytesRead > -1 && totalBytesRead < length)
+                    {
+                        baos.write(byteBuffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+                        int bytesRemaining = length - totalBytesRead;
+                        if(bytesRemaining < blockSize)
+                        {
+                            blockSize = bytesRemaining;
+                        }
+                        bytesRead = stream.read(byteBuffer, 0, blockSize);
+                    }
+
+                    bytes = baos.toByteArray();
+
+                    if(bytes.length < length)
+                    {
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+                    }
+
+                    int objectLength = bytes.length;
+                    if(bytes.length > maxLength_)
+                    {
+                        byte[] newValue = new byte[maxLength_];
+                        System.arraycopy(bytes, 0, newValue, 0, maxLength_);
+                        bytes = newValue;
+                    }
+                    object = bytes;
+                    truncated_ = objectLength - bytes.length;
+                }
+                catch(ExtendedIOException eie)
+                {
+                    // the Reader contains non-hex characters
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
+                }
+                catch(IOException ie)
+                {
+                    JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
+                }
+            }
+            else
+            {
+                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            }
+        }
+        else if((JDUtilities.JDBCLevel_ >= 20 && !(object instanceof Blob)) &&
                 !(object instanceof InputStream))
         {
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         }
 
         savedObject_ = object;
@@ -105,64 +178,6 @@ final class SQLBlob implements SQLData
                     value_ = newValue;
                 }
                 truncated_ = objectLength - value_.length;
-            }
-            else if(savedObject_ instanceof String)
-            {
-                String s = (String)savedObject_;
-                value_ = SQLBinary.stringToBytes(s);
-                truncated_ = 0;
-            }
-            else if(savedObject_ instanceof Reader)
-            {
-                int length = scale_; // hack to get the length into the set method
-                if(length >= 0)
-                {
-                    try
-                    {
-                        int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        HexReaderInputStream stream = new HexReaderInputStream((Reader)savedObject_);
-                        byte[] byteBuffer = new byte[blockSize];
-                        int totalBytesRead = 0;
-                        int bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        while(bytesRead > -1 && totalBytesRead < length)
-                        {
-                            baos.write(byteBuffer, 0, bytesRead);
-                            totalBytesRead += bytesRead;
-                            int bytesRemaining = length - totalBytesRead;
-                            if(bytesRemaining < blockSize)
-                            {
-                                blockSize = bytesRemaining;
-                            }
-                            bytesRead = stream.read(byteBuffer, 0, blockSize);
-                        }
-                        
-                        value_ = baos.toByteArray();
-
-                        if(value_.length < length)
-                        {
-                            // a length longer than the stream was specified
-                            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-                        }
-                        
-                        int objectLength = value_.length;
-                        if(value_.length > maxLength_)
-                        {
-                            byte[] newValue = new byte[maxLength_];
-                            System.arraycopy(value_, 0, newValue, 0, maxLength_);
-                            value_ = newValue;
-                        }
-                        truncated_ = objectLength - value_.length;
-                    }
-                    catch(IOException ie)
-                    {
-                        JDError.throwSQLException(JDError.EXC_INTERNAL, ie);
-                    }
-                }
-                else
-                {
-                    JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-                }
             }
             else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Blob)
             {
@@ -354,7 +369,7 @@ final class SQLBlob implements SQLData
         if(savedObject_ != null) doConversion();
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(SQLBinary.bytesToString(value_)));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -409,14 +424,14 @@ final class SQLBlob implements SQLData
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        return new StringReader(SQLBinary.bytesToString(value_));
+        return new StringReader(BinaryConverter.bytesToString(value_));
     }
 
     public Clob toClob()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        return new AS400JDBCClob(SQLBinary.bytesToString(value_), maxLength_);
+        return new AS400JDBCClob(BinaryConverter.bytesToString(value_), maxLength_);
     }
 
     public Date toDate(Calendar calendar) //@CRS - Could use toLong() to make this work.
@@ -484,7 +499,7 @@ final class SQLBlob implements SQLData
         {
             value_ = default_;
         }
-        return SQLBinary.bytesToString(value_);
+        return BinaryConverter.bytesToString(value_);
     }
 
     public Time toTime(Calendar calendar) //@CRS - Could use toLong() to make this work.

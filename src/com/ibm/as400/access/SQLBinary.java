@@ -82,7 +82,18 @@ implements SQLData
     throws SQLException
     {
         if(object instanceof String)
-            value_ = stringToBytes((String)object);
+        {
+            try
+            {
+                value_ = BinaryConverter.stringToBytes((String)object);
+            }
+            catch(NumberFormatException nfe)
+            {
+                // we throw a data type mismatch exception here because the 
+                // value of the Clob contained characters that were not valid hex
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            }
+        }
 
         else if(object instanceof byte[])
             value_ = (byte[])object;
@@ -164,6 +175,11 @@ implements SQLData
                         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
                 }
+                catch(ExtendedIOException eie)
+                {
+                    // the Reader contains non-hex characters
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, eie);
+                }
                 catch(IOException ie)
                 {
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
@@ -179,7 +195,18 @@ implements SQLData
             value_ = ((Blob)object).getBytes(1, (int)((Blob)object).length());
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
-            value_ = stringToBytes(((Clob)object).getSubString(1, (int)((Clob)object).length()));
+        {
+            try
+            {
+                value_ = BinaryConverter.stringToBytes(((Clob)object).getSubString(1, (int)((Clob)object).length()));
+            }
+            catch(NumberFormatException nfe)
+            {
+                // we throw a data type mismatch exception here because the 
+                // value of the Clob contained characters that were not valid hex
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+            }
+        }
 
         else
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -323,7 +350,7 @@ implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(bytesToString(toBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(toBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -391,7 +418,7 @@ implements SQLData
     {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(bytesToString(toBytes()));
+        return new StringReader(BinaryConverter.bytesToString(toBytes()));
     }
 
     public Clob toClob()
@@ -399,7 +426,7 @@ implements SQLData
     {
         // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob(bytesToString(toBytes()), maxLength_);
+        return new AS400JDBCClob(BinaryConverter.bytesToString(toBytes()), maxLength_);
     }
 
     public Date toDate(Calendar calendar)
@@ -455,136 +482,7 @@ implements SQLData
     {
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return bytesToString(toBytes());
-    }
-
-    // Constant used in bytesToString()
-    private static final char[] c_ = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-    static final char hiNibbleToChar(byte b)
-    {
-        return c_[(b >>> 4) & 0x0F];
-    }
-
-    static final char loNibbleToChar(byte b)
-    {
-        return c_[b & 0x0F];
-    }
-
-    static final String bytesToString(final byte[] b)
-    {
-        return bytesToString(b, 0, b.length);
-    }
-
-    static final String bytesToString(final byte[] b, int offset, int length)
-    {
-        char[] c = new char[length*2];
-        int num = bytesToString(b, offset, length, c, 0);
-        return new String(c, 0, num);
-    }
-
-    // Helper method to convert a byte array into its hex string representation.
-    // This is faster than calling Integer.toHexString(...)
-    static final int bytesToString(final byte[] b, int offset, int length, final char[] c, int coffset)
-    {
-        for(int i=0; i<length; ++i)
-        {
-            final int j = i*2;
-            final byte hi = (byte)((b[i+offset]>>>4) & 0x0F);
-            final byte lo = (byte)((b[i+offset] & 0x0F));
-            c[j+coffset] = c_[hi];
-            c[j+coffset+1] = c_[lo];
-        }
-        return length*2;
-    }
-
-    // Constant used in stringToBytes()
-    // Note that 0x11 is "undefined".
-    private static final byte[] b_ = 
-    {
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11,
-        0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11
-    };
-
-    static final byte charsToByte(char hi, char lo)
-    {
-        int c1 = 0x00FFFF & hi;
-        int c2 = 0x00FFFF & lo;
-        if(c1 > 255 || c2 > 255) return 0;
-        byte b1 = b_[c1];
-        byte b2 = b_[c2];
-        if(b1 == 0x11 || b2 == 0x11) return 0;
-        return(byte)(((byte)(b1 << 4)) + b2);
-    }
-
-    static final byte[] stringToBytes(String s)
-    {
-        char[] c = s.toCharArray();
-        return stringToBytes(c, 0, c.length);
-    }
-
-    static final byte[] stringToBytes(char[] hex, int offset, int length)
-    {
-        if(hex.length == 0) return new byte[0];
-        byte[] buf = new byte[length/2];
-        int num = stringToBytes(hex, offset, length, buf, 0);
-        if(num < buf.length)
-        {
-            byte[] temp = buf;
-            buf = new byte[num];
-            System.arraycopy(temp, 0, buf, 0, num);
-        }
-        return buf;
-    }
-
-    // Helper method to convert a String in hex into its corresponding byte array.
-    static final int stringToBytes(char[] hex, int offset, int length, final byte[] b, int boff)
-    {
-        if(hex.length == 0) return 0;
-        if(hex[offset] == '0' && (hex.length > offset+1 && (hex[offset+1] == 'X' || hex[offset+1] == 'x')))
-        {
-            offset += 2;
-            length -= 2;
-        }
-        for(int i=0; i<b.length; ++i)
-        {
-            final int j = i*2;
-            final int c1 = 0x00FFFF & hex[j+offset];
-            final int c2 = 0x00FFFF & hex[j+offset+1];
-            if(c1 > 255 || c2 > 255) // out of range
-            {
-                b[i+boff] = 0x00;
-            }
-            else
-            {
-                final byte b1 = b_[c1];
-                final byte b2 = b_[c2];
-                if(b1 == 0x11 || b2 == 0x11) // out of range
-                {
-                    b[i+boff] = 0x00;
-                }
-                else
-                {
-                    final byte hi = (byte)(b1<<4);
-                    b[i+boff] = (byte)(hi + b2);
-                }
-            }
-        }
-        return b.length;
+        return BinaryConverter.bytesToString(toBytes());
     }
 
     public Time toTime(Calendar calendar)
@@ -608,7 +506,7 @@ implements SQLData
         // handle truncating to the max field size if needed.
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(bytesToString(toBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(toBytes())));
         }
         catch(UnsupportedEncodingException e)
         {

@@ -45,13 +45,13 @@ class HexReader extends InputStreamReader
       if (cached_)
       {
         cached_ = false;
-        return SQLBinary.loNibbleToChar(cachedByte_);
+        return BinaryConverter.loNibbleToChar(cachedByte_);
       }
       else
       {
         cachedByte_ = (byte)in_.read();
         cached_ = true;
-        return SQLBinary.hiNibbleToChar(cachedByte_);
+        return BinaryConverter.hiNibbleToChar(cachedByte_);
       }
     }
   }
@@ -65,14 +65,14 @@ class HexReader extends InputStreamReader
       if (cached_)
       {
         cached_ = false;
-        cbuf[offset] = SQLBinary.loNibbleToChar(cachedByte_);
+        cbuf[offset] = BinaryConverter.loNibbleToChar(cachedByte_);
         return 1;
       }
       else
       {
         byte[] buf = new byte[length/2];
         int numRead = in_.read(buf);
-        int numConverted = SQLBinary.bytesToString(buf, 0, numRead, cbuf, offset);
+        int numConverted = BinaryConverter.bytesToString(buf, 0, numRead, cbuf, offset);
         return numConverted;
       }
     }
