@@ -71,7 +71,6 @@ import java.util.MissingResourceException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.*;
-import com.ms.security.PolicyEngine;  // @A5A
 
 /**
 The SpooledFileViewer class represents an AS/400 spooled file viewer.
