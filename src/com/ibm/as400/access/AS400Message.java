@@ -31,7 +31,7 @@ public class AS400Message implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-    static final long serialVersionUID = 5L;
+    static final long serialVersionUID = 4L;
 
     /**
      Message type for completion messages.
