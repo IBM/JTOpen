@@ -852,7 +852,7 @@ Writes a program message to the job log for the job in which the program is runn
       default:
         throw new ExtendedIllegalArgumentException("messageType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    sendProgramMessage(system, messageID, "/QSYS.LIB/QCPFMSG.MSGF", null, messageType);
+    sendProgramMessage(system, messageID, "/QSYS.LIB/QCPFMSG.MSGF", null, messageType, false);
   }
 
 
@@ -912,7 +912,7 @@ Writes a program message to the job log for the job in which the program is runn
       default:
         throw new ExtendedIllegalArgumentException("messageType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    sendProgramMessage(system, messageID, "/QSYS.LIB/QCPFMSG.MSGF", substitutionData, messageType);
+    sendProgramMessage(system, messageID, "/QSYS.LIB/QCPFMSG.MSGF", substitutionData, messageType, false);
   }
 
 
@@ -976,7 +976,7 @@ Writes a program message to the job log for the job in which the program is runn
     {
       throw new ExtendedIllegalArgumentException("messageFile", ExtendedIllegalArgumentException.PATH_NOT_VALID);
     }
-    sendProgramMessage(system, messageID, messageFile, null, messageType);
+    sendProgramMessage(system, messageID, messageFile, null, messageType, false);
 
   }
 
@@ -1044,9 +1044,82 @@ Writes a program message to the job log for the job in which the program is runn
     {
       throw new ExtendedIllegalArgumentException("messageFile", ExtendedIllegalArgumentException.PATH_NOT_VALID);
     }
-    sendProgramMessage(system, messageID, messageFile, substitutionData, messageType);
+    sendProgramMessage(system, messageID, messageFile, substitutionData, messageType, false);
   }
 
+/**
+Writes a program message to the job log for the job in which the program is running.
+The message is sent to the Remote Command Host Server (QZRCSRVS) unless true is specified
+for the <i>onThread</i> parameter and is invoked while running on the iSeries server.
+
+@param system           The system. The system cannot be null.
+@param messageID        The message ID. The message ID cannot be null.
+@param messageType      The message type. Possible values are:
+                        <ul>
+                        <li>AS400Message.COMPLETION
+                        <li>AS400Message.DIAGNOSTIC
+                        <li>AS400Message.INFORMATIONAL
+                        <li>AS400Message.ESCAPE
+                        </ul>
+                        The message type must be AS400Message.INFORMATIONAL for an immediate
+                        message.
+@param messageFile      The integrated file system path name of the message file. If null is specified,
+                        the message file used is /QSYS.LIB/QCPFMSG.MSGF.
+@param substitutionData The substitution data.  The substitution data can be from 0-32767 bytes
+                        for a conventional message and from 1-6000 bytes for an immediate message. If null
+                        is specified, no substitution data is used.
+@param onThread         Whether or not to stay on thread when calling the API to write the message
+                        to the job log. true to write the message to the current job's job log, false
+                        to write the message to the Remote Command Host Server job's job log. Note
+                        that this parameter is meaningless unless this Java program is running on
+                        the iSeries server and the system object is using native optimizations.
+@see com.ibm.as400.access.ProgramCall#isStayOnThread()
+
+@exception AS400Exception                  If the AS/400 system returns an error message.
+@exception AS400SecurityException          If a security or authority error occurs.
+@exception ConnectionDroppedException      If the connection is dropped unexpectedly.
+@exception ErrorCompletingRequestException If an error occurs before the request is completed.
+@exception InterruptedException            If this thread is interrupted.
+@exception IOException                     If an error occurs while communicating with the AS/400.
+@exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+@exception ServerStartupException          If the AS/400 server cannot be started.
+@exception UnknownHostException            If the AS/400 system cannot be located.
+**/
+  public static void writeMessage(AS400 system,
+                                  String messageID,
+                                  int messageType,
+                                  String messageFile,
+                                  byte[] substitutionData,
+                                  boolean onThread)
+  throws  AS400SecurityException,
+  ErrorCompletingRequestException,
+  InterruptedException,
+  IOException,
+  ObjectDoesNotExistException,
+  AS400Exception
+  {
+    if (system == null) throw new NullPointerException("system");
+    if (messageID == null) throw new NullPointerException("messageID");
+    switch (messageType)
+    {
+      case AS400Message.COMPLETION:
+      case AS400Message.DIAGNOSTIC:
+      case AS400Message.INFORMATIONAL:
+      case AS400Message.ESCAPE:
+        break;
+      default:
+        throw new ExtendedIllegalArgumentException("messageType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (messageFile == null) throw new NullPointerException("messageFile");
+    QSYSObjectPathName verify = new QSYSObjectPathName(messageFile);
+    if (!verify.getObjectType().equals("MSGF"))
+    {
+      throw new ExtendedIllegalArgumentException("messageFile", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+    }
+    sendProgramMessage(system, messageID, messageFile, substitutionData, messageType, onThread);
+  }
+
+  
   private static final byte[] typeCompletion_    = new byte[] { 0x5C, (byte)0xC3, (byte)0xD6, (byte)0xD4, (byte)0xD7, 0x40, 0x40, 0x40, 0x40, 0x40}; // "*COMP     "
   private static final byte[] typeDiagnostic_    = new byte[] { 0x5C, (byte)0xC4, (byte)0xC9, (byte)0xC1, (byte)0xC7, 0x40, 0x40, 0x40, 0x40, 0x40}; // "*DIAG     "
   private static final byte[] typeEscape_        = new byte[] { 0x5C, (byte)0xC5, (byte)0xE2, (byte)0xC3, (byte)0xC1, (byte)0xD7, (byte)0xC5, 0x40, 0x40, 0x40}; // "*ESCAPE   "
@@ -1056,7 +1129,7 @@ Writes a program message to the job log for the job in which the program is runn
 
   private static void sendProgramMessage(AS400 system, String messageIdentifier,
                                          String messageFile, byte[] replacementData,
-                                         int messageType)
+                                         int messageType, boolean onThread)
   throws  AS400SecurityException,
   ErrorCompletingRequestException,
   InterruptedException,
@@ -1104,6 +1177,9 @@ Writes a program message to the job log for the job in which the program is runn
     parms[8] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QMHSNDPM.PGM", parms);
+    pc.setThreadSafe(onThread); // The QMHSNDPM is threadsafe, but we only want to stay on-thread
+                                // if the user wants to write to the current job log instead of the
+                                // remote command server's job log.
     if (!pc.run())
     {
       // If one message came back and it is the one we sent,
