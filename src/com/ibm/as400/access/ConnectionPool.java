@@ -1,0 +1,503 @@
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// AS/400 Toolbox for Java - OSS version                                       
+//                                                                             
+// Filename: ConnectionPool.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
+
+package com.ibm.as400.access;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.beans.PropertyVetoException;
+import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+
+/**
+*  The ConnectionPool class represents a pool of connections to the AS/400.
+*
+*  <P>ConnectionPool objects generate the following events:
+*  <ul>
+*    <li><a href="ConnectionPoolEvent.html">ConnectionPoolEvent</a> - The events fired are:
+*      <ul>
+*       <li>CONNECTION_CREATED</li>
+*       <li>CONNECTION_EXPIRED</li>
+*       <li>CONNECTION_POOL_CLOSED</li>
+*       <li>CONNECTION_RELEASED</li>
+*       <li>CONNECTION_RETURNED</li>
+*       <li>MAINTENANCE_THREAD_RUN</li>
+*       </ul>
+*    </li>
+*    <li>PropertyChangeEvent</li>
+*  </ul>
+**/
+public abstract class ConnectionPool implements Serializable
+{
+  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+   private ConnectionPoolProperties properties_;
+   private boolean inUse_ = false;
+   private boolean isRunMaintenance_ = true;
+   //@A4D private boolean useThreads_ = true;
+
+   transient PoolMaintenance maintenance_;                // Maintenance thread.
+   transient PropertyChangeSupport changes_;
+   transient ConnectionPoolEventSupport poolListeners_;   // Manage the ConnectionPoolEvent listeners.
+
+   public ConnectionPool()
+   {
+      properties_ = new ConnectionPoolProperties();
+      initializeTransient();
+   }
+
+   /**
+   *  Adds a ConnectionPoolListener.
+   *  @param listener The ConnectionPoolListener.
+   *  @see #removeConnectionPoolListener
+   **/
+   public void addConnectionPoolListener(ConnectionPoolListener listener)
+   {
+      poolListeners_.addConnectionPoolListener(listener);
+   }
+
+   /**
+   *  Adds a PropertyChangeListener.
+   *  @param listener The PropertyChangeListener.
+   *  @see #removePropertyChangeListener
+   **/
+   public void addPropertyChangeListener(PropertyChangeListener listener)
+   {
+      if (listener == null)
+         throw new NullPointerException("listener");
+
+      changes_.addPropertyChangeListener(listener);
+      properties_.addPropertyChangeListener(listener);
+   }
+
+   /**
+   *  Removes any connections that have exceeded the maximum inactivity time, replaces any
+   *  connections that have aged past maximum usage or maximum lifetime, and removes any
+   *  connections that have been in use too long.
+   **/
+   abstract void cleanupConnections();
+
+   /**
+   *  Closes the connection pool.
+   *  @exception ConnectionPoolException If a pool error occurs.
+   **/
+   public abstract void close() throws ConnectionPoolException;
+
+     /**
+     *  Returns the time interval for how often the maintenance daemon is run.
+     *  The default value is 300000 milliseconds.
+     *  @return     Number of milliseconds.
+     **/
+
+     public long getCleanupInterval()
+     {
+      return properties_.getCleanupInterval();
+     }
+
+   /**
+     *  Returns the maximum number of connections.
+   *  The default value is -1 indicating no limit to the number of connections.
+     *  @return Maximum number of connections.
+     **/
+     public int getMaxConnections()
+     {
+      return properties_.getMaxConnections();
+   }
+
+     /**
+     *  Returns the maximum amount of inactive time before an available connection is closed.
+   *  The maintenance daemon closes the connection if the threshold is reached.
+   *  The default value is 60 minutes.  A value of -1 indicates that there is no limit.
+     *  @return     Number of milliseconds.
+     **/
+     public long getMaxInactivity()
+     {
+      return properties_.getMaxInactivity();
+   }
+
+     /**
+     *  Returns the maximum life for an available connection.
+   *  The maintenance daemon closes the available connection if the threshold is reached.
+   *  The default value is a 24 hour limit.  A value of -1 indicates that there is no limit.
+   *  @return Number of milliseconds.
+     **/
+     public long getMaxLifetime()
+     {
+      return properties_.getMaxLifetime();
+   }
+
+   /**
+     *  Returns the maximum number of times a connection can be used before it is replaced in the pool.
+     *  The default value is -1.  A value of -1 indicates that there is no limit.
+     *  @return Maximum usage count.
+     **/
+     public int getMaxUseCount()
+     {
+      return properties_.getMaxUseCount();
+     }
+
+   /**
+     *  Returns the maximum amount of time a connection can be in use before it is closed and returned to the pool.
+     *  The default value is -1 indicating that there is no limit.
+     *  @return Number of milliseconds.
+     **/
+     public long getMaxUseTime()
+     {
+      return properties_.getMaxUseTime();
+     }
+
+   /**
+   *  Returns the connection pool properties used by the maintenance daemon.
+   *  @return The ConnectionPoolProperties object.
+   **/
+   ConnectionPoolProperties getProperties()
+   {
+      return properties_;
+   }
+
+   /**
+   *  Initializes the transient data.
+   **/
+   private void initializeTransient()
+   {
+      changes_ = new PropertyChangeSupport(this);
+      poolListeners_ = new ConnectionPoolEventSupport();
+
+      addPropertyChangeListener(new PropertyChangeListener()      //@A2A
+      {
+         public void propertyChange(PropertyChangeEvent event)
+      {
+         String property = event.getPropertyName();
+
+            if (property.equals("cleanupInterval"))
+         {
+            runMaintenance(false);
+         }
+         else if (property.equals("maxConnections"))
+         {
+            boolean reduced = false;
+            Integer newValue = (Integer)event.getNewValue();
+            Integer oldValue = (Integer)event.getOldValue();
+            if (oldValue.intValue() == -1 || oldValue.intValue() > newValue.intValue())  //@A2C
+               reduced = true;
+
+            runMaintenance(reduced);
+         }
+         else if (property.equals("runMaintenance"))
+         {
+            Boolean newValue = (Boolean)event.getNewValue();
+            if (!newValue.booleanValue() && maintenance_ != null && maintenance_.isRunning())
+               maintenance_.setRunning(false);
+            if (newValue.booleanValue() && maintenance_ != null && !maintenance_.isRunning()) //@A3A
+            maintenance_.setRunning(true); //@A3A
+         }
+         }
+      });
+   }
+
+   /**
+   *  Indicates whether the pool is in use.
+   *  Used for checking state conditions.  The default is false.
+   *  @return true if the pool is in use; false otherwise.
+   **/
+   boolean isInUse()
+   {
+      return inUse_;
+   }
+
+   /**
+   *  Indicates whether the maintenance thread is used to cleanup expired connections.
+   *  The default is true.
+   *  @return true if expired connection are cleaned up by the maintenance thread; false otherwise.
+   **/
+   public boolean isRunMaintenance()
+   {
+      return isRunMaintenance_;
+   }
+
+   /**
+   *  Indicates whether threads are used in communication with the host servers and for running
+   *  maintenance.  This property affects AS400ConnectionPool and not AS400JDBCConnectionPool
+   *  which is written to the JDBC specification.
+   *  The default value is true.
+   *  @return true if threads are used; false otherwise.
+   **/
+   public boolean isThreadUsed()
+   {
+      //@A4D return useThreads_;
+      return properties_.isThreadUsed();  //@A4A
+   }
+
+   /**
+   *  Deserializes and initializes transient data.
+   *  @exception IOException If a file I/O error occurs.
+   *  @exception ClassNotFoundException If a file error occurs.
+   **/
+   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+   {
+      in.defaultReadObject();
+
+      initializeTransient();
+   }
+
+   /**
+   *  Removes a PropertyChangeListener.
+   *  @param listener The PropertyChangeListener.
+   *  @see #addPropertyChangeListener
+   **/
+   public void removePropertyChangeListener(PropertyChangeListener listener)
+   {
+      if (listener == null)
+         throw new NullPointerException("listener");
+
+      changes_.removePropertyChangeListener(listener);
+      properties_.removePropertyChangeListener(listener);
+   }
+
+   /**
+   *  Removes a ConnectionPoolListener.
+   *  @param listener The ConnectionPoolListener.
+   *  @see #addConnectionPoolListener
+   **/
+   public void removeConnectionPoolListener(ConnectionPoolListener listener)
+   {
+      poolListeners_.removeConnectionPoolListener(listener);
+   }
+
+   //@A2A
+   /**
+    *  Run cleanupConnections().
+    *  @param reduced true if need to check current num connections; false otherwise.
+    **/
+   abstract void runMaintenance(boolean reduced);
+
+   /**
+   *  Sets the time interval for how often the maintenance daemon is run.
+   *  The default value is 300000 milliseconds or 5 minutes.
+   *  @param cleanupInterval The number of milliseconds.
+   **/
+   public void setCleanupInterval(long cleanupInterval)
+   {
+      properties_.setCleanupInterval(cleanupInterval);
+
+      if (getCleanupInterval() == 0)
+         setRunMaintenance(false);
+   }
+
+   /**
+   *  Sets whether the pool is in use.
+   *  Used for setting state conditions.
+   *  @param inUse true if the pool is in use; false otherwise.
+   **/
+   void setInUse(boolean inUse)
+   {
+      inUse_ = inUse;
+   }
+
+   /**
+     *  Sets the maximum number of connections.
+     *  The default value is -1 indicating no limit to the number of connections.
+     *  @param maxConnections Maximum number of connections.
+     **/
+     public void setMaxConnections(int maxConnections)
+   {
+      properties_.setMaxConnections(maxConnections);
+   }
+
+     /**
+     *  Sets the maximum amount of inactive time before an available connection is closed.
+   *  The maintenance daemon closes the connection if the threshold is reached.
+   *  The default value is 60 minutes.  A value of -1 indicates that there is no limit.
+     *  @param   maxInactivity  Number of milliseconds.
+     **/
+     public void setMaxInactivity(long maxInactivity)
+   {
+      properties_.setMaxInactivity(maxInactivity);
+   }
+
+     /**
+     *  Sets the maximum life for an available connection.
+   *  The maintenance daemon closes the available connection if the threshold is reached.
+   *  The default value is a 24 hour limit.  A value of -1 indicates that there is no limit.
+     *  @param maxLifetime Number of milliseconds.
+     **/
+     public void setMaxLifetime(long maxLifetime)
+   {
+      properties_.setMaxLifetime(maxLifetime);
+   }
+
+     /**
+     *  Sets the maximum number of times a connection can be used before it is replaced in the pool.
+     *  The default value is -1.  A value of -1 indicates that there is no limit.
+     *  @param   maxUseCount  Maximum usage count.
+     **/
+     public void setMaxUseCount(int maxUseCount)
+   {
+      properties_.setMaxUseCount(maxUseCount);
+   }
+
+     /**
+     *  Sets the maximum amount of time a connection can be in use before it is closed and returned to the pool.
+     *  The default value is -1 indicating that there is no limit.
+     *  @param maxUseTime Number of milliseconds.
+     **/
+     public void setMaxUseTime(long maxUseTime)
+   {
+      properties_.setMaxUseTime(maxUseTime);
+   }
+
+  /**
+   *  Sets whether the Toolbox does periodic maintenance on the connection pool to clean up
+   *  expired connections.  If setThreadUsed is true, the Toolbox starts an extra thread to
+   *  perform maintenance.  If setThreadUsed is false, the Toolbox will perform maintenance
+   *  on the user's thread when it uses the connection pool.
+   *  This method and <a href="#setThreadUsed(boolean)">setThreadUsed()</a> can be set
+   *  in interchangeable order.
+   *  The default value is false.
+   *  @param cleanup If expired connections are cleaned up by the maintenance daemon.
+   **/
+   public void setRunMaintenance(boolean cleanup)
+   {
+      String property = "runMaintenance";
+
+      Boolean oldValue = new Boolean(isRunMaintenance_);
+      Boolean newValue = new Boolean(cleanup);
+
+      isRunMaintenance_ = cleanup;
+      changes_.firePropertyChange(property, oldValue, newValue);
+   }
+
+   /**
+   *  Sets whether the AS/400 Toolbox for Java uses threads in communication with the host servers
+   *  and for running maintenance. Letting the AS/400 Toolbox for Java use threads will be beneficial
+   *  to performance, but turning threads off may be necessary if your application needs to be compliant
+   *  with the Enterprise Java Beans specification. The thread used property cannot be changed once
+   *  the pool is in use.  This property affects AS400ConnectionPool and not AS400JDBCConnectionPool
+   *  which is written to the JDBC specification.  This method and
+   *  <a href="#setRunMaintenance(boolean)">setRunMaintenance()</a> can be called
+   *  in interchangeable order.
+   *  The default value is true.
+   *  @param useThreads true to use threads; false otherwise.
+   **/
+   public void setThreadUsed(boolean useThreads)
+   {
+      //@A4D Moved code to ConnectionPoolProperties
+      //@A4D String property = "threadUsed";
+      //@A4D if (isInUse())
+      //@A4D    throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+
+      //@A4D Boolean oldValue = new Boolean(isThreadUsed());
+      //@A4D Boolean newValue = new Boolean(useThreads);
+
+      //@A4D useThreads_ = useThreads;
+      //@A4D changes_.firePropertyChange(property, oldValue, newValue);
+      properties_.setThreadUsed(useThreads, isInUse());           //@A4A
+   }
+
+   /**
+   *  The AS400JDBCConnectionPoolMaintenance class cleans up pooled connections
+   *  that have expired.
+   **/
+   class PoolMaintenance extends Thread
+   {
+      private boolean run_ = false;                   // Whether the maintenance is running.
+      transient private long lastRun_;     // Last time maintenance was run.
+
+      /**
+      *  Constructs a AS400JDBCConnectionPoolMaintenance object.
+      *  @param pool The AS400JDBCConnectionPool object.
+      **/
+      public PoolMaintenance()
+      {
+         super();
+         setDaemon(true);
+
+         lastRun_ = System.currentTimeMillis();     // Set start time.
+      }
+
+      /**
+      *  Returns the last time the maintenance was run.
+      *  @return The time in milliseconds.
+      **/
+      public long getLastTime()
+      {
+         return lastRun_;
+      }
+
+      /**
+      *  Indicates whether the maintenance thread is running.
+      *  @return true if running; false otherwise.
+      **/
+      public boolean isRunning()
+      {
+         return run_;
+      }
+
+      /**
+      *  Runs the pool maintenance cleanup thread.
+      **/
+      public synchronized void run()
+      {
+         if (Trace.isTraceOn())
+            Trace.log(Trace.INFORMATION, "Connection pool maintenance daemon is started...");
+
+         run_ = true;
+         while (true)
+         {
+            if (run_)
+            {
+               try
+               {
+                  // sleep for cleanup interval.
+                  wait(getCleanupInterval());
+               }
+               catch (InterruptedException ie)
+               {
+                  Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
+                  ie.printStackTrace();
+               }
+               cleanupConnections();
+
+               lastRun_ = System.currentTimeMillis();       // set the time of last run.
+            }
+         else
+         {
+            try
+            {
+            wait();
+            }
+            catch (InterruptedException e)
+            {
+            Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
+                  e.printStackTrace();
+            }
+         }
+         }
+      }
+
+      /**
+      *  Sets whether the maintenance thread is running.
+      *  @param running true if running; false otherwise.
+      **/
+      public synchronized void setRunning(boolean running)
+      {
+         if ((run_ == true && running == false) || (run_ == false && running == true))
+         {
+         run_ = running;
+         notify();
+      }
+      }
+   }
+}

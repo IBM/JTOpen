@@ -115,7 +115,7 @@ public class MRI2 extends ListResourceBundle
       { "EXC_CERTIFICATE_ALREADY_ADDED", "Certificate association already exists." },
       { "EXC_CERTIFICATE_NOT_FOUND", "Certificate was not found." },
       { "EXC_CERTIFICATE_NOT_VALID", "Certificate or certificate type is not valid." },
-
+      { "EXC_MAX_CONN_REACHED", "Maximum configured number of connections has been reached." }, //@F2A
 
 
            // #TRANNOTE #####################################################
@@ -385,7 +385,35 @@ public class MRI2 extends ListResourceBundle
       { "PROP_NAME_JAC_PORTSEARCH", "portSearch" },
       { "PROP_DESC_JAC_PORTSEARCH", "Perform a port search to find a free port." },
 
+         // #TRANNOTE #####################################################
+         // #TRANNOTE MRI For ConnectionPoolProperties
+         // #TRANNOTE #####################################################     // @E3
+      { "PROP_NAME_CPP_CLEANUP_INTERVAL", "cleanupInterval" },                      
+      { "PROP_NAME_CPP_MAX_CONNECTIONS", "maxConnections" },
+      { "PROP_NAME_CPP_MAX_INACTIVITY", "maxInactivity" },
+      { "PROP_NAME_CPP_MAX_LIFETIME", "maxLifetime" },
+      { "PROP_NAME_CPP_MAX_USE_COUNT", "maxUseCount" },
+      { "PROP_NAME_CPP_MAX_USE_TIME", "maxUseTime" },
 
+      { "PROP_DESC_CPP_CLEANUP_INTERVAL", "The cleanup time interval for the connection pool." },
+      { "PROP_DESC_CPP_MAX_CONNECTIONS", "The maximum number of connections a pool can have." },
+      { "PROP_DESC_CPP_MAX_INACTIVITY", "The maximum amount of time a connection can be inactive." },
+      { "PROP_DESC_CPP_MAX_LIFETIME", "The maximum amount of time a connection can exist." },
+      { "PROP_DESC_CPP_MAX_USE_COUNT", "The maximum number of times a connection can be used." },
+      { "PROP_DESC_CPP_MAX_USE_TIME", "The maximum amount of time a connection can be used." },
+
+         // #TRANNOTE #####################################################
+         // #TRANNOTE MRI For ConnectionPool
+         // #TRANNOTE #####################################################      // @E3
+      { "PROP_NAME_CP_DATA_SOURCE", "dataSource"},                                 
+      { "PROP_NAME_CP_PROPERTIES", "properties"},
+      { "PROP_NAME_CP_RUN_MAINTENANCE", "runMaintenance"},
+      { "PROP_NAME_CP_THREAD_USED", "threadUsed"},                               // @E5
+
+      { "PROP_DESC_CP_DATA_SOURCE", "The data source used to make JDBC connections."},
+      { "PROP_DESC_CP_PROPERTIES", "The connection pool properties."},
+      { "PROP_DESC_CP_RUN_MAINTENANCE", "Specifies whether the maintenance daemon is used."},
+      { "PROP_DESC_CP_THREAD_USED", "Specifies whether threads is used."},       // @E5
 
       { "PROP_NAME_SAVE_FILE_PUBLIC_AUTHORITY", "saveFilePublicAuthority" },
       { "PROP_DESC_SAVE_FILE_PUBLIC_AUTHORITY", "Authority value for *PUBLIC." },
@@ -402,6 +430,55 @@ public class MRI2 extends ListResourceBundle
            // #TRANNOTE A license event has occurred.
       { "EVT_DESC_LICENSE_EVENT", "A product license event has occurred." }, //@C2A
       { "EVT_NAME_LICENSE_EVENT", "productLicenseEvent" },                   //@C2A
+
+      // #TRANNOTE #####################################################
+      // #TRANNOTE MRI For AS400ConnectionPool and ConnectionList
+      // #TRANNOTE #####################################################     //@E6A
+
+      // #TRANNOTE creating connection list for system/userid
+      { "AS400CP_CONNLIST", "creating connection list for &0/&1" },
+
+      // #TRANNOTE returning connection to connection pool system/userid
+      { "AS400CP_RETCONN", "returning connection to connection pool &0/&1" },
+
+      { "AS400CP_SHUTDOWN", "the connection pool is shutting down" },
+
+      { "AS400CP_SHUTDOWNCOMP", "shutdown of connection pool completed" },
+   
+      // #TRANNOTE cleaning up connections for system/userid
+      { "CL_CLEANUP", "cleaning up connections for &0/&1" },
+
+      { "CL_CLEANUPCOMP", "cleanup completed" },
+
+      { "CL_CLEANUPEXP", "connection limit reached, cleaning up expired connections" },
+
+      { "CL_CLEANUPOLD", "connection limit reached, cleaning up oldest connections" },
+
+      // #TRANNOTE connection created for system/userid
+      { "CL_CREATED", "connection created for &0/&1" },
+
+      // #TRANNOTE creating a new connection for system/userid
+      { "CL_CREATING", "creating a new connection for &0/&1" },
+
+      // #TRANNOTE removing oldest connection for system/userid
+      { "CL_REMOLD", "removing oldest connection for &0/&1" },
+
+      // #TRANNOTE completed removing oldest connection for system/userid
+      { "CL_REMOLDCOMP", "completed removing oldest connection for &0/&1" },
+
+      // #TRANNOTE removing connection that exceeded maximum inactivity time for system/userid    // @E8C
+      { "CL_REMUNUSED", "removing connection that exceeded maximum inactivity time for &0/&1" },  // @E8C 
+
+      // #TRANNOTE replacing connection that exceeded maximum lifetime for system/userid
+      { "CL_REPLIFE", "replacing connection that exceeded maximum lifetime for &0/&1" },
+
+      // #TRANNOTE replacing connection that exceeded maximum use count for system/userid
+      { "CL_REPUSE", "replacing connection that exceeded maximum use count for &0/&1" },
+
+      // #TRANNOTE filling numberOfConnections connections to system/userid      // @E8A
+      { "AS400CP_FILLING", "filling &0 connections to &1/&2" },                  // @E8A
+
+      { "AS400CP_FILLEXC", "filling of connections failed with an exception" },  // @E8A
 
 
    };
