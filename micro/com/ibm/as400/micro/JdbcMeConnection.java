@@ -25,7 +25,7 @@ import java.io.*;
  *  <p>There are many optional properties that can be specified
  *  when the connection is created.  Properties can be specified either
  *  as part of the URL or in a java.util.Properties object.  See
- *  <a href="../../../../JDBCProperties.html"> JDBC properties</a>
+ *  <a href="doc-files/JDBCProperties.html"> JDBC properties</a>
  *   for a complete list of properties supported by the JdbcMeDriver.
  *
  *  <p><b>Note:</b> Since Java 2 Micro-Edition does not include java.sql,

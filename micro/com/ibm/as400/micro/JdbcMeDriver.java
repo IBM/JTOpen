@@ -44,7 +44,7 @@ import java.io.*;
  *  is set, then the driver resolves unqualified names using the schema with 
  *  the same name as the user.  If system naming is being used, and no
  *  default schema is set, then the driver resolves unqualified names using
- *  the server job's library list.  See <a href="../../../../JDBCProperties.html"> JDBC properties</a>
+ *  the server job's library list.  See <a href="doc-files/JDBCProperties.html"> JDBC properties</a>
  *  for more details on how to set the naming convention and library list.
  *
  *  <p>Several properties can optionally be set within the URL.  They are 
@@ -52,7 +52,7 @@ import java.io.*;
  *  <pre>
  *  <em>name1</em>=<em>value1</em>;<em>name2</em>=<em>value2</em>;<em>...</em>
  *  </pre>
- *  See <a href="../../../../JDBCProperties.html"> JDBC properties</a> for a complete list of properties supported by this driver.
+ *  See <a href="doc-files/JDBCProperties.html"> JDBC properties</a> for a complete list of properties supported by this driver.
  *
  *  <p>The following example URL specifies a connection to the
  *  database on server <em>mysystem.helloworld.com</em> with
@@ -118,7 +118,7 @@ public class JdbcMeDriver
 
     /**
      *  Connects to the database named by the specified URL.
-     *  See <a href="../../../../JDBCProperties.html">
+     *  See <a href="doc-files/JDBCProperties.html">
      *  JDBC properties</a> for a complete list of properties
      *  supported by this driver.
      *  <p>
