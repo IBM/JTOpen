@@ -328,7 +328,7 @@ Returns the position at which a pattern is found in the BLOB.
 
       // We don't really know if all of these bytes can be written until we go to
       // the server, so we just return the byte[] length as the number written.
-      locator_.writeData((long)offset, bytesToWrite);
+      locator_.writeData((long)offset, bytesToWrite, false);        //@K1A
       return bytesToWrite.length;
     }
   }
@@ -375,7 +375,7 @@ Returns the position at which a pattern is found in the BLOB.
 
       // We don't really know if all of these bytes can be written until we go to
       // the server, so we just return the byte[] length as the number written.
-      locator_.writeData((long)blobOffset, newData);
+      locator_.writeData((long)blobOffset, newData, false);             //@K1A
       return newData.length;
     }
   }
@@ -407,7 +407,7 @@ Returns the position at which a pattern is found in the BLOB.
       // within the scope of our transaction/connection. That means
       // there's no reason to go to the server to update the data,
       // since no other process can get at it.
-      locator_.writeData(length, new byte[0], 0, 0);
+      locator_.writeData(length, new byte[0], 0, 0, true);                  //@K1A
     }
   }
 }

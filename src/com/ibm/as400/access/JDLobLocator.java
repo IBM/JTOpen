@@ -254,15 +254,15 @@ Sets the locator handle.
   }
 
 
-  int writeData(long offset, byte data) throws SQLException
+  int writeData(long offset, byte data, boolean truncate) throws SQLException               //@K1C
   {
-    return writeData(offset, new byte[] { data}, 0, 1);
+    return writeData(offset, new byte[] { data}, 0, 1, truncate);                           //@K1C
   }
 
 
-  int writeData(long offset, byte[] data) throws SQLException
+  int writeData(long offset, byte[] data, boolean truncate) throws SQLException             //@K1C
   {
-    return writeData(offset, data, 0, data.length);
+    return writeData(offset, data, 0, data.length, truncate);                               //@k1C
   }
 
 
@@ -278,7 +278,7 @@ Writes part of the contents of the lob.
                             if the length is not valid,
                             or an error occurs.
 **/
-  synchronized int writeData(long lobOffset, byte[] data, int offset, int length) throws SQLException
+  synchronized int writeData(long lobOffset, byte[] data, int offset, int length, boolean truncate) throws SQLException     //@K1C
   {
     if (data == null) throw new NullPointerException("data");
 
@@ -305,6 +305,8 @@ Writes part of the contents of the lob.
         request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_WRITE_LOB_DATA,
                                              id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                              + DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
+
+        request.setLobTruncation(truncate);          //Do not truncate   @K1A
         request.setLOBLocatorHandle(handle_);
         request.setRequestedSize(lengthToUse);
         request.setStartOffset((int)lobOffset); // Some day the server will support 8-byte offsets.

@@ -415,7 +415,7 @@ Returns the handle to this CLOB locator in the database.
       // We don't really know if all of these chars can be written until we go to
       // the server, so we just return the char[] length as the number written.
       byte[] bytesToWrite = converter_.stringToByteArray(charsToWrite, 0, charsToWrite.length);
-      locator_.writeData((long)offset, bytesToWrite);
+      locator_.writeData((long)offset, bytesToWrite, false);            //@K1A
       return charsToWrite.length;
     }
   }
@@ -463,7 +463,7 @@ Returns the handle to this CLOB locator in the database.
       // We don't really know if all of these chars can be written until we go to
       // the server, so we just return the char[] length as the number written.
       byte[] bytesToWrite = converter_.stringToByteArray(charsToWrite, 0, charsToWrite.length);
-      locator_.writeData((long)clobOffset, bytesToWrite);
+      locator_.writeData((long)clobOffset, bytesToWrite, false);            //@k1A
       return charsToWrite.length;
     }
   }
@@ -497,7 +497,7 @@ Returns the handle to this CLOB locator in the database.
       // within the scope of our transaction/connection. That means
       // there's no reason to go to the server to update the data,
       // since no other process can get at it.
-      locator_.writeData(length, new byte[0], 0, 0);
+      locator_.writeData(length, new byte[0], 0, 0, true);          //@k1A
     }
   }
 }

@@ -121,7 +121,7 @@ final class SQLDBClobLocator implements SQLLocator
         {
             String string = (String)object;
             byte[] bytes = converter_.stringToByteArray(string);
-            locator_.writeData(0L, bytes);
+            locator_.writeData(0L, bytes, true);            //@k1C
         }
         else if(object instanceof Reader)
         {
@@ -131,7 +131,7 @@ final class SQLDBClobLocator implements SQLLocator
             // we'll have data in the current row from the previous row.
             if (length == 0) 
             {
-              locator_.writeData(0, new byte[0], 0, 0);
+              locator_.writeData(0, new byte[0], 0, 0, true);           //@K1C
             }
             else if(length > 0)
             {
@@ -146,7 +146,7 @@ final class SQLDBClobLocator implements SQLLocator
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
                     while(bytesRead > -1 && totalBytesRead < length)
                     {
-                        locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead); // totalBytesRead is our offset.
+                        locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.      //@K1C
                         totalBytesRead += bytesRead;
                         int bytesRemaining = length - totalBytesRead;
                         if(bytesRemaining < blockSize)
@@ -178,7 +178,7 @@ final class SQLDBClobLocator implements SQLLocator
             // we'll have data in the current row from the previous row.
             if (length == 0) 
             {
-              locator_.writeData(0, new byte[0], 0, 0);
+              locator_.writeData(0, new byte[0], 0, 0, true);           //@K1C
             }
             else if(length > 0)
             {
@@ -191,7 +191,7 @@ final class SQLDBClobLocator implements SQLLocator
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
                     while(bytesRead > -1 && totalBytesRead < length)
                     {
-                        locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead); // totalBytesRead is our offset.
+                        locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  //@K1C
                         totalBytesRead += bytesRead;
                         int bytesRemaining = length - totalBytesRead;
                         if(bytesRemaining < blockSize)

@@ -35,7 +35,7 @@ final class AS400JDBCBlobLocatorOutputStream extends AS400JDBCOutputStream
       JDLobLocator locator = blob_.locator_;
       synchronized(locator)
       {
-        return locator.writeData(position-1, data);
+        return locator.writeData(position-1, data, true);               //@K1A
       }
     }
   }
@@ -47,7 +47,7 @@ final class AS400JDBCBlobLocatorOutputStream extends AS400JDBCOutputStream
       JDLobLocator locator = blob_.locator_;
       synchronized(locator)
       {
-        return locator.writeData(position-1, data, offset, length);
+        return locator.writeData(position-1, data, offset, length, true);       //@K1A
       }
     }
   }

@@ -514,6 +514,24 @@ extends DBBaseRequestDS
 		addParameter (0x3805, (byte)value);
 	}
 
+//@K1A
+/**
+   Sets the Truncation Indicator parameter in the data stream to specify whether or not the LOB data should be 
+   truncated after the last byte is written in the write LOB data request
+   @param value the value that indicates if the data should be truncated
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+
+        void setLobTruncation (boolean truncate)
+               throws DBDataStreamException
+        {
+            int value = 0xF0;
+            if(truncate == false)
+            {
+                value = 0xF1;
+            }
+            addParameter (0x3822, (byte)value);
+        }
 
 }
 

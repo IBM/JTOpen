@@ -129,7 +129,7 @@ final class SQLClobLocator implements SQLLocator
                 int bidiStringType = settings_.getBidiStringType();
                 if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
                 byte[] bytes = converter_.stringToByteArray(string, bidiStringType);
-                locator_.writeData(0L, bytes);
+                locator_.writeData(0L, bytes, true);                //@K1C
             }
             else if(object instanceof Reader)
             {
@@ -139,7 +139,7 @@ final class SQLClobLocator implements SQLLocator
                 // we'll have data in the current row from the previous row.
                 if (length == 0) 
                 {
-                  locator_.writeData(0, new byte[0], 0, 0);
+                  locator_.writeData(0, new byte[0], 0, 0, true);               //@K1C
                 }
                 else if(length > 0)
                 {
@@ -154,7 +154,7 @@ final class SQLClobLocator implements SQLLocator
                         int bytesRead = stream.read(byteBuffer, 0, blockSize);
                         while(bytesRead > -1 && totalBytesRead < length)
                         {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead); // totalBytesRead is our offset.
+                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1C
                             totalBytesRead += bytesRead;
                             int bytesRemaining = length - totalBytesRead;
                             if(bytesRemaining < blockSize)
@@ -193,7 +193,7 @@ final class SQLClobLocator implements SQLLocator
                 // we'll have data in the current row from the previous row.
                 if (length == 0) 
                 {
-                  locator_.writeData(0, new byte[0], 0, 0);
+                  locator_.writeData(0, new byte[0], 0, 0, true);           //@K1C
                 }
                 else if(length > 0)
                 {
@@ -206,7 +206,7 @@ final class SQLClobLocator implements SQLLocator
                         int bytesRead = stream.read(byteBuffer, 0, blockSize);
                         while(bytesRead > -1 && totalBytesRead < length)
                         {
-                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead); // totalBytesRead is our offset.
+                            locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1C
                             totalBytesRead += bytesRead;
                             int bytesRemaining = length - totalBytesRead;
                             if(bytesRemaining < blockSize)
@@ -263,7 +263,7 @@ final class SQLClobLocator implements SQLLocator
                     Clob clob = (Clob)object;
                     int length = (int)clob.length();
                     String substring = clob.getSubString(1, length);
-                    locator_.writeData(0L, converter_.stringToByteArray(substring), 0, length);
+                    locator_.writeData(0L, converter_.stringToByteArray(substring), 0, length, true);           //@K1C
                     set = true;
                 }
                 else

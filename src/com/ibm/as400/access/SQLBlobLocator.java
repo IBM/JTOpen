@@ -108,7 +108,7 @@ final class SQLBlobLocator implements SQLLocator
         if(savedObject_ instanceof byte[])
         {
             byte[] bytes = (byte[])savedObject_;        
-            locator_.writeData(0, bytes);
+            locator_.writeData(0, bytes, true);         //@K1A
         }
         else if(savedObject_ instanceof InputStream)
         {
@@ -119,7 +119,7 @@ final class SQLBlobLocator implements SQLLocator
             // we'll have data in the current row from the previous row.
             if (length == 0) 
             {
-              locator_.writeData(0, new byte[0], 0, 0);
+              locator_.writeData(0, new byte[0], 0, 0, true);       //@K1A
             }
             else if(length > 0)
             {
@@ -132,7 +132,7 @@ final class SQLBlobLocator implements SQLLocator
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
                     while(bytesRead > -1 && totalBytesRead < length)
                     {
-                        locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead); // totalBytesRead is our offset.
+                        locator_.writeData(totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  @K1A
                         totalBytesRead += bytesRead;
                         int bytesRemaining = length - totalBytesRead;
                         if(bytesRemaining < blockSize)
@@ -190,7 +190,7 @@ final class SQLBlobLocator implements SQLLocator
                 Blob blob = (Blob)savedObject_;                                      // @A1C
                 int length = (int)blob.length();
                 byte[] data = blob.getBytes(1, length);
-                locator_.writeData(0, data, 0, length);
+                locator_.writeData(0, data, 0, length, true);                   //@K1A
             }
         }
         else
