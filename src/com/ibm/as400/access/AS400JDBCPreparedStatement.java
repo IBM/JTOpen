@@ -477,9 +477,23 @@ Performs common operations needed before an execute.
 
                         parameterMarkerData.setConsistencyToken (1);
 	                    int rowDataOffset = parameterMarkerData.getRowDataOffset (0);
-        		        for (int i = 0; i < parameterCount_; ++i) {
-        		            if (parameterNulls_[i] == true)                                     // @B9C
-    	    	                parameterMarkerData.setIndicator (0, i, (short) -1);
+        		        for (int i = 0; i < parameterCount_; ++i) 
+        		        {
+                           // @G1 -- zero out the comm buffer if the parameter marker is null.
+                           //        If the buffer is not zero'ed out old data will be sent to
+                           //        the server possibily messing up a future request.  
+                         if (parameterNulls_[i] == true)                                       // @B9C
+                         {                                                                     // @G1a
+                            parameterMarkerData.setIndicator (0, i, (short) -1);               // @G1a       
+                            byte[] parameterData = parameterMarkerData.getRawBytes();          // @G1a
+                            int parameterDataOffset = rowDataOffset + parameterOffsets_[i];    // @G1a
+                            int parameterDataLength = parameterLengths_[i]                     // @G1a
+                                                           + parameterDataOffset;              // @G1a
+                            for (int z=parameterDataOffset;                                    // @G1a
+                                     z < parameterDataLength;                                  // @G1a
+                                     parameterData[z++] = 0x00);                               // @G1a
+                         }                                                                      // @G1a
+
     		                else {
     		                    parameterMarkerData.setIndicator (0, i, (short) 0);
                                 ConverterImplRemote ccsidConverter = connection_.getConverter (
