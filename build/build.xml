@@ -69,7 +69,6 @@
 // 
 // Requisite jars and packages
 // 
-// 
 // The following is a list of jar files and the URLs from which they can be
 // obtained. These jar files are required in order to build JTOpen. We cannot
 // include these jar files in the JTOpen CVS repository due to licensing issues.
@@ -140,7 +139,7 @@
 //
 // Note: The javadoc target will build the javadoc to the best of its ability. However,
 //       many warnings may appear for some of the files that have pre-requisites that are
-//       not required for compilations. Namely, these pre-requisites are:
+//       not required for compilation. Namely, these pre-requisites are:
 //
 //         jui400.jar   - A Graphical Toolbox jar file needed to generate javadoc for the
 //                        AS400JDBCDataSourcePane classes in the com.ibm.as400.vaccess package.
