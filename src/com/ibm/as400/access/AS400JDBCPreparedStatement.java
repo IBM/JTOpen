@@ -908,7 +908,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                     {
                         batchParameterRows_.add(enum.nextElement());
                         count++;                                    //@K1A
-                        if(count == 32000)                          //@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
+                        if(count == 32000 && enum.hasMoreElements())//@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
                         {                                           //@K1A
                             if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");  //@K1A
                             commonExecute(sqlStatement_, resultRow_);        //@K1A
