@@ -48,6 +48,8 @@ public class User implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+  static final long serialVersionUID = 5L;
+
     private AS400 system_;
     private int vrm_;
     private String name_;
@@ -60,7 +62,7 @@ public class User implements Serializable
     private transient PropertyChangeSupport propertyChangeSupport_;
     private transient VetoableChangeSupport vetoableChangeSupport_;
 
-    static final long serialVersionUID = 5L;
+    private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
     private static final int VRM510 = AS400.generateVRM(5, 1, 0);
 
