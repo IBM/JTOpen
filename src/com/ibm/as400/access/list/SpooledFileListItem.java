@@ -201,11 +201,11 @@ public class SpooledFileListItem
                       String deviceType, String jobSystemName)
   {
     spooledFileName_ = spooledFileName;
-    jobName_ = jobName_;
-    jobUser_ = jobUser_;
+    jobName_ = jobName;
+    jobUser_ = jobUser;
     jobNumber_ = jobNumber;
     spooledFileNumber_ = spooledFileNumber;
-    totalPages_ = totalPages_;
+    totalPages_ = totalPages;
     currentPage_ = currentPage;
     copiesLeftToPrint_ = copiesLeftToPrint;
     outputQueueName_ = outputQueueName;
@@ -217,7 +217,7 @@ public class SpooledFileListItem
     internalJobID_ = internalJobID;
     internalSplID_ = internalSplID;
     deviceType_ = deviceType;
-    jobSystemName_ = jobSystemName_;
+    jobSystemName_ = jobSystemName;
     format_ = SpooledFileOpenList.FORMAT_0100;
   }
 
