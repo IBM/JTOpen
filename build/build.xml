@@ -777,7 +777,7 @@
   <target name="pcml" if="pcmlRuntimeExists">
     <pcml srcdir="${source}"
           destdir="${output}"
-          classpath="${output}:${include}:${include}/x4j400.jar:${source}"
+          classpath="${output}:${include}:${include}/xml-apis.jar:${include}/x4j400.jar:${source}"
           includes="**/*.pcml"/>
     <!-- Classpath:
            Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
@@ -795,7 +795,7 @@
   <target name="pdml" if="pdmlRuntimeExists">
     <pdml srcdir="${source}"
           destdir="${output}"
-          classpath="${include}/uitools.jar:${include}/jui400.jar:${include}/x4j400.jar"
+          classpath="${include}/uitools.jar:${include}/jui400.jar:${include}/xml-apis.jar:${include}/x4j400.jar"
           includes="**/*.pdml"/>
     <!-- Classpath:
            Need "uitools.jar" to run the com.ibm.as400.ui.tools.RCXML class.
