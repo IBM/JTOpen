@@ -137,21 +137,26 @@ implements SQLData
 
     //@D1A JDBC 3.0
     //@d2a - method rewritten for URLs
+    //@j4c - rewritten now that JDUtilites knows the JDBC level
     public String getJavaClassName()
     {
+        if (JDUtilities.JDBCLevel_ >= 30)
+           return "java.net.URL";
+        else
+           return "java.lang.Datalink";	      
 
-        String returnValue = "java.lang.Datalink";	      
-        
-        // Return a URL only when running JDBC 3.0 or later.
-        try 
-        { 
-           Class.forName("java.sql.Savepoint"); 
-           returnValue = "java.net.URL";
-   
-        }                                         
-        catch (Exception e) { }
-	   
-        return returnValue;
+        // String returnValue = "java.lang.Datalink";	      
+        // 
+        // // Return a URL only when running JDBC 3.0 or later.
+        // try 
+        // { 
+        //    Class.forName("java.sql.Savepoint"); 
+        //    returnValue = "java.net.URL";
+        // 
+        // }                                         
+        // catch (Exception e) { }
+	     // 
+        // return returnValue;
     }
 
     public String getLiteralPrefix ()
@@ -399,23 +404,35 @@ implements SQLData
 
 
    // @d2a entire method reworked.  Used to simply return value_.
+   // @j4c - rewritten now that JDUtilites knows the JDBC level
 	public Object toObject ()
 	{
-	   // If we are running JDBC 2.0 or earlier, or if we cannot convert
-	   // the string into a URL, then return the contents of the cell as a String.
-	   Object returnValue = value_;       
-                                                                          
-      // Return a URL only when running JDBC 3.0 or later.
-      try 
-      { 
-         Class.forName("java.sql.Savepoint"); 
-         
-         // try turning the String into a URL.  If that fails return the string.                                       
-         try { returnValue = new java.net.URL(value_); } catch (Exception e) {}
-      }                                         
-      catch (Exception e) { }
+	   // if JDBC 3.0 or later return a URL instead of a string.
+	   // If we are not able to turn the string into a URL then return
+	   // the string (that is why there is no "else".  That shouldn't
+	   // happen because the database makes sure the cell contains
+	   // a valid URL for this data type.
+      if (JDUtilities.JDBCLevel_ >= 30)
+         try { return new java.net.URL(value_); } catch (Exception e) {}
+      
+      return value_;
 	   
-	   return returnValue;                 
+   
+	   // // If we are running JDBC 2.0 or earlier, or if we cannot convert
+	   // // the string into a URL, then return the contents of the cell as a String.
+	   // Object returnValue = value_;       
+      //                                                                     
+      // // Return a URL only when running JDBC 3.0 or later.
+      // try 
+      // { 
+      //    Class.forName("java.sql.Savepoint"); 
+      //    
+      //    // try turning the String into a URL.  If that fails return the string.                                       
+      //    try { returnValue = new java.net.URL(value_); } catch (Exception e) {}
+      // }                                         
+      // catch (Exception e) { }
+	   // 
+	   // return returnValue;                 
 	}
 
 
