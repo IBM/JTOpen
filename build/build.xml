@@ -589,23 +589,23 @@
       </or>
     </condition>        
     <fail message="Can't find cvs executable." unless="cvsExeExists"/>
-    <cvspass cvsroot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400" password="anonymous" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="src" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="contrib" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="include" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="micro" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="build" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="stubs" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="license.html" dest="${build}" passfile="mypasswd"/>
-    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -A" package="readme.html" dest="${build}" passfile="mypasswd"/>
+    <cvspass cvsroot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400" password=""/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="src" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="contrib" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="include" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="micro" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="build" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="stubs" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="license.html" dest="${build}"/>
+    <cvs cvsRoot=":pserver:anonymous@cvs.sourceforge.net:/cvsroot/jt400"
+             command="checkout -P -A" package="readme.html" dest="${build}"/>
   </target>
 
 
