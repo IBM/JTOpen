@@ -112,19 +112,22 @@ public class JdbcMeConnection implements java.sql.Connection
          * Line flows in:
          *    None
          **/
-        try
+        if (!closed_)
         {
-            system_.toServer_.writeInt(MEConstants.CONN_CLOSE);
-            system_.toServer_.writeInt(connectionId_);
-            system_.toServer_.flush();
-        }
-        catch (IOException e)
-        {
-            throw new JdbcMeException(e.toString(), null);
-        }
-        finally
-        {
-            disconnected();
+            try
+            {
+                system_.toServer_.writeInt(MEConstants.CONN_CLOSE);
+                system_.toServer_.writeInt(connectionId_);
+                system_.toServer_.flush();
+            }
+            catch (IOException e)
+            {
+                throw new JdbcMeException(e.toString(), null);
+            }
+            finally
+            {
+                disconnected();
+            }
         }
         return;
     }

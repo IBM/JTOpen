@@ -72,7 +72,7 @@ import java.io.*;
  **/
 public class JdbcMeDriver
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private static AS400 system_;
 
@@ -107,7 +107,7 @@ public class JdbcMeDriver
         {
             String sqlState = system_.fromServer_.readUTF();
             String message = system_.fromServer_.readUTF();
-
+            
             throw new JdbcMeException(message, sqlState);
         }
         catch (IOException e)
@@ -121,7 +121,7 @@ public class JdbcMeDriver
      *  See <a href="../../../../JDBCProperties.html">
      *  JDBC properties</a> for a complete list of properties
      *  supported by this driver.
-     *
+     *  <p>
      *  <b>Note:</b> The java.sql.DriverManager
      *  doesn't support drivers other than JdbcMe
      *
@@ -146,13 +146,14 @@ public class JdbcMeDriver
      *  The subprotocol and target-db-specification is specified
      *  as required by the target JDBC driver being used on the
      *  JdbcMe host server.
+     *  <p>
      *  Additionally, for the JdbcMe driver, if the port is
      *  unspecified, the port number 3470 is used.
-     *
+     *  <p>
      *  The meserver property is used to find the MEServer. 
      *  All other values/properties are
      *  passed through to the Jdbc driver used by the target MEServer.
-     *
+     *  <p>
      *  <b>Note:</b>  The java.sql.DriverManager doesn't support drivers other than JdbcMe.
      *
      *  @param url The URL for the database.
@@ -167,12 +168,15 @@ public class JdbcMeDriver
          *  Using this method as static prevents us from having
          *  to create more objects.
          **/
+        if (url == null)
+            throw new NullPointerException("url");
+
         String meServer = null;
         int i, k;
 
         i = url.indexOf(";meserver=");
         if (i == -1)
-            throw new JdbcMeException("Invalid URL, no jdbcme property: " + url, null);
+            throw new JdbcMeException("Invalid URL, no meserver property: " + url, null);
 
         String remoteUrl = url.substring(0, i);
 
@@ -188,7 +192,7 @@ public class JdbcMeDriver
         // end of the URL. Lets take it.
         if (k >= url.length())
         {
-            meServer = url.substring(k+10);
+            meServer = url.substring(i+10);
         }
         else
         {
@@ -197,27 +201,56 @@ public class JdbcMeDriver
             // Add the rest (including the semi-colon) to the original string.
             remoteUrl += url.substring(k);
         }
-        
-        String uid = null;
-        String pwd = null;
+
         // This data gets sent to the server in the JDBC URL
         // for each DB connection attempt unless it is
         // already specified in the URL.
-        if (user != null && password != null)
-        {
-            if (url.indexOf(";user=") == -1)
-                remoteUrl += ";user=" + user;
+        int index = url.indexOf("user=");
+        String b;
+        String uid = null;
+        String pwd = null;
 
-            if (url.indexOf(";password=") == -1)
-                remoteUrl += ";password=" + password;
+        if (index == -1)
+        {
+            if (user != null)
+            {
+                remoteUrl += ";user=" + user;
+                uid = user;
+            }
+            else
+                throw new NullPointerException("user parameter or url property");
         }
         else
         {
-            String b = url.substring(url.indexOf("user="));
-            uid = b.substring(5, b.indexOf(';'));
-            
-            b = url.substring(url.indexOf("password="));
-            pwd = b.substring(9, b.indexOf(';'));
+            b = url.substring(index);
+            index = b.indexOf(";");
+            if (index == -1)
+                uid = b.substring(5);
+            else
+                uid = b.substring(5, index);
+
+        }
+
+        index = url.indexOf("password=");
+
+        if (index == -1)
+        {
+            if (password != null)
+            {
+                remoteUrl += ";password=" + password;
+                pwd = password;
+            }
+            else
+                throw new NullPointerException("password parameter or url property");
+        }
+        else
+        {
+            b = url.substring(index);
+            index = b.indexOf(";");
+            if (index == -1)
+                pwd = b.substring(9);
+            else
+                pwd = b.substring(9, index);
         }
 
         try
@@ -244,7 +277,6 @@ public class JdbcMeDriver
             catch (Exception ex)
             {
             }
-
             throw new JdbcMeException(e.toString(), null);
         }
 

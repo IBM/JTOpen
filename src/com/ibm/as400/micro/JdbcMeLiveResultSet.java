@@ -588,15 +588,17 @@ public class JdbcMeLiveResultSet implements ResultSet
      **/
     public void updateString(int columnIndex, String value) throws JdbcMeException 
     {
+        if (stmt_.getResultSetType() != ResultSet.CONCUR_UPDATABLE)
+            throw new JdbcMeException("Cursor state invalid", null);
+
+        if (currentRow_ == null || currentRow_.length != stmt_.numColumns_)
+            currentRow_ = new Object[stmt_.numColumns_];
+
         if (modifiedRowBuffer_ == null || modifiedRowBuffer_.length != currentRow_.length)
             modifiedRowBuffer_ = new Object[currentRow_.length];
 
-        if (onWhichRow_ != ROW_UPDATE)
-        {
-            System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);
-            onWhichRow_ = ROW_UPDATE;
-        }
-
+        System.arraycopy(currentRow_, 0, modifiedRowBuffer_, 0, currentRow_.length);
+        
         if (columnIndex < 1 || columnIndex > modifiedRowBuffer_.length)
             throw new JdbcMeException("RS Column " + columnIndex, null);
 
@@ -636,6 +638,9 @@ public class JdbcMeLiveResultSet implements ResultSet
      **/
     public void updateInt(int columnIndex, int value) throws JdbcMeException 
     {
+        if (stmt_.getResultSetType() != ResultSet.CONCUR_UPDATABLE)
+            throw new JdbcMeException("Cursor state invalid", null);
+
         if (modifiedRowBuffer_ == null || modifiedRowBuffer_.length != currentRow_.length)
             modifiedRowBuffer_ = new Object[currentRow_.length];
 
@@ -730,6 +735,9 @@ public class JdbcMeLiveResultSet implements ResultSet
             if (which == MEConstants.RS_UPDATE_ROW)
                 mustBeOnRow = ROW_UPDATE;
 
+            System.out.println("Modified Row Buffer: " + modifiedRowBuffer_);
+            System.out.println("whichRow: " + onWhichRow_);
+            System.out.println("mustBeOnRow: " + mustBeOnRow);
             if (modifiedRowBuffer_ == null || !(onWhichRow_ == mustBeOnRow))
                 throw new IllegalArgumentException("RS no in/upd row");
 
@@ -749,15 +757,15 @@ public class JdbcMeLiveResultSet implements ResultSet
                 {
                 case Types.CHAR:
                 case Types.VARCHAR:
-                    connection_.system_.toServer_.writeUTF((String)currentRow_[i]);
+                    connection_.system_.toServer_.writeUTF((String)modifiedRowBuffer_[i]);
                     break;
                 case Types.INTEGER:
-                    connection_.system_.toServer_.writeInt(((Integer)currentRow_[i]).intValue());
+                    connection_.system_.toServer_.writeInt(((Integer)modifiedRowBuffer_[i]).intValue());
                     break;
                 default :
                     // The server sends a string for every value
                     // other than the ones handled explicitly above.
-                    connection_.system_.toServer_.writeUTF(currentRow_[i].toString());
+                    connection_.system_.toServer_.writeUTF(modifiedRowBuffer_[i].toString());
                 }
             }
             connection_.system_.toServer_.flush();
