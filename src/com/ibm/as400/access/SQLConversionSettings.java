@@ -61,6 +61,8 @@ class SQLConversionSettings
     private String              timeSeparator_;
     private boolean             useBigDecimal_;                     // @E0A
     private int                 bidiStringType_;                    // @E1A
+    private boolean             bidiImplicitReordering_;            // @KBA
+    private boolean             bidiNumericOrdering_;               // @KBA
 
 
 
@@ -80,6 +82,8 @@ Constructs a SQLConversionSettings object.
         timeFormat_         = properties.getIndex (JDProperties.TIME_FORMAT);
         timeSeparator_      = properties.getString (JDProperties.TIME_SEPARATOR);
 	bidiStringType_     = getInt(properties.getString (JDProperties.BIDI_STRING_TYPE)); // @E1A
+        bidiImplicitReordering_ = properties.getBoolean(JDProperties.BIDI_IMPLICIT_REORDERING); //@KBA
+        bidiNumericOrdering_ = properties.getBoolean(JDProperties.BIDI_NUMERIC_ORDERING);   //@KBA
 
         if (dateSeparator_.equalsIgnoreCase (JDProperties.DATE_SEPARATOR_SPACE))
             dateSeparator_ = " ";
@@ -128,6 +132,18 @@ Copyright.
     int getBidiStringType ()
     {
 	return bidiStringType_;
+    }
+
+    //@KBA
+    boolean getBidiImplicitReordering()
+    {
+        return bidiImplicitReordering_;
+    }
+
+    //@KBA
+    boolean getBidiNumericOrdering()
+    {
+        return bidiNumericOrdering_;
     }
 
 

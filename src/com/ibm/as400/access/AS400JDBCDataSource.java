@@ -1179,6 +1179,28 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.AUTO_COMMIT);
     }
 
+    //@K24
+    /**
+    *  Indicates whether bidi implicit reordering is used.
+    *  @return true if bidi implicit reordering is used; false otherwise.
+    *  The default value is true.
+    **/
+    public boolean isBidiImplicitReordering()
+    {
+        return properties_.getBoolean(JDProperties.BIDI_IMPLICIT_REORDERING);
+    }
+
+    //@K24
+    /**
+    *  Indicates whether bidi numeric ordering round trip is used.
+    *  @return true if bidi numeric ordering round trip is used; false otherwise.
+    *  The default value is false.
+    **/
+    public boolean isBidiNumericOrdering()
+    {
+        return properties_.getBoolean(JDProperties.BIDI_NUMERIC_ORDERING);
+    }
+
     /**
     *  Indicates whether a big decimal value is returned.
     *  @return true if a big decimal is returned; false otherwise.
@@ -1596,7 +1618,51 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + bidiStringType);
     }
 
+    //@K24
+    /**
+    *  Sets whether bidi implicit reordering is used.
+    *  @param value true if implicit reordering should be used; false otherwise.
+    *  The default value is true.
+    **/
+    public void setBidiImplicitReordering(boolean value)
+    {
+        String property = "bidiImplicitReordering";
+        Boolean oldValue = new Boolean(isBidiImplicitReordering());
+        Boolean newValue = new Boolean(value);
 
+        if (value)
+            properties_.setString(JDProperties.BIDI_IMPLICIT_REORDERING, TRUE_);
+        else
+            properties_.setString(JDProperties.BIDI_IMPLICIT_REORDERING, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
+    }
+
+    //@K24
+    /**
+    *  Sets whether bidi numeric ordering round trip is used.
+    *  @param value true if numeric ordering round trip should be used; false otherwise.
+    *  The default value is false.
+    **/
+    public void setBidiNumericOrdering(boolean value)
+    {
+        String property = "bidiNumericOrdering";
+        Boolean oldValue = new Boolean(isBidiNumericOrdering());
+        Boolean newValue = new Boolean(value);
+
+        if (value)
+            properties_.setString(JDProperties.BIDI_NUMERIC_ORDERING, TRUE_);
+        else
+            properties_.setString(JDProperties.BIDI_NUMERIC_ORDERING, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
+    }
 
     /**
     *  Sets whether a big decimal value is returned.

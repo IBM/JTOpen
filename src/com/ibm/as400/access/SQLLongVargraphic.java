@@ -76,11 +76,15 @@ implements SQLData
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
+        
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
         // If the field is VARGRAPHIC, length_ contains the number
         // of characters in the string, while the converter is expecting
         // the number of bytes. Thus, we need to multiply length_ by 2.
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_*2, bidiStringType);
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_*2, bidiConversionProperties); //@KBC changed to use bidiConvesionProperties instead of bidiStringType
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -92,9 +96,13 @@ implements SQLData
             // if bidiStringType is not set by user, use ccsid to get value
             if(bidiStringType == -1)
                 bidiStringType = ccsidConverter.bidiStringType_;
+            
+            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
             // The length in the first 2 bytes is actually the length in characters.
-            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiStringType);
+            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
             BinaryConverter.unsignedShortToByteArray(temp.length/2, rawBytes, offset);
 
             if(temp.length > maxLength_)

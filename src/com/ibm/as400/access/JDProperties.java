@@ -130,12 +130,14 @@ class JDProperties implements Serializable
     static final int              QAQQINILIB              = 57;   // @K2A - support to specify a QAQQINI library name 
     static final int              LOGIN_TIMEOUT           = 58;   // @K5A
     static final int              AUTO_COMMIT             = 59;   // @KBA
+    static final int              BIDI_IMPLICIT_REORDERING = 60;    //@K24
+    static final int              BIDI_NUMERIC_ORDERING   = 61;     //@K24
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 60;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 62;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24   
 
 
 
@@ -202,6 +204,8 @@ class JDProperties implements Serializable
     private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
     private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
     private static final String AUTO_COMMIT_            = "true autocommit";            //@KBA
+    private static final String BIDI_IMPLICIT_REORDERING_ = "bidi implicit reordering"; //@K24
+    private static final String BIDI_NUMERIC_ORDERING_  = "bidi numeric ordering";      //@K24
 
 
 
@@ -1060,6 +1064,26 @@ class JDProperties implements Serializable
         i = AUTO_COMMIT;
         dpi_[i] = new DriverPropertyInfo (AUTO_COMMIT_, "");
         dpi_[i].description = "AUTO_COMMIT_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = FALSE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = FALSE_;
+
+        // Bidi implicit reordering @K24
+        i = BIDI_IMPLICIT_REORDERING;
+        dpi_[i] = new DriverPropertyInfo (BIDI_IMPLICIT_REORDERING_, "");
+        dpi_[i].description = "BIDI_IMPLICIT_REORDERING_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = FALSE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = TRUE_;
+
+        // Bidi Numeric Ordering.  @K24
+        i = BIDI_NUMERIC_ORDERING;
+        dpi_[i] = new DriverPropertyInfo (BIDI_NUMERIC_ORDERING_, "");
+        dpi_[i].description = "BIDI_NUMERIC_ORDERING_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[2];
         dpi_[i].choices[0]  = FALSE_;

@@ -78,8 +78,12 @@ implements SQLData
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
+            
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiStringType);
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -91,9 +95,13 @@ implements SQLData
             // if bidiStringType is not set by user, use ccsid to get value
             if(bidiStringType == -1)
                 bidiStringType = ccsidConverter.bidiStringType_;
+                
+            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
             // The length in the first 2 bytes is actually the length in characters.
-            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiStringType);
+            byte[] temp = ccsidConverter.stringToByteArray(value_, bidiConversionProperties);   //@KBC changed to used bidiConversionProperties instead of bidiStringType
             BinaryConverter.unsignedShortToByteArray(temp.length, rawBytes, offset);
             if(temp.length > maxLength_)
             {

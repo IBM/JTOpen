@@ -70,7 +70,11 @@ implements SQLData
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiStringType);
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset, maxLength_, bidiConversionProperties);  //@KBC changed to use bidiConversionProperties instead of bidiStringType
     }
 
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
@@ -99,14 +103,18 @@ implements SQLData
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1)
             bidiStringType = ccsidConverter.bidiStringType_;
+        
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
         try
         {
-            ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiStringType);
+            ccsidConverter.stringToByteArray(value_, rawBytes, offset, maxLength_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
         }
         catch(CharConversionException e)
         {
-            maxLength_ = ccsidConverter.stringToByteArray(value_, bidiStringType).length;
+            maxLength_ = ccsidConverter.stringToByteArray(value_, bidiConversionProperties).length; //@KBC changed to use bidiConversionProperties instead of bidiStringType
             JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
         }
     }

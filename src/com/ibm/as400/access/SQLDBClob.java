@@ -70,11 +70,15 @@ final class SQLDBClob implements SQLData
 
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1) bidiStringType = ccsidConverter.bidiStringType_;
+        
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
         // If the field is DBCLOB, length_ contains the number
         // of characters in the string, while the converter is expecting
         // the number of bytes. Thus, we need to multiply length_ by 2.
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_*2, bidiStringType);
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_*2, bidiConversionProperties);   //@KBA changed to use bidiConversionProperties instead of bidiStringType
         savedObject_ = null;
     }
 
@@ -88,8 +92,12 @@ final class SQLDBClob implements SQLData
         {
             int bidiStringType = settings_.getBidiStringType();
             if(bidiStringType == -1) bidiStringType = ccsidConverter.bidiStringType_;
+            
+            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
 
-            ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiStringType);
+            ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiConversionProperties);   //@KBC changed to bidiConversionProperties instead of bidiStringType
         }
         catch(Exception e)
         {

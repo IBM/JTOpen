@@ -140,7 +140,12 @@ final class SQLDBClobLocator implements SQLLocator
                     int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
                     int bidiStringType = settings_.getBidiStringType();
                     if(bidiStringType == -1) bidiStringType = converter_.bidiStringType_;
-                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiStringType, blockSize);
+                             
+                    BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);  //@KBA
+                    bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());         //@KBA
+                    bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());      //@KBA
+
+                    ReaderInputStream stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); //@KBC changed to use bidiConversionProperties instead of bidiStringType
                     byte[] byteBuffer = new byte[blockSize];
                     int totalBytesRead = 0;
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
@@ -154,7 +159,7 @@ final class SQLDBClobLocator implements SQLLocator
                             blockSize = bytesRemaining;
                             if(stream.available() == 0 && blockSize != 0)
                             {
-                                stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiStringType, blockSize); // do this so we don't read more chars out of the Reader than we have to.
+                                stream = new ReaderInputStream((Reader)savedObject_, converter_.getCcsid(), bidiConversionProperties, blockSize); // do this so we don't read more chars out of the Reader than we have to. //@KBC changed to use bidiConversionProperties instead of bidiStringType
                             }
                         }
                         bytesRead = stream.read(byteBuffer, 0, blockSize);

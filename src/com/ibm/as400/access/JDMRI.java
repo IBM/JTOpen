@@ -107,6 +107,8 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_QAQQINILIB", "qaqqiniLibrary" },                 // @K2A
       { "PROP_NAME_LOGIN_TIMEOUT", "loginTimeout" },                // @K4A
       { "PROP_NAME_AUTO_COMMIT", "autoCommit"},                     // @KBA
+      { "PROP_NAME_BIDI_IMPLICIT_REORDERING", "bidiImplicitReordering"}, //@K24
+      { "PROP_NAME_BIDI_NUMERIC_ORDERING", "bidiNumericOrdering"},  //@K24
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -180,6 +182,8 @@ public class JDMRI extends ListResourceBundle
       { "QAQQINILIB_DESC", "Specifies a QAQQINI library name." },        //@K2A
       { "LOGIN_TIMEOUT_DESC", "Specifies the maximum time in seconds that this data source can wait while attempting to connect to a database." },  //@K4A
       { "AUTO_COMMIT_DESC", "Specifies whether the connection should use true auto commit support."}, //@KBA
+      { "BIDI_IMPLICIT_REORDERING_DESC", "Specifies if bidi implicit LTR-RTL reordering should be used."}, //@K24
+      { "BIDI_NUMERIC_ORDERING_DESC", "Specifies if the numeric ordering round trip feature should be used."}, //@K24
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

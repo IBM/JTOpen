@@ -73,6 +73,18 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             bidiStringType.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_BIDI_STRING_TYPE"));                            // @A3A
             bidiStringType.setShortDescription(AS400JDBCDriver.getResource("BIDI_STRING_TYPE_DESC"));                  // @A3A
 
+            PropertyDescriptor bidiImplicitReordering = new PropertyDescriptor("bidiImplicitReordering", beanClass, "isBidiImplicitReordering", "setBidiImplicitReordering"); // @K24
+            bidiImplicitReordering.setBound(true);                                                                                       //@K24
+            bidiImplicitReordering.setConstrained(false);                                                                                //@K24
+            bidiImplicitReordering.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_BIDI_IMPLICIT_REORDERING"));                    //@K24        
+            bidiImplicitReordering.setShortDescription(AS400JDBCDriver.getResource("BIDI_IMPLICIT_REORDERING_DESC"));                    //@K24
+
+            PropertyDescriptor bidiNumericOrdering = new PropertyDescriptor("bidiNumericOrdering", beanClass, "isBidiNumericOrdering", "setBidiNumericOrdering"); // @K24
+            bidiNumericOrdering.setBound(true);                                                                                       //@K24
+            bidiNumericOrdering.setConstrained(false);                                                                                //@K24
+            bidiNumericOrdering.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_BIDI_NUMERIC_ORDERING"));                    //@K24        
+            bidiNumericOrdering.setShortDescription(AS400JDBCDriver.getResource("BIDI_NUMERIC_ORDERING_DESC"));                    //@K24
+
             PropertyDescriptor bigDecimal = new PropertyDescriptor("bigDecimal", beanClass, "isBigDecimal", "setBigDecimal");
             bigDecimal.setBound(true);
             bigDecimal.setConstrained(false);
@@ -480,7 +492,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, bidiImplicitReordering, bidiNumericOrdering};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24
         }
         catch(Exception e)
         {

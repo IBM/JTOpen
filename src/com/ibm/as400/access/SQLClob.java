@@ -71,7 +71,11 @@ final class SQLClob implements SQLData
         // if bidiStringType is not set by user, use ccsid to get value
         if(bidiStringType == -1) bidiStringType = ccsidConverter.bidiStringType_;
 
-        value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_, bidiStringType);
+        BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);   //@KBA
+        bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());          //@KBA
+        bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());       //@KBA
+
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_, bidiConversionProperties); //@KBC changed to used bidiConversionProperties instead of bidiStringType
         savedObject_ = null;
     }
 
@@ -86,7 +90,11 @@ final class SQLClob implements SQLData
             int bidiStringType = settings_.getBidiStringType();
             if(bidiStringType == -1) bidiStringType = ccsidConverter.bidiStringType_;
 
-            ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiStringType);
+            BidiConversionProperties bidiConversionProperties = new BidiConversionProperties(bidiStringType);   //@KBA
+            bidiConversionProperties.setBidiImplicitReordering(settings_.getBidiImplicitReordering());          //@KBA
+            bidiConversionProperties.setBidiNumericOrderingRoundTrip(settings_.getBidiNumericOrdering());       //@KBA
+
+            ccsidConverter.stringToByteArray(value_, rawBytes, offset + 4, maxLength_, bidiConversionProperties);   //@KBC changed to use bidiConversionProperties instead of bidiStringType
         }
         catch(Exception e)
         {
