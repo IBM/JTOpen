@@ -125,6 +125,14 @@ class PermissionAccessDLO extends PermissionAccess
         DLOPermission dloPermission = (DLOPermission)permission;
         String userProfile=dloPermission.getUserID();
         String authorityLevel=dloPermission.getDataAuthority();
+        try
+        {
+          objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, sys.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+        }
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
         String name=objName.substring(index2+1);
@@ -138,7 +146,7 @@ class PermissionAccessDLO extends PermissionAccess
                +" FLR('"+folder+"')"
                +" USRAUT(("+userProfile+" "+authorityLevel+"))";
         CommandCall cmd = new CommandCall(sys, command); //@A3C
-        cmd.setThreadSafe(false); // ADDDLOAUT isn't threadsafe.  @A3A @A4C
+//        cmd.setThreadSafe(false); // ADDDLOAUT isn't threadsafe.  @A3A @A4C
         return cmd;
     }
 
@@ -154,6 +162,14 @@ class PermissionAccessDLO extends PermissionAccess
         DLOPermission dloPermission = (DLOPermission)permission;
         String userProfile=dloPermission.getUserID();
         String authorityLevel=dloPermission.getDataAuthority();
+        try
+        {
+          objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, sys.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+        }
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
         String name=objName.substring(index2+1);
@@ -167,7 +183,7 @@ class PermissionAccessDLO extends PermissionAccess
                 +" FLR('"+folder+"')"
                 +" USRAUT(("+userProfile+" "+authorityLevel+"))";
         CommandCall cmd = new CommandCall(sys, command); //@A3C
-        cmd.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
+//        cmd.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
         return cmd;
     }
 
@@ -181,6 +197,14 @@ class PermissionAccessDLO extends PermissionAccess
     private static CommandCall getRmvCommand(AS400 sys, String objName,String userName)
     {
         String name,folder;
+        try
+        {
+          objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, sys.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+        }
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
         name=objName.substring(index2+1);
@@ -193,7 +217,7 @@ class PermissionAccessDLO extends PermissionAccess
                        +" FLR('"+folder+"')"
                        +" USER(("+userName+"))";
         CommandCall cmd = new CommandCall(sys, command); //@A3C
-        cmd.setThreadSafe(false); // RMVDLOAUT isn't threadsafe.  @A3A @A4C
+//        cmd.setThreadSafe(false); // RMVDLOAUT isn't threadsafe.  @A3A @A4C
         return cmd;
     }
 
@@ -342,6 +366,14 @@ class PermissionAccessDLO extends PermissionAccess
                    PropertyVetoException
     {
         objName = objName.toUpperCase(); //@A2A
+        try
+        {
+          objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+        }
         String name,folder;
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
@@ -366,7 +398,7 @@ class PermissionAccessDLO extends PermissionAccess
                   +" AUTL("+autList+")";
         }
         setAUTL.setCommand(cmd);
-        setAUTL.setThreadSafe(false); // RMV/CHGDLOAUT not threadsafe. @A3A @A4C
+//        setAUTL.setThreadSafe(false); // RMV/CHGDLOAUT not threadsafe. @A3A @A4C
         if (setAUTL.run()!=true)
         {
            AS400Message[] msgList = setAUTL.getMessageList();
@@ -403,6 +435,14 @@ class PermissionAccessDLO extends PermissionAccess
                    PropertyVetoException
     {
         objName = objName.toUpperCase(); //@A2A
+        try
+        {
+          objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+        }
         String name,folder;
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
@@ -417,13 +457,38 @@ class PermissionAccessDLO extends PermissionAccess
                      +" FLR('"+folder+"')"
                      +" USRAUT((*PUBLIC *AUTL))";
         fromAUTL.setCommand(cmd);
-        fromAUTL.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
+//        fromAUTL.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
         if (fromAUTL.run()!=true)
         {
            AS400Message[] msgList = fromAUTL.getMessageList();
            throw new AS400Exception(msgList);
         }
         return;
+    }
+
+    /**
+     * This is so we correctly convert variant QSYS characters.
+    **/
+    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
+    throws AS400Exception,
+           AS400SecurityException,
+           ConnectionDroppedException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           IOException,
+           ServerStartupException,
+           UnknownHostException,
+           PropertyVetoException
+    {
+      try
+      {
+        objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+      }
+      catch(Exception e)
+      {
+        Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+      }
+      super.setOwner(objName, owner, revokeOldAuthority);
     }
 
     /**
@@ -459,6 +524,14 @@ class PermissionAccessDLO extends PermissionAccess
                    PropertyVetoException
     {
         objName = objName.toUpperCase(); //@A2A
+        try
+        {
+          objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+        }
+        catch(Exception e)
+        {
+          Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+        }
         String name,folder;
         int index1 = objName.indexOf('/',1);
         int index2=objName.lastIndexOf('/');
@@ -492,7 +565,7 @@ class PermissionAccessDLO extends PermissionAccess
                      +" FLR('"+folder+"')"
                      +" SENSITIV("+sensitivity+")";
         setSensitiv.setCommand(cmd);
-        setSensitiv.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
+//        setSensitiv.setThreadSafe(false); // CHGDLOAUT isn't threadsafe.  @A3A @A4C
         if(setSensitiv.run()!=true)
         {
               AS400Message[] msgList=setSensitiv.getMessageList();

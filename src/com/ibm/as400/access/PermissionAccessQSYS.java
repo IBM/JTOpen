@@ -139,7 +139,7 @@ class PermissionAccessQSYS extends PermissionAccess
                          +" USER("+userProfile+")"
                          +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"; // @B5c
         CommandCall cmd = new CommandCall(sys, command); //@A2C
-        cmd.setThreadSafe(false); // ADDAUTLE isn't threadsafe.  @A2A @A3C
+//        cmd.setThreadSafe(false); // ADDAUTLE isn't threadsafe.  @A2A @A3C
         return cmd;               //@A2C
     }
 
@@ -185,7 +185,7 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" AUT(*EXCLUDE)";
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
-        cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
+//        cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
         return cmd;               //@A2C
     }
 
@@ -238,7 +238,7 @@ class PermissionAccessQSYS extends PermissionAccess
                     +" REPLACE(*YES)";
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
-        cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
+//        cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
         return cmd;                //@A2C
     }
 
@@ -336,7 +336,7 @@ class PermissionAccessQSYS extends PermissionAccess
         }
 
         CommandCall cmd = new CommandCall(sys, command); //@A2C
-        cmd.setThreadSafe(threadSafe);  //@A2A
+//        cmd.setThreadSafe(threadSafe);  //@A2A
         return cmd;                     //@A2C
     }
 
@@ -526,7 +526,7 @@ class PermissionAccessQSYS extends PermissionAccess
                   +" AUTL("+autList+")";
         }
         setAUTL.setCommand(cmd);
-        setAUTL.setThreadSafe(false); // RVKOBJAUT,GRTOBJAUT not threadsafe.  @A2A @A3C
+//        setAUTL.setThreadSafe(false); // RVKOBJAUT,GRTOBJAUT not threadsafe.  @A2A @A3C
         if (setAUTL.run()!=true)
         {
            AS400Message[] msgList = setAUTL.getMessageList();
@@ -595,7 +595,7 @@ class PermissionAccessQSYS extends PermissionAccess
                   +" USER(*PUBLIC)"
                   +" AUT(*EXCLUDE)";
         fromAUTL.setCommand(cmd);
-        fromAUTL.setThreadSafe(false); // GRTOBJAUT isn't threadsafe.  @A2A @A3C
+//        fromAUTL.setThreadSafe(false); // GRTOBJAUT isn't threadsafe.  @A2A @A3C
         if (fromAUTL.run()!=true)
         {
            AS400Message[] msgList = fromAUTL.getMessageList();

@@ -151,7 +151,7 @@ abstract class PermissionAccess
 
         ProgramCall rtvUsersAUT=new ProgramCall(as400_);
         rtvUsersAUT.setProgram(prgName.getPath(),parmList);
-        rtvUsersAUT.setThreadSafe(false); // API isn't threadsafe as of V4R4. @A5A
+//        rtvUsersAUT.setThreadSafe(false); // API isn't threadsafe as of V4R4. @A5A
 
         if (rtvUsersAUT.run()!=true)
         {
@@ -340,8 +340,17 @@ abstract class PermissionAccess
           // uppercase one. Normally, case shouldn't matter since
           // the AS/400 uppercases any QDLS names for us automatically.
           if (objName.toUpperCase().startsWith("/QDLS/"))      //@A3A
+          {
             objName = objName.toUpperCase();                   //@A3A
-
+            try
+            {
+              objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+            }
+            catch(Exception e)
+            {
+              Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+            }
+          }
           parmList[5]=new ProgramParameter(text.toBytes(objName));
 
           parmList[6]=new ProgramParameter(bin4.toBytes(objnameLength));
@@ -357,7 +366,18 @@ abstract class PermissionAccess
           // for objects that have characters that aren't in our job CCSID. Hurray!
           // We use CCSID 1200 for UTF-16.
           String upperName = objName.toUpperCase();
-          if (upperName.startsWith("/QDLS/")) objName = upperName;
+          if (upperName.startsWith("/QDLS/"))
+          {
+            objName = upperName;
+            try
+            {
+              objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+            }
+            catch(Exception e)
+            {
+              Trace.log(Trace.WARNING, "Unable to convert QDLS pathname to correct job CCSID.", e);
+            }
+          }
           byte[] pathNameBytes = null;
           try
           {
@@ -595,7 +615,7 @@ abstract class PermissionAccess
         "NEWOWN("+owner+") " +
         "RVKOLDAUT("+revokeOldAut+")";
       cmd.setCommand(cmdString);
-      cmd.setThreadSafe(false); // CHGOWN isn't threadsafe.
+//      cmd.setThreadSafe(false); // CHGOWN isn't threadsafe.
       if(cmd.run()!=true)
       {
         AS400Message[] msgList=cmd.getMessageList();

@@ -157,7 +157,7 @@ class PermissionAccessRoot extends PermissionAccess
                          +" DTAAUT("+dataAuthority+")"
                          +" OBJAUT("+objAuthority+")";
         CommandCall cmd = new CommandCall(sys, command); //@A2C
-        cmd.setThreadSafe(true);   //@A2A
+//        cmd.setThreadSafe(true);   //@A2A
         return cmd;                //@A2C
     }
 
@@ -178,7 +178,7 @@ class PermissionAccessRoot extends PermissionAccess
                          +" DTAAUT("+dataAuthority+")"
                          +" OBJAUT("+objAuthority+")";
         CommandCall cmd = new CommandCall(sys, command); //@A2C
-        cmd.setThreadSafe(true);   //@A2A
+//        cmd.setThreadSafe(true);   //@A2A
         return cmd;                //@A2C
     }
 
@@ -322,7 +322,7 @@ class PermissionAccessRoot extends PermissionAccess
                    +" OBJ("+expandQuotes0(objName)+")"          // @B3c @B4c
                    +" AUTL("+autList+")";
         setAUTL.setCommand(cmd);
-        setAUTL.setThreadSafe(true);  //@A2A
+//        setAUTL.setThreadSafe(true);  //@A2A
         if (setAUTL.run()!=true)
         {
            AS400Message[] msgList = setAUTL.getMessageList();
@@ -373,7 +373,7 @@ class PermissionAccessRoot extends PermissionAccess
                   +" DTAAUT(*EXCLUDE)"
                   +" OBJAUT(*NONE)";
         fromAUTL.setCommand(cmd);
-        fromAUTL.setThreadSafe(true);  //@A2A
+//        fromAUTL.setThreadSafe(true);  //@A2A
         if (fromAUTL.run()!=true)
         {
            AS400Message[] msgList = fromAUTL.getMessageList();
