@@ -1272,7 +1272,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
 
-    /**  @E2C -- Added more info on XPCML.  Changed all RFML references to XPCML.
+    // @E2C -- Added more info on XPCML.  Changed all RFML references to XPCML.
+    /**
      Generates XPCML representing the data contained in the entire PCML node tree.
      XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
      to PCML but allows for better validation of parameters and allows parameter
