@@ -286,7 +286,7 @@ of the connection, and disconnects from the server.
    // Make a clone of the vector, since it will be modified as each statement          @EFA
    // closes itself                                                                 // @EFA
    Vector statements = (Vector)statements_.clone();                                 // @EFA
-   Enumeration enum = statements_.elements();                                       // @EFA
+   Enumeration enum = statements.elements();                                        // @EFA
    while(enum.hasMoreElements()) {                                                  // @EFC
        AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @EFA
        if (! statement.isClosed())                                                  // @EFC
