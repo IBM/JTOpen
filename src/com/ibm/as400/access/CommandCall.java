@@ -658,6 +658,7 @@ public class CommandCall implements Serializable
      **/
     public void setThreadSafe(boolean threadSafe)
     {
+        Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
         Boolean oldValue = new Boolean(threadSafety_);
         Boolean newValue = new Boolean(threadSafe);
 

@@ -265,7 +265,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     // @d2a new method
     public boolean runCommand(byte[] command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        Trace.log(Trace.INFORMATION, "Running command: " + command);
+        Trace.log(Trace.INFORMATION, "Running command:", command);
 
         // Connect to server.
         open(threadSafety);
@@ -308,7 +308,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             else
             {
                 // rc==0x400 Command Failed, Messages returned.
-                Trace.log(Trace.WARNING, "Command " + command + " failed." );
+                Trace.log(Trace.WARNING, "Command failed:", command);
                 return false;
             }
         }
