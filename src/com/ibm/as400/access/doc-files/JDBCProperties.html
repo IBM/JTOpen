@@ -550,6 +550,15 @@ attributes. The tables organize the properties into the following categories:</P
     </TD>
     <TD HEADERS="t5">(server default)</TD>
   </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;query optimize goal&quot;</TD>
+    <TD HEADERS="t2">Specifies the goal the server should use with optimization of queries.  This setting corresponds with the server's QAQQINI option called OPTIMIZATION_GOAL.  Note, this property is ignored when connecting to systems running to i5/OS V5R3 and earlier.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;0&quot; = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used<BR>
+    &quot;1&quot; = Optimize query for first block of data (*FIRSTIO)<BR>
+	&quot;2&quot; = Optimize query for entire result set (*ALLIO)<BR></TD>
+    <TD HEADERS="t5">&quot;0&quot;</TD>
+  </TR>
 </TABLE>
 
 <A NAME="sort"></A>
@@ -852,7 +861,8 @@ attributes. The tables organize the properties into the following categories:</P
          &quot;4&quot; (start debug on the JDBC server job)<br>
          &quot;8&quot; (save the job log when the JDBC server job ends)<br>
          &quot;16&quot; (start job trace on the JDBC server job)<br>
-         &quot;32&quot; (save SQL information)</p>
+         &quot;32&quot; (save SQL information)<BR>
+         &quot;64&quot; (start the database host server trace)</p>
       <p>Multiple types of trace can be started by adding these values together. 
         For example, &quot;6&quot; starts the database monitor and starts debug. 
       </p>

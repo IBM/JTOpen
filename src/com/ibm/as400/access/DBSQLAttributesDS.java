@@ -301,6 +301,17 @@ extends DBBaseRequestDS
         addParameter(0x3812, (short)value);
     }
 
+    /**
+    Set the optimization goal that should be used for queries.
+    @param value the optimization goal
+    @exception DBDataStreamException If there is not enough space left in the data byte array.
+    **/
+    void setQueryOptimizeGoal(int value)                                    // @540
+    throws DBDataStreamException                                            // @540
+    {                                                                       // @540
+        addParameter(0x3833, (byte)value);                                  // @540
+    }                                                                       // @540
+
     // @J2 new method
     /**
        Sets the database (IASP) name for this connection.  The RDB name

@@ -309,7 +309,10 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
 
             DBDataFormat parameterMarkerDataFormat;
             if(connection_.useExtendedFormats ())
+            {
+                //@540  We are going to continue using DBExtendedDataFormat for this part.  We use an empty string for the parameter name so we don't need 128 bytes
                 parameterMarkerDataFormat = new DBExtendedDataFormat (parameterCount_);
+            }
             else
                 parameterMarkerDataFormat = new DBOriginalDataFormat (parameterCount_);
             request2.setParameterMarkerDataFormat (parameterMarkerDataFormat);

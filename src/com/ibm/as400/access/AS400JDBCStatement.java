@@ -1143,7 +1143,9 @@ public class AS400JDBCStatement implements Statement
 
                     request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_CONNECT, id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA+DBSQLRequestDS.ORS_BITMAP_SQLCA, 0);    //@P0C
 
-                    request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_);    // @E3C @P0C
+                    boolean extended = false;                                                         //@540
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
+                    request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     if(packageManager_.isEnabled())
@@ -1242,7 +1244,9 @@ public class AS400JDBCStatement implements Statement
 
                     request = DBDSPool.getDBSQLRequestDS (DBSQLRequestDS.FUNCTIONID_EXECUTE_IMMEDIATE, id_, requestedORS, 0);    //@P0C @F5C
 
-                    request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_);    // @E3C  @P0C
+                    boolean extended = false;                                                         //@540
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
+                    request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     int openAttributes = cursor_.getOpenAttributes (sqlStatement, blockCriteria_);
@@ -1412,7 +1416,9 @@ public class AS400JDBCStatement implements Statement
 
                     request = DBDSPool.getDBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_PREPARE_DESCRIBE, id_, requestedORS, 0);    //@P0C @F5C
 
-                    request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_);    // @E3C @P0C
+                    boolean extended = false;                                                         //@540
+                    if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;                   //@540
+                    request.setStatementText(sqlStatement.toString(), connection_.unicodeConverter_, extended); //@E3C @P0C @540C
                     request.setStatementType (sqlStatement.getNativeType ());
 
                     if(packageManager_.isEnabled())

@@ -851,7 +851,7 @@ implements Connection
     {
         try
         {
-            if (ccsid == 0 || ccsid == 1 || ccsid == 65535) return converter_; //@P0C
+            if (ccsid == 0 || ccsid == 1 || ccsid == 65535 || ccsid == -1) return converter_; //@P0C
             //@P0D      switch (ccsid)
             //@P0D      {                                                                 // @E3A
             //@P0D        case 65535:   //@ELC                                                            // @E3A
@@ -2021,6 +2021,7 @@ implements Connection
                 JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed, could not get server VRM");
             }
 
+            boolean endedTraceJob = false;        //@540  Used to determine if ENDTRC has already been done.
             // End trace-job
             if ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0)
             {
@@ -2038,10 +2039,34 @@ implements Connection
                                                serverJobIdentifier.substring(20) +
                                                ") DTALIB(QUSRSYS)", SQLNaming );
                     }
+                    endedTraceJob = true; //@540
                 }
                 catch (Exception e)
                 {
                     JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed");
+                }
+            }
+
+            //@540 End database host server trace job
+            // Database Host Server Trace is supported on V5R3+
+            if(getVRM() >= JDUtilities.vrm530  && !endedTraceJob)
+            {
+                // Only issue ENDTRC if not already done.
+                if((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)
+                {
+                    // end database host server trace
+                    try{
+                        JDUtilities.runCommand(this, "QSYS/ENDTRC SSNID(QJT" +
+                                               serverJobIdentifier.substring(20) +
+                                               ") DTAOPT(*LIB) DTALIB(QUSRSYS) RPLDTA(*YES) PRTTRC(*YES)", SQLNaming );
+
+                        JDUtilities.runCommand(this, "QSYS/DLTTRC DTAMBR(QJT" +
+                                               serverJobIdentifier.substring(20) +
+                                               ") DTALIB(QUSRSYS)", SQLNaming );
+                    }
+                    catch(Exception e){
+                        JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end database host server tracing failed.");
+                    }
                 }
             }
 
@@ -2992,21 +3017,61 @@ implements Connection
                 }
             }
 
-            // Optionally start trace on the database server job
-            if ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0)
+            boolean traceServerJob = ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0);  //@540                                                        
+            //@540 Database Host Server Trace is supported on V5R3 and later servers
+            boolean traceDatabaseHostServer = ((getVRM() >= JDUtilities.vrm530) && ((traceServer_ & ServerTrace.JDBC_TRACE_DATABASE_HOST_SERVER) > 0)); //@540
+            // Optionally start trace on the database server job or database host server
+            //@540D if ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0)
+            if(traceServerJob || traceDatabaseHostServer)   //@540
             {
                 try
                 {
-                    if (preV5R1)
+                    if (preV5R1 && traceServerJob)  //@540 added check for traceServerJob
                         JDUtilities.runCommand(this, "QSYS/TRCJOB MAXSTG(16000)", SQLNaming);
-                    else
-                        JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +
+                    else{
+                        if(!traceDatabaseHostServer){  //@540 trace only server job
+                            JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +
                                                serverJobIdentifier.substring(20) +
                                                ") JOB(*) MAXSTG(128000)", SQLNaming);
+                        }
+                        else if(!traceServerJob){ //@540 trace only database host server
+                            if(getVRM() == JDUtilities.vrm530){  //@540 run command for V5R3
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                //@540
+                                               serverJobIdentifier.substring(20) +                    //@540
+                                               ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +      //@540
+                                               "TRCTYPE((TESTA *INFO))", SQLNaming);                  //@540
+                            }
+                            else{   //@540 run command for V5R4 and higher                                    
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                 //@540
+                                               serverJobIdentifier.substring(20) +                     //@540
+                                               ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*TRCTYPE) " +       //@540
+                                               "TRCTYPE((*DBHSVR *INFO))", SQLNaming);                 //@540
+                            }
+                        }                                                                              //@540
+                        else{ //@540 start both server job and database host server trace
+                            if(getVRM() == JDUtilities.vrm530){  //@540 run command for V5R3
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                //@540
+                                               serverJobIdentifier.substring(20) +                    //@540
+                                               ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*ALL) " +          //@540
+                                               "TRCTYPE((TESTA *INFO))", SQLNaming);                  //@540
+                            }
+                            else{    //@540 run V5R4 and higher command
+                                JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +                //@540
+                                               serverJobIdentifier.substring(20) +                    //@540
+                                               ") JOB(*) MAXSTG(128000) JOBTRCTYPE(*ALL) " +          //@540
+                                               "TRCTYPE((*DBHSVR *INFO))", SQLNaming);                //@540
+                            }
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
-                    JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not trace server job");
+                    if(traceServerJob && !traceDatabaseHostServer)  //@540
+                        JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not trace server job");
+                    else if(traceDatabaseHostServer && !traceServerJob)  //@540
+                        JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start database host server tracing failed, could not trace server job");    //@540
+                    else                                                                                                                                //@540
+                        JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job and database host server tracing failed, could not trace server job");  //@540
                 }
             }
         }
@@ -3316,7 +3381,10 @@ implements Connection
                 {                  // @D0C @E9C
                     // @E9D || (FORCE_EXTENDED_FORMATS_)) {
 
-                    request.setUseExtendedFormatsIndicator (0xF1);
+                    if(vrm_ >= JDUtilities.vrm540)          //@540 use new Super Extended Formats 
+                        request.setUseExtendedFormatsIndicator(0xF2);   //@540 
+                    else                                                //@540 
+                        request.setUseExtendedFormatsIndicator (0xF1);
 
                     // Although we publish a max lob threshold of 16777216,                   @E6A
                     // the server can only handle 15728640.  We do it this                    @E6A
@@ -3344,7 +3412,18 @@ implements Connection
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
                 
-                    if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For i5/OS V5R3 and later true auto commit support is supported.
+                    if(vrm_ >= JDUtilities.vrm540){                         //@540 for i5/OS V5R4 and later, 128 byte column names are supported
+                        //@540 - Client support information - indicate our support for ROWID data type, true autocommit
+                        // and 128 byte column names
+                        request.setClientSupportInformation(0xE0000000);
+                        if(JDTrace.isTraceOn()){
+                            JDTrace.logInformation(this, "ROWID supported = true");
+                            JDTrace.logInformation(this, "True auto-commit supported = true");
+                            JDTrace.logInformation(this, "128 byte column names supported = true");
+                        }
+
+                    }
+                    else if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For i5/OS V5R3 and later true auto commit support is supported.
                     {
                         // @KBA - Client support information - indicate our support for ROWID data type and
                         // true auto-commit
@@ -3421,6 +3500,23 @@ implements Connection
                     request.setLocatorPersistence(1);
                 }
 
+                //@540
+                if(vrm_ >= JDUtilities.vrm540){
+
+                    //Set the query optimization goal 
+                    // 0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used (default)
+                    // 1 = Optimize query for first block of data (*FIRSTIO)
+                    // 2 = Optimize query for entire result set (*ALLIO)
+                    int queryOptimizeGoal = properties_.getInt (JDProperties.QUERY_OPTIMIZE_GOAL);    
+                    if(queryOptimizeGoal != 0){      // Only need to send if we are not using the default
+                        if(queryOptimizeGoal == 1)
+                            request.setQueryOptimizeGoal(0xC6);
+                        else if(queryOptimizeGoal == 2)
+                            request.setQueryOptimizeGoal(0xC1);
+                    }
+                    if(JDTrace.isTraceOn())
+                            JDTrace.logInformation(this, "query optimize goal = " + queryOptimizeGoal);
+                }
 
                 if (JDTrace.isTraceOn ())
                 {

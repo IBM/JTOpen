@@ -300,15 +300,31 @@ extends DBBaseRequestDS
    Sets the Statement Text parameter in the data stream.
    @param value	the text for the SQL statement.
    @param converter the converter.
+   @param extended true if using extended statement text, false otherwise
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-  void setStatementText(String value, ConvTable converter) //@P0C
+  void setStatementText(String value, ConvTable converter, boolean extended) //@P0C @540C
   throws DBDataStreamException, SQLException                      // @E9c
   {
-    addParameter (0x3807, converter, value);
+      if(!extended)
+          addParameter (0x3807, converter, value);
+      else
+          setExtendedStatementText(value, converter);
   }
 
 
+//@540 
+/**
+   Sets the Extended Statement Text parameter in the data stream.
+   @param value	the text for the SQL statement.
+   @param converter the converter.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+  void setExtendedStatementText(String value, ConvTable converter) 
+  throws DBDataStreamException, SQLException                      
+  {
+    addParameter (0x3831, true, converter, value);
+  }
 
 /**
    Sets the Statement Type parameter in the data stream.

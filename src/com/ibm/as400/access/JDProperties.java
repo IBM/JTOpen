@@ -136,11 +136,12 @@ class JDProperties implements Serializable
     static final int              HOLD_STATEMENTS = 63;     //@KBL
     static final int              ROLLBACK_CURSOR_HOLD = 64;    //@K94
     static final int              VARIABLE_FIELD_COMPRESSION = 65;  //@K54
+    static final int              QUERY_OPTIMIZE_GOAL = 66; //@540
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 66;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 67;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540
 
 
 
@@ -213,6 +214,7 @@ class JDProperties implements Serializable
     private static final String HOLD_STATEMENTS_ = "hold statements";   //@KBL
     private static final String ROLLBACK_CURSOR_HOLD_ = "rollback cursor hold";  //@K94
     private static final String VARIABLE_FIELD_COMPRESSION_ = "variable field compression";  //@K54
+    private static final String QUERY_OPTIMIZE_GOAL_ = "query optimize goal";       //@540
 
 
 
@@ -392,6 +394,9 @@ class JDProperties implements Serializable
     static final String              TRACE_TOOLBOX_NONE          = NONE_;            // @K1A
     static final String              TRACE_TOOLBOX_NOT_SET       = EMPTY_;
 
+    static final String         QUERY_OPTIMIZE_GOAL_DEFAULT             = "0";  //@540
+    static final String         QUERY_OPTIMIZE_GOAL_FIRSTIO             = "1";  //@540
+    static final String         QUERY_OPTIMIZE_GOAL_ALLIO               = "2";  //@540
 
     // Static data.
     private static DriverPropertyInfo[] dpi_;
@@ -1136,6 +1141,17 @@ class JDProperties implements Serializable
         dpi_[i].choices[0]  = FALSE_;
         dpi_[i].choices[1]  = TRUE_;
         defaults_[i]        = TRUE_;
+
+        // Query Optimize Goal  //@540
+        i = QUERY_OPTIMIZE_GOAL;
+        dpi_[i] = new DriverPropertyInfo (QUERY_OPTIMIZE_GOAL_, "");
+        dpi_[i].description = "QUERY_OPTIMIZE_GOAL_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[3];
+        dpi_[i].choices[0]  = QUERY_OPTIMIZE_GOAL_DEFAULT;
+        dpi_[i].choices[1]  = QUERY_OPTIMIZE_GOAL_FIRSTIO;
+        dpi_[i].choices[2]  = QUERY_OPTIMIZE_GOAL_ALLIO;
+        defaults_[i]        = QUERY_OPTIMIZE_GOAL_DEFAULT;
     }
 
 

@@ -592,7 +592,9 @@ Set the commit mode on the server.
                                                  DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                  + DBBaseRequestDS.ORS_BITMAP_SQLCA, 0);
 
-          request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_); // @C3C @P0C
+          boolean extended = false;         //@540
+          if(connection_.getVRM() >= JDUtilities.vrm540) extended = true;   //@540
+          request.setStatementText (sqlStatement.toString (), connection_.unicodeConverter_, extended); // @C3C @P0C @540C 
           request.setStatementType (sqlStatement.getNativeType ());
 
           // This statement certainly does not need a cursor, but some

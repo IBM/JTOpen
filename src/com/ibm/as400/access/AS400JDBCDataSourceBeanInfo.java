@@ -515,11 +515,19 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             variableFieldCompression.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_VARIABLE_FIELD_COMPRESSION"));                //@K54
             variableFieldCompression.setShortDescription(AS400JDBCDriver.getResource("VARIABLE_FIELD_COMPRESSION_DESC"));                //@K54
 
+            //@540 - added support for query optimize goal
+            PropertyDescriptor queryOptimizeGoal = new PropertyDescriptor("queryOptimizeGoal", beanClass, "getQueryOptimizeGoal", "setQueryOptimizeGoal"); // @540
+            queryOptimizeGoal.setBound(true);                                                                                     // @540
+            queryOptimizeGoal.setConstrained(false);                                                                              // @540
+            queryOptimizeGoal.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QUERY_OPTIMIZE_GOAL"));                         // @540
+            queryOptimizeGoal.setShortDescription(AS400JDBCDriver.getResource("QUERY_OPTIMIZE_GOAL_DESC"));                         // @540
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit, holdLocators, bidiImplicitReordering, bidiNumericOrdering, holdStatements, rollbackCursorHold, variableFieldCompression,  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC //@K24 //@KLA //@K94  //@K54
+                queryOptimizeGoal}; //@540
         }
         catch(Exception e)
         {

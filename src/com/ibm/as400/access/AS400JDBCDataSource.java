@@ -1109,6 +1109,23 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getString(JDProperties.QAQQINILIB);
     }
 
+    //@540
+    /**                                                               
+    *  Returns the goal the server should use with optimization of queries.  
+    *  @return the goal the server should use with optimization of queryies.
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used</li>
+    *  <li>1 = Optimize query for first block of data (*FIRSTIO)</li>
+    *  <li>2 = Optimize query for entire result set (*ALLIO) </li>
+    *  </ul>
+    *  The default value is 0.
+    **/
+    public int getQueryOptimizeGoal()
+    {
+        return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
+    }
+
     /**
     *  Initializes the transient data for object de-serialization.
     **/
@@ -3637,6 +3654,34 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + libraryName);  
+    }
+
+    /**                                                               
+    *  Sets the goal the server should use with optimization of queries.  
+    *  This setting corresponds with the server's QAQQINI option called OPTIMIZATION_GOAL.  
+    *  Note, this setting is ignored when running to V5R3 i5/OS or earlier  
+    *  @param goal - the optimization goal 
+    *  <p>Valid values include:
+    *  <ul>
+    *  <li>0 = Optimize query for first block of data (*FIRSTIO) when extended dynamic packages are used; Optimize query for entire result set (*ALLIO) when packages are not used</li>
+    *  <li>1 = Optimize query for first block of data (*FIRSTIO)</li>
+    *  <li>2 = Optimize query for entire result set (*ALLIO) </li>
+    *  </ul>
+    *  The default value is 0.
+    **/
+    public void setQueryOptimizeGoal(int goal)
+    {
+        String property = "queryOptimizeGoal";
+
+        Integer oldValue = new Integer(getQueryOptimizeGoal());
+        Integer newValue = new Integer(goal);
+
+        properties_.setString(JDProperties.QUERY_OPTIMIZE_GOAL, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + goal);
     }
 
     //K2A

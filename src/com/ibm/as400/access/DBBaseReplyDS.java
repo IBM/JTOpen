@@ -736,6 +736,26 @@ Parses the datastream.
                data_, offset + 6);                                            // @G4A
             break;                                                            // @G4A
           }                                                                   // @G4A
+
+        // Super Extended data format.       //@540 
+          case 0x3812:
+          if (parmLength != 6)
+          {
+              //System.out.println("Extended data format:  ");
+            dataFormat_ = new DBSuperExtendedDataFormat ();
+            dataFormat_.overlay (data_, offset + 6);
+          }
+          break;
+
+        // Super Extended parameter marker format.   //@540
+        case 0x3813:
+          if (parmLength != 6)
+          {
+              //System.out.println("extended parameter marker format");
+            parameterMarkerFormat_ = new DBSuperExtendedDataFormat ();
+            parameterMarkerFormat_.overlay (data_, offset + 6);
+          }
+          break;
       }            
 
       offset += parmLength;

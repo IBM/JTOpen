@@ -100,6 +100,14 @@ class ServerTrace
     static final int JDBC_SAVE_SQL_INFORMATION = 32;
 
 
+    /**
+      Start the database host server trace.
+      The numeric value of this constant is 64.
+      This option is valid when connecting to V5R3 and
+      newer versions of i5/OS.
+    **/
+    static final int JDBC_TRACE_DATABASE_HOST_SERVER = 64;      //@540
+
     static
     {
        loadTraceProperties ();
@@ -156,6 +164,7 @@ class ServerTrace
      *   <LI> JDBC_SAVE_SERVER_JOBLOG - save the joblog when the server job ends
      *   <LI> JDBC_TRACE_SERVER_JOB - start trace on the server job
      *   <LI> JDBC_SAVE_SQL_INFORMATION - save SQL information
+     *   <LI> JDBC_TRACE_DATABASE_HOST_SERVER - start database host server trace
      *   </UL>
      *   The constants can be added together to start more than one type
      *   of tracing.

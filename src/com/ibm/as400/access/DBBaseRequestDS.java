@@ -494,6 +494,40 @@ Adds a variable length string parameter.
     unlock();
   }
 
+//@540
+/**
+Adds a variable length string parameter with a four byte length.
+**/
+//Note:  This method will only be called if running to a V5R4 or later server.  boolean v5r4 is just to distinguish this
+// method from the method above (protected void addParameter(int codePoint,ConvTable converter, String value)).
+  protected void addParameter(int codePoint, boolean v5r4,
+                              ConvTable converter,
+                              String value)
+  throws DBDataStreamException, SQLException                              
+  {
+    byte[] rawBytes = converter.stringToByteArray(value);
+
+    if (rawBytes.length > 2097152)             //CHECK TO SEE IF GREATER THAN 2MB                                
+      JDError.throwSQLException (JDError.EXC_SQL_STATEMENT_TOO_LONG);      
+
+    lock(rawBytes.length + 6, codePoint);
+
+    set16bit(converter.ccsid_, currentOffset_);        // CCSID 
+    set32bit(rawBytes.length, currentOffset_ + 2);     // SL  - Set 4-byte length
+
+    try
+    {
+      System.arraycopy(rawBytes, 0, data_, currentOffset_ + 6,
+                       rawBytes.length);
+    }
+    catch (Exception e)
+    {
+      throw new DBDataStreamException();
+    }
+
+    unlock();
+  }
+
   /**
 Adds a fixed length string parameter, but uses character conversion.
 **/

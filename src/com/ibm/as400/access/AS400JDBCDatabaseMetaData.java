@@ -2504,7 +2504,10 @@ implements DatabaseMetaData
     public int getMaxColumnNameLength ()
     throws SQLException
     {
-        return 30;
+        if(connection_.getVRM() >= JDUtilities.vrm540)                              //@540 
+            return 128;                                                             //@540 
+        else
+            return 30;
     }
 
 
@@ -2682,14 +2685,17 @@ implements DatabaseMetaData
     /**
     Returns the maximum length of an SQL statement.
     
-    @return     The maximum length (in bytes).
+    @return     The maximum length.
     
     @exception  SQLException    This exception is never thrown.
     **/
     public int getMaxStatementLength ()
     throws SQLException
     {
-        return 32767;
+        if(connection_.getVRM() >= JDUtilities.vrm540)      //@540 
+            return 1048576;                                 //@540 Statement text is always sent in 2 byte Unicode, so the maximum statement length in characters will always be 1 MB
+        else                                                //@540 
+            return 32767;
     }
 
 
