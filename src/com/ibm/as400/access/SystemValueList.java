@@ -162,7 +162,7 @@ public class SystemValueList implements java.io.Serializable
     // @D2 For V5R1, there are 6 additional system values.
     // @E0 For V5R2, there are 2 additional system values.
 
-    list_ = new Hashtable(169); // There are at least 169 system values @C1C
+    list_ = new Hashtable(177); // There are at least 177 system values @C1C @F1C
     groups_ = new Hashtable(groupCount_); // There are 10 groups @D4C
     Vector[] groupVector = new Vector[groupCount_]; // The group type is the index into this array of Vectors @D4C
                                            // Each vector contains a list of system values that belong to that group.
@@ -178,6 +178,7 @@ public class SystemValueList implements java.io.Serializable
     int vrm440 = AS400.generateVRM(4, 4, 0); //@B0A
     int vrm510 = AS400.generateVRM(5, 1, 0); //@D2a
     int vrm520 = AS400.generateVRM(5, 2, 0); //@E0A
+    int vrm530 = AS400.generateVRM(5, 3, 0); //@F1A
 
     // network attributes
     list_.put("ALRBCKFP", new SystemValueInfo("ALRBCKFP", AS400TYPE_CHAR, 8, 2, TYPE_ARRAY, GROUP_NET, vrm420, ((String)ResourceBundleLoader.getSystemValueText("ALRBCKFP_DES")).trim()));
@@ -371,6 +372,17 @@ public class SystemValueList implements java.io.Serializable
     list_.put("QSPLFACN",   new SystemValueInfo("QSPLFACN", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_ALC, vrm520, ((String)ResourceBundleLoader.getSystemValueText("QSPLFACN_DES")).trim())); //@E0A
     list_.put("QDBFSTCCOL", new SystemValueInfo("QDBFSTCCOL", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_SYSCTL, vrm520, ((String)ResourceBundleLoader.getSystemValueText("QDBFSTCCOL_DES")).trim())); //@E0A
 
+    //@F1A
+    // V5R3 system values
+    list_.put("QAUDLVL2",   new SystemValueInfo("QAUDLVL2", AS400TYPE_CHAR, 10, 99, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QAUDLVL2_DES")).trim())); //@F1A
+    list_.put("QDATETIME",   new SystemValueInfo("QDATETIME", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QDATETIME_DES")).trim())); //@F1A
+    list_.put("QENDJOBLMT",   new SystemValueInfo("QENDJOBLMT", AS400TYPE_BINARY, 4, 1, TYPE_INTEGER, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QENDJOBLMT_DES")).trim())); //@F1A
+    list_.put("QSAVACCPTH",   new SystemValueInfo("QSAVACCPTH", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSAVACCPTH_DES")).trim())); //@F1A
+    list_.put("QSCANFS",   new SystemValueInfo("QSCANFS", AS400TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSCANFS_DES")).trim())); //@F1A
+    list_.put("QSCANFSCTL",   new SystemValueInfo("QSCANFSCTL", AS400TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSCANFSCTL_DES")).trim())); //@F1A
+    list_.put("QTIMADJ",   new SystemValueInfo("QTIMADJ", AS400TYPE_CHAR, 28, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTIMADJ_DES")).trim())); //@F1A
+    list_.put("QTIMZON",   new SystemValueInfo("QTIMZON", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTIMZON_DES")).trim())); //@F1A
+
     // Create the group vectors
     for (int i=0; i<groupVector.length; ++i) //@D4C
     {
@@ -392,7 +404,7 @@ public class SystemValueList implements java.io.Serializable
   }   // end static initialization
 
 
-  private AS400 system_ = null;  // The AS/400 this SystemValueList belongs to.
+  private AS400 system_ = null;  // The iSeries server this SystemValueList belongs to.
   private boolean connected_ = false; // Has a connection been made yet?
 
   transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
@@ -413,7 +425,7 @@ public class SystemValueList implements java.io.Serializable
   Constructs a SystemValueList object.
   It creates a SystemValueList instance that represents a list of system
   values on <i>system</i>.
-    @param system The AS/400 that contains the system values.
+    @param system The server that contains the system values.
   **/
   public SystemValueList(AS400 system)
   {
@@ -450,7 +462,7 @@ public class SystemValueList implements java.io.Serializable
 
 
   /**
-  Makes a connection to the AS/400.
+  Makes a connection to the server.
   The <i>system</i> property must be set before a connection can be made.
   **/
   private void connect()
@@ -477,9 +489,9 @@ public class SystemValueList implements java.io.Serializable
     @exception AS400SecurityException If a security or authority error occurs.
     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     @exception InterruptedException If this thread is interrupted.
-    @exception IOException If an error occurs while communicating with the AS/400.
-    @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-    @exception UnknownHostException If the AS/400 system cannot be located.
+    @exception IOException If an error occurs while communicating with the server.
+    @exception ObjectDoesNotExistException If the OS/400 object does not exist.
+    @exception UnknownHostException If the server cannot be located.
   **/
   public Vector getGroup(int group)
             throws AS400SecurityException,
@@ -498,10 +510,10 @@ public class SystemValueList implements java.io.Serializable
           ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
-      // Call retrieve() to get the data from the AS/400 and
-      // create a Vector of corresponding SystemValue objects
-      // Get the group vector
-      Vector grp = (Vector)groups_.get(getGroupName(group));
+    // Call retrieve() to get the data from the server and
+    // create a Vector of corresponding SystemValue objects
+    // Get the group vector
+    Vector grp = (Vector)groups_.get(getGroupName(group));
     Vector vec = SystemValueUtility.retrieve(system_, grp.elements(), getGroupName(group), getGroupDescription(group)); //@C2C
     return sort(vec);
   }

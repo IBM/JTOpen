@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.ListResourceBundle;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for IBM Toolbox for Java.
 **/
 public class SVMRI extends ListResourceBundle
 {
@@ -60,6 +60,7 @@ public class SVMRI extends ListResourceBundle
         { "QAUDENDACN_DES" , "Auditing end action" },
         { "QAUDFRCLVL_DES" , "Force auditing data" },
         { "QAUDLVL_DES" , "Security auditing level" },
+        { "QAUDLVL2_DES" , "Enhanced security auditing level" }, //@F1A
         { "QAUTOCFG_DES" , "Autoconfigure devices" },
         { "QAUTORMT_DES" , "Autoconfigure of remote controllers" },
         { "QAUTOSPRPT_DES" , "Automatic system disabled reporting" },
@@ -81,6 +82,7 @@ public class SVMRI extends ListResourceBundle
         { "QCTLSBSD_DES" , "Controlling subsystem" },
         { "QCURSYM_DES" , "Currency symbol" },
         { "QDATE_DES" , "System date" },
+        { "QDATETIME_DES" , "System date and time" }, //@F1A
         { "QDATFMT_DES" , "Date format" },
         { "QDATSEP_DES" , "Date separator" },
         { "QDAY_DES" , "Day" },
@@ -94,6 +96,7 @@ public class SVMRI extends ListResourceBundle
         { "QDSPSGNINF_DES" , "Sign-on display information control" },
         { "QDYNPTYADJ_DES" , "Dynamic priority adjustment" },
         { "QDYNPTYSCD_DES" , "Dynamic priority scheduler" },
+        { "QENDJOBLMT_DES" , "Time limit during immediate ending of a job" }, //@F1A
         { "QFRCCVNRST_DES" , "Force conversion on restore" },
         { "QHOUR_DES" , "Hour of the day" },
         { "QHSTLOGSIZ_DES" , "Maximum history log records" },
@@ -157,6 +160,9 @@ public class SVMRI extends ListResourceBundle
         { "QRMTIPL_DES" , "Remote power on and IPL" },
         { "QRMTSRVATR_DES" , "Remote Service attribute" },
         { "QRMTSIGN_DES" , "Remote sign-on control" },
+        { "QSAVACCPTH_DES" , "Save access paths" }, //@F1A
+        { "QSCANFS_DES" , "Scan file system" }, //@F1A
+        { "QSCANFSCTL_DES" , "Scan file system control" }, //@F1A
         { "QSCPFCONS_DES" , "IPL action with console problem" },
         { "QSECOND_DES" , "Second of the minute" },
         { "QSECURITY_DES" , "System security level" },
@@ -175,8 +181,10 @@ public class SVMRI extends ListResourceBundle
         { "QSTSMSG_DES" , "Display status messages" },
         { "QSVRAUTITV_DES" , "Server authentication interval" }, //@A2A
         { "QSYSLIBL_DES" , "System part of the library list" },
+        { "QTIMADJ_DES" , "Time adjustment" }, //@F1A
         { "QTIME_DES" , "Time of day" },
         { "QTIMSEP_DES" , "Time separator" },
+        { "QTIMZON_DES" , "Time zone" }, //@F1A
         { "QTOTJOB_DES" , "Initial total number of jobs" },
         { "QTSEPOOL_DES" , "Time slice end pool" },
         { "QUPSDLYTIM_DES" , "Uninterruptible power supply delay time" },
