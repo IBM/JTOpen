@@ -30,6 +30,7 @@ class JDPackageManager
   //private static final String SUFFIX_INVARIANT_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; //@G0D
   // because we only send unicode to the server anyway we don't check if the server         //@G0A
   // supports unicode first like ODBC does                                                  //@G0A
+  private static final String SUFFIX_INVARIANT_ = "9876543210ZYXWVUTSRQPONMLKJIHGFEDCBA";   //@G0A
 
   private boolean             cache_;
   private DBReplyPackageInfo  cachedPackage_;
