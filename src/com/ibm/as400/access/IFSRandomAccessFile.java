@@ -226,6 +226,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the server.
+   @deprecated Use IFSRandomAccessFile(IFSFile,String,int,int) instead.
    **/
   public IFSRandomAccessFile(AS400   system,
                              IFSFile file,
@@ -253,6 +254,48 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
     // Instantiate a file descriptor.
     fd_ = new IFSFileDescriptor(system, file.getAbsolutePath(), shareOption, this);
+
+    // Connect to the AS400 byte stream server, and
+    // open the file.
+    connectAndOpen();
+  }
+
+
+  /**
+    Constructs an IFSRandomAccessFile object.
+   It uses the specified file, mode, share option, and existence option.
+
+   @param file The file to access.
+   @param mode The access mode <ul><li>"r" read only<li>"w" write only<li>"rw" read/write</ul>
+   @param shareOption Indicates how other user's can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
+   @param existenceOption Indicates if the file should be created, opened or if the request should fail based on the existence of the file. <ul><li>FAIL_OR_CREATE Fail if exists; create if not<li>OPEN_OR_CREATE Open if exists; create if not<li>OPEN_OR_FAIL Open if exists; fail if not<li>REPLACE_OR_CREATE Replace if exists; create if not<li>REPLACE_OR_FAIL Replace if exists; fail if not</ul>
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the server.
+   **/
+  public IFSRandomAccessFile(IFSFile file,
+                             String  mode,
+                             int     shareOption,
+                             int     existenceOption)
+    throws AS400SecurityException, IOException
+  {
+    // Validate arguments.
+    if (file == null)
+      throw new NullPointerException("file");
+
+    initializeTransient();
+
+    // Set the mode, share option, and existence option.
+    validateMode(mode);
+    mode_ = mode;
+
+    validateShareOption(shareOption);
+
+    validateExistenceOption(existenceOption);
+    existenceOption_ = existenceOption;
+
+    // Instantiate a file descriptor.
+    fd_ = new IFSFileDescriptor(file.getSystem(), file.getAbsolutePath(), shareOption, this);
 
     // Connect to the AS400 byte stream server, and
     // open the file.
