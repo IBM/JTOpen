@@ -18,6 +18,7 @@ import java.util.Vector;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.sql.SQLException;
 
 
 
@@ -147,7 +148,8 @@ implements XAResource
   private int                     resourceManagerID_              = -1;
   private Xid                     started_                        = null;
   private JDTransactionManager    transactionManager_;
-
+  private int                     transactionTimeout_             = 0;      //@K1A
+  private int                     lockWait_                       = -1;      //@K1A
 
 
 /**
@@ -285,7 +287,6 @@ specified and lets the transaction be completed.
                         suspended in incomplete state.  The transaction
                         context is in suspend state and must be resumed
                         via <a href="#start(javax.transaction.xa.Xid, int)">start()</a> with TMRESUME.
-                        (This is not currently supported.)
                     </ul>
 
 @exception XAException If an error occurs.
@@ -302,8 +303,8 @@ specified and lets the transaction be completed.
         throw new XAException(XAException.XAER_PROTO);
       if (!started_.equals(xid))
         throw new XAException(XAException.XAER_NOTA);
-      if ((flags != TMSUCCESS) && (flags != TMFAIL))
-        throw new XAException(XAException.XAER_INVAL);
+      //@K1D if ((flags != TMSUCCESS) && (flags != TMFAIL))
+      //@K1D   throw new XAException(XAException.XAER_INVAL);
 
       if (JDTrace.isTraceOn())
         JDTrace.logInformation(this, "xa_end");
@@ -424,14 +425,15 @@ transaction branch.
 /**
 Returns the current transaction timeout value.
 
-@return The current transaction timeout value.  This always returns 0.
+@return The current transaction timeout value.  
 
 @exception XAException If an error occurs.
 **/
   public int getTransactionTimeout()
   throws XAException
   {
-    return 0;
+    //@K1D return 0;
+      return transactionTimeout_;
   }
 
 
@@ -718,18 +720,37 @@ Rolls back a transaction branch.
 Sets the current transaction timeout value.  This is not supported.
 
 @param transactionTimeout   The current transaction timeout value in seconds,
-                            or 0 to reset the timeout value to the default.
-@return                     true if the timeout value is set successfully,
+                            or 0 to reset the timeout value to the default. The transaction timeout
+                            will be set the next time start() is called.
+@return                     true if the timeout value can be set successfully,
                             false if the resource manager does not support
-                            the transaction timeout value to be set.  This
-                            method always returns false.
-
+                            the transaction timeout value to be set.  
 @exception XAException If an error occurs.
 **/
   public boolean setTransactionTimeout(int transactionTimeout)
   throws XAException
   {
-    return false;
+      try
+      {
+          if(connection_.getVRM() < JDUtilities.vrm530)                          //@K1A
+              return false;
+      }
+      catch(Exception e)
+      {
+          return false;
+      }
+
+      try
+      {
+          if(transactionTimeout_ < 0)                                           //@K1A
+            JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);   //@K1A
+      }
+      catch(Exception e)
+      {
+      }
+       
+      transactionTimeout_ = transactionTimeout;     //@K1A
+      return true;                                  //@K1A
   }
 
 
@@ -743,7 +764,7 @@ specified.
 @param flags        The flags.  Possible values are:
                     <ul>
                     <li>TMJOIN - Joins a transaction previously seen by
-                        the resource manager. (This is not currently supported.)
+                        the resource manager. 
                     <li>TMRESUME - Resumes a suspended transaction.
                         (This is not currently supported.)
                     <li>TMNOFLAGS - No flags are set.
@@ -761,7 +782,7 @@ specified.
         throw new XAException(XAException.XAER_INVAL);
       if (started_ != null)
         throw new XAException(XAException.XAER_PROTO);
-      if (flags != TMNOFLAGS)
+      if (flags != TMNOFLAGS && flags != TMJOIN)                //@K1C  added TMJOIN check
         throw new XAException(XAException.XAER_INVAL);
 
 
@@ -779,6 +800,9 @@ specified.
         request.setResourceManagerID(resourceManagerID_);
         request.setXid(AS400JDBCXid.xidToBytes(xid));
         request.setFlags(flags);
+        request.setCtlTimeout(transactionTimeout_);
+        if(lockWait_ != -1)
+            request.setLockWait(lockWait_);
 
         reply = connection_.sendAndReceive (request);
         processXAReturnCode(reply);
@@ -803,7 +827,23 @@ specified.
     }
   }
 
+  //@K1A
+  /**
+  Specifies the number of seconds that the system will wait on any lock request during this transaction.
+  
+  @param lockWait The time in seconds to wait.
+  **/
+  public void setLockWait(int lockWait)
+  throws SQLException
+  {
+      if(connection_.getVRM() < JDUtilities.vrm530)
+          return;
 
+      if(lockWait < 0)
+          JDError.throwSQLException(JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+      lockWait_ = lockWait;
+  }
 
   private void throwXAException(Exception e)
   throws XAException
@@ -829,7 +869,4 @@ Returns the string representation of the XA resource.
   {
     return connection_.toString() + "-XA:RMID#" + resourceManagerID_;
   }
-
-
-
 }

@@ -149,7 +149,31 @@ Sets the count.
 		addParameter(0x38A6, value);
 	}
 
+//@K1A
+/**
+Sets the CTL Timeout.
 
+@param value The number of seconds
+@exception DBDataStreamException if there is not enough space left in the data byte array.
+**/
+        void setCtlTimeout(int value)
+                throws DBDataStreamException
+        {
+            addParameter(0x38A7, value);
+        }
+
+//@K1A
+/**
+Sets the Lock wait time.
+
+@param value The number of seconds
+@exception DBDataStreamException if there is not enough space left in the data byte array.
+**/
+        void setLockWait(int value)
+                throws DBDataStreamException
+        {
+            addParameter(0x38A9, value);
+        }
 
 }
 
