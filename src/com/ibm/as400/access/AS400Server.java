@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400Server.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,14 +16,14 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.util.Hashtable;
 
-// A class representing an AS/400 server job.
+// A class representing an iSeries server job.
 abstract class AS400Server
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-    // Returns the service ID for a given AS/400 service name.
-    // @param  serviceName  The service name of the associated AS/400 service job.
-    // @return  The server ID of for the given AS/400 service name.
+    // Returns the service ID for a given service name.
+    // @param  serviceName  The service name of the associated service job.
+    // @return  The server ID for the given service name.
     static final int getServerId(String serviceName)
     {
         if ("as-central".equals(serviceName)) return 0xE000;
@@ -42,9 +42,9 @@ abstract class AS400Server
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
-    // Returns the service ID for a given AS/400 service.
-    // param  service  The service constant of the associated AS/400 service job.
-    // return  The server ID of for the given AS/400 service name.
+    // Returns the service ID for a given service constant.
+    // param  service  The service constant of the associated service job.
+    // return  The server ID of for the given service name.
     static final int getServerId(int service)
     {
         switch (service)
@@ -81,12 +81,12 @@ abstract class AS400Server
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
-    // The following static array holds the reply streams hash tables for all AS/400 server daemons.  These Hashtables are populated by the access classes using the addReplyStream(...) method.
+    // The following static array holds the reply streams hash tables for all server daemons.  These Hashtables are populated by the access classes using the addReplyStream(...) method.
     static Hashtable[] replyStreamsHashTables =  { new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable() };
 
     // Add a prototype reply data stream to the collection of reply prototypes.  There must be a prototype reply for every type of reply that must be constructed automatically on receipt.  This method detects an attempt to add the same prototype reply more than once and ignores redundant attempts.
     // @param  replyStream  The prototype reply data stream to be added.
-    // @param  serviceName  The service name of the AS/400 server job that is the source of the reply streams.
+    // @param  serviceName  The service name of the server job that is the source of the reply streams.
     static void addReplyStream(DataStream replyStream, String serviceName)
     {
         addReplyStream(replyStream, AS400Server.getServiceId(serviceName));
@@ -98,6 +98,7 @@ abstract class AS400Server
 
 
     abstract int getService();
+    abstract String getJobString();
     abstract boolean isConnected();
     abstract DataStream getExchangeAttrReply();
     abstract DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException;

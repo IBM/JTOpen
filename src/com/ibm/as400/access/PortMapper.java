@@ -121,17 +121,17 @@ class PortMapper
         }
         catch (ClassNotFoundException e1)
         {
-            Trace.log(Trace.ERROR, "Unexpected ClassNotFoundException:", e1);
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unexpected ClassNotFoundException:", e1); //@P0C
         }
         catch (IllegalAccessException e2)
         {
-            Trace.log(Trace.ERROR, "Unexpected IllegalAccessException:", e2);
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unexpected IllegalAccessException:", e2); //@P0C
         }
         catch (InstantiationException e3)
         {
-            Trace.log(Trace.ERROR, "Unexpected InstantiationException:", e3);
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unexpected InstantiationException:", e3); //@P0C
         }
-        Trace.log(Trace.DIAGNOSTIC, "Load of socket container: " + containerName + " failed");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Load of socket container: " + containerName + " failed"); //@P0C
         throw new IOException();
     }
 
@@ -151,13 +151,13 @@ class PortMapper
             }
             catch (IOException e)
             {
-                Trace.log(Trace.ERROR, "Error attempting to connect with Unix Socket:", e);
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error attempting to connect with Unix Socket:", e); //@P0C
                 sc = null;
             }
         }
 
         // If browser security classes can be loaded, enable the connect privileges so that signed applets using our classes can make network connections.
-        Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes."); //@P0C
 
         Class privilegeManagerClass = null;
         Class permissionIDClass = null;
@@ -166,22 +166,22 @@ class PortMapper
         try
         {
             privilegeManagerClass = Class.forName("netscape.security.PrivilegeManager");
-            Trace.log(Trace.DIAGNOSTIC, "Loaded Netscape browser security classes.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded Netscape browser security classes."); //@P0C
         }
         catch (Throwable e)
         {
-            Trace.log(Trace.DIAGNOSTIC, "Netscape browser security classes not loaded.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Netscape browser security classes not loaded."); //@P0C
         }
 
         try
         {
             permissionIDClass = Class.forName("com.ms.security.PermissionID");
             policyEngineClass = Class.forName("com.ms.security.PolicyEngine");
-            Trace.log(Trace.DIAGNOSTIC, "Loaded IE browser security classes.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded IE browser security classes."); //@P0C
         }
         catch (Throwable e)
         {
-            Trace.log(Trace.DIAGNOSTIC, "IE browser security classes not loaded.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "IE browser security classes not loaded."); //@P0C
         }
 
         // If available, invoke the Navigator enablePrivilege method.
@@ -189,13 +189,13 @@ class PortMapper
         {
             try
             {
-                Trace.log(Trace.DIAGNOSTIC, "Enabling connect privileges for Navigator.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connect privileges for Navigator."); //@P0C
                 PrivilegeManager.enablePrivilege("UniversalConnect");
-                Trace.log(Trace.DIAGNOSTIC, "Enabled connect privileges for Navigator.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabled connect privileges for Navigator."); //@P0C
             }
             catch (Throwable e)
             {
-                Trace.log(Trace.ERROR, "Desired Netscape security method error:", e);
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Desired Netscape security method error:", e); //@P0C
             }
         }
 
@@ -204,13 +204,13 @@ class PortMapper
         {
             try
             {
-                Trace.log(Trace.DIAGNOSTIC, "Enabling connect privileges for IE.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connect privileges for IE."); //@P0C
                 PolicyEngine.assertPermission(PermissionID.NETIO);
-                Trace.log(Trace.DIAGNOSTIC, "Enabled connect privileges for IE.");
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabled connect privileges for IE."); //@P0C
             }
             catch (Throwable e)
             {
-                Trace.log(Trace.ERROR, "Desired IE security method error:", e);
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Desired IE security method error:", e); //@P0C
             }
         }
 
@@ -218,7 +218,7 @@ class PortMapper
         if (srvPort == AS400.USE_PORT_MAPPER)
         {
             // Establish a socket connection to the "port mapper" through port 449...
-            Trace.log(Trace.DIAGNOSTIC, "Connecting to port mapper...");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting to port mapper..."); //@P0C
             Socket pmSocket = new Socket(systemName, 449);
             InputStream pmInstream = pmSocket.getInputStream();
             OutputStream pmOutstream = pmSocket.getOutputStream();
@@ -239,11 +239,11 @@ class PortMapper
             }
             catch (ServerStartupException e)
             {
-                Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e);
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e); //@P0C
                 throw e;
             }
 
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Adding entry to Service Port table: system " + systemName + ", service " + fullServiceName + ", port " + srvPort);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding entry to Service Port table: system " + systemName + ", service " + fullServiceName + ", port " + srvPort); //@P0C
             PortMapper.setServicePort(systemName, service, srvPort, useSSL);
         }
 
@@ -251,7 +251,7 @@ class PortMapper
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...
         if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
         {
-            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to server..."); //@P0C
             sc = loadSocketContainer("com.ibm.as400.access.SocketContainerSSL");
             ((SocketContainerSSL)sc).setOptions(useSSL);
         }
@@ -270,7 +270,7 @@ class PortMapper
         }
         catch (SocketException e)
         {
-            Trace.log(Trace.WARNING, "Socket exception setting no delay:", e);
+            if (Trace.traceOn_) Trace.log(Trace.WARNING, "Socket exception setting no delay:", e); //@P0C
         }
 
         // Try to set the SoLinger option, but if that doesn't work, keep going.
@@ -283,7 +283,7 @@ class PortMapper
         }
         catch (SocketException e)
         {
-            Trace.log(Trace.WARNING, "Socket exception setting so linger:", e);
+            if (Trace.traceOn_) Trace.log(Trace.WARNING, "Socket exception setting so linger:", e); //@P0C
         }
 
         sc.setSocket(socket);

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: AS400SecurityException.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,19 +18,11 @@ package com.ibm.as400.access;
  **/
 public class AS400SecurityException extends Exception implements ReturnCodeException
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
-
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
-
-
-    private int rc_;  // Return code associated with this exception
-
-    // Return code values used by this class.
-    // If a value is added here, it must also be added to MRI.properties.
+    private int rc_;  // Return code associated with this exception.
 
     /**
      The return code indicating that the user of this program does not have enough authority to access the directory entry.
@@ -45,7 +37,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int LIBRARY_AUTHORITY_INSUFFICIENT = 3;
     /**
-     The return code indicating that the user of this program does not have enough authority to the AS/400 resource to perform the requested action.
+     The return code indicating that the user of this program does not have enough authority to the resource to perform the requested action.
      **/
     public static final int OBJECT_AUTHORITY_INSUFFICIENT = 4;
     /**
@@ -125,7 +117,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int PASSWORD_OLD_NOT_VALID = 23;
     /**
-     The return code indicating that a general security failure occurred.  Ensure that QUSER did not expire.
+     The return code indicating that a general security failure occurred.
      **/
     public static final int SECURITY_GENERAL = 24;
     /**
@@ -153,11 +145,11 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int USERID_NOT_SET = 30;
     /**
-     The return code indicating that the user ID has been disabled by the AS/400 system.
+     The return code indicating that the user ID has been disabled by the system.
      **/
     public static final int USERID_DISABLE = 31;
     /**
-     The return code indicating that the user ID is not known by the AS/400 system.
+     The return code indicating that the user ID is not known by the system.
      **/
     public static final int USERID_UNKNOWN = 32;
     /**
@@ -191,7 +183,27 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
     /**
      The return code indicating that the user of this program does not have enough special authority to perform the requested action.
      **/
-    public static final int SPECIAL_AUTHORITY_INSUFFICIENT = 40;            // @E1A
+    public static final int SPECIAL_AUTHORITY_INSUFFICIENT = 40;
+    /**
+     The return code indicating that the profile token is not valid.
+     **/
+    public static final int PROFILE_TOKEN_NOT_VALID = 41;
+    /**
+     The return code indicating that the Kerberos ticket is not valid.
+     **/
+    public static final int KERBEROS_TICKET_NOT_VALID = 42;
+    /**
+     The return code indicating that the token type is not valid.
+     **/
+    public static final int TOKEN_TYPE_NOT_VALID = 43;
+    /**
+     The return code indicating that the generate token request is not valid.
+     **/
+    public static final int GENERATE_TOKEN_REQUEST_NOT_VALID = 44;
+    /**
+     The return code indicating that the token length is not valid.
+     **/
+    public static final int TOKEN_LENGTH_NOT_VALID = 45;
 
     /**
      Constructs an AS400SecurityException.
@@ -204,7 +216,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
         rc_ =  returnCode;
     }
 
-    // Constructs a AS400SecurityException object. It indicates that a security exception occurred.  Exception message will look like this:  objectName: User is not authorized to object.
+    // Constructs an AS400SecurityException object. It indicates that a security exception occurred.  Exception message will look like this:  objectName: User is not authorized to object.
     // @param  objectName  The name of the object.
     // @param  returnCode  The return code which identifies the message to be returned.
     AS400SecurityException(String objectName, int returnCode)
@@ -300,8 +312,18 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
                 return "EXC_SYSTEM_LEVEL_NOT_CORRECT";
             case PASSWORD_NEW_SAME_POSITION:
                 return "EXC_PASSWORD_NEW_SAME_POSITION";
-            case SPECIAL_AUTHORITY_INSUFFICIENT:                        // @E1A
-                return "EXC_SPECIAL_AUTHORITY_INSUFFICIENT";            // @E1A
+            case SPECIAL_AUTHORITY_INSUFFICIENT:
+                return "EXC_SPECIAL_AUTHORITY_INSUFFICIENT";
+            case PROFILE_TOKEN_NOT_VALID:
+                return "EXC_PROFILE_TOKEN_NOT_VALID";
+            case KERBEROS_TICKET_NOT_VALID:
+                return "EXC_KERBEROS_TICKET_NOT_VALID";
+            case TOKEN_TYPE_NOT_VALID:
+                return "EXC_TOKEN_TYPE_NOT_VALID";
+            case GENERATE_TOKEN_REQUEST_NOT_VALID:
+                return "EXC_GENERATE_TOKEN_REQUEST_NOT_VALID";
+            case TOKEN_LENGTH_NOT_VALID:
+                return "EXC_TOKEN_LENGTH_NOT_VALID";
             default:
                 return "EXC_UNKNOWN";   // Bad return code was provided.
         }
