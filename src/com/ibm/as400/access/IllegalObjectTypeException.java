@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IllegalObjectTypeException.java
 //                                                                             
@@ -19,6 +19,9 @@ package com.ibm.as400.access;
 public class IllegalObjectTypeException extends Exception implements ReturnCodeException
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+    static final long serialVersionUID = 4L;
+
 
     private int rc_;  // Return code associated with this exception.
 
@@ -71,7 +74,7 @@ public class IllegalObjectTypeException extends Exception implements ReturnCodeE
     // This method is required so the message can be created and sent in super().
     static String getMRIKey(int returnCode)
     {
-        switch(returnCode)
+        switch (returnCode)
         {
             case DATA_QUEUE_KEYED:
                 return "EXC_DATA_QUEUE_KEYED";

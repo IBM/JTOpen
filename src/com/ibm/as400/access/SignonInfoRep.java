@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonInfoRep.java
 //                                                                             
@@ -60,37 +60,6 @@ class SignonInfoRep extends ClientAccessDataStream
         }
 
         return date;
-    }
-
-    int getUnsuccessfulAttempts()
-    {
-        return getAttempt(0x1109);
-    }
-
-    int getMaxUnsuccessful()
-    {
-        return getAttempt(0x110A);
-    }
-
-    int getAttempt(int cp)
-    {
-        int index = 24;
-        int attempt = 0;
-
-        while (index < (data_.length - 1))
-        {
-            if (get16bit(index + 4) != cp)
-            {
-                index = index + get32bit(index);
-            }
-            else
-            {
-                attempt = get16bit(index + 6);
-                break;
-            }
-        }
-
-        return attempt;
     }
 
     int getServerCCSID()

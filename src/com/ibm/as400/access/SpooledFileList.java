@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileList.java
 //                                                                             
@@ -29,6 +29,11 @@ implements java.io.Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
    
+
+    static final long serialVersionUID = 4L;
+
+
+
     private static final String FORM_TYPE_FILTER = "formTypeFilter";
     private static final String QUEUE_FILTER = "queueFilter";
     private static final String USER_FILTER = "userFilter";

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSConnection.java
 //                                                                             
@@ -89,7 +89,7 @@ Constructs a PSConnection object.
         factory_.register (new PxClassParm ());
         
         factory_.register (new PxConstructorReqSV (proxyTable_));
-        factory_.register (new PxMethodReqSV (proxyTable_, this));
+        factory_.register (new PxMethodReqSV (proxyTable_)); //@B2D, this));
         factory_.register (new PxFinalizeReqSV (proxyTable_));
         factory_.register (new PxListenerReqSV (this, proxyTable_));
 
@@ -111,28 +111,34 @@ Constructs a PSConnection object.
 
         // I am using separate try-catch blocks to make sure 
         // that everything gets closed.
+        // NOTE:  When using SSL, trying to close the output stream, input stream, and    //$B1A
+        //        socket are more prone to throw an exception.  This is most likely due
+        //        to the SSL design, which we cannot control.                           
         try {
-            output_.close ();
+            if (output_ != null)
+               output_.close ();
         }
         catch (IOException e) {
             if (Trace.isTraceErrorOn ())
-                Trace.log (Trace.ERROR, e.getMessage (), e);
+                Trace.log (Trace.ERROR, "Exception closing proxy output stream.", e);     //$B1C
         }
 
         try {
-            input_.close ();
+            if (input_ != null)
+               input_.close ();
         }
         catch (IOException e) {
             if (Trace.isTraceErrorOn ())
-                Trace.log (Trace.ERROR, e.getMessage (), e);
+                Trace.log (Trace.ERROR, "Exception closing proxy input stream.", e);      //$B1C
         }
 
         try {
-            socket_.close ();
+            if (socket_ != null)
+               socket_.close ();
         }
         catch (IOException e) {
             if (Trace.isTraceErrorOn ())
-                Trace.log (Trace.ERROR, e.getMessage (), e);
+                Trace.log (Trace.ERROR, "Exception closing proxy socket.", e);            //$B1C
         }
 
         // Clean up for the connection.  Make sure and do this after closing

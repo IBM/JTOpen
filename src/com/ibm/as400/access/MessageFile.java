@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MessageFile.java
 //                                                                             
@@ -63,20 +63,6 @@ import java.beans.PropertyVetoException;
   * System.out.println(message.getText());
   * </PRE>
   *
-  * <P>
-  * Replacement text is provided to MessageFile as a byte array or a
-  * String.  For performance, some Toolbox components such as CommandCall
-  * return only the error message and the replacement text.  MessageFile
-  * can be used to get the help text for the message.  For example,
-  * <PRE>
-  * MessageFile file = new MessageFile(system, "/QSYS.LIB/QCPFMSG.MSGF");
-  * CommandCall c = new CommandCall(system);
-  * c.run("CRTDTAQ DTAQ(LIB/DQ) MAXLEN(1234567)");
-  * AS400Message msg = c.getMessageList()[0];
-  * AS400Message m2  = file.getMessage(msg.getID(), msg.getSubstitutionData());
-  * System.out.println(m2.getHelp());
-  * </PRE>
-  *
   *@see AS400Message
   *@see CommandCall
   *@see ProgramCall
@@ -86,6 +72,9 @@ import java.beans.PropertyVetoException;
 public class MessageFile extends Object implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
 
 
     transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
@@ -120,7 +109,8 @@ public class MessageFile extends Object implements Serializable
       **/
     public static final int SUBSTITUTE_FORMATTING_CHARACTERS = 2;      //@D1a
 
-    private int helpTextFormatting_ = NO_FORMATTING;                   //@D1a
+    static final int DEFAULT_FORMATTING = NO_FORMATTING;               //@D5a
+    private int helpTextFormatting_     = NO_FORMATTING;               //@D1a
 
           // Retrieve up to 5K of message info
     private static final int MAX_MESSAGE_SIZE = 5102;                  //@D1a
@@ -211,6 +201,27 @@ public class MessageFile extends Object implements Serializable
 
 
 
+// @E1A
+    /**
+    Substitutes formatting characters with appropriate new line and indent
+    characters.  The formatting characters are:
+            <UL>
+            &N -- Force a new line <BR>
+            &P -- Force a new line and indent the new line six characters <BR>
+            &B -- Force a new line and indent the new line four characters
+            </UL>
+
+    @param sourceText   The source text.
+    @return             The formatted text.
+    **/
+    public static String substituteFormattingCharacters(String sourceText)
+    {
+        String targetText = sourceText;
+        targetText = replaceText(targetText, "&N", "\n");
+        targetText = replaceText(targetText, "&P", "\n      ");
+        targetText = replaceText(targetText, "&B", "\n    ");
+        return targetText;
+    }
 
 
 
@@ -268,7 +279,7 @@ public class MessageFile extends Object implements Serializable
       *@exception PropertyVetoException If a change is vetoed.
       *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
       **/
-    public AS400Message getMessage(String ID)
+    public AS400Message getMessage(String ID)                         //$D4C
                         throws AS400SecurityException,
                                ErrorCompletingRequestException,
                                InterruptedException,
@@ -276,11 +287,43 @@ public class MessageFile extends Object implements Serializable
                                ObjectDoesNotExistException,
                                PropertyVetoException
     {
-        return getMessage(ID, (byte []) null );
+       if (sys_ == null)
+           throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+
+       if(AS400BidiTransform.isBidiCcsid(sys_.getCcsid()))
+          return getMessage(ID, (byte []) null, AS400BidiTransform.getStringType((char)sys_.getCcsid()));
+       else
+          return getMessage(ID, (byte []) null, BidiStringType.DEFAULT);
     }
 
 
-
+    /**
+      *Returns an AS400Message object containing the object.  The system and message file name must be
+      *set before calling this method.
+      *
+      *@param  ID The message identifier.
+      *@param type The bidi message string type, as defined by the CDRA (Character
+      *            Data Representataion Architecture). See <a href="BidiStringType.html">
+      *            BidiStringType</a> for more information and valid values.
+      *@return An AS400Message object containing the message.
+      *
+      *@exception AS400SecurityException If a security or authority error occurs.
+      *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
+      *@exception InterruptedException If this thread is interrupted.
+      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception PropertyVetoException If a change is vetoed.
+      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      **/
+    public AS400Message getMessage(String ID, int type)               //$D4A
+                        throws AS400SecurityException,
+                               ErrorCompletingRequestException,
+                               InterruptedException,
+                               IOException,
+                               ObjectDoesNotExistException,
+                               PropertyVetoException
+    {
+        return getMessage(ID, (byte []) null, type);
+    }
 
 
 
@@ -308,7 +351,7 @@ public class MessageFile extends Object implements Serializable
       *@exception PropertyVetoException If a change is vetoed.
       *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
       **/
-    public AS400Message getMessage(String ID, String substitutionText)
+    public AS400Message getMessage(String ID, String substitutionText)               //$D4C
                         throws AS400SecurityException,
                                ErrorCompletingRequestException,
                                InterruptedException,
@@ -316,21 +359,56 @@ public class MessageFile extends Object implements Serializable
                                ObjectDoesNotExistException,
                                PropertyVetoException
     {
-
-        if (sys_ == null)
-        {
+       if (sys_ == null)
            throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
 
+       if(AS400BidiTransform.isBidiCcsid(sys_.getCcsid()))
+          return getMessage(ID, substitutionText, AS400BidiTransform.getStringType((char)sys_.getCcsid()));
+       else
+          return getMessage(ID, substitutionText, BidiStringType.DEFAULT);
+    }
+
+
+    /**
+      *Returns an AS400Message object containing the message.  The system and message file name must be
+      *set before calling this method.  Up to 1024 bytes of substitution
+      *text can be supplied to this method.  The calling program is
+      *responsible for correctly formatting the string containing the
+      *substitution text for the specified message.
+      *<P>For example, using
+      *AS/400 command DSPMSGD, we see the format of the substitution text for
+      *message CPD0170 is char 4, char 10, char 10.  Passing string
+      *<PRE>"12  abcd      xyz"</PRE> as the substitution text on this call means
+      *"12" will be substituted for &1, "abcd" will be substituted for &2, and
+      *"xyz" will be substituted for &3.
+      *
+      *@param  ID The message identifier.
+      *@param  substitutionText The substitution text.
+      *@param type The bidi message string type, as defined by the CDRA (Character
+      *            Data Representataion Architecture). See <a href="BidiStringType.html">
+      *            BidiStringType</a> for more information and valid values.
+      *@return An AS400Message object containing the message.
+      *
+      *@exception AS400SecurityException If a security or authority error occurs.
+      *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
+      *@exception InterruptedException If this thread is interrupted.
+      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception PropertyVetoException If a change is vetoed.
+      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      **/
+    public AS400Message getMessage(String ID, String substitutionText, int type)  //$D4A
+                        throws AS400SecurityException,
+                               ErrorCompletingRequestException,
+                               InterruptedException,
+                               IOException,
+                               ObjectDoesNotExistException,
+                               PropertyVetoException
+    {
         if ((ifsName_ == null) || (ifsName_.length() == 0))
-        {
            throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
 
         if (ID == null)
-        {
            throw new NullPointerException("ID");
-        }
 
         // @D2 most of this routine was moved into getMessage(id, byte[] text).
         // This routine now converts the string into a byte array and
@@ -340,21 +418,14 @@ public class MessageFile extends Object implements Serializable
         byte[] subst;
 
         if ((substitutionText == null) || (substitutionText.length() == 0))
-        {
            subst = new byte[0];
-        }
         else
-        {
-           subst = text1024Type.toBytes(substitutionText);
+        {  subst = new byte[1024];
+           text1024Type.toBytes(substitutionText, subst, type);                              //$D4C
         }
 
-        return getMessage(ID, subst);
+        return getMessage(ID, subst, type);
     }
-
-
-
-
-
 
 
     /**
@@ -375,155 +446,192 @@ public class MessageFile extends Object implements Serializable
       *@exception PropertyVetoException If a change is vetoed.
       *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
       **/
-    public AS400Message getMessage(String ID, byte[] substitutionText)                                         // @D2a
-                        throws AS400SecurityException,                                                         // @D2a
-                               ErrorCompletingRequestException,                                                // @D2a
-                               InterruptedException,                                                           // @D2a
-                               IOException,                                                                    // @D2a
-                               ObjectDoesNotExistException,                                                    // @D2a
-                               PropertyVetoException                                                           // @D2a
-    {                                                                                                          // @D2a
-                                                                                                               // @D2a
-        if (sys_ == null)                                                                                      // @D2a
-        {                                                                                                      // @D2a
-           throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);  // @D2m
-        }                                                                                                      // @D2m
-                                                                                                               // @D2m
-        if ((ifsName_ == null) || (ifsName_.length() == 0))                                                    // @D2m
-        {                                                                                                      // @D2m
-           throw new ExtendedIllegalStateException("path", ExtendedIllegalStateException.PROPERTY_NOT_SET);    // @D2m
-        }                                                                                                      // @D2m
-                                                                                                               // @D2m
-        if (ID == null)                                                                                        // @D2m
-        {                                                                                                      // @D2m
-           throw new NullPointerException("ID");                                                               // @D2m
-        }                                                                                                      // @D2m
-                                                                                                               // @D2m
-               // "connected" is used to prevent changing the system or path                                   // @D2m
-               // after retrieving a message.                                                                  // @D2m
-        connected_ = true;                                                                                     // @D2m
-                                                                                                               // @D2m
-        ID.toUpperCase();                                                                                      // @D2m
-                                                                                                               // @D2m
-        AS400Message msg = new AS400Message();                                                                 // @D2m
-        ProgramCall  pgm = new ProgramCall(sys_);                                                              // @D2m
-                                                                                                               // @D2m
-        AS400Bin4 intType      = new AS400Bin4();                                                              // @D2m
-        int ccsid = sys_.getCcsid(); //@B6A                                                                    // @D2m
-        AS400Text text7Type    = new AS400Text(7, ccsid, sys_); //@B6C                                         // @D2m
-        AS400Text text8Type    = new AS400Text(8, ccsid, sys_); //@B6C                                         // @D2m
-        AS400Text text10Type   = new AS400Text(10, ccsid, sys_); //@B6C                                        // @D2m
-        AS400Text text1024Type = new AS400Text(1024, ccsid, sys_); //@B6C                                      // @D2m
-                                                                                                               // @D2m
-        byte[] substLen;                                                                                       // @D2m
-        byte[] replace;                                                                                        // @D2m
-                                                                                                               // @D2m
-        if ((substitutionText == null) ||( substitutionText.length == 0))                                      // @D2c
-        {                                                                                                      // @D2m
-           substLen = new byte[] {0,0,0,0};                                                                    // @D2m
-           replace  = text10Type.toBytes( "*NO" );                                                             // @D2m
-        }                                                                                                      // @D2m
-        else                                                                                                   // @D2m
-        {                                                                                                      // @D2m
-           substLen = new byte[] {0,0,4,0};                                                                    // @D2m
-           replace  = text10Type.toBytes( "*YES" );                                                            // @D2m
-        }                                                                                                      // @D2m
-                                                                                                               // @D2m
-        ProgramParameter[] parms = new ProgramParameter[10];                                                   // @D2m
-                                                                                                               // @D2m
-        // 1: create an area to hold the message                                                               // @D2m
-        parms[0] = new ProgramParameter(MAX_MESSAGE_SIZE);                                                     // @D2m
-                                                                                                               // @D2m
-        // 2: tell the AS/400 the size of our output buffer                                                    // @D2m
-        byte[] msgsize = intType.toBytes(new Integer(MAX_MESSAGE_SIZE) );                                      // @D2m
-        parms[1] = new ProgramParameter( msgsize );                                                            // @D2m
-                                                                                                               // @D2m
-        // 3: tell the AS/400 the format of the data we want returned                                          // @D2m
-        byte[] format = new byte[8];                                                                           // @D2m
-        text8Type.toBytes("RTVM0200", format, 0 );                                                             // @D2m
-        parms[2] = new ProgramParameter( format );                                                             // @D2m
-                                                                                                               // @D2m
-        // 4: the message ID                                                                                   // @D2m
-        byte[] msgId = new byte[7];                                                                            // @D2m
-        text7Type.toBytes(ID, msgId, 0 );                                                                      // @D2m
-        parms[3] = new ProgramParameter( msgId );                                                              // @D2m
-                                                                                                               // @D2m
-        // 5: message file(10 chars),  message file library (10 chars)                                         // @D2m
-        byte[] file = new byte[20];                                                                            // @D2m
-        AS400Text text10 = new AS400Text(10, ccsid, sys_); //@B6C                                              // @D2m
-        text10.toBytes(messageFileString_, file, 0 );                                                          // @D2m
-        text10.toBytes(libString_, file, 10 );                                                                 // @D2m
-        parms[4] = new ProgramParameter( file );                                                               // @D2m
-                                                                                                               // @D2m
-        // 6: substitution text if supplied                                                                    // @D2m
-        parms[5] = new ProgramParameter( substitutionText );                                                   // @D2m
-                                                                                                               // @D2m
-        // 7: length of substitution text                                                                      // @D2m
-        parms[6] = new ProgramParameter( substLen );                                                           // @D2m
-                                                                                                               // @D2m
-        // 8: replace value                                                                                    // @D2m
-        parms[7] = new ProgramParameter( replace );                                                            // @D2m
-                                                                                                               // @D2m
-        // 9: set format control chars to *NO                                                                  // @D2m
-        if (helpTextFormatting_ > NO_FORMATTING)                       //@D1a                                  // @D2m
-        {                                                              //@D1a                                  // @D2m
-           byte[] yes = text10Type.toBytes( "*YES" );                  //@D1a                                  // @D2m
-           parms[8]  = new ProgramParameter(yes);                      //@D1a                                  // @D2m
-        }                                                              //@D1a                                  // @D2m
-        else                                                           //@D1a                                  // @D2m
-        {                                                              //@D1a                                  // @D2m
-           byte[] no = text10Type.toBytes( "*NO" );                                                            // @D2m
-           parms[8]  = new ProgramParameter(no);                                                               // @D2m
-        }                                                              //@D1a                                  // @D2m
-                                                                                                               // @D2m
-        // 10: error code                                                                                      // @D2m
-        byte [] errorcode = new byte[100];                                                                     // @D2m
-        intType.toBytes( new Integer(0), errorcode, 0 );                                                       // @D2m
-        parms[9] = new ProgramParameter(errorcode, 100);                                                       // @D2m
-                                                                                                               // @D2m
-        if (pgm.run( "/QSYS.LIB/QMHRTVM.PGM", parms )==false)                                                  // @D2m
-        {                                                                                                      // @D2m
-            AS400Message message = pgm.getMessageList()[0];                                                    // @D2m
-            throw new IOException(message.toString());                                                         // @D2m
-        }                                                                                                      // @D2m
-                                                                                                               // @D2m
-        byte[] retData = parms[0].getOutputData();                                                             // @D2m
-                                                                                                               // @D2m
-        // get severity out of returned data                                                                   // @D2m
-        msg.setSeverity( BinaryConverter.byteArrayToInt( retData, 8 ) );                                       // @D2m
-                                                                                                               // @D2m
-        // base pos for variable length strings                                                                // @D2m
-        int basepos = 52;                                                                                      // @D2m
-                                                                                                               // @D2m
-        // get reply text with replacement data substitued                                                     // @D2m
-        Integer intval = (Integer)intType.toObject( retData, 28 );                                             // @D2m
-        int replen = intval.intValue();                                                                        // @D2m
-        AS400DataType repTextType = new AS400Text(replen, ccsid, sys_); //@B6C                                 // @D2m
-        msg.setDefaultReply((String)repTextType.toObject(retData,basepos));                                    // @D2m
-                                                                                                               // @D2m
-        // get message text                                                                                    // @D2m
-        intval = (Integer)intType.toObject( retData, 36 );                                                     // @D2m
-        int msglen = intval.intValue();                                                                        // @D2m
-        AS400DataType msgTextType = new AS400Text(msglen, ccsid, sys_); //@B6C                                 // @D2m
-        msg.setText((String)msgTextType.toObject(retData,basepos+replen));                                     // @D2m
-                                                                                                               // @D2m
-        // get help text                                                                                       // @D2m
-        intval = (Integer)intType.toObject( retData, 44 );                                                     // @D2m
-        int helplen = intval.intValue();                                                                       // @D2m
-        AS400DataType helpTextType = new AS400Text(helplen, ccsid, sys_); //@B6C                               // @D2m
-        String helpText = (String)helpTextType.toObject(retData, basepos+replen+msglen); //@D1C                // @D2m
-        if (helpTextFormatting_ == SUBSTITUTE_FORMATTING_CHARACTERS)   //@D1a                                  // @D2m
-        {                                                              //@D1a                                  // @D2m
-           helpText = replaceText(helpText, "&N", "\n");               //@D1a                                  // @D2m
-           helpText = replaceText(helpText, "&P", "\n      ");         //@D1a                                  // @D2m
-           helpText = replaceText(helpText, "&B", "\n    ");           //@D1a                                  // @D2m
-        }                                                              //@D1a                                  // @D2m
-        msg.setHelp(helpText);                                         //@D1c                                  // @D2m
-                                                                                                               // @D2m
-        msg.setID(ID);                                                                                         // @D2m
-                                                                                                               // @D2m
-        return msg;                                                                                            // @D2m
-    }                                                                                                          // @D2m
+    public AS400Message getMessage(String ID, byte[] substitutionText)         //$D4C
+                        throws AS400SecurityException,
+                               ErrorCompletingRequestException,
+                               InterruptedException,
+                               IOException,
+                               ObjectDoesNotExistException,
+                               PropertyVetoException
+    {
+       if (sys_ == null)
+           throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+
+       if(AS400BidiTransform.isBidiCcsid(sys_.getCcsid()))
+          return getMessage(ID, substitutionText, AS400BidiTransform.getStringType((char)sys_.getCcsid()));
+       else
+          return getMessage(ID, substitutionText, BidiStringType.DEFAULT);
+    }
+
+
+
+    /**
+      *Returns an AS400Message object containing the message.  The system and
+      *message file name must be
+      *set before calling this method.  Up to 1024 bytes of substitution
+      *text can be supplied to this method.  <B>The byte array is not changed
+      *or converted before being sent to the AS/400</B>.
+      *
+      *@param  ID The message identifier.
+      *@param  substitutionText The substitution text.
+      *@param type The bidi message string type, as defined by the CDRA (Character
+      *            Data Representataion Architecture). See <a href="BidiStringType.html">
+      *            BidiStringType</a> for more information and valid values.
+      *@return An AS400Message object containing the message.
+      *
+      *@exception AS400SecurityException If a security or authority error occurs.
+      *@exception ErrorCompletingRequestException If an error occurs before the request is completed.
+      *@exception InterruptedException If this thread is interrupted.
+      *@exception IOException If an error occurs while communicating with the AS/400.
+      *@exception PropertyVetoException If a change is vetoed.
+      *@exception ObjectDoesNotExistException If the AS/400 object does not exist.
+      **/
+    public AS400Message getMessage(String ID, byte[] substitutionText, int type)          //$D4A
+                        throws AS400SecurityException,                           // @D2a
+                               ErrorCompletingRequestException,                  // @D2a
+                               InterruptedException,                             // @D2a
+                               IOException,                                      // @D2a
+                               ObjectDoesNotExistException,                      // @D2a
+                               PropertyVetoException                             // @D2a
+    {
+        if (sys_ == null)                                                        // @D2a
+           throw new ExtendedIllegalStateException("system",
+                             ExtendedIllegalStateException.PROPERTY_NOT_SET);    // @D2m
+                                                                                 // @D2m
+        if ((ifsName_ == null) || (ifsName_.length() == 0))                      // @D2m
+           throw new ExtendedIllegalStateException("path",
+                             ExtendedIllegalStateException.PROPERTY_NOT_SET);    // @D2m
+                                                                                 // @D2m
+        if (ID == null)                                                          // @D2m
+           throw new NullPointerException("ID");                                 // @D2m
+                                                                                 // @D2m
+               // "connected" is used to prevent changing the system or path     // @D2m
+               // after retrieving a message.                                    // @D2m
+        connected_ = true;                                                       // @D2m
+                                                                                 // @D2m
+        ID.toUpperCase();                                                        // @D2m
+                                                                                 // @D2m
+        AS400Message msg = new AS400Message();                                   // @D2m
+        ProgramCall  pgm = new ProgramCall(sys_);                                // @D2m
+                                                                                 // @D2m
+        AS400Bin4 intType      = new AS400Bin4();                                // @D2m
+        int ccsid = sys_.getCcsid(); //@B6A                                      // @D2m
+        AS400Text text7Type    = new AS400Text(7, ccsid, sys_); //@B6C           // @D2m
+        AS400Text text8Type    = new AS400Text(8, ccsid, sys_); //@B6C           // @D2m
+        AS400Text text10Type   = new AS400Text(10, ccsid, sys_); //@B6C          // @D2m
+        AS400Text text1024Type = new AS400Text(1024, ccsid, sys_); //@B6C        // @D2m
+                                                                                 // @D2m
+        byte[] substLen;                                                         // @D2m
+        byte[] replace;                                                          // @D2m
+                                                                                 // @D2m
+        if ((substitutionText == null) ||( substitutionText.length == 0))        // @D2c
+        {                                                                        // @D2m
+           substLen = new byte[] {0,0,0,0};                                      // @D2m
+           replace  = text10Type.toBytes( "*NO" );                               // @D2m
+        }                                                                        // @D2m
+        else                                                                     // @D2m
+        {                                                                        // @D2m
+           substLen = new byte[] {0,0,4,0};                                      // @D2m
+           replace  = text10Type.toBytes( "*YES" );                              // @D2m
+        }                                                                        // @D2m
+                                                                                 // @D2m
+        ProgramParameter[] parms = new ProgramParameter[10];                     // @D2m
+                                                                                 // @D2m
+        // 1: create an area to hold the message                                 // @D2m
+        parms[0] = new ProgramParameter(MAX_MESSAGE_SIZE);                       // @D2m
+                                                                                 // @D2m
+        // 2: tell the AS/400 the size of our output buffer                      // @D2m
+        byte[] msgsize = intType.toBytes(new Integer(MAX_MESSAGE_SIZE) );        // @D2m
+        parms[1] = new ProgramParameter( msgsize );                              // @D2m
+                                                                                 // @D2m
+        // 3: tell the AS/400 the format of the data we want returned            // @D2m
+        byte[] format = new byte[8];                                             // @D2m
+        text8Type.toBytes("RTVM0200", format, 0);                                // @D2m
+        parms[2] = new ProgramParameter( format );                               // @D2m
+                                                                                 // @D2m
+        // 4: the message ID                                                     // @D2m
+        byte[] msgId = new byte[7];                                              // @D2m
+        text7Type.toBytes(ID, msgId, 0);                                         // @D2m
+        parms[3] = new ProgramParameter( msgId );                                // @D2m
+                                                                                 // @D2m
+        // 5: message file(10 chars),  message file library (10 chars)           // @D2m
+        byte[] file = new byte[20];                                              // @D2m
+        AS400Text text10 = new AS400Text(10, ccsid, sys_); //@B6C                // @D2m
+        text10.toBytes(messageFileString_, file, 0, type );                      // @D2m  //$D4C
+        text10.toBytes(libString_, file, 10, type );                             // @D2m  //$D4C
+        parms[4] = new ProgramParameter( file );                                 // @D2m
+                                                                                 // @D2m
+        // 6: substitution text if supplied                                      // @D2m
+        parms[5] = new ProgramParameter( substitutionText );                     // @D2m
+                                                                                 // @D2m
+        // 7: length of substitution text                                        // @D2m
+        parms[6] = new ProgramParameter( substLen );                             // @D2m
+                                                                                 // @D2m
+        // 8: replace value                                                      // @D2m
+        parms[7] = new ProgramParameter( replace );                              // @D2m
+                                                                                 // @D2m
+        // 9: set format control chars to *NO                                    // @D2m
+        if (helpTextFormatting_ > NO_FORMATTING)                       //@D1a    // @D2m
+        {                                                              //@D1a    // @D2m
+           byte[] yes = text10Type.toBytes( "*YES" );                  //@D1a    // @D2m
+           parms[8]  = new ProgramParameter(yes);                      //@D1a    // @D2m
+        }                                                              //@D1a    // @D2m
+        else                                                           //@D1a    // @D2m
+        {                                                              //@D1a    // @D2m
+           byte[] no = text10Type.toBytes( "*NO" );                              // @D2m
+           parms[8]  = new ProgramParameter(no);                                 // @D2m
+        }                                                              //@D1a    // @D2m
+                                                                                 // @D2m
+        // 10: error code                                                        // @D2m
+        byte [] errorcode = new byte[100];                                       // @D2m
+        intType.toBytes( new Integer(0), errorcode, 0 );                         // @D2m
+        parms[9] = new ProgramParameter(errorcode, 100);                         // @D2m
+                                                                                 // @D2m
+        pgm.setThreadSafe(true);  // @B2A
+        if (pgm.run( "/QSYS.LIB/QMHRTVM.PGM", parms )==false)                    // @D2m
+        {                                                                        // @D2m
+            AS400Message message = pgm.getMessageList()[0];                      // @D2m
+            throw new IOException(message.toStringM2());                         // @D2m @D3c
+        }                                                                        // @D2m
+                                                                                 // @D2m
+        byte[] retData = parms[0].getOutputData();                               // @D2m
+                                                                                 // @D2m
+        // get severity out of returned data                                     // @D2m
+        msg.setSeverity( BinaryConverter.byteArrayToInt( retData, 8 ) );         // @D2m
+                                                                                 // @D2m
+        // base pos for variable length strings                                  // @D2m
+        int basepos = 52;                                                        // @D2m
+                                                                                 // @D2m
+        // get reply text with replacement data substitued                       // @D2m
+        Integer intval = (Integer)intType.toObject( retData, 28 );               // @D2m
+        int replen = intval.intValue();                                          // @D2m
+        /*AS400DataType*/ AS400Text repTextType = new AS400Text(replen, ccsid, sys_);    //@B6C   // @D2m   //$D4C
+        msg.setDefaultReply((String)repTextType.toObject(retData,basepos, type));                 // @D2m   //$D4C
+                                                                                 // @D2m
+        // get message text                                                      // @D2m
+        intval = (Integer)intType.toObject( retData, 36 );                       // @D2m
+        int msglen = intval.intValue();                                          // @D2m
+        /*AS400DataType*/ AS400Text msgTextType = new AS400Text(msglen, ccsid, sys_);    //@B6C   // @D2m   //$D4C
+        msg.setText((String)msgTextType.toObject(retData, basepos+replen, type));                 // @D2m   //$D4C
+                                                                                 // @D2m
+        // get help text                                                         // @D2m
+        intval = (Integer)intType.toObject( retData, 44 );                       // @D2m
+        int helplen = intval.intValue();                                         // @D2m
+        /*AS400DataType*/ AS400Text helpTextType = new AS400Text(helplen, ccsid, sys_);        //@B6C // @D2m   //$D4C
+        String helpText = (String)helpTextType.toObject(retData, basepos+replen+msglen, type); //@D1C // @D2m  //$D4C
+        if (helpTextFormatting_ == SUBSTITUTE_FORMATTING_CHARACTERS)   //@D1a    // @D2m
+        {                                                              //@D1a    // @D2m
+           // @E1D helpText = replaceText(helpText, "&N", "\n");               //@D1a    // @D2m
+           // @E1D helpText = replaceText(helpText, "&P", "\n      ");         //@D1a    // @D2m
+           // @E1D helpText = replaceText(helpText, "&B", "\n    ");           //@D1a    // @D2m
+            helpText = substituteFormattingCharacters(helpText);                 // @E1A
+        }                                                              //@D1a    // @D2m
+        msg.setHelp(helpText);                                         //@D1c    // @D2m
+                                                                                 // @D2m
+        msg.setID(ID);                                                           // @D2m
+                                                                                 // @D2m
+        return msg;                                                              // @D2m
+    }                                                                            // @D2m
 
 
 
@@ -589,7 +697,7 @@ public class MessageFile extends Object implements Serializable
 
     // replace one phrase for another inside a string
 
-    String replaceText(String s, String oldPhrase, String newPhrase)              //@D1a
+    static String replaceText(String s, String oldPhrase, String newPhrase)       //@D1a @E1C
     {                                                                             //@D1a
        int index = s.indexOf(oldPhrase);                                          //@D1a
                                                                                   //@D1a

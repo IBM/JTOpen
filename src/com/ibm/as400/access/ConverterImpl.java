@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConverterImpl.java
 //                                                                             
@@ -18,7 +18,6 @@ import java.io.UnsupportedEncodingException;
 
 interface ConverterImpl
 {
-    static final int LTR = 0;   //$E0A   Used to denote left-to-right text type.
 
     abstract void setEncoding(String encoding) throws UnsupportedEncodingException;
     abstract void setCcsid(int ccsid, AS400Impl systemImpl) throws UnsupportedEncodingException;

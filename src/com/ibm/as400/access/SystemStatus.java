@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemStatus.java
 //                                                                             
@@ -37,6 +37,11 @@ import java.util.Vector;
 public class SystemStatus implements Serializable //@B0C - made Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
     private AS400 as400_;
     private Vector poolsVector_; //@B0C

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordDescriptionListener.java
 //                                                                             
@@ -17,8 +17,8 @@ package com.ibm.as400.access;
  *The RecordDescriptionListener interface provides the interface that
  *must be implemented to handle RecordDescriptionEvent objects that are
  *fired by the record description classes,
- *<a href="com.ibm.as400.access.RecordFormat.html">RecordFormat</a> and
- *<a href="com.ibm.as400.access.Record.html">Record</a>.
+ *{@link com.ibm.as400.access.RecordFormat RecordFormat} and
+ *{@link com.ibm.as400.access.Record Record}.
 **/
 public interface RecordDescriptionListener extends java.util.EventListener
 {

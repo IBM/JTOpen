@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDSQLStatement.java
 //                                                                             
@@ -207,8 +207,18 @@ Constructs a JDSQLStatement object.
         // Determine the first word.
         String firstWord;
         tokenizer_ = new StringTokenizer (value_);
-        if (tokenizer_.countTokens() > 0)
+        if (tokenizer_.countTokens() > 0) {                                     // @E2C
             firstWord = tokenizer_.nextToken ().toUpperCase ();
+            boolean flag = true;                                                // @E2A
+            while(flag) {                                                       // @E2A
+                if (firstWord.length() == 0)                                    // @E2A
+                    flag = false;                                               // @E2A
+                else if (firstWord.charAt(0) == '(')                            // @E2A
+                    firstWord = firstWord.substring(1);                         // @E2A
+                else                                                            // @E2A
+                    flag = false;                                               // @E2A
+            }                                                                   // @E2A
+        }                                                                       // @E2A
         else
             firstWord = "";
 
@@ -352,16 +362,6 @@ Returns the number of parameters in the SQL statement.
 	{
         return numberOfParameters_;
 	}
-
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileOutputStreamImplRemote.java
 //                                                                             
@@ -80,6 +80,15 @@ implements SpooledFileOutputStreamImpl
       *  <li> (1) <A HREF="PrintAttributes.html#HDRKEY14">
       *          ATTR_CODEPAGE - Code page
       *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY17.5">
+      *          ATTR_CONTROLCHAR - Control character
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY177">
+      *          ATTR_CONVERT_LINEDATA - Convert line data
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY191">
+      *          ATTR_CORNER_STAPLE - Corner staple		
+      *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY17">
       *          ATTR_COPIES - Copies
       *       </A>
@@ -103,6 +112,15 @@ implements SpooledFileOutputStreamImpl
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY31">
       *          ATTR_PAGRTT - Degree of page rotation
+      *       </A>
+      *   <li> <A HREF="PrintAttributes.html#HDRKEY194">
+      *       ATTR_EDGESTITCH_NUMSTAPLES - Edge Stitch Number of Staples		
+      *      </A>
+      *   <li> <A HREF="PrintAttributes.html#HDRKEY192">
+      *         ATTR_EDGESTITCH_REF - Edge Stitch Reference	
+      *       </A>
+      *   <li> <A HREF="PrintAttributes.html#HDRKEY193">
+      *        ATTR_EDGESTITCH_REFOFF - Edge Stitch Reference Offset
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY40">
       *          ATTR_ENDPAGE - Ending page
@@ -143,6 +161,33 @@ implements SpooledFileOutputStreamImpl
       *  <li> <A HREF="PrintAttributes.html#HDRKEY55">
       *         ATTR_HOLD - Hold spool file
       *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY55.5">
+      *         ATTR_HOLDPNDSTS - Hold Pending Status
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY180">
+      *         ATTR_IPP_ATTR_CCSID - IPP Attributes-ccsid
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY181">
+      *         ATTR_IPP_JOB_ID - IPP Job ID
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY182">
+      *         ATTR_IPP_JOB_NAME - IPP Job Name
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY183">
+      *         ATTR_IPP_JOB_NAME_NL - IPP Job Name NL
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY184">
+      *         ATTR_IPP_JOB_ORIGUSER - IPP Job Originating User Name
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY185">
+      *         ATTR_IPP_JOB_ORIGUSER_NL - IPP Job Originating User Name NL
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY186">
+      *         ATTR_IPP PRINTER_NAME - IPP Printer  Name
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY180.5">
+      *         ATTR_IPP_ATTR_NL - IPP Natural Language
+      *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY64">
       *         ATTR_LPI - Lines per inch
       *       </A>
@@ -157,6 +202,9 @@ implements SpooledFileOutputStreamImpl
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY84">
       *         ATTR_OVERFLOW - Overflow line number
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_D">
+      *         ATTR_PAGE_DEFINITION - Page definition integrated file system name
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY62">
       *         ATTR_PAGELEN - Length of page
@@ -196,6 +244,12 @@ implements SpooledFileOutputStreamImpl
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY100">
       *         ATTR_RPLCHAR - Replacement character
+      *       </A>
+      *   <li> <A HREF="PrintAttributes.html#HDRKEY197">
+      *        ATTR_SADDLESTITCH_NUMSTAPLES - Saddle Stitch Number of Staples		
+      *       </A>
+      *   <li> <A HREF="PrintAttributes.html#HDRKEY196">
+      *         ATTR_SADDLESTITCH_REF - Saddle Stitch Reference		
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY102">
       *         ATTR_SAVE - Save spooled file

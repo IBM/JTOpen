@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLData.java
 //                                                                             
@@ -278,14 +278,14 @@ Returns the name of the data type.
 
 
 
-/**
-Indicates whether the type is graphic data.  Note
-that this should only return true if isText()
-also returns true.
-
-@return     true or false
-**/
-    public abstract boolean isGraphic ();
+// @E1D /**
+// @E1D Indicates whether the type is graphic data.  Note
+// @E1D that this should only return true if isText()
+// @E1D also returns true.
+// @E1D 
+// @E1D @return     true or false
+// @E1D **/
+// @E1D     public abstract boolean isGraphic ();
 
 
 

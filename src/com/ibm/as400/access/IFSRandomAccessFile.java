@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSRandomAccessFile.java
 //                                                                             
@@ -31,16 +31,16 @@ import java.util.Vector;
  <pre>
  // Work with /Dir/File on the system eniac.
  AS400 as400 = new AS400("eniac");
- IFSRandomAccessFile file = new IFSRandomAccessFile(as400, "/Dir/File");<br>
+ IFSRandomAccessFile file = new IFSRandomAccessFile(as400, "/Dir/File", "rw");
  // Determine the file length.
- long length = file.length();<br>
+ long length = file.length();
  // Lock the first 11 bytes.
- IFSKey key = file.lock(0, 11);<br>
+ IFSKey key = file.lock(0, 11);
  // Write a string to the file.
- file.writeChars("Hello world");<br>
+ file.writeChars("Hello world");
  // Read the string we just wrote.
  file.seek(0);
- String s = file.readLine();<br>
+ String s = file.readLine();
  // Close the file.
  file.close();
  </pre>
@@ -52,6 +52,9 @@ public class IFSRandomAccessFile
 implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
 
   /**
    Share option that allows read and write access by other users.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DQExchangeAttributesNormalReplyDataStream.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 
-// Data Queue Exchange Client/Server Attributes Reply (Normal).
+// Data queue exchange client/server attributes reply (normal).
 // If there is an error, the reply to an exchange attributes request is a DQCommonReplyDataStream.
 class DQExchangeAttributesNormalReplyDataStream extends ClientAccessDataStream
 {

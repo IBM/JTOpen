@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCInputStream.java
 //                                                                             
@@ -167,6 +167,7 @@ is thrown.
     public int read ()
         throws IOException
     {
+        /* @E1D
         // If the stream is closed.
         if (closed_)
             throw new IOException ();
@@ -180,13 +181,17 @@ is thrown.
                 closed_ = true;                                         // @A1A
                 return -1;                                              // @A1A
             }
-            else                                                        // @A1A
-                return data.getRawBytes ()[data.getOffset ()];
+            else                                                        // @A1A 
+                return data.getRawBytes ()[data.getOffset ()];        
         }
         catch (SQLException e) {
             closed_ = true;
             throw new IOException (e.getMessage());   // @A2C
         }
+        */
+
+        byte[] data = new byte[1];                                      // @E1A
+        return (read(data, 0, 1) == 1) ? data[0] : -1;                  // @E1A
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTable1255.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-class ConvTable1255 extends ConvTableAsciiMap
+class ConvTable1255 extends ConvTableBidiMap
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 

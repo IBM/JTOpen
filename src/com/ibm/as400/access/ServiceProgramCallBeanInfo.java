@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ServiceProgramCallBeanInfo.java
 //                                                                             
@@ -63,7 +63,7 @@ public class ServiceProgramCallBeanInfo extends SimpleBeanInfo
      **/
     public BeanInfo[] getAdditionalBeanInfo()
     {
-        return new BeanInfo[] { new ProgramCallBeanInfo() } ;
+        return new BeanInfo[] { new ProgramCallBeanInfo() };
     }
 
     /**
@@ -81,7 +81,7 @@ public class ServiceProgramCallBeanInfo extends SimpleBeanInfo
      **/
     public int getDefaultPropertyIndex()
     {
-        // the index for the "procedureName" property
+        // The index for the "procedureName" property.
         return 0;
     }
 

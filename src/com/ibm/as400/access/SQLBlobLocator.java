@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLBlobLocator.java
 //                                                                             
@@ -65,13 +65,6 @@ implements SQLLocator           // @A2C
     public Object clone ()
     {
         return new SQLBlobLocator (connection_, id_, maxLength_, settings_);
-    }
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
     }
 
 
@@ -250,10 +243,10 @@ implements SQLLocator           // @A2C
 
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @C1D    public boolean isGraphic ()
+// @C1D    {
+// @C1D        return false;
+// @C1D    }
 
 
 
@@ -347,8 +340,14 @@ implements SQLLocator           // @A2C
 	public byte[] toBytes ()
         throws SQLException
 	{
-		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-  		return null;
+        DBLobData data = locator_.retrieveData(0, (int)locator_.getLength());               // @C2A
+        int actualLength = data.getLength();                                                // @C2A
+        byte[] bytes = new byte[actualLength];                                              // @C2A
+        System.arraycopy(data.getRawBytes(), data.getOffset(), bytes, 0, actualLength);     // @C2A
+        return bytes;                                                                       // @C2A
+
+		// @C2D JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+  		// @C2D return null;
 	}
 
 
@@ -432,7 +431,7 @@ implements SQLLocator           // @A2C
 
 	public String toString ()        
 	{
-        return super.toString ();
+          return super.toString ();
 	}
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ConnectionPool.java
 //                                                                             
@@ -40,7 +40,9 @@ import java.beans.PropertyChangeEvent;
  *  The AS400ConnectionPool class keeps track of the number of connections it creates.
  *  The user can set the maximum number of connections that can be given out by a
  *  pool.  If the maximum number of connections has already been given out when an
- *  additional connection is requested, an exception is thrown. 
+ *  additional connection is requested, an exception is thrown.
+ *  <p>
+ *  Note:  AS400ConnectionPool objects are threadsafe. 
  *  <p>
  *  This example creates an AS400ConnectionPool with a limit of 128 connections:
  *  
@@ -65,7 +67,7 @@ import java.beans.PropertyChangeEvent;
  *
  * <P>AS400ConnectionPool objects generate the following events:
  *  <ul>
- *    <li>{@link com.ibm.as400.access.ConnectionPoolEvent ConnectionPoolEvent} - The events fired are:
+ *    <li><a href="ConnectionPoolEvent.html">ConnectionPoolEvent</a> - The events fired are:
  *      <ul>
  *       <li>CONNECTION_CREATED</li>
  *       <li>CONNECTION_EXPIRED</li>
@@ -81,6 +83,13 @@ import java.beans.PropertyChangeEvent;
 public class AS400ConnectionPool extends ConnectionPool implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+
+    static final long serialVersionUID = 4L;
+
+
 
    private transient Hashtable as400ConnectionPool_;
    private transient Log log_;
@@ -474,10 +483,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 		{                                                                //@A1A
 		    Thread.sleep(10);                                            //@A1A
 		}                                                                //@A1A
-		catch (Exception e)						 //@A1A
-		{                                                                //@A1A
-		    e.printStackTrace();                                         //@A1A
-		}                                                                //@A1A
+		catch (InterruptedException e)				       	 //@A1A
+		{ /*Should not happen*/ }                                                                //@A1A
 	    }
 	    // If thread has still not started, keep giving it chances for 5 minutes.
             for (int i = 1; !maintenance_.isRunning() && i<6000; i++)            //@A1C 
@@ -486,10 +493,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 		{			   		             		 //@A1A
 		    Thread.sleep(50);	                             		 //@A1A
 		}			                            		 //@A1A
-		catch (Exception e)	                            		 //@A1A
-		{			                            		 //@A1A
-		    e.printStackTrace();                            		 //@A1A
-		}                                                   		 //@A1A
+		catch (InterruptedException e)	                            		 
+		{  /*Should not happen*/}                                                   		 //@A1A
 	    }                                                        
 	    if (!maintenance_.isRunning())                          		 //@A1A
 	       Trace.log(Trace.WARNING, "maintenance thread failed to start");   //@A1A

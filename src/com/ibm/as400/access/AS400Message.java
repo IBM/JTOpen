@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Message.java
 //                                                                             
@@ -13,49 +13,25 @@
 
 package com.ibm.as400.access;
 
+import java.beans.PropertyVetoException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
- The AS400Message class represents a message returned from an AS/400.  The various get methods may return a null value depending upon the class that did the original AS400Message creation.  For example:
- <ul>
- <li>CommandCall and ProgramCall will return non-null values for the following:
- <ul>
- <li>File name
- <li>ID
- <li>Library name
- <li>Path
- <li>Severity
- <li>Substitution data
- <li>Text
- <li>Type
- </ul>
- <li>DataQueue and KeyedDataQueue will return non-null values for the following:
- <ul>
- <li>ID
- <li>Text
- </ul>
- <li>Record-level access classes will return non-null values for the following:
- <ul>
- <li>ID
- <li>Severity
- <li>Text
- </ul>
- <li>SpooledFile will return non-null values for the following:
- <ul>
- <li>Date
- <li>Help
- <li>ID
- <li>Reply
- <li>Severity
- <li>Text
- <li>Type
- </ul>
- </ul>
+ The AS400Message class represents a message returned from an AS/400.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other AS/400 Toolbox for Java components.
+<br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the AS/400, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
+ @see  com.ibm.as400.access.AS400Exception
+ @see  com.ibm.as400.access.CommandCall
+ @see  com.ibm.as400.access.ProgramCall
+ @see  com.ibm.as400.access.SpooledFile
  **/
-public class AS400Message extends Object implements Serializable
+public class AS400Message implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+    static final long serialVersionUID = 4L;
 
     /**
      Message type for completion messages.
@@ -93,14 +69,24 @@ public class AS400Message extends Object implements Serializable
     public static final int REQUEST_WITH_PROMPTING = 10;
 
     /**
-     Message type for notify messages.
-     **/
+     Message type for notify (exception already handled when API is called) messages.
+     **/                                                                // @F4C
     public static final int NOTIFY = 14;
 
     /**
-     Message type for escape messages.
-     **/
+     Message type for escape (exception already handled when API is called) messages.
+     **/                                                                // @F4C
     public static final int ESCAPE = 15;
+
+    /**
+     Message type for notify (exception not handled when API is called) messages.
+     **/
+    public static final int NOTIFY_NOT_HANDLED = 16;                    // @F4A
+
+    /**
+     Message type for escape (exception not handled when API is called) messages.
+     **/
+    public static final int ESCAPE_NOT_HANDLED = 17;                    // @F4A
 
     /**
      Message type for reply, not validity checked messages.
@@ -127,32 +113,49 @@ public class AS400Message extends Object implements Serializable
      **/
     public static final int REPLY_FROM_SYSTEM_REPLY_LIST = 25;
 
+    // Date and time message sent.
     private Calendar date_;
+    // Filename of message file message is from.
     private String fileName_;
+    // Message ID of message.
     private String id_;
+    // Library of message file message is from.
     private String libraryName_;
+    // Default reply to message.
     private String defaultReply_;
+    // Severity of message.
     private int severity_ = -1;
+    // Raw substitution data from message.
     private byte[] substitutionData_;
+    // First level text of message.
     private String text_;
+    // Type of message.
     private int type_ = -1;
+    // Second level text of message.
     private String help_;
+    // System message came from.
+    private transient AS400 system_;
+    // Flag indicating if load has been done.
+    private transient boolean messageLoaded_ = false;
 
-    // Constructs an AS400Message object. It is the default message object.
+    // Constructs an AS400Message object.
     AS400Message()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400Message object.");
     }
 
-    // Constructs an AS400Message object. It uses the specified ID and text.
-    // @param  id  The ID for the message.
+    // Constructs an AS400Message object.
+    // @param  id  The message ID.
     // @param  text  The message text.
     AS400Message(String id, String text)
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400Message object, ID: " + id + " text: " + text);
         id_ = id;
         text_ = text;
     }
 
-    // Constructs an AS400Message object. It uses the specified ID, text, file, library, severity, type, substitution text, and help.
+    // @F3A - This is used by some native code.
+        // Constructs an AS400Message object. It uses the specified ID, text, file, library, severity, type, substitution text, and help.
     // @param  id  The ID for the message.
     // @param  text  The message text.
     // @param  fileName  The message file name.
@@ -188,6 +191,7 @@ public class AS400Message extends Object implements Serializable
         help_ = help;
     }
 
+    // @F3A - This is used by some native code.
     // Constructs an AS400Message object.  It uses the specified ID, text, file, library, severity, type, substitution text, help, date, time, and reply when supplied.  All of the parameters are optional.
     // @param  id  Optional.  The ID for the message.
     // @param  text  Optional.  The message text.
@@ -229,8 +233,9 @@ public class AS400Message extends Object implements Serializable
         defaultReply_ = defaultReply;
     }
 
+
     /**
-     Returns the date and time the message was issued.  The valid fields are:
+     Returns the date and time the message was sent.  The returned Calendar object will have the following fields set:
      <ul>
      <li>Calendar.YEAR
      <li>Calendar.MONTH
@@ -239,112 +244,118 @@ public class AS400Message extends Object implements Serializable
      <li>Calendar.MINUTE
      <li>Calendar.SECOND
      </ul>
-     @return  The date and time the message was issued.  If not set, null will be returned.
+     @return  The date and time the message was sent, or null if not applicable.
      **/
     public Calendar getDate()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting date: " + date_);
         return date_;
     }
 
     /**
-     Returns the default reply for the message.
-     @return  The default reply for the message.  If not set, null will be returned.
+     Returns the default reply.
+     @return  The default reply, or null if it is not set.
      **/
     public String getDefaultReply()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting default reply: " + defaultReply_);
         return defaultReply_;
     }
 
     /**
-     Returns the message file name.  This is the AS/400 file containing the message.
-     @return  The message file name.  If not set, null will be returned.
+     Returns the message file name.
+     @return  The message file name, or null if it is not set.
      **/
     public String getFileName()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message file name: " + fileName_);
         return fileName_;
     }
 
     /**
-     Returns any message help text.  Message formatting characters may appear in the message help and are defined as follows:
+     Returns the message help.
+     <p>Message formatting characters may appear in the message help and are defined as follows:
      <UL>
      <LI>&N - Force the text to a new line indented to column 2.  If the text is longer than 1 line, the next lines should be indented to column 4 until the end of the text or another format control character is found.
      <LI>&P - Force the text to a new line indented to column 6.  If the text is longer than 1 line, the next lines should start in column 4 until the end of the text or another format control character is found.
      <LI>&B - Force the text to a new line starting in column 4.  If the text is longer than 1 line, the next lines should start in column 6 until the end of the text or another format control character is found.
      </UL>
-     @return  The message help text.  If not set, null will be returned.
+     <i>Usage hint:</i> If getHelp() returns null, try "priming" the AS400Message object by first calling load(), then getHelp().
+     @return  The message help, or null if it is not set.
      **/
     public String getHelp()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message help: " + help_);
         return help_;
     }
 
     /**
-     Returns the ID for the message.
-     @return  The ID for the message.  If not set, null will be returned.
+     Returns the message ID.
+     @return  The message ID, or null if it is not set.
      **/
     public String getID()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message ID: " + id_);
         return id_;
     }
 
     /**
-     Returns the message library name.  This is the AS/400 library containing the file and message.
-     @return  The message library name.  If not set, null will be returned.
+     Returns the message file library.
+     @return  The message file library, or null if it is not set.
      **/
     public String getLibraryName()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message file library: " + libraryName_);
         return libraryName_;
     }
 
     /**
-     Returns the full integrated file system path name of the message file containing the message.
-     @return  The fully-qualified message file name.  If not set, null will be returned.
+     Returns the full integrated file system path name of the message file.
+     @return  The full integrated file system path name of the message file name, or null if it is not set.
      **/
     public String getPath()
     {
-        try
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message file path, file name: " + fileName_ + " library: " + libraryName_);
+        if ((fileName_ == null) || (libraryName_ == null))
         {
-            if (fileName_ != null  &&  libraryName_ != null)
-            {
-                QSYSObjectPathName path = new QSYSObjectPathName(getLibraryName().trim(), getFileName().trim(), "MSGF");
-                return path.getPath();
-            }
+            return null;
         }
-        catch (Throwable e)
-        {
-        }
-        return null;
+        return QSYSObjectPathName.toPath(libraryName_, fileName_, "MSGF");
     }
 
     /**
-     Returns the message severity.  Severity is between 0 and 99.
-     @return  The message severity. If not set, negative one (-1) will be returned.
+     Returns the message severity.
+     @return  The message severity.  Valid values are between 0 and 99, or -1 if it is not set.
      **/
     public int getSeverity()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message severity:", severity_);
         return severity_;
     }
 
     /**
-     Returns the message substitution text.  This is the unconverted data used to fill in the replacement characters in the message.
-     @return  The substitution text.  If not set, null will be returned.
+     Returns the substitution data.  This is unconverted data used to fill in the replacement characters in the message.
+     @return  The subsitution data, or null if not set.
      **/
     public byte[] getSubstitutionData()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message substitution data:", substitutionData_);
         return substitutionData_;
     }
 
     /**
-     Returns the message text.  The substitution text has already been inserted.
-     @return  The message text.  If not set, null will be returned.
+     Returns the message text with the substitution text inserted.
+     @return  The message text, or null if it is not set.
      **/
     public String getText()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message text: " + text_);
         return text_;
     }
 
     /**
-     Returns the message type.  Valid types are:
+     Returns the message type.
+     @return  The message type, or negative one (-1) if it is not set.  Valid values are:
      <ul>
      <li>COMPLETION
      <li>DIAGNOSTIC
@@ -361,182 +372,211 @@ public class AS400Message extends Object implements Serializable
      <li>REPLY_SYSTEM_DEFAULT_USED
      <li>REPLY_FROM_SYSTEM_REPLY_LIST
      </ul>
-     @return  The message type.  If not set, negative one (-1) will be returned.
      **/
     public int getType()
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting message type:", type_);
         return type_;
     }
 
-    // Sets the date and time.
-    // @param  date  The date.
-    void setDate(Calendar date)
+    // @D5c -- this method used to do all the work.  That code is now in
+    // the load method that takes the formatting type.
+    /**
+     Loads additional message information from AS/400.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     **/
+    public void load() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (date == null)
-        {
-            throw new NullPointerException("date");
-        }
-        date_ = date;
+       load(MessageFile.DEFAULT_FORMATTING);
     }
 
-    // Sets the date and time.
-    // @param  date  The date.
-    // @param  time  The time.
-    void setDate(String date, String time)
+    // @D5a -- new method that is built from the original load() method.
+    /**
+     Loads additional message information from AS/400.
+     @param  helpTextFormatting Formatting performed on the help text.  Valid
+             values for this parameter are defined in the MessageFile
+             class.  They are no formatting, return formatting characters,
+             and replace (substitute) formatting characters.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     **/
+    public void load(int helpTextFormatting) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        if (date_ == null)
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading additional message information.");
+        if (messageLoaded_)
         {
-            date_ = Calendar.getInstance();
+            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Repeat message load not necessary.");
+            return;
         }
+        // Create message file object and get message from it.
+        MessageFile file = new MessageFile(system_, QSYSObjectPathName.toPath(libraryName_, fileName_, "MSGF"));
+
+        try                                                 // @D5a
+        {                                                   // @D5a
+           file.setHelpTextFormatting(helpTextFormatting);  // @D5a
+        }                                                   // @D5a
+        catch (PropertyVetoException pve)                   // @D5a
+        {}                                                  // @D5a
+
+
+
         try
         {
-            date_.set(Integer.parseInt(date.substring(0,3)) + 1900 /* year */, Integer.parseInt(date.substring(3,5)) - 1 /* month is zero based in Calendar class */, Integer.parseInt(date.substring(5,7)) /* day */, Integer.parseInt(time.substring(0,2)) /* hour */, Integer.parseInt(time.substring(2,4)) /* minute */, Integer.parseInt(time.substring(4,6)) /* second */);
+            AS400Message retrievedMessage = file.getMessage(id_, substitutionData_);
+
+            // Set message field that are not already set.
+            if (defaultReply_ == null)
+            {
+                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting default reply: " + retrievedMessage.defaultReply_);
+                defaultReply_ = retrievedMessage.defaultReply_;
+            }
+            if (severity_ == -1)
+            {
+                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message severity:", retrievedMessage.severity_);
+                severity_ = retrievedMessage.severity_;
+            }
+            if (text_ == null)
+            {
+                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + retrievedMessage.text_);
+                text_ = retrievedMessage.text_;
+            }
+            if (help_ == null)
+            {
+                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + retrievedMessage.help_);
+                help_ = retrievedMessage.help_;
+            }
+            messageLoaded_ = true;  // Set flag to not go to AS/400 again.
         }
-        catch (Exception e)
+        catch (PropertyVetoException e)
         {
+            Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
     }
 
-    /**
-     Sets the default reply.
-     @param  file  The default reply.
-     **/
+    // Sets the date sent and time sent.
+    // @param  dateSent  The date sent.
+    // @param  timeSent  The time sent.
+    void setDate(String dateSent, String timeSent)
+    {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting date, date: " + dateSent + " time: " + timeSent);
+        date_ = new GregorianCalendar(Integer.parseInt(dateSent.substring(0, 3)) + 1900 /* year */, Integer.parseInt(dateSent.substring(3, 5)) - 1 /* month is zero based in Calendar class */, Integer.parseInt(dateSent.substring(5, 7)) /* day */, Integer.parseInt(timeSent.substring(0, 2)) /* hour */, Integer.parseInt(timeSent.substring(2, 4)) /* minute */, Integer.parseInt(timeSent.substring(4, 6)) /* second */);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
+    }
+
+    // Sets the default reply.
+    // @param  defaultReply  The default reply.
     void setDefaultReply(String defaultReply)
     {
-        if (defaultReply == null)
-        {
-            throw new NullPointerException("defaultReply");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting default reply: " + defaultReply);
         defaultReply_ = defaultReply;
     }
 
-    /**
-     Sets the message file name.
-     @param  fileName  The message file.
-     **/
+    // Sets the message file name.
+    // @param  fileName  The message file name.
     void setFileName(String fileName)
     {
-        if (fileName == null)
-        {
-            throw new NullPointerException("fileName");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message file name: " + fileName);
         fileName_ = fileName;
     }
 
-    /**
-     Sets the message help text.
-     @param  help  The message help text.
-     **/
+    // Sets the message help.
+    // @param  help  The message help.
     void setHelp(String help)
     {
-        if (help == null)
-        {
-            throw new NullPointerException("help");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message help: " + help);
         help_ = help;
     }
 
-    /**
-     Sets the ID for the message.  The IDs are AS/400 message IDs.
-     @param  id  The ID for the message.
-     **/
+    // Sets the message ID.
+    // @param  messageID  The message ID.
     void setID(String id)
     {
-        if (id == null)
-        {
-            throw new NullPointerException("id");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message ID: " + id);
         id_ = id;
     }
 
-    /**
-     Sets the message library.
-     @param  libraryName  The message library
-     **/
+    // Sets the message file library.
+    // @param  messageFileLibrary  The message file library.
     void setLibraryName(String libraryName)
     {
-        if (libraryName == null)
-        {
-            throw new NullPointerException("libraryName");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message file library: " + libraryName);
         libraryName_ = libraryName;
     }
 
-    /**
-     Sets the full integrated file system path name of the message file containing the message.
-     @param  path  The fully-qualified message file name.
-     **/
-    void setPath(String path)
-    {
-        if (path == null)
-        {
-            throw new NullPointerException("path");
-        }
-        try
-        {
-            QSYSObjectPathName qpath = new QSYSObjectPathName(path, "MSGF");
-            fileName_ = qpath.getObjectName();
-            libraryName_  = qpath.getLibraryName();
-        }
-        catch (Throwable e)
-        {
-            return;
-        }
-    }
-
-    /**
-     Sets the message severity.  It must be between 0 and 99.
-     @param  severity  The severity of the message.
-     **/
+    // Sets the message severity.
+    // @param  messageSeverity  The message severity. Valid values are between 0 and 99.
     void setSeverity(int severity)
     {
-        if (severity >= 0 && severity <= 99)
-        {
-            severity_ = severity;
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message severity:", severity);
+        severity_ = severity;
     }
 
-    /**
-     Sets the message substitution text.
-     @param substitutionData  The substitution text.
-     **/
+    // Sets the substitution data.
+    // @param  substitutionData  The substitution data.
     void setSubstitutionData(byte[] substitutionData)
     {
-        if (substitutionData == null)
-        {
-            throw new NullPointerException("substitutionData");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message substitution data:", substitutionData);
         substitutionData_ = substitutionData;
     }
 
-    /**
-     Sets the message text.
-     @param  text  The message text.
-     **/
+    // Sets the AS/400 system.
+    // @param  system  The AS/400 system.
+    void setSystem(AS400 system)
+    {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message file system: " + system);
+        system_ = system;
+    }
+
+    // Sets the message text.
+    // @param  text  The message text.
     void setText(String text)
     {
-        if (text == null)
-        {
-            throw new NullPointerException("text");
-        }
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message text: " + text);
         text_ = text;
     }
 
-    /**
-     Sets the message type.
-     @param  type  The message type.
-     **/
+    // Sets the message type.
+    // @param  type  The message type.
     void setType(int type)
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting message type:", type);
         type_ = type;
     }
 
     /**
-     Returns a short description of the object.
-     @return  The String ID and text of the AS400 message.
+     Returns the message ID and message text.
+     @return  The message ID and message text.
      **/
     public String toString()
     {
         return "AS400Message (ID: " + id_ + " text: " + text_ + "):" + super.toString();
+    }
+
+
+    // returns the original 'toString' value.  In mod 3 toString was
+    // changed to return its current value.  This method is added
+    // for those parts of the Toolbox that still need the value in
+    // in the old format.
+    // @D1a -- new method
+    String toStringM2()
+    {
+        StringBuffer buffer = new StringBuffer ();
+        String id = getID();                // @F1A
+        String text = getText();            // @F1A
+        if (id != null) {                   // @F1C
+            buffer.append (id);             // @F1C
+            buffer.append (" ");
+        }
+        if (text != null)                   // @F1C
+            buffer.append (text);           // @F1C
+        return buffer.toString().trim ();
     }
 }

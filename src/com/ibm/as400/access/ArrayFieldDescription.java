@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ArrayFieldDescription.java
 //                                                                             
@@ -27,7 +27,9 @@ public class ArrayFieldDescription extends FieldDescription implements Serializa
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  //static final long serialVersionUID = 4397401819927867336L;
+    static final long serialVersionUID = 4L;
+
+
   /**
    *Constructs an ArrayFieldDescription object.
   **/

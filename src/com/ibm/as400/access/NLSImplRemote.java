@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NLSImplRemote.java
 //                                                                             
@@ -20,21 +20,22 @@ import java.net.UnknownHostException;
 class NLSImplRemote extends NLSImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-  
+
   static
   {
     AS400Server.addReplyStream(new NLSExchangeAttrReply(), AS400.CENTRAL);
+//@B0D        AS400Server.addReplyStream(new NLSGetTableReply(), AS400.CENTRAL);
   }
 
   private AS400Server server_;
   private int ccsid_;
 
-
+  
   // connect to the central server of the AS/400.
   void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
   {
     // Connect to server
-    if (server_ == null)
+    if(server_ == null)
     {
       server_ = system_.getConnection(AS400.CENTRAL, false);
 
@@ -45,23 +46,23 @@ class NLSImplRemote extends NLSImpl
       synchronized (server_)
       {
         DataStream baseReply = server_.getExchangeAttrReply();
-        if (baseReply == null)
+        if(baseReply == null)
         {
           try
           {
             baseReply = server_.sendExchangeAttrRequest(new NLSExchangeAttrRequest());
           }
-          catch (IOException e)
+          catch(IOException e)
           {
             Trace.log(Trace.ERROR, "IOException After Exchange Attribute Request");
             disconnect();
-            throw (IOException)e.fillInStackTrace();
+            throw e;
           }
-          if (baseReply instanceof NLSExchangeAttrReply)
+          if(baseReply instanceof NLSExchangeAttrReply)
           {
             // means request completed OK
             NLSExchangeAttrReply NLSReply = (NLSExchangeAttrReply)baseReply;
-            if (NLSReply.primaryRC_ != 0)
+            if(NLSReply.primaryRC_ != 0)
             {
               Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);
               Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.secondaryRC_ );
@@ -83,27 +84,52 @@ class NLSImplRemote extends NLSImpl
     }
   }
 
-
+  
   // Disconnect from the central server.
   void disconnect()
   {
-    if (server_ != null)
+    if(server_ != null)
     {
       try
       {
         system_.disconnectServer(server_);
         server_ = null;
       }
-      catch (Exception e)
-      {
-      }
+      catch(Exception e) {}
     }
   }
 
-
+  
   int getCcsid() throws IOException
   {
     return ccsid_;
   }
-}
 
+  
+  // Download table
+/*@B0D    char[] getTable(int fromCCSID, int toCCSID) throws ConnectionDroppedException, IOException, InterruptedException
+    {
+        NLSGetTableRequest reqDs = new NLSGetTableRequest();
+        reqDs.setCCSIDs(fromCCSID, toCCSID);
+        DataStream repDs = this.server.sendAndReceive(reqDs);
+        if (repDs instanceof NLSGetTableReply)
+        {
+            NLSGetTableReply NLSReply = (NLSGetTableReply)repDs;
+            if (NLSReply.primaryRC_ != 0)
+            {
+                Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);
+                Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.secondaryRC_ );
+                throw new IOException();
+            }
+            return NLSReply.table_;
+        }
+        else // unknown data stream
+        {
+            disconnect();
+            Trace.log(Trace.ERROR, "Unknown instance returned from Exchange Attribute Reply");
+            throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+        }
+    }
+@B0D*/
+
+}

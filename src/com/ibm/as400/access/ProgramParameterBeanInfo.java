@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramParameterBeanInfo.java
 //                                                                             
@@ -98,7 +98,7 @@ public class ProgramParameterBeanInfo extends SimpleBeanInfo
      **/
     public int getDefaultEventIndex()
     {
-        // the index for the "propertyChange" event
+        // The index for the "propertyChange" event
         return 0;
     }
 
@@ -108,7 +108,7 @@ public class ProgramParameterBeanInfo extends SimpleBeanInfo
      **/
     public int getDefaultPropertyIndex()
     {
-        // the index for the "inputData" property
+        // The index for the "inputData" property.
         return 0;
     }
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataAreaImplProxy.java
 //                                                                             
@@ -426,6 +426,41 @@ implements DataAreaImpl
 
 
    /**
+   Makes the API call to retrieve the data area data and attributes.
+     @return The String value read from the data area as a result of
+     retrieving the data area's attributes.
+     @exception AS400SecurityException          If a security or authority error occurs.
+     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception InterruptedException            If this thread is interrupted.
+     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   **/
+   public String retrieve(int dataAreaOffset, int dataLength, int type)            //$A2C
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               IllegalObjectTypeException,
+               InterruptedException,
+               ObjectDoesNotExistException,
+               IOException
+   {
+     try {
+       return (String) connection_.callMethod (pxId_, "retrieve",
+                         new Class[] { Integer.TYPE, Integer.TYPE, Integer.TYPE },                                   //$A2C
+                         new Object[] { new Integer(dataAreaOffset), new Integer(dataLength), new Integer(type) })   //$A2C
+                       .getReturnValue ();
+     }
+     catch (InvocationTargetException e) {
+       Throwable e2 = e.getTargetException ();
+       if (e2 instanceof IllegalObjectTypeException)
+         throw (IllegalObjectTypeException) e2;
+       else
+         throw ProxyClientConnection.rethrow5 (e);
+     }
+   }
+
+
+   /**
    Sets the system, path, and data area type.
    **/
    public void setAttributes(AS400Impl system, QSYSObjectPathName path, int dataAreaType)
@@ -474,6 +509,43 @@ implements DataAreaImpl
        connection_.callMethod (pxId_, "write",
                          new Class[] { String.class, Integer.TYPE },
                          new Object[] { data, new Integer(dataAreaOffset) });
+     }
+     catch (InvocationTargetException e) {
+       throw ProxyClientConnection.rethrow5 (e);
+     }
+   }
+
+
+   /**
+   Writes the data to the data area.
+   It writes <i>data.length()</i> characters from <i>data</i> to the
+   data area beginning at <i>dataAreaOffset</i>. The first character
+   in the data area is at offset 0.
+     @param data The data to be written.
+     @param dataAreaOffset The offset in the data area at which to start writing.
+     @param type The Data Area bidi string type, as defined by the CDRA (Character
+                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 BidiStringType</a> for more information and valid values.
+     @exception AS400SecurityException          If a security or authority error occurs.
+     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
+     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     @exception InterruptedException            If this thread is interrupted.
+     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception ServerStartupException          If the AS/400 server cannot be started.
+     @exception UnknownHostException            If the AS/400 system cannot be located.
+   **/
+   public void write(String data, int dataAreaOffset, int type)      //$A2C
+       throws AS400SecurityException,
+              ErrorCompletingRequestException,
+              InterruptedException,
+              ObjectDoesNotExistException,
+              IOException
+   {
+     try {
+       connection_.callMethod (pxId_, "write",
+                         new Class[] { String.class, Integer.TYPE , Integer.TYPE},                   //$A2C
+                         new Object[] { data, new Integer(dataAreaOffset), new Integer(type) });     //$A2C
      }
      catch (InvocationTargetException e) {
        throw ProxyClientConnection.rethrow5 (e);

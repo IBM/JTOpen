@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPSelWrtJ.java
 //                                                                             
@@ -24,6 +24,11 @@ package com.ibm.as400.access;
 class NPCPSelWrtJ extends NPCPSelection implements Cloneable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
     // some strings we use for filtering output queues
     // we accept *ALL for the output queue library and we'll convert it

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPIDLibrary.java
 //                                                                             
@@ -17,12 +17,15 @@ package com.ibm.as400.access;
  * NPCPIDLibrary is used to contain a library ID code point.
  * This code point has 1 value in it:
  *     NP_ATTR_LIBRARY  - library name
- *
  **/
 
 class NPCPIDLibrary extends NPCPID implements Cloneable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
    /**
     * copy constructor

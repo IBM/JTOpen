@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileOutputStream.java
 //                                                                             
@@ -57,6 +57,11 @@ public class IFSFileOutputStream extends OutputStream
   implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   /**
    Share option that allows read and write access by other users.
@@ -218,6 +223,24 @@ public class IFSFileOutputStream extends OutputStream
   }
 
 
+  // @A5a
+  /**
+   Constructs an IFSFileOutputStream object.
+   It creates a file output stream to write to the file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.
+   The file is replaced if it exists; otherwise, the file is created.
+   @param file The file to be opened for writing.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+    **/
+  public IFSFileOutputStream(IFSFile file)
+    throws AS400SecurityException, IOException
+  {
+    this((file==null ? null : file.getSystem()), file, SHARE_ALL, false);
+  }
+
+
   /**
    Constructs an IFSFileOutputStream object.
    It creates a file output stream to write to the file specified by <i>file</i>.
@@ -241,10 +264,10 @@ public class IFSFileOutputStream extends OutputStream
     throws AS400SecurityException, IOException
   {
     // Validate arguments.    @C2c
-    if (system == null)
-      throw new NullPointerException("system");
-    if (file == null)
+    if (file == null)                         // @A5c Swapped order of checks.
       throw new NullPointerException("file");
+    else if (system == null)
+      throw new NullPointerException("system");
     IFSFileInputStream.validateShareOption(shareOption);
 
     myConstructor(system, file.getAbsolutePath(), shareOption, append, -1);  // @C2c
@@ -325,6 +348,24 @@ public class IFSFileOutputStream extends OutputStream
     fd_ = fd;
   }
 
+
+  // @A5a
+  /**
+   Constructs an IFSFileOutputStream object.
+   It creates a file output stream to write to the file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.
+   The file is replaced if it exists; otherwise, the file is created.
+   @param file The file to be opened for writing.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+    **/
+  public IFSFileOutputStream(IFSJavaFile file)
+    throws AS400SecurityException, IOException
+  {
+    this((file==null ? null : file.getSystem()), file, SHARE_ALL, false);
+  }
+
   // @A3A
   /**
    Constructs an IFSFileOutputStream object.
@@ -347,10 +388,10 @@ public class IFSFileOutputStream extends OutputStream
     throws AS400SecurityException, IOException
   {
     // Validate arguments.
-    if (system == null)
-      throw new NullPointerException("system");
-    else if (file == null)
+    if (file == null)                         // @A5c Swapped order of checks.
       throw new NullPointerException("file");
+    else if (system == null)
+      throw new NullPointerException("system");
     IFSFileInputStream.validateShareOption(shareOption);
 
     myConstructor(system, file.getAbsolutePath().replace (file.separatorChar, IFSFile.separatorChar), shareOption, append, -1);

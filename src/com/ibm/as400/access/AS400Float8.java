@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Float8.java
 //                                                                             
@@ -21,6 +21,10 @@ public class AS400Float8 implements AS400DataType
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+
+    static final long serialVersionUID = 4L;
+
+
     private static final int SIZE = 8;
     private static final double defaultValue = 0.0;
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProxyConstants.java
 //                                                                             
@@ -19,7 +19,7 @@ package com.ibm.as400.access;
 The ProxyConstants class defines global contants for the
 proxy support.
 **/
-class ProxyConstants 
+class ProxyConstants
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -28,20 +28,20 @@ class ProxyConstants
 
     // The modification identifiers.   These are used as part of the
     // connect request to notify the proxy server what modification
-    // the client is running with.                                                           
+    // the client is running with.
     static final String MOD_3                  = "mod3";
-    static final String CURRENT_MOD            = MOD_3;
+    static final String MOD_4                  = "mod4";
+    static final String CURRENT_MOD            = MOD_4;
 
 
 
-    // The default port numbers.  These port numbers were registered 
-    // by the Internet Assigned Numbers Authority (http://www.iana.org) 
-    // on 01/29/1999.  For a complete list of registered port numbers, 
+    // The default port numbers.  These port numbers were registered
+    // by the Internet Assigned Numbers Authority (http://www.iana.org)
+    // on 01/29/1999.  For a complete list of registered port numbers,
     // or http://www.isi.edu/in-notes/iana/assignments/port-numbers
     // for the complete list.
-    static final int    PORT_NUMBER                     =  3470; 
-    // static final int    SECURE_PORT_NUMBER              =  3471; 
-
+    static final int    PORT_NUMBER                     =  3470;
+    static final int    SECURE_PORT_NUMBER              =  3471;   //$B1C
 
 
     // Impl creation flags.
@@ -78,6 +78,7 @@ class ProxyConstants
 
     // The request datastream types.
     static final short   DS_CONNECT_REQ                  = 11010;
+    static final short   DS_CONNECT_TUNNEL_REQ           = 11015;  // @D1a
     static final short   DS_DISCONNECT_REQ               = 11020;
     static final short   DS_CONFIGURE_REQ                = 11030;
     static final short   DS_END_REQ                      = 11040;
@@ -101,6 +102,6 @@ class ProxyConstants
 
 
 
-    
+
 }
 

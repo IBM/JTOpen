@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandLineArguments.java
 //                                                                             
@@ -20,10 +20,43 @@ import java.util.Vector;
 
 
 /**
-The CommandLineArguments parse command line arguments into
-options specified in the format "-optionName optionValue".
+ *  The CommandLineArguments class will parse command line arguments into
+ *  options specified in the format "-optionName optionValue".
+ *  <p>
+ *  Here is an example of calling a program from the command line with arguments:
+ *  <br>
+ *  <BLOCKQUOTE><PRE>
+ *  A sample program:  java myProgram systemName -userid myID -password myPWD
+ *  <p>
+ *  The Java code to parse the command:
+ *  <br>
+ *  // Create a vector to hold all the possible command line arguments.
+ *  Vector v = new Vector();
+ *  v.addElement("-userID");
+ *  v.addElement("-password");
+ *  <p>
+ *  // Create a Hashtable to map shortcuts to the command line arguments. 
+ *  Hashtable shortcuts = new Hashtable();
+ *  shortcuts.put("-u", "-userID");
+ *  shortcuts.put("-p", "-password");
+ *  <p>
+ *  // Create a CommandLineArguments object with the args array passed into main(String args[])
+ *  // along with the vector and hashtable just created.
+ *  CommandLineArguments arguments = new CommandLineArguments(args, v, shortcuts);
+ *  <p>
+ *  // Get the AS400 system that the user wants to run to.
+ *  String system = arguments.getOptionValue("");
+ *  <p>
+ *  // Get the user ID that the user wants to log in with.
+ *  String uid = arguments.getOptionValue("-userID");
+ *  <p>
+ *  // Get the password that the user wants to log in with.
+ *  String pwd = arguments.getOptionValue("-password");
+ *  
+ *  </PRE></BLOCKQUOTE>
+ *
 **/
-class CommandLineArguments
+public class CommandLineArguments                               //$B1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 

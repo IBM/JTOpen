@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FieldDescription.java
 //                                                                             
@@ -28,15 +28,29 @@ import java.util.Vector;
  *<p> 
  *<b>Examples</b>
  *<ul>
- *<li><a href="recordxmp.html">Using the FieldDescription classes with the Data queue classes</a>
- *<li><a href="RLReadFileExample.html">Using the FieldDescription classes with the record-level database access classes</a>
+ *<li><a href="../../../../recordxmp.html">Using the FieldDescription classes with the Data queue classes</a>
+ *<li><a href="../../../../RLReadFileExample.html">Using the FieldDescription classes with the record-level database access classes</a>
+ *<li><a href="../../../../LDRWExample.html">Using the FieldDescription classes with the LineDataRecordWriter class</a>
  *</ul>
 **/
 abstract public class FieldDescription implements Serializable
-{
+{  
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  //static final long serialVersionUID = -7494262884619698311L;
+
+
+    static final long serialVersionUID = 4L;
+
+
+
+  // Public constants. 
+  /** Constant indicating left alignment of data within the field layout.  **/// @C1A
+  /** This is only used for record level writing.                          **/// @C1A
+  public static final int ALIGN_LEFT    = 1;    // @C1A
+  /** Constant indicating right alignment of data within the field layout. **/// @C1A
+  /** This is only used for record level writing.                          **/// @C1A
+  public static final int ALIGN_RIGHT   = 2;    // @C1A
+  
   // ALIAS keyword
   String alias_ = "";
   // ALWNUL keyword
@@ -52,6 +66,10 @@ abstract public class FieldDescription implements Serializable
   Object defaultValue_ = null;
   // Key field keywords specific to this key field.
   String[] keyFieldFunctions_ = null;
+  // The layout length of the field.  @C1A
+  int layoutLength_ = 0;        // @C1A
+  // The layoutAlignment of the field.  @C1A
+  int layoutAlignment_ = 0;     // @C1A
   // The length of the field
   int length_;
   // The name of the field.
@@ -83,6 +101,8 @@ abstract public class FieldDescription implements Serializable
    *specified on the AS400DataType object.  The DDS name of the field will be <i>name</i>
    *if <i>name</i> is 10 characters or less.  The DDS name of the field will be <i>name</i>
    *truncated to 10 characters if <i>name</i> is greater than 10 characters.
+   *The layout length will be the length of the field, and the
+   *layout alignment will be ALIGN_LEFT.
    *@param dataType Describes the field and provides
    *                the conversion capability for the contents of the field.
    *@param name The name of the field.
@@ -109,6 +129,8 @@ abstract public class FieldDescription implements Serializable
    *name, and DDS name of the field.
    * The length of the field will be the length
    *specified on the AS400DataType object.
+   *The layout length will be the length of the field, and the
+   *layout alignment will be ALIGN_LEFT.
    *@param dataType Describes the field and provides
    *                the conversion capability for the contents of the field.
    *@param name The name of the field.
@@ -172,7 +194,15 @@ abstract public class FieldDescription implements Serializable
     return columnHeading_;
   }
 
-  
+  /**
+   *Returns the copyright for this class.
+   *@return The copyright for this class.
+  **/
+  private static String getCopyright()
+  {
+    return Copyright.copyright;
+  }
+
   /**
    *Returns the AS400DataType object describing this field, as specified on construction.
    *@return The AS400DataType object that describes this field.  If the
@@ -292,12 +322,48 @@ abstract public class FieldDescription implements Serializable
   }
 
 
+
+  // @C1A - added method
   /**
-   *Returns the length of the field.  If this field is a character field (single byte or
+   *Returns the layout alignment of this field.  The layout alignment specifies
+   *the location of the data as presented within the layout length of the field.
+   *This value is only used in conjunction with line data record writer class,
+   *and only if the including record format is of type
+   *FIXED_LAYOUT_LENGTH.
+   *
+   *@return The layout alignment of this field.
+  **/
+  public int getLayoutAlignment()
+  {
+    return layoutAlignment_;
+  }
+
+
+
+  // @C1A - added method
+  /**
+   *Returns the layout length of this field.  The layout length is the 
+   *actual character length of the field when written using the line    
+   *data record writer class. The layout length is only valid
+   *if the including record format is of type
+   *FIXED_LAYOUT_LENGTH.   
+   *
+   *@return The layout length of this field.
+  **/
+  public int getLayoutLength()
+  {
+    return layoutLength_;
+  }
+  
+
+  
+  /**
+   *Returns the length of this field.  If this field is a character field (single byte or
    *double byte, date, time, timestamp), the length is the number of characters allowed in the field.
    *If this field is a numeric field (binary, float, packed, zoned), the length is the total
    *number of digits allowed in the field.  If this field is a hexadecimal field, the
    *length is the number of bytes allowed in the field.
+   *
    *@return The length of the field.
   **/
   public int getLength()
@@ -448,7 +514,99 @@ abstract public class FieldDescription implements Serializable
     }
     keyFieldFunctions_ = keyFunctions;
   }
+  
+  
+  
+ // @C1A - added method 
+ /**
+   *Sets the layout alignment of this field.  The layout alignment specifies
+   *the location of the data as presented within the layout length of the field.
+   *This value is only used in conjunction with the line data record writer class,
+   *and only if the including record format is of type
+   *FIXED_LAYOUT_LENGTH.
+   <p>
+   *The following special values are valid:
+   * <UL>
+   *   <LI> ALIGN_LEFT  - Left alignment of data within the field layout.
+   *   <LI> ALIGN_RIGHT - Right alignment of data within the field layout.
+   * </UL>
+   *
+   *@param layoutAlignment The layout alignment of this field.
+  **/
+  public void setLayoutAlignment(int layoutAlignment)
+  {
+        if ((layoutAlignment != ALIGN_LEFT) && (layoutAlignment != ALIGN_RIGHT)) {
+            throw new ExtendedIllegalArgumentException("layoutAlignment",
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        layoutAlignment_ = layoutAlignment;
+  }
+  
 
+
+ // @C1A - added method 
+ /**
+   *Sets the layout length and layout alignment of this field. 
+   *The layout length is the 
+   *actual character length of the field when written using  
+   *the line data record writer class. 
+   *The layout length must be 50 characters or less.
+   *The layout alignment specifies
+   *the location of the data as presented within the layout length of the field.
+   *These values are only used in conjunction with the line data record writer class,
+   *and only if the including record format is of type
+   *FIXED_LAYOUT_LENGTH.
+   *<p>
+   *The following special values for the layout alignment are valid:
+   * <UL>
+   *   <LI> ALIGN_LEFT  - Left alignment of data within the field layout.
+   *   <LI> ALIGN_RIGHT - Right alignment of data within the field layout.
+   * </UL>
+   *
+   *@param layoutLength     The layout length of this field.
+   *@param layoutAlignment  The layout alignment of this field.
+  **/
+  public void setLayoutAttributes(int layoutLength, int layoutAlignment)
+  {      
+        if ((layoutLength > 50) || (layoutLength < 0)) {
+            throw new ExtendedIllegalArgumentException("layoutLength", 
+                ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+      
+        if ((layoutAlignment != ALIGN_LEFT) && (layoutAlignment != ALIGN_RIGHT)) {
+            throw new ExtendedIllegalArgumentException("layoutAlignment", 
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }  
+        
+        layoutLength_ = layoutLength;
+        layoutAlignment_ = layoutAlignment;
+  }
+
+
+
+  // @C1A - added method
+  /**
+   *Sets the layout length  of this field.  The layout length is the 
+   *actual character length of the field when written using the   
+   *line data record writer class.  The layout length is only valid
+   *if the including record format is of type
+   *FIXED_LAYOUT_LENGTH. 
+   *The layout length must be 50 characters or less.
+   *NOTE: The layout length does not have to equal the length of the field.  
+   *
+   *@param layoutLength     The layout length of this field.
+  **/
+  public void setLayoutLength(int layoutLength)
+  {
+        if ((layoutLength > 50) || (layoutLength < 0)) {
+            throw new ExtendedIllegalArgumentException("layoutLength",
+                ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        layoutLength_ = layoutLength;
+  }
+  
+  
+  
   /**
    *Sets the value to be specified for the REFFLD keyword for this field.
    *@param refFld The value for the REFFLD keyword

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxConstructorReqSV.java
 //                                                                             
@@ -59,7 +59,7 @@ extends PxReqSV
         Object object = AS400.loadImpl (classNameToLoad);
 
         // Add the object to the object table.
-        long proxyId = pxTable_.add (object);
+        long proxyId = pxTable_.addClientId (getClientId(), object);  //@A1C
    
         // Return the proxy id.
         return new PxReturnRepSV (pxTable_, object, noArguments_, noReturnArguments_);

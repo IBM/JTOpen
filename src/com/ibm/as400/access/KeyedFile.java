@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: KeyedFile.java
 //                                                                             
@@ -51,7 +51,7 @@ import java.math.BigDecimal;
  *</ul>
  *KeyedFile objects generate the following events:
  *<ul>
- *<li><a href="com.ibm.as400.access.FileEvent.html">FileEvent</a>
+ *<li><a href="FileEvent.html">FileEvent</a>
  *<br>The events fired are:
  *<ul>
  *<li>FILE_CLOSED
@@ -60,15 +60,17 @@ import java.math.BigDecimal;
  *<li>FILE_MODIFIED
  *<li>FILE_OPENED
  *</ul>
- *<li><a href="java.beans.PropertyChangeEvent.html">PropertyChangeEvent</a>
- *<li><a href="java.beans.VetoableChangeEvent.html">VetoableChangeEvent</a>
+ *<li>PropertyChangeEvent
+ *<li>VetoableChangeEvent
  *</ul>
 **/
 public class KeyedFile extends AS400File implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  
+
+    static final long serialVersionUID = 4L;
+
 
   /**
    *Constant indicating search type of equal.
@@ -125,7 +127,7 @@ public class KeyedFile extends AS400File implements Serializable
    *The <i>key</i> must contain at least one element.  The types and order of
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
-   *are not supported.  The number of elements in <i>key</i> cannot exceed the 
+   *are not supported.  The number of elements in <i>key</i> cannot exceed the
    *number of key fields in the record format for this file.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -155,7 +157,7 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>. This number cannot exceed the 
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>. This number cannot exceed the
    *total number of key fields in the record format for this file.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -183,7 +185,7 @@ public class KeyedFile extends AS400File implements Serializable
    *to the first record.  If <i>blockingFactor</i> is greater than one (or
    *if zero is specified and a blocking factor greater than one is determined
    *by the object) and the file is opened for READ_ONLY, the record cache will
-   *be filled with an initial set of records.<br>  
+   *be filled with an initial set of records.<br>
    *The record format for the file must be set prior to calling this method.<br>
    *The name of the file and the AS400 system to which to connect must be set prior
    *to invoking this method.
@@ -290,7 +292,7 @@ public class KeyedFile extends AS400File implements Serializable
   }
 
 
-  
+
   // @A2A
   /**
    *Positions the file cursor to the first record matching the specified
@@ -361,7 +363,7 @@ public class KeyedFile extends AS400File implements Serializable
     }
     impl_.doIt("positionCursor", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) });
   }
-  
+
   // @A2A
   /**
    *Positions the file cursor to the first record meeting the specified search criteria
@@ -752,12 +754,12 @@ public class KeyedFile extends AS400File implements Serializable
     chooseImpl();
     // Before we calculate, make sure the record format has had
     // its text objects initialized.
-    recordFormat_.initializeTextObjects(system_); //@D0A      
-    
+    recordFormat_.initializeTextObjects(system_); //@D0A
+
     // Use a calculated blocking factor, else use a large blocking factor
     int bf = 2048/(recordFormat_.getNewRecord().getRecordLength() + 16); //@D0M
     if (bf <= 1) bf = 100; //@D0M
-    
+
     Record[] recs = impl_.doItRecordArray("readAll", new Class[] { String.class, Integer.TYPE }, new Object[] { "key", new Integer(bf) }); //@D0C
     //@D0A
     if (recs != null)
@@ -767,7 +769,7 @@ public class KeyedFile extends AS400File implements Serializable
         recs[i] = fillInRecord(recs[i]);
       }
     }
-    
+
     return recs; //@D0C
   }
 
@@ -881,7 +883,7 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.   
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -976,7 +978,7 @@ public class KeyedFile extends AS400File implements Serializable
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.   
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -1181,7 +1183,7 @@ public class KeyedFile extends AS400File implements Serializable
     }
 
     // Verify object state
-    checkOpen();    
+    checkOpen();
   }
 
   //@C0A

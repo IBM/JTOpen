@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: WriterJob.java
 //                                                                             
@@ -20,7 +20,7 @@ import java.io.IOException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 writer.  Use the start method to obtain a instance of this class.
  *
- * See <a href="WriterJobAttrs.html">Writer Job Attributes</a> for
+ * See <a HREF="../../../../WriterJobAttrs.html">Writer Job Attributes</a> for
  * valid attributes.
  *
  **/
@@ -30,6 +30,12 @@ public class WriterJob extends PrintObject
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+
+
+    static final long serialVersionUID = 4L;
+
+
+
     // We have decided that writer jobs are too transient to
     // be a JavaBean.
 
@@ -133,58 +139,58 @@ public class WriterJob extends PrintObject
      *                          output queue parameter.
      *                          The following parameters may be set:
      * <ul>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY2">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY2">
      *         ATTR_ALIGN - Align page
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY3">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY3">
      *         ATTR_ALWDRTPRT - Allow direct print
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY6">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY6">
      *         ATTR_AUTOEND - Automatically end writer
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY39">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY39">
      *         ATTR_DRWRSEP - Drawer for separators
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY41">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY41">
      *         ATTR_FILESEP - File separators
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY45">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY45">
      *         ATTR_FORMTYPE - Form type
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY551">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY551">
      *         ATTR_WTRINIT - Initialize the writer
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY57">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY57">
      *         ATTR_JOBNAME - Job name
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY58">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY58">
      *         ATTR_JOBNUMBER - Job number
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY60">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY60">
      *         ATTR_JOBUSER - Job user
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY46">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY46">
      *         ATTR_FORMTYPEMSG - Form type message option
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEYIFS_5">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_5">
      *         ATTR_MESSAGE_QUEUE - Message queue integrated file system  name
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEYIFS_6">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_6">
      *         ATTR_OUTPUT_QUEUE - Output queue integrated file system  name
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY108">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY108">
      *         ATTR_SPOOLFILE - Spooled file name
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY109">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY109">
      *         ATTR_SPLFNUM - Spooled file number
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY123">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY123">
      *         ATTR_WTRAUTOEND - When to automatically end writer
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY133">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY133">
      *         ATTR_WTRSTRPAGE - Writer starting page
      *      </A>
-     * <li> <A HREF="PrintAttributes.html#HDRKEY129">
+     * <li> <A HREF="../../../../PrintAttributes.html#HDRKEY129">
      *         ATTR_WTRJOBNAME - Writer job name
      *      </A>
      *

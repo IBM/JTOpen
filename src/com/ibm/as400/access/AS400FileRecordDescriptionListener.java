@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileRecordDescriptionListener.java
 //                                                                             
@@ -16,8 +16,7 @@ package com.ibm.as400.access;
 /**
  *The AS400FileRecordDescriptionListener interface provides the interface that
  *must be implemented to handle AS400FileRecordDescriptionEvent objects that are
- *fired by the 
- *<a href="com.ibm.as400.access.AS400FileRecordDescription.html">AS400FileRecordDescription</a>
+ *fired by the {@link com.ibm.as400.access.AS400FileRecordDescription AS400FileRecordDescription}
  *class.
 **/
 public interface AS400FileRecordDescriptionListener extends java.util.EventListener

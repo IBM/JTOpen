@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLInteger.java
 //                                                                             
@@ -34,14 +34,20 @@ implements SQLData
 
 
 
-    private String x = Copyright.copyright;
-
-
     // Private data.
     private int                 truncated_;
+    // @D0D private static AS400Bin4    typeConverter_;
     private int                 value_;
     private int                 scale_;                              // @A0A
     private BigDecimal          bigDecimalValue_ = null;             // @A0A
+
+
+
+    // @D0D static
+    // @D0D {
+    // @D0D     typeConverter_ = new AS400Bin4 ();
+    // @D0D }
+
 
 
     SQLInteger ()
@@ -121,10 +127,10 @@ implements SQLData
         else if (object instanceof Number) {
             value_ = ((Number) object).intValue();
 
-            // Compute truncation.
-            double doubleValue = ((Number) object).doubleValue ();
-            if (doubleValue != value_)
-                truncated_ = Double.toString (doubleValue - value_).length () / 2;
+            // @E3D // Compute truncation.
+            // @E3D double doubleValue = ((Number) object).doubleValue ();
+            // @E3D if (doubleValue != value_)
+            // @E3D     truncated_ = Double.toString (doubleValue - value_).length () / 2;
         }
 
         else if (object instanceof Boolean)
@@ -240,10 +246,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
 

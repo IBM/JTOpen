@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectListImplRemote.java
 //                                                                             
@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.util.Vector;
 import java.io.IOException;
-
 
 
 /**

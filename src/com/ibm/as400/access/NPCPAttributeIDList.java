@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPAttributeIDList.java
 //                                                                             
@@ -43,6 +43,9 @@ package com.ibm.as400.access;
 class NPCPAttributeIDList extends NPCodePoint implements Cloneable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
 
 
     private final static int LEN_ATTRLIST_HEADER = 4;  // size of header on this data

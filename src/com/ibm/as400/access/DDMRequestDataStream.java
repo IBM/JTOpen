@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMRequestDataStream.java
 //                                                                             
@@ -859,7 +859,7 @@ class DDMRequestDataStream extends DDMDataStream
       }                                    //@C2A
     }                                      //@C2A
 *///@E0D
-
+    
     int reqLength = 60;
     // Determine the total length of all data in keyFields.
     FieldDescription description;
@@ -972,6 +972,7 @@ class DDMRequestDataStream extends DDMDataStream
               }
             }
 *///@E0D
+
 
 //@E0A
             String toWrite = (String)keyFields[i]; // Java String we want to write to the data stream

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSTextFileOutputStream.java
 //                                                                             
@@ -21,6 +21,8 @@ import java.beans.PropertyVetoException;
 The IFSTextFileOutputStream class represents an integrated file system output stream for character data.
 <br>
 IFSTextFileOutputStream object is capable of generating file events which call the following FileListener methods: fileClosed, fileModified, and fileOpened.
+<br>
+ <i>Note: By default, Unicode data is written to the file.  To use another CCSID when writing to the file, use one of the constructors that has a ccsid parameter.</i>
 <br>
 The following example illustrates the use of IFSTextFileOutputStream:
 <pre>
@@ -44,6 +46,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
 
 
   
+    static final long serialVersionUID = 4L;
 
   /**
    Constructs an IFSTextFileOutputStream object.
@@ -147,6 +150,25 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
   }
 
 
+  // @A5a
+  /**
+   Constructs an IFSTextFileOutputStream object.
+   It creates a file output stream to write to the text file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.  The file is
+   replaced if it exists; otherwise the file is created.
+   By default, Unicode data is written to the file.
+   @param file The file to be opened for writing.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+    **/
+  public IFSTextFileOutputStream(IFSFile file)
+    throws AS400SecurityException, IOException
+  {
+    super(file);
+  }
+
+
   /**
    Constructs an IFSTextFileOutputStream object.
    It creates a file output stream to write to the text file specified by <i>file</i>.
@@ -197,6 +219,24 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
     throws AS400SecurityException, IOException
   {
     super(system, file, shareOption, append, ccsid);
+  }
+
+
+  // @A5a
+  /**
+   Constructs an IFSTextFileOutputStream object.
+   It creates a file output stream to write to the text file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.  The file is
+   replaced if it exists; otherwise the file is created.
+   @param file The file to be opened for writing.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+    **/
+  public IFSTextFileOutputStream(IFSJavaFile file)
+    throws AS400SecurityException, IOException
+  {
+    super(file);
   }
 
 

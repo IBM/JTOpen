@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBReplyServerAttributes.java
 //                                                                             
@@ -130,6 +130,13 @@ class DBReplyServerAttributes
 	{
 		return converter.byteArrayToString (data_, offset_ + 50, 10);
 	}
+
+
+
+    final public String getServerJobIdentifier(ConverterImplRemote converter) throws DBDataStreamException  // @E1A
+	{                                                                                                       // @E1A
+		return converter.byteArrayToString(data_, offset_ + 88, 26);                                        // @E1A
+	}                                                                                                       // @E1A
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDError.java
 //                                                                             
@@ -66,9 +66,9 @@ final class JDError
 	static final String EXC_PARAMETER_TYPE_INVALID	    = "HY105";
 	static final String EXC_SCALE_INVALID               = "HY094";
 	static final String EXC_SERVER_ERROR                = "HY001";
-      static final String EXC_SYNTAX_BLANK                    = "43617";
+    static final String EXC_SYNTAX_BLANK                = "43617";
 	static final String EXC_SYNTAX_ERROR		        = "42601";
-	static final String EXC_TXN_ACTIVE		            = "25000";
+	static final String EXC_TXN_STATE_INVALID           = "25000"; // @E1C
 
 	static final String WARN_ATTRIBUTE_VALUE_CHANGED    = "01608";
 	static final String WARN_EXTENDED_DYNAMIC_DISABLED  = "01H11";
@@ -94,16 +94,6 @@ this class are static.
 
 
 /**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
-/**
 Returns the reason text based on a SQL state.
 
 @param  sqlState    the SQL State.
@@ -111,7 +101,7 @@ Returns the reason text based on a SQL state.
 **/
 	static final String getReason (String sqlState)
 	{
-	    return AS400JDBCDriver.getResource ("JD" + sqlState);
+        return AS400JDBCDriver.getResource ("JD" + sqlState); 
 	}
 
 
@@ -155,9 +145,24 @@ Returns the message text for the last operation on the server.
 			errorDescription.append ("[");
 			errorDescription.append (reply.getMessageId());
 			errorDescription.append ("] ");
-            if (Math.abs(returnCode) == 438)                                                        // @E2A
-                errorDescription.append(reply.getSQLCA().getErrmc(connection.getConverter()));      // @E2A
-            else {                                                                                  // @E2A
+
+            // If the return code is +-438 (from an SQL stored procedure) or                                   @E4A
+            // +-443 (from an external stored procedure) AND errd[3] is 0, then                                @E4A @E6C
+            // an error was signalled by the stored procedure itself.                                          @E4A
+            boolean textAppended = false;                                                                   // @E6A
+            int absReturnCode = Math.abs(returnCode);                                                       // @E4A
+            if ((absReturnCode == 438) || (absReturnCode == 443)) {                                         // @E2A @E4C @E5C @E6C
+                if (sqlca.getErrd4() == 0) {                                                                // @E6A
+                    if (absReturnCode == 438)                                                               // @E2A @E4C @E5C
+                        errorDescription.append(sqlca.getErrmc(connection.getConverter()));                 // @E2A
+                    else if (absReturnCode == 443)                                                          // @E5A
+                        errorDescription.append(sqlca.getErrmc(6, connection.getConverter()));              // @E5A
+                    textAppended = true;                                                                    // @E6A
+                }                                                                                           // @E6A
+            }                                                                                               // @E6A
+
+            // Otherwise, get the text directly from the reply.                                             // @E6A
+            if (textAppended == false) {                                                                    // @E2A @E6C
                 errorDescription.append (reply.getFirstLevelMessageText());
 	            if (secondLevelText) {
 	                errorDescription.append (" ");
@@ -309,11 +314,19 @@ trace for debugging purposes.
             }                                                           // @D0A
         }                                                               // @D0A
 
+        StringBuffer buffer = new StringBuffer(getReason(sqlState));    // @E3A
+        buffer.append('(');                                             // @E3A
+        String message = e.getMessage();                                // @E3A
+        if (message != null)                                            // @E3A
+            buffer.append(message);                                     // @E3A
+        else                                                            // @E3A
+            buffer.append(e.getClass());                                // @E3A
+
         // The DB2 for OS/400 SQL CLI manual says that
         // we should set the native error code to -99999
         // when the driver generates the error.
         //
-        throw new SQLException (getReason (sqlState), sqlState,
+        throw new SQLException (buffer.toString(), sqlState,            // @E3C
             -99999);
     }
 

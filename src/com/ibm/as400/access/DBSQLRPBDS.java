@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBSQLRPBDS.java
 //                                                                             
@@ -247,7 +247,9 @@ extends DBBaseRequestDS
    no limit).
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-// This only works for servers V4R1 and later.
+//
+// Implementation note: This only works for servers V4R1 and later.
+//
 	void setQueryTimeout(int value)
 		throws DBDataStreamException
 	{

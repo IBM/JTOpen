@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ChangePasswordDialog.java
 //                                                                             
@@ -36,6 +36,7 @@ class ChangePasswordDialog extends Dialog
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
     private AS400SignonDialogAdapter listener_;
     private TextField systemNameTextField_;
     private TextField userIdTextField_;
@@ -91,7 +92,7 @@ class ChangePasswordDialog extends Dialog
         add(this, label, constraints, 0, 3, 1, 1);
 
         // Create the old password text field.
-        oldTextField_ = new AS400SignonTextField();
+        oldTextField_ = new TextField(10);
         oldTextField_.setEchoChar('*');
         oldTextField_.addFocusListener(listener_);
         oldTextField_.addKeyListener(listener_);
@@ -102,7 +103,7 @@ class ChangePasswordDialog extends Dialog
         add(this, label, constraints, 0, 4, 1, 1);
 
         // Create the new password text field.
-        newTextField_ = new AS400SignonTextField();
+        newTextField_ = new TextField(10);
         newTextField_.setEchoChar('*');
         newTextField_.addFocusListener(listener_);
         newTextField_.addKeyListener(listener_);
@@ -113,7 +114,7 @@ class ChangePasswordDialog extends Dialog
         add(this, label, constraints, 0, 5, 1, 1);
 
         // Create the confirm password text field.
-        confirmTextField_ = new AS400SignonTextField();
+        confirmTextField_ = new TextField(10);
         confirmTextField_.setEchoChar('*');
         confirmTextField_.addFocusListener(listener_);
         confirmTextField_.addKeyListener(listener_);

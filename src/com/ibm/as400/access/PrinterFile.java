@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterFile.java
 //                                                                             
@@ -21,7 +21,7 @@ import java.beans.PropertyVetoException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 printer file.
  *
- * See <a href="PrinterFileAttrs.html">Printer File Attributes</a> for
+ * See <a href="../../../../PrinterFileAttrs.html">Printer File Attributes</a> for
  * valid attributes.
  *
  **/
@@ -32,6 +32,9 @@ implements java.io.Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+    static final long serialVersionUID = 4L;
+
+
     private static final String PATH = "path";
 
     // constructor used internally (not externalized since it takes
@@ -172,7 +175,7 @@ implements java.io.Serializable
 
     /**
      * Sets one or more attributes of the object.  See
-     * <a href="PrinterFileAttrs.html">Printer File Attributes</a> for
+     * <a href="../../../../PrinterFileAttrs.html">Printer File Attributes</a> for
      * a list of valid attributes that can be changed.
      *
      * @param attributes A print parameter list that contains the

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDTrace.java
 //                                                                             
@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.PrintWriter;
 import java.sql.DriverManager;
+import java.io.PrintStream;  //@E1A
 
 
 
@@ -60,6 +61,8 @@ class JDTrace
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+    private static PrintStream previousTraceInfo_ = null;   //@E1A
 
 
 
@@ -236,14 +239,37 @@ Maps an object to a string.
 
 
 /**
-Turns trace on, to System.out.
+Turns trace on, to System.out or what it was previously set to if it was turned off
+by this method.  This method will not initialize trace again if trace is already set 
+on by another method.  
 **/
     static void setTraceOn (boolean traceOn)
     {
-        if (traceOn == true)   // @D1C
-            DriverManager.setLogStream (System.out);
-        else
-            DriverManager.setLogStream (null);
+	if (traceOn)					        //@E1A
+	{                                                       //@E1A
+	    if (previousTraceInfo_ == null)                     //@E1A
+	    {                                                   //@E1A
+		if (DriverManager.getLogStream() == null)       //@E1A
+		{                                               //@E1A
+		    DriverManager.setLogStream (System.out);    //@E1A
+		}                                               //@E1A
+	    }                                                   //@E1A
+	    else if (DriverManager.getLogStream() == null)      //@E1A
+	    {                                                   //@E1A
+		DriverManager.setLogStream(previousTraceInfo_); //@E1A
+	    }                                                   //@E1A
+	}                                                       //@E1A
+	else                                                    //@E1A
+	{                                                       //@E1A
+	    previousTraceInfo_ = DriverManager.getLogStream();  //@E1A
+	    if (previousTraceInfo_ != null)			//@E2A
+	       previousTraceInfo_.flush(); 		        //@E1A
+	    DriverManager.setLogStream(null);                   //@E1A
+	}                                                       //@E1A
+        //@E1D if (traceOn == true)   // @D1C
+        //@E1D    DriverManager.setLogStream (System.out);
+        //@E1D else
+        //@E1D    DriverManager.setLogStream (null);
         // When we move to JDK 1.2, we can change this to:
         // DriverManager.setLogWriter (new PrintWriter (System.out));
     }

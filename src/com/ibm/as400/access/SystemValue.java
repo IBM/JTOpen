@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemValue.java
 //                                                                             
@@ -13,13 +13,11 @@
 
 package com.ibm.as400.access;
 
-import java.beans.Beans;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
-import java.util.Hashtable;
 import java.util.Vector;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -33,10 +31,19 @@ public class SystemValue implements java.io.Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-  private SystemValueInfo info_ = null; // The properties of this system value
 
-  private Object value_ = null; // The actual data this system value is set to
-  private AS400 system_ = null; // The AS/400 this system value belongs to.
+    static final long serialVersionUID = 4L;
+
+
+
+  // The info_ and value_ are package scope because they need
+  // to be accessed directly by the SystemValueGroup class.
+  
+  /*@B0D private */ SystemValueInfo info_; // The properties of this system value
+
+  /*@B0D private */ Object value_; // The actual data this system value is set to
+  
+  private AS400 system_; // The AS/400 this system value belongs to.
 
   transient boolean cached_ = false; // Has this system value been read from the 400 yet?
 
@@ -53,6 +60,9 @@ public class SystemValue implements java.io.Serializable
   transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
 
 
+  private String name_; //@B0A The user-defined group name
+  private String description_; //@B0A The user-defined group description
+  
   /**
   Constructs a SystemValue object.
   It creates a default SystemValue. The <i>system</i> and <i>name</i>
@@ -90,21 +100,26 @@ public class SystemValue implements java.io.Serializable
   }
 
 
-  // package scope constructor
-  // This is the backdoor way of constructing a SystemValue
   /**
   Package scope constructor.
   This is the "back door" way of constructing a SystemValue object.
+  This constructor is used by SystemValueUtility to fill in all of the internal data
+  for a SystemValue object when it comes off of the API call.
+  Note that the SystemValue's cached_ flag is set to true.
     @param system The AS/400.
     @param info The SystemValueInfo for this system value.
     @param value The data contained by this system value.
   **/
-  SystemValue(AS400 system, SystemValueInfo info, Object value)
+  SystemValue(AS400 system, SystemValueInfo info, Object value, String name, String description) //@B0C
   {
     system_ = system;
     info_ = info;
     value_ = value;
     cached_ = true;
+    
+    name_ = name; //@B0A
+    description_ = description; //@B0A
+    connected_ = true; //@B2A
   }
 
   /**
@@ -114,29 +129,32 @@ public class SystemValue implements java.io.Serializable
   **/
   public void addSystemValueListener(SystemValueListener listener)
   {
-    this.listeners_.addElement(listener);
+    if (listener == null) throw new NullPointerException("listener"); //@B1A
+    listeners_.addElement(listener);
   }
 
 
   /**
-  Adds a PropertyChangeListener.  
+  Adds a listener to be notified when the value of any bound property is changed.
     @see #removePropertyChangeListener
     @param listener The PropertyChangeListener.
   **/
   public void addPropertyChangeListener(PropertyChangeListener listener)
   {
-    this.changes_.addPropertyChangeListener(listener);
+    if (listener == null) throw new NullPointerException("listener"); //@B1A
+    changes_.addPropertyChangeListener(listener);
   }
 
 
   /**
-  Adds the VetoableChangeListener.  
+  Adds a listener to be notified when the value of any constrained property is changed.
     @see #removeVetoableChangeListener
     @param listener The VetoableChangeListener.
   **/
   public void addVetoableChangeListener(VetoableChangeListener listener)
   {
-    this.vetos_.addVetoableChangeListener(listener);
+    if (listener == null) throw new NullPointerException("listener"); //@B1A
+    vetos_.addVetoableChangeListener(listener);
   }
 
 
@@ -204,15 +222,6 @@ public class SystemValue implements java.io.Serializable
   }
 
 
-   /**
-    Returns the copyright.
-   **/
-   private static String getCopyright()
-   {
-     return Copyright.copyright;
-   }
-
-
   /**
   Returns the description for this system value.
     @return The description for the system value.
@@ -257,6 +266,30 @@ public class SystemValue implements java.io.Serializable
   }
 
 
+  //@B0A
+  /**
+   * Returns the user-defined group description. If this system value was
+   * not generated by the SystemValueGroup class, then null is returned.
+   * @return The group description.
+  **/
+  public String getGroupDescription() //@B0A
+  {
+    return description_;
+  }
+  
+        
+  //@B0A
+  /**
+   * Returns the user-defined group name. If this system value was
+   * not generated by the SystemValueGroup class, then null is returned.
+   * @return The group name.
+  **/
+  public String getGroupName() //@B0A
+  {
+    return name_;
+  }
+  
+        
   /**
   Returns the name of this system value.
     @return The name of the system value.
@@ -351,7 +384,6 @@ public class SystemValue implements java.io.Serializable
     @exception InterruptedException If this thread is interrupted.
     @exception IOException If an error occurs while communicating with the AS/400.
     @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-    @exception PropertyVetoException If the change is vetoed.
     @exception RequestNotSupportedException If the release level of the AS/400 does not support the system value.
     @exception UnknownHostException If the AS/400 system cannot be located.
   **/
@@ -361,7 +393,7 @@ public class SystemValue implements java.io.Serializable
              InterruptedException,
              IOException,
              ObjectDoesNotExistException,
-             PropertyVetoException,
+//@B0D             PropertyVetoException,
              RequestNotSupportedException,
              UnknownHostException
   {
@@ -410,37 +442,37 @@ public class SystemValue implements java.io.Serializable
 
 
   /**
-  Removes the SystemValueListener from the internal list.
-  If the SystemValueListener is not on the list, nothing is done.
+  Removes a listener from the SystemValue listeners list.
     @see #addSystemValueListener
     @param listener The system value listener.
   **/
   public void removeSystemValueListener(SystemValueListener listener)
   {
+    if (listener == null) throw new NullPointerException("listener"); //@B1A
     listeners_.removeElement(listener);
   }
 
 
   /**
-  Removes the PropertyChangeListener from the internal list.
-  If the PropertyChangeListener is not on the list, nothing is done.
+  Removes this listener from being notified when a bound property changes.
     @see #addPropertyChangeListener
     @param listener The PropertyChangeListener.
   **/
   public void removePropertyChangeListener(PropertyChangeListener listener)
   {
+    if (listener == null) throw new NullPointerException("listener"); //@B1A
     changes_.removePropertyChangeListener(listener);
   }
 
 
   /**
-  Removes the VetoableChangeListener from the internal list.
-  If the VetoableChangeListener is not on the list, nothing is done.
+  Removes this listener from being notified when a constrained property changes.
     @see #addVetoableChangeListener
     @param listener The VetoableChangeListener.
   **/
   public void removeVetoableChangeListener(VetoableChangeListener listener)
   {
+    if (listener == null) throw new NullPointerException("listener"); //@B1A
     vetos_.removeVetoableChangeListener(listener);
   }
 
@@ -499,7 +531,6 @@ public class SystemValue implements java.io.Serializable
     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     @exception InterruptedException If this thread is interrupted.
     @exception IOException If an error occurs while communicating with the AS/400.
-    @exception PropertyVetoException If the change is vetoed.
     @exception RequestNotSupportedException If the release level of the AS/400 does not support the system value.
     @exception UnknownHostException If the AS/400 system cannot be located.
   **/
@@ -508,7 +539,7 @@ public class SystemValue implements java.io.Serializable
              ErrorCompletingRequestException,
              InterruptedException,
              IOException,
-             PropertyVetoException,
+//@B0D             PropertyVetoException,  // The value isn't a bean property, so it shouldn't do this.
              RequestNotSupportedException,
              UnknownHostException
   {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUsrPrfUtilImplRemote.java
 //                                                                             
@@ -29,17 +29,12 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 
 
 
-  private ProgramCall pgmCall_;    
-    
-   
-  
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
+    static final long serialVersionUID = 4L;
 
-  
+
+  private ProgramCall pgmCall_;
+
+
  //********************************************************************/
  //* methods for remote invocation                                    */
  //*                                                                  */
@@ -56,7 +51,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
   {
 
       int rc;
-      
+
 	 // **** Setup the parameter list ****
       ProgramParameter[] parmlist = new ProgramParameter[6];
 
@@ -73,7 +68,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       BinaryConverter.intToByteArray(certlen, certlenB, 0);
       parmlist[2] = new ProgramParameter(certlenB);
 
-	 // 4 parameter: input, is user name  
+	 // 4 parameter: input, is user name
       byte[] usrprfPathB = new byte[10];
       converter_.stringToByteArray(userName, usrprfPathB);
       parmlist[3] = new ProgramParameter(usrprfPathB);
@@ -92,11 +87,12 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {} 
+      catch (PropertyVetoException pve) {}
+      pgmCall_.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall_.run() != true)
-      {	  
+      {
 	  AS400Message[] messagelist = pgmCall_.getMessageList();
 	  cpfError_ = messagelist[0].toString();
 	  return -1;
@@ -107,7 +103,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	 // get the retcode returned from the program
 	  retcodeB = parmlist[5].getOutputData();
 	  rc = BinaryConverter.byteArrayToInt(retcodeB, 0);
-	  
+
 	  if (0 != rc)
 	  {
 	      //unexpected error
@@ -124,11 +120,11 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       return SUCCESS;
   }
 
-    
+
 
 
   int calldeleteCertificate(byte[] cert, int certlen,
-			     String userName, 
+			     String userName,
 			     int certType)
     throws AS400SecurityException,
            ErrorCompletingRequestException,
@@ -139,7 +135,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 
 
       int rc;
-      
+
 	 // **** Setup the parameter list ****
       ProgramParameter[] parmlist = new ProgramParameter[7];
 
@@ -156,7 +152,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       BinaryConverter.intToByteArray(certlen, certlenB, 0);
       parmlist[2] = new ProgramParameter(certlenB);
 
-	 // 4 parameter: input, is user profile  
+	 // 4 parameter: input, is user profile
       byte[] usrprfPathB = new byte[10];
       converter_.stringToByteArray(userName, usrprfPathB);
       parmlist[3] = new ProgramParameter(usrprfPathB);
@@ -165,7 +161,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       byte[] certTypeB = new byte[4];
       BinaryConverter.intToByteArray(certType, certTypeB, 0);
       parmlist[4] = new ProgramParameter(certTypeB);
-  
+
 	 // 6 parameter: output, is the cpf error id array
       byte[] errorInfoB = new byte[ 7];
       parmlist[5] = new ProgramParameter( 7 );
@@ -180,7 +176,8 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}       
+      catch (PropertyVetoException pve) {}
+      pgmCall_.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall_.run() != true)
@@ -213,10 +210,10 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
   }
 
 
-  
-  int calllistCertificates(String userName, 
+
+  int calllistCertificates(String userName,
 			    String usrSpaceName,
-			    boolean[] parmEntered, 
+			    boolean[] parmEntered,
 			    String[] attrS,
 			    byte[] [] attrB)
     throws AS400SecurityException,
@@ -229,7 +226,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       int rc;
       int i, j;
       int length;
-      
+
 	 // **** Setup the parameter list ****
       ProgramParameter[] parmlist = new ProgramParameter[9];
 
@@ -238,12 +235,12 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       BinaryConverter.intToByteArray(CALL_USRPRF_LISTCERT, pgmEntry, 0);
       parmlist[0] = new ProgramParameter(pgmEntry);
 
-      	 // 2 parameter: input, is user profile  
+      	 // 2 parameter: input, is user profile
       byte[] usrprfPathB = new byte[10];
       converter_.stringToByteArray(userName, usrprfPathB);
       parmlist[1] = new ProgramParameter(usrprfPathB);
 
-    	 // 3 parameter: input, is user space native name 
+    	 // 3 parameter: input, is user space native name
       byte[] usrSpaceNameB = new byte[20];
       converter_.stringToByteArray(usrSpaceName, usrSpaceNameB);
       parmlist[2] = new ProgramParameter(usrSpaceNameB);
@@ -259,7 +256,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       }
       parmlist[3] = new ProgramParameter(parmPresent);
 
-      
+
 	 // 5, 6 parameter: input, parm sizes and search attrs array
       length = 0;
       int [] parmsize = new int[SEARCH_PARMS];
@@ -269,7 +266,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  if (attrS[i] != null)
 	      length = length + attrS[i].length();
       }
-      
+
       for (j = 0; j < attrB.length; ++j)
       {
 	  if (attrB[j] != null)
@@ -281,7 +278,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       }
 
       //allow extra room for mixed ccsids and convert the strings,
-      //cannot assume target ccsid is 1 byte per char		
+      //cannot assume target ccsid is 1 byte per char
       byte[] attrbytes = new byte[length * 2];
       byte[][] attrSbytes = new byte[attrS.length] [];
       for (i = 0; i < attrS.length; ++i)
@@ -295,7 +292,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	      }
 	  }
       }
-      
+
       //put/pack the converted string and byte arrays together
       length = 0;
       byte[] parmsizeBytes = new byte[SEARCH_PARMS  * 4];
@@ -310,7 +307,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 
 	      length = length + attrSbytes[i].length;
 	  }
-	  BinaryConverter.intToByteArray(parmsize[i], 
+	  BinaryConverter.intToByteArray(parmsize[i],
 					parmsizeBytes,
 					i * 4);
       }
@@ -329,7 +326,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 					parmsizeBytes,
 					(SEARCH_PARMS - 1 + i) * 4);
 	}
-     
+
       parmlist[4] = new ProgramParameter(parmsizeBytes);
       parmlist[5] = new ProgramParameter(attrbytes);
 
@@ -337,7 +334,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       byte[] numberCertificatesFoundB = new byte[4];
       parmlist[6] = new ProgramParameter(4);
 
- 
+
  	 // 8 parameter: output, is the cpf error id array
       byte[] errorInfoB = new byte[ERR_STRING_LEN];
       parmlist[7] = new ProgramParameter( ERR_STRING_LEN );
@@ -352,8 +349,9 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}       
-      
+      catch (PropertyVetoException pve) {}
+      pgmCall_.setThreadSafe(true);  //@A1A
+
       // Run the program.  Failure returns message list
       if(pgmCall_.run() != true)
       {
@@ -361,7 +359,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  AS400Message[] messagelist = pgmCall_.getMessageList();
 	  cpfError_ = messagelist[0].toString();
 	  return -1;
-	  
+
       }
 
       else
@@ -387,14 +385,14 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  numberCertificatesFoundB = parmlist[6].getOutputData();
 	  numberCertificatesFound_ =
 	    BinaryConverter.byteArrayToInt(numberCertificatesFoundB, 0);
-	 
+
       }//end else (pgmCall ran)
-      
+
       return rc;
   }
 
 
-  
+
 
   int  callfindCertificateUser(byte[] cert,
 			       int certlen,
@@ -408,7 +406,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
   {
 
       int rc;
-      
+
 	 // **** Setup the parameter list ****
       ProgramParameter[] parmlist = new ProgramParameter[7];
 
@@ -425,7 +423,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
       BinaryConverter.intToByteArray(certlen, certlenB, 0);
       parmlist[2] = new ProgramParameter(certlenB);
 
-	 // 4 parameter: output, is user profile  
+	 // 4 parameter: output, is user profile
       byte[] usrprfPathB = new byte[10];
       parmlist[3] = new ProgramParameter(10);
 
@@ -448,8 +446,9 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {}    
-      
+      catch (PropertyVetoException pve) {}
+      pgmCall_.setThreadSafe(true);  //@A1A
+
       // Run the program.  Failure returns message list
       if(pgmCall_.run() != true)
       {
@@ -479,7 +478,7 @@ class AS400CertificateUsrPrfUtilImplRemote  extends AS400CertificateUsrPrfUtilIm
 	   //return output parm, 10 char user name
 	  usrprfPathB = parmlist[3].getOutputData();
 	  userName_ = converter_.byteArrayToString(usrprfPathB, 0);
-	 
+
       }
 
       return SUCCESS;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxMethodReqSV.java
 //                                                                             
@@ -32,15 +32,15 @@ extends PxReqSV
 
     // Private data.
     private PxTable        pxTable_;
-    private PSConnection   connection_;
+    //@B2D private PSConnection   connection_;
 
 
 
-    public PxMethodReqSV(PxTable pxTable, PSConnection connection)
+    public PxMethodReqSV(PxTable pxTable) //@B2D, PSConnection connection)
     { 
         super (ProxyConstants.DS_METHOD_REQ);
         pxTable_    = pxTable;
-        connection_ = connection;
+        //@B2Dconnection_ = connection;
 
         String x = Copyright.copyright;
     }
@@ -133,7 +133,7 @@ extends PxReqSV
             // client is connecting to a mod x proxy server.  This is bad, but we                                  @A1A
             // don't want to kill the whole proxy server as a result.  Therefore,                                  @A1A
             // we will return the exception to the client.                                                         @A1A            
-            return new PxExceptionRepSV(new InternalErrorException (InternalErrorException.PROTOCOL_ERROR));    // @A1C          
+            return new PxExceptionRepSV(new ProxyException(ProxyException.VERSION_MISMATCH));    // @A1C @B1C
         }
     }
 

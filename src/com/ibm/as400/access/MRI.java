@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MRI.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-import java.util.*;
+import java.util.ListResourceBundle;
 
 /**
 Locale-specific objects for the AS/400 Toolbox for Java.
@@ -27,7 +27,6 @@ Locale-specific objects for the AS/400 Toolbox for Java.
 public class MRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
 
    public Object[][] getContents()
    {
@@ -69,10 +68,10 @@ public class MRI extends ListResourceBundle
       { "DLG_RETRY_BUTTON", "Retry" },
       { "DLG_YES_BUTTON", "Yes" },
 
-      { "DLG_DEFAULT_USER_EXISTS", "A default user already exists for this system." },
+      { "DLG_DEFAULT_USER_EXISTS", "A default user already exists for this server." },
       { "DLG_SET_DEFAULT_USER_FAILED", "Default user has not been changed." },
-      { "DLG_SIGNON_TITLE", "Signon to AS/400" },
-      { "DLG_CHANGE_PASSWORD_TITLE", "Change AS/400 Password" },
+      { "DLG_SIGNON_TITLE", "Signon to the Server" },
+      { "DLG_CHANGE_PASSWORD_TITLE", "Change Password" },
       { "DLG_MISSING_USERID", "Missing user ID or password." },
       { "DLG_MISSING_PASSWORD", "Missing user ID, old or new password." },
       { "DLG_INVALID_USERID", "User ID is not valid." },
@@ -99,7 +98,7 @@ public class MRI extends ListResourceBundle
 
            // #TRANNOTE An AS400FileRecordDescription event has occurred.
       { "EVT_NAME_AS400FILE_RECORD_DESCRIPTION", "AS400FileRecordDescription" },
-      { "EVT_DESC_CONNECTION_CONNECTED", "Connected to the AS/400." },
+      { "EVT_DESC_CONNECTION_CONNECTED", "Connected to the server." },
       { "EVT_NAME_CONNECTION_CONNECTED", "connected" },
       { "EVT_DESC_CONNECTION_EVENT", "A connection event has occurred." },
       { "EVT_NAME_CONNECTION_EVENT", "connection" },
@@ -152,7 +151,7 @@ public class MRI extends ListResourceBundle
            // #TRANNOTE message.
            // #TRANNOTE
       { "EXC_ACCESS_DENIED", "Access to request was denied." },
-      { "EXC_AS400_ERROR", "An error occurred on the AS/400." },
+      { "EXC_AS400_ERROR", "An error occurred on the server." },
       { "EXC_ATTRIBUTE_NOT_VALID", "Attribute name not valid." },
 
       { "EXC_COMMUNICATIONS_ERROR", "Error occurred in communications." },
@@ -198,7 +197,7 @@ public class MRI extends ListResourceBundle
       { "EXC_HANDLE_NOT_VALID", "Handle is not valid." },
 
       { "EXC_INTERNAL_ERROR", "Internal error occurred." },
-      { "EXC_IMPLEMENTATION_NOT_FOUND", "Implementation class not found." },
+      // @E5D { "EXC_IMPLEMENTATION_NOT_FOUND", "Implementation class not found." },
 
       { "EXC_LIBRARY_AUTHORITY_INSUFFICIENT", "User is not authorized to library." },
       { "EXC_LIBRARY_DOES_NOT_EXIST", "Library does not exist." },
@@ -237,6 +236,7 @@ public class MRI extends ListResourceBundle
       { "EXC_PASSWORD_NEW_TOO_LONG", "New password is too long." },
       { "EXC_PASSWORD_NEW_TOO_SHORT", "New password is too short." },
       { "EXC_PASSWORD_NEW_USERID", "New password contains User ID as part of the password." },
+      { "EXC_PASSWORD_NEW_SAME_POSITION", "New password contains the same character in the same position as the previous password." },  // @E2A
       { "EXC_PASSWORD_NOT_MATCH", "New password and confirm password are not the same." },
       { "EXC_PASSWORD_NOT_SET", "Password is not set." },
       { "EXC_PASSWORD_OLD_NOT_VALID", "Old password is not valid." },
@@ -265,11 +265,12 @@ public class MRI extends ListResourceBundle
       { "EXC_SIGNON_CANCELED", "Signon was canceled." },
       { "EXC_SIGNON_CONNECT_FAILED", "Failed to connect to signon server." },
       { "EXC_SIGNON_REQUEST_NOT_VALID", "Signon request is not valid." },
+      { "EXC_SPECIAL_AUTHORITY_INSUFFICIENT", "User is not authorized for operation." },    // @E4A
       { "EXC_SPOOLED_FILE_NO_MESSAGE_WAITING", "Spooled file does not have a message waiting." },
       { "EXC_START_SERVER_REQUEST_NOT_VALID", "Start server request is not valid.  User ID or password may be missing." },
       { "EXC_START_SERVER_UNKNOWN_ERROR", "Unknown error starting server." },
       { "EXC_SYNTAX_ERROR", "Syntax error occurred." },
-      { "EXC_SYSTEM_LEVEL_NOT_CORRECT", "Correct OS/400 level is required." },
+      { "EXC_SYSTEM_LEVEL_NOT_CORRECT", "Correct server level is required." },
 
       { "EXC_TYPE_LENGTH_NOT_VALID", "Length of the object type is not valid." },
 
@@ -306,11 +307,11 @@ public class MRI extends ListResourceBundle
       { "PROP_NAME_AS400_CCSID", "characterSetID" },
       { "PROP_DESC_AS400_CCSID", "Code character set identifier." },
       { "PROP_NAME_AS400_CONNECTED", "connected" },
-      { "PROP_DESC_AS400_CONNECTED", "Connected to the AS/400." },
+      { "PROP_DESC_AS400_CONNECTED", "Connected to the server." },
       { "PROP_NAME_AS400_GUI", "guiAvailable" },
       { "PROP_DESC_AS400_GUI", "User interface available." },
       { "PROP_NAME_AS400_SYSTEM", "systemName" },
-      { "PROP_DESC_AS400_SYSTEM", "The name of the AS/400." },
+      { "PROP_DESC_AS400_SYSTEM", "The name of the server." },
       { "PROP_NAME_AS400_DEFUSER", "useDefaultUserID" },
       { "PROP_DESC_AS400_DEFUSER", "Use the default User ID for signon." },
       { "PROP_NAME_AS400_PWCACHE", "usePasswordCache" },
@@ -319,6 +320,20 @@ public class MRI extends ListResourceBundle
       { "PROP_DESC_AS400_USERID", "User ID." },
       { "PROP_NAME_AS400_PASSWORD", "password" },
       { "PROP_DESC_AS400_PASSWORD", "Password." },
+      { "PROP_NAME_AS400_PROXYSERVER", "proxyServer" },  // @E2A
+      { "PROP_DESC_AS400_PROXYSERVER", "Proxy server." },  // @E2A
+      { "PROP_NAME_AS400_MUSTUSESOCKETS", "mustUseSockets" },  // @E2A
+      { "PROP_DESC_AS400_MUSTUSESOCKETS", "Must use sockets." },  // @E2A
+      { "PROP_NAME_AS400_SHOWCHECKBOXES", "showCheckboxes" },  // @E2A
+      { "PROP_DESC_AS400_SHOWCHECKBOXES", "Show checkboxes." },  // @E2A
+      { "PROP_NAME_AS400_THREADUSED", "threadUsed" },  // @E2A
+      { "PROP_DESC_AS400_THREADUSED", "Thread used." },  // @E2A
+      { "PROP_NAME_SECUREAS400_KEYRINGNAME", "keyRingName" },   // @E2A
+      { "PROP_DESC_SECUREAS400_KEYRINGNAME", "Key ring name." },   // @E2A
+      { "PROP_NAME_SECUREAS400_KEYRINGPASSWORD", "keyRingPassword" },   // @E2A
+      { "PROP_DESC_SECUREAS400_KEYRINGPASSWORD", "Key ring password." },   // @E2A
+      { "PROP_NAME_SECUREAS400_PROXYENCRYPTIONMODE", "proxyEncryptionMode" },   // @E2A
+      { "PROP_DESC_SECUREAS400_PROXYENCRYPTIONMODE", "Proxy encryption mode." },   // @E2A
       { "PROP_DESC_AS400ARRAY_SIZE", "The number of elements in the array." },
       { "PROP_NAME_AS400ARRAY_SIZE", "numberOfElements" },
       { "PROP_DESC_AS400ARRAY_TYPE", "The type of the array." },
@@ -372,15 +387,15 @@ public class MRI extends ListResourceBundle
 
            // #TRANNOTE The access mode.
       { "PROP_NAME_MODE", "mode" },
-      { "PROP_DESC_OBJECT", "The name of the AS/400 object." },
+      { "PROP_DESC_OBJECT", "The name of the object." },
 
            // #TRANNOTE The name of the object.
       { "PROP_NAME_OBJECT", "objectName" },
       { "PROP_DESC_OUTQ_NAME_FILTER", "The filter that selects output queues by their integrated file system name." },
       { "PROP_NAME_OUTQ_NAME_FILTER", "queueFilter" },
-      { "PROP_DESC_PATH", "The integrated file system name of the AS/400 object." },
+      { "PROP_DESC_PATH", "The integrated file system name of the object." },
 
-           // #TRANNOTE The integrated file system name of the AS/400 object.
+           // #TRANNOTE The integrated file system name of the object.
       { "PROP_NAME_PATH", "path" },
       { "PROP_DESC_PRTD_NAME_FILTER", "The filter that selects printers by their name." },
       { "PROP_NAME_PRTD_NAME_FILTER", "printerFilter" },
@@ -416,9 +431,9 @@ public class MRI extends ListResourceBundle
       { "PROP_NAME_SPLF_USER_FILTER", "userFilter" },
       { "PROP_DESC_SPLF_USERDATA_FILTER", "The filter that selects spooled files by their user data." },
       { "PROP_NAME_SPLF_USERDATA_FILTER", "userDataFilter" },
-      { "PROP_DESC_SYSTEM", "The AS/400 system on which the object resides." },
+      { "PROP_DESC_SYSTEM", "The system on which the object resides." },
       { "PROP_NAME_SYSTEM", "system" },
-      { "PROP_DESC_TYPE", "The type of AS/400 object." },
+      { "PROP_DESC_TYPE", "The type of object." },
 
            // #TRANNOTE The type of object.
       { "PROP_NAME_TYPE", "objectType" },
@@ -426,13 +441,13 @@ public class MRI extends ListResourceBundle
       { "PROP_NAME_WRTJ_NAME_FILTER", "writerFilter" },
       { "PROP_DESC_WRTJ_OUTQ_FILTER", "The filter that selects writer jobs by the integrated file system name of the output queue being processed." },
       { "PROP_NAME_WRTJ_OUTQ_FILTER", "queueFilter" },
-      { "PROP_DESC_COMMAND", "The command to run on the AS/400." },
+      { "PROP_DESC_COMMAND", "The command to run on the server." },
       { "PROP_NAME_COMMAND", "command" },
-      { "PROP_DESC_PROGRAM", "The integrated file system name of the AS/400 program to run." },
+      { "PROP_DESC_PROGRAM", "The integrated file system name of the program to run." },
       { "PROP_NAME_PROGRAM", "program" },
       { "PROP_DESC_SUCCESSFUL", "Indicates if the requested action was successful." },
       { "PROP_NAME_SUCCESSFUL", "successful" },
-      { "PROP_DESC_PARMLIST", "The list of parameters for the AS/400 program." },
+      { "PROP_DESC_PARMLIST", "The list of parameters for the program." },
       { "PROP_NAME_PARMLIST", "parameterList" },
       { "PROP_DESC_PARMINPUT", "The input data for a parameter." },
       { "PROP_NAME_PARMINPUT", "inputData" },
@@ -466,6 +481,10 @@ public class MRI extends ListResourceBundle
       { "PROP_DESC_PARMRETURNFORMAT", "The format of the returned value." },  //@C1A
       { "PROP_NAME_PARMRETURNFORMAT", "returnValueFormat" },                  //@C1A
 
+      // @E1 new for user space
+      { "PROP_DESC_US_MUSTUSEPGMCALL", "Use ProgramCall to read and write user space data." }, //@E1a
+      { "PROP_NAME_US_MUSTUSEPGMCALL", "mustUseProgramCall" },                 //@E1A
+
 
       // Proxy support MRI.     @B0A
       // #TRANNOTE ################################################################
@@ -479,7 +498,135 @@ public class MRI extends ListResourceBundle
       { "EXC_PROXY_CONNECTION_NOT_ESTABLISHED", "A connection to the proxy server cannot be established." },
       { "EXC_PROXY_CONNECTION_DROPPED",         "The connection to the proxy server was dropped." },
       { "EXC_PROXY_CONNECTION_REJECTED",        "The connection to the proxy server was not accepted by the proxy server." },
+      { "EXC_PROXY_VERSION_MISMATCH",           "The client and proxy server are running different versions of code." }, // @E6A
 
+
+      /* @E7D
+      // Localized object types.    @D1A
+      // #TRANNOTE ################################################################
+      // #TRANNOTE AS/400 object types.
+      // #TRANNOTE ################################################################
+      { "TYPE_ALRTBL",                      "Alert table" },
+      { "TYPE_AUTL",                        "Authorization list" },
+      { "TYPE_BLKS",                        "Block special file" },
+      { "TYPE_BNDDIR",                      "Binding directory" },
+      { "TYPE_CFGL",                        "Configuration list" },
+      { "TYPE_CHTFMT",                      "Chart format" },
+      { "TYPE_CLD",                         "C/400 locale description" },
+      { "TYPE_CLS",                         "Class" },
+      { "TYPE_CMD",                         "Command" },
+      { "TYPE_CNNL",                        "Connection list" },
+      { "TYPE_COSD",                        "Class-of-service description" },
+      { "TYPE_CRG",                         "Cluster resource group" },
+      { "TYPE_CRQD",                        "Change request description" },
+      { "TYPE_CSI",                         "Communications side information" },
+      { "TYPE_CSPMAP",                      "Cross-system product map" },
+      { "TYPE_CSPTBL",                      "Cross-system product table" },
+      { "TYPE_CTLD",                        "Controller description" },
+      { "TYPE_CTLSTS",                      "Controller status" },
+      { "TYPE_DDIR",                        "Distributed file directory" },
+      { "TYPE_DEVD",                        "Device description" },
+      { "TYPE_DEVSTS",                      "Device status" },
+      { "TYPE_DIR",                         "Directory" },
+      { "TYPE_DOC",                         "Document" },
+      { "TYPE_DSTMF",                       "Distributed stream file" },
+      { "TYPE_DTAARA",                      "Data area" },
+      { "TYPE_DTADCT",                      "Data dictionary" },
+      { "TYPE_DTAQ",                        "Data queue" },
+      { "TYPE_EDTD",                        "Edit description" },
+      { "TYPE_EXITRG",                      "Exit registration" },
+      { "TYPE_FCT",                         "Forms control table" },
+      { "TYPE_FILE",                        "File" },
+      { "TYPE_FILE_CMNF",                   "Communications file" },
+      { "TYPE_FILE_DKTF",                   "Diskette file" },
+      { "TYPE_FILE_DSPF",                   "Display file" },
+      { "TYPE_FILE_ICFF",                   "Interactive Communications Function file" },
+      { "TYPE_FILE_LF",                     "Logical file" },
+      { "TYPE_FILE_PF",                     "Physical file" },
+      { "TYPE_FILE_PRTF",                   "Printer file" },
+      { "TYPE_FILE_SAVF",                   "Save file" },
+      { "TYPE_FILE_TAPF",                   "Tape file" },
+      { "TYPE_FLR",                         "Folder" },
+      { "TYPE_FNTRSC",                      "Font resource" },
+      { "TYPE_FNTTBL",                      "Font mapping table" },
+      { "TYPE_FORMDF",                      "Form definition" },
+      { "TYPE_FTR",                         "Filter" },
+      { "TYPE_GSS",                         "Graphics symbol set" },
+      { "TYPE_IGCDCT",                      "Double-byte character set conversion dictionary" },
+      { "TYPE_IGCSRT",                      "Double-byte character set sort table" },
+      { "TYPE_IGCTBL",                      "Double-byte character set font table" },
+      { "TYPE_IPXD",                        "Internetwork packet exchange description" },
+      { "TYPE_JOBD",                        "Job description" },
+      { "TYPE_JOBQ",                        "Job queue" },
+      { "TYPE_JOBSCD",                      "Job schedule" },
+      { "TYPE_JRN",                         "Journal" },
+      { "TYPE_JRNRCV",                      "Journal receiver" },
+      { "TYPE_LIB",                         "Library" },
+      { "TYPE_LIND",                        "Line description" },
+      { "TYPE_LINSTS",                      "Line status" },
+      { "TYPE_LOCALE",                      "Locale" },
+      { "TYPE_M36",                         "AS/400 Advanced 36 machine" },
+      { "TYPE_M36CFG",                      "AS/400 Advanced 36 machine configuration" },
+      { "TYPE_MEDDFN",                      "Media definition" },
+      { "TYPE_MENU",                        "Menu" },
+      { "TYPE_MGTCOL",                      "Management collection" },
+      { "TYPE_MODD",                        "Mode description" },
+      { "TYPE_MODULE",                      "Module" },
+      { "TYPE_MSGF",                        "Message file" },
+      { "TYPE_MSGQ",                        "Message queue" },
+      { "TYPE_NETF",                        "Network file" },
+      { "TYPE_NODGRP",                      "Node group" },
+      { "TYPE_NODL",                        "Node list" },
+      { "TYPE_NTBD",                        "NetBIOS description" },
+      { "TYPE_NWID",                        "Network interface description" },
+      { "TYPE_NWISTS",                      "Network interface status" },
+      { "TYPE_NWSD",                        "Network service description" },
+      { "TYPE_OOPOOL",                      "Persistent pool" },
+      { "TYPE_OUTQ",                        "Output queue" },
+      { "TYPE_OVL",                         "Overlay" },
+      { "TYPE_PAGDFN",                      "Page definition" },
+      { "TYPE_PAGSEG",                      "Page segment" },
+      { "TYPE_PDG",                         "Print descriptor group" },
+      { "TYPE_PGM",                         "Program" },
+      { "TYPE_PGM_RPG",                     "RPG program" },
+      { "TYPE_PGM_CLE",                     "ILE C program" },                      // @E3A
+      { "TYPE_PGM_CLP",                     "Control Language program" },
+      { "TYPE_PGM_C",                       "C program" },
+      { "TYPE_PGM_PAS",                     "Pascal program" },
+      { "TYPE_PGM_CBL",                     "COBOL program" },
+      { "TYPE_PGM_BAS",                     "BASIC program" },
+      { "TYPE_PGM_PLI",                     "PL/I program" },
+      { "TYPE_PGM_FTN",                     "Fortran program" },
+      { "TYPE_PNLGRP",                      "Panel group" },
+      { "TYPE_PRDAVL",                      "Product availability" },
+      { "TYPE_PRDDFN",                      "Product definition" },
+      { "TYPE_PRDLOD",                      "Product load" },
+      { "TYPE_PSFCFG",                      "Print Service Facility (PSF) configuration" },
+      { "TYPE_QMFORM",                      "Query management form" },
+      { "TYPE_QMQRY",                       "Query management query" },
+      { "TYPE_QRYDFN",                      "Query definition" },
+      { "TYPE_RCT",                         "Reference code translate table" },
+      { "TYPE_S36",                         "System/36 machine description" },
+      { "TYPE_SBSD",                        "Subsystem description" },
+      { "TYPE_SBSSTS",                      "Subsystem status" },
+      { "TYPE_SCHIDX",                      "Search index" },
+      { "TYPE_SOCKET",                      "Local socket" },
+      { "TYPE_SPADCT",                      "Spelling aid dictionary" },
+      { "TYPE_SQLPKG",                      "Structured query language package" },
+      { "TYPE_SQLUDT",                      "User-defined SQL type" },
+      { "TYPE_SRVPGM",                      "Service program" },
+      { "TYPE_SSND",                        "Session description" },
+      { "TYPE_STMF",                        "Stream file" },
+      { "TYPE_SVRSTG",                      "Server storage space" },
+      { "TYPE_SYMLNK",                      "Symbolic link" },
+      { "TYPE_TBL",                         "Table" },
+      { "TYPE_USRIDX",                      "User index" },
+      { "TYPE_USRPRF",                      "User profile" },
+      { "TYPE_USRQ",                        "User queue" },
+      { "TYPE_USRSPC",                      "User space" },
+      { "TYPE_VLDL",                        "Validation list" },
+      { "TYPE_WSCST",                       "Work station customizing object" },
+      */
 
    };
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDDataSourceURL.java
 //                                                                             
@@ -31,11 +31,15 @@ class JDDataSourceURL implements Serializable
 
 
 
+    static final long serialVersionUID = 4L;
+
 
     private static final String PROTOCOL_           = "jdbc";
 
 	// This subprotocol was registered with JavaSoft on 03/10/97.
 	private static final String SUB_PROTOCOL_		= "as400";
+
+    private static final String NATIVE_SUB_PROTOCOL_= "db2"; // @B1A
 
 
 
@@ -101,6 +105,20 @@ Constructor.
     }
 
 
+
+// @B1A
+    String getNativeURL()
+    {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(PROTOCOL_);
+        buffer.append(':');
+        buffer.append(NATIVE_SUB_PROTOCOL_);
+        buffer.append(':');
+        // @B3D if (url_.length() >= 11)                                    // @B2A
+        // @B3D     buffer.append(url_.substring(11));
+        buffer.append("LOCALHOST");                                         // @B3A
+        return buffer.toString();
+    }
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPDataStream.java
 //                                                                             
@@ -20,7 +20,7 @@ import java.io.OutputStream;
 /**
   *Base class of Network Print data streams. This same class is used
   *for both request and reply data streams.
-  */
+  **/
 
 class NPDataStream extends ClientAccessDataStream
 {
@@ -181,7 +181,6 @@ class NPDataStream extends ClientAccessDataStream
         return new NPDataStream(this);
     }
 
- 
     public int hashCode()
     {
         return (reqRepID_ | 0x8000);
@@ -363,7 +362,7 @@ class NPDataStream extends ClientAccessDataStream
                    // adjust length to be of the data in the code point only
                    length -= NPCodePoint.LEN_HEADER;
 
-                   //  may need to check if length > 0x7FFF (negative number)
+                   // may need to check if length > 0x7FFF (negative number)
                    System.arraycopy(cpData, dataOffset,                  // source
                                     data_, cpOffset,                     // dest
                                     length);
@@ -395,8 +394,8 @@ class NPDataStream extends ClientAccessDataStream
         // Read the required template.
         int bytesRead = readFromStream(in, data_, HEADER_LENGTH, getTemplateLen() );
 
-        //  - Check the return code
-        //  - don't log an ERROR here - just info; this dumps a stack trace and
+        // Check the return code
+        // don't log an ERROR here - just info; this dumps a stack trace and
         //  some non-0 return codes are OK (empty list and some others).
         if( 0 != getReturnCode() )
         {

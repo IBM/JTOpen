@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DQDataStream.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-// Base class for common DQ datastream requests.
+// Base class for common data queue data stream requests.
 class DQDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";

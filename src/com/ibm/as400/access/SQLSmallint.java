@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLSmallint.java
 //                                                                             
@@ -31,11 +31,23 @@ implements SQLData
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+
     // Private data.
     private int                 truncated_;
+    // @D0D private static AS400Bin2    typeConverter_;
     private short               value_;
     private int                 scale_;                             // @A0A
     private BigDecimal          bigDecimalValue_ = null;            // @A0A
+
+
+
+    // @D0D static
+    // @D0D {
+    // @D0D     typeConverter_ = new AS400Bin2 ();
+    // @D0D }
+
 
 
     SQLSmallint ()
@@ -115,10 +127,10 @@ implements SQLData
         else if (object instanceof Number) {
             value_ = ((Number) object).shortValue ();
 
-            // Compute truncation.
-            double doubleValue = ((Number) object).doubleValue ();
-            if (doubleValue != value_)
-                truncated_ = Double.toString (doubleValue - value_).length () / 2;
+            // @E2D // Compute truncation.
+            // @E2D double doubleValue = ((Number) object).doubleValue ();
+            // @E2D if (doubleValue != value_)
+            // @E2D     truncated_ = Double.toString (doubleValue - value_).length () / 2;
         }
 
         else if (object instanceof Boolean)
@@ -229,10 +241,10 @@ implements SQLData
 
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DQCreateDataStream.java
 //                                                                             
@@ -31,7 +31,7 @@ class DQCreateDataStream extends DQDataStream
 
         set32bit(entryLength, 40);  // Set max entry length.
 
-        // set authority.
+        // Set authority.
         if (authority.equals("*ALL"))
             data_[44] = (byte)0xF0;
         else if (authority.equals("*CHANGE"))

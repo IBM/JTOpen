@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPAttributeIFS.java
 //                                                                             
@@ -40,14 +40,13 @@ package com.ibm.as400.access;
   * to index into this array by taking the absolute value of that negative ID and
   * then subtracting 1 to make it 0 based.
   *
-  *@see PrintObject for the attribute IDs
-**/
+ **/
 class NPAttributeIFS
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-
-    static final int NUM_IFS_ATTRS = 12;   // there are 12 IFS attributes thus far
+    //@A1C - Now there are 13 IFS attributes
+    static final int NUM_IFS_ATTRS = 13;   // there are 13 IFS attributes thus far
     static final NPAttributeIFS[] ifsAttrs = new NPAttributeIFS[NUM_IFS_ATTRS];
     static
     {
@@ -134,6 +133,16 @@ class NPAttributeIFS
                                           PrintObject.ATTR_RSCLIB,
                                           PrintObject.ATTR_RSCTYPE,
                                           null);
+
+        //@A1A
+        /* -13 is ATTR_PAGE_DEFINITION */
+        ifsAttrs[java.lang.Math.abs(PrintObject.ATTR_PAGE_DEFINITION) - 1] =
+                      new NPAttributeIFS(PrintObject.ATTR_PAGDFN,
+                                         PrintObject.ATTR_PAGDFNLIB,
+                                         0,
+                                         "PAGDFN");
+
+        
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataQueueEntry.java
 //                                                                             
@@ -27,17 +27,17 @@ public class DataQueueEntry
     // The data for this entry.
     byte[] data_;
     // Sender info associated with this entry.
-    String senderInfo_ = "";
+    String senderInformation_ = "";
 
     // Constructs a DataQueueEntry object.
     // @param  data  The data of the entry read.
-    // @param  senderInfo  The sender information of the entry read.  This may be null.
-    DataQueueEntry(BaseDataQueue dq, byte[] data, String senderInfo)
+    // @param  senderInformation  The sender information of the entry read.  This may be null.
+    DataQueueEntry(BaseDataQueue dq, byte[] data, String senderInformation)
     {
         super();
         dq_ = dq;
         data_ = data;
-        if (senderInfo != null) senderInfo_ = senderInfo;
+        if (senderInformation != null) senderInformation_ = senderInformation;
     }
 
     /**
@@ -68,6 +68,6 @@ public class DataQueueEntry
     public String getSenderInformation()
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting data queue sender information.");
-        return senderInfo_;
+        return senderInformation_;
     }
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RCCallProgramRequestDataStream.java
 //                                                                             
@@ -21,28 +21,72 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    RCCallProgramRequestDataStream(String library, String program, ProgramParameter[] parameterList, ConverterImplRemote converter, boolean zeroSuppression) throws CharConversionException
+    RCCallProgramRequestDataStream(String library, String program, ProgramParameter[] parameterList, ConverterImplRemote converter, boolean zeroSuppression, boolean rleCompression) throws CharConversionException
     {
         int dataStreamLength = 43;  // Data stream length is 43 + length of the parameters.
 
-        // Figure out how much to allocate first.
+        // Compress parameters and calculate length of datastream.
         for (int i = 0; i < parameterList.length; ++i)
         {
+            byte[] inputData = parameterList[i].getInputData();
+
             int parameterLength = 0;
-            int parameterType = parameterList[i].getType();
-            if (parameterType != ProgramParameter.OUTPUT)
+            int parameterMaxLength = parameterList[i].getMaxLength();
+            int parameterUsage = parameterList[i].getUsage();
+            byte[] compressedInputData = null;
+
+            if (rleCompression)
             {
-                parameterLength = parameterList[i].getInputData().length;
-            }
-            if (parameterType == ProgramParameter.INOUT)
-            {
-                int outParameterLength = parameterList[i].getOutputDataLength();
-                if (parameterLength < outParameterLength) // Bug #6 - Removed superfluous semicolon
+                if (parameterUsage == ProgramParameter.OUTPUT)
                 {
-                    parameterLength = outParameterLength;
+                    parameterUsage += 20;
+                }
+                else
+                {
+                    if (parameterMaxLength > 1024)
+                    {
+                        byte[] tempInputData;
+                        if (parameterUsage == ProgramParameter.INPUT || inputData.length == parameterMaxLength)
+                        {
+                            tempInputData = inputData;
+                        }
+                        else
+                        {
+                            tempInputData = new byte[parameterMaxLength];
+                            System.arraycopy(inputData, 0, tempInputData, 0, inputData.length);
+                        }
+                        compressedInputData = DataStreamCompression.compressRLE(tempInputData, 0, tempInputData.length, DataStreamCompression.DEFAULT_ESCAPE);
+                        if (compressedInputData != null)
+                        {
+                            parameterLength = compressedInputData.length;
+                            parameterUsage += 20;
+                        }
+                    }
+                }
+            }
+            if (parameterUsage < 20 && zeroSuppression)
+            {
+                if (parameterUsage != ProgramParameter.OUTPUT)
+                {
+                    for (parameterLength = inputData.length - 1; parameterLength >= 0 && inputData[parameterLength] == 0; --parameterLength);
+                    ++parameterLength;
+                    compressedInputData = inputData;
+                }
+                parameterUsage += 10;
+            }
+            if (parameterUsage < 10)
+            {
+                if (parameterUsage != ProgramParameter.OUTPUT)
+                {
+                    compressedInputData = inputData;
+                    parameterLength = parameterMaxLength;
                 }
             }
             dataStreamLength +=  12 + parameterLength;
+            parameterList[i].length_ = parameterLength;
+            parameterList[i].maxLength_ = parameterMaxLength;
+            parameterList[i].usage_ = parameterUsage;
+            parameterList[i].compressedInputData_ = compressedInputData;
         }
 
         // Initialize header.
@@ -65,7 +109,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         converter.stringToByteArray(library, data_, 30);
 
         // Do not suppress messages.
-        data_[40] = 0x00;
+        // data_[40] = 0x00;
 
         // Set number of program parameters.
         set16bit(parameterList.length, 41);
@@ -73,46 +117,30 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
         // Now convert the parameter list into data stream.
         for (int index = 43, i = 0; i < parameterList.length; ++i) // Start at 43 in data_
         {
-            // Start input data length at zero.
-            int inputDataLength = 0;
-            // Get output data length, will be zero for input parameters.
-            int outputDataLength = parameterList[i].getOutputDataLength();
-            // Get the parameter type, INPUT, OUTPUT, or INOUT.
-            int parameterType = parameterList[i].getType();
-            // If there is input data.
-            if (parameterType != ProgramParameter.OUTPUT)
-            {
-                // Get the input data.
-                byte[] inputData = parameterList[i].getInputData();
-                // Set the true input data length, OUTPUT parameters will see this value as zero.
-                inputDataLength = inputData.length;
-                // Write the input data into the data stream.
-                System.arraycopy(inputData, 0, data_, index + 12, inputDataLength);
-            }
-
-            // Find the parameter length, INPUT - input length, OUTPUT - zero, INOUT - max length.
-            int parameterLength = (parameterType != ProgramParameter.INOUT || inputDataLength >= outputDataLength) ? inputDataLength : outputDataLength;
-            // Find the max length.
-            int maxLength = (inputDataLength >= outputDataLength) ? inputDataLength : outputDataLength;
-
             // Set LL for this parameter.
-            set32bit(parameterLength + 12, index);
+            set32bit(parameterList[i].length_ + 12, index);
             // Set CP for parameter.
             set16bit(0x1103, index + 4);
             // Set parameter data length.
-            set32bit(maxLength, index + 6);
-
-            // If zero suppression is allowed and type is not input.
-            if (zeroSuppression && parameterType != ProgramParameter.INPUT)
-            {
-                // Adding 10 to the type tells the server to zero suppress the returned value.
-                parameterType += 10;
-            }
+            set32bit(parameterList[i].maxLength_, index + 6);
             // Set parameter usage.
-            set16bit(parameterType, index + 10);
+            set16bit(parameterList[i].usage_, index + 10);
+            // Write the input data into the data stream.
+            switch (parameterList[i].usage_)
+            {
+                case ProgramParameter.OUTPUT:
+                case 12:
+                case 22:
+                    break;
+                case ProgramParameter.INOUT:
+                    System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterList[i].compressedInputData_.length);
+                    break;
+                default:
+                    System.arraycopy(parameterList[i].compressedInputData_, 0, data_, index + 12, parameterList[i].length_);
+            }
 
             // Advance 12 + parameter length in data stream.
-            index += 12 + parameterLength;
+            index += 12 + parameterList[i].length_;
         }
     }
 

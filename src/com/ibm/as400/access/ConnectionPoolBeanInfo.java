@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConnectionPoolBeanInfo.java
 //                                                                             
@@ -69,7 +69,52 @@ public class ConnectionPoolBeanInfo extends SimpleBeanInfo
        threadUsed.setDisplayName(loader_.getText("PROP_NAME_CP_THREAD_USED"));
        threadUsed.setShortDescription(loader_.getText("PROP_DESC_CP_THREAD_USED"));
 
-       properties_ = new PropertyDescriptor[] { runMaintenance, threadUsed };
+       //@A2A Added 6 below property descriptors.
+       PropertyDescriptor cleanupInterval = new PropertyDescriptor("cleanupInterval", beanClass,
+                                           "getCleanupInterval", "setCleanupInterval");
+       cleanupInterval.setBound(true);
+       cleanupInterval.setConstrained(false);
+       cleanupInterval.setDisplayName(loader_.getText("PROP_NAME_CPP_CLEANUP_INTERVAL"));
+       cleanupInterval.setShortDescription(loader_.getText("PROP_DESC_CPP_CLEANUP_INTERVAL"));
+
+       PropertyDescriptor maxConnections = new PropertyDescriptor("maxConnections", beanClass,
+                                           "getMaxConnections", "setMaxConnections");
+       maxConnections.setBound(true);
+       maxConnections.setConstrained(false);
+       maxConnections.setDisplayName(loader_.getText("PROP_NAME_CPP_MAX_CONNECTIONS"));
+       maxConnections.setShortDescription(loader_.getText("PROP_DESC_CPP_MAX_CONNECTIONS"));
+
+       PropertyDescriptor maxInactivity = new PropertyDescriptor("maxInactivity", beanClass,
+                                           "getMaxInactivity", "setMaxInactivity");
+       maxInactivity.setBound(true);
+       maxInactivity.setConstrained(false);
+       maxInactivity.setDisplayName(loader_.getText("PROP_NAME_CPP_MAX_INACTIVITY"));
+       maxInactivity.setShortDescription(loader_.getText("PROP_DESC_CPP_MAX_INACTIVITY"));
+
+       PropertyDescriptor maxLifetime = new PropertyDescriptor("maxLifetime", beanClass,
+                                           "getMaxLifetime", "setMaxLifetime");
+       maxLifetime.setBound(true);
+       maxLifetime.setConstrained(false);
+       maxLifetime.setDisplayName(loader_.getText("PROP_NAME_CPP_MAX_LIFETIME"));
+       maxLifetime.setShortDescription(loader_.getText("PROP_DESC_CPP_MAX_LIFETIME"));
+
+       PropertyDescriptor maxUseCount = new PropertyDescriptor("maxUseCount", beanClass,
+                                           "getMaxUseCount", "setMaxUseCount");
+       maxUseCount.setBound(true);
+       maxUseCount.setConstrained(false);
+       maxUseCount.setDisplayName(loader_.getText("PROP_NAME_CPP_MAX_USE_COUNT"));
+       maxUseCount.setShortDescription(loader_.getText("PROP_DESC_CPP_MAX_USE_COUNT"));
+
+       PropertyDescriptor maxUseTime = new PropertyDescriptor("maxUseTime", beanClass,
+                                           "getMaxUseTime", "setMaxUseTime");
+       maxUseTime.setBound(true);
+       maxUseTime.setConstrained(false);
+       maxUseTime.setDisplayName(loader_.getText("PROP_NAME_CPP_MAX_USE_TIME"));
+       maxUseTime.setShortDescription(loader_.getText("PROP_DESC_CPP_MAX_USE_TIME"));
+
+       properties_ = new PropertyDescriptor[] { runMaintenance, threadUsed, 
+	   cleanupInterval, maxConnections, maxInactivity, maxLifetime, maxUseCount,
+	   maxUseTime };
      }
      catch (Exception e)
      {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCS3812Writer.java
 //                                                                             
@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
   * @see SCS5219Writer
   **/
 
- /* @A1C 
+ /* @A1C
   * Moved Bold support from 5219.
   */
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCCallableStatement.java
 //                                                                             
@@ -110,30 +110,33 @@ Constructs an AS400JDBCCallableStatement object.
 
 
 
-/**
-Releases the resources used by the current input parameter
-values and registered output parameters. In general, input
-parameter values and registered output parameters remain in
-effect for repeated executions of the callable statement.
-Setting an input parameter value automatically clears its
-previous value.
-
-@exception  SQLException    If the statement is not open.
-**/
-    public void clearParameters ()
-      throws SQLException
-    {
-        super.clearParameters ();
-
-        // This method gets called during the super class's
-        // constructor, in which case, this part of the
-        // object has not be initialized yet.  We handle this
-        // case by checking for null.
-        if (registeredTypes_ != null)
-    	    for (int i = 0; i < parameterCount_; ++i)
-	            registeredTypes_[i] = null;
-            returnValueParameterRegistered_ = false;                            // @E2A
-    }
+// @E3D /**
+// @E3D Releases the resources used by the current input parameter
+// @E3D values and registered output parameters. In general, input
+// @E3D parameter values and registered output parameters remain in
+// @E3D effect for repeated executions of the callable statement.
+// @E3D Setting an input parameter value automatically clears its
+// @E3D previous value.
+// @E3D 
+// @E3D @exception  SQLException    If the statement is not open.
+// @E3D **/
+// @E3D     public void clearParameters ()
+// @E3D       throws SQLException
+// @E3D     {
+// @E3D         synchronized(internalLock_) {                                            // @E1A
+// @E3D             super.clearParameters ();
+// @E3D     
+// @E3D             // This method gets called during the super class's
+// @E3D             // constructor, in which case, this part of the
+// @E3D             // object has not be initialized yet.  We handle this
+// @E3D             // case by checking for null.
+// @E3D             if (registeredTypes_ != null)
+// @E3D         	    for (int i = 0; i < parameterCount_; ++i)
+// @E3D     	            registeredTypes_[i] = null;
+// @E3D 
+// @E3D             returnValueParameterRegistered_ = false;                            // @E2A
+// @E3D         }
+// @E3D     }
 
 
 
@@ -200,11 +203,13 @@ BigDecimal object.
     public BigDecimal getBigDecimal (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.NUMERIC, Types.DECIMAL);
-        BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.NUMERIC, Types.DECIMAL);
+            BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -234,11 +239,13 @@ BigDecimal object.
         if (scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.NUMERIC, Types.DECIMAL);
-        BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.NUMERIC, Types.DECIMAL);
+            BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -259,11 +266,13 @@ Returns the value of an SQL BLOB output parameter as a Blob value.
     public Blob getBlob (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.BLOB, NO_VALIDATION_);
-        Blob value = (data == null) ? null : data.toBlob ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.BLOB, NO_VALIDATION_);
+            Blob value = (data == null) ? null : data.toBlob ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -290,11 +299,13 @@ Java boolean.
     public boolean getBoolean (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
-        boolean value = (data == null) ? false : data.toBoolean ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
+            boolean value = (data == null) ? false : data.toBoolean ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -322,11 +333,13 @@ Java byte.
     public byte getByte (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
-        byte value = (data == null) ? 0 : data.toByte ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
+            byte value = (data == null) ? 0 : data.toByte ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -347,11 +360,13 @@ Java byte array.
     public byte[] getBytes (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.BINARY, Types.VARBINARY);
-        byte[] value = (data == null) ? null : data.toBytes ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.BINARY, Types.VARBINARY);
+            byte[] value = (data == null) ? null : data.toBytes ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -372,11 +387,13 @@ Returns the value of an SQL CLOB output parameter as a Clob value.
     public Clob getClob (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.CLOB, NO_VALIDATION_);
-        Clob value = (data == null) ? null : data.toClob ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.CLOB, NO_VALIDATION_);
+            Clob value = (data == null) ? null : data.toClob ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -435,11 +452,13 @@ java.sql.Date object using a calendar other than the default.
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.DATE, NO_VALIDATION_);
-        Date value = (data == null) ? null : data.toDate (calendar);
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.DATE, NO_VALIDATION_);
+            Date value = (data == null) ? null : data.toDate (calendar);
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -460,11 +479,13 @@ Java double.
     public double getDouble (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.DOUBLE, Types.FLOAT);
-        double value = (data == null) ? 0 : data.toDouble ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.DOUBLE, Types.FLOAT);
+            double value = (data == null) ? 0 : data.toDouble ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -485,11 +506,13 @@ Java float.
     public float getFloat (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.REAL, Types.FLOAT);
-        float value = (data == null) ? 0 : data.toFloat ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.REAL, Types.FLOAT);
+            float value = (data == null) ? 0 : data.toFloat ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -510,11 +533,13 @@ Java int.
     public int getInt (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.INTEGER, NO_VALIDATION_);
-        int value = (data == null) ? 0 : data.toInt ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.INTEGER, NO_VALIDATION_);
+            int value = (data == null) ? 0 : data.toInt ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -545,15 +570,17 @@ and later.
     public long getLong (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data;                                                                   // @D0A
-        if (connection_.getVRM() >= AS400JDBCConnection.BIGINT_SUPPORTED_)              // @D0A
-            data = getValue(parameterIndex, Types.BIGINT, NO_VALIDATION_);              // @D0A
-        else                                                                            // @D0A
-            data = getValue(parameterIndex, Types.INTEGER, NO_VALIDATION_);             // @D0C
-        long value = (data == null) ? 0 : data.toLong ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data;                                                                   // @D0A
+            if (connection_.getVRM() >= AS400JDBCConnection.BIGINT_SUPPORTED_)              // @D0A
+                data = getValue(parameterIndex, Types.BIGINT, NO_VALIDATION_);              // @D0A
+            else                                                                            // @D0A
+                data = getValue(parameterIndex, Types.INTEGER, NO_VALIDATION_);             // @D0C
+            long value = (data == null) ? 0 : data.toLong ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -577,13 +604,15 @@ connection's type map is used to create the object.
     public Object getObject (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, NO_VALIDATION_, NO_VALIDATION_);
-        if (data == null)
-            return null;
-        Object value = (data == null) ? null : data.toObject ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, NO_VALIDATION_, NO_VALIDATION_);
+            if (data == null)
+                return null;
+            Object value = (data == null) ? null : data.toObject ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -624,7 +653,7 @@ DB2 for OS/400 does not support structured types.
 @return                 The parameter value or 0 if the value is SQL NULL.
 
 @exception  SQLException    Always thrown because DB2
-                            for OS/400 does not support arrays.
+                            for OS/400 does not support REFs.
 **/
     public Ref getRef (int parameterIndex)
         throws SQLException
@@ -651,11 +680,13 @@ Java short value.
     public short getShort (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
-        short value = (data == null) ? 0 : data.toShort ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
+            short value = (data == null) ? 0 : data.toShort ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -676,11 +707,13 @@ parameter as a Java String object.
     public String getString (int parameterIndex)
         throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.CHAR, Types.VARCHAR);
-        String value = (data == null) ? null : data.toString ();
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.CHAR, Types.VARCHAR);
+            String value = (data == null) ? null : data.toString ();
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -730,11 +763,13 @@ default.
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.TIME, NO_VALIDATION_);
-        Time value = (data == null) ? null : data.toTime (calendar);
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.TIME, NO_VALIDATION_);
+            Time value = (data == null) ? null : data.toTime (calendar);
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -784,11 +819,13 @@ default.
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (parameterIndex, Types.TIMESTAMP, NO_VALIDATION_);
-        Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
-        testDataTruncation (parameterIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @E1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (parameterIndex, Types.TIMESTAMP, NO_VALIDATION_);
+            Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
+            testDataTruncation (parameterIndex, data);
+            return value;
+        }
     }
 
 
@@ -888,8 +925,9 @@ it was set.
 	                                  int scale)
       throws SQLException
     {
-        checkOpen ();
-
+        synchronized(internalLock_) {                                            // @E1A
+            checkOpen ();
+    
             // Check if the parameter index refers to the return value parameter.              @E2A
             // If so, it must be registed as an INTEGER.                                       @E2A
             // If it is not parameter index 1, then decrement the parameter index,             @E2A
@@ -905,27 +943,28 @@ it was set.
                     --parameterIndex;                                                       // @E2A
             }                                                                               // @E2A
 
-        // Validate the parameter index.
-        if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
-        // Validate the scale.
-        if (scale < 0)
-            JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
-
-        // Check that the parameter is an output parameter.
-        if (! parameterRow_.isOutput (parameterIndex))
-            JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-
-        // Check that the type is the same as what came back in
-        // the parameter row format.
-        int expectedType = parameterRow_.getSQLData (parameterIndex).getType();
-        if (sqlType != expectedType)
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-
-        // Register the parameter.
-        registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (sqlType,
-            0, scale+1, scale, settings_, connection_.getVRM());                // @D0C
+            // Validate the parameter index.
+            if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
+                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+    
+            // Validate the scale.
+            if (scale < 0)
+                JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
+    
+            // Check that the parameter is an output parameter.
+            if (! parameterRow_.isOutput (parameterIndex))
+                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+    
+            // Check that the type is the same as what came back in
+            // the parameter row format.
+            int expectedType = parameterRow_.getSQLData (parameterIndex).getType();
+            if (sqlType != expectedType)
+                JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+    
+            // Register the parameter.
+            registeredTypes_[parameterIndex-1] = SQLDataFactory.newData (sqlType,
+                0, scale+1, scale, settings_, connection_.getVRM());                // @D0C
+        }
     }
 
 
@@ -1012,8 +1051,10 @@ value of SQL NULL.
     public boolean wasNull ()
 		throws SQLException
     {
-        checkOpen ();
-		return wasNull_;
+        synchronized(internalLock_) {                                            // @E1A
+            checkOpen ();
+		    return wasNull_;
+        }
     }
 
 

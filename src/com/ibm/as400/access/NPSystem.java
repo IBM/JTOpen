@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPSystem.java
 //                                                                             
@@ -19,13 +19,14 @@ import java.util.Enumeration;
 import java.io.IOException;
 
 /**
-  * NPSystem class - this class is used to represent AS/400 systems from a network
+  *NPSystem class - this class is used to represent AS/400 systems from a network
   * print perspective.  There is ONE instance of this class for each AS/400 that
   * you are interested in.  There is a static method to get at the one instance
   * of this class based on the AS/400 name.
   * Use this instance to get AS400Server objects (these are the conversations to
   * this system).
   **/
+
 class NPSystem extends Object implements Runnable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -403,6 +404,6 @@ class NPSystem extends Object implements Runnable
         return Copyright.copyright;
     }
 
-} // NPServer class
+} // NPSystem class
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramCallBeanInfo.java
 //                                                                             
@@ -72,7 +72,14 @@ public class ProgramCallBeanInfo extends SimpleBeanInfo
             system.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SYSTEM"));
             system.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SYSTEM"));
 
-            propertyDescriptors = new PropertyDescriptor[] { program, parameterList, system };
+            PropertyDescriptor threadSafe = new PropertyDescriptor("threadSafe", BEAN_CLASS);
+            threadSafe.setBound(true);
+            threadSafe.setConstrained(false);
+            // Note:  We share some names/descriptions with CommandCall.
+            threadSafe.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CMD_THREADSAFE"));
+            threadSafe.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CMD_THREADSAFE"));
+
+            propertyDescriptors = new PropertyDescriptor[] { program, parameterList, system, threadSafe };
         }
         catch (IntrospectionException e)
         {

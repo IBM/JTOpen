@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSCachedAttributes.java
 //                                                                             
@@ -21,6 +21,11 @@ Store cached attributes.
 class IFSCachedAttributes implements Serializable 
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   static final int FA_READONLY  = 0x01;                               
   static final int FA_HIDDEN    = 0x02;                              

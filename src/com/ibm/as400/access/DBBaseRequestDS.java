@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBBaseRequestDS.java
 //                                                                             
@@ -20,6 +20,85 @@ import java.io.PrintStream;
 import java.util.Enumeration; // @B1A
 import java.util.Hashtable; // @B0A
 
+
+
+//--------------------------------------------------------------------
+//
+// Each request consists of 3 parts: Header, Template, and
+//                                   Optional / Variable-length Data
+//
+//    Header:   Bytes  1 - 4:  Length of the request
+//                     5 - 6:  Header id
+//                     7 - 8:  Client/Server id
+//                     9 - 12: Client/Server instance
+//                    13 - 16: Correlation id
+//                    17 - 18: Length of template
+//                    19 - 20: Request id
+//
+//    Template: This is fixed length data that is required.
+//              Each request has it's own template format and may vary
+//              depending on both the request id and client/server id.
+//              The operational results are stored on the server
+//              system and can be received at a later time.
+//                Bitmap: Used to identify the operation results to
+//                        return.  Bit 1 is the left-most bit when it
+//                        arrives at the server system
+//                        Bit 1: 1=reply should be sent immediately to
+//                                 the client application
+//                               0=reply is not sent and the rest of
+//                                 the bit map is ignored
+//                        Bit 2: Message Id
+//                        Bit 3: First Level Text
+//                        Bit 4: Second Level Text
+//                        Bit 5: Data Format
+//                        Bit 6: Result Data
+//                        Bit 7: SQLCA SQL Communications Area
+//                        Bit 8: Server Attributes
+//                        Bit 9: Parameter Marker format
+//                        Bit 10: Translation Tables
+//                        Bit 11: Data Source Information           
+//                        Bit 12: Package Information
+//                        Bit 13: Request is RLE compressed                         @E3A
+//                        Bit 14: RLE compression reply desired                     @E3A
+//                        Bit 15-32: Reserved                                       @E3C
+//                Reserved Area:
+//                RTNORS:  Numeric value of the Operation Results Set
+//                         (ORS) that contains the data to be returned
+//                         to the client.
+//                         It must be non-negative.
+//                FILLORS: Numeric value of the ORS used to store the
+//                         data for this function.
+//                         It must be non-negative.
+//                BONORS:  Numeric value of the "based-on" ORS.
+//                         If used, it must be positive.  If it is not
+//                         positive, it will be ignored.
+//                RPBHNDL: Numeric value of the Request Parameter Block
+//                         (RPB) to be used.
+//                         This may be set to zero indicating that an RPB
+//                         will not be used.
+//                PM DESCHNDL:  Parameter marker descriptor handle
+//                              identifier.
+//                              This field is only used when the serverId
+//                              is "E004"X (SQL).
+//                PARMCNT: Number of parameters in the optional/variable-
+//                         length data.
+//
+//    Optional / Variable-length Data:
+//               This is optional data and/or mandatory data that
+//               varies in length.
+//                 o Use format LL CP data
+//                     LL = length
+//                     CP = code point
+//                 o Character data is optionally preceede by a
+//                   coded character set of the data (CCSID)
+//                 o The CCSID can identify the code page and the
+//                   character set of the data
+//                 o All LLs include the length of the LL
+//                 o The client is responsible for providing numerics
+//                   in the server format so the server will not
+//                   need to perform data conversions.
+//
+//---------------------------------------------------------------------
 
  /**
    This is the base class for all database server request data
@@ -72,6 +151,39 @@ import java.util.Hashtable; // @B0A
    @See com.ibm.as400.access.DBReturnRequestedDataDS
    @See com.ibm.as400.access.AS400Server
 **/
+
+     //-----------------------------------------------------//
+     //                                                     //
+     //  addParameter is used to add an optional / variable-//
+     //  length parameter to the datastream.  After all     //
+     //  the parameters are added, dataStreamReady should   //
+     //  be called and then the data stream will be done.   //
+     //                                                     //
+     //  The addParameter method is used to handle the      //
+     //  following types of parameters:                     //
+     //    Request Function Parameters                      //
+     //    Attribute Function Parameters                    //
+     //    Descriptor Function Parameters                   //
+     //    Result Set Function Parameters                   //
+     //    RPB Function Parameters                          //
+     //                                                     //
+     //  The addParameter used will depend on the format,   //
+     //  not the type.                                      //
+     //                                                     //
+     //  Each addParameter will do the following:           //
+     //    1. Test to make sure there is room in the        //
+     //       data stream.                                  //
+     //    2. Put the length (LL) into the data stream.     //
+     //       Include the 4 bytes for the LL in the length. //
+     //    3. Put the code point (parameter id) into the    //
+     //       the data stream.                              //
+     //    4. Put the data into the data stream.            //
+     //    5. Add the length to the total request length.   //
+     //    6. Add to parameter count.                       //
+     //                                                     //
+     //-----------------------------------------------------//
+
+
 abstract class DBBaseRequestDS
 extends ClientAccessDataStream
 {
@@ -85,22 +197,28 @@ extends ClientAccessDataStream
     private int                    lockedLength_;
     private int                    operationResultBitmap_;
     private int                    parameterCount_;
+    private boolean                rleCompressed_ = false;              // @E3A
     private DBStorage              storage_;
+    // @B3D private static Hashtable       storagePoolManager_;         // @B0A
     private static DBStoragePool   storagePool_ = null;                 // @B0C @B1C @B3C
 
 
 
     // Values for operation result bitmap.
-    public static final int       ORS_BITMAP_DATA_FORMAT               = 0x08000000;
-    public static final int       ORS_BITMAP_FIRST_LEVEL_TEXT          = 0x20000000;
-    public static final int       ORS_BITMAP_MESSAGE_ID                = 0x40000000;
-    public static final int       ORS_BITMAP_RESULT_DATA               = 0x04000000;
-    public static final int       ORS_BITMAP_RETURN_DATA               = 0x80000000;
-    public static final int       ORS_BITMAP_PACKAGE_INFO              = 0x00100000;
-    public static final int       ORS_BITMAP_PARAMETER_MARKER_FORMAT   = 0x00800000;
-    public static final int       ORS_BITMAP_SECOND_LEVEL_TEXT         = 0x10000000;
-    public static final int       ORS_BITMAP_SERVER_ATTRIBUTES         = 0x01000000;
-    public static final int       ORS_BITMAP_SQLCA                     = 0x02000000;
+    public static final int       ORS_BITMAP_RETURN_DATA               = 0x80000000;    // Bit 1
+    public static final int       ORS_BITMAP_MESSAGE_ID                = 0x40000000;    // Bit 2
+    public static final int       ORS_BITMAP_FIRST_LEVEL_TEXT          = 0x20000000;    // Bit 3
+    public static final int       ORS_BITMAP_SECOND_LEVEL_TEXT         = 0x10000000;    // Bit 4
+    public static final int       ORS_BITMAP_DATA_FORMAT               = 0x08000000;    // Bit 5
+    public static final int       ORS_BITMAP_RESULT_DATA               = 0x04000000;    // Bit 6
+    public static final int       ORS_BITMAP_SQLCA                     = 0x02000000;    // Bit 7
+    public static final int       ORS_BITMAP_SERVER_ATTRIBUTES         = 0x01000000;    // Bit 8
+    public static final int       ORS_BITMAP_PARAMETER_MARKER_FORMAT   = 0x00800000;    // Bit 9
+    // public static final int       ORS_BITMAP_TRANSLATION_TABLES        = 0x00400000;    // Bit 10
+    // public static final int       ORS_BITMAP_DATA_SOURCE_INFORMATION   = 0x00200000;    // Bit 11
+    public static final int       ORS_BITMAP_PACKAGE_INFO              = 0x00100000;    // Bit 12
+    public static final int       ORS_BITMAP_REQUEST_RLE_COMPRESSION   = 0x00080000;    // Bit 13       @E3A
+    public static final int       ORS_BITMAP_REPLY_RLE_COMPRESSION     = 0x00040000;    // Bit 14       @E3A
 
 
 
@@ -110,6 +228,11 @@ extends ClientAccessDataStream
     protected static final int    SERVER_ROI     = 0xE006;
 
 
+    // This is the length that data must be to be considered for RLE compression.      @E3A
+    // It is currently set to 1024 + 40 (header and template + 1K).  It must be        @E3A
+    // set to at least 40.                                                             @E3A
+    private static final int      RLE_THRESHOLD_            = 1064;                 // @E3A
+
 
 /**
 Static initializer.
@@ -117,6 +240,7 @@ Static initializer.
     static
     {
         storagePool_ = new DBStoragePool ();                    // @B0D @B3C
+        // @B3D storagePoolManager_ = new Hashtable ();         // @B0A
     }
 
 
@@ -130,6 +254,44 @@ Constructor.
                                int parameterMarkerDescriptorHandle)
     {
         super ();
+
+        /* @B3D
+        // @B0A
+        // Get the storage pool for the current thread.  This ensures
+        // that threads won't corrupt each other's storage pools.
+        Thread currentThread = Thread.currentThread ();
+        if (storagePoolManager_.containsKey (currentThread)) {
+            storagePool_ = (DBStoragePool) storagePoolManager_.get (currentThread);
+        }
+        else {
+            // @B1A
+            // We first want to check for storage pools allocated for
+            // dead threads.  This has the benefit of recycling, but
+            // it also, reclaims storage allocated for dead threads.
+            // Without this, we eventually see a memory leak.
+            Enumeration enum = storagePoolManager_.keys ();
+            boolean found = false;
+            while ((enum.hasMoreElements ()) && (! found)) {
+                Thread thread = (Thread) enum.nextElement ();
+                if (! thread.isAlive ()) {
+                    storagePool_ = (DBStoragePool) storagePoolManager_.get (thread);
+                    storagePoolManager_.remove (thread);
+                    storagePoolManager_.put (currentThread, storagePool_);
+                    found = true;
+                }
+            }
+
+            // If there is still none, then create a new one.
+            if (! found) {
+            // End @B1A
+
+                storagePool_ = new DBStoragePool ();
+                storagePoolManager_.put (currentThread, storagePool_);
+
+            } // @B1A
+        }
+        // End @B0A
+        End @B3D */
 
         // Allocate the large byte array for storage of the
         // data stream.
@@ -261,6 +423,32 @@ Adds a byte array parameter.
 
         unlock ();
     }
+
+
+
+// @E4A
+/**
+Adds a fixed length string parameter which contains only numbers.
+This assumption avoids character conversion.
+**/
+    protected void addParameter(int codePoint, String value)                        // @E4A
+        throws DBDataStreamException                                                // @E4A
+    {                                                                               // @E4A
+        char[] asChars = value.toCharArray();                                       // @E4A
+        lock(asChars.length + 2, codePoint);                                        // @E4A
+
+        set16bit(37, currentOffset_);    // CCSID                                      @E4A
+
+        int offset = currentOffset_ + 2;                                            // @E4A
+        for(int i = 0; i < asChars.length; ++i, ++offset) {                         // @E4A
+            if (asChars[i] == ' ')                                                  // @E4A
+                data_[offset] = 0x40;                                               // @E4A
+            else                                                                    // @E4A
+                data_[offset] = (byte)(asChars[i] | 0x00F0);                        // @E4A
+        }                                                                           // @E4A
+
+        unlock ();                                                                  // @E4A
+    }                                                                               // @E4A
 
 
 
@@ -442,6 +630,26 @@ Adds a DBOverlay parameter.
 
 
 /**
+Clears an operation result from the operation result bitmap.
+**/
+    public void clearOperationResultBitmap(int value)                   // @E3A
+    {                                                                   // @E3A
+        if ((operationResultBitmap_ & value) != 0)  {                   // @E3A
+            operationResultBitmap_ ^= value;                            // @E3A
+            set32bit(operationResultBitmap_, 20);                       // @E3A
+        }                                                               // @E3A
+    }                                                                   // @E3A
+
+
+    
+    public void compress()                                              // @E3A
+    {                                                                   // @E3A
+        rleCompressed_ = true;                                          // @E3A
+    }                                                                   // @E3A
+
+
+
+/**
 Output the byte stream contents to the specified PrintStream.
 The output format is two hex digits per byte, one space every
 four bytes, and sixteen bytes per line.
@@ -462,6 +670,10 @@ four bytes, and sixteen bytes per line.
     void dump (PrintStream ps)
     {
         dump (ps, data_, currentOffset_);
+
+        // Report whether or not the datastream was compressed.                    @E3A
+        if (rleCompressed_)                                                     // @E3A
+            ps.println("Request was sent RLE compressed.");                     // @E3A
     }
 
 
@@ -477,76 +689,88 @@ four bytes, and sixteen bytes per line.
 **/
     static void dump (PrintStream ps, byte[] data, int length)
     {
-        StringBuffer hexBuffer  = new StringBuffer ();
-        StringBuffer charBuffer = new StringBuffer ();
-        int i;
-        for (i = 0; i < length; i++) {
+        synchronized(ps) {                                                          // @E1A
 
-            // Convert the data to 2 digits of hex.
-            String temp = "00" + Integer.toHexString (data[i]);
-            String hex = temp.substring (temp.length () - 2);
-            hexBuffer.append (hex.toUpperCase ());
-
-            // Pad hex output at every 4 bytes.
-            if (i % 4 == 3)
-                hexBuffer.append (" ");
-
-            // Convert the data to an ASCII character.
-            short ascii = (short) ((data[i] >= 0)
-                ? data[i] : 256 + data[i]);
-            char ch;
-            if ((ascii >= 0x81) && (ascii <= 0x89))
-                ch = (char) ('a' + ascii - 0x81);
-
-            else if ((ascii >= 0x91) && (ascii <= 0x99))
-                ch = (char) ('j' + ascii - 0x91);
-
-            else if ((ascii >= 0xA2) && (ascii <= 0xA9))
-                ch = (char) ('s' + ascii - 0xA2);
-
-            else if ((ascii >= 0xC1) && (ascii <= 0xC9))
-                ch = (char) ('A' + ascii - 0xC1);
-
-            else if ((ascii >= 0xD1) && (ascii <= 0xD9))
-                ch = (char) ('J' + ascii - 0xD1);
-
-            else if ((ascii >= 0xE2) && (ascii <= 0xE9))
-                ch = (char) ('S' + ascii - 0xE2);
-
-            else if ((ascii >= 0xF0) && (ascii <= 0xF9))
-                ch = (char) ('0' + ascii - 0xF0);
-
-            else
-                ch = '.';
-
-            charBuffer.append (ch);
-
-            // Start a new line at every 16 bytes.
-            if (i % 16 == 15) {
-                ps.println (hexBuffer + "  [" + charBuffer + "]");
-                hexBuffer  = new StringBuffer ();
-                charBuffer = new StringBuffer ();
-            }
-        }
-
-        // Pad out and print the last line if necessary.
-        if (i % 16 != 0) {
-            int hexBufferLength = hexBuffer.length ();
-            for (int j = hexBufferLength; j <= 35; ++j)
-                hexBuffer.append (" ");
-            ps.println (hexBuffer + "  [" + charBuffer + "]");
-        }
-    }
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
+            StringBuffer hexBuffer  = new StringBuffer ();
+            StringBuffer charBuffer = new StringBuffer ();
+            int i;
+            for (i = 0; i < length; i++) {
     
+                // Convert the data to 2 digits of hex.
+                String temp = "00" + Integer.toHexString (data[i]);
+                String hex = temp.substring (temp.length () - 2);
+                hexBuffer.append (hex.toUpperCase ());
+    
+                // Pad hex output at every 4 bytes.
+                if (i % 4 == 3)
+                    hexBuffer.append (" ");
+    
+                // Convert the data to an ASCII character.
+                short ascii = (short) ((data[i] >= 0)
+                    ? data[i] : 256 + data[i]);
+                char ch;
+                if ((ascii >= 0x81) && (ascii <= 0x89))
+                    ch = (char) ('a' + ascii - 0x81);
+    
+                else if ((ascii >= 0x91) && (ascii <= 0x99))
+                    ch = (char) ('j' + ascii - 0x91);
+    
+                else if ((ascii >= 0xA2) && (ascii <= 0xA9))
+                    ch = (char) ('s' + ascii - 0xA2);
+    
+                else if ((ascii >= 0xC1) && (ascii <= 0xC9))
+                    ch = (char) ('A' + ascii - 0xC1);
+    
+                else if ((ascii >= 0xD1) && (ascii <= 0xD9))
+                    ch = (char) ('J' + ascii - 0xD1);
+    
+                else if ((ascii >= 0xE2) && (ascii <= 0xE9))
+                    ch = (char) ('S' + ascii - 0xE2);
+    
+                else if ((ascii >= 0xF0) && (ascii <= 0xF9))
+                    ch = (char) ('0' + ascii - 0xF0);
+    
+                else {                                                              // @E1C
+                    // If we are here, it means that the EBCDIC to ASCII            // @E1A
+                    // conversion resulted in an ASCII character that does          // @E1A
+                    // not make sense.  Lets try it as a Unicode character          // @E1A
+                    // straight up.                                                 // @E1A
+                    if (data[i] == 0x40)   // This could be either Unicode '@'      // @E1A
+                        ch = ' ';          // or EBCDIC ' '.  We will assume the    // @E1A
+                                           // latter for dumps.                     // @E1A
+                    else if ((data[i] >= 0x20) && (data[i] <= 0x7E))                // @E1A
+                        ch = (char) data[i];                                        // @E1A
+                    else                                                            // @E1A
+                        ch = '.';
+                }                                                                   // @E1A
+    
+                charBuffer.append (ch);
+    
+                // Start a new line at every 16 bytes.
+                if (i % 16 == 15) {
+                    ps.println (hexBuffer + "  [" + charBuffer + "]");
+                    hexBuffer  = new StringBuffer ();
+                    charBuffer = new StringBuffer ();
+                }
+            }
+    
+            // Pad out and print the last line if necessary.
+            if (i % 16 != 0) {
+                int hexBufferLength = hexBuffer.length ();
+                for (int j = hexBufferLength; j <= 35; ++j)
+                    hexBuffer.append (" ");
+                ps.println (hexBuffer + "  [" + charBuffer + "]");
+            }
+
+        }                                                                           // @E1A
+    }
+
+
+    public int getOperationResultBitmap()                       // @E2A
+    {                                                           // @E2A
+        return operationResultBitmap_;                          // @E2A
+    }                                                           // @E2A
+
 
 
 /**
@@ -628,13 +852,73 @@ Overrides the superclass to write the datastream.
         setLength (currentOffset_);
         set16bit (parameterCount_, 38);
 
-        // @A0A
-        // Synchronization is added around the socket
-        // write so that requests from multiple threads
-        // that use the same socket won't be garbled.
-        synchronized(out) {
-            out.write (data_, 0, currentOffset_);
-        }
+        if (rleCompressed_) {                                                                   // @E3A
+
+            // Check to see if it is worth doing compression.                                      @E3A
+            if (currentOffset_ > RLE_THRESHOLD_) {                                              // @E3A
+
+                // Get another piece of storage from the pool.                                     @E3A
+                DBStorage secondaryStorage = storagePool_.getUnusedStorage ();                  // @E3A
+                secondaryStorage.checkSize(currentOffset_);                                     // @E3A
+                byte[] compressedBytes = secondaryStorage.getReference ();                      // @E3A
+
+                // Compress the bytes not including the header (20 bytes) and template             @E3A
+                // (20 bytes).  If the compression was successful, send the compressed             @E3A
+                // bytes.  Otherwise, send the bytes as normal.                                    @E3A
+                //
+                // The format is this:                                                             @E3A
+                // Bytes:           Description:                                                   @E3A
+                //   4              LL - Compressed length of the entire datastream.               @E3A
+                //  36              The rest of the uncompressed header and template.              @E3A
+                //   4              ll - Length of the compressed data + 10.                       @E5A
+                //   2              CP - The compression code point.                               @E5A
+                //   4              Decompressed length of the data.                               @E3A
+                //  ll-10           Compressed data.                                               @E3A @E5C
+                int dataLength = currentOffset_ - 40;                                           // @E3A
+
+                int compressedSize = DataStreamCompression.compressRLE(data_, 40,               // @E3A
+                    dataLength, compressedBytes, 50,                                            // @E3A @E5C
+                    DataStreamCompression.DEFAULT_ESCAPE);                                      // @E3A
+                if (compressedSize > 0) {                                                       // @E3A
+                    int compressedSizeWithHeader = compressedSize + 50;                         // @E3A @E5C
+                    BinaryConverter.intToByteArray(compressedSizeWithHeader, compressedBytes, 0); // @E3A
+                    System.arraycopy(data_, 4, compressedBytes, 4, 36);                         // @E3A
+                    BinaryConverter.intToByteArray(compressedSize + 10, compressedBytes, 40);   // @E5A
+                    BinaryConverter.shortToByteArray((short)AS400JDBCConnection.DATA_COMPRESSION_RLE_, compressedBytes, 44);       // @E5A
+                    BinaryConverter.intToByteArray(dataLength, compressedBytes, 46);            // @E3A @E5C
+                    
+                    // Synchronization is added around the socket                                  @E3A
+                    // write so that requests from multiple threads                                @E3A
+                    // that use the same socket won't be garbled.                                  @E3A
+                    synchronized(out) {                                                         // @E3A
+                        out.write(compressedBytes, 0, compressedSizeWithHeader);                // @E3A
+                    }                                                                           // @E3A
+                }                                                                               // @E3A
+                else {                                                                          // @E3A
+                    rleCompressed_ = false;   // Compression failed.                            // @E3A
+                }                                                                               // @E3A
+
+                storagePool_.freeStorage(secondaryStorage);                                     // @E3A
+            }                                                                                   // @E3A
+            else {                                                                              // @E3A
+                rleCompressed_ = false;       // Compression is not worth it.                   // @E3A
+            }                                                                                   // @E3A
+        }                                                                                       // @E3A
+
+        if (!rleCompressed_) {                                                                  // @E3A
+                            
+            // The compression was not successful, send the request uncompressed                   @E3A
+            // (but still ask for the reply to be compressed).                                     @E3A
+            clearOperationResultBitmap(ORS_BITMAP_REQUEST_RLE_COMPRESSION);                     // @E3A
+
+            // @A0A
+            // Synchronization is added around the socket
+            // write so that requests from multiple threads
+            // that use the same socket won't be garbled.
+            synchronized(out) {
+                out.write (data_, 0, currentOffset_);
+            }
+        }                                                                                       // @E3A
 
         // Free the storage for others to use.  We
         // are done with it.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CharacterFieldDescription.java
 //                                                                             
@@ -23,13 +23,15 @@ import java.util.Vector;
  *<li>The user to describe a character field to the RecordFormat object.
  *<li>The RecordFormat object to describe a character field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *Click <a href="../../../../recordxmp.html">here</a>to see an example.
  **/
 public class CharacterFieldDescription extends FieldDescription implements VariableLengthFieldDescription, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  //static final long serialVersionUID = 3145817940016415862L;
+    static final long serialVersionUID = 4L;
+
+
   // CCSID keyword
   String ccsid_ = "";
   // Value specified for the VARLEN keyword

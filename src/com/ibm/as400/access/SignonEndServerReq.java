@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonEndServerReq.java
 //                                                                             
@@ -22,7 +22,7 @@ class SignonEndServerReq extends ClientAccessDataStream
 
     SignonEndServerReq()
     {
-        data_ = new byte[20];
+        super(new byte[20]);
 
         setLength(20);
         // setHeaderID(0x0000);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImplBase.java
 //                                                                             
@@ -25,11 +25,14 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+  // Is this class an ImplRemote or an ImplNative
+  boolean isNative_ = false; //@E2A
+
   boolean discardReplys_ = false; //@D1A (moved out of AS400FileImplRemote)
-  
+
   // Converter that converts to the AS400 job CCSID.
   ConverterImplRemote converter_; //@B5C
-  
+
   // retrieve the requested record, do not consider deleted records as
   // part of the file
   static final byte DATA_DTA_DTARCD = 0;
@@ -107,6 +110,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // AS/400 systems currently under commitment control.
   static Vector commitmentControlSystems_ = new Vector();
 
+  // Used for commitment control when we're running natively. See AS400FileImplBase.
+  static boolean nativeCommitmentControlStarted_ = false; //@E2A
+
   //@B0A: These are duplicated from the public class since they are either
   //      beans or parts of beans.
   AS400ImplRemote system_ = null; //@B5C
@@ -154,7 +160,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // Created primarily for use in refreshCache().
   private boolean isKeyed_ = false;
 
-  
+
   //@B4A - constants for comparing keys
   private static final int EQUAL = 1; // keys are equal
   private static final int LESS_THAN = 2; // search key < current key
@@ -163,7 +169,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   //@B4A - Use a Collator for comparing String keys
   private Collator collator_ = Collator.getInstance();
-  
+
   public void doIt(String methodName, Class[] classes, Object[] objects)
     throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
@@ -180,7 +186,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
   }
 
   public void doItNoExceptions(String methodName, Class[] classes, Object[] objects)
@@ -194,9 +200,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
   }
-  
+
   public Record doItRecord(String methodName, Class[] classes, Object[] objects)
     throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
@@ -213,7 +219,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
   }
 
   public Record[] doItRecordArray(String methodName, Class[] classes, Object[] objects)
@@ -232,7 +238,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
   }
 
   //@B2A
@@ -252,7 +258,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
   }
 
   public int doItInt(String methodName)
@@ -266,7 +272,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e.toString(), e);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
   }
 
   public boolean doItBoolean(String methodName)
@@ -280,7 +286,22 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e.toString(), e);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-    }  
+    }
+  }
+
+  //@E2A
+  public boolean doItBoolean(String methodName, Class[] classes, Object[] objects)
+  {
+    try
+    {
+      return ((Boolean)PxMethodReqSV.invoke(this, methodName, classes, objects)).booleanValue();
+    }
+    catch(Exception e)
+    {
+      if (Trace.isTraceErrorOn())
+        Trace.log(Trace.ERROR, e.toString(), e);
+      throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
+    }
   }
 
   public void setIsKeyed(boolean keyed)
@@ -293,7 +314,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     return readNoUpdate_;
   }
 
-  
+
   //@B0A
   /**
    *Adds a physical file member to the file represented by this object.
@@ -386,7 +407,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       {
         byte[] searchKey = (byte[])key[j];
         byte[] recordKey = (byte[])recKey[j];
-        
+
         if (searchKey.length < recordKey.length)
           match = LESS_THAN;
         else if (searchKey.length > recordKey.length)
@@ -394,14 +415,14 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         else // Check field byte by byte
         {
           for (int k = 0; k < searchKey.length && match == EQUAL; ++k)
-          {            
+          {
             if (searchKey[k] < recordKey[k]) match = LESS_THAN;
             else if (searchKey[k] > recordKey[k]) match = GREATER_THAN;
           }
         }
       }
       else if (recordFormat_.getKeyFieldDescription(j) instanceof VariableLengthFieldDescription)
-      {                
+      {
         //@B4C -- begin
         // Note: A String in a DDM field is always padded with blanks
         // to be the length of the field.
@@ -426,7 +447,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           // We just chop it to be the correct length.
           searchKey = searchKey.substring(0, recordKeyLength);
         }
-                  
+
         int res = collator_.compare(searchKey, recordKey);
         if (res > 0) match = GREATER_THAN;
         else if (res < 0) match = LESS_THAN;
@@ -457,7 +478,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Determines if the keys are the same.
    *@param key key in bytes to compare
    *@param recKey key of record in bytes being compared to
-   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i> 
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>
    *being compared to <i>recKey</i>. The number of key fields must be greater than 0 and less
    *than the total number of key fields in the record format for this file.
    *@return The result of the key comparison (EQUAL, GREATER_THAN, LESS_THAN, or UNKNOWN).
@@ -495,7 +516,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       }
       return UNKNOWN;
     }
-    
+
     // Now do the byte by byte compare.
     for (int i = 0; i < key.length; ++i)
     {
@@ -588,7 +609,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     setRecordFormat(rf);
     setReadNoUpdate(readNoUpdate); //@B5A
     setIsKeyed(isKeyed);
-    setConverter(); //@B5A - 06/08/1999    
+    setConverter(); //@B5A - 06/08/1999
   }
 
 
@@ -604,6 +625,25 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    **/
   public abstract void commit()
     throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
+
+
+  //@E2A
+  // This method should be static, but we can't make a static call to
+  // a native method (the call to execute()) so we just set all of the
+  // necessary state variables and act like we're a normal object.
+  public void commit(AS400Impl system)
+    throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
+  {
+    if (isCommitmentControlStarted(system))
+    {
+      // Setup state variables
+      setSystem(system);
+      setConverter();
+
+      commit();
+    }
+  }
+
 
   //@B0A
   public void setConverter() throws IOException
@@ -666,7 +706,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     {
       throw new ExtendedIllegalArgumentException("recordFormat (" + String.valueOf(rf) + ") too large", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
-    return rfCache_[rf];    
+    return rfCache_[rf];
   }
 
   //@B2A
@@ -697,7 +737,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     {
       throw new ExtendedIllegalArgumentException("recordFormat (" + rf + ") not found", ExtendedIllegalArgumentException.FIELD_NOT_FOUND);
     }
-    return toSet;    
+    return toSet;
   }
 
   public void setRecordFormat(RecordFormat rf)
@@ -706,16 +746,16 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     if (rf != null) //@E0A
     {
       recordFormat_ = rf;
-    
+
       //@E0: RecordFormat.setConverter() used to grep through all of the AS400Text
       // objects and set up all of their internal Converters. However, this would
       // use a Converter for the system ccsid, which would override the AS400Text's
       // ccsid if it had been set. So, we have to check to see if the AS400Text's
       // ccsid has been set before we blindly go and give it a new Converter.
-    
+
 //@E0D    if (converter_ != null) recordFormat_.setConverter(converter_); //@D0A
       if (converter_ != null) setConverter(); //@E0A
-    
+
       //@E0A: This code block is from RecordFormat.setConverter().
       // initialize text objects
       for (int i=0; i<recordFormat_.getNumberOfFields(); ++i)
@@ -770,7 +810,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     { // Sequential, write_only
       ufcb = new byte[isCommitmentControlStarted ? 109 : 106]; //@A1C
     }
-    else 
+    else
     { // Sequential, read_write or read_only, commitment control has not been started.
       // Keyed, any type of open, commitment control has not been started
       ufcb = new byte[isCommitmentControlStarted ? 112 : 109]; //@A1C
@@ -1001,7 +1041,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
-  
+
   //@D1A
   /**
    * Turns on reply discarding for the data streams.
@@ -1011,8 +1051,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     discardReplys_ = true;
   }
-  
-  
+
+
   /**
    *Ends commitment control for this connection.
    *If commitment control has not been started for the connection, no action
@@ -1029,7 +1069,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
            InterruptedException,
            IOException
   {
-    if (isCommitmentControlStarted())
+    endCommitmentControl(system_); //@E2A
+/*@E2D    if (isCommitmentControlStarted())
     {
       AS400Message[] msgs = execute("QSYS/ENDCMTCTL"); //@B0C
       if (msgs.length > 0 && msgs[0].getID() != null &&
@@ -1042,6 +1083,46 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       // systems.
       commitmentControlSystems_.removeElement(system_);
 //      server_.commitmentControlStarted_ = false; //@B0A
+    }
+*///@E2D
+  }
+
+
+  //@E2A
+  // This method should be static, but we can't make a static call to
+  // a native method (the call to execute()) so we just set all of the
+  // necessary state variables and act like we're a normal object.
+  public void endCommitmentControl(AS400Impl system)
+    throws AS400Exception,
+           AS400SecurityException,
+           InterruptedException,
+           IOException
+  {
+    synchronized(commitmentControlSystems_)
+    {
+      if ((isNative_ && nativeCommitmentControlStarted_) || // native case
+          commitmentControlSystems_.contains(system))       // remote case
+      {
+        // Setup state variables
+        setSystem(system);
+        setConverter();
+
+        // End commitment control
+        AS400Message[] msgs = execute("QSYS/ENDCMTCTL");
+        if (msgs.length > 0 && msgs[0].getID() != null &&
+            !msgs[0].getID().equals("CPI8351"))
+        {
+          throw new AS400Exception(msgs);
+        }
+        if (isNative_)
+        {
+          nativeCommitmentControlStarted_ = false;
+        }
+        else
+        {
+          commitmentControlSystems_.removeElement(system_);
+        }
+      }
     }
   }
 
@@ -1070,6 +1151,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
            InterruptedException,
            IOException
   {
+    startCommitmentControl(system_, commitLockLevel); //@E2A
+/*@E2D
     // Build the command to start commitment control.
     StringBuffer cmd = new StringBuffer("QSYS/STRCMTCTL LCKLVL(*");
     switch(commitLockLevel)
@@ -1102,6 +1185,76 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     if (!commitmentControlSystems_.contains(system_))
     {
       commitmentControlSystems_.addElement(system_);
+    }
+*///@E2D
+  }
+
+
+  //@E2A
+  // This method should be static, but we can't make a static call to
+  // a native method (the call to execute()) so we just set all of the
+  // necessary state variables and act like we're a normal object.
+  public void startCommitmentControl(AS400Impl system, int commitLockLevel)
+    throws AS400Exception,
+           AS400SecurityException,
+           InterruptedException,
+           IOException
+  {
+    synchronized(commitmentControlSystems_)
+    {
+      if ((isNative_ && nativeCommitmentControlStarted_) || // native case
+          commitmentControlSystems_.contains(system))       // remote case
+      {
+        // AS400Impl that was passed in must be natively connected
+        // or we would never have been instantiated as an AS400FileImplNative.
+        // The AS400's loadImpl() method makes sure of that.
+        // We just check a boolean flag in the ImplNative... no need to add
+        // it to the Vector, since there should only ever be one "connection"
+        // for an ImplNative.
+        // If we're an ImplRemote, we just check the Vector like usual.
+        throw new ExtendedIllegalStateException(ExtendedIllegalStateException.COMMITMENT_CONTROL_ALREADY_STARTED);
+      }
+
+      // Setup state variables
+      setSystem(system);
+      setConverter();
+
+      // Build the command to start commitment control.
+      StringBuffer cmd = new StringBuffer("QSYS/STRCMTCTL LCKLVL(*");
+      switch(commitLockLevel)
+      {
+        case AS400File.COMMIT_LOCK_LEVEL_CHANGE:
+          cmd.append("CHG)");
+          break;
+        case AS400File.COMMIT_LOCK_LEVEL_CURSOR_STABILITY:
+          cmd.append("CS)");
+          break;
+        case AS400File.COMMIT_LOCK_LEVEL_ALL:
+          cmd.append("ALL)");
+          break;
+        default:
+          throw new ExtendedIllegalArgumentException("commitLockLevel", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+
+      // Start commitment control.
+      AS400Message[] msgs = execute(cmd.toString());
+      if (msgs.length > 0 && msgs[0].getID() != null)
+      {
+        if (!msgs[0].getID().equals("CPI8351"))
+        {
+          throw new AS400Exception(msgs);
+        }
+      }
+
+      // Indicate that commitment control is started for the current system.
+      if (isNative_)
+      {
+        nativeCommitmentControlStarted_ = true;
+      }
+      else if (!commitmentControlSystems_.contains(system_))
+      {
+        commitmentControlSystems_.addElement(system_);
+      }
     }
   }
 
@@ -1146,7 +1299,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     if (explicitLocksObtained_.size() > 0)
     {
-      // Build the command to release the explicit locks.    
+      // Build the command to release the explicit locks.
       StringBuffer cmd = new StringBuffer("QSYS/DLCOBJ OBJ(");
       for (Enumeration e = explicitLocksObtained_.elements();
            e.hasMoreElements();)
@@ -1202,7 +1355,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the AS/400.
-   **/ 
+   **/
   public abstract AS400Message[] execute(String cmd)
     throws AS400SecurityException, InterruptedException, IOException;
 
@@ -1235,11 +1388,28 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    **/
   public boolean isCommitmentControlStarted()
   {
-    return commitmentControlSystems_.contains(system_);
+    if (isNative_)                            //@E2A
+      return nativeCommitmentControlStarted_; //@E2A
+    else                                      //@E2A
+      return commitmentControlSystems_.contains(system_);
 //    return (server_ != null ? server_.commitmentControlStarted_ : false); //@B0A
   }
 
-  
+
+
+  //@E2A
+  // This method should be static, but we can't make a static call to
+  // a native method (the call to execute()) so we just set all of the
+  // necessary state variables and act like we're a normal object.
+  public boolean isCommitmentControlStarted(AS400Impl system)
+  {
+    if (isNative_)
+      return nativeCommitmentControlStarted_;
+    else
+      return commitmentControlSystems_.contains(system);
+  }
+
+
   /**
    *Creates a physical file with the specified record length and file type.
    *The record format for this object will be set by this method.  The
@@ -1267,7 +1437,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *</ul>
    *<b>Note:</b> The file is created using the default values for the AS/400
    * Create Physical File command (CRTPF).
-   * Use the <a href="com.ibm.as400.access.CommandCall.html">CommandCall</a> class to issue a CHGPF
+   * Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
    * command  to change the file after it
    *has been created.<br>
    *The name of the file and the AS400 system to which to connect must be set prior
@@ -1344,7 +1514,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Creates a physical file using the specified DDS source file.
    *<b>Note:</b> The file is created using the default values for AS/400
    * Create Physical File (CRTPF) command.
-   *Use the <a href="com.ibm.as400.access.CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
+   *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
    *has been created.<br>
    *The name of the file and the AS400 system to which to connect must be set prior
    *to invoking this method.
@@ -1590,13 +1760,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       {
         throw new AS400Exception(msgs);
       }
-      
+
       // Indicate which lock has been obtained
       explicitLocksObtained_.addElement(l);
     }
   }
 
-  
+
   /**
    *Opens the file.  Helper function to open file for keyed or
    *sequential files.
@@ -1657,7 +1827,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
 *///@D0M
     blockingFactor_ = blockingFactor; //@D0A
-    
+
     // Determine if we are to cache records.
     cacheRecords_ = (blockingFactor_ > 1);
 
@@ -1680,7 +1850,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     openType_ = openType;
 
     String[] toReturn = new String[2]; //@B0A
-   
+
     // If a special value was specified for library or member, set the actual name
     // now.  Note that the AS400 returns the names blank padded to ten characters
     // so we trim off any blanks.
@@ -1705,7 +1875,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param recordNumber The record number of the record at which to position the
    *cursor.
    *@exception AS400Exception If the AS/400 system returns an error message.
-   *@exception AS400SecurityException If a security or authority error occurs.       
+   *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the AS/400.
@@ -1930,7 +2100,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
            InterruptedException,
            IOException
   {
-    if (cacheRecords_)  
+    if (cacheRecords_)
     {
       if (cache_.setPosition(recordNumber))
       {
@@ -2239,7 +2409,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
      {
        r = readRecord(TYPE_GET_SAME);
      }
- 
+
      return r;
    }
 
@@ -2313,7 +2483,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    // @A2A
    /**
     *Reads the first record with the specified key based on the specified search type.
-    *@param key The byte array that contains the byte values that make up the key with which to find the record.    
+    *@param key The byte array that contains the byte values that make up the key with which to find the record.
     *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
     *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
     *@return The record read.
@@ -2604,7 +2774,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           cache_.setIsEmpty();
         }
       }
-  
+
       // Not caching, read from the file.
       return readRecord(TYPE_GET_FIRST);
     }
@@ -2634,7 +2804,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           cache_.setIsEmpty();
         }
       }
-  
+
       // Not caching, read from the file.
       return readRecord(TYPE_GET_LAST);
     }
@@ -2670,7 +2840,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           return r;
         }
       }
-  
+
       // Not caching, read from the file.
       return readRecord(TYPE_GET_NEXT);
     }
@@ -2792,7 +2962,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.   
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -2867,7 +3037,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
           return r;
         }
       }
-  
+
       // Not caching, read from the file.
       return readRecord(TYPE_GET_PREV);
     }
@@ -2989,7 +3159,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.   
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
@@ -3055,7 +3225,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the AS/400.
-     **/        
+     **/
     public abstract Record[] readRecords(int direction)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
@@ -3227,6 +3397,25 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    public abstract void rollback()
      throws AS400Exception,  AS400SecurityException, InterruptedException,   IOException;
 
+
+  //@E2A
+  // This method should be static, but we can't make a static call to
+  // a native method (the call to execute()) so we just set all of the
+  // necessary state variables and act like we're a normal object.
+  public void rollback(AS400Impl system)
+    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  {
+    if (isCommitmentControlStarted(system))
+    {
+      // Setup state variables
+      setSystem(system);
+      setConverter();
+
+      rollback();
+    }
+  }
+
+
    /**
     *Updates the record at the current cursor position. The cursor must be positioned to an active record.  The
     *last operation on the file must have been a cursor positioning operation or a
@@ -3237,7 +3426,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     *@param record The record with which to update.  The record must be a record whose
     *format matches the record format of this object.  To ensure that this
     *requirement is met, use the
-    *<a href="com.ibm.as400.access.RecordFormat.html">RecordFormat.getNewRecord()</a>
+    *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
     *method to obtain a default record whose fields can be set appropriately by
     *the Java program and then written to the file.
     *@exception AS400Exception If the AS/400 system returns an error message.
@@ -3255,7 +3444,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param records The records to write.  The records must have a format
    *which matches the record format of this object.  To ensure that this
    *requirement is met, use the
-   *<a href="com.ibm.as400.access.RecordFormat.html">RecordFormat.getNewRecord()</a>
+   *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
    *method to obtain default records whose fields can be set appropriately
    *by the Java program and then written to the file.
    *@exception AS400Exception If the AS/400 system returns an error message.

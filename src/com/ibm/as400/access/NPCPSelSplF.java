@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPSelSplF.java
 //                                                                             
@@ -23,6 +23,12 @@ package com.ibm.as400.access;
 class NPCPSelSplF extends NPCPSelection implements Cloneable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
+
 
     // some strings we use for filtering output queues
     // we accept *ALL for the output queue library and we'll convert it
@@ -79,7 +85,7 @@ class NPCPSelSplF extends NPCPSelection implements Cloneable
         //
         // note: I cannot just call getStringValue(ATTR_OUTPUT_QUEUE) here because
         // of the special case for libraries on spooled files lists where "  " means
-        // *ALL. 
+        // *ALL.  
         //
         String ifsQueue = emptyString;
         String object = getStringValue(PrintObject.ATTR_OUTQUE);

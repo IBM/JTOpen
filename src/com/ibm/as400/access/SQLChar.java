@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLChar.java
 //                                                                             
@@ -69,28 +69,28 @@ implements SQLData
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
 //---------------------------------------------------------//
 //                                                         //
 // CONVERSION TO AND FROM RAW BYTES                        //
 //                                                         //
 //---------------------------------------------------------//
 
-
-
     public void convertFromRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
         throws SQLException
     {
-        // Do hand conversion if ccsidConverter is null.                         // A0A
-        if (ccsidConverter != null) {                                            // @A0A @C3C
-            int length =  maxLength_;                                            // @C3A
-            value_ = ccsidConverter.byteArrayToString (rawBytes, offset, length);
+        // @C3D int length = maxLength_;
+
+        // @A0A
+        // Added code to do hand conversion if ccsidConverter is null or not Unicode.     // @E1C
+        if ((ccsidConverter != null) && (ccsidConverter.getCcsid() != 13488)) {           // @A0A @C3C @E1C
+            int length = /* @C5D graphic_ ? maxLength_ * 2 :*/ maxLength_;                // @C3A
+	    
+	    int bidiStringType = settings_.getBidiStringType();  //@E3A
+	    // if bidiStringType is not set by user, use ccsid to get value
+	    if (bidiStringType == -1)			         //@E3A
+		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
+	    
+	    value_ = ccsidConverter.byteArrayToString (rawBytes, offset, length, bidiStringType); //@E3C
         }                                                                       // @C3A
         else {                                                                  // @A0A
             // This is a 13488 Unicode ccsid. Do the hand conversion.
@@ -114,20 +114,24 @@ implements SQLData
 
     }
 
-
-
     public void convertToRawBytes (byte[] rawBytes, int offset, ConverterImplRemote ccsidConverter)
         throws SQLException
     {
+	int bidiStringType = settings_.getBidiStringType();  //@E3A
+	// if bidiStringType is not set by user, use ccsid to get value
+	if (bidiStringType == -1)			     //@E3A
+	    bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
+            
         try {
-            ccsidConverter.stringToByteArray (value_, rawBytes,
-                offset, maxLength_);
+	    ccsidConverter.stringToByteArray (value_, rawBytes,
+                offset, maxLength_, bidiStringType);	   //@E3C
         }
         catch (CharConversionException e) {
-            maxLength_ = ccsidConverter.stringToByteArray(value_).length;                        // @BAA
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            maxLength_ = ccsidConverter.stringToByteArray(value_, bidiStringType).length; // @BAA @E3C
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
         }
     }
+
 
 
 
@@ -307,10 +311,10 @@ implements SQLData
 
 
 
-    public boolean isGraphic ()
-    {
-        return graphic_;
-    }
+    // @E1D public boolean isGraphic ()
+    // @E1D {
+    // @E1D     return graphic_;
+    // @E1D }
 
 
 
@@ -359,7 +363,7 @@ implements SQLData
             return new ByteArrayInputStream (toString ().getBytes ("ISO8859_1"));
         }
         catch (UnsupportedEncodingException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);            // @E2C
     		return null;
         }
 	}
@@ -574,11 +578,13 @@ implements SQLData
 	    // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. @B1A
 	    int maxFieldSize = settings_.getMaxFieldSize ();
-	    if ((value_.length() > maxFieldSize) && (maxFieldSize > 0)) {       // @B1D
+	    if ((value_.length() > maxFieldSize) && (maxFieldSize > 0)) {
+	        // @B1D truncated_ = value_.length() - maxFieldSize;
 	        return value_.substring (0, maxFieldSize);
 	    }
 	    else {
-	        return value_;     // @B1D
+    	    // @B1D truncated_ = 0;
+	        return value_;
 	    }
 	}
 
@@ -611,7 +617,7 @@ implements SQLData
             return new ByteArrayInputStream (toString ().getBytes ("UnicodeBigUnmarked")); // @B2C
         }
         catch (UnsupportedEncodingException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);            // @E2C
     		return null;
         }
 	}

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NLSImpl.java
 //                                                                             
@@ -20,7 +20,7 @@ import java.net.UnknownHostException;
 abstract class NLSImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-    
+
     AS400ImplRemote system_;
     
     void setSystem(AS400ImplRemote system)
@@ -31,4 +31,5 @@ abstract class NLSImpl
     abstract void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException;
     abstract void disconnect();
     abstract int getCcsid() throws IOException;
+//@B0D    abstract char[] getTable(int fromCCSID, int toCCSID) throws ConnectionDroppedException, IOException, InterruptedException;
 }

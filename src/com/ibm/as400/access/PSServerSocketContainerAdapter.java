@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSServerSocketContainerAdapter.java
 //                                                                             
@@ -32,8 +32,8 @@ abstract class PSServerSocketContainerAdapter
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-    // Private data.
-    private ServerSocket  serverSocket_;
+    // Server Socket.
+    ServerSocket  serverSocket_;        //$B1C
 
 
 
@@ -45,8 +45,6 @@ Constructs a PSServerSocketContainerAdapter object.
     protected PSServerSocketContainerAdapter (ServerSocket serverSocket)
     {        
         serverSocket_ = serverSocket;
-
-        String x = Copyright.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputQueue.java
 //                                                                             
@@ -22,7 +22,7 @@ import java.beans.PropertyVetoException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 output queue (hold, release, clear, and so on).
  *
- * See <a href="OutputQueueAttrs.html">Output Queue Attributes</a> for
+ * See <a href="../../../../OutputQueueAttrs.html">Output Queue Attributes</a> for
  * valid attributes.
  *
  **/
@@ -33,6 +33,10 @@ implements java.io.Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+    static final long serialVersionUID = 4L;
+
+
+
     private static final String PATH                = "path";
 
     transient private Vector outputQueueListeners_  = new Vector();
@@ -154,13 +158,13 @@ implements java.io.Serializable
      * @param clearOptions A PrintParameterList object that may have any of the
      *        following attributes set:
      * <UL>
-     *   <LI> <A HREF="PrintAttributes.html#HDRKEY60>
+     *   <LI> <A HREF="../../../../PrintAttributes.html#HDRKEY60">
      *        ATTR_JOBUSER</A> - Clear output queue by a user id.  May be a specific userid, "*ALL" or
      *                       "*CURRENT".  "*CURRENT" is the default.
-     *   <LI> <A HREF="PrintAttributes.html#HDRKEY45>
+     *   <LI> <A HREF="../../../../PrintAttributes.html#HDRKEY45">
      *        ATTR_FORMTYPE</A> - Clear output queue by a form type.  May be a specific form type, "*ALL" or
      *                        "*STD".  "*ALL" is the default.
-     *   <LI> <A HREF="PrintAttributes.html#HDRKEY119>
+     *   <LI> <A HREF="../../../../PrintAttributes.html#HDRKEY119">
      *        ATTR_USERDATA</A> - Clear output queue by user data.  May be a specific user data or "*ALL".
      *                        "*ALL" is the default.
      * </UL>

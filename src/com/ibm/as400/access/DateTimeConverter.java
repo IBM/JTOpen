@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DateTimeConverter.java
 //                                                                             
@@ -22,7 +22,7 @@ import java.util.Date;
 /**
  The DateTimeConverter class represents a converted date and time.
  The AS/400 System API QWCCVTDT is used to convert a date and time value
- from one format to another format. 
+ from one format to another format.
 **/
 public class DateTimeConverter
 {
@@ -34,10 +34,10 @@ public class DateTimeConverter
   private Calendar calendar_ = Calendar.getInstance();
   private DateTime17Format format17_;
   private DateTime16Format format16_;
-    
+
   /**
-   * Constructs a DateTimeConverter object. 
-   * @param system The AS/400 system. 
+   * Constructs a DateTimeConverter object.
+   * @param system The AS/400 system.
   **/
   public DateTimeConverter(AS400 system)
   {
@@ -49,7 +49,7 @@ public class DateTimeConverter
     format17_ = new DateTime17Format(system_);
     format16_ = new DateTime16Format(system_);
   }
-    
+
   /**
    * Converts date and time values from the input format to the requested output format.
    *
@@ -97,7 +97,7 @@ public class DateTimeConverter
    *            the AS/400.
    * @exception ObjectDoesNotExistException If the AS/400 object does not
    *            exist.
-  **/    
+  **/
   public byte[] convert(byte[] data, String inFormat, String outFormat)
       throws AS400SecurityException,
              ErrorCompletingRequestException,
@@ -108,7 +108,7 @@ public class DateTimeConverter
     if (data == null) throw new NullPointerException("data");
     if (inFormat == null) throw new NullPointerException("inFormat");
     if (outFormat == null) throw new NullPointerException("outFormat");
-    
+
     // Setup the parameters
     ProgramParameter[] parmlist = new ProgramParameter[5];
     // First parameter is the input format.
@@ -122,13 +122,15 @@ public class DateTimeConverter
     // Fifth parameter is the error format.
     byte[] errorCode = new byte[70];
     parmlist[4] = new ProgramParameter(errorCode);
-      
+
     // Set the program name and parameter list
     try
     {
       program_.setProgram("/QSYS.LIB/QWCCVTDT.PGM", parmlist);
     }
     catch(PropertyVetoException pve) {} // Quiet the compiler
+
+    program_.setThreadSafe(true);  //@A2A
 
     // Run the program
     if (!program_.run())
@@ -155,10 +157,10 @@ public class DateTimeConverter
     return received;
   }
 
-  
+
   /**
    * Returns a converted Date object.
-   * @param data The date and time value to be converted. 
+   * @param data The date and time value to be converted.
    * @param inFormat The format of the date and time value being provided.
    * Possible values are:
        <UL>
@@ -195,17 +197,17 @@ public class DateTimeConverter
   {
     if (data == null) throw new NullPointerException("data");
     if (inFormat == null) throw new NullPointerException("inFormat");
-    
+
     // Use *YYMD which gives us a full Date: YYYYMMDD.
     byte[] converted = convert(data, inFormat, "*YYMD");
     calendar_.clear();
     Record rec = format17_.getNewRecord(converted);
-    
+
     if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "DateTimeConverter record parsed from bytes: "+rec.toString());
     }
-    
+
     calendar_.set(Integer.parseInt(((String)rec.getField("year")).trim()),
                   Integer.parseInt(((String)rec.getField("month")).trim())-1,
                   Integer.parseInt(((String)rec.getField("day")).trim()),
@@ -213,7 +215,7 @@ public class DateTimeConverter
                   Integer.parseInt(((String)rec.getField("minute")).trim()),
                   Integer.parseInt(((String)rec.getField("second")).trim()));
     calendar_.set(Calendar.MILLISECOND, Integer.parseInt(((String)rec.getField("millisecond")).trim()));
-    
+
     return calendar_.getTime();
   }
 
@@ -258,11 +260,11 @@ public class DateTimeConverter
 
     calendar_.clear();
     calendar_.setTime(date);
-    
+
     // Use *YYMD for conversion. Seems like a good format to use.
     Record rec = format17_.getNewRecord();
     rec.setField("year", Integer.toString(calendar_.get(Calendar.YEAR)));
-    
+
     // Need to pad each number with 0s if necessary, so it will fill the format
     int month = calendar_.get(Calendar.MONTH)+1;
     String monthStr = (month < 10 ? "0" : "") + month;
@@ -282,18 +284,18 @@ public class DateTimeConverter
     int ms = calendar_.get(Calendar.MILLISECOND);
     String msStr = (ms < 100 ? "0" : "") + (ms < 10 ? "0" : "") + ms;
     rec.setField("millisecond", msStr);
-    
+
     if (Trace.isTraceOn() && Trace.isTraceDiagnosticOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "DateTimeConverter record parsed from Date: "+rec.toString());
     }
-    
+
     byte[] data = rec.getContents();
-    
+
     return convert(data, "*YYMD", outFormat);
   }
 
-  
+
   /**
    * Specifies the 17-byte character date and time value format returned
    * on the QWCCVTDT API.
@@ -301,9 +303,9 @@ public class DateTimeConverter
   private class DateTime17Format extends RecordFormat
   {
     DateTime17Format(AS400 system)
-    {      
+    {
       int ccsid = system.getCcsid();
-      AS400Text text2 = new AS400Text(2, ccsid, system);      
+      AS400Text text2 = new AS400Text(2, ccsid, system);
       addFieldDescription(new CharacterFieldDescription(new AS400Text(4, ccsid, system), "year"));
       addFieldDescription(new CharacterFieldDescription(text2, "month"));
       addFieldDescription(new CharacterFieldDescription(text2, "day"));
@@ -312,9 +314,9 @@ public class DateTimeConverter
       addFieldDescription(new CharacterFieldDescription(text2, "second"));
       addFieldDescription(new CharacterFieldDescription(new AS400Text(3, ccsid, system), "millisecond"));
     }
-  }      
-  
-  
+  }
+
+
   /**
    * Specifies the 16-byte character date and time value format returned
    * on the QWCCVTDT API.
@@ -322,9 +324,9 @@ public class DateTimeConverter
   private class DateTime16Format extends RecordFormat
   {
     DateTime16Format(AS400 system)
-    {      
+    {
       int ccsid = system.getCcsid();
-      AS400Text text2 = new AS400Text(2, ccsid, system);      
+      AS400Text text2 = new AS400Text(2, ccsid, system);
       addFieldDescription(new CharacterFieldDescription(new AS400Text(1, ccsid, system), "century"));
       addFieldDescription(new CharacterFieldDescription(text2, "year"));
       addFieldDescription(new CharacterFieldDescription(text2, "month"));
@@ -334,6 +336,6 @@ public class DateTimeConverter
       addFieldDescription(new CharacterFieldDescription(text2, "second"));
       addFieldDescription(new CharacterFieldDescription(new AS400Text(3, ccsid, system), "millisecond"));
     }
-  }      
+  }
 }
 

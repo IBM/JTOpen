@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLDataFactory.java
 //                                                                             
@@ -153,13 +153,67 @@ total number of digits.
         else {
             String toString = value.toString();
             int length = toString.length();
-            for (int i = 0; i < length; ++i)
+
+            // We need to truncate any padding zeroes.  Without this,          @E2A
+            // the precision of 0.1000 was getting computed as 5 rather        @E2A
+            // than 1.                                                      // @E2A
+            int startIndex = -1;                                            // @E2A
+            int endIndex = length;                                          // @E2A
+            int pointIndex = toString.indexOf('.');                         // @E2A
+            if (pointIndex >= 0) {                                          // @E2A
+                while(toString.charAt(++startIndex) == '0');                // @E2A
+                while(toString.charAt(--endIndex) == '0');                  // @E2A
+            }                                                               // @E2A
+            else {                                                          // @E2A
+                startIndex = 0;                                             // @E2A
+                endIndex = length - 1;                                      // @E2A
+            }                                                               // @E2A
+
+            // Count the characters that are actually digits.                  @E2A
+            for (int i = startIndex; i <= endIndex; ++i)                    // @E2C
                 if (Character.isDigit (toString.charAt (i)))
                     ++precision;
         }
 
         return precision;
     }
+
+
+
+/**
+Map a SQL type code defined in java.sql.Types
+to a SQL type code that is supported by DB2 for
+OS/400.
+
+@param  sqlType     SQL type code defined in java.sql.Types.
+@return             SQL type code that is supported
+                    by DB2 for OS/400.
+**/
+/* @D0D - moved into first newData() method.
+    private static int mapSQLType (int sqlType)
+    {
+        switch (sqlType) {
+
+        case Types.BIGINT:
+            return Types.INTEGER;
+
+        case Types.BIT:
+            return Types.SMALLINT;
+
+        case Types.LONGVARBINARY:
+            return Types.VARBINARY;
+
+        case Types.LONGVARCHAR:
+            return Types.VARCHAR;
+
+        case Types.TINYINT:
+            return Types.SMALLINT;
+
+        default:
+            return sqlType;
+        }
+    }
+*/    
 
 
 
@@ -208,13 +262,16 @@ it will map to the next closest type.
             return new SQLChar (maxLength, false, settings);
 
         case Types.CLOB:
-            return new SQLClob (maxLength - 4, settings);       // @D1C
+            return new SQLClob (maxLength - 4, false, settings);    // @D1C @E1C
 
         case Types.DATE:
             return new SQLDate (settings);
 
         case Types.DECIMAL:
-            return new SQLDecimal (precision, scale, settings);
+            if (settings != null)                                           // @E0A
+                if (! settings.useBigDecimal())                             // @E0A
+                    return new SQLDecimal2 (precision, scale, settings);    // @E0A
+            return new SQLDecimal(precision, scale, settings);              // @E0A   
 
         case Types.DOUBLE:
             return new SQLDouble (settings);
@@ -226,7 +283,10 @@ it will map to the next closest type.
             return new SQLInteger ();
 
         case Types.NUMERIC:
-            return new SQLNumeric (precision, scale, settings);
+            if (settings != null)                                           // @E0A
+                if (! settings.useBigDecimal())                             // @E0A
+                    return new SQLNumeric2 (precision, scale, settings);    // @E0A
+            return new SQLNumeric(precision, scale, settings);              // @E0A   
 
         case Types.REAL:
             return new SQLReal (settings);
@@ -248,7 +308,7 @@ it will map to the next closest type.
 
         case Types.VARCHAR:
         case Types.LONGVARCHAR:                                 // @D0A
-            return new SQLVarchar (maxLength, settings);
+            return new SQLVarchar (maxLength, false, false, settings);  // @E1C
 
         default:
             JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
@@ -256,6 +316,89 @@ it will map to the next closest type.
 
         }
     }
+
+
+
+/**
+Return a SQLData object corresponding to the
+type of a Java object.  The mapping is described in
+section 8, table 3 ("Standard mapping from Java types
+to SQL types") in the JDBC 1.10 specification.
+In the case where this table specifies a type that is
+not supported in DB2 for OS/400, then it will map to
+the next closest type.
+
+@param  object      A Java object.
+@param  settings    The conversion settings.
+@param  vrm         The AS/400 Version, Release, and Modification.
+@return             A SQLData object.
+
+@exception  SQLException    If no valid type can be
+                            mapped.
+**/
+/* @D0D - This method is no longer used.
+    static SQLData newData (Object object, 
+                            SQLConversionSettings settings, 
+                            int vrm)                                // @D0C
+        throws SQLException
+    {
+        if (object instanceof BigDecimal) {
+            BigDecimal bigDecimal = (BigDecimal) object;
+            return new SQLNumeric (getPrecision (bigDecimal), bigDecimal.scale(), settings);
+        }
+
+        else if (object instanceof Blob)
+            return new SQLBlob ((int) ((Blob) object).length (), settings);
+
+        else if (object instanceof Boolean)
+            return new SQLSmallint ();
+
+        else if (object instanceof Byte)
+            return new SQLSmallint ();
+
+        else if (object instanceof byte[])
+            return new SQLVarbinary (((byte[]) object).length, false, settings);
+
+        else if (object instanceof Clob)
+            return new SQLClob ((int) ((Clob) object).length (), settings);
+
+        else if (object instanceof Date)
+            return new SQLDate (settings);
+
+        else if (object instanceof Double)
+            return new SQLDouble (settings);
+
+        else if (object instanceof Float)
+            return new SQLReal (settings);
+
+        else if (object instanceof Integer)
+            return new SQLInteger ();
+
+        else if (object instanceof Long) {
+            if (vrm >= AS400JDBCConnection.BIGINT_SUPPORTED_)   // @D0A
+                return new SQLBigint();                         // @D0A
+            else                                                // @D0A
+                return new SQLInteger ();
+        }                                                       // @D0A
+
+        else if (object instanceof Short)
+            return new SQLSmallint ();
+
+        else if (object instanceof String)
+            return new SQLVarchar (((String) object).length(), settings);
+
+        else if (object instanceof Time)
+            return new SQLTime (settings);
+
+        else if (object instanceof Timestamp)
+            return new SQLTimestamp (settings);
+
+        else {
+            JDError.throwSQLException (JDError.EXC_DATA_TYPE_INVALID);
+      		return null;
+      	}
+    }
+*/    
 
 
 
@@ -312,7 +455,7 @@ specific AS/400 native type identifier.
             if ((ccsid == -1) && (translateBinary == false))
                 return new SQLBlob (length - 4, settings);      // @D1C
             else
-                return new SQLClob (length - 4, settings);      // @D1C
+                return new SQLClob (length - 4, false, settings); // @D1C @E1C
         
         case 412:                           // Dbclob.
             return new SQLClob (length - 4, true, settings);    // @D1C
@@ -351,10 +494,16 @@ specific AS/400 native type identifier.
                 return new SQLDouble (settings);
 
         case 484:                           // Packed decimal.
-            return new SQLDecimal (precision, scale, settings);
+            if (settings != null)                                           // @E0A
+                if (! settings.useBigDecimal())                             // @E0A
+                    return new SQLDecimal2 (precision, scale, settings);    // @E0A
+            return new SQLDecimal(precision, scale, settings);              // @E0A   
 
         case 488:                           // Zoned decimal.
-            return new SQLNumeric (precision, scale, settings);
+            if (settings != null)                                           // @E0A
+                if (! settings.useBigDecimal())                             // @E0A
+                    return new SQLNumeric2 (precision, scale, settings);    // @E0A
+            return new SQLNumeric(precision, scale, settings);              // @E0A   
 
         case 492:                           // Bigint.   // @D0A
             return new SQLBigint();                      // @D0A
@@ -372,13 +521,13 @@ specific AS/400 native type identifier.
             if ((ccsid == -1) && (translateBinary == false))
                 return new SQLBlobLocator (connection, id, lobMaxSize, settings); 
             else
-                return new SQLClobLocator (connection, id, lobMaxSize, settings); 
+                return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid)); // @E1C
         
         case 968:                           // Dbclob locator.
-            return new SQLClobLocator (connection, id, lobMaxSize, true, settings);
+            return new SQLClobLocator (connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid)); // @E1C
 
         default:
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, new IllegalArgumentException(Integer.toString(nativeType))); // @E3C
             return null;
         }
     }
@@ -431,10 +580,10 @@ specific AS/400 native type string.
             return new SQLChar (length, false, settings);
 
         else if (nativeType.equals ("CHARACTER VARYING"))
-            return new SQLVarchar (length, settings);
+            return new SQLVarchar (length, false, false, settings);     // @E1C
 
         else if (nativeType.equals ("CLOB"))
-            return new SQLClob (length - 4, settings);          // @D1C
+            return new SQLClob (length - 4, false, settings);           // @D1C @E1C
 
         else if (nativeType.equals ("DATALINK"))
             return new SQLDatalink (length, settings);
@@ -442,8 +591,12 @@ specific AS/400 native type string.
         else if (nativeType.equals ("DATE"))
             return new SQLDate (settings);
 
-        else if (nativeType.equals ("DECIMAL"))
-            return new SQLDecimal (precision, scale, settings);
+        else if (nativeType.equals ("DECIMAL")) {
+            if (settings != null)                                           // @E0A
+                if (! settings.useBigDecimal())                             // @E0A
+                    return new SQLDecimal2 (precision, scale, settings);    // @E0A
+            return new SQLDecimal(precision, scale, settings);              // @E0A   
+        }
 
         else if (nativeType.equals ("DOUBLE"))
             return new SQLDouble (settings);
@@ -465,13 +618,17 @@ specific AS/400 native type string.
             return new SQLChar (length, true, settings); // @C1C @C4C
 
         else if (nativeType.equals ("GRAPHIC VARYING"))
-            return new SQLVarchar (length, settings); // @C1C @C4C
+            return new SQLVarchar (length, true, false, settings); // @C1C @C4C @E1C
 
         else if (nativeType.equals ("INTEGER"))
             return new SQLInteger ();
 
-        else if (nativeType.equals ("NUMERIC"))
-            return new SQLNumeric (precision, scale, settings);
+        else if (nativeType.equals ("NUMERIC")) {
+            if (settings != null)                                           // @E0A
+                if (! settings.useBigDecimal())                             // @E0A
+                    return new SQLNumeric2 (precision, scale, settings);    // @E0A
+            return new SQLNumeric(precision, scale, settings);              // @E0A   
+        }
 
         else if (nativeType.equals ("REAL"))
             return new SQLReal (settings);
@@ -495,16 +652,16 @@ specific AS/400 native type string.
             return new SQLVarbinary (length, false, settings);
 
         else if (nativeType.equals ("VARCHAR"))
-            return new SQLVarchar (length, settings);
+            return new SQLVarchar (length, false, false, settings);     // @E1C
 
         else if (nativeType.equals ("VARG"))
-            return new SQLVarchar (length, settings);
+            return new SQLVarchar (length, true, false, settings);      // @E1C
 
         else if (nativeType.equals ("VARGRAPH"))
-            return new SQLVarchar (length, settings);
+            return new SQLVarchar (length, true, false, settings);      // @E1C
 
         else {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, new IllegalArgumentException(nativeType)); // @E3C
      		return null;
      	}
     }

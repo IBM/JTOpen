@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxConnectReqCV.java
 //                                                                             
@@ -34,20 +34,21 @@ Constructs a PxConnectReqCV object.
                         AS/400 Toolbox for Java.
 @param rejections       The number of rejections.  This is the
                         number of times the client has tried
-                        to connect to a proxy server and been 
+                        to connect to a proxy server and been
                         rejected.
 @param clientLocale     The client locale.
 **/
-    public PxConnectReqCV (String modification,
-                                          int rejections,
-                                          String clientLocale)
+    public PxConnectReqCV (String  modification,
+                           int     rejections,
+                           String  clientLocale,
+                           short   normalOrTunnel)         // @D1a
     {
-        super (ProxyConstants.DS_CONNECT_REQ);
+        super (normalOrTunnel);                            // @D1c
         addParm (new PxStringParm (modification));
         addParm (new PxIntParm (rejections));
         addParm (new PxStringParm (clientLocale));
 
-        
+
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonInfoReq.java
 //                                                                             
@@ -20,11 +20,9 @@ class SignonInfoReq extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    SignonInfoReq(byte[] userIDbytes, byte[] encryptedPw, int serverLevel)
+    SignonInfoReq(byte[] userIDbytes, byte[] encryptedPassword, int serverLevel)
     {
-        super();
-
-        data_ = (serverLevel == 0) ? new byte[51] : new byte[61];
+        super(new byte[(serverLevel == 0) ? 51 : (encryptedPassword.length == 8) ? 61 : 73]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -35,7 +33,7 @@ class SignonInfoReq extends ClientAccessDataStream
         setReqRepID(0x7004);
 
         // Password's always encrypted.
-        data_[20] = 0x01;
+        data_[20] = (encryptedPassword.length == 8) ? (byte)0x01 : (byte)0x03;
 
         // Set user ID info.
         //   LL
@@ -47,21 +45,21 @@ class SignonInfoReq extends ClientAccessDataStream
 
         // Set password info.
         //   LL
-        set32bit(14, 37);
+        set32bit(6 + encryptedPassword.length, 37);
         //   CP
         set16bit(0x1105, 41);
         //   Password data.
-        System.arraycopy(encryptedPw, 0, data_, 43, 8);
+        System.arraycopy(encryptedPassword, 0, data_, 43, encryptedPassword.length);
 
         if (serverLevel != 0)
         {
             // Client CCSID.
             //   LL
-            set32bit(10, 51);
+            set32bit(10, 43 + encryptedPassword.length);
             //   CP
-            set16bit(0x1113, 55);
+            set16bit(0x1113, 47 + encryptedPassword.length);
             //   CCSID
-            set32bit(13488, 57);    // Client CCSID.
+            set32bit(13488, 49 + encryptedPassword.length);    // Client CCSID.
         }
     }
 

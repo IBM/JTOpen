@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLBlob.java
 //                                                                             
@@ -251,10 +251,10 @@ implements SQLData
 
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+    // @C1D public boolean isGraphic ()
+    // @C1D {
+    // @C1D    return false;
+    // @C1D }
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400BeanInfo.java
 //                                                                             
@@ -34,7 +34,7 @@ public class AS400BeanInfo extends SimpleBeanInfo
     private static final Class BEAN_CLASS = AS400.class;
 
     private static EventSetDescriptor[] eventSetDescriptors;
-    private static PropertyDescriptor[] propertyDescriptors;
+    static PropertyDescriptor[] propertyDescriptors;
 
     static
     {
@@ -75,8 +75,8 @@ public class AS400BeanInfo extends SimpleBeanInfo
             PropertyDescriptor proxyServer = new PropertyDescriptor("proxyServer", BEAN_CLASS);
             proxyServer.setBound(true);
             proxyServer.setConstrained(true);
-            // proxyServer.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PROXYSERVER"));
-            // proxyServer.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PROXYSERVER"));
+            proxyServer.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_PROXYSERVER"));
+            proxyServer.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_PROXYSERVER"));
 
             // PropertyDescriptor proxyServerSecure = new PropertyDescriptor("proxyServerSecure", BEAN_CLASS);
             // proxyServerSecure.setBound(true);
@@ -93,20 +93,20 @@ public class AS400BeanInfo extends SimpleBeanInfo
             PropertyDescriptor mustUseSockets = new PropertyDescriptor("mustUseSockets", BEAN_CLASS);
             mustUseSockets.setBound(false);
             mustUseSockets.setConstrained(false);
-            // mustUseSockets.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_MUSTUSESOCKETS"));
-            // mustUseSockets.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_mustUseSockets"));
+            mustUseSockets.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_MUSTUSESOCKETS"));
+            mustUseSockets.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_MUSTUSESOCKETS"));
 
             PropertyDescriptor showCheckboxes = new PropertyDescriptor("showCheckboxes", BEAN_CLASS);
             showCheckboxes.setBound(false);
             showCheckboxes.setConstrained(false);
-            // showCheckboxes.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_SHOWCHECKBOXES"));
-            // showCheckboxes.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_SHOWCHECKBOXES"));
+            showCheckboxes.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_SHOWCHECKBOXES"));
+            showCheckboxes.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_SHOWCHECKBOXES"));
 
             PropertyDescriptor threadUsed = new PropertyDescriptor("threadUsed", BEAN_CLASS);
             threadUsed.setBound(true);
             threadUsed.setConstrained(true);
-            // threadUsed.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_THREADUSED"));
-            // threadUsed.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_THREADUSED"));
+            threadUsed.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_AS400_THREADUSED"));
+            threadUsed.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_AS400_THREADUSED"));
 
             PropertyDescriptor useDefaultUser = new PropertyDescriptor("useDefaultUser", BEAN_CLASS);
             useDefaultUser.setBound(true);

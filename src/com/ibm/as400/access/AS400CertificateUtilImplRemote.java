@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUtilImplRemote.java
 //                                                                             
@@ -22,23 +22,19 @@ import java.io.UnsupportedEncodingException;
 
 
 /**
-   <p>The AS400CertificateUtilImplRemote provides the implementation of the  remote methods for accessing certificates from an AS400CertificateUtil object.  
+   <p>The AS400CertificateUtilImplRemote provides the implementation of the  remote methods for accessing certificates from an AS400CertificateUtil object.
 **/
 class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-    private ProgramCall pgmCall_;          
-   
-  
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
+    static final long serialVersionUID = 4L;
 
-  
+
+    private ProgramCall pgmCall_;
+
+
  //********************************************************************/
  //* methods for remote invocation                                    */
  //*                                                                  */
@@ -60,7 +56,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       int rc;
       int i, j;
       int length, certoffset;
-      
+
 	 // **** Setup the parameter list ****
       ProgramParameter[] parmlist = new ProgramParameter[11];
 
@@ -69,12 +65,12 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       BinaryConverter.intToByteArray(CALL_GETCERT, pgmEntry, 0);
       parmlist[0] = new ProgramParameter(pgmEntry);
 
-     	 // 2 parameter: input, is user space native name 
+     	 // 2 parameter: input, is user space native name
       byte[] usrSpaceNameB = new byte[20];
       converter_.stringToByteArray(usrSpaceName, usrSpaceNameB);
       parmlist[1] = new ProgramParameter(usrSpaceNameB);
-      
-        // 3 parameter: input, is the user's buff size 
+
+        // 3 parameter: input, is the user's buff size
       byte[] buffSizeB = new byte[4];
       BinaryConverter.intToByteArray(buffSize, buffSizeB, 0);
       parmlist[2] = new ProgramParameter(buffSizeB);
@@ -94,7 +90,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       // 6 parameter: output, is the next cert offset to return
       byte[] nextCertificateOffsetOutB = new byte[4];
       parmlist[5] = new ProgramParameter(4);
-      
+
 
 	 // 7 parameter: output, is the number certs found
       byte[] numberCertificatesFoundB = new byte[4];
@@ -117,13 +113,14 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       parmlist[10] = new ProgramParameter(retcodeB, 4 );
 
 
-      //program lib and name 
+      //program lib and name
       pgmCall_ = new ProgramCall(system_);
       try {
 	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
-      catch (PropertyVetoException pve) {} 
+      catch (PropertyVetoException pve) {}
+      pgmCall_.setThreadSafe(true);  //@A1A
 
       // Run the program.  Failure returns message list
       if(pgmCall_.run() != true)
@@ -158,17 +155,17 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
 	  nextCertificateOffsetOutB = parmlist[5].getOutputData();
 	  nextCertificateOffsetOut_ =
 	    BinaryConverter.byteArrayToInt(nextCertificateOffsetOutB, 0);
-	 	  
+
 	  //return output parms, get number of certs found
 	  numberCertificatesFoundB = parmlist[6].getOutputData();
 	  numberCertificatesFound_ =
 	    BinaryConverter.byteArrayToInt(numberCertificatesFoundB, 0);
-	  
+
 	  //get number of complete certs in user buffer
 	  numberCompleteCertsB = parmlist[7].getOutputData();
 	  int numberCompleteCerts =
 	    BinaryConverter.byteArrayToInt(numberCompleteCertsB, 0);
-	  
+
 	  //load returned certs into AS400Certificate array
 	  if (0 < numberCompleteCerts)
 	  {
@@ -178,7 +175,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
 	  int certLen;
 	  length = 0;
 	  byte[] returnedBytes = parmlist[8].getOutputData();
-	  
+
 	  //hdr format => cert returned length, cert offset, cert len
 	  for (i = 0; i < numberCompleteCerts; ++i)
 	  {
@@ -201,12 +198,12 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
 	  }
 
       }//end else (pgmCall ran OK)
-      
+
       return SUCCESS;
   }
 
-  
-  
+
+
   int callgetHandle(byte[] certificate,
 		     int len)
     throws AS400SecurityException,
@@ -218,7 +215,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       int rc;
       int i, j;
       int length;
-      
+
 	 // **** Setup the parameter list ****
       ProgramParameter[] parmlist = new ProgramParameter[6];
 
@@ -235,7 +232,7 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       BinaryConverter.intToByteArray(certificate.length, lenB, 0);
       parmlist[2] = new ProgramParameter(lenB);
 
-     	 // 4 parameter: out, is the certificate handle 
+     	 // 4 parameter: out, is the certificate handle
       parmlist[3] = new ProgramParameter(HANDLE_LEN);
 
          // 5 parameter: output, is the cpf error id array
@@ -248,14 +245,15 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
       parmlist[5] = new ProgramParameter(retcodeB, 4 );
 
 
-      //program lib and name 
+      //program lib and name
       pgmCall_ = new ProgramCall(system_);
       try {
 	  pgmCall_.setProgram("/QSYS.LIB/QYJSPCTU.PGM", parmlist );
       }
       // PropertyVetoException should never happen
       catch (PropertyVetoException pve) {}
-      
+      pgmCall_.setThreadSafe(true);  //@A1A
+
       // Run the program.  Failure returns message list
       if(pgmCall_.run() != true)
       {
@@ -286,11 +284,11 @@ class AS400CertificateUtilImplRemote  extends AS400CertificateUtilImpl  implemen
 	  handle_ = parmlist[3].getOutputData();
 
       }//end else (pgmCall ran)
-      
+
       return SUCCESS;
 
   }
-      
+
 
 
 } // End of AS400CertificateUtilImplRemote class

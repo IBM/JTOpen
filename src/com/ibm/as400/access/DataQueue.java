@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataQueue.java
 //                                                                             
@@ -23,6 +23,10 @@ import java.net.UnknownHostException;
 public class DataQueue extends BaseDataQueue
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
     /**
      Constructs a DataQueue object.  The system and path properties will need to be set before using any method requiring a connection to the AS/400.
@@ -264,11 +268,11 @@ public class DataQueue extends BaseDataQueue
         // Send retrieve attribute request.
         DQQueryRecord record = impl_.processRetrieveAttrs(false);
 
-        maxEntryLength_ = record.maxEntryLength;
-        saveSenderInformation_ = record.saveSenderInformation;
-        FIFO_ = record.FIFO;
-        forceToAuxiliaryStorage_ = record.forceToAuxiliaryStorage;
-        description_ = record.description;
+        maxEntryLength_ = record.maxEntryLength_;
+        saveSenderInformation_ = record.saveSenderInformation_;
+        FIFO_ = record.FIFO_;
+        forceToAuxiliaryStorage_ = record.forceToAuxiliaryStorage_;
+        description_ = record.description_;
 
         attributesRetrieved_ = true;
     }

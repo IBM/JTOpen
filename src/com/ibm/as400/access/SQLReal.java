@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLReal.java
 //                                                                             
@@ -32,10 +32,22 @@ implements SQLData
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
-   // Private data.
-   private SQLConversionSettings   settings_;
-   private int                     truncated_;
-	private float                   value_;
+
+
+    // Private data.
+    private SQLConversionSettings   settings_;
+    private int                     truncated_;
+    // @D0D private static AS400Float4      typeConverter_;
+	private float	                value_;
+
+
+
+    // @D0D static
+    // @D0D {
+    // @D0D     typeConverter_ = new AS400Float4 ();
+    // @D0D }
+
+
 
     SQLReal (SQLConversionSettings settings)
     {
@@ -225,10 +237,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
     public boolean isSigned ()
@@ -292,6 +304,8 @@ implements SQLData
         // exponent (the part after 'E'). The base is then used
         // to construct the BigDecimal object and then the exponent
         // is used to shift the decimal point to its rightful place.
+
+        // BigDecimal bigDecimal = new BigDecimal (Float.toString (value_))     // @A0D
 
         BigDecimal bigDecimal = null;                                           // @A0A
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400DataType.java
 //                                                                             
@@ -20,6 +20,13 @@ import java.io.Serializable;
  **/
 public interface AS400DataType extends Cloneable, Serializable
 {
+
+
+
+    static final long serialVersionUID = 4L;
+
+
+
     /**
      * Creates a new AS400DataType object that is identical to the current instance.
      * @return The new object.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBCSOnlyFieldDescription.java
 //                                                                             
@@ -23,12 +23,13 @@ import java.util.Vector;
  *<li>The user to describe a DBCS-only field to the RecordFormat object.
  *<li>The RecordFormat object to describe a DBCS-only field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *Click <a href="../../../../recordxmp.html">here</a>to see an example.
 **/
 public class DBCSOnlyFieldDescription extends FieldDescription implements VariableLengthFieldDescription, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
   // CCSID keyword
   String ccsid_ = "";
   // Value specified for the VARLEN keyword
@@ -222,7 +223,7 @@ public class DBCSOnlyFieldDescription extends FieldDescription implements Variab
     length_ = dataType.getByteLength();
   }
 
-  //@B0C
+  //@B0C - javadoc
   /**
    *Sets the value for the DFT keyword for this field.
    *@param defaultValue The default value for this

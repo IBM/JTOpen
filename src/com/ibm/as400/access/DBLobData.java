@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBLobData.java
 //                                                                             
@@ -72,6 +72,7 @@ when it was not previously set by the constructor.
         if (dataCompressed_) {                                                              
             byte[] decompressedBytes = new byte[actualLength_];                 // @A1C
             JDUtilities.decompress(rawBytes, offset_, physicalLength_, decompressedBytes, 0);  
+	    offset_ = 0;     							// @A2A
             rawBytes_           = decompressedBytes;                     
         }                                                                           
         else {                                                                              

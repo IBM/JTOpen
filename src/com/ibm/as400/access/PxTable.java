@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxTable.java
 //                                                                             
@@ -46,6 +46,7 @@ class PxTable
     private Hashtable   idToObject_     = new Hashtable ();
     private long        currentId_      = 1000;
     private Hashtable   objectToId_     = new Hashtable ();
+    private Hashtable   clientIdToProxyId_ = new Hashtable();  //@A1A
 
 
 
@@ -84,6 +85,34 @@ a unique proxy id.
         return proxyId;
     }
 
+
+
+    //@A1A
+    /** 
+    Adds a proxy object to the proxy table, while assigning
+    a unique proxy id.  In addition, it adds the object to the
+    hashtable of objects for each client id.
+ 
+    @param clientId The client id.
+    @param object The object.
+    @return The proxy id.
+    **/
+    public long addClientId (long clientId, Object object)
+    {
+	long proxyId = add (object);
+	// if object is tunneling object, add it to vector for its client Id
+	if (clientId > 0)	 
+	{
+	    Vector objectsForClientId = (Vector)clientIdToProxyId_.get(new Long(clientId));
+	    if (objectsForClientId == null)
+	    {
+		objectsForClientId = new Vector();
+	    }
+	    objectsForClientId.addElement(new Long(proxyId));
+	    clientIdToProxyId_.put(new Long(clientId), objectsForClientId);
+	}
+	return proxyId;
+    }
 
 
 /**
@@ -214,6 +243,27 @@ Removes the object from the proxy table.
     }
 
 
+    //@A1A
+    /**
+Removes objects associated with a clientId from the proxy table.
+
+@param clientId   The client id.
+**/
+    public void removeClientId (long clientId)
+    {
+       Vector objectsForClientId = (Vector)clientIdToProxyId_.get(new Long(clientId));
+       // If no objects, return
+       if (objectsForClientId == null)
+	   return;
+       // Go through vector of items for client id, removing one at a time by proxyId 
+       for (int i = 0; i < objectsForClientId.size(); i++)
+       {
+	   //Remove object by proxyId from PxTable
+	   remove(((Long)objectsForClientId.elementAt(i)).longValue());
+       }
+       clientIdToProxyId_.remove(new Long(clientId));
+    }
+    
 
 /**
 Removes all objects from the proxy table.

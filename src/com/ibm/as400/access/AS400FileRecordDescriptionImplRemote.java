@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileRecordDescriptionImplRemote.java
 //                                                                             
@@ -33,9 +33,9 @@ import java.beans.PropertyVetoException;
  *or logical file.  This class is used to retrieve the file field description
  *of an AS/400 physical or logical file, and to create Java source code
  *for a class extending from
- *<a href = "com.ibm.as400.access.RecordFormat.html">RecordFormat</a> that
+ *<a href = "RecordFormat.html">RecordFormat</a> that
  *can then be compiled and used as input to the
- *<a href="com.ibm.as400.access.AS400File.html#setRecordFormat">AS400File.setRecordFormat()</a>
+ *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a>
  *method.
  *This allows the record format to be created statically during
  *development time and then reused when needed.
@@ -53,21 +53,21 @@ import java.beans.PropertyVetoException;
  *<br>
  *AS400FileRecordDescription objects generate the following events:
  *<ul>
- *<li><a href="com.ibm.as400.access.AS400FileRecordDescriptionEvent.html">AS400FileRecordDescriptionEvent</a>
+ *<li><a href="AS400FileRecordDescriptionEvent.html">AS400FileRecordDescriptionEvent</a>
  *<br>The events fired are:
  *<ul>
  *<li>recordFormatRetrieved
  *<li>recordFormatSourceCreated
  *</ul>
- *<li><a href="java.beans.PropertyChangeEvent.html">PropertyChangeEvent</a>
- *<li><a href="java.beans.VetoableChangeEvent.html">VetoableChangeEvent</a>
+ *<li>PropertyChangeEvent
+ *<li>VetoableChangeEvent
  *</ul>
 **/
 class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescriptionImpl, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  private String x = Copyright.copyright;
+    static final long serialVersionUID = 4L;
 
   // File name
   private String file_ = "";
@@ -731,7 +731,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
    *The name of the class is the name of the record format retrieved with the string "Format"
    *appended to it.  The name of the file is the name of the class with the extension .java.<br>
    *The source files generated can be compiled and used as input to the
-   *<a href="com.ibm.as400.access.AS400File.html#setRecordFormat">AS400File.setRecordFormat()</a> method.<br>
+   *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a> method.<br>
    *The AS/400 system to which to connect and the integrated file system
    *pathname for the file must be set prior to invoking this method.
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
@@ -1012,7 +1012,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
   /**
    *Retrieves the file description for the file, and creates a RecordFormat
    *object for each record format, which can be used as input to the
-   *<a href="com.ibm.as400.access.AS400File.html#setRecordFormat">AS400File.setRecordFormat()</a>
+   *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a>
    *method.  If the file is a physical file, the RecordFormat array returned
    *contains one
    *RecordFormat object.  If the file is a multiple format logical file, the

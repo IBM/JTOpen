@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ExtendedIllegalStateException.java
 //                                                                             
@@ -24,10 +24,13 @@ implements ReturnCodeException
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
+
+
     private int rc_;  // Return code associated with this exception
 
     //  Handles loading the appropriate resource bundle
-    private static ResourceBundleLoader loader_;
+    //@E0D private static ResourceBundleLoader loader_;
 
 
     // Return code values used by this class.
@@ -47,22 +50,51 @@ implements ReturnCodeException
     public static final int IMPLEMENTATION_NOT_FOUND = 11;           // @D0A
 
     /**
+       The return code indicating that the requested information
+       is not available.
+    **/
+    public static final int INFORMATION_NOT_AVAILABLE = 14;           // @E2A
+
+    /**
+       The return code indicating that the license can not be
+       requested.
+    **/
+    public static final int LICENSE_CAN_NOT_BE_REQUESTED = 15;           // @E2A
+
+     /**
+       The return code indicating that
+       a request was made to find an object and that object
+       was not found.
+    **/
+    public static final int OBJECT_CANNOT_BE_FOUND = 13; //@E1A
+
+    /**
        The return code indicating that
        a request was made that requires the object to
        not be open and the object was in an open state.
     **/
     public static final int OBJECT_CAN_NOT_BE_OPEN = 2;
+    
+    /**
+       The return code indicating that
+       a request was made that requires the object to be
+       writable and the object was in a read-only state.
+    **/
+    public static final int OBJECT_IS_READ_ONLY = 12; //@E0A
+    
     /**
        The return code indicating that
        a request was made that requires the object to be
        open and the object was not in an open state.
     **/
     public static final int OBJECT_MUST_BE_OPEN = 3;
+    
     /**
        The return code indicating that
        one or more properties have not been set.
     **/
     public static final int PROPERTY_NOT_SET = 4;
+    
     /**
        The return code indicating that
        the property cannot be changed.  This usually
@@ -116,7 +148,7 @@ implements ReturnCodeException
     public ExtendedIllegalStateException(int returnCode) // @D2C
     {
         // Create the message
-        super(loader_.getCoreText(getMRIKey(returnCode))); // @D2C
+        super(ResourceBundleLoader.getCoreText(getMRIKey(returnCode))); // @D2C @E0C
         rc_ =  returnCode;
 
     }
@@ -132,7 +164,7 @@ implements ReturnCodeException
     public ExtendedIllegalStateException(String property, int returnCode) // @D2C
     {
         // Create the message
-        super(property + ": " + loader_.getCoreText(getMRIKey(returnCode))); // @D2C
+        super(property + ": " + ResourceBundleLoader.getCoreText(getMRIKey(returnCode))); // @D2C @E0C
         rc_ =  returnCode;
     }
 
@@ -144,7 +176,7 @@ implements ReturnCodeException
        @return The text string which describes the error.
     **/
     // This method is required so the message can be created and sent in super()
-    static String getMRIKey (int returnCode)
+    static String getMRIKey(int returnCode)
     {
         switch (returnCode)
         {
@@ -168,6 +200,14 @@ implements ReturnCodeException
             return "EXC_IMPLEMENTATION_NOT_FOUND";          // @D0A
         case OBJECT_CAN_NOT_START_THREADS:                  // @D1A
             return "EXC_OBJECT_CANNOT_START_THREADS";       // @D1A
+        case OBJECT_IS_READ_ONLY:                           // @E0A
+            return "EXC_OBJECT_IS_READ_ONLY";               // @E0A
+	    case OBJECT_CANNOT_BE_FOUND:                        // @E1A
+	        return "EXC_OBJECT_CANNOT_BE_FOUND";	        // @E1A
+	    case INFORMATION_NOT_AVAILABLE:                     // @E2A
+	        return "EXC_INFORMATION_NOT_AVAILABLE";	        // @E2A
+	    case LICENSE_CAN_NOT_BE_REQUESTED:                  // @E2A
+	        return "EXC_LICENSE_CAN_NOT_BE_REQUESTED";	    // @E2A
         case UNKNOWN:
             // @D0A - drop through to default case...      return "EXC_UNKNOWN";
         default:

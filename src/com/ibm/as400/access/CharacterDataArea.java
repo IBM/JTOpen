@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CharacterDataArea.java
 //                                                                             
@@ -51,12 +51,15 @@ public class CharacterDataArea extends DataArea implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+    static final long serialVersionUID = 4L;
    
    /**
     Constants
    **/
 
    static final int DEFAULT_LENGTH = 32;
+   static final int UNKNOWN_LENGTH = 0; //@B1A
 
    /**
     Variables
@@ -73,7 +76,7 @@ public class CharacterDataArea extends DataArea implements Serializable
    public CharacterDataArea()
    {
      super();
-     length_ = DEFAULT_LENGTH;
+     length_ = UNKNOWN_LENGTH; //@B1C
      dataAreaType_ = CHARACTER_DATA_AREA;
    }
 
@@ -91,7 +94,7 @@ public class CharacterDataArea extends DataArea implements Serializable
    public CharacterDataArea(AS400 system, String path)
    {
      super(system, path);
-     length_ = DEFAULT_LENGTH;
+     length_ = UNKNOWN_LENGTH; //@B1C
      dataAreaType_ = CHARACTER_DATA_AREA;
    }
 
@@ -159,6 +162,8 @@ public class CharacterDataArea extends DataArea implements Serializable
    {
      if (impl_ == null)
        chooseImpl();
+
+     if (length_ == UNKNOWN_LENGTH) length_ = DEFAULT_LENGTH; //@B1A
 
      impl_.create(length_, initialValue_, textDescription_, authority_);
 
@@ -287,11 +292,52 @@ public class CharacterDataArea extends DataArea implements Serializable
                IOException,
                ObjectDoesNotExistException
    {
+      if (impl_ == null)
+       chooseImpl();
+
+      if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+      
+      // Do the read
+      String val = impl_.retrieve(-1,length_);
+      
+      // Fire the READ event.
+      fireRead();
+      
+      return val;
+   }
+
+
+   /**
+   Reads the data from the data area.
+   It retrieves the entire contents of the data area. Note that if the data
+   does not completely fill the data area, this method will return data
+   containing trailing blanks up to the length of the data area.
+     @param type The Data Area bidi string type, as defined by the CDRA (Character
+                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 BidiStringType</a> for more information and valid values.
+     @return The data read from the data area.
+     @exception AS400SecurityException          If a security or authority error occurs.
+     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception InterruptedException            If this thread is interrupted.
+     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   **/
+   public String read(int type)                                          //$A2A
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               IllegalObjectTypeException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException
+   {
      if (impl_ == null)
        chooseImpl();
 
+     if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+
      // Do the read
-     String val = impl_.retrieve(-1,length_);
+     String val = impl_.retrieve(-1,length_, type);                      //$A2C
 
      // Fire the READ event.
      fireRead();
@@ -324,7 +370,9 @@ public class CharacterDataArea extends DataArea implements Serializable
                IOException,
                ObjectDoesNotExistException
    {
-     // Validate the dataAreaOffset parameter.
+      if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+
+      // Validate the dataAreaOffset parameter.
      if (dataAreaOffset < 0 || dataAreaOffset >= length_)
        throw new ExtendedIllegalArgumentException("dataAreaOffset",
          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -342,6 +390,61 @@ public class CharacterDataArea extends DataArea implements Serializable
 
      // Do the read
      String val = impl_.retrieve(dataAreaOffset+1, dataLength);
+
+     // Fire the READ event.
+     fireRead();
+
+     return val;
+   }
+
+
+   /**
+   Reads the data from the data area.
+   It retrieves <i>dataLength</i> characters beginning at
+   <i>dataAreaOffset</i> in the data area. The first character in
+   the data area is at offset 0.
+     @param dataAreaOffset The offset in the data area at which to start reading.
+     @param dataLength The number of characters to read. Valid values are from
+            1 through (data area size - <i>dataAreaOffset</i>).
+     @param type The Data Area bidi string type, as defined by the CDRA (Character
+                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 BidiStringType</a> for more information and valid values.
+     @return The data read from the data area.
+     @exception AS400SecurityException          If a security or authority error occurs.
+     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception InterruptedException            If this thread is interrupted.
+     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+   **/
+   public String read(int dataAreaOffset, int dataLength, int type)                //$A2A
+        throws AS400SecurityException,
+               ErrorCompletingRequestException,
+               IllegalObjectTypeException,
+               InterruptedException,
+               IOException,
+               ObjectDoesNotExistException
+   {
+      if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+
+     // Validate the dataAreaOffset parameter.
+     if (dataAreaOffset < 0 || dataAreaOffset >= length_)
+       throw new ExtendedIllegalArgumentException("dataAreaOffset",
+         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the dataLength parameter.
+     if (dataLength < 1 || dataLength > length_)
+       throw new ExtendedIllegalArgumentException("dataLength",
+         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+     // Validate the (dataAreaOffset, dataLength) combination.
+     if (dataAreaOffset+dataLength > length_)
+       throw new ExtendedIllegalArgumentException("dataLength",
+         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+     if (impl_ == null)
+       chooseImpl();
+
+     // Do the read
+     String val = impl_.retrieve(dataAreaOffset+1, dataLength, type);              //$A2C
 
      // Fire the READ event.
      fireRead();
@@ -393,6 +496,18 @@ public class CharacterDataArea extends DataArea implements Serializable
               ServerStartupException,
               UnknownHostException
    {
+     try //@B1A
+     {
+       if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+     }
+     catch(IllegalObjectTypeException iote) //@B1A
+     {
+       if (Trace.isTraceOn() && Trace.isTraceWarningOn()) //@B1A
+       {
+         Trace.log(Trace.WARNING, "Unexpected exception when retrieving length for character data area.", iote); //@B1A
+       }
+     }
+
      // Validate the data parameter.
      if (data == null)
        throw new NullPointerException("data");
@@ -404,7 +519,7 @@ public class CharacterDataArea extends DataArea implements Serializable
        chooseImpl();
 
      // Do the write
-     impl_.write(data, 0);
+     impl_.write(data, 0);                   
 
      // Fire the WRITTEN event.
      fireWritten();
@@ -437,6 +552,87 @@ public class CharacterDataArea extends DataArea implements Serializable
               ServerStartupException,
               UnknownHostException
    {
+     try //@B1A
+     {
+       if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+     }
+     catch(IllegalObjectTypeException iote) //@B1A
+     {
+       if (Trace.isTraceOn() && Trace.isTraceWarningOn()) //@B1A
+       {
+         Trace.log(Trace.WARNING, "Unexpected exception when retrieving length for character data area.", iote); //@B1A
+       }
+     }
+
+      // Validate the data parameter.
+      if (data == null)
+         throw new NullPointerException("data");
+      // Validate the data length.
+      if (data.length() < 1 || data.length() > length_)
+         throw new ExtendedIllegalArgumentException("data",
+                                                    ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      // Validate the dataAreaOffset parameter.
+      if (dataAreaOffset < 0 || dataAreaOffset >= length_)
+         throw new ExtendedIllegalArgumentException("dataAreaOffset",
+                                                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      // Validate the (dataAreaOffset, dataLength) combination.
+      if (dataAreaOffset+data.length() > length_)
+         throw new ExtendedIllegalArgumentException("data",
+                                                    ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      
+      if (impl_ == null)
+         chooseImpl();
+      
+      // Do the write
+      impl_.write(data, dataAreaOffset);
+      
+      // Fire the WRITTEN event.
+      fireWritten();
+   }
+
+
+   /**
+   Writes the data to the data area.
+   It writes <i>data.length()</i> characters from <i>data</i> to the
+   data area beginning at <i>dataAreaOffset</i>. The first character
+   in the data area is at offset 0.
+     @param data The data to be written.
+     @param dataAreaOffset The offset in the data area at which to start writing.
+     @param type The Data Area bidi string type, as defined by the CDRA (Character
+                 Data Representataion Architecture). See <a href="BidiStringType.html">
+                 BidiStringType</a> for more information and valid values.
+     @return The data read from the data area.
+     @exception AS400SecurityException          If a security or authority error occurs.
+     @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
+     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     @exception InterruptedException            If this thread is interrupted.
+     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception ServerStartupException          If the AS/400 server cannot be started.
+     @exception UnknownHostException            If the AS/400 system cannot be located.
+   **/
+   public void write(String data, int dataAreaOffset, int type)      //$A2A
+       throws AS400SecurityException,
+              ConnectionDroppedException,
+              ErrorCompletingRequestException,
+              InterruptedException,
+              IOException,
+              ObjectDoesNotExistException,
+              ServerStartupException,
+              UnknownHostException
+   {
+     try //@B1A
+     {
+       if (length_ == UNKNOWN_LENGTH) length_ = getLength(); //@B1A
+     }
+     catch(IllegalObjectTypeException iote) //@B1A
+     {
+       if (Trace.isTraceOn() && Trace.isTraceWarningOn()) //@B1A
+       {
+         Trace.log(Trace.WARNING, "Unexpected exception when retrieving length for character data area.", iote); //@B1A
+       }
+     }
+
      // Validate the data parameter.
      if (data == null)
        throw new NullPointerException("data");
@@ -457,7 +653,7 @@ public class CharacterDataArea extends DataArea implements Serializable
        chooseImpl();
 
      // Do the write
-     impl_.write(data, dataAreaOffset);
+     impl_.write(data, dataAreaOffset, type);                        //$A2C
 
      // Fire the WRITTEN event.
      fireWritten();

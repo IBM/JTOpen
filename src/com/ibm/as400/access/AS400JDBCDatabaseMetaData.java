@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCDatabaseMetaData.java
 //                                                                             
@@ -23,6 +23,7 @@ import java.util.Vector;                            // @D0A
 
 
 
+// @E4C
 /**
 The AS400JDBCDatabaseMetaData class provides information
 about the database as a whole.
@@ -48,6 +49,10 @@ HIWOULD
 result sets.  You can use the normal ResultSet methods to
 retrieve data from these result sets.  The format of the
 result sets are described in the JDBC interface specification.
+
+<p>Schema and table names that are passed as input to methods
+in this class are implicitly uppercased unless enclosed in
+double-quotes.
 **/
 
 //-----------------------------------------------------------
@@ -358,10 +363,10 @@ that uniquely identifies a row.
                 // Set the library name
                 if (schema == null) {   // use default library or qgpl
                     request.setLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setLibraryName(schema, connection_.getConverter());
+                } else request.setLibraryName(normalize(schema), connection_.getConverter());       // @E4C
 
                 // Set the table name
-                request.setFileName(table, connection_.getConverter());
+                request.setFileName(normalize(table), connection_.getConverter());      // @E4C
 
 
                 // Set the Field Information to Return Bitmap
@@ -600,11 +605,11 @@ Returns a description of the access rights for a table's columns.
 
                 // Set the library name
                 if (schema == null) {   // use default library or qgpl
-                    request.setLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setLibraryName(schema, connection_.getConverter());
+                    request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());  // @E4C
+                } else request.setLibraryName(normalize(schema), connection_.getConverter());       // @E4C
 
                 // Set the table name
-                request.setFileName(table, connection_.getConverter());
+                request.setFileName(normalize(table), connection_.getConverter());                  // @E4C
 
 
                 // Set the column name and search pattern
@@ -695,12 +700,6 @@ Returns a description of the access rights for a table's columns.
 /**
 Returns a description of the table's columns available in a
 catalog.  
-
-<p>The following column in the description is not currently
-supported:
-<ul>
-  <li>ORDINAL_POSITION
-</ul>
 
 @param  catalog         The catalog name. If null is specified, this parameter
                         is ignored.  If empty string is specified,
@@ -837,7 +836,7 @@ supported:
                 // *USRLIBL is used
                 if (schemaPattern != null) {
                     JDSearchPattern schema = new JDSearchPattern(schemaPattern);
-                    request.setLibraryName (schema.getPatternString(), connection_.getConverter());
+                    request.setLibraryName (normalize(schema.getPatternString()), connection_.getConverter());  // @E4C
                     request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
                 }
 
@@ -848,7 +847,7 @@ supported:
                 // *ALL is used.
                 if (tablePattern!=null) {
                     JDSearchPattern table = new JDSearchPattern(tablePattern);
-                    request.setFileName (table.getPatternString(), connection_.getConverter());
+                    request.setFileName (normalize(table.getPatternString()), connection_.getConverter());      // @E4C
                     request.setFileNameSearchPatternIndicator(table.getIndicator());
                 }
 
@@ -868,12 +867,12 @@ supported:
 
                 // Set the Field Information to Return Bitmap
                 // Return everything but the reserved fields
-                request.setFieldReturnInfoBitmap(0xEFF00000);
+                request.setFieldReturnInfoBitmap(0xEFF20000);   // @E3C
 
 
                 // Set the Field Information Order By Indicator parameter
-                // Order by: Schema and File
-                request.setFileInfoOrderByIndicator (2);
+                // Order by: Schema and File and Ordinal Position.
+                request.setFieldInformationOrderByIndicator (2); // @E5C
 
 
                 //-------------------------------------------------------
@@ -936,9 +935,12 @@ supported:
 
                 maps[15] = new JDCharOctetLengthFieldMap (6, 7, 10, 11); // octet
 
-                // Currently not returned by server
-                // Always return -1
-                maps[16] = new JDHardcodedFieldMap (new Integer (-1)); // ordinal position
+                // If the server functional level is 7 or greater, then ordinal        @E3A
+                // position is supported.  Otherwise, just hardcode to -1.             @E3A
+                if (connection_.getServerFunctionalLevel() >= 7)                    // @E3A
+                    maps[16] = new JDSimpleFieldMap(12);                            // @E3A
+                else                                                                // @E3A
+                    maps[16] = new JDHardcodedFieldMap(new Integer(-1));            
 
                 maps[17] = new JDNullableStringFieldMap(8);  // is Nullable
 
@@ -978,13 +980,6 @@ Returns the connection for this metadata.
         return connection_;
     }
 
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
 
 
 
@@ -1174,20 +1169,20 @@ the primary table imports the foreign table's key.
 
                 // Set the primary key file library name
                 if (primarySchema == null) {   // use default library or qgpl
-                    request.setPrimaryKeyFileLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setPrimaryKeyFileLibraryName(primarySchema, connection_.getConverter());
+                    request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter()); // @E4C
+                } else request.setPrimaryKeyFileLibraryName(normalize(primarySchema), connection_.getConverter());              // @E4C
 
                 // Set the foreign key file library name
                 if (foreignSchema == null) {   // use default library or qgpl
-                    request.setForeignKeyFileLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setForeignKeyFileLibraryName(foreignSchema, connection_.getConverter());
+                    request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C
+                } else request.setForeignKeyFileLibraryName(normalize(foreignSchema), connection_.getConverter());                  // @E4C
 
 
                 // Set the primary key table name
-                request.setPrimaryKeyFileName(primaryTable, connection_.getConverter());
+                request.setPrimaryKeyFileName(normalize(primaryTable), connection_.getConverter());         // @E4C
 
                 // Set the foreign key table name
-                request.setForeignKeyFileName(foreignTable, connection_.getConverter());
+                request.setForeignKeyFileName(normalize(foreignTable), connection_.getConverter());         // @E4C
 
                 // Set the Foreign key Information to Return Bitmap
                 request.setForeignKeyReturnInfoBitmap(0xBBE00000);
@@ -1520,13 +1515,13 @@ foreign keys exported by a table.
 
                 // Set the primary key file library name
                 if (schema == null) {   // use default library or qgpl
-                    request.setPrimaryKeyFileLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setPrimaryKeyFileLibraryName(schema, connection_.getConverter());
+                    request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C
+                } else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.getConverter());                         // @E4C
 
 
 
                 // Set the primary key table name
-                request.setPrimaryKeyFileName(table, connection_.getConverter());
+                request.setPrimaryKeyFileName(normalize(table), connection_.getConverter());                    // @E4C
 
 
                 // Set the Foreign key Information to Return Bitmap
@@ -1743,12 +1738,12 @@ primary keys imported by a table.
 
                 // Set the foreign key file library name
                 if (schema == null) {   // use default library or qgpl
-                    request.setForeignKeyFileLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setForeignKeyFileLibraryName(schema, connection_.getConverter());
+                    request.setForeignKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C
+                } else request.setForeignKeyFileLibraryName(normalize(schema), connection_.getConverter()); // @E4C
 
 
                 // Set the foreign key table name
-                request.setForeignKeyFileName(table, connection_.getConverter());
+                request.setForeignKeyFileName(normalize(table), connection_.getConverter());    // @E4C
 
                 // Set the Foreign key Information to Return Bitmap
                 request.setForeignKeyReturnInfoBitmap(0xBBE00000);
@@ -1934,12 +1929,12 @@ Returns a description of a table's indexes and statistics.
 
                 // Set the library name
                 if (schema == null) {   // use default library or qgpl
-                    request.setLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setLibraryName(schema, connection_.getConverter());
+                    request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());      // @E4C
+                } else request.setLibraryName(normalize(schema), connection_.getConverter());                           // @E4C
 
 
                 // Set the table name
-                request.setFileName(table, connection_.getConverter());
+                request.setFileName(normalize(table), connection_.getConverter());      // @E4C
 
                 // Set the long file name indicator
                 request.setFileShortOrLongNameIndicator (0xF0); // Long table names
@@ -2287,7 +2282,7 @@ time.
     public int getMaxStatements ()
     throws SQLException
     {
-        return AS400JDBCConnection.MAX_STATEMENTS_; // @E4C
+        return AS400JDBCConnection.MAX_STATEMENTS_; // @D3C
     }
 
 
@@ -2442,12 +2437,12 @@ Returns a description of the primary key columns.
 
                 // Set the primary key file library name
                 if (schema == null) {   // use default library or qgpl
-                    request.setPrimaryKeyFileLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setPrimaryKeyFileLibraryName(schema, connection_.getConverter());
+                    request.setPrimaryKeyFileLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());    // @E4C
+                } else request.setPrimaryKeyFileLibraryName(normalize(schema), connection_.getConverter());                         // @E4C
 
 
                 // Set the primary key table name
-                request.setPrimaryKeyFileName(table, connection_.getConverter());
+                request.setPrimaryKeyFileName(normalize(table), connection_.getConverter());        // @E4C
 
                 // Set the primary key Information to Return Bitmap
                 request.setPrimaryKeyReturnInfoBitmap(0xB8000000);
@@ -2963,7 +2958,7 @@ libraries.
             // This does not actual move the data, it just sets up
             // the mapping.
             JDFieldMap[] maps = new JDFieldMap[1];
-            maps[0] = new JDStripQuotesFieldMap (1); // @A3C
+            maps[0] = new JDSimpleFieldMap (1); // @A3C @E4C
 
             // Create the mapped row cache that is returned in the
             // result set
@@ -3159,7 +3154,7 @@ to one or more columns in a table.
                 // value of *USRLIBL is used.
                 if (schemaPattern!=null) {
                     JDSearchPattern schema = new JDSearchPattern(schemaPattern);
-                    request.setLibraryName(schema.getPatternString(), connection_.getConverter());
+                    request.setLibraryName(normalize(schema.getPatternString()), connection_.getConverter());       // @E4C
                     request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
                 }
 
@@ -3170,7 +3165,7 @@ to one or more columns in a table.
                 // value of *ALL is used.
                 if (tablePattern!=null) {
                     JDSearchPattern table = new JDSearchPattern(tablePattern);
-                    request.setFileName(table.getPatternString(),connection_.getConverter());
+                    request.setFileName(normalize(table.getPatternString()),connection_.getConverter());    // @E4C
                     request.setFileNameSearchPatternIndicator(table.getIndicator());
                 }
 
@@ -3415,7 +3410,7 @@ Returns the description of the tables available in a catalog.
                     // *USRLIBL is used.
                     if (schemaPattern != null) { // use default library or qgpl
                         JDSearchPattern schema = new JDSearchPattern(schemaPattern);
-                        request.setLibraryName (schema.getPatternString(), connection_.getConverter());
+                        request.setLibraryName (normalize(schema.getPatternString()), connection_.getConverter()); // @E4C
                         request.setLibraryNameSearchPatternIndicator(schema.getIndicator());
                     }
 
@@ -3426,7 +3421,7 @@ Returns the description of the tables available in a catalog.
                     // *ALL is used.
                     if (tablePattern!=null) {
                         JDSearchPattern table = new JDSearchPattern(tablePattern);
-                        request.setFileName (table.getPatternString(), connection_.getConverter());
+                        request.setFileName (normalize(table.getPatternString()), connection_.getConverter()); // @E4C
                         request.setFileNameSearchPatternIndicator(table.getIndicator());
                     }
 
@@ -3496,7 +3491,7 @@ Returns the description of the tables available in a catalog.
                         if (connection_.getProperties().equals
                             (JDProperties.REMARKS, JDProperties.REMARKS_SQL)) {
                             maps[0] = new JDHardcodedFieldMap (connection_.getCatalog());
-                            maps[1] = new JDStripQuotesFieldMap (1);    // schema // @A3C
+                            maps[1] = new JDSimpleFieldMap (1);    // schema // @A3C @E4C
                             maps[2] = new JDSimpleFieldMap (3);    // table
                             maps[3] = new JDTableTypeFieldMap (4); // table type
                             maps[4] = new JDSimpleFieldMap (2);    // remarks
@@ -3504,7 +3499,7 @@ Returns the description of the tables available in a catalog.
 
                         else {   // Get file text instead of remarks
                             maps[0] = new JDHardcodedFieldMap (connection_.getCatalog());
-                            maps[1] = new JDStripQuotesFieldMap (1);     // schema  // @A3C
+                            maps[1] = new JDSimpleFieldMap (1);     // schema  // @A3C @E4C
                             maps[2] = new JDSimpleFieldMap (2);     // table
                             maps[3] = new JDTableTypeFieldMap (3); // table type
                             maps[4] = new JDSimpleFieldMap (4);      // File text
@@ -3683,7 +3678,7 @@ supported by this database.
         typeSamples.addElement(new SQLVarchar(32739, settings_));               // @D0C
         if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_) {       // @B4D B5A @D0C
             typeSamples.addElement(new SQLBlob(15728640, settings_));           // @B4D B5A @D0C
-            typeSamples.addElement(new SQLClob(15728640, settings_));           // @B4D B5A @D0C
+            typeSamples.addElement(new SQLClob(15728640, false, settings_));    // @B4D B5A @D0C @E1C
             typeSamples.addElement(new SQLDatalink(32739, settings_));          // @B4D B5A @D0C
         }                                                                       // @B4D B5A 
 
@@ -4062,11 +4057,11 @@ updated when any value in a row is updated.
 
                 // Set the library name
                 if (schema == null) {   // use default library or qgpl
-                    request.setLibraryName(connection_.getDefaultSchema(), connection_.getConverter());
-                } else request.setLibraryName(schema, connection_.getConverter());
+                    request.setLibraryName(normalize(connection_.getDefaultSchema()), connection_.getConverter());  // @E4C
+                } else request.setLibraryName(normalize(schema), connection_.getConverter());                       // @E4C
 
                 // Set the table name
-                request.setFileName(table, connection_.getConverter());
+                request.setFileName(normalize(table), connection_.getConverter());  // @E4C
 
 
                 // Set the Field Information to Return Bitmap
@@ -4223,6 +4218,22 @@ Indicates if the database is in read-only mode.
     {
         connection_.checkOpen ();
         return connection_.isReadOnly ();
+    }
+
+
+
+
+// @E4A
+// The database is not case-sensitive except when names are quoted with double
+// quotes.  The host server flows are case-sensitive, so I will uppercase 
+// everything to save the caller from having to do so.
+    private String normalize(String mixedCaseName)
+    {
+        if (mixedCaseName.length() > 2) {
+            if (mixedCaseName.charAt(0) == '"')
+                return mixedCaseName.substring(1, mixedCaseName.length() - 1);
+        }
+        return mixedCaseName.toUpperCase();
     }
 
 

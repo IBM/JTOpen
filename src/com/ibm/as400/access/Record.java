@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Record.java
 //                                                                             
@@ -40,25 +40,28 @@ import java.util.Vector;
  *</ul>
  *Record objects generate the following events:
  *<ul>
- *<li><a href="com.ibm.as400.access.RecordDescriptionEvent.html">RecordDescriptionEvent</a>
+ *<li>{@link com.ibm.as400.access.RecordDescriptionEvent RecordDescriptionEvent}
  *<br>The events fired are:
  *<ul>
  *<li>fieldModified()
  *</ul>
- *<li><a href="java.beans.PropertyChangeEvent.html">PropertyChangeEvent</a>
- *<li><a href="java.beans.VetoableChangeEvent.html">VetoableChangeEvent</a>
+ *<li>PropertyChangeEvent
+ *<li>VetoableChangeEvent
  *</ul>
  *<b>Examples</b>
  *<ul>
- *<li><a href="recordxmp.html">Using the Record class with the Data queue classes</a>
- *<li><a href="RLReadFileExample.html">Using the Record class with the record-level database access classes</a>
+ *<li><a href="../../../../recordxmp.html">Using the Record class with the Data queue classes</a>
+ *<li><a href="../../../../RLReadFileExample.html">Using the Record class with the record-level database access classes</a>
  *</ul>
 **/
 public class Record implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  static final long serialVersionUID = 1120647704794627742L;
+    
+    static final long serialVersionUID = 4L;
+
+
   // The AS400 data for this record.
   private byte[] as400Data_;
   // Array of the field descriptions that describe the fields in this record.
@@ -896,7 +899,7 @@ public class Record implements Serializable
       }
     }
   }
-  
+
   //@B5A
   /**
    * Initialize transient data.
@@ -907,7 +910,7 @@ public class Record implements Serializable
     vetos_ = new VetoableChangeSupport(this);
     changes_ = new PropertyChangeSupport(this);
   }
-  
+
   /**
    *Indicates if the field is null.
    *<br>

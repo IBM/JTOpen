@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTable61952.java
 //                                                                             
@@ -587,4 +587,5 @@ class ConvTable61952 extends ConvTableDoubleMap
   {
     super(61952, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
   }
+  
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: UserSpace.java
 //                                                                             
@@ -29,6 +29,10 @@ public class UserSpace
   implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
 
 
 
@@ -164,7 +168,7 @@ public class UserSpace
    /**
      Closes the user space and releases any system resources associated with the stream.
    **/
-   public void close() throws IOException                  // $B3
+   public synchronized void close() throws IOException                  // $B3
    {
       // Verify connection.
       if (isConnected() == false) {
@@ -182,53 +186,52 @@ public class UserSpace
      Determines the type of implementation that will be used.
      System and Path parameters are committed at this time.
    **/
-   private void connect() throws IOException, AS400SecurityException
+   private synchronized void connect() throws IOException, AS400SecurityException
    {
-     // Ensure that the system has been set.
-     if (system_ == null)
-     {
-         Trace.log(Trace.ERROR, "Parameter 'system' is null.");
-         throw new ExtendedIllegalStateException("system",
-                          ExtendedIllegalStateException.PROPERTY_NOT_SET);
-     }
-     // Ensure that the path has been set.
-     if (userSpacePathName_ == null)
-     {
-         Trace.log(Trace.ERROR, "Parameter 'path' is null.");
-         throw new ExtendedIllegalStateException("path",
-                          ExtendedIllegalStateException.PROPERTY_NOT_SET);
-     }
+       if (implementation_ == null)
+       {
+           // Ensure that the system has been set.
+           if (system_ == null)
+           {
+               Trace.log(Trace.ERROR, "Parameter 'system' is null.");
+               throw new ExtendedIllegalStateException("system",
+                                                       ExtendedIllegalStateException.PROPERTY_NOT_SET);
+           }
+           // Ensure that the path has been set.
+           if (userSpacePathName_ == null)
+           {
+               Trace.log(Trace.ERROR, "Parameter 'path' is null.");
+               throw new ExtendedIllegalStateException("path",
+                                                       ExtendedIllegalStateException.PROPERTY_NOT_SET);
+           }
 
 
 
-     // @D1 use an AS400 object method to load the correct implementation.
-     //     That method will load the correct impl based on
-     //     canUseNativeOp().  It will also load the remote impl or proxy
-     //     impl if the nativeImpl class cannot be found or loaded.
+           // @D1 use an AS400 object method to load the correct implementation.
+           //     That method will load the correct impl based on
+           //     canUseNativeOp().  It will also load the remote impl or proxy
+           //     impl if the nativeImpl class cannot be found or loaded.
 
-     implementation_ = (com.ibm.as400.access.UserSpaceImpl)
-                          system_.loadImpl3(
+           implementation_ = (com.ibm.as400.access.UserSpaceImpl)
+             system_.loadImpl3(
                                "com.ibm.as400.access.UserSpaceImplNative",
                                "com.ibm.as400.access.UserSpaceImplRemote",
                                "com.ibm.as400.access.UserSpaceImplProxy");  // $C0A
+           // set the User Space name to be used in API Program call.
+           implementation_.setPath(userSpacePathName_);
+           implementation_.setSystem(system_.getImpl());
 
 
-     // set the User Space name to be used in API Program call.
-     implementation_.setPath(userSpacePathName_);
+           ConverterImpl conv = (new Converter(system_.getCcsid(), system_)).impl;
 
-     // connect to the server                                               //$C0A
-     system_.connectService(AS400.COMMAND);                                 //$C0A
+           implementation_.setConverter(conv);
+           implementation_.setName();
+           implementation_.setMustUseProgramCall(mustUseProgramCall_);            // @E1a
 
-     implementation_.setSystem(system_.getImpl());                          //$C0C
-
-     //Converter conv = Converter.getConverter(system_.getCcsid(), system_);//$E0D
-     ConverterImpl conv = (new Converter(system_.getCcsid(), system_)).impl;    // @C1C
-     implementation_.setConverter(conv);
-     implementation_.setName();
-     implementation_.setMustUseProgramCall(mustUseProgramCall_);            // @E1a
-
-     // Set the connection flag, commits system and path parameters.
-     connected_ = true;
+           // Set the connection flag, commits system and path parameters.
+           connected_ = true;
+       }
+       system_.signon(false);
    }
 
    /**
@@ -340,8 +343,12 @@ public class UserSpace
       {
          Trace.log(Trace.ERROR, "Parameter 'extendedAttribute' is null.");
          throw new NullPointerException("Extended Attribute");
-      }
-      if (extendedAttribute.length() == 0 || extendedAttribute.length() > 10)
+      }                                                                          
+
+      if (extendedAttribute.length() == 0)                               // @D3a
+          extendedAttribute = " ";                                       // @D3a
+
+      if (extendedAttribute.length() > 10)                               // @D3c
       {
           Trace.log(Trace.ERROR, "Parameter 'extendedAttribute' is not valid.");
           throw new ExtendedIllegalArgumentException("extendedAttribute",
@@ -353,7 +360,11 @@ public class UserSpace
           Trace.log(Trace.ERROR, "Parameter 'textDescription' is null.");
           throw new NullPointerException("textDescription");
       }
-      if (textDescription.length() == 0 || textDescription.length() > 50)
+
+      if (textDescription.length() == 0)                                 // @D3a
+          textDescription = " ";                                         // @D3a
+
+      if (textDescription.length() > 50)                                 // @D3c
       {
           Trace.log(Trace.ERROR, "Parameter 'textDescription' is not valid.");
           throw new ExtendedIllegalArgumentException("textDescription",
@@ -373,8 +384,7 @@ public class UserSpace
       }
 
       // Verify connection
-      if (isConnected() == false)
-         connect();
+      connect();
 
       implementation_.create(domain, length, replace, extendedAttribute, initialValue, textDescription, authority);
 
@@ -405,8 +415,7 @@ public class UserSpace
                  ObjectDoesNotExistException       // $B1
 
    {
-      if (isConnected() == false)
-         connect();
+       connect();
       implementation_.delete();
 
       // Fire the DELETED event.
@@ -416,6 +425,46 @@ public class UserSpace
       for (int i = 0; i < targets.size(); i++) {
           UserSpaceListener target = (UserSpaceListener)targets.elementAt(i);
           target.deleted(event);
+      }
+   }
+
+
+   /**
+     Determines if the user space exists.
+
+        @return true if the user space exists; false otherwise.
+        @exception AS400SecurityException If a security or authority error occurs.
+        @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+        @exception InterruptedException If this thread is interrupted.
+        @exception IOException If an error occurs while communicating with the AS/400.
+   **/
+   // @D2 New method
+   public boolean exists()
+          throws AS400SecurityException,
+                 ErrorCompletingRequestException,
+                 InterruptedException,
+                 IOException
+
+   {
+      try
+      {
+         getLength();
+         return true;
+      }
+      catch (ObjectDoesNotExistException e)
+      {
+         return false;
+      }
+      catch (IOException e2)
+      {
+         String message = e2.getMessage();
+
+         if (message.startsWith("CPF2209") ||     // library not found
+             message.startsWith("CPF9810") ||     // library not found
+             message.startsWith("CPF9801"))       // object not found
+            return false;
+         else
+            throw e2;
       }
    }
 
@@ -437,8 +486,7 @@ public class UserSpace
                   IOException,
                   ObjectDoesNotExistException       // $B1
    {
-      if (isConnected() == false)
-         connect();
+       connect();
 
       return implementation_.getInitialValue();
    }
@@ -460,8 +508,7 @@ public class UserSpace
                   IOException,
                   ObjectDoesNotExistException       // $B1
    {
-      if (isConnected() == false)
-         connect();
+       connect();
 
       return implementation_.getLength();
    }
@@ -516,8 +563,7 @@ public class UserSpace
                  IOException,
                  ObjectDoesNotExistException       // $B1
    {
-      if (isConnected() == false)
-         connect();
+       connect();
 
       return implementation_.isAutoExtendible();
    }
@@ -555,9 +601,11 @@ public class UserSpace
      Reads up to <i>dataBuffer.length</i> bytes from the user space beginning at <i>userSpaceOffset</i>
          into <i>dataBuffer</i>.
 
-         @param dataBuffer  The position in the data buffer at which results will be place.
-         @param userSpaceOffset  The position in the user space from which to start reading.
-         @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of the user space has been reached.
+         @param dataBuffer  The buffer to fill with data.  Buffer.length()
+                            bytes will be read from the user space.
+         @param userSpaceOffset  The offset in the user space from which to start reading.
+         @return The total number of bytes read into the buffer, or -1 if
+                     the <i>userSpaceOffset</i> is beyond the end of the user space.
          @exception AS400SecurityException If a security or authority error occurs.
          @exception ErrorCompletingRequestException If an error occurs before the request is completed.
          @exception InterruptedException If this thread is interrupted.
@@ -586,11 +634,12 @@ public class UserSpace
          beginning at <i>dataOffset</i>.
 
 
-         @param dataBuffer  The position in the data buffer at which results will be place.
-         @param userSpaceOffset  The position in the user space from which to start reading.
-         @param dataOffset  The data starting position for the results of the read.
-         @param length  The number of bytes to be read.
-         @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of user space has been reached.
+         @param dataBuffer  The buffer to fill with data.
+         @param userSpaceOffset  The offset in the user space from which to start reading.
+         @param dataOffset  The starting offset in the data buffer for the results of the read.
+         @param length  The number of bytes to read.
+         @return The total number of bytes read into the buffer, or -1 if
+                     the <i>userSpaceOffset</i> is beyond the end of the user space.
          @exception AS400SecurityException If a security or authority error occurs.
          @exception ErrorCompletingRequestException If an error occurs before the request is completed.
          @exception InterruptedException If this thread is interrupted.
@@ -650,8 +699,7 @@ public class UserSpace
        }
 
        // Verify connection.
-       if (isConnected() == false)
-          connect();
+       connect();
 
        // Do the read.
        int bytesRead = implementation_.read(dataBuffer, userSpaceOffset, dataOffset, length);
@@ -673,8 +721,8 @@ public class UserSpace
      Data is read from the user space as if by the read(byte[],int,int,int) method.
      The resulting byte array is then converted into a String.
 
-         @param userSpaceOffset  The position in the user space from which to start reading.
-         @param length  The number of bytes from the user space to be read.
+         @param userSpaceOffset  The offset in the user space from which to start reading.
+         @param length  The number of bytes to read.
          @return The string value from the user space.
          @exception AS400SecurityException If a security or authority error occurs.
          @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -810,8 +858,7 @@ public class UserSpace
                   IOException,
                   ObjectDoesNotExistException      // $B1
    {
-      if (isConnected() == false)
-         connect();
+       connect();
 
       implementation_.setAutoExtendible(autoExtendibility);
    }
@@ -834,8 +881,7 @@ public class UserSpace
                   IOException,
                   ObjectDoesNotExistException      // $B1
    {
-      if (isConnected() == false)
-         connect();
+       connect();
 
       implementation_.setInitialValue(initialValue);
    }
@@ -866,8 +912,7 @@ public class UserSpace
        }
 
       // Verify connection.
-      if (isConnected() == false)
-         connect();
+       connect();
 
       implementation_.setLength(length);
    }
@@ -1150,8 +1195,7 @@ public class UserSpace
 
 
        // Verify connection.
-       if (isConnected() == false)
-          connect();
+       connect();
 
        implementation_.write(dataBuffer, userSpaceOffset, dataOffset, length, forceAuxiliary);
 
@@ -1199,8 +1243,7 @@ public class UserSpace
       }
 
       // Verify connection.          - $B2
-      if (isConnected() == false)
-         connect();
+      connect();
 
       // Convert String to bytes.
       byte[] dataBuffer = implementation_.converter_.stringToByteArray(data);

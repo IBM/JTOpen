@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ThreadedServer.java
 //                                                                             
@@ -23,7 +23,7 @@ class AS400ThreadedServer extends AS400Server implements Runnable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    static int threadCount = 0;
+    private static int threadCount = 0;
 
     private AS400ImplRemote system_;
     private int service_;
@@ -146,31 +146,22 @@ class AS400ThreadedServer extends AS400Server implements Runnable
     DataStream receive(int correlationId) throws IOException, InterruptedException
     {
         Trace.log(Trace.DIAGNOSTIC, "AS400Server.receive");
-        DataStream reply = null;
-        do
+        synchronized (receiveLock_)
         {
-            synchronized (replyList_)
+            do
             {
-                if (!replyList_.isEmpty())
+                synchronized (replyList_)
                 {
-                    for (int i = 0; i < replyList_.size(); i++)
+                    for (int i = 0; i < replyList_.size(); ++i)
                     {
                         DataStream nextReply = (DataStream)replyList_.elementAt(i);
                         if (nextReply.getCorrelation() == correlationId)
                         {
                             replyList_.removeElementAt(i);
-                            reply = nextReply;
-                            break;
+                            Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId);
+                            return nextReply;
                         }
                     }
-                }
-            }
-
-            if (reply == null)
-            {
-                synchronized (receiveLock_)
-                {
-                    receiveLock_.wait(200);
                 }
 
                 if (readDaemonException_ != null)
@@ -178,14 +169,11 @@ class AS400ThreadedServer extends AS400Server implements Runnable
                     Trace.log(Trace.ERROR, "Read daemon exception:", readDaemonException_);
                     throw readDaemonException_;
                 }
+
+                receiveLock_.wait();
             }
-            else
-            {
-                Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId);
-            }
+            while (true);
         }
-        while (reply == null);
-        return reply;
     }
 
     public void run()
@@ -235,7 +223,7 @@ class AS400ThreadedServer extends AS400Server implements Runnable
                 // Note: the thread is blocked on the above call if the inputStream has nothing to receive.
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "run(): reply received..." + reply.toString());
 
-                // Should we discard this datastream?  If yes, then don't put it into the reply list.
+                // Should we discard this datastream  If yes, then don't put it into the reply list.
                 boolean keepDataStream = true;
                 int correlation = reply.getCorrelation();
 
@@ -271,19 +259,13 @@ class AS400ThreadedServer extends AS400Server implements Runnable
                 if (readDaemonException_ == null)
                 {
                     readDaemonException_ = e;
-                    forceDisconnect();
+                }
+                synchronized (receiveLock_)
+                {
+                    receiveLock_.notifyAll();  // Notify all waiting threads.
                 }
             }
         }
-    }
-
-    protected synchronized void finalize() throws Throwable
-    {
-        if (readDaemonException_ == null)
-        {
-            forceDisconnect();
-        }
-        super.finalize();
     }
 
     void forceDisconnect()
@@ -306,11 +288,7 @@ class AS400ThreadedServer extends AS400Server implements Runnable
             }
         }
 
-        readDaemon_.stop();
-        synchronized (receiveLock_)
-        {
-            receiveLock_.notifyAll();  // Notify all waiting threads.
-        }
+        readDaemon_.interrupt();
 
         try
         {

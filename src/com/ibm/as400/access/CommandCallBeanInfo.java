@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandCallBeanInfo.java
 //                                                                             
@@ -66,7 +66,13 @@ public class CommandCallBeanInfo extends SimpleBeanInfo
             system.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_SYSTEM"));
             system.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_SYSTEM"));
 
-            propertyDescriptors = new PropertyDescriptor[] { command, system };
+            PropertyDescriptor threadSafe = new PropertyDescriptor("threadSafe", BEAN_CLASS);
+            threadSafe.setBound(true);
+            threadSafe.setConstrained(false);
+            threadSafe.setDisplayName(ResourceBundleLoader.getText("PROP_NAME_CMD_THREADSAFE"));
+            threadSafe.setShortDescription(ResourceBundleLoader.getText("PROP_DESC_CMD_THREADSAFE"));
+
+            propertyDescriptors = new PropertyDescriptor[] { command, system, threadSafe };
         }
         catch (IntrospectionException e)
         {
@@ -100,7 +106,7 @@ public class CommandCallBeanInfo extends SimpleBeanInfo
      **/
     public int getDefaultPropertyIndex()
     {
-        // The index for the "path" property
+        // The index for the "command" property.
         return 0;
     }
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDCallableStatementProxy.java
 //                                                                             
@@ -395,33 +395,32 @@ implements CallableStatement
                                       int scale)
       throws SQLException
     {
-      registerLocally (parameterIndex, sqlType);
-
       callMethod ("registerOutParameter",
                   new Class[] { Integer.TYPE, Integer.TYPE,
                                 Integer.TYPE },
                   new Object[] { new Integer (parameterIndex),
                                  new Integer (sqlType),
                                  new Integer (scale) });
+
+      registerLocally (parameterIndex, sqlType);  //@A1C
     }
 
 
     public void registerOutParameter (int parameterIndex, int sqlType)
       throws SQLException
     {
-      registerLocally (parameterIndex, sqlType);
-
       callMethod ("registerOutParameter",
                   new Class[] { Integer.TYPE, Integer.TYPE },
                   new Object[] { new Integer (parameterIndex),
                                  new Integer (sqlType) });
+
+      registerLocally (parameterIndex, sqlType);  //@A1C
     }
 
 
     public void registerOutParameter (int parameterIndex, int sqlType, String typeName)
       throws SQLException
     {
-      registerLocally (parameterIndex, sqlType);
 
       callMethod ("registerOutParameter",
                   new Class[] { Integer.TYPE, Integer.TYPE,
@@ -429,6 +428,8 @@ implements CallableStatement
                   new Object[] { new Integer (parameterIndex),
                                  new Integer (sqlType),
                                  new Integer (typeName) });
+
+      registerLocally (parameterIndex, sqlType);  //@A1C
     }
 
 

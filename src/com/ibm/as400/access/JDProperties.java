@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDProperties.java
 //                                                                             
@@ -27,11 +27,24 @@ attributes for the driver.
 //
 // Implementation notes:
 //
-// 1. If adding or changing any properties, please add
-//    corresponding documentation to javadoc in JDBCProperties.html.
-//    In addition, please add a desciption in
-//    JDMRI.properties, which matches the first sentence
-//    in the description in JDBCProperties.html.
+// 1. If adding or changing any properties, please update the
+//    following:
+//
+//    __ Update JDProperties.java (this source file).
+//
+//    __ Add an entry to JDBCProperties.html.  Contact ID to
+//       change this file.
+//
+//    __ Add entries to JDMRI.java.  The description entry should
+//       match the first sentence in the description in 
+//       JDBCProperties.html.
+//
+//    __ Add getXXX/setXXX methods to AS400JDBCDataSource.java.
+//
+//    __ Add a property to AS400JDBCDataSourceBeanInfo.java.
+//
+//    __ Update the testcase JDDriverGetPropertyInfo.java to
+//       reflect the new number of properties.
 //
 // 2. We only store the key to the descriptions.  We only
 //    load the actual descriptions when the caller asks
@@ -42,6 +55,8 @@ class JDProperties implements Serializable {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
+
+    static final long serialVersionUID = 4L;
 
 
     // Callers should access the properties using one of the
@@ -77,22 +92,32 @@ class JDProperties implements Serializable {
 	static final int		    TRANSACTION_ISOLATION	= 27;
 	static final int            TRANSLATE_BINARY        = 28;
 	static final int		    USER    				= 29;
-	static final int		    PACKAGE_CRITERIA        = 30;      // @A0A
+	static final int		    PACKAGE_CRITERIA        = 30;   // @A0A
 	static final int		    LOB_THRESHOLD           = 31;
 	static final int		    SECURE                  = 32;
-    static final int            DATA_TRUNCATION         = 33;       // @C1A
+    static final int            DATA_TRUNCATION         = 33;   // @C1A
     static final int		    PROXY_SERVER            = 34;   // @A3A
-  //static final int		    PROXY_SERVER_SECURE     = 35;   // @A3A
+    //static final int		    PROXY_SERVER_SECURE     = 35;   // @A3A
     static final int		    SECONDARY_URL           = 35;   // @A3A
     static final int            DATA_COMPRESSION        = 36;   // @D0A
-   static final int         CURSOR_HOLD             = 37;       // @D1
+    static final int            BIG_DECIMAL             = 37;   // @E0A
+    static final int            THREAD_USED             = 38;   // @E1A
+    static final int            CURSOR_HOLD             = 39;   // @D1A
+    static final int            LAZY_CLOSE              = 40;   // @E2A
+    static final int            DRIVER                  = 41;   // @E3A
+    static final int            BIDI_STRING_TYPE        = 42;   // @E9A
+    static final int            KEY_RING_NAME           = 43;   // @F1A
+    static final int            KEY_RING_PASSWORD       = 44;   // @F1A
 
-	private static final int    NUMBER_OF_ATTRIBUTES_	= 38;      // @A0C @C1C @A3A @D0C @D1
+	private static final int    NUMBER_OF_ATTRIBUTES_	= 45;   // @A0C @C1C @A3A @D0C @E0C 
+                                                                // @E1C @D1  @E2C @E3C @E9C @F1C
 
 
 
     // Property names.
     private static final String ACCESS_                 = "access";
+    private static final String BIDI_STRING_TYPE_       = "bidi string type";       // @E9A
+    private static final String BIG_DECIMAL_            = "big decimal";            // @E0A
     private static final String BLOCK_SIZE_             = "block size";
     private static final String BLOCK_CRITERIA_         = "block criteria";
     private static final String CURSOR_HOLD_            = "cursor hold";            // @D1
@@ -102,8 +127,12 @@ class JDProperties implements Serializable {
     private static final String DATE_FORMAT_            = "date format";
     private static final String DATE_SEPARATOR_         = "date separator";
     private static final String DECIMAL_SEPARATOR_      = "decimal separator";
+    private static final String DRIVER_                 = "driver";                 // @E3A
     private static final String ERRORS_                 = "errors";
     private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
+    private static final String KEY_RING_NAME_          = "key ring name";          // @F1A
+    private static final String KEY_RING_PASSWORD_      = "key ring password";      // @F1A
+    private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
     private static final String LIBRARIES_              = "libraries";
     private static final String LOB_THRESHOLD_          = "lob threshold";
     private static final String NAMING_                 = "naming";
@@ -126,6 +155,7 @@ class JDProperties implements Serializable {
     private static final String SORT_LANGUAGE_          = "sort language";
     private static final String SORT_TABLE_             = "sort table";
     private static final String SORT_WEIGHT_            = "sort weight";
+    private static final String THREAD_USED_            = "thread used";         // @E1A
     private static final String TIME_FORMAT_            = "time format";
     private static final String TIME_SEPARATOR_         = "time separator";
     private static final String TRACE_                  = "trace";
@@ -196,6 +226,10 @@ class JDProperties implements Serializable {
     static final String         DECIMAL_SEPARATOR_PERIOD        = PERIOD_;
     static final String         DECIMAL_SEPARATOR_NOTSET        = EMPTY_;
 
+    static final String         DRIVER_DEFAULT                  = "default";        // @E3A
+    static final String         DRIVER_NATIVE                   = "native";         // @E3A
+    static final String         DRIVER_TOOLBOX                  = "toolbox";        // @E3A
+
     static final String         ERRORS_BASIC                    = "basic";
     static final String         ERRORS_FULL                     = "full";
 
@@ -213,6 +247,8 @@ class JDProperties implements Serializable {
     static final String         SORT_JOB                        = "job";
     static final String         SORT_LANGUAGE1                  = "language";
     static final String         SORT_TABLE1                     = "table";
+
+    static final String         SORT_LANGUAGE_ENGLISH_UNITED_STATES     = "ENU";        // @E4A
 
     static final String         SORT_WEIGHT_SHARED              = "shared";
     static final String         SORT_WEIGHT_UNIQUE              = "unique";
@@ -250,6 +286,19 @@ class JDProperties implements Serializable {
 
    static final String              NOT_SPECIFIED               = "";               // @E8A
 
+   static final String              BIDI_STRING_TYPE_NOTSET     = EMPTY_;	    // @E9A
+   static final String              BIDI_STRING_TYPE_DEFAULT    = "0";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST4	= "4";	    	    // @E9A
+   static final	String 		    BIDI_STRING_TYPE_ST5        = "5";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST6        = "6";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST7        = "7";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST8        = "8";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST9        = "9";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST10       = "10";             // @E9A
+   static final String              BIDI_STRING_TYPE_ST11       = "11";             // @E9A
+
+
+
     // Static data.
 	private static DriverPropertyInfo[] dpi_;
 	private static String[]             defaults_;
@@ -284,6 +333,34 @@ Static initializer.
 		dpi_[i].choices[2]	= ACCESS_READ_ONLY;
 		defaults_[i]        = ACCESS_ALL;
 
+	// Bidi string type.  @E9A
+        i = BIDI_STRING_TYPE;
+        dpi_[i] = new DriverPropertyInfo (BIDI_STRING_TYPE_, "");
+        dpi_[i].description = "BIDI_STRING_TYPE_DESC";
+        dpi_[i].required	= false;
+        dpi_[i].choices		= new String[10];
+        dpi_[i].choices[0]	= BIDI_STRING_TYPE_NOTSET;
+	dpi_[i].choices[1]      = BIDI_STRING_TYPE_DEFAULT;
+        dpi_[i].choices[2]	= BIDI_STRING_TYPE_ST4;
+	dpi_[i].choices[3]      = BIDI_STRING_TYPE_ST5;
+	dpi_[i].choices[4]      = BIDI_STRING_TYPE_ST6;
+	dpi_[i].choices[5]      = BIDI_STRING_TYPE_ST7;
+	dpi_[i].choices[6]      = BIDI_STRING_TYPE_ST8;
+	dpi_[i].choices[7]      = BIDI_STRING_TYPE_ST9;
+	dpi_[i].choices[8]      = BIDI_STRING_TYPE_ST10;
+	dpi_[i].choices[9]      = BIDI_STRING_TYPE_ST11;
+        defaults_[i]        = BIDI_STRING_TYPE_NOTSET;
+
+        // Big decimal.  @E0A
+        i = BIG_DECIMAL;
+        dpi_[i] = new DriverPropertyInfo (BIG_DECIMAL_, "");
+        dpi_[i].description = "BIG_DECIMAL_DESC";
+        dpi_[i].required	= false;
+        dpi_[i].choices		= new String[2];
+        dpi_[i].choices[0]	= FALSE_;
+        dpi_[i].choices[1]	= TRUE_;
+        defaults_[i]        = TRUE_;
+  
 		// Block criteria.
 		i = BLOCK_CRITERIA;
 		dpi_[i] = new DriverPropertyInfo (BLOCK_CRITERIA_, "");
@@ -314,7 +391,7 @@ Static initializer.
         // Cursor Hold.  @D1
         i = CURSOR_HOLD;
         dpi_[i] = new DriverPropertyInfo (CURSOR_HOLD_, "");
-        dpi_[i].description = "Specifies whether to hold the cursor across transactions.";      // @D1 - MRI to be added in V5R1
+        dpi_[i].description = "CURSOR_HOLD_DESC";
         dpi_[i].required	= false;
         dpi_[i].choices		= new String[2];
         dpi_[i].choices[0]	= TRUE_;
@@ -329,7 +406,7 @@ Static initializer.
         dpi_[i].choices		= new String[2];
         dpi_[i].choices[0]	= FALSE_;
         dpi_[i].choices[1]	= TRUE_;
-        defaults_[i]        = FALSE_;
+        defaults_[i]        = TRUE_;        // @F3C
   
         // Data truncation.  @C1A
         i = DATA_TRUNCATION;
@@ -339,7 +416,7 @@ Static initializer.
         dpi_[i].choices		= new String[2];
         dpi_[i].choices[0]	= TRUE_;
         dpi_[i].choices[1]	= FALSE_;
-        defaults_[i]        = FALSE_;
+        defaults_[i]        = TRUE_;        // @F2C
   
 		// Date format.  The order that the choices are listed
 		// is significant - the index matches the server value.
@@ -385,6 +462,17 @@ Static initializer.
 		dpi_[i].choices[1]	= DECIMAL_SEPARATOR_COMMA;
         defaults_[i]        = DECIMAL_SEPARATOR_NOTSET;
 
+		// Driver. @E3A
+		i = DRIVER;
+		dpi_[i] = new DriverPropertyInfo(DRIVER_, "");
+		dpi_[i].description = "DRIVER_DESC";
+		dpi_[i].required	= false;
+		dpi_[i].choices		= new String[2];
+		dpi_[i].choices[0]	= DRIVER_DEFAULT;
+		dpi_[i].choices[0]	= DRIVER_TOOLBOX;
+		dpi_[i].choices[1]	= DRIVER_NATIVE;
+        defaults_[i]        = DRIVER_DEFAULT;
+
 		// Extended dynamic.
 		i = EXTENDED_DYNAMIC;
 		dpi_[i] = new DriverPropertyInfo (EXTENDED_DYNAMIC_, "");
@@ -405,6 +493,34 @@ Static initializer.
 		dpi_[i].choices[0]	= ERRORS_FULL;
         defaults_[i]        = ERRORS_BASIC;
 
+	 // KeyRingName.		//@F1A
+		i = KEY_RING_NAME;
+		dpi_[i] = new DriverPropertyInfo (KEY_RING_NAME_, "");
+		dpi_[i].description = "KEY_RING_NAME_DESC";
+		dpi_[i].required	= false;
+		dpi_[i].choices		= new String[0];
+        defaults_[i]        = EMPTY_;
+
+
+	 // KeyRingPassword.		//@F1A
+		i = KEY_RING_PASSWORD;
+		dpi_[i] = new DriverPropertyInfo (KEY_RING_PASSWORD_, "");
+		dpi_[i].description = "KEY_RING_PASSWORD_DESC";
+		dpi_[i].required	= false;
+		dpi_[i].choices		= new String[0];
+        defaults_[i]        = EMPTY_;
+
+
+        // Lazy close.  @E2A
+        i = LAZY_CLOSE;
+        dpi_[i] = new DriverPropertyInfo (LAZY_CLOSE_, "");
+        dpi_[i].description = "LAZY_CLOSE_DESC";
+        dpi_[i].required	= false;
+        dpi_[i].choices		= new String[2];
+        dpi_[i].choices[0]	= FALSE_;
+        dpi_[i].choices[1]	= TRUE_;
+        defaults_[i]        = FALSE_;	//@E6C
+  
 		// Libraries.
 		i = LIBRARIES;
 		dpi_[i] = new DriverPropertyInfo (LIBRARIES_, "");
@@ -588,12 +704,18 @@ Static initializer.
         defaults_[i]        = SORT_JOB;
 
 		// Sort language.
+        //
+        // We set the default to Engligh United States.  At first, we set              @E4A
+        // it to "   " (3 spaces), but that causes an host server error.               @E4A
+        // It would probably be better to choose a default based on the client         @E4A
+        // locale, but that may prove to be a high-maintenance mapping,                @E4A
+        // as locales are added to Java and languages are added to the AS/400.         @E4A
 		i = SORT_LANGUAGE;
 		dpi_[i] = new DriverPropertyInfo (SORT_LANGUAGE_, "");
 		dpi_[i].description = "SORT_LANGUAGE_DESC";
 		dpi_[i].required	= false;
 		dpi_[i].choices		= new String[0];
-        defaults_[i]        = EMPTY_;
+        defaults_[i]        = SORT_LANGUAGE_ENGLISH_UNITED_STATES;                  // @E4C
 
 		// Sort table.
 		i = SORT_TABLE;
@@ -612,6 +734,16 @@ Static initializer.
 		dpi_[i].choices[0]	= SORT_WEIGHT_SHARED;
 		dpi_[i].choices[1]	= SORT_WEIGHT_UNIQUE;
         defaults_[i]        = SORT_WEIGHT_SHARED;
+
+      // Thread used.                                          // @E1C
+      i = THREAD_USED;
+      dpi_[i] = new DriverPropertyInfo (THREAD_USED_, "");
+      dpi_[i].description = "THREAD_USED_DESC";
+      dpi_[i].required	= false;
+      dpi_[i].choices		= new String[2];
+      dpi_[i].choices[0]  = TRUE_;
+      dpi_[i].choices[1]  = FALSE_;
+        defaults_[i]        = TRUE_;
 
 		// Time format.  The order that the choices are listed
 		// is significant - the index matches the server value.
@@ -719,7 +851,7 @@ Constructor.
                         if (propertyName.equalsIgnoreCase (dpi_[j].name))
                             found = true;
 
-                    if (! found)                                   // @D1
+                    if (! found)                       // @D1 - Websphere uses "CURSORHOLD"
                     {
                        if (propertyName.equalsIgnoreCase(CURSORHOLD_))
                        {
@@ -741,7 +873,7 @@ Constructor.
                                   + propertyName + "\"");
                        }
                     }
-                    //if (! found) {                                 // @D1
+                    //if (! found) {                  // @D1
                     //    extra_ = true;
                     //    if (JDTrace.isTraceOn())
                     //        JDTrace.logInformation (this, "Extra property: \""
@@ -761,7 +893,7 @@ Constructor.
                         if (propertyName.equalsIgnoreCase (dpi_[j].name))
                             found = true;
 
-                    if (! found)                                   // @D1
+                    if (! found)                  // @D1 - Websphere uses "CURSORHOLD"
                     {
                        if (propertyName.equalsIgnoreCase(CURSORHOLD_))
                        {
@@ -783,7 +915,7 @@ Constructor.
                                   + propertyName + "\"");
                        }
                     }
-                    //if (! found) {                              // @D1
+                    //if (! found) {                    // @D1
                     //    extra_ = true;
                     //    if (JDTrace.isTraceOn())
                     //        JDTrace.logInformation (this, "Extra property: \""
@@ -826,7 +958,7 @@ Get the driver property info.
 
 		for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
 
-		    if (i != PASSWORD)
+		    if (i != PASSWORD && i != KEY_RING_PASSWORD) //@F1C
     			dpi[i] = new DriverPropertyInfo (dpi_[i].name, values_[i]);
     	    else
     	        dpi[i] = new DriverPropertyInfo (dpi_[i].name, "");
@@ -949,7 +1081,7 @@ returned.
     {
         String value = values_[index];
 
-        if (index == PASSWORD)
+        if (index == PASSWORD || index == KEY_RING_PASSWORD) //@F1C
             values_[index] = "";
 
         return value.trim();
@@ -992,6 +1124,7 @@ which is why it is static.
 
 
 
+
 /**
 Set the value of the specified property.
 If choices are allowed, then the value will be compared against
@@ -1005,7 +1138,7 @@ the default value.
     {
         // If no property was provided, then set the choice
         // to the default.
-        if (value == null)
+        if ((value == null) || (value.length() == 0))               // @E5C
             values_[index] = defaults_[index];
         else
             values_[index] = value;
@@ -1029,7 +1162,7 @@ the default value.
 
         if (JDTrace.isTraceOn())
             JDTrace.logProperty (this, dpi_[index].name,
-                ((index != PASSWORD) ? values_[index] : ""));
+                ((index != PASSWORD && index != KEY_RING_PASSWORD) ? values_[index] : ""));  //@F1C
     }
 
 

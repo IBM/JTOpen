@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConverterImplRemote.java
 //                                                                             
@@ -22,6 +22,9 @@ import java.util.Hashtable;
 class ConverterImplRemote implements ConverterImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+//@E3D  private static Hashtable pool_ = new Hashtable();  // Keep a pool of Converter Objects
 
   ConvTable table_;
 
@@ -63,8 +66,17 @@ class ConverterImplRemote implements ConverterImpl
   
   static ConverterImplRemote getConverter(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
   {
+    //@E1D String ccsidstr = String.valueOf(ccsid);
+//@E3D    Integer ccsidint = new Integer(ccsid); //@E1A
+//@E3D    ConvTable table = (ConvTable)pool_.get(ccsidint);  // look in pool for object @E1C
     ConvTable table = ConvTable.getTable(ccsid, system); //@E3A
+//@E3D    if(table != null)  // if object in pool
+//@E3D    {
     return new ConverterImplRemote(table);
+//@E3D    }
+//@E3D    table = ConvTable.getTable(ccsid, system);  // else construct new object
+//@E3D    pool_.put(ccsidint, table); // and put it in pool @E1C
+//@E3D    return new ConverterImplRemote(table);
   }
 
   
@@ -87,19 +99,40 @@ class ConverterImplRemote implements ConverterImpl
      if (AS400BidiTransform.isBidiCcsid(ccsid))
         return AS400BidiTransform.getStringType((char)ccsid);
      else
-        return ConverterImpl.LTR;
+        return BidiStringType.DEFAULT;
   }
 
   
   public void setCcsid(int ccsid, AS400Impl system) throws UnsupportedEncodingException
   {
+    //@E1D String ccsidstr = String.valueOf(ccsid);
+//@E3D    Integer ccsidint = new Integer(ccsid); //@E1A
+//@E3D    table_ = (ConvTable)pool_.get(ccsidint);  // look in pool for object @E1C
     table_ = ConvTable.getTable(ccsid, null); //@E3A
+//@E3D    if(table_ == null)  // if object not in pool @E1C
+//@E3D    {
+//@E3D      table_ = ConvTable.getTable(ccsid, (AS400ImplRemote)system);  // construct new object
+//@E3D      pool_.put(ccsidint, table_); // and put it in pool @E1C
+//@E3D    }
   }
 
   
   public void setEncoding(String encoding) throws UnsupportedEncodingException
   {
+//@E3D    String ccsidstr = ConversionMaps.encodingToCcidString(encoding); //@B0C
+//@E3D    if(ccsidstr == null)
+//@E3D    {
+//@E3D      table_ = ConvTable.getTable(encoding);  // try, in case this is a new encoding we don't know about yet, otherwise this line will throw the UnsupportedEncodingException
+//@E3D      return;
+//@E3D    }
+//@E3D    Integer ccsidint = new Integer(ccsidstr); //@E1A
+//@E3D    table_ = (ConvTable)pool_.get(ccsidint);  // look in pool for object @E1C
     table_ = ConvTable.getTable(encoding); //@E3A
+//@E3D    if(table_ == null)  // if object not in pool
+//@E3D    {
+//@E3D      table_ = ConvTable.getTable(encoding);  // else construct new object
+//@E3D      pool_.put(ccsidint, table_); // and put it in pool @E1C
+//@E3D    }
   }
 
   
@@ -159,7 +192,24 @@ class ConverterImplRemote implements ConverterImpl
   **/
   void stringToByteArray(String source, byte[] destination, int offset, int length) throws CharConversionException
   {
-    byte[] convertedBytes = stringToByteArray(source, getStringType(getCcsid()));      //$E0C  $E2C
+     stringToByteArray(source, destination, offset, length, getStringType(getCcsid()));       //@E2C
+    
+  }
+
+
+  //@E2A
+  /**
+   * Converts the specified String into bytes.
+   * @param  source  the String to convert.
+   * @param  destination  the destination byte array.
+   * @param  offset  the offset into the destination array for the start of the data.
+   * @param  length  the length of data to write into the array.
+   * @param  type    the bidi string type.
+   * @exception  CharConversionException  If destination is not large enough to hold the converted string.
+  **/
+  void stringToByteArray(String source, byte[] destination, int offset, int length, int type) throws CharConversionException
+  {
+    byte[] convertedBytes = stringToByteArray(source, type);      //$E0C  $E2C
     if(convertedBytes.length > length)
     {
       // Copy as much as will fit

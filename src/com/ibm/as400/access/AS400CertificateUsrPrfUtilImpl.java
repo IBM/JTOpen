@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUsrPrfUtilImpl.java
 //                                                                             
@@ -23,6 +23,11 @@ import java.beans.PropertyVetoException;
 abstract class AS400CertificateUsrPrfUtilImpl implements java.io.Serializable, AS400CertificateUtilImplConstants
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+
+    static final long serialVersionUID = 4L;
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileRecordDescriptionEvent.java
 //                                                                             
@@ -16,12 +16,18 @@ package com.ibm.as400.access;
 /**
  *The AS400FileRecordDescriptionEvent class represents a RecordDescriptionEvent.  This class is used to
  *fire events from the record description classes,
- *<a href="com.ibm.as400.access.RecordFormat.html">RecordFormat</a> and
- *<a href="com.ibm.as400.access.RecordFormat.html">Record</a>.
+ *<a href="RecordFormat.html">RecordFormat</a> and
+ *<a href="RecordFormat.html">Record</a>.
 **/
 public class AS400FileRecordDescriptionEvent extends java.util.EventObject
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
+
 
   /**
    *Event ID indicating that the record formats for a file
@@ -57,7 +63,7 @@ public class AS400FileRecordDescriptionEvent extends java.util.EventObject
     id_ = id;
   }
 
-  
+
   /**
    *Returns the identifier for this event.
    *@return The identifier for this event.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400BidiTransform.java
 //                                                                             
@@ -260,8 +260,12 @@ public class AS400BidiTransform
  */
     public void setAS400StringType(int as400Type)
     {
-        if (as400Type < BidiStringType.DEFAULT || as400Type > BidiStringType.ST14)
+        if (as400Type != BidiStringType.DEFAULT && (as400Type < BidiStringType.ST4 || as400Type > BidiStringType.ST11))
+        {  
+           Trace.log(Trace.ERROR, "Attempting to set the as400 string type to an invalid Bidi sting type.");
            throw new ExtendedIllegalArgumentException("as400Type", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+           
 
         this.as400Type = as400Type;
         if (flagSet[as400Type] == null)
@@ -299,12 +303,9 @@ public class AS400BidiTransform
  */
     public void setJavaStringType(int javaType)
     {
-        //Not all data will fall into the suggested String Types.
-        //if (javaType != BidiStringType.ST5 || javaType != BidiStringType.ST6 ||
-        //    javaType != BidiStringType.ST10 || javaType != BidiStringType.ST11)
-        if (as400Type < BidiStringType.DEFAULT || as400Type > BidiStringType.ST14)
+        if (javaType != BidiStringType.DEFAULT && (javaType < BidiStringType.ST4 || javaType > BidiStringType.ST11))
         {
-           Trace.log(Trace.ERROR, "Attempting to set the java string type to an invalid sting type.");
+           Trace.log(Trace.ERROR, "Attempting to set the java string type to an invalid Bidi sting type.");
            throw new ExtendedIllegalArgumentException("javaType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         if (flagSet[javaType] == null)
@@ -365,9 +366,9 @@ public class AS400BidiTransform
         return src.transform(bdxJ2A).toString();
     }
 
-/*----------------------  Private Methods  ---------------------------*/
 
-    static int getStringType(char ccsid)
+
+    public static int getStringType(char ccsid)
     /* Return default string type for parm ccsid based on ccsidTable */
     {
         int low, high, mid;
@@ -390,7 +391,7 @@ public class AS400BidiTransform
         return 0;
     }
 
-/*--------------------------------------------------------------------*/
+/*----------------------  Private Methods  ---------------------------*/
 
     static BidiFlagSet initFlagSet(char stringType)
     /* Return BidiFlagSet according to String Type */

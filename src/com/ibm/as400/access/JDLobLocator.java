@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDLobLocator.java
 //                                                                             
@@ -42,6 +42,7 @@ class JDLobLocator
     private boolean                 dataCompression_;                   // @B0A
     private int                     id_;
     private int                     handle_;
+    private long                    length_             = -1;           // @C1A
     private int                     maxLength_;                         // @A1A
 
 
@@ -61,19 +62,9 @@ Constructs an JDLobLocator object.
         id_              = id;
         handle_          = -1;
         maxLength_       = maxLength;                                   // @A1A
-        dataCompression_ = connection_.getProperties().getBoolean(JDProperties.DATA_COMPRESSION); // @B0A
+        dataCompression_ = connection_.getDataCompression() == AS400JDBCConnection.DATA_COMPRESSION_OLD_; // @B0A @C2C
     }
 
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-    
 
 
 /**
@@ -85,6 +76,16 @@ Returns the locator handle.
     {
         return handle_;
     }
+
+
+
+    public long getLength()                                 // @C1A
+       throws SQLException                                  // @C1A
+    {                                                       // @C1A
+        if (length_ == -1)                                  // @C1A
+            retrieveData(0,0);                              // @C1A
+        return length_;                                     // @C1A
+    }                                                       // @C1A
 
 
     
@@ -156,13 +157,13 @@ Retrieves part of the contents of the lob.
             || (length < 0))                                        // @A1A
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); // @A1A
 
-        // The database flags an error if you pass in a 0              @A1A
-        // length, so do nothing in that case.                         @A1A
-        if (length == 0) {                                          // @A1A
-            DBLobData lobData = new DBLobData (0, 0, false);        // @A1A @B0C @B1C
-            lobData.overlay (new byte[0], 0);                       // @A1A @B0C
-            return lobData;                                         // @A1A @B0C
-        }                                                           // @A1A
+        // @C1D // The database flags an error if you pass in a 0              @A1A
+        // @C1D // length, so do nothing in that case.                         @A1A
+        // @C1D if (length == 0) {                                          // @A1A
+        // @C1D     DBLobData lobData = new DBLobData (0, 0, false);        // @A1A @B0C @B1C
+        // @C1D     lobData.overlay (new byte[0], 0);                       // @A1A @B0C
+        // @C1D     return lobData;                                         // @A1A @B0C
+        // @C1D }                                                           // @A1A
 
         try {
     	  	DBSQLRequestDS request = new DBSQLRequestDS (
@@ -172,7 +173,8 @@ Retrieves part of the contents of the lob.
 	    	request.setLOBLocatorHandle (handle_);
 	    	request.setRequestedSize (length);
 	    	request.setStartOffset (start);
-	    	request.setCompressionIndicator (dataCompression_ ? 0xF1 : 0xF0); // @B0C
+	    	request.setCompressionIndicator (dataCompression_ ? 0xF1 : 0xF0);   // @B0C
+            request.setReturnCurrentLengthIndicator(0xF1);                      // @C1A
 
             if (JDTrace.isTraceOn ())
                 JDTrace.logInformation (connection_, "Retrieving lob data");
@@ -184,6 +186,7 @@ Retrieves part of the contents of the lob.
             if (errorClass != 0)
 	    	    JDError.throwSQLException (connection_, id_, errorClass, returnCode);
 
+            length_ = reply.getCurrentLOBLength();                              // @C1A
             return reply.getLOBData ();
 	    }
         catch (DBDataStreamException e) {
@@ -202,6 +205,7 @@ Sets the locator handle.
     public void setHandle (int handle)
     {
         handle_ = handle;
+        length_ = -1;                                           // @C1A
     }
 
 

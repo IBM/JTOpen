@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileRecordDescriptionImpl.java
 //                                                                             
@@ -30,7 +30,7 @@ interface AS400FileRecordDescriptionImpl
    *The name of the class is the name of the record format retrieved with the string "Format"
    *appended to it.  The name of the file is the name of the class with the extension .java.<br>
    *The source files generated can be compiled and used as input to the
-   *<a href="com.ibm.as400.access.AS400File.html#setRecordFormat">AS400File.setRecordFormat()</a> method.<br>
+   *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a> method.<br>
    *The AS/400 system to which to connect and the integrated file system
    *pathname for the file must be set prior to invoking this method.
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
@@ -50,7 +50,7 @@ interface AS400FileRecordDescriptionImpl
    *@exception InterruptedException If this thread is interrupted.
    *@exception ServerStartupException If the AS/400 server cannot be started.
    *@exception UnknownHostException If the AS/400 system cannot be located.
- 
+
   **/
   public abstract String[] createRecordFormatSource(String packageName)
     throws AS400Exception,
@@ -62,7 +62,7 @@ interface AS400FileRecordDescriptionImpl
   /**
    *Retrieves the file description for the file, and creates a RecordFormat
    *object for each record format, which can be used as input to the
-   *<a href="com.ibm.as400.access.AS400File.html#setRecordFormat">AS400File.setRecordFormat()</a>
+   *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a>
    *method.  If the file is a physical file, the RecordFormat array returned
    *contains one
    *RecordFormat object.  If the file is a multiple format logical file, the

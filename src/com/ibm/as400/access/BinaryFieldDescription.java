@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BinaryFieldDescription.java
 //                                                                             
@@ -20,10 +20,10 @@ import java.util.Vector;
  *The BinaryFieldDescription class represents the description of the data in a binary (integer) field.
  *It allows:
  *<ul>
- *<li>The user to describe a binary field to the <a href="com.ibm.as400.access.RecordFormat.html">RecordFormat</a> object.
+ *<li>The user to describe a binary field to the <a href="RecordFormat.html">RecordFormat</a> object.
  *<li>The RecordFormat object to describe a binary field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *Click <a href="../../../../recordxmp.html">here</a>to see an example.
  **/
 public class BinaryFieldDescription extends FieldDescription implements Serializable
 {
@@ -127,7 +127,7 @@ public class BinaryFieldDescription extends FieldDescription implements Serializ
     length_ = length;
   }
 
-  
+
   /**
    *Returns the DDS description for the field.  This is a string containing
    *the description of the field as it would be specified in a DDS source file.

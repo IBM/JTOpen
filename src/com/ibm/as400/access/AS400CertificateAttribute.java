@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateAttribute.java
 //                                                                             
@@ -25,6 +25,9 @@ public class AS400CertificateAttribute extends Object
     implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
 
 
   private int attrType_; // Certificate attribute type, byte[] or String.

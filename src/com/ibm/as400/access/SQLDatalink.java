@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLDatalink.java
 //                                                                             
@@ -62,13 +62,6 @@ implements SQLData
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
 //---------------------------------------------------------//
 //                                                         //
 // CONVERSION TO AND FROM RAW BYTES                        //
@@ -94,7 +87,7 @@ implements SQLData
             ccsidConverter.stringToByteArray (value_, rawBytes, offset + 2, length_);
         }
         catch (Exception e) {
-          JDError.throwSQLException (JDError.EXC_INTERNAL);
+          JDError.throwSQLException (JDError.EXC_INTERNAL, e);              // @C2A
         }
     }
 
@@ -216,10 +209,10 @@ implements SQLData
 
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+    // @C1D public boolean isGraphic ()
+    // @C1D {
+    // @C1D    return false;
+    // @C1D }
 
 
 

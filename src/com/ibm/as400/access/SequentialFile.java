@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SequentialFile.java
 //                                                                             
@@ -44,7 +44,7 @@ import java.io.Serializable;
  *</ul>
  *SequentialFile objects generate the following events:
  *<ul>
- *<li><a href="com.ibm.as400.access.FileEvent.html">FileEvent</a>
+ *<li><a href="FileEvent.html">FileEvent</a>
  *<br>The events fired are:
  *<ul>
  *<li>FILE_CLOSED
@@ -53,26 +53,31 @@ import java.io.Serializable;
  *<li>FILE_MODIFIED
  *<li>FILE_OPENED
  *</ul>
- *<li><a href="java.beans.PropertyChangeEvent.html">PropertyChangeEvent</a>
- *<li><a href="java.beans.VetoableChangeEvent.html">VetoableChangeEvent</a>
+ *<li>PropertyChangeEvent
+ *<li>VetoableChangeEvent
  *</ul>
 **/
 public class SequentialFile extends AS400File implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-//  static final long serialVersionUID = 7550037661249011003L;
+
+
+
+    static final long serialVersionUID = 4L;
+
+
 
   /**
    *Constructs a SequentialFile object.
   **/
   public SequentialFile()
   {
-    
+
   }
 
   /**
-   *Constructs a SequentialFile object. It uses the 
+   *Constructs a SequentialFile object. It uses the
    * system and file name specified.
    *If the <i>name</i> for the file does not include a member, the
    *first member of the file will be used.
@@ -116,7 +121,7 @@ public class SequentialFile extends AS400File implements Serializable
    *to the first record.  If <i>blockingFactor</i> is greater than one (or
    *if zero is specified and a blocking factor greater than one is determined
    *by the object) and the file is opened for READ_ONLY, the record cache will
-   *be filled with an initial set of records.<br>  
+   *be filled with an initial set of records.<br>
    *The record format for the file must be set prior to calling this method.<br>
    *The name of the file and the AS400 system to which to connect must be set prior
    *to invoking this method.
@@ -206,7 +211,7 @@ public class SequentialFile extends AS400File implements Serializable
    *@param recordNumber The record number of the record at which to position the
    *cursor.
    *@exception AS400Exception If the AS/400 system returns an error message.
-   *@exception AS400SecurityException If a security or authority error occurs.       
+   *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the AS/400.
@@ -350,15 +355,15 @@ public class SequentialFile extends AS400File implements Serializable
     // See AS400FileImplRemote.readAll() for information regarding
     // changes in the under-the-covers behavior.
     chooseImpl();
-    
+
     // Before we calculate, make sure the record format has had
     // its text objects initialized.
-    recordFormat_.initializeTextObjects(system_); //@D0A      
-    
+    recordFormat_.initializeTextObjects(system_); //@D0A
+
     // Use a calculated blocking factor, else use a large blocking factor
     int bf = 2048/(recordFormat_.getNewRecord().getRecordLength() + 16); //@D0M
     if (bf <= 1) bf = 100; //@D0M
-    
+
     Record[] recs = impl_.doItRecordArray("readAll", new Class[] { String.class, Integer.TYPE }, new Object[] { "seq", new Integer(bf) }); //@D0C
     //@D0A
     if (recs != null)
@@ -368,7 +373,7 @@ public class SequentialFile extends AS400File implements Serializable
         recs[i] = fillInRecord(recs[i]);
       }
     }
-    
+
     return recs; //@D0C
   }
 
@@ -460,5 +465,5 @@ public class SequentialFile extends AS400File implements Serializable
     {
       throw new ExtendedIllegalArgumentException("recordNumber", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-  }  
+  }
 }

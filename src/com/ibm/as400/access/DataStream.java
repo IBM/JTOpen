@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataStream.java
 //                                                                             
@@ -136,6 +136,13 @@ abstract class DataStream
     protected int get32bit(int offset)
     {
         return BinaryConverter.byteArrayToInt(data_, offset);
+    }
+
+    // Retrieve data from the data stream as a long from the specified offset.
+    // @param  offset  Offset in the data stream from which to retrieve.
+    protected long get64bit(int offset)
+    {
+        return BinaryConverter.byteArrayToLong(data_, offset);
     }
 
     // Retrieve the hash code for this data stream.

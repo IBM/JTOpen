@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RootPermission.java
 //                                                                             
@@ -34,6 +34,11 @@ to the AS/400.
 public class RootPermission extends UserPermission
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
     /**
      * Constructs a RootPermission object. This is the permission of the specified user.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCDriver.java
 //                                                                             
@@ -15,7 +15,10 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.beans.PropertyVetoException;    // @B9A
+import java.net.InetAddress;                // @C2A
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
@@ -53,7 +56,7 @@ for the connection.  If SQL naming is being used, and no default schema
 is set, then the driver resolves unqualified names using the schema with 
 the same name as the user.  If system naming is being used, and no
 default schema is set, then the driver resolves unqualified names using
-the server job's library list.  See <a href="JDBCProperties.html">JDBC
+the server job's library list.  See <a href="../../../../JDBCProperties.html">JDBC
 properties</a> for more details on how to set the naming convention
 and library list.
 
@@ -62,7 +65,7 @@ separated by semicolons and are in the form:
 <pre>
 <em>name1</em>=<em>value1</em>;<em>name2</em>=<em>value2</em>;<em>...</em>
 </pre>
-See <a href="JDBCProperties.html">JDBC properties</a> for a
+See <a href="../../../../JDBCProperties.html">JDBC properties</a> for a
 complete list of properties supported by this driver.
 
 <p>The following example URL specifies a connection to the
@@ -101,104 +104,107 @@ implements java.sql.Driver
 
 
 
-    // Constants.
-    static final int    MAJOR_VERSION_          = 3;                                        // @D0C
-    static final int    MINOR_VERSION_          = 0;
-    static final String DATABASE_PROCUCT_NAME_  = "DB2 UDB for AS/400";                     // @D0A
-    static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver";    // @D0C
+	// Constants.
+	static final int    MAJOR_VERSION_          = 4;										// @B1C
+	static final int    MINOR_VERSION_          = 0;
+	static final String DATABASE_PROCUCT_NAME_  = "DB2 UDB for AS/400";						// @D0A
+	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver";	// @D0C
 
 
 
-    // This string "9999:9999" is returned when resource
-    // bundle errors occur.  No significance to this string,
-    // except that Client Access used to use it.  It would
-    // probably be more helpful to return some other string.
-    //
-    private static final String MRI_NOT_FOUND_  = "9999:9999";
+	// This string "9999:9999" is returned when resource
+	// bundle errors occur.  No significance to this string,
+	// except that Client Access used to use it.  It would
+	// probably be more helpful to return some other string.
+	//
+	private static final String MRI_NOT_FOUND_  = "9999:9999";
 
 
 
-    // Private data.
+	// Private data.
 
-    // Toolbox resources needed in proxy jar file.            @A1C
-    private static ResourceBundle resources_;
-    // Toolbox resources NOT needed in proxy jar file.        @A1A
-    private static ResourceBundle resources2_;
-
-
-
-/**
-Static initializer.  Registers the JDBC driver with the JDBC
-driver manager and loads the appropriate resource bundle for
-the current locale.
-**/
-    static {
-      try {
-        DriverManager.registerDriver (new AS400JDBCDriver ());
-        resources_  = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI");
-        resources2_ = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI2");
-        // Note: When using the proxy jar file, we do not expect to find JDMRI2.
-      }
-      catch (MissingResourceException e) {
-
-        // Catch the exception.  This is because exceptions
-        // thrown from static initializers are hard to debug.
-        // Instead, we will handle the error when the
-        // driver needs to get at particular methods.
-        // See getResource().
-      }
-      catch (SQLException e) {
-        // Ignore.
-      }
-    }
+	// Toolbox resources needed in proxy jar file.            @A1C
+	private static ResourceBundle resources_;
+	// Toolbox resources NOT needed in proxy jar file.        @A1A
+	private static ResourceBundle resources2_;
 
 
 
-/**
-Indicates if the driver understands how to connect
-to the database named by the URL.
+	/**
+	Static initializer.  Registers the JDBC driver with the JDBC
+	driver manager and loads the appropriate resource bundle for
+	the current locale.
+	**/
+	static {
+		try
+		{
+			DriverManager.registerDriver (new AS400JDBCDriver ());
+			resources_  = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI");
+			resources2_ = ResourceBundle.getBundle ("com.ibm.as400.access.JDMRI2");
+			// Note: When using the proxy jar file, we do not expect to find JDMRI2.
+		}
+		catch (MissingResourceException e)
+		{
 
-@param  url     The URL for the database.
-@return         true if the driver understands how
-                to connect to the database; false
-                otherwise.
-
-@exception SQLException If an error occurs.
-**/
-    public boolean acceptsURL (String url)
-        throws SQLException
-    {
-        JDDataSourceURL dataSourceUrl = new JDDataSourceURL (url);
-        return dataSourceUrl.isValid ();
-    }
+			// Catch the exception.  This is because exceptions
+			// thrown from static initializers are hard to debug.
+			// Instead, we will handle the error when the
+			// driver needs to get at particular methods.
+			// See getResource().
+		}
+		catch (SQLException e)
+		{
+			// Ignore.
+		}
+	}
 
 
 
-/**
-Connects to the database named by the specified URL.
-There are many optional properties that can be specified.
-Properties can be specified either as part of the URL or in
-a java.util.Properties object.  See <a href="JDBCProperties.html">
-JDBC properties</a> for a complete list of properties
-supported by this driver.
+	/**
+	Indicates if the driver understands how to connect
+	to the database named by the URL.
+	
+	@param  url     The URL for the database.
+	@return         true if the driver understands how
+					to connect to the database; false
+					otherwise.
+	
+	@exception SQLException If an error occurs.
+	**/
+	public boolean acceptsURL (String url)
+	throws SQLException
+	{
+		JDDataSourceURL dataSourceUrl = new JDDataSourceURL (url);
+		return dataSourceUrl.isValid ();
+	}
 
-@param  url     The URL for the database.
-@param  info    The connection properties.
-@return         The connection to the database or null if
-                the driver does not understand how to connect
-                to the database.
 
-@exception SQLException If the driver is unable to make the connection.
-**/
-    public java.sql.Connection connect (String url,
-					                    Properties info)
-        throws SQLException
-    {
-      // Check first thing to see if the trace property is
-      // turned on.  This way we can trace everything, including
-      // the important stuff like loading the properties.
-      JDDataSourceURL	dataSourceUrl = new JDDataSourceURL (url);
-      Properties urlProperties = dataSourceUrl.getProperties ();
+
+	/**
+	Connects to the database named by the specified URL.
+	There are many optional properties that can be specified.
+	Properties can be specified either as part of the URL or in
+	a java.util.Properties object.  See <a href="../../../../JDBCProperties.html">
+	JDBC properties</a> for a complete list of properties
+	supported by this driver.
+	
+	@param  url     The URL for the database.
+	@param  info    The connection properties.
+	@return         The connection to the database or null if
+					the driver does not understand how to connect
+					to the database.
+	
+	@exception SQLException If the driver is unable to make the connection.
+	**/
+	public java.sql.Connection connect (String url,
+										Properties info)
+	throws SQLException
+	{
+		// Check first thing to see if the trace property is
+		// turned on.  This way we can trace everything, including
+		// the important stuff like loading the properties.
+		JDDataSourceURL   dataSourceUrl = new JDDataSourceURL (url);
+		Properties urlProperties = dataSourceUrl.getProperties ();
 
 		// If trace property was set to true, turn on tracing.  If trace property was set to false,
 		// turn off tracing.  If trace property was not set, do not change.
@@ -218,17 +224,16 @@ supported by this driver.
 		//@B4D else
 		//@B4D JDTrace.setTraceOn (false);
 
-      JDProperties jdProperties = new JDProperties (urlProperties, info);
+		JDProperties jdProperties = new JDProperties (urlProperties, info);
 
-      // Initialize the connection if the URL is valid.
-      Connection connection = null;                                        //@A0C
-      if (dataSourceUrl.isValid ())
-        connection = initializeConnection (dataSourceUrl, jdProperties,
-                                           info);  //@A0C
+		// Initialize the connection if the URL is valid.
+		Connection connection = null;										 //@A0C
+		if (dataSourceUrl.isValid ())
+			connection = initializeConnection (dataSourceUrl, jdProperties,
+											   info);  //@A0C
 
-      return connection;
-    }
-
+		return connection;
+	}
 
 
 	//@B5A
@@ -274,7 +279,7 @@ supported by this driver.
 	Connects to the database on the specified system.
 	There are many optional properties that can be specified.
 	Properties can be specified in
-	a java.util.Properties object.  See <a href="JDBCProperties.html">
+	a java.util.Properties object.  See <a href="../../../../JDBCProperties.html">
 	JDBC properties</a> for a complete list of properties
 	supported by this driver.  
 	
@@ -341,167 +346,159 @@ supported by this driver.
 	}
 
 
-/**
-Returns the driver's major version number.
-
-@return         The major version number.
-**/
-    public int getMajorVersion ()
-    {
+	/**
+	Returns the driver's major version number.
+	
+	@return         The major version number.
+	**/
+	public int getMajorVersion ()
+	{
 		return MAJOR_VERSION_;
-    }
+	}
 
 
 
-/**
-Returns the driver's minor version number.
-
-@return         The minor version number.
-**/
-    public int getMinorVersion ()
-    {
+	/**
+	Returns the driver's minor version number.
+	
+	@return         The minor version number.
+	**/
+	public int getMinorVersion ()
+	{
 		return MINOR_VERSION_;
-    }
+	}
 
 
 
-/**
-Returns an array of DriverPropertyInfo objects that
-describe the properties that are supported by this
-driver.
+	/**
+	Returns an array of DriverPropertyInfo objects that
+	describe the properties that are supported by this
+	driver.
+	
+	@param  url     The URL for the database.
+	@param  info    The connection properties.
+	@return         The descriptions of all possible properties or null if
+					the driver does not understand how to connect to the
+					database.
+	
+	@exception SQLException If an error occurs.
+	**/
+	public DriverPropertyInfo[] getPropertyInfo (String url,
+												 Properties info)
+	throws SQLException
+	{
+		JDDataSourceURL dataSourceUrl = new JDDataSourceURL (url);
 
-@param  url     The URL for the database.
-@param  info    The connection properties.
-@return         The descriptions of all possible properties or null if
-                the driver does not understand how to connect to the
-                database.
+		DriverPropertyInfo[] dpi = null;
+		if (dataSourceUrl.isValid ())
+		{
+			JDProperties properties = new JDProperties (dataSourceUrl.getProperties(), info);
+			dpi = properties.getInfo ();
+		}
 
-@exception SQLException If an error occurs.
-**/
-    public DriverPropertyInfo[] getPropertyInfo (String url,
-						                         Properties info)
-        throws SQLException
-    {
-        JDDataSourceURL dataSourceUrl = new JDDataSourceURL (url);
-
-        DriverPropertyInfo[] dpi = null;
-        if (dataSourceUrl.isValid ()) {
-    		JDProperties properties = new JDProperties (dataSourceUrl.getProperties(), info);
-	    	dpi = properties.getInfo ();
-	    }
-
-	    return dpi;
-    }
-
-
-
-/**
-Returns a resource from the resource bundle.
-
-@param  key     The resource key.
-@return         The resource String.
-**/
-    static String getResource (String key)
-    {
-        // If the resource bundle or resource is not found,
-        // do not thrown an exception.  Instead, return a
-        // default string.  This is because some JVMs will
-        // not recover quite right from such errors, and
-        // claim a security exception (e.g. Netscape starts
-        // looking in the client class path, which is
-        // not allowed.)
-        //
-        String resource;
-        if (resources_ == null)
-            resource = MRI_NOT_FOUND_;
-        else {
-          try {
-            resource = resources_.getString (key);
-          }
-          catch (MissingResourceException e) {
-            if (resources2_ == null)                       //@A1A
-              resource = MRI_NOT_FOUND_;                   //@A1A
-            else {                                         //@A1A
-              try {                                        //@A1A
-                resource = resources2_.getString (key);    //@A1A
-              }                                            //@A1A
-              catch (MissingResourceException e1) {        //@A1A
-                JDTrace.logInformation (AS400JDBCDriver.class,
-                                        "Missing resource [" + key + "]"); //@A1A
-                resource = MRI_NOT_FOUND_;
-              }
-            }
-          }
-        }
-
-        return resource;
-    }
+		return dpi;
+	}
 
 
-    //@A0A  - This logic was formerly in the AS400JDBCConnection ctor and open() method.
-    private Connection initializeConnection (JDDataSourceURL dataSourceUrl,
-                                             JDProperties jdProperties,
-                                             Properties info)
-        throws SQLException
-    {
-		//@B7D Connection connection                       = null;
-      AS400 as400                                 = null;
-      boolean proxyServerWasSpecifiedInUrl        = false;
-      boolean proxyServerWasSpecifiedInProperties = false;
-      boolean proxyServerWasSpecified             = false;
 
-      // @A0A
-      // See if a proxy server was specified.
-    //if (jdProperties.getIndex (JDProperties.PROXY_SERVER) != -1)         //@A3D
-      if (jdProperties.getString(JDProperties.PROXY_SERVER).length() != 0) //@A3C
-        proxyServerWasSpecifiedInUrl = true;
-      if (SystemProperties.getProperty (SystemProperties.AS400_PROXY_SERVER) != null)
-        proxyServerWasSpecifiedInProperties = true;
-      if (proxyServerWasSpecifiedInUrl || proxyServerWasSpecifiedInProperties)
-        proxyServerWasSpecified = true;
+	/**
+	Returns a resource from the resource bundle.
+	
+	@param  key     The resource key.
+	@return         The resource String.
+	**/
+	static String getResource (String key)
+	{
+		// If the resource bundle or resource is not found,
+		// do not thrown an exception.  Instead, return a
+		// default string.  This is because some JVMs will
+		// not recover quite right from such errors, and
+		// claim a security exception (e.g. Netscape starts
+		// looking in the client class path, which is
+		// not allowed.)
+		//
+		String resource;
+		if (resources_ == null)
+			resource = MRI_NOT_FOUND_;
+		else
+		{
+			try
+			{
+				resource = resources_.getString (key);
+			}
+			catch (MissingResourceException e)
+			{
+				if (resources2_ == null)					   //@A1A
+					resource = MRI_NOT_FOUND_;					 //@A1A
+				else
+				{										  //@A1A
+					try
+					{										 //@A1A
+						resource = resources2_.getString (key);	   //@A1A
+					}											 //@A1A
+					catch (MissingResourceException e1)
+					{		 //@A1A
+						JDTrace.logInformation (AS400JDBCDriver.class,
+												"Missing resource [" + key + "]"); //@A1A
+						resource = MRI_NOT_FOUND_;
+					}
+				}
+			}
+		}
 
-      // If no proxy server was specified, and there is a secondary URL,
-      // simply pass the secondary URL to the DriverManager and ask it for
-      // an appropriate Connection object.
-      if (!proxyServerWasSpecified) {
-        String secondaryUrl = dataSourceUrl.getSecondaryURL ();
-        if (secondaryUrl.length() != 0) {
-          if (JDTrace.isTraceOn())
-            JDTrace.logInformation (this,
-                                    "Secondary URL [" + secondaryUrl + "]");
-          return DriverManager.getConnection (secondaryUrl, info);
-        }
-      }
+		return resource;
+	}
 
-      // We must handle the different combinations of input
-      // user names and passwords.
-      String serverName = dataSourceUrl.getServerName();
-      String userName   = jdProperties.getString (JDProperties.USER);
-      String password   = jdProperties.getString (JDProperties.PASSWORD);
-      String prompt     = jdProperties.getString (JDProperties.PROMPT);   // @B8C
-      boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
 
-      // Create the AS400 object, so we can create a Connection via loadImpl2.
-      if (secure) {
-        if (serverName.length() == 0)                   
-          as400 = new SecureAS400 ();                      
-        else if (userName.length() == 0)               
-          as400 = new SecureAS400 (serverName);
-        else if (password.length() == 0)
-          as400 = new SecureAS400 (serverName, userName);
-        else
-          as400 = new SecureAS400 (serverName, userName, password);
-      }
-      else {
-        if (serverName.length() == 0)
-          as400 = new AS400 ();
-        else if (userName.length() == 0)
-          as400 = new AS400 (serverName);
-        else if (password.length() == 0)
-          as400 = new AS400 (serverName, userName);
-        else
-          as400 = new AS400 (serverName, userName, password);
-      }
+
+	//@B3A  - This logic was formerly in the initializeConnection() method.
+	static AS400 initializeAS400(JDDataSourceURL dataSourceUrl,
+								 JDProperties jdProperties,
+								 Properties info)
+	{
+		// We must handle the different combinations of input
+		// user names and passwords.
+		String serverName = dataSourceUrl.getServerName();
+		String userName   = jdProperties.getString (JDProperties.USER);
+		String password   = jdProperties.getString (JDProperties.PASSWORD);
+		String prompt     = jdProperties.getString (JDProperties.PROMPT);   // @B8C
+		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
+		String keyRingName     = jdProperties.getString (JDProperties.KEY_RING_NAME);  //@B9A
+		String keyRingPassword = jdProperties.getString (JDProperties.KEY_RING_PASSWORD); //@B9A
+
+		// Create the AS400 object, so we can create a Connection via loadImpl2.
+		AS400 as400 = null;
+		if (secure)
+		{
+			if (serverName.length() == 0)
+				as400 = new SecureAS400 ();
+			else if (userName.length() == 0)
+				as400 = new SecureAS400 (serverName);
+			else if (password.length() == 0)
+				as400 = new SecureAS400 (serverName, userName);
+			else
+				as400 = new SecureAS400 (serverName, userName, password);
+			if (keyRingName != null && keyRingPassword != null && keyRingName != "") //@B9A	@C1C
+			{   
+			    try
+			    {                                                      	      //@B9A
+				((SecureAS400)as400).setKeyRingName(keyRingName, keyRingPassword); //@B9A
+			    }								      //@B9A
+			    catch (PropertyVetoException pve)				      //@B9A
+			    { /*Will never happen*/}					      //@B9A
+			}                                                         	      //@B9A
+		}
+		else
+		{
+			if (serverName.length() == 0)
+				as400 = new AS400 ();
+			else if (userName.length() == 0)
+				as400 = new AS400 (serverName);
+			else if (password.length() == 0)
+				as400 = new AS400 (serverName, userName);
+			else
+				as400 = new AS400 (serverName, userName, password);
+		}
 
 		// Determine when the signon GUI can be presented..
 		try
@@ -514,27 +511,131 @@ Returns a resource from the resource bundle.
 			// This will never happen, as there are no listeners.
 		}
 
-      if (proxyServerWasSpecifiedInUrl)
-      {
-        // A proxy server was specified in URL,
-        // so we need to inform the AS400 object.
+		return as400;
+	}
 
-        //boolean proxyServerSecure = jdProperties.getBoolean (JDProperties.PROXY_SERVER_SECURE);   // TBD
-        String proxyServerNameAndPort = jdProperties.getString (JDProperties.PROXY_SERVER);
-        // Note: The PROXY_SERVER property is of the form:
-        //       hostName[:portNumber]
-        //       where portNumber is optional.
-        try {
-          as400.setProxyServer (proxyServerNameAndPort);
-          //as400.setProxyServerSecure (proxyServerSecure);  // TBD
-        }
-        catch (java.beans.PropertyVetoException e) {} // Will never happen.
-      }
+
+	//@A0A  - This logic was formerly in the AS400JDBCConnection ctor and open() method.
+	private Connection initializeConnection (JDDataSourceURL dataSourceUrl,
+											 JDProperties jdProperties,
+											 Properties info)
+	throws SQLException
+	{
+		//@B7D Connection connection                       = null;
+		AS400 as400                                 = null;
+		boolean proxyServerWasSpecifiedInUrl        = false;
+		boolean proxyServerWasSpecifiedInProperties = false;
+		boolean proxyServerWasSpecified             = false;
+
+		// @B2A
+		// Determine whether the native driver is available.
+		Driver nativeDriver;
+		try
+		{
+			nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
+            if (JDTrace.isTraceOn())                                                                                            // @C2A
+                JDTrace.logInformation(this, "Native AS/400 Developer Kit for Java JDBC driver implementation was loaded");     // @C2A
+		}
+		catch (Throwable e)
+		{
+			nativeDriver = null;
+		}
+
+		// @B2A
+		// Decide which JDBC driver implementation to use.  If the
+		// native driver is available AND there is no secondary URL
+		// available AND the "driver" property was not set to "toolbox",
+		// then use the native driver implementation.
+		String driverImplementation = jdProperties.getString(JDProperties.DRIVER);
+		if ((nativeDriver != null) 
+			&& (dataSourceUrl.getSecondaryURL().length() == 0)
+			&& (!driverImplementation.equals(JDProperties.DRIVER_TOOLBOX)))
+		{            
+            //@C3M
+            boolean isLocal = false;                                                    // @C2A
+            String serverName = dataSourceUrl.getServerName();                          // @C2A
+            if (serverName.length() == 0)                                               // @C2A
+                isLocal = true;                                                         // @C2A
+            else {                                                                      // @C2A
+                try {                                                                   // @C2A
+                    InetAddress localInet = InetAddress.getLocalHost();                 // @C2A
+                    InetAddress[] remoteInet = InetAddress.getAllByName(serverName);    // @C2A
+                    for (int i = 0; i < remoteInet.length; ++i) {                       // @C2A
+                        if (localInet.equals(remoteInet[i])) {                          // @C2A
+                            isLocal = true;                                             // @C2A
+                        }                                                               // @C2A
+                    }                                                                   // @C2A
+                }                                                                       // @C2A
+                catch(Throwable e) {                                                    // @C2A
+                    // Ignore.  We will just assume that we are not local.                 @C2A
+                }                                                                       // @C2A
+            }
+
+            if (isLocal) {                                                              // @C2A
+                if (JDTrace.isTraceOn())                                                // @C2A                                              
+                    JDTrace.logInformation(this, "Connection is local");                // @C2A
+			    String nativeURL = dataSourceUrl.getNativeURL();                       
+			    if (JDTrace.isTraceOn())
+				    JDTrace.logInformation(this, "Using native AS/400 Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
+			    return nativeDriver.connect(nativeURL, info);
+            }                                                                           // @C2A
+		}
+		// @C2D else
+		// @C2D {
+			if (JDTrace.isTraceOn())
+				JDTrace.logInformation (this, "Using AS/400 Toolbox for Java JDBC driver implementation");
+		// @C2D }
+
+		// @A0A
+		// See if a proxy server was specified.
+		//if (jdProperties.getIndex (JDProperties.PROXY_SERVER) != -1)         //@A3D
+		if (jdProperties.getString(JDProperties.PROXY_SERVER).length() != 0) //@A3C
+			proxyServerWasSpecifiedInUrl = true;
+		if (SystemProperties.getProperty (SystemProperties.AS400_PROXY_SERVER) != null)
+			proxyServerWasSpecifiedInProperties = true;
+		if (proxyServerWasSpecifiedInUrl || proxyServerWasSpecifiedInProperties)
+			proxyServerWasSpecified = true;
+
+		// If no proxy server was specified, and there is a secondary URL,
+		// simply pass the secondary URL to the DriverManager and ask it for
+		// an appropriate Connection object.
+		if (!proxyServerWasSpecified)
+		{
+			String secondaryUrl = dataSourceUrl.getSecondaryURL ();
+			if (secondaryUrl.length() != 0)
+			{
+				if (JDTrace.isTraceOn())
+					JDTrace.logInformation (this,
+											"Secondary URL [" + secondaryUrl + "]");
+				return DriverManager.getConnection (secondaryUrl, info);
+			}
+		}
+
+		as400 = initializeAS400(dataSourceUrl, jdProperties, info);				   // @B3C
+
+		if (proxyServerWasSpecifiedInUrl)
+		{
+			// A proxy server was specified in URL,
+			// so we need to inform the AS400 object.
+
+			//boolean proxyServerSecure = jdProperties.getBoolean (JDProperties.PROXY_SERVER_SECURE);   // TBD
+			String proxyServerNameAndPort = jdProperties.getString (JDProperties.PROXY_SERVER);
+			// Note: The PROXY_SERVER property is of the form:
+			//       hostName[:portNumber]
+			//       where portNumber is optional.
+			try
+			{
+				as400.setProxyServer (proxyServerNameAndPort);
+				//as400.setProxyServerSecure (proxyServerSecure);  // TBD
+			}
+			catch (java.beans.PropertyVetoException e)
+			{
+			} // Will never happen.
+		}
 
 		//@B6C Moved common code to prepareConnection.
 		return prepareConnection(as400, dataSourceUrl, info, jdProperties); 
-    }
-
+	}
 
 
 	//@B5A
@@ -596,16 +697,15 @@ Returns a resource from the resource bundle.
 	}
 
 
-/**
-Indicates if the driver is a genuine JDBC compliant driver.
-
-@return         Always true.
-**/
-    public boolean jdbcCompliant ()
-    {
-        return true;
-    }
-
+	/**
+	Indicates if the driver is a genuine JDBC compliant driver.
+	
+	@return         Always true.
+	**/
+	public boolean jdbcCompliant ()
+	{
+		return true;
+	}
 
 
 	//@B6A -- This logic was formerly in the initializeConnection() method.
@@ -683,15 +783,15 @@ Indicates if the driver is a genuine JDBC compliant driver.
 
 
 
-/**
-Returns the name of the driver.
-
-@return        The driver name.
-**/
-    public String toString ()
-    {
-        return DRIVER_NAME_;    // @D0C
-    }
+	/**
+	Returns the name of the driver.
+	
+	@return        The driver name.
+	**/
+	public String toString ()
+	{
+		return DRIVER_NAME_;	// @D0C
+	}
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPAttrBin4.java
 //                                                                             
@@ -21,6 +21,10 @@ class NPAttrBin4 extends NPAttribute implements Cloneable,
                                                 java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
 
     private int attrValue_;    // stored 4 byte value in PC terms

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLTime.java
 //                                                                             
@@ -73,8 +73,10 @@ implements SQLData
                 return new Time (0);
 
             // Parse the string according to the format and separator.
+            // else if (format.equalsIgnoreCase (JDProperties.TIME_FORMAT_USA)) {
+
             switch (settings.getTimeFormat ()) {                                          // @A0A
-            case SQLConversionSettings.TIME_FORMAT_USA:                                   // @A0A
+            case SQLConversionSettings.TIME_FORMAT_USA:                                                  // @A0A
                 int hour = Integer.parseInt (s.substring (0, 2));
                 char amPm = s.charAt (6);
                 if (hour == 12) {
@@ -130,7 +132,7 @@ implements SQLData
         // buffer.
 
         switch (dataFormat.getTimeFormat ()) {                                           // @A0A
-        case SQLConversionSettings.TIME_FORMAT_USA:                                      // @A0A
+        case SQLConversionSettings.TIME_FORMAT_USA:                                                   // @A0A
             int hour = calendar.get (Calendar.HOUR_OF_DAY);
             char amPm;
             if (hour > 12) {
@@ -175,13 +177,6 @@ implements SQLData
 
 	    return buffer.toString ();
 	}
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
 
 
 
@@ -239,7 +234,7 @@ implements SQLData
             ccsidConverter.stringToByteArray (buffer.toString(), rawBytes, offset);
         }
         catch (CharConversionException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);        // @E2C
         }
     }
 
@@ -377,10 +372,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
 
@@ -586,6 +581,13 @@ implements SQLData
 	public Timestamp toTimestamp (Calendar calendar)
 	    throws SQLException
 	{
+	    //
+	    // The JDBC 1.22 specification says that this conversion
+	    // does not need to be supported, but the Graham Hamilton
+	    // book says it does.  I am going to go with the spec for
+	    // now, since I don't think that any such conversion
+	    // really makes sense.
+	    //
 		JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
   		return null;
 	}

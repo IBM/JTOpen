@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PackedDecimalFieldDescription.java
 //                                                                             
@@ -24,13 +24,15 @@ import java.util.Vector;
  *<li>The user to describe a packed decimal field to the RecordFormat object.
  *<li>The RecordFormat object to describe a packed decimal field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *Click <a href="../../../../recordxmp.html">here</a>to see an example.
 **/
 public class PackedDecimalFieldDescription extends FieldDescription implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  //static final long serialVersionUID = -1684281660949887674L;
+    static final long serialVersionUID = 4L;
+
+
   // Number of digits to the right of the decimal point
   private int decimalPositions_;
   /**

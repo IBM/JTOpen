@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: QueuedMessage.java
 //                                                                             
@@ -13,232 +13,509 @@
 
 package com.ibm.as400.access;
 
+import com.ibm.as400.resource.ResourceException;
+import com.ibm.as400.resource.RQueuedMessage;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+
+
+
 /**
- * The QueuedMessage class represents a message on a AS/400 message queue.
- *
- * @see MessageQueue
+The QueuedMessage class represents a message on an AS/400 message queue
+or job log.
+
+<p>Some of the attributes have associated get methods
+defined in this class.  These are provided for backwards compatibility
+with previous versions of the AS/400 Toolbox for Java.  The complete
+set of attribute values can be accessed using the
+{@link com.ibm.as400.resource.RQueuedMessage RQueuedMessage } class.
+
+@see com.ibm.as400.resource.RQueuedMessage
 **/
 //
-// Implementation note:
+// Implementation notes:
 //
 // * The constructor and set methods are not public, since it
-//   never makes sense for anyone other than UserList to call
-//   these.
+//   never makes sense for anyone other than MessageQueue or
+//   JobLog to call these.
 //
-public class QueuedMessage extends AS400Message
+// * Message keys are 4 bytes.
+//
+public class QueuedMessage
+extends AS400Message
+implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
+    static final long serialVersionUID = 4L;
 
-  private String user_;
-  private String fromProgram_;
-  private String fromJobName_;
-  private String fromJobNumber_;
-  private byte[] key_;
-  private MessageQueue msgQueue_;
-  private String replyStatus_;
 
+//-----------------------------------------------------------------------------------------
+// Private data.
+//-----------------------------------------------------------------------------------------
+
+    private RQueuedMessage              rQueuedMessage_;
+    private MessageQueue                messageQueue_;
+    private String help = null;
+
+
+//-----------------------------------------------------------------------------------------
+// Constructors.
+//-----------------------------------------------------------------------------------------
+
+/**
+Constructs a QueuedMessage object.
+**/
+    QueuedMessage()
+    {
+        rQueuedMessage_ = new RQueuedMessage();
+    }
 
 
 
 /**
- * Constructs a QueuedMessage object.
+Constructs a QueuedMessage object.
+
+@param messageQueue The message queue.
+**/
+    QueuedMessage(MessageQueue messageQueue)
+    {
+        if (messageQueue == null)
+            throw new NullPointerException("messageQueue");
+        rQueuedMessage_ = new RQueuedMessage();
+        messageQueue_   = messageQueue;
+    }
+
+
+
+/**
+Constructs a QueuedMessage object.
+
+@param rQueuedMessage    The RQueuedMessage object.
+@param messageQueue The message queue.
 **/
 //
-// This is intentionally not public so that general callers
-// cannot create these objects.
+// This is a package scope constructor!
 //
-  QueuedMessage ()
-  {
-  }
-
-
-/**
- * Copyright.
-**/
-  private static String getCopyright ()
-  {
-    return Copyright.copyright;
-  }
-
-
-/**
- * Returns the program from which the message originated.
- *
- * @return the program from which the message originated.
-**/
-  public String getFromProgram()
-  {
-    return fromProgram_;
-  }
-
-
-/**
- * Returns the name of the job from which the the message originated.
- *
- * @return The name of the job from which the the message originated.
-**/
-  public String getFromJobName()
-  {
-    return fromJobName_;
-  }
-
-/**
- * Returns the number of the job from which the the message originated.
- *
- * @return The number of the job from which the the message originated.
-**/
-  public String getFromJobNumber()
-  {
-     return fromJobNumber_;
-  }
-
-/**
- * Returns the message key.
- *
- * @return The message key.
-**/
-  public byte[] getKey()
-  {
-    return key_;
-  }
-
-/**
- * Returns the message queue.
- *
- * @return The message queue.
-**/
-  public MessageQueue getQueue()
-  {
-    return msgQueue_;
-  }
-
-/**
- * Returns the message reply status.
- *
- * @return The message reply status.
-**/
-  public String getReplyStatus()
-  {
-    return replyStatus_;
-  }
-
-
-/**
- * Returns the user of the job from which the message originated.
- *
- * @return The user of the job from which the message originated.
-**/
-  public String getUser()
-  {
-    return user_;
-  }
-
-
-/**
- * Sets the FromJobName
- *
- * @param fromJobName The FromJobName
-**/
-  void setFromJobName( String fromJobName )
-  {
-    if (fromJobName == null)
+    QueuedMessage(RQueuedMessage rQueuedMessage, MessageQueue messageQueue) // @D1C
     {
-      Trace.log(Trace.ERROR, "Parameter 'fromJobName' is null.");
-      throw new NullPointerException("fromJobName");
+        rQueuedMessage_ = rQueuedMessage;
+        messageQueue_ = messageQueue;                                       // @D1A
     }
 
-    fromJobName_ = fromJobName;
-  }
 
-/**
- * Sets the FromJobNumber
- *
- * @param fromJobNumber The FromJobNumber
-**/
-  void setFromJobNumber( String fromJobNumber )
-  {
-    if (fromJobNumber == null)
+
+/*-------------------------------------------------------------------------
+Convenience methods for getting attribute values.
+All ResourceExceptions are swallowed!
+-------------------------------------------------------------------------*/
+    private int getAttributeValueAsInt(Object attributeID)
     {
-      Trace.log(Trace.ERROR, "Parameter 'fromJobNumber' is null.");
-      throw new NullPointerException("fromJobNumber");
+        try {
+            return ((Integer)rQueuedMessage_.getAttributeValue(attributeID)).intValue();
+        }
+        catch(ResourceException e) {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.ERROR, "Error getting attribute value", e);
+            return -1;
+        }
     }
 
-    fromJobNumber_ = fromJobNumber;
-  }
 
-/**
- * Sets the FromProgram
- *
- * @param fromProgram The FromProgram
-**/
-  void setFromProgram( String fromProgram )
-  {
-    if (fromProgram == null)
+    private Object getAttributeValueAsObject(Object attributeID)
     {
-      Trace.log(Trace.ERROR, "Parameter 'fromProgram' is null.");
-      throw new NullPointerException("fromProgram");
+        try {
+            return rQueuedMessage_.getAttributeValue(attributeID);
+        }
+        catch(ResourceException e) {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.ERROR, "Error getting attribute value", e);
+            return null;
+        }
     }
 
-    fromProgram_ = fromProgram;
-  }
 
-/**
- * Sets the key
- *
- * @param key The key
-**/
-  void setKey( byte[] key )
-  {
-    key_ = key;
-  }
 
-/**
- * Sets the queue
- *
- * @param queue The Queue
-**/
-  void setQueue( MessageQueue queue )
-  {
-    if (queue == null)
+    private String getAttributeValueAsString(Object attributeID)
     {
-      Trace.log(Trace.ERROR, "Parameter 'queue' is null.");
-      throw new NullPointerException("queue");
+        try {
+            return (String)rQueuedMessage_.getAttributeValue(attributeID);
+        }
+        catch(ResourceException e) {
+            if (Trace.isTraceOn())
+                Trace.log(Trace.ERROR, "Error getting attribute value", e);
+            return null;
+        }
     }
 
-    msgQueue_ = queue;
-  }
+
 
 /**
- * Sets the Message Reply Status
- *
- * @param replyStatus The reply status.
+Returns the date and time the message was sent.
+The returned Calendar object will have the following
+fields set:
+<ul>
+  <li>Calendar.YEAR
+  <li>Calendar.MONTH
+  <li>Calendar.DAY_OF_MONTH
+  <li>Calendar.HOUR
+  <li>Calendar.MINUTE
+  <li>Calendar.SECOND
+</ul>
+
+@return The date and time the message was sent, or null
+        if not applicable.
+
+@see com.ibm.as400.resource.RQueuedMessage#DATE_SENT
 **/
-  void setReplyStatus( String replyStatus )
-  {
-    if (replyStatus == null)
+    public Calendar getDate()
     {
-      Trace.log(Trace.ERROR, "Parameter 'replyStatus' is null.");
-      throw new NullPointerException("replyStatus");
+        Date date = (Date)getAttributeValueAsObject(RQueuedMessage.DATE_SENT);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
     }
 
-    replyStatus_ = replyStatus;
-  }
+
 
 /**
- * Sets user
- *
- * @param user The user
+Returns the default reply.
+
+@return The default reply, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#DEFAULT_REPLY
 **/
-  void setUser( String user )
-  {
-    if (user == null)
+    public String getDefaultReply()
     {
-      Trace.log(Trace.ERROR, "Parameter 'user' is null.");
-      throw new NullPointerException("user");
+        return getAttributeValueAsString(RQueuedMessage.DEFAULT_REPLY);
     }
 
-    user_ = user;
-  }
+
+
+/**
+Returns the message file name.
+
+@return The message file name, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_FILE
+**/
+    public String getFileName()
+    {
+        String messageFile = getAttributeValueAsString(RQueuedMessage.MESSAGE_FILE);
+        if (messageFile == null)
+            return null;
+        else {
+            QSYSObjectPathName path = new QSYSObjectPathName(messageFile);
+            return path.getObjectName();
+        }
+    }
+
+
+
+/**
+Returns the sending program name.
+
+@return The sending program name, or "" if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#SENDING_PROGRAM_NAME
+**/
+    public String getFromProgram()
+    {
+        return getAttributeValueAsString(RQueuedMessage.SENDING_PROGRAM_NAME);
+    }
+
+
+
+/**
+Returns the sender job name.
+
+@return The sender job name, or "" if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#SENDER_JOB_NAME
+**/
+    public String getFromJobName()
+    {
+        return getAttributeValueAsString(RQueuedMessage.SENDER_JOB_NAME);
+    }
+
+
+
+/**
+Returns the sender job number.
+
+@return The sender job number, or "" if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#SENDER_JOB_NUMBER
+**/
+    public String getFromJobNumber()
+    {
+        return getAttributeValueAsString(RQueuedMessage.SENDER_JOB_NUMBER);
+    }
+
+
+/**
+Returns the message help.
+
+<p>Message formatting characters may appear in the message help
+and are defined as follows:
+<UL>
+  <LI>&N - Force the text to a new line indented to column 2.  If the text
+           is longer than 1 line, the next lines should be indented to
+           column 4 until the end of the text or another format control
+           character is found.
+  <LI>&P - Force the text to a new line indented to column 6.  If the
+           text is longer than 1 line, the next lines should start in
+           column 4 until the end of the text or another format control
+           character is found.
+  <LI>&B - Force the text to a new line starting in column 4.  If the
+           text is longer than 1 line, the next lines should start in
+           column 6 until the end of the text or another format control
+           character is found.
+</UL>
+
+@return  The message help, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_HELP
+**/
+    public String getHelp()
+    {
+        if (help == null)
+           return getAttributeValueAsString(RQueuedMessage.MESSAGE_HELP);
+        else
+           return help;
+    }
+
+
+
+/**
+Returns the message ID.
+
+@return The message ID, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_ID
+**/
+    public String getID()
+    {
+        return getAttributeValueAsString(RQueuedMessage.MESSAGE_ID);
+    }
+
+
+
+/**
+Returns the message key.
+
+@return The message key, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_KEY
+**/
+    public byte[] getKey()
+    {
+        return (byte[])getAttributeValueAsObject(RQueuedMessage.MESSAGE_KEY);
+    }
+
+
+
+/**
+Returns the message file library.
+
+@return The message file library, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_FILE
+**/
+    public String getLibraryName()
+    {
+        String messageFile = getAttributeValueAsString(RQueuedMessage.MESSAGE_FILE);
+        if (messageFile == null)
+            return null;
+        else {
+            QSYSObjectPathName path = new QSYSObjectPathName(getAttributeValueAsString(RQueuedMessage.MESSAGE_FILE));
+            return path.getLibraryName();
+        }
+    }
+
+
+
+/**
+Returns the full integrated file system path name of the
+message file.
+
+@return  The full integrated file system path name of the
+         message file name, or null if it is not set.
+**/
+    public String getPath()
+    {
+        return getAttributeValueAsString(RQueuedMessage.MESSAGE_FILE);
+    }
+
+
+
+/**
+Returns the message queue.
+
+@return The message queue, or null if it is not set.
+**/
+    public MessageQueue getQueue()
+    {
+        return messageQueue_;
+    }
+
+
+
+/**
+Returns the reply status.
+
+@return The reply status, "" if it is not set, or null
+        if it is not applicable.
+
+@see com.ibm.as400.resource.RQueuedMessage#REPLY_STATUS
+**/
+    public String getReplyStatus()
+    {
+        return getAttributeValueAsString(RQueuedMessage.REPLY_STATUS);
+    }
+
+
+
+/**
+Returns the message severity.
+
+@return The message severity.  Valid values are between 0 and 99, or -1 if
+        it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_SEVERITY
+**/
+    public int getSeverity()
+    {
+        return getAttributeValueAsInt(RQueuedMessage.MESSAGE_SEVERITY);
+    }
+
+
+
+/**
+Returns the substitution data.  This is unconverted data used to
+fill in the replacement characters in the message.
+
+@return The subsitution data, or null if not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#SUBSTITUTION_DATA
+**/
+    public byte[] getSubstitutionData()
+    {
+        return (byte[])getAttributeValueAsObject(RQueuedMessage.SUBSTITUTION_DATA);
+    }
+
+
+
+/**
+Returns the message text with the substitution text inserted.
+
+@return The message text, or null if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_TEXT
+**/
+    public String getText()
+    {
+        return getAttributeValueAsString(RQueuedMessage.MESSAGE_TEXT);
+    }
+
+
+
+/**
+Returns the message type.
+
+@return The message type, or null if it is not set.  Valid values are:
+        <ul>
+          <li>COMPLETION
+          <li>DIAGNOSTIC
+          <li>INFORMATIONAL
+          <li>INQUIRY
+          <li>SENDERS_COPY
+          <li>REQUEST
+          <li>REQUEST_WITH_PROMPTING
+          <li>NOTIFY
+          <li>ESCAPE
+          <li>REPLY_NOT_VALIDITY_CHECKED
+          <li>REPLY_VALIDITY_CHECKED
+          <li>REPLY_MESSAGE_DEFAULT_USED
+          <li>REPLY_SYSTEM_DEFAULT_USED
+          <li>REPLY_FROM_SYSTEM_REPLY_LIST
+        </ul>
+
+@see com.ibm.as400.resource.RQueuedMessage#MESSAGE_TYPE
+**/
+    public int getType()
+    {
+        return getAttributeValueAsInt(RQueuedMessage.MESSAGE_TYPE);
+    }
+
+
+
+/**
+Returns the sender user name.
+
+@return The sender user name, or "" if it is not set.
+
+@see com.ibm.as400.resource.RQueuedMessage#SENDER_USER_NAME
+**/
+    public String getUser()
+    {
+        return getAttributeValueAsString(RQueuedMessage.SENDER_USER_NAME);
+    }
+
+
+
+
+
+
+    // @D6a new method
+    /**
+     Reloads message help text.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     **/
+    public void load() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+       load(MessageFile.DEFAULT_FORMATTING);
+    }
+
+    // @D6a -- new method that is built from the original load() method.
+    /**
+     Reloads message help text.
+     @param  helpTextFormatting Formatting performed on the help text.  Valid
+             values for this parameter are defined in the MessageFile
+             class.  They are no formatting, return formatting characters,
+             and replace (substitute) formatting characters.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     **/
+    public void load(int helpTextFormatting) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    {
+       rQueuedMessage_.load(helpTextFormatting);
+    }
+
+
+
+
+
+
+
+
+
+
+// @D1C
+    public String toString()
+    {
+        return super.toStringM2();
+    }
+
 }
+

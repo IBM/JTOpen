@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDSimpleRow.java
 //                                                                             
@@ -83,12 +83,14 @@ based on another JDRow object.
             fieldNames_[i]      = otherRow.getFieldName (i+1);
             fieldNullables_[i]  = otherRow.isNullable (i+1);
 
-            if (clone)
+            if (clone) {                                                                // @E1C
                 sqlData_[i]     = (SQLData) otherRow.getSQLData (i+1).clone ();
-            else
+                sqlNulls_[i]    = false;                                                // @E1A
+            }                                                                           // @E1A
+            else {                                                                      // @E1C
                 sqlData_[i]     = otherRow.getSQLData (i+1);
-
-            sqlNulls_[i]        = otherRow.isNull (i+1);
+                sqlNulls_[i]    = otherRow.isNull (i+1);                                // @E1C
+            }                                                                           // @E1A
         }
     }
 

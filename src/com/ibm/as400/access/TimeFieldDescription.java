@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: TimeFieldDescription.java
 //                                                                             
@@ -26,13 +26,13 @@ import java.text.SimpleDateFormat;
  *<li>The user to describe a time field to the RecordFormat object.
  *<li>The RecordFormat object to describe a time field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *click <a href="../../../../recordxmp.html">here</a> to see an example.
 **/
 public class TimeFieldDescription extends FieldDescription implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  static final long serialVersionUID = 6738867689634356618L;
+    static final long serialVersionUID = 4L;
   // The time format for this field
   private String timeFormat_ = "";
   // The time separator for this field

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BaseDataQueue.java
 //                                                                             
@@ -31,6 +31,10 @@ import java.util.Vector;
 public abstract class BaseDataQueue implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
     //The AS/400 system the data queue is on.
     private AS400 system_ = null;
@@ -187,7 +191,7 @@ public abstract class BaseDataQueue implements Serializable
     }
 
     // Connects to the server and retrieves queue attributes, if needed.
-    void open() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
+    synchronized void open() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to data queue server.
         boolean opened = connect();
@@ -204,7 +208,7 @@ public abstract class BaseDataQueue implements Serializable
     }
 
     // Connects to the server and retrieves client/server attributes.
-    boolean connect() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    synchronized boolean connect() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         // Verify required attributes have been set.
         if (system_ == null)
@@ -225,11 +229,11 @@ public abstract class BaseDataQueue implements Serializable
             firstTime = true;
             // Have the system object load the appropriate implementation object.
             impl_ = (BaseDataQueueImpl)system_.loadImpl3("com.ibm.as400.access.BaseDataQueueImplNative", "com.ibm.as400.access.BaseDataQueueImplRemote", "com.ibm.as400.access.BaseDataQueueImplProxy");
-            // Tell the system to connect to DQ server.
-            system_.connectService(AS400.DATAQUEUE);
+
             // Set the fixed properties in the implementation object.
             impl_.setSystemAndPath(system_.getImpl(), path_, name_, library_);
         }
+        system_.signon(false);
 
         // Connect to the data queue server.
         impl_.processConnect();
@@ -286,6 +290,41 @@ public abstract class BaseDataQueue implements Serializable
         attributesRetrieved_ = false;
         fireDeleted();
     }
+
+
+
+
+    /**
+     Checks to see if the data queue exists.
+     @return  true if the data queue exists; false otherwise.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IllegalObjectTypeException  If the AS/400 object is not the required type.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  ServerStartupException  If the AS/400 server cannot be started.
+     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     **/
+    // @D1 new method
+    public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException
+    {
+        // Don't use the cached attributes (in case another app / object
+        // deletes the queue).
+        attributesRetrieved_ = false;
+
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Exists called.");
+        try
+        {
+           getMaxEntryLength();
+           return true;
+        }
+        catch (ObjectDoesNotExistException e)
+        {
+           return false;
+        }
+    }
+
 
     // Fire cleared event.
     void fireCleared()

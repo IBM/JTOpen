@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLConversionSettings.java
 //                                                                             
@@ -59,6 +59,8 @@ class SQLConversionSettings
     private int                 maxFieldSize_;
     private int                 timeFormat_;
     private String              timeSeparator_;
+    private boolean             useBigDecimal_;                     // @E0A
+    private int                 bidiStringType_;                    // @E1A
 
 
 
@@ -77,6 +79,7 @@ Constructs a SQLConversionSettings object.
         decimalSeparator_   = properties.getString (JDProperties.DECIMAL_SEPARATOR);
         timeFormat_         = properties.getIndex (JDProperties.TIME_FORMAT);
         timeSeparator_      = properties.getString (JDProperties.TIME_SEPARATOR);
+	bidiStringType_     = getInt(properties.getString (JDProperties.BIDI_STRING_TYPE)); // @E1A
 
         if (dateSeparator_.equalsIgnoreCase (JDProperties.DATE_SEPARATOR_SPACE))
             dateSeparator_ = " ";
@@ -84,6 +87,7 @@ Constructs a SQLConversionSettings object.
             timeSeparator_ = " ";
 
         maxFieldSize_       = 0;
+        useBigDecimal_      = properties.getBoolean(JDProperties.BIG_DECIMAL);          // @E0A
     }
 
 
@@ -96,6 +100,35 @@ Copyright.
         return Copyright.copyright;
     }
 
+
+    //@E1A
+    /**
+    Get int value of bidiString property which is a string.  Return -1 if empty string 
+    (property not set) since 0 is BidiStringType.DEFAULT.
+    
+    @return The int value of a string bidiString property.
+    **/
+    int getInt (String value)
+    {
+	try {                                                               
+	    return Integer.parseInt (value);
+	}                                                                   
+	catch (NumberFormatException e) {                                   
+	    return -1;                                                       
+	}                                                                   
+    }
+
+
+    //@E1A
+    /** 
+    Returns the bidi string type.
+    
+    @return The bidi string type.
+    **/
+    int getBidiStringType ()
+    {
+	return bidiStringType_;
+    }
 
 
 /**
@@ -179,6 +212,20 @@ Sets the current max field size.
     void setMaxFieldSize (int maxFieldSize)
     {
         maxFieldSize_ = maxFieldSize;
+    }
+
+
+// @E0A
+/**
+Indicates if packed/zoned decimal conversions should
+use a BigDecimal.
+
+@return true of packed/zoned decimal conversions should
+        use a BigDecimal, false otherwise.
+**/
+    boolean useBigDecimal()
+    {
+        return useBigDecimal_;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PortMapper.java
 //                                                                             
@@ -58,9 +58,9 @@ class PortMapper
         systemList.put(systemName, newPortList);
     }
 
-    static void setServicePort(String systemName, int service, int port, boolean useSSL)
+    static void setServicePort(String systemName, int service, int port, SSLOptions useSSL)
     {
-        if (useSSL) service += 8;
+        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) service += 8;
         int[] portList = (int[])systemList.get(systemName);
         if (portList == null)
         {
@@ -92,9 +92,9 @@ class PortMapper
         }
     }
 
-    static int getServicePort(String systemName, int service, boolean useSSL)
+    static int getServicePort(String systemName, int service, SSLOptions useSSL)
     {
-        if (useSSL) service += 8;
+        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) service += 8;
         int[] portList = (int[])systemList.get(systemName);
         if (portList == null)
         {
@@ -135,12 +135,12 @@ class PortMapper
         throw new IOException();
     }
 
-    static SocketContainer getServerSocket(String systemName, int service, boolean useSSL) throws IOException
+    static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL) throws IOException
     {
         SocketContainer sc = null;
         String serviceName = AS400.getServerName(service);
         // If we're running on a native vm, we're requesting a service that supports a unix domain socket connection, and the unix domain socket code is accessable.
-        if (AS400.isSysLocal(systemName) && service != AS400.DATABASE && service != AS400.FILE)
+        if (AS400.onAS400 && systemName.equalsIgnoreCase("localhost") && service != AS400.DATABASE && service != AS400.FILE)
         {
             try
             {
@@ -224,7 +224,7 @@ class PortMapper
             OutputStream pmOutstream = pmSocket.getOutputStream();
 
             // Now we construct and send a "port map" request to get the port number for the requested service...
-            String fullServiceName = useSSL ? serviceName + "-s" : serviceName;
+            String fullServiceName = (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) ? serviceName + "-s" : serviceName;
             AS400PortMapDS pmreq = new AS400PortMapDS(fullServiceName);
             pmreq.write(pmOutstream);
 
@@ -240,7 +240,7 @@ class PortMapper
             catch (ServerStartupException e)
             {
                 Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e);
-                throw (ServerStartupException)e.fillInStackTrace();
+                throw e;
             }
 
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Adding entry to Service Port table: system " + systemName + ", service " + fullServiceName + ", port " + srvPort);
@@ -249,10 +249,11 @@ class PortMapper
 
         Trace.log(Trace.DIAGNOSTIC, "Opening socket to server...");
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...
-        if (useSSL)
+        if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
         {
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
             sc = loadSocketContainer("com.ibm.as400.access.SocketContainerSSL");
+            ((SocketContainerSSL)sc).setOptions(useSSL);
         }
         else
         {

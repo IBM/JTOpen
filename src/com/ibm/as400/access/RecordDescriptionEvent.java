@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordDescriptionEvent.java
 //                                                                             
@@ -16,15 +16,20 @@ package com.ibm.as400.access;
 /**
  *The RecordDescriptionEvent class represents a RecordDescriptionEvent.  This class is used to
  *fire events from the record description classes,
- *<a href="com.ibm.as400.access.RecordFormat.html">RecordFormat</a> and
- *<a href="com.ibm.as400.access.RecordFormat.html">Record</a>
+ *{@link com.ibm.as400.access.RecordFormat RecordFormat} and
+ *{@link com.ibm.as400.access.Record Record}
  *to listeners that have implemented the
- *<a href="com.ibm.as400.access.RecordDescriptionListener.html">RecordDescriptionListener</a>
+ *{@link com.ibm.as400.access.RecordDescriptionListener RecordDescriptionListener}
  *interface.
 **/
 public class RecordDescriptionEvent extends java.util.EventObject
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   /**
    *Event id indicating that a field description has been added
@@ -67,7 +72,7 @@ public class RecordDescriptionEvent extends java.util.EventObject
     id_ = id;
   }
 
-  
+
   /**
    *Returns the identifier for this event.
    *@return The ID.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400NoThreadServer.java
 //                                                                             
@@ -189,12 +189,6 @@ class AS400NoThreadServer extends AS400Server
         }
         while (reply == null);
         return reply;
-    }
-
-    protected synchronized void finalize() throws Throwable
-    {
-        if (!closed_) forceDisconnect();
-        super.finalize();
     }
 
     void forceDisconnect()

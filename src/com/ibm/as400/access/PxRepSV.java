@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxRepSV.java
 //                                                                             
@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 The PxRepSV class represents the client
 portion of a reply.
 **/
-abstract class PxRepSV 
+abstract class PxRepSV
 extends PxCompDS
 implements PxDSWV
 {
@@ -35,7 +35,7 @@ implements PxDSWV
 
     // Private data.
     private long    correlationId_  = -1;
-
+    private long    clientId_       = -1;  //@B2A
 
 /**
 Constructs a PxRepSV object.
@@ -59,11 +59,18 @@ Dumps the datastream for debugging and tracing.
         synchronized (output) {
            super.dump (output);
            output.println("   Correlation id = " + correlationId_);
+           output.println("   Client id = " + clientId_); //@B2A
         }
-        String x = Copyright.copyright;
+        //@B2D String x = Copyright.copyright;
     }
-  
 
+
+    //@B3A  Add for tunneling.
+    public long getClientId()
+    {
+	return clientId_;
+    }
+    
 
     public void setCorrelationId(long correlationId)
     {
@@ -71,13 +78,19 @@ Dumps the datastream for debugging and tracing.
     }
 
 
+    //@B2A  Add for tunneling.
+    public void setClientId(long clientId)
+    {
+        clientId_ = clientId;
+    }
+
 
 /**
 Writes the contents of the datastream to an output stream.
 
 @param output   The output stream.
 
-@exception IOException  If an error occurs.                
+@exception IOException  If an error occurs.
 **/
     public void writeTo (OutputStream output)
         throws IOException
@@ -85,8 +98,9 @@ Writes the contents of the datastream to an output stream.
         super.writeTo (output);
         DataOutputStream dataOutput = new DataOutputStream (output);
         dataOutput.writeLong(correlationId_);
+        dataOutput.writeLong(clientId_); //@B2A
     }
 
-    
+
 
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ConnectionPoolBeanInfo.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-import java.awt.Image; 
+import java.awt.Image;
 import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.EventSetDescriptor;
@@ -36,7 +36,7 @@ public class AS400ConnectionPoolBeanInfo extends SimpleBeanInfo
     private static ResourceBundleLoader loader_;
 
     private static EventSetDescriptor[] events_;
-    private static PropertyDescriptor[] properties_;
+    // private static PropertyDescriptor[] properties_;          @D1d
 
     static
     {
@@ -67,7 +67,7 @@ public class AS400ConnectionPoolBeanInfo extends SimpleBeanInfo
     {
        return new BeanInfo[] { new ConnectionPoolBeanInfo() };
     }
-      
+
     /**
     Returns the bean descriptor.
     @return The bean descriptor.
@@ -91,10 +91,11 @@ public class AS400ConnectionPoolBeanInfo extends SimpleBeanInfo
     Returns the index of the default property.
     @return The index to the default property.
     **/
-    public int getDefaultPropertyIndex()
-    {
-        return 0;
-    }
+    // @D1d
+    // public int getDefaultPropertyIndex()
+    // {
+    //     return 0;
+    // }
 
 
     /**
@@ -136,10 +137,11 @@ public class AS400ConnectionPoolBeanInfo extends SimpleBeanInfo
     Returns the descriptors for all properties.
     @return The descriptors for all properties.
     **/
-    public PropertyDescriptor[] getPropertyDescriptors()
-    {
-       return properties_;
-    }
+    // @D1d
+    // public PropertyDescriptor[] getPropertyDescriptors()
+    // {
+    //    return properties_;
+    // }
 
 }
 

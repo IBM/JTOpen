@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ChangePasswordReq.java
 //                                                                             
@@ -20,15 +20,11 @@ class ChangePasswordReq extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    ChangePasswordReq(byte[] userID, byte[] encryptedPw, byte[] oldPassword, byte[] newPassword)
+    ChangePasswordReq(byte[] userID, byte[] encryptedPw, byte[] oldPassword, int oldPasswordLength, byte[] newPassword, int newPasswordLength)
     {
-        super();
+        super(new byte[(encryptedPw.length == 8) ? 63 + oldPassword.length + newPassword.length : 105 + oldPassword.length + newPassword.length]);
 
-        int dsLength = 63 + oldPassword.length + newPassword.length;
-
-        data_ = new byte[dsLength];
-
-        setLength(dsLength);
+        setLength(data_.length);
         // setHeaderID(0x0000);
         setServerID(0xE009);
         // setCSInstance(0x00000000);
@@ -37,7 +33,7 @@ class ChangePasswordReq extends ClientAccessDataStream
         setReqRepID(0x7005);
 
         // Password's always encrypted.
-        data_[20] = 1;
+        data_[20] = (encryptedPw.length == 8) ? (byte)0x01 : (byte)0x03;
 
         // Set user ID.
         //   LL
@@ -49,27 +45,54 @@ class ChangePasswordReq extends ClientAccessDataStream
 
         // Set password.
         //   LL
-        set32bit(14, 37);
+        set32bit(6 + encryptedPw.length, 37);
         //   CP
         set16bit(0x1105, 41);
         //   Password data.
-        System.arraycopy(encryptedPw, 0, data_, 43, 8);
+        System.arraycopy(encryptedPw, 0, data_, 43, encryptedPw.length);
 
-        // Set Protected old password.
+        // Set protected old password.
         //   LL
-        set32bit(6 + oldPassword.length, 51);
+        set32bit(6 + oldPassword.length, 43 + encryptedPw.length);
         //   CP
-        set16bit(0x110C, 55);
+        set16bit(0x110C, 47 + encryptedPw.length);
         //   Old password data.
-        System.arraycopy(oldPassword, 0, data_, 57, oldPassword.length);
+        System.arraycopy(oldPassword, 0, data_, 49 + encryptedPw.length, oldPassword.length);
 
         // Set protected new password.
         //   LL
-        set32bit(6 + newPassword.length, 57 + oldPassword.length);
+        set32bit(6 + newPassword.length, 49 + encryptedPw.length + oldPassword.length);
         //   CP
-        set16bit(0x110D, 61 + oldPassword.length);
+        set16bit(0x110D, 53 + encryptedPw.length + oldPassword.length);
         //   New password data.
-        System.arraycopy(newPassword, 0, data_, 63 + oldPassword.length, newPassword.length);
+        System.arraycopy(newPassword, 0, data_, 55 + encryptedPw.length + oldPassword.length, newPassword.length);
+
+        if (encryptedPw.length != 8)  // If we're using SHA-1 passwords.
+        {
+            // Set protected old password length.
+            //   LL
+            set32bit(10, 55 + encryptedPw.length + oldPassword.length + newPassword.length);
+            //   CP
+            set16bit(0x111C, 59 + encryptedPw.length + oldPassword.length + newPassword.length);
+            //   Old password length.
+            set32bit(oldPasswordLength, 61 + encryptedPw.length + oldPassword.length + newPassword.length);
+
+            // Set protected new password length.
+            //   LL
+            set32bit(10, 65 + encryptedPw.length + oldPassword.length + newPassword.length);
+            //   CP
+            set16bit(0x111D, 69 + encryptedPw.length + oldPassword.length + newPassword.length);
+            //   New password length.
+            set32bit(newPasswordLength, 71 + encryptedPw.length + oldPassword.length + newPassword.length);
+
+            // Set protected password CCSID.
+            //   LL
+            set32bit(10, 75 + encryptedPw.length + oldPassword.length + newPassword.length);
+            //   CP
+            set16bit(0x111E, 79 + encryptedPw.length + oldPassword.length + newPassword.length);
+            //   CCSID.
+            set32bit(13488, 81 + encryptedPw.length + oldPassword.length + newPassword.length);
+        }
     }
 
     void write(OutputStream out) throws IOException

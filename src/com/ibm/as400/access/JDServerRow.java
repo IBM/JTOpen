@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDServerRow.java
 //                                                                             
@@ -191,8 +191,9 @@ Initializes the state of the object.
                         sqlTypes_[i] & 0xFFFE, dataLength_[i], precisions_[i], 
                         scales_[i], ccsids_[i], translateBinary, settings,
                         maxLobSize);                                                    // @C2C
-                    if (sqlData_[i] == null)
-                        JDError.throwSQLException (JDError.EXC_INTERNAL);
+                    // @E2D // SQLDataFactory never returns null.
+                    // @E2D if (sqlData_[i] == null)
+                    // @E2D    JDError.throwSQLException (JDError.EXC_INTERNAL);
                 }
             }
         }
@@ -353,25 +354,28 @@ Sets the row index within the server data.
             // before fetching data.)
             if ((rowIndex_ >= 0) && (translated_[index0] == false)) {
 
-                // The CCSID returned in the data format is not
-                // necessarily correct (says the database server
-                // documentation), so we should always use the server
-                // job CCSID or its graphic equivalent.
-                ConverterImplRemote ccsidConverter = null;
-                if (sqlData_[index0].isText ()) {
-                    if (sqlData_[index0].isGraphic ()) {
-                        // @A0A
-                        // Code added here to check for the 13488 Unicode ccsid.
-                        // If there's one, set 'ccsidConverter' to null so that
-                        // hand conversion is done in SQLChar.set().
-                        if (ccsids_[index0] == 13488)                          // @A0A
-                            ccsidConverter = null;                             // @A0A
-                        else                                                   // @A0A
-                            ccsidConverter = connection_.getGraphicConverter ();
-                    }
-                    else
-                        ccsidConverter = connection_.getConverter ();
-                }
+                // @E1D // The CCSID returned in the data format is not
+                // @E1D // necessarily correct (says the database server
+                // @E1D // documentation), so we should always use the server
+                // @E1D // job CCSID or its graphic equivalent.
+                // @E1D ConverterImplRemote ccsidConverter = null;
+                // @E1D if (sqlData_[index0].isText ()) {
+                // @E1D     if (sqlData_[index0].isGraphic ()) {
+                // @E1D         // @A0A
+                // @E1D         // Code added here to check for the 13488 Unicode ccsid.
+                // @E1D         // If there's one, set 'ccsidConverter' to null so that
+                // @E1D         // hand conversion is done in SQLChar.set().
+                // @E1D         if (ccsids_[index0] == 13488)                          // @A0A
+                // @E1D             ccsidConverter = null;                             // @A0A
+                // @E1D         else                                                   // @A0A
+                // @E1D             ccsidConverter = connection_.getGraphicConverter ();
+                // @E1D     }
+                // @E1D     else
+                // @E1D         ccsidConverter = connection_.getConverter ();
+                // @E1D }
+
+                // Use the CCSID returned in the data format.                                       // @E1A
+                ConverterImplRemote ccsidConverter = connection_.getConverter(ccsids_[index0]);     // @E1A
 
                 // If there are bytes, then do a translation.
                 if (rawBytes_ != null) {

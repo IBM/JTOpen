@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDMRI2.java
 //                                                                             
@@ -20,7 +20,7 @@ Locale-specific objects for the AS/400 Toolbox for Java.
 **/
 //
 //        Implementation note:
-//        This MRI contains ONLY resources that are NOT needed 
+//        This MRI contains ONLY resources that are NOT needed
 //        in the proxy jar file.  Resources needed in the proxy jar
 //        file belong in the JDMRI class.
 //
@@ -36,6 +36,16 @@ public class JDMRI2 extends ListResourceBundle
    }
 
    private final static Object[][] resources= {
+           // #
+           // # 5769-SS1
+           // # (C) Copyright IBM Corp. 1997
+           // # All rights reserved.
+           // # US Government Users Restricted Rights -
+           // # Use, duplication, or disclosure restricted
+           // # by GSA ADP Schedule Contract with IBM Corp.
+           // #
+           // # Licensed Materials - Property of IBM
+           // #
            // #TRANNOTE NOTE TO TRANSLATORS: The format of a line of MRI
            // #TRANNOTE    is { "KEY", "value" },
            // #TRANNOTE

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Printer.java
 //                                                                             
@@ -21,7 +21,7 @@ import java.io.IOException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 printer.
  *
- * See <a href="PrinterAttrs.html">Printer Attributes</a> for
+ * See <a href="../../../../PrinterAttrs.html">Printer Attributes</a> for
  * valid attributes.
  *
  **/
@@ -32,6 +32,12 @@ implements java.io.Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
    
+
+
+    static final long serialVersionUID = 4L;
+
+
+
     private static boolean      fAttrIDsToRtvBuilt_ = false;
     private static final String NAME = "name";
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: TimestampFieldDescription.java
 //                                                                             
@@ -26,13 +26,13 @@ import java.text.SimpleDateFormat;
  *<li>The user to describe a Timestamp field to the RecordFormat object.
  *<li>The RecordFormat object to describe a Timestamp field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *Click <a href="../../../../recordxmp.html">here</a> to see an example.
 **/
 public class TimestampFieldDescription extends FieldDescription implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  static final long serialVersionUID = 8698444432461268403L;
+    static final long serialVersionUID = 4L;
   /**
    *Constructs a TimestampFieldDescription object.
   **/

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImplRemote.java
 //                                                                             
@@ -25,6 +25,12 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+    static final long serialVersionUID = 4L;
+
+
+
   //////////////////////////////////////////////////////////////////////////
   // VARIABLES
   //////////////////////////////////////////////////////////////////////////
@@ -45,7 +51,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   // @B1A
   private static int lastCorrelationId_ = 0; //@B6C
   private static Object correlationIdLock_ = new Object(); //@B6A
-  
+
   // Identify the DDM reply data streams to the AS400Server class.
   static
   {
@@ -167,7 +173,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
 //@C1 - In mod3, we don't support pre-V4R2 connections.
 //@C1D - begin deleted block
-/* 
+/*
 
     // Send the exchange attributes request and receive the reply if pre-V4R2 and haven't already
     // connected.  If we are connecting to a V4R2 or later system, the exchange of attributes
@@ -479,7 +485,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     {
       //@B5D src = new SequentialFile(system_, "/QSYS.LIB/QTEMP.LIB/JT400DSSRC.FILE");
       //@B5 - Can't create a new AS400FileImplBase because it's abstract.
-      //@B5 - Other alternative is to create a new ImplRemote or 
+      //@B5 - Other alternative is to create a new ImplRemote or
       //      ImplNative based on the type of this. But can't create
       //      a new AS400FileImplNative since it doesn't exist at
       //      compile time.
@@ -493,7 +499,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       //@B5D }
       src = new AS400FileImplRemote(); //@D0A 7/15/99
       src.setAll(system_, "/QSYS.LIB/QTEMP.LIB/JT400DSSRC.FILE", srcRF, false, false); //@B5A
-      
+
       //@B5D src.open(AS400File.WRITE_ONLY, records.length, AS400File.COMMIT_LOCK_LEVEL_NONE);
       src.openFile2(AS400File.WRITE_ONLY, records.length, AS400File.COMMIT_LOCK_LEVEL_NONE, false); //@B5A
       src.write(records);
@@ -560,7 +566,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the AS/400.
-   **/ 
+   **/
   public AS400Message[] execute(String cmd)
   throws AS400SecurityException, InterruptedException, IOException
   {
@@ -740,7 +746,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     return index;
   }
 
-  
+
   /**
    *Opens the file.  Helper function to open file for keyed or
    *sequential files.
@@ -886,13 +892,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       cache_.setPositionAfterLast();
       return;
     }
-    
+
     if (cacheRecords_)
     {
       // Invalidate the cache
       cache_.setIsEmpty();
     }
-    
+
     // Send the request to force end of data specifying end of the file for
     // positioning.
     // Need correlation id as we will be chaining an S38BUF object to this request
@@ -975,13 +981,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       cache_.setPositionBeforeFirst();
       return;
     }
-    
+
     if (cacheRecords_)
     { // Invalidate the cache
       cache_.setIsEmpty();
     }
-    
-    
+
+
     // Send the request to force end of data specifying beginning of the
     // file for positioning; this is how we position the cursor to
     // before the first record.
@@ -1167,7 +1173,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       IOException
   {
     int shr;  // Type of locking for the record
-    if ((openType_ == AS400File.READ_ONLY) || 
+    if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
       // Read only
@@ -1341,7 +1347,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         }
         catch (PropertyVetoException e)
         { // We created the Record objects.  There is no one to veto anything
-          
+
         } // so this is here to quit the compiler
       }
     }
@@ -1459,7 +1465,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     int shr;  // Type of locking for the record
 
     // @A1C
-    if ((openType_ == AS400File.READ_ONLY) || 
+    if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
       // Read only
@@ -1507,10 +1513,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 //      Other changes were also made in DDMRequestDataStream and DDMTerm.
 
 //@B0A: start block
-    
+
     // readAll is supposed to return at least a Record[] of size 0, never null
     Record[] recArray = new Record[0];
-    
+
     synchronized(this) // We synchronize because this file object
     {                  // isn't supposed to be open (as far as the user knows).
       // Use a calculated blocking factor, else use a large blocking factor
@@ -1519,13 +1525,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       //@E0 - We don't want to use COMMIT_LOCK_LEVEL_ALL in case commitment control is on because
       // inside readAll(), the file isn't supposed to be open, so we should treat it as such.
       openFile2(AS400File.READ_ONLY, bf, AS400File.COMMIT_LOCK_LEVEL_NONE, fileType); //@D0C @E0C
-      
+
       // The vector to hold the records as we retrieve them.
       Vector allRecords = new Vector();
 
       // The following block was copied from readRecord()
       int shr;  // Type of locking for the record
-      if ((openType_ == AS400File.READ_ONLY) || 
+      if ((openType_ == AS400File.READ_ONLY) ||
           ((openType_ == AS400File.READ_WRITE) && readNoUpdate_))
       { // Read only
         shr = SHR_READ_NORM;
@@ -1692,7 +1698,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       IOException
   {
     int shr;  // Type of locking for the record
-    if ((openType_ == AS400File.READ_ONLY) || 
+    if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
       // Read only
@@ -1708,12 +1714,12 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
     Record[] returned = processReadReply(replys, false);    // @A1C
-    
+
     if (cacheRecords_) //@C0A
     {                  //@C0A
       cache_.setIsEmpty(); //@C0A
     }                  //@C0A
-    
+
     return (returned == null)? null : returned[0];
   }
 
@@ -1739,7 +1745,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       IOException
   {
     int shr;  // Type of locking for the record
-    if ((openType_ == AS400File.READ_ONLY) || 
+    if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
       // Read only
@@ -1755,12 +1761,12 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
     Record[] returned = processReadReply(replys, false);    // @A1C
-    
+
     if (cacheRecords_) //@C0A
     {                  //@C0A
       cache_.setIsEmpty(); //@C0A
     }                  //@C0A
-    
+
     return (returned == null)? null : returned[0];
   }
 
@@ -1789,7 +1795,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     int shr;  // Type of locking for the record
 
     // @A1C
-    if ((openType_ == AS400File.READ_ONLY) || 
+    if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
       // Read only
@@ -2023,7 +2029,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       throw new ExtendedIllegalArgumentException("record", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
-    
+
     // getObjectS38BUF requires an array of records
     Record[] records = new Record[1];
     records[0] = record;
@@ -2120,7 +2126,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param records The records to write.  The records must have a format
    *which matches the record format of this object.  To ensure that this
    *requirement is met, use the
-   *<a href="com.ibm.as400.access.RecordFormat.html">RecordFormat.getNewRecord()</a>
+   *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
    *method to obtain default records whose fields can be set appropriately by
    *the Java program and then written to the file.
    *@exception AS400Exception If the AS/400 system returns an error message.
@@ -2144,7 +2150,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       }
       throw new ExtendedIllegalArgumentException("records", ExtendedIllegalArgumentException. PARAMETER_VALUE_NOT_VALID);
     }
-    
+
     // We will be chaining the S38BUF to the request, so the correlation ids must match
     int correlationId = newCorrelationId(); //@B6C
     DDMRequestDataStream req = DDMRequestDataStream.getRequestS38PUTM(dclName_);

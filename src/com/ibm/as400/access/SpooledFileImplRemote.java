@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileImplRemote.java
 //                                                                             
@@ -158,9 +158,14 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONTROLCHAR);   // control char @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIES);        // copies (total)
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIESLEFT);    // copies left to produce
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CORNER_STAPLE); // corner staple @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI);           // characters per inch
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CURPAGE);       // current page
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);          // date file was opened
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_BEGAN_FILE); // date writer began processing file
+                                                                        //               @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_CMPL_FILE); // date writer finished processing file
+                                                                        //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSCPI);       // DBCS CPI
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSDATA);      // contains DBCS character set data
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSEXTENSN);   // process DBCS extension characters
@@ -168,6 +173,9 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSSISO);      // DBCS SI/SO positioning
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);        // print on both sides of paper
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ENDPAGE);       // ending page number to print
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edge stitch number of staples @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF); // edge stitch reference  @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // edge stitch reference offset @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);      // the error handling when printing
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FILESEP);       // number of file separators
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FOLDREC);       // wrap text to next line
@@ -183,6 +191,14 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLAY);      // *front side overlay name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FTOVRLLIB);     // *front side overlay library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLD);          // hold the spool file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_CCSID); // IPP attributes-charset  @C1AC4C
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ID);       // IPP job ID              @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_NAME);     // IPP job name            @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_NAME_NL);  // IPP job name NL         @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER); // IPP job original user   @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER_NL); // IPP job original user NL  @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_PRINTER_NAME);   // IPP printer name        @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_NL);   // IPP natural language         @C4A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNAME);       // name of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNUMBER);     // number of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBUSER);       // name of the user that created file
@@ -217,8 +233,12 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RESTART);       // where to restart printing at
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLCHAR);       // character to replace unprintables with
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLUNPRT);      // replace unprintable characters
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES);  // saddle stitch number of staples  @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch reference                  @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);          // whether to save after printing or not
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SCHEDULE);      // when available to the writer
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_AUTH_METHOD); // spool file authentication method @C3A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SECURITY_METHOD); // spool file security method   @C3A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);       // spool file number
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFSTATUS);    // spool file status
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);     // spool file name
@@ -226,6 +246,10 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTPAGE);     // starting page to print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // system where output was created @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // time spooled file was opened at
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // time writer began processing file
+                                                                        //               @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE); // time writer finished processing file
+                                                                        //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_UNITOFMEAS);    // unit of measure
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERCMT);       // user comment
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USERDATA);      // user data
@@ -309,7 +333,7 @@ implements SpooledFileImpl
     /**
       * Returns the message that is associated with this spooled file.
       * A spooled file has a message associated with it if its
-      * ATTR_SPLFSTATUS attribute returns *MSGW.
+      * ATTR_SPLFSTATUS attribute returns *MESSAGE.
       *
       * @return The AS400Message object that contains the message text,
       *   type, severity, id, date, time, and default reply.
@@ -354,6 +378,7 @@ implements SpooledFileImpl
         msg.setDefaultReply(cpMessage.getStringValue(PrintObject.ATTR_MSGREPLY));   // @A3A -added PrintObject.
         msg.setHelp(cpMessage.getStringValue(PrintObject.ATTR_MSGHELP));            // @A3A -added PrintObject.
         msg.setSeverity((cpMessage.getIntValue(PrintObject.ATTR_MSGSEV)).intValue());   // @A3A -added PrintObject.
+        msg.setType(Integer.parseInt(cpMessage.getStringValue(PrintObject.ATTR_MSGTYPE))); // @C2A -added
 
         return msg;
     } // getMessage

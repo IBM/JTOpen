@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterFileImplRemote.java
 //                                                                             
@@ -51,7 +51,10 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNTLIB); // coded font library name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEPAGE);    // code page
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CODEDFNT);    // coded font
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONTROLCHAR); // control character       @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CONVERT_LINEDATA); // convert line data  @C1A            
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_COPIES);      // copies (total)
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_CORNER_STAPLE); // corner staple         @C1A            
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSDATA);    // contains DBCS character set
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSEXTENSN); // process DBCS extension char
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DBCSROTATE);  // rotate DBCS characters
@@ -60,6 +63,12 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DESCRIPTION); // text description
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DFR_WRITE);   // defer write
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DUPLEX);      // print on both sides of pape
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_NUMSTAPLES); // edgestich number 
+                                                                      // of staples              @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REF); // edgestitch reference @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_EDGESTITCH_REFOFF); // edgestitch reference
+                                                                            //  offset   @C1A 
+                     
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ENDPAGE);     // ending page number to print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FIDELITY);    // the error handling when pri
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FILESEP);     // number of file separators
@@ -85,6 +94,7 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);   // output queue library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);      // output queue
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERFLOW);    // overflow line number
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_DEFINITION); // page definition  @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGRTT);      // degree of page rotation
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELEN);     // page length in Units of Mea
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGEWIDTH);   // width of page in Units of M
@@ -95,6 +105,10 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);  // printer dev type (data stre
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLUNPRT);    // replace unprintable charact
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RPLCHAR);     // character to replace unprin
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_NUMSTAPLES); // saddle stitch
+                                                                      // number of staple       @C1A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SADDLESTITCH_REF); // saddle stitch
+                                                                      // reference              @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SAVE);        // whether to save after print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SRCDRWR);     // source drawer
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOL);       // spool the data

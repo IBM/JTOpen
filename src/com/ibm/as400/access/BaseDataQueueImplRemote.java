@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BaseDataQueueImplRemote.java
 //                                                                             
@@ -35,7 +35,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     byte[] queueNameBytes_ = { (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 };
     byte[] libraryBytes_ = { (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 };
 
-    // Set needed impl properties.
+    // Set needed implementation properties.
     public void setSystemAndPath(AS400Impl system, String path, String name, String library) throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting up implementation object: " + path);
@@ -66,7 +66,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                 {
                     system_.disconnectServer(server_);
                     Trace.log(Trace.ERROR, "IOException during exchange attributes:", e);
-                    throw (IOException)e.fillInStackTrace();
+                    throw e;
                 }
 
                 if (baseReply instanceof DQExchangeAttributesNormalReplyDataStream)
@@ -120,7 +120,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
-            throw (IOException)e.fillInStackTrace();
+            throw e;
         }
     }
 
@@ -161,7 +161,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
-            throw (IOException)e.fillInStackTrace();
+            throw e;
         }
     }
 
@@ -194,7 +194,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
-            throw (IOException)e.fillInStackTrace();
+            throw e;
         }
     }
 
@@ -242,7 +242,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
-            throw (IOException)e.fillInStackTrace();
+            throw e;
         }
     }
 
@@ -267,17 +267,17 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                         Trace.log(Trace.ERROR, "Using KeyedDataQueue for non-keyed data queue: " + path_);
                         throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_NOT_KEYED);
                     }
-                    record.FIFO = true; // Keyed queues always FIFO.
+                    record.FIFO_ = true; // Keyed queues always FIFO.
                 }
                 else
                 {
                     if (type == 0)
                     {
-                        record.FIFO = true;
+                        record.FIFO_ = true;
                     }
                     else if (type == 1)
                     {
-                        record.FIFO = false;
+                        record.FIFO_ = false;
                     }
                     else // Queue is keyed and this is not a KeyedDataQueue object.
                     {
@@ -285,11 +285,11 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                         throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_KEYED);
                     }
                 }
-                record.maxEntryLength = reply.getMaxEntryLength();
-                record.saveSenderInformation = reply.getSaveSenderInformation();
-                record.forceToAuxiliaryStorage = reply.getForceToAuxiliaryStorage();
-                record.description = converter_.byteArrayToString(reply.getDescription());
-                record.keyLength = reply.getKeyLength();
+                record.maxEntryLength_ = reply.getMaxEntryLength();
+                record.saveSenderInformation_ = reply.getSaveSenderInformation();
+                record.forceToAuxiliaryStorage_ = reply.getForceToAuxiliaryStorage();
+                record.description_ = converter_.byteArrayToString(reply.getDescription());
+                record.keyLength_ = reply.getKeyLength();
                 return record;
             }
             else if (baseReply instanceof DQCommonReplyDataStream)
@@ -308,7 +308,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
-            throw (IOException)e.fillInStackTrace();
+            throw e;
         }
     }
 
@@ -341,7 +341,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
-            throw (IOException)e.fillInStackTrace();
+            throw e;
         }
     }
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUserProfileUtil.java
 //                                                                             
@@ -28,6 +28,11 @@ import java.util.Vector;
 public class AS400CertificateUserProfileUtil extends AS400CertificateUtil implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+
+    static final long serialVersionUID = 4L;
 
 
   /**

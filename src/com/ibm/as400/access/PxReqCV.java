@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxReqCV.java
 //                                                                             
@@ -24,7 +24,7 @@ import java.io.PrintWriter;
 The PxReqCV class represents the client
 portion of a request.
 **/
-abstract class PxReqCV 
+abstract class PxReqCV
 extends PxCompDS
 implements PxDSWV
 {
@@ -40,6 +40,7 @@ implements PxDSWV
     private long    correlationId_;
     private boolean asynchronous_;
 
+    private long    clientId_ = -1;    // @D1a @D2C
 
 
 
@@ -87,10 +88,15 @@ Dumps the datastream for debugging and tracing.
             output.println("   Correlation id = " + correlationId_);
             if (asynchronous_)
                 output.println("   Asynchronous");
+
+            // @D1 dump the client id
+            output.println("   Client id = " + clientId_);  // @D2C
+            // @D2D for (int i=0; i<clientId_.length; i++)
+            // @D2D    output.print(clientId_[i]);
+            // @D2D output.println();
         }
-       
     }
-  
+
 
 
     public long getCorrelationId()
@@ -105,7 +111,7 @@ Writes the contents of the datastream to an output stream.
 
 @param output   The output stream.
 
-@exception IOException  If an error occurs.                
+@exception IOException  If an error occurs.
 **/
     public void writeTo (OutputStream output)
         throws IOException
@@ -114,9 +120,21 @@ Writes the contents of the datastream to an output stream.
         DataOutputStream dataOutput = new DataOutputStream (output);
         dataOutput.writeLong(correlationId_);
         dataOutput.writeBoolean(asynchronous_);
+
+        // If given a client ID, add it to the end of the stream
+        // @D2D if (clientId_ != null)            // @D1a
+           dataOutput.writeLong(clientId_);   // @D1a @D2C
     }
 
 
-    
+//
+// @D1a New method ... @D2C
+// Set the client ID to append to the end of the stream.
+//
+
+    void setClientId(long newValue)  // @D2C
+    {
+        clientId_ = newValue;
+    }
 
 }

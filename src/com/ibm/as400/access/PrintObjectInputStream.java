@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectInputStream.java
 //                                                                             
@@ -23,16 +23,16 @@ segment.
 <p>
 An instance of this class can be created either by using
 the getInputStream method
-from the <a href="com.ibm.as400.access.AFPResource.html"> AFPResource</a> class or by using
+from the <a href="AFPResource.html"> AFPResource</a> class or by using
 the getInputStream method
-from the <a href="com.ibm.as400.access.SpooledFile.html"> SpooledFile</a> class.
+from the <a href="SpooledFile.html"> SpooledFile</a> class.
 **/
 
 public class PrintObjectInputStream extends InputStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    
+
     transient private AS400                        system_;
     transient private PrintObjectInputStreamImpl     impl_;
 
@@ -61,7 +61,7 @@ public class PrintObjectInputStream extends InputStream
         if (impl_ == null)
             chooseImpl();
         // Do connect here because it could throw Exceptions  @A2A
-        system_.connectService(AS400.PRINT);    // @A2A    
+        system_.connectService(AS400.PRINT);    // @A2A
         if (sf.getImpl() == null) {             // @A2A
             sf.chooseImpl();                    // @A2A
         }                                       // @A2A

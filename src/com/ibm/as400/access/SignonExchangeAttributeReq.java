@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonExchangeAttributeReq.java
 //                                                                             
@@ -22,7 +22,7 @@ class SignonExchangeAttributeReq extends ClientAccessDataStream
 
     SignonExchangeAttributeReq()
     {
-        data_ = new byte[52];
+        super(new byte[52]);
 
         setLength(52);
         // setHeaderID(0x0000);
@@ -40,15 +40,15 @@ class SignonExchangeAttributeReq extends ClientAccessDataStream
         //   Client version.
         set32bit(1, 26);
 
-        // Set client level.
+        // Set client data stream level.
         //   LL
         set32bit(8, 30);
         //   CP
         set16bit(0x1102, 34);
         //   Client level.
-        // set16bit(0, 36);
+        set16bit(1, 36);  // Set to 1 means we support SHA-1 passwords.
 
-        // Set client seed
+        // Set client seed.
         //   LL
         set32bit(14, 38);
         //   CP

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImpl.java
 //                                                                             
@@ -79,6 +79,8 @@ interface AS400FileImpl
   int doItInt(String methodName);
   
   boolean doItBoolean(String methodName);
+  
+  boolean doItBoolean(String methodName, Class[] classes, Object[] objects); //@E0A
 }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordFormat.java
 //                                                                             
@@ -44,6 +44,19 @@ import java.beans.PropertyVetoException;
  *The RecordFormat class is also used to describe the record format of a file when using
  *the record-level database access classes.  The record format of the file must be set prior
  *to invoking the open() method on an AS400File object.
+ *<p>
+ *The RecordFormat class is also used to describe the record format of a record when using
+ *the LineDataRecordWriter class.  The following record format attributes are required to be
+ *set.
+ *<ul>
+ *<li>Record format ID
+ *<li>Record format type
+ *<li>Field descriptions that make up the record format
+ *<li>The delimiter, when the record format type is VARIABLE_LAYOUT_LENGTH
+ *<li>Field description layout attributes,length and alignment, when the record format
+ *is FIXED_LAYOUT_LENGTH
+ *</ul>
+ *<p>
  *The RecordFormat class allows the user to do the following:
  *<ul>
  *<li>Describe the data returned from an AS/400.
@@ -51,26 +64,40 @@ import java.beans.PropertyVetoException;
  *</ul>
  *RecordFormat objects generate the following events:
  *<ul>
- *<li><a href="com.ibm.as400.access.RecordDescriptionEvent.html">RecordDescriptionEvent</a>
+ *<li>{@link com.ibm.as400.access.RecordDescriptionEvent RecordDescriptionEvent}
  *<br>The events fired are:
  *<ul>
  *<li>fieldDescriptionAdded()
  *<li>keyFieldDescriptionAdded()
  *</ul>
- *<li><a href="java.beans.PropertyChangeEvent.html">PropertyChangeEvent</a>
- *<li><a href="java.beans.VetoableChangeEvent.html">VetoableChangeEvent</a>
+ *<li>PropertyChangeEvent
+ *<li>VetoableChangeEvent
  *</ul>
  *<b>Examples</b>
  *<ul>
- *<li><a href="recordxmp.html">Using the RecordFormat class with the Data queue classes</a>
- *<li><a href="RLReadFileExample.html">Using the RecordFormat class with the record-level database access classes</a>
+ *<li><a href="../../../../recordxmp.html">Using the RecordFormat class with the Data queue classes</a>
+ *<li><a href="../../../../RLReadFileExample.html">Using the RecordFormat class with the record-level database access classes</a>
+ *<li><a href="../../../../LDRWExample.html">Using the RecordFormat class with the LineDataRecordWriter class</a>
  *</ul>
 **/
 public class RecordFormat implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
- 
+
+
+    static final long serialVersionUID = 4L;
+
+
+  /** Constant indicating the layout length of all fields is fixed. **/ // @C1A
+  /** This constant is only used for record level writing.          **/ // @C1A
+  public static final int FIXED_LAYOUT_LENGTH    = 1;       // @C1A
+  /** Constant indicating the layout length of all fields is variable. **/ //@C1A
+  /** This constant is only used for record level writing.          **/ // @C1A
+  public static final int VARIABLE_LAYOUT_LENGTH = 2;       // @C1A
+  // The delimiter used for printing variable length field records  @C1A
+  private char delimiter_;   // @C1A
+
   // The fieldDescriptions that make up this record format.
   private Vector fieldDescriptions_ = new Vector();
   // Hashtable mapping the field names to their index in fieldDescriptions_
@@ -91,6 +118,10 @@ public class RecordFormat implements Serializable
   // Contains the index of the field depended on for offset by the field description specified by the
   // the index into this Vector.
   private Vector offsetDependentFields_ = new Vector();
+  // The record format type   @C1A
+  private int recordFormatType_;  // @C1A
+  // The record format ID     @C1A
+  private String recordFormatID_ = "";             // @C1A
 
   // Transient data.
   transient private PropertyChangeSupport changes_; //@B0C
@@ -274,11 +305,25 @@ public class RecordFormat implements Serializable
           break;
         case RecordDescriptionEvent.KEY_FIELD_DESCRIPTION_ADDED:
           target.keyFieldDescriptionAdded(event);
-          break;        
+          break;
         default:
           break;
       }
     }
+  }
+
+  //@C1A
+  /**
+   * Returns the delimiter.  The delimiter is the character
+   * used to separate variable length fields when the record is
+   * written using the line data record writer class.  This value is only
+   * valid when the record format type is VARIABLE_LAYOUT_LENGTH.
+   *
+   * @return  The delimiter.
+  **/
+  public char getDelimiter()
+  {
+    return delimiter_;
   }
 
 
@@ -694,6 +739,29 @@ public class RecordFormat implements Serializable
     return ((Integer)offsetDependentFields_.elementAt(getIndexOfFieldName(name))).intValue();
   }
 
+  // @C1A - added method
+ /**
+   * Returns the record format ID.
+   * The record format ID corresponds to a record format ID within a page definition
+   * defined on the AS/400.
+   *
+   * @return  The record format ID.
+  **/
+  public String getRecordFormatID()
+  {
+    return recordFormatID_;
+  }
+
+  // @C1A - added method
+  /**
+   * Returns the record format type.
+   *
+   * @return  The record format type.
+  **/
+  public int getRecordFormatType()
+  {
+    return recordFormatType_;
+  }
 
   //@D0A
   /**
@@ -713,28 +781,9 @@ public class RecordFormat implements Serializable
       }
     }
   }
-          
-  //@D0A
-  /**
-   * This should be called by any class that is running on the proxy server and retrieves
-   * a RecordFormat from the client side.
-  **/
-//@E0: This function has been moved to AS400FileImplBase.
-/*@E0D  void setConverter(ConverterImpl conv)
-  {
-    //@D0A - need to finish filling in the AS400Text objects
-    // now that we're back on the client
-    for (int i=0; i<fieldDescriptions_.size(); ++i)
-    {
-      AS400DataType dt = ((FieldDescription)fieldDescriptions_.elementAt(i)).dataType_;
-      if (dt instanceof AS400Text)
-      {
-        ((AS400Text)dt).setConverter(conv);
-      }
-    }
-  }
-*/
-          
+
+
+
   //@B0A
   /**
    * Initialize transient data.
@@ -813,6 +862,42 @@ public class RecordFormat implements Serializable
     vetos_.removeVetoableChangeListener(listener); //@B0C
 //@B0D    currentVetoListeners_ = (Vector)vetoListeners_.clone();
   }
+
+  //@D0A
+  /**
+   * This should be called by any class that is running on the proxy server and retrieves
+   * a RecordFormat from the client side.
+  **/
+//@E0: This function has been moved to AS400FileImplBase.
+/*@E0D  void setConverter(ConverterImpl conv)
+  {
+    //@D0A - need to finish filling in the AS400Text objects
+    // now that we're back on the client
+    for (int i=0; i<fieldDescriptions_.size(); ++i)
+    {
+      AS400DataType dt = ((FieldDescription)fieldDescriptions_.elementAt(i)).dataType_;
+      if (dt instanceof AS400Text)
+      {
+        ((AS400Text)dt).setConverter(conv);
+      }
+    }
+  }
+*/
+
+  // @C1A - added method
+  /**
+   * Sets the delimiter.  The delimiter is the character
+   * used to separate variable length fields when the record is
+   * written using the line data record writer class.  This value is only
+   * valid when the record format type is VARIABLE_LAYOUT_LENGTH.
+   *
+   * @param delimiter The delimiter.
+  **/
+  public void setDelimiter(char delimiter)
+  {
+    delimiter_ = delimiter;
+  }
+
 
   /**
    *Sets the field on which a dependent field depends.  Both fields must have been added already
@@ -949,4 +1034,49 @@ public class RecordFormat implements Serializable
     int depIndex = getIndexOfFieldName(dependentField);
     setOffsetDependency(depIndex, depOnIndex);
   }
+
+  // @C1A - added method
+  /**
+   * Sets the record format ID. The length of the record format ID must be 10 characters
+   * or less.  The record format ID corresponds to a record format ID within a page
+   * definition on the AS/400.  If the record format ID is less than 10 characters,
+   * it is padded to 10 characters in length with spaces.
+   *
+   * @param type  The record format ID.
+  **/
+  public void setRecordFormatID(String id)
+  {
+    String pad = "          " ;
+    if (id.length() > 10) {
+        throw new ExtendedIllegalArgumentException("id",
+            ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+    }
+    if (id.length() < 10) {
+      int padl = 10 - id.length();
+      recordFormatID_ = id + pad.substring(0,padl);
+    }
+    else
+       recordFormatID_ = id;
+
+
+  }
+
+// @C1A - added method
+  /**
+   * Sets the record format type. Valid values are FIXED_LAYOUT_LENGTH and
+   * VARIABLE_LAYOUT_LENGTH.  This attribute is only valid when using the
+   * line record writer class.
+   *
+   * @param type  The record format type.
+  **/
+
+  public void setRecordFormatType(int type)
+  {
+    if ((type != VARIABLE_LAYOUT_LENGTH) && (type != FIXED_LAYOUT_LENGTH)) {
+        throw new ExtendedIllegalArgumentException("type",
+            ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    recordFormatType_ = type;
+  }
+
 }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ActionCompletedEvent.java
 //                                                                             
@@ -21,6 +21,11 @@ import java.util.EventObject;
 public class ActionCompletedEvent extends EventObject
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
     /**
      Constructs an ActionCompletedEvent object.  It uses the specified source object that completed the action.

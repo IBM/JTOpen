@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConversionMaps.java
 //                                                                             
@@ -37,7 +37,6 @@ abstract class ConversionMaps
   
   final static Hashtable ccsidEncoding_ = new Hashtable(175); // 127 actual entries
   final static Hashtable encodingCcsid_ = new Hashtable(175); // 127 actual entries
-  final static Hashtable associatedDbcsCcsidMap_ = new Hashtable(50);  // 37 actual entries
   final static Hashtable localeCcsidMap_ = new Hashtable(85); // 63 actual entries
   final static Hashtable localeNlvMap_ = new Hashtable(100); // 74 actual entries
 
@@ -254,49 +253,6 @@ abstract class ConversionMaps
     
     // Any encodings that are used for which we know no ccsid will 
     // have their ccsid set to 0.
-  }
-
-
-  // associatedDbcsCcsidMap
-  static
-  {
-    associatedDbcsCcsidMap_.put("37", "835");
-    associatedDbcsCcsidMap_.put("290", "300");
-    associatedDbcsCcsidMap_.put("301", "300");
-    associatedDbcsCcsidMap_.put("833", "834");
-    associatedDbcsCcsidMap_.put("836", "837");
-    associatedDbcsCcsidMap_.put("891", "834");
-    associatedDbcsCcsidMap_.put("897", "300");
-    associatedDbcsCcsidMap_.put("903", "837");
-    associatedDbcsCcsidMap_.put("904", "835");
-    associatedDbcsCcsidMap_.put("926", "834");
-    associatedDbcsCcsidMap_.put("927", "835");
-    associatedDbcsCcsidMap_.put("928", "837");
-    associatedDbcsCcsidMap_.put("930", "300");
-    associatedDbcsCcsidMap_.put("932", "300");
-    associatedDbcsCcsidMap_.put("933", "834");
-    associatedDbcsCcsidMap_.put("934", "834");
-    associatedDbcsCcsidMap_.put("935", "837");
-    associatedDbcsCcsidMap_.put("936", "837");
-    associatedDbcsCcsidMap_.put("937", "835");
-    associatedDbcsCcsidMap_.put("938", "835");
-    associatedDbcsCcsidMap_.put("939", "300");
-    associatedDbcsCcsidMap_.put("942", "300");
-    associatedDbcsCcsidMap_.put("944", "834");
-    associatedDbcsCcsidMap_.put("946", "837");
-    associatedDbcsCcsidMap_.put("947", "835");
-    associatedDbcsCcsidMap_.put("948", "835");
-    associatedDbcsCcsidMap_.put("951", "834");
-    associatedDbcsCcsidMap_.put("1027", "300");
-    associatedDbcsCcsidMap_.put("1040", "834");
-    associatedDbcsCcsidMap_.put("1041", "300");
-    associatedDbcsCcsidMap_.put("1042", "837");
-    associatedDbcsCcsidMap_.put("1043", "835");
-    associatedDbcsCcsidMap_.put("1381", "837");
-    associatedDbcsCcsidMap_.put("5026", "300");
-    associatedDbcsCcsidMap_.put("5035", "300");
-    associatedDbcsCcsidMap_.put("28709", "835");
-    associatedDbcsCcsidMap_.put("33722", "300");
   }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCPreparedStatement.java
 //                                                                             
@@ -176,29 +176,31 @@ Adds the set of parameters to the current batch.
     public void addBatch ()
         throws SQLException
     {
-        checkOpen ();
-        Object[] parameters = new Object[parameterCount_];
-        int[] scales = new int[parameterCount_];
-        for (int i = 0; i < parameterCount_; ++i) {
-
-            // Statements with output or input parameters are
-            // not allowed in the batch.
-            if (parameterRow_.isOutput (i+1))
-                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-
-            // If an input parameter is not set, we throw an exception.
-            if (parameterSet_[i] == false)
-                JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
-
-            // Save the parameter in the array.  If its null,
-            // just save a null reference.
-            if (parameterNulls_[i])
-                parameters[i] = null;
-            else
-                parameters[i] = parameterRow_.getSQLData (i+1).toObject ();
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+            Object[] parameters = new Object[parameterCount_];
+            int[] scales = new int[parameterCount_];
+            for (int i = 0; i < parameterCount_; ++i) {
+    
+                // Statements with output or input parameters are
+                // not allowed in the batch.
+                if (parameterRow_.isOutput (i+1))
+                    JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+    
+                // If an input parameter is not set, we throw an exception.
+                if (parameterSet_[i] == false)
+                    JDError.throwSQLException (JDError.EXC_PARAMETER_COUNT_MISMATCH);
+    
+                // Save the parameter in the array.  If its null,
+                // just save a null reference.
+                if (parameterNulls_[i])
+                    parameters[i] = null;
+                else
+                    parameters[i] = parameterRow_.getSQLData (i+1).toObject ();
+            }
+    
+            batch_.addElement (parameters);
         }
-
-        batch_.addElement (parameters);
     }
 
 
@@ -289,8 +291,7 @@ marker format.
 
 /**
 Releases the resources used by the current input parameter
-values. In general, input
-arameter values remain in effect
+values. In general, input parameter values remain in effect
 for repeated executions of the prepared statement.  Setting an
 input parameter value to a new value automatically clears its
 previous value.
@@ -300,19 +301,21 @@ previous value.
     public void clearParameters ()
       throws SQLException
     {
-        checkOpen ();
-
-	    for (int i = 0; i < parameterCount_; ++i) {
-	        // @E1D parameterLengths_[i]    = 0;
-	        parameterNulls_[i]      = false;
-	        // @E1D parameterOffsets_[i]    = 0;
-	        parameterSet_[i]        = false;
-	    }
-
-	    // @E1D parameterTotalSize_ = 0;
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+    
+    	    for (int i = 0; i < parameterCount_; ++i) {
+    	        // @E1D parameterLengths_[i]    = 0;
+    	        parameterNulls_[i]      = false;
+    	        // @E1D parameterOffsets_[i]    = 0;
+    	        parameterSet_[i]        = false;
+    	    }
+    
+    	    // @E1D parameterTotalSize_ = 0;
 
             if (useReturnValueParameter_)                                       // @F2A
                 returnValueParameter_.set(0);                                   // @F2A
+        }
     }
 
 
@@ -327,27 +330,29 @@ current result set.
     public void close ()
       throws SQLException
     {
-        // If this is already closed, then just do nothing.             
-        // 
-        // The spec does not define what happens when a connection
-        // is closed multiple times.  The official word from the Sun 
-        // JDBC team is that "the driver's behavior in this case 
-        // is implementation defined.   Applications that do this are 
-        // non-portable." 
-        if (isClosed ())
-            return;
-
-        // If a descriptor was created somewhere along
-        // the lines, then delete it now.
-        if (descriptorHandle_ != 0) {
-    	  	DBSQLDescriptorDS request = new DBSQLDescriptorDS (
-	            DBSQLDescriptorDS.FUNCTIONID_DELETE_DESCRIPTOR,
-	            id_, 0, descriptorHandle_);
-   	    	connection_.send (request, descriptorHandle_);
-   	    	descriptorHandle_ = 0;
+        synchronized(internalLock_) {                                            // @F1A
+            // If this is already closed, then just do nothing.             
+            // 
+            // The spec does not define what happens when a connection
+            // is closed multiple times.  The official word from the Sun 
+            // JDBC team is that "the driver's behavior in this case 
+            // is implementation defined.   Applications that do this are 
+            // non-portable." 
+            if (isClosed ())
+                return;
+    
+            // If a descriptor was created somewhere along
+            // the lines, then delete it now.
+            if (descriptorHandle_ != 0) {
+        	  	DBSQLDescriptorDS request = new DBSQLDescriptorDS (
+    	            DBSQLDescriptorDS.FUNCTIONID_DELETE_DESCRIPTOR,
+    	            id_, 0, descriptorHandle_);
+       	    	connection_.send (request, descriptorHandle_);
+       	    	descriptorHandle_ = 0;
+            }
+    
+            super.close ();
         }
-
-        super.close ();
     }
 
 
@@ -625,19 +630,21 @@ result sets, an update count, or both.
     public boolean execute ()
       throws SQLException
     {
-        checkOpen ();
-
-        // Prepare the statement if it is not already done.
-        if (! prepared_) {
-            resultRow_ = commonPrepare (sqlStatement_);
-            prepared_ = true;
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+    
+            // Prepare the statement if it is not already done.
+            if (! prepared_) {
+                resultRow_ = commonPrepare (sqlStatement_);
+                prepared_ = true;
+            }
+    
+            // Execute.
+            commonExecute (sqlStatement_, resultRow_);
+            executed_ = true;
+    
+            return (resultSet_ != null);
         }
-
-        // Execute.
-        commonExecute (sqlStatement_, resultRow_);
-        executed_ = true;
-
-        return (resultSet_ != null);
     }
 
 
@@ -700,86 +707,88 @@ SQL statements in a batch fail to run.
     public int[] executeBatch ()
         throws SQLException
     {
-        checkOpen ();
-        int batchSize = batch_.size ();
-        int[] updateCounts = new int[batchSize];
-
-        int i = 0;
-        try {
-            Enumeration enum = batch_.elements ();
-            while (enum.hasMoreElements ()) {
-
-                // The caller can intermix direct SQL statements
-                // and sets of parameters for the prepared statement
-                // in the batch.  This code differentiates based on
-                // the type of object in the batch.
-                Object nextElement = enum.nextElement ();
-                if (nextElement instanceof JDSQLStatement) {
-
-                    // Prepare and execute.  Check for a result set in
-                    // both places.  It is best to catch it after the
-                    // prepare (so we don't open a cursor), but with
-                    // some stored procedures, we can't catch it until
-                    // the execute.
-                    prepared_ = false;
-                    JDSQLStatement sqlStatement = (JDSQLStatement) nextElement;
-                    JDServerRow resultRow = commonPrepare (sqlStatement);
-                    if (resultRow != null)
-                        JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-
-                    commonExecute (sqlStatement, resultRow);
-                    executed_ = true;
-                    if (resultSet_ != null) {
-                        closeResultSet (JDCursor.REUSE_YES);
-                        JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+            int batchSize = batch_.size ();
+            int[] updateCounts = new int[batchSize];
+    
+            int i = 0;
+            try {
+                Enumeration enum = batch_.elements ();
+                while (enum.hasMoreElements ()) {
+    
+                    // The caller can intermix direct SQL statements
+                    // and sets of parameters for the prepared statement
+                    // in the batch.  This code differentiates based on
+                    // the type of object in the batch.
+                    Object nextElement = enum.nextElement ();
+                    if (nextElement instanceof JDSQLStatement) {
+    
+                        // Prepare and execute.  Check for a result set in
+                        // both places.  It is best to catch it after the
+                        // prepare (so we don't open a cursor), but with
+                        // some stored procedures, we can't catch it until
+                        // the execute.
+                        prepared_ = false;
+                        JDSQLStatement sqlStatement = (JDSQLStatement) nextElement;
+                        JDServerRow resultRow = commonPrepare (sqlStatement);
+                        if (resultRow != null)
+                            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+    
+                        commonExecute (sqlStatement, resultRow);
+                        executed_ = true;
+                        if (resultSet_ != null) {
+                            closeResultSet (JDCursor.REUSE_YES);
+                            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                        }
                     }
+    
+                    else if (nextElement instanceof Object[]) {
+    
+                        // Prepare the statement if it is not already done.
+                        if (! prepared_) {
+                            resultRow_ = commonPrepare (sqlStatement_);
+                            prepared_ = true;
+                        }
+    
+                        // Execute.  Check for a result set in
+                        // both places.  It is best to catch it after the
+                        // prepare (so we don't open a cursor), but with
+                        // some stored procedures, we can't catch it until
+                        // the execute.
+                        Object[] parameters = (Object[]) nextElement;
+                        Calendar calendar = Calendar.getInstance ();
+                        for (int j = 0; j < parameterCount_; ++j)
+                            setValue (j+1, parameters[j], calendar, -1); // @B8C
+    
+                        commonExecute (sqlStatement_, resultRow_);
+                        executed_ = true;
+                        if (resultSet_ != null) {
+                            closeResultSet (JDCursor.REUSE_YES);
+                            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+                        }
+                    }
+    
+                    updateCounts[i++] = updateCount_;
                 }
-
-                else if (nextElement instanceof Object[]) {
-
-                    // Prepare the statement if it is not already done.
-                    if (! prepared_) {
-                        resultRow_ = commonPrepare (sqlStatement_);
-                        prepared_ = true;
-                    }
-
-                    // Execute.  Check for a result set in
-                    // both places.  It is best to catch it after the
-                    // prepare (so we don't open a cursor), but with
-                    // some stored procedures, we can't catch it until
-                    // the execute.
-                    Object[] parameters = (Object[]) nextElement;
-                    Calendar calendar = Calendar.getInstance ();
-                    for (int j = 0; j < parameterCount_; ++j)
-                        setValue (j+1, parameters[j], calendar, -1); // @B8C
-
-                    commonExecute (sqlStatement_, resultRow_);
-                    executed_ = true;
-                    if (resultSet_ != null) {
-                        closeResultSet (JDCursor.REUSE_YES);
-                        JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-                    }
-                }
-
-                updateCounts[i++] = updateCount_;
             }
-        }
-        catch (SQLException e) {
-
-            // The specification says that if we get an error,
-            // then the size of the update counts array should
-            // reflect the number of statements that were
-            // executed without error.
-            int[] updateCounts2 = new int[i];
-            System.arraycopy (updateCounts, 0, updateCounts2, 0, i);
-
+            catch (SQLException e) {
+    
+                // The specification says that if we get an error,
+                // then the size of the update counts array should
+                // reflect the number of statements that were
+                // executed without error.
+                int[] updateCounts2 = new int[i];
+                System.arraycopy (updateCounts, 0, updateCounts2, 0, i);
+    
+                batch_.removeAllElements ();
+                throw new BatchUpdateException (e.getMessage (),
+                    e.getSQLState (), e.getErrorCode (), updateCounts2);
+            }
+    
             batch_.removeAllElements ();
-            throw new BatchUpdateException (e.getMessage (),
-                e.getSQLState (), e.getErrorCode (), updateCounts2);
+            return updateCounts;
         }
-
-        batch_.removeAllElements ();
-        return updateCounts;
     }
 
 
@@ -801,21 +810,23 @@ clears warnings before executing the SQL statement again.
     public ResultSet executeQuery ()
         throws SQLException
     {
-        checkOpen ();
-
-        // Prepare the statement if it is not already done.
-        if (! prepared_) {
-            resultRow_ = commonPrepare (sqlStatement_);
-            prepared_ = true;
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+    
+            // Prepare the statement if it is not already done.
+            if (! prepared_) {
+                resultRow_ = commonPrepare (sqlStatement_);
+                prepared_ = true;
+            }
+    
+            // Execute.
+            commonExecute (sqlStatement_, resultRow_);
+            executed_ = true;
+    
+            if (resultSet_ == null)
+                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+     		return resultSet_;
         }
-
-        // Execute.
-        commonExecute (sqlStatement_, resultRow_);
-        executed_ = true;
-
-        if (resultSet_ == null)
-            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
- 		return resultSet_;
     }
 
 
@@ -869,30 +880,32 @@ before executing the SQL statement again.
     public int executeUpdate ()
       throws SQLException
     {
-        checkOpen ();
-
-        // Prepare and execute.  Check for a result set in both
-        // places.  It is best to catch it after the prepare (so
-        // we don't open a cursor), but with some stored procedures,
-        // we can't catch it until the execute.
-
-        // Prepare the statement if it is not already done.
-        if (! prepared_) {
-            resultRow_ = commonPrepare (sqlStatement_);
-            prepared_ = true;
-            if (resultRow_ != null)
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+    
+            // Prepare and execute.  Check for a result set in both
+            // places.  It is best to catch it after the prepare (so
+            // we don't open a cursor), but with some stored procedures,
+            // we can't catch it until the execute.
+    
+            // Prepare the statement if it is not already done.
+            if (! prepared_) {
+                resultRow_ = commonPrepare (sqlStatement_);
+                prepared_ = true;
+                if (resultRow_ != null)
+                    JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+            }
+    
+            // Execute.
+            commonExecute (sqlStatement_, resultRow_);
+            executed_ = true;
+            if (resultSet_ != null) {
+                closeResultSet (JDCursor.REUSE_YES);
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+            }
+    
+    		return updateCount_;
         }
-
-        // Execute.
-        commonExecute (sqlStatement_, resultRow_);
-        executed_ = true;
-        if (resultSet_ != null) {
-            closeResultSet (JDCursor.REUSE_YES);
-            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-        }
-
-		return updateCount_;
     }
 
 
@@ -951,9 +964,11 @@ result set's columns.
     public ResultSetMetaData getMetaData ()
 		throws SQLException
     {
-        checkOpen ();
-        return new AS400JDBCResultSetMetaData (connection_.getCatalog (), 
-            resultSetConcurrency_, cursor_.getName (), resultRow_);
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+            return new AS400JDBCResultSetMetaData (connection_.getCatalog (), 
+                resultSetConcurrency_, cursor_.getName (), resultRow_);
+        }
     }
 
 
@@ -1430,7 +1445,7 @@ this to a value of an SQL type, depending on the type of the
 specified value.  The JDBC specification defines a standard
 mapping from Java types to SQL types.  In the cases where a
 SQL type is not supported by DB2 for OS/400, the 
-<a href="SQLTypes.html#unsupported">next closest matching type</a>
+<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
 is used.
 <br>If proxy support is in use, the Object must be serializable.
 
@@ -1766,7 +1781,9 @@ and performs all appropriate validation.
                    int scale) // private protected
         throws SQLException
     {
-        checkOpen ();
+        synchronized(internalLock_) {                                            // @F1A
+            checkOpen ();
+    
             // Check if the parameter index refers to the return value parameter.          @F2A
             // This is an OUT parameter, so sets are not allowed.  If its not              @F2A
             // parameter index 1, then decrement the parameter index, since we             @F2A
@@ -1778,32 +1795,33 @@ and performs all appropriate validation.
                     --parameterIndex;                                                   // @F2A
             }
 
-        // Validate the parameter index.
-        if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
-        // Check that the parameter is an input parameter.
-        if (! parameterRow_.isInput (parameterIndex))
-            JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-
-        // Set the parameter data.  If there is a type mismatch,
-        // set() with throw an exception.
-        SQLData sqlData = parameterRow_.getSQLData (parameterIndex);
-        if (parameterValue != null) {                                                                   // @B6C    
-            
-            // If the data is a locator, then set its handle.                                              @B6A
-            if (sqlData instanceof SQLLocator) {                                                        // @B6A
-                SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
-                sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));   // @B6A
-            }                                                                                           // @B6A
-
-            sqlData.set (parameterValue, calendar, scale);            
-        }                                                                                               // @B6A
-        parameterNulls_[parameterIndex-1] = (parameterValue == null);
-        parameterSet_[parameterIndex-1] = true;
-
-        if (dataTruncation_)                                    // @B5A
-            testDataTruncation (parameterIndex, sqlData);       // @B5C
+            // Validate the parameter index.
+            if ((parameterIndex < 1) || (parameterIndex > parameterCount_))
+                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+    
+            // Check that the parameter is an input parameter.
+            if (! parameterRow_.isInput (parameterIndex))
+                JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
+    
+            // Set the parameter data.  If there is a type mismatch,
+            // set() with throw an exception.
+            SQLData sqlData = parameterRow_.getSQLData (parameterIndex);
+            if (parameterValue != null) {                                                                   // @B6C    
+                
+                // If the data is a locator, then set its handle.                                              @B6A
+                if (sqlData instanceof SQLLocator) {                                                        // @B6A
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
+                    sqlDataAsLocator.setHandle (parameterRow_.getFieldLOBLocatorHandle (parameterIndex));   // @B6A
+                }                                                                                           // @B6A
+    
+                sqlData.set (parameterValue, calendar, scale);            
+            }                                                                                               // @B6A
+            parameterNulls_[parameterIndex-1] = (parameterValue == null);
+            parameterSet_[parameterIndex-1] = true;
+    
+            if (dataTruncation_)                                    // @B5A
+                testDataTruncation (parameterIndex, sqlData);       // @B5C
+        }
     }
 
 
@@ -1827,7 +1845,6 @@ data and throws a DataTruncation exception if so.
             }
         }
     }
-
 
 
 // @BBA

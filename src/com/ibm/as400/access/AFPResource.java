@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AFPResource.java
 //                                                                             
@@ -21,7 +21,7 @@ import java.beans.PropertyVetoException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 AFP resource.
  *
- * See <a href="AFPResourceAttrs.html">AFP Resource Attributes</a> for
+ * See <a href="../../../../AFPResourceAttrs.html">AFP Resource Attributes</a> for
  * valid attributes.
  *
  **/
@@ -30,6 +30,11 @@ public class AFPResource extends PrintObject
 implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
     public static final String  STR_FNTRSC  = "FNTRSC";
     public static final String  STR_FORMDF  = "FORMDF";

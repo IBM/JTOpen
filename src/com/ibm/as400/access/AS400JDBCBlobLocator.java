@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCBlobLocator.java
 //                                                                             
@@ -94,16 +94,6 @@ Returns part of the contents of the blob.
 
 
 /**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-    
-
-
-/**
 Returns the length of the blob.
 
 @return     The length of the blob, in bytes.
@@ -113,17 +103,19 @@ Returns the length of the blob.
     public long length ()
         throws SQLException
     {
-        // There is no way currently to efficiently compute the        @A1A
-        // actual length of the blob.  We have 2 choices:              @A1A
-        //                                                             @A1A
-        // 1. Retrieve the entire blob from 0 to max and the           @A1A
-        //    lob data will contain the actual length.                 @A1A
-        // 2. Return the max length here.                              @A1A
-        //                                                             @A1A
-        // I chose to implement 2. because 1. could be quite slow      @A1A
-        // and memory intensive.                                       @A1A
+        // @C1D // There is no way currently to efficiently compute the        @A1A
+        // @C1D // actual length of the blob.  We have 2 choices:              @A1A
+        // @C1D //                                                             @A1A
+        // @C1D // 1. Retrieve the entire blob from 0 to max and the           @A1A
+        // @C1D //    lob data will contain the actual length.                 @A1A
+        // @C1D // 2. Return the max length here.                              @A1A
+        // @C1D //                                                             @A1A
+        // @C1D // I chose to implement 2. because 1. could be quite slow      @A1A
+        // @C1D // and memory intensive.                                       @A1A
 
-        return locator_.getMaxLength ();                            // @A1A
+        // @C1D return locator_.getMaxLength ();                            // @A1A
+
+        return locator_.getLength();                                        // @C1A
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxReqSV.java
 //                                                                             
@@ -36,6 +36,7 @@ implements PxDSRV
     // Private data.
     private long    correlationId_  = -1;
     private boolean asynchronous_   = false;
+    private long    clientId_ 	    = -1; //@B2A
 
 
 
@@ -62,7 +63,8 @@ Dumps the datastream for debugging and tracing.
         synchronized (output) {
            super.dump (output);
            output.println("   Correlation id = " + correlationId_);
-           if (asynchronous_)
+	   output.println("   Client id = " + clientId_);  //@B2A
+	   if (asynchronous_)
                 output.println ("   Asynchronous");
         }
 
@@ -70,7 +72,14 @@ Dumps the datastream for debugging and tracing.
     }
   
 
-
+    //@B2A Added for tunneling
+    public long getClientId()	      
+    {                                 
+	return clientId_;             
+    }
+    
+     
+     
     public long getCorrelationId()
     {
         return correlationId_;
@@ -116,6 +125,7 @@ Loads this datastream by reading from an input stream.
         DataInputStream dataInput = new DataInputStream (input);
         correlationId_  = dataInput.readLong();
         asynchronous_   = dataInput.readBoolean();
+	clientId_       = dataInput.readLong();  //@B2A 
     }
 
 

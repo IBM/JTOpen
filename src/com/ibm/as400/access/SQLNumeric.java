@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLNumeric.java
 //                                                                             
@@ -67,13 +67,6 @@ implements SQLData
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
 //---------------------------------------------------------//
 //                                                         //
 // CONVERSION TO AND FROM RAW BYTES                        //
@@ -136,19 +129,36 @@ implements SQLData
         else
             JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
 
-        // Truncate if necessary.
+        // Truncate if necessary.  If we ONLY truncate on the right side, we don't    @E3C
+        // need to report it.  If we truncate on the left side, then we report the    @E3A
+        // number of truncated digits on both ends...this will make the dataSize      @E3A
+        // and transferSize make sense on the resulting DataTruncation.               @E3A
         truncated_ = 0;
         int otherScale = bigDecimal.scale ();
         if (otherScale > scale_)
             truncated_ += otherScale - scale_;
-        value_ = bigDecimal.setScale (scale_, BigDecimal.ROUND_HALF_UP);
+        value_ = bigDecimal.setScale (scale_, BigDecimal.ROUND_DOWN);       // @E3C
 
         int otherPrecision = SQLDataFactory.getPrecision (value_);
-        if (otherPrecision > precision_) {
-            int digits = otherPrecision - precision_;
-            truncated_ += digits;
-            value_ = SQLDataFactory.truncatePrecision (value_, digits);
-        }
+        if (otherPrecision > precision_) {                                 // @E2D @E3C
+            int digits = otherPrecision - precision_;                      // @E2D @E3C
+            truncated_ += digits;                                          // @E2D @E3C
+            value_ = SQLDataFactory.truncatePrecision (value_, digits);    // @E2D @E3C
+        }                                                                  // @E2D @E3C
+        else                                                               // @E3A
+            truncated_ = 0;  // No left side truncation, report nothing       @E3A
+                             // (even if there was right side truncation).    @E3A
+
+        /* @E3D
+        int otherLeftSide = otherPrecision - otherScale;                            // @E2A
+        int leftSide = precision_ - scale_;                                         // @E2A
+        if (otherLeftSide > leftSide) {                                             // @E2A
+            int digits = otherLeftSide - leftSide;                                  // @E2A
+            truncated_ += digits;                                                   // @E2A
+            value_ = SQLDataFactory.truncatePrecision (value_, digits + scale_);    // @E2A
+        }                                                                           // @E2A
+        */
+
     }
 
 
@@ -250,10 +260,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
 

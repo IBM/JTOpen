@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectTransformedInputStream.java
 //                                                                             
@@ -23,12 +23,12 @@ import java.io.IOException;
 The PrintObjectTransformedInputStream class is used to read transformed data
 from an AS/400 spooled file.  The type of transform to be performed on the data
 is dependent on the
-<a href="com.ibm.as400.access.PrintParameterList.html">PrintParameterList</a>
+<a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
 <p>
 An instance of this class is created using
 the getTransformedInputStream method
-from the class <a href="com.ibm.as400.access.SpooledFile.html">SpooledFile</a>.
+from the class <a href="SpooledFile.html">SpooledFile</a>.
 <p>
 NOTE: This class is supported on OS/400 V4R4 or later.
 Not all spooled file formats are supported for transform.
@@ -39,7 +39,7 @@ public class PrintObjectTransformedInputStream extends InputStream
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Private data
-  
+
     transient private AS400                                 system_;
     transient private PrintObjectTransformedInputStreamImpl impl_;
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConnectionPoolProperties.java
 //                                                                             
@@ -30,6 +30,9 @@ import java.io.Serializable;
 class ConnectionPoolProperties implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+    static final long serialVersionUID = 4L;
+
 
    private long cleanupInterval_ = 300000;				   // 5 minutes maintenance intervals
    private int maxConnections_ = -1;				         // maximum number of active connections for the datasource.

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: UserSpaceBeanInfo.java
 //                                                                             
@@ -78,8 +78,8 @@ public class UserSpaceBeanInfo extends SimpleBeanInfo
         new PropertyDescriptor("mustUseProgramCall", beanClass, "isMustUseProgramCall", "setMustUseProgramCall");
       property7.setBound(true);
       property7.setConstrained(false);
-      property7.setDisplayName("mustUseProgramCall");
-      property7.setShortDescription("Use ProgramCall to read and write user space data.");
+      property7.setDisplayName(rbl_.getText("PROP_NAME_US_MUSTUSEPGMCALL"));
+      property7.setShortDescription(rbl_.getText("PROP_DESC_US_MUSTUSEPGMCALL"));
 
 
       // @E1 add new property to list

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Log.java
 //                                                                             
@@ -15,18 +15,18 @@ package com.ibm.as400.access;
 
 /**
   *  The Log interface defines a mechanism for exception and message logging
-  *  in a device-independent  manner.  
+  *  in a device-independent  manner.
   *  <p>
-  *  Implementations of this interface can direct the logged 
-  *  information to the appropriate file or output device.  Event logging 
-  *  is intended for end-user information.  In contrast, 
-  *  <a href="com.ibm.as400.access.Trace.html">Trace</a> is intended for 
-  *  debugging information for developers. 
+  *  Implementations of this interface can direct the logged
+  *  information to the appropriate file or output device.  Event logging
+  *  is intended for end-user information.  In contrast,
+  *  {@link com.ibm.as400.access.Trace Trace} is intended for
+  *  debugging information for developers.
   *
   **/
 
 public interface Log
-{  
+{
    /**
     * Logs a message.
     *
@@ -35,12 +35,12 @@ public interface Log
    public void log(String msg);
 
 
-	/**
-	 * Logs an exception and message.
-	 *
-	 * @param   msg  The message to log.
-	 * @param   exception  The exception to log.
-	 */
+     /**
+      * Logs an exception and message.
+      *
+      * @param   msg  The message to log.
+      * @param   exception  The exception to log.
+      */
    public void log(String msg, Throwable exception);
 }
 

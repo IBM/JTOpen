@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPAttribute.java
 //                                                                             
@@ -14,16 +14,21 @@
 package com.ibm.as400.access;
 
 /**
-  * NPCPAttribute   class - class for an attribute value list code point used with
+  * NPCPAttribute class - class for an attribute value list code point used with
   * the network print server's data stream.
   * This class is derived from NPCPAttribute  Value and will be used to build a code
   * point that has as its data a list of any attributes.  Each attribute consist of
   * its ID, its length, its type and an offset to its data.
-  **/
+  *
+*/
 
 class NPCPAttribute extends NPCPAttributeValue implements Cloneable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
     protected Object clone()
     {

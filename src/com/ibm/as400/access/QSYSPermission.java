@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: QSYSPermission.java
 //                                                                             
@@ -52,6 +52,10 @@ public class QSYSPermission extends UserPermission
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+
+    static final long serialVersionUID = 4L;
+
+
     /**
      * Constructs a QSYSPermission object. This is the permission of the 
      * specified user.

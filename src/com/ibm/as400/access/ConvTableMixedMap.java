@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableMixedMap.java
 //                                                                             
@@ -32,8 +32,8 @@ abstract class ConvTableMixedMap extends ConvTable
   private static final char sbSubUnic_ = '\u001A'; // Single-byte Unicode substitution character @E4A
   private static final char dbSubUnic_ = '\uFFFD'; // Double-byte Unicode substitution character @E4A
   
-  private static final byte shiftOut_ = 0x0E; // Byte used to shift-out of single byte mode
-  private static final byte shiftIn_ = 0x0F;  // Byte used to shift-in to single byte mode
+  static final byte shiftOut_ = 0x0E; // Byte used to shift-out of single byte mode @E7C
+  static final byte shiftIn_ = 0x0F;  // Byte used to shift-in to single byte mode @E7C
   
   
   /**
@@ -92,8 +92,20 @@ abstract class ConvTableMixedMap extends ConvTable
         }
         else
         {
-          // Normal character. Perform double-byte lookup.
-          dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
+          try //@E6A
+          {
+            // Normal character. Perform double-byte lookup.
+            dest[destPos++] = dbTable_.toUnicode_[((0x00FF & curByte) << 8) + (0x00FF & buf[++srcPos])];
+          }
+          catch(ArrayIndexOutOfBoundsException aioobe) //@E6A
+          {
+            // Swallow this if we are doing fault-tolerant conversion
+            if(!CharConverter.isFaultTolerantConversion()) //@E6A
+            {
+              throw aioobe; //@E6A
+            }
+            --destPos; //@E6A
+          }
         }
       }
     }

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrintObjectPageInputStream.java
 //                                                                             
@@ -24,7 +24,7 @@ import java.io.IOException;
 The PrintObjectPageInputStream class is used to read data out of an
 AS/400 spooled file one page at a time.  The page of data may be
 transformed, depending on the
-<a href="com.ibm.as400.access.PrintParameterList.html">PrintParameterList</a>
+<a href="PrintParameterList.html">PrintParameterList</a>
 used to create an instance of the class.
 <p>
 The number of pages in the spooled file may be estimated. To help process
@@ -33,7 +33,7 @@ selectPage will return false if the requested page is not available.
 <p>
 An instance of this class is created
 using the getPageInputStream method
-from the class <a href="com.ibm.as400.access.SpooledFile.html">SpooledFile</a>.
+from the class <a href="SpooledFile.html">SpooledFile</a>.
 <p>
 NOTE: This class is supported on OS/400 V4R4 or later.
 Not all spooled file formats are supported for transform.
@@ -44,7 +44,7 @@ public class PrintObjectPageInputStream extends InputStream
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Private data
-    
+
     transient private AS400                             system_;
     transient private PrintObjectPageInputStreamImpl      impl_;
 

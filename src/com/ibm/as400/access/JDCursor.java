@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDCursor.java
 //                                                                             
@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
@@ -44,7 +45,9 @@ class JDCursor
     private boolean             closed_;
     private AS400JDBCConnection connection_;
     private int                 id_;
+    private boolean             lazyClose_;                         // @E2A
     private String              name_;
+    private int                 concurrency_;                       // @E4A
 
 
 
@@ -54,15 +57,23 @@ Constructs a JDCursor object.
 @param  connection      Connection to the server.
 @param   id             The id.
 @param  name            Cursor name.
+@param  concurrency     The concurrency
 **/
     JDCursor (AS400JDBCConnection connection,
               int id,
-              String name)
+              String name,
+              // @E3D boolean lazyClose,
+              int concurrency)                                      // @E4A
+    throws  SQLException                                            // @E6A
     {
         closed_     = true;
+        concurrency_ = concurrency;                                 // @E4A
         connection_ = connection;
         id_         = id;
         name_       = name;
+
+        lazyClose_  = connection_.getProperties().getBoolean(JDProperties.LAZY_CLOSE); // @E2A
+        // @E3D lazyClose_  = lazyClose;                                                            // @E3A
     }
 
 
@@ -91,10 +102,13 @@ Closes the cursor.
 	            DBSQLRequestDS.FUNCTIONID_CLOSE, id_, 0, 0);
        		request.setReuseIndicator (reuseFlag);
 
-   	       	connection_.send (request, id_);
+            if (lazyClose_)                                             // @E2A
+                connection_.sendAndHold(request, id_);                  // @E2A
+            else                                                        // @E2A
+   	       	    connection_.send (request, id_);
 	    }
        	catch (DBDataStreamException e) {
-           	JDError.throwSQLException (JDError.EXC_INTERNAL);
+           	JDError.throwSQLException (JDError.EXC_INTERNAL, e);        // @E5C
 	    }
 
 	    closed_ = true;
@@ -103,16 +117,6 @@ Closes the cursor.
             JDTrace.logInformation (this, "Closing with reuse flag = " + reuseFlag);
             JDTrace.logClose  (this);
         }
-    }
-
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
     }
 
 
@@ -178,6 +182,19 @@ SQL statement.
 
 
 
+// @E1A @E4C
+/**
+Returns the cursor concurrency.
+
+@return The cursor concurrency.
+**/
+    int getConcurrency()
+    {
+        return concurrency_;
+    }
+
+
+
 /**
 Indicates if the cursor is closed.
 
@@ -210,7 +227,9 @@ Opens the cursor and describes the data format.
         	DBSQLRequestDS request = new DBSQLRequestDS (
 		        DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE,
 		        id_, DBSQLRequestDS.ORS_BITMAP_RETURN_DATA
-		        + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT, 0);
+		        + DBSQLRequestDS.ORS_BITMAP_DATA_FORMAT              
+                + DBSQLRequestDS.ORS_BITMAP_SQLCA,                                  // @E1A
+                0);
 
             request.setOpenAttributes (openAttributes);
             request.setScrollableCursorFlag (scrollable ? 1 : 0);
@@ -223,10 +242,11 @@ Opens the cursor and describes the data format.
        		if (errorClass != 0)
 	    		JDError.throwSQLException (connection_, id_, errorClass, returnCode);
 
+            processConcurrencyOverride(openAttributes, reply);                            // @E1A @E4C
             dataFormat = reply.getDataFormat ();
 	    }
     	catch (DBDataStreamException e) {
-           	JDError.throwSQLException (JDError.EXC_INTERNAL);
+           	JDError.throwSQLException (JDError.EXC_INTERNAL, e);                            // @E5C
 	    }
 
         closed_ = false;
@@ -239,6 +259,47 @@ Opens the cursor and describes the data format.
 
 
 
+// @E1A @E4C
+/**
+Processes a potential cursor concurrency override from a reply.
+It is assumed that the reply contains a SQLCA.  This means
+that you have to include the SQLCA bit as part of the ORS
+bitmap in the request.
+
+@param openAttributes   The requested open attributes.                          
+@param reply            The reply.
+**/
+    void processConcurrencyOverride(int openAttributes, DBBaseReplyDS reply)
+        throws DBDataStreamException
+    {
+        // If the server overrides our open attributes, reflect that fact.            
+        DBReplySQLCA sqlca = reply.getSQLCA ();                             
+        switch(sqlca.getWarn5()) {                                          
+        case (byte)0xF1:  // EBCDIC'1' Read only                                  
+        case (byte)0xF2:  // EBCDIC'2' Read and deleteable                        
+            concurrency_ = ResultSet.CONCUR_READ_ONLY;
+            break;                                                          
+        case (byte)0xF4:  // EBCDIC'4' Read, deleteable, and updateable           
+            concurrency_ = ResultSet.CONCUR_UPDATABLE;
+            break;                                   
+        /* @E7D - We should not do an override if this is an old server.
+        default:    // Old server (without override indication)
+            switch(openAttributes) {
+            case OPEN_READONLY_:
+                concurrency_ = ResultSet.CONCUR_READ_ONLY;
+                break;
+            case OPEN_ALL_:
+            default:
+                concurrency_ = ResultSet.CONCUR_UPDATABLE;
+                break;
+            }
+            break;
+        */
+        }
+    }
+                                                                           
+
+    
 /**
 Set the cursor name.
 

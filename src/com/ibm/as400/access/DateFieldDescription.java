@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DateFieldDescription.java
 //                                                                             
@@ -27,13 +27,14 @@ import java.text.SimpleDateFormat;
  *<li>The user to describe a date field to the RecordFormat object.
  *<li>The RecordFormat object to describe a date field to the user.
  *</ul>
- *<b><a href="recordxmp.html">Examples</a></b>
+ *Click <a href="../../../../recordxmp.html">here</a>to see an example.
 **/
 public class DateFieldDescription extends FieldDescription implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-  //static final long serialVersionUID = 5821758850679188627L;
+    static final long serialVersionUID = 4L;
+
   // The date format for this field
   private String dateFormat_ = "";
   // The date separator for this field

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CoreMRI.java
 //                                                                             
@@ -30,6 +30,10 @@ public class CoreMRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+   // It is a build/translation requirement that this NOT refer
+   // to the Copyright class.  (The requirement is that the MRI builds
+   // do not depend on the code builds.)
+   private String x = "(C)Copyright IBM Corp. 1997, 1999";
 
    public Object[][] getContents()
    {
@@ -59,8 +63,13 @@ public class CoreMRI extends ListResourceBundle
       { "EXC_COMMITMENT_CONTROL_ALREADY_STARTED", "Commitment control is already started." },
       { "EXC_FIELD_NOT_FOUND", "Field was not found." },
       { "EXC_LENGTH_NOT_VALID", "Length is not valid." },
+      { "EXC_IMPLEMENTATION_NOT_FOUND", "Implementation class not found." }, // @B1A
+      { "EXC_INFORMATION_NOT_AVAILABLE", "Information not available." }, // @B3A
+      { "EXC_LICENSE_CAN_NOT_BE_REQUESTED", "License can not be requested." }, // @B3A
+      { "EXC_OBJECT_CANNOT_BE_FOUND", "Object cannot be found."}, //@B2A
       { "EXC_OBJECT_CANNOT_BE_OPEN", "Object cannot be in an open state." },
       { "EXC_OBJECT_CANNOT_START_THREADS", "Object cannot start threads." },
+      { "EXC_OBJECT_IS_READ_ONLY", "Object is read-only." }, //@B0A
       { "EXC_OBJECT_MUST_BE_OPEN", "Object must be open." },
       { "EXC_PARAMETER_VALUE_NOT_VALID", "Parameter value is not valid." },
       { "EXC_PROPERTY_NOT_CHANGED", "Property was not changed." },

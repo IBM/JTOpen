@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileInputStream.java
 //                                                                             
@@ -57,6 +57,11 @@ public class IFSFileInputStream extends InputStream
   implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   /**
    Share option that allows read and write access by other users.
@@ -146,6 +151,23 @@ public class IFSFileInputStream extends InputStream
   }
 
 
+  // @A5a
+  /**
+   Creates a file input stream to read from the file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.
+   The file is opened if it exists; otherwise, an exception is thrown.
+   @param file The file to be opened for reading.
+ 
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+    **/
+  public IFSFileInputStream(IFSFile file)
+    throws AS400SecurityException, IOException
+  {
+    this((file==null ? null : file.getSystem()), file, SHARE_ALL);
+  }
+
+
   /**
    Creates a file input stream to read from the file specified by <i>file</i>.
    @param system The AS/400 that contains the file.
@@ -161,10 +183,10 @@ public class IFSFileInputStream extends InputStream
     throws AS400SecurityException, IOException
   {
     // Validate arguments.
-    if (system == null)
-      throw new NullPointerException("system");
-    else if (file == null)
+    if (file == null)                         // @A5c Swapped order of checks.
       throw new NullPointerException("file");
+    else if (system == null)
+      throw new NullPointerException("system");
     validateShareOption(shareOption);
     initializeTransient();
 
@@ -195,6 +217,22 @@ public class IFSFileInputStream extends InputStream
     // Design note: The original implementation did not do a connect/open.  -jlee 1/27/99
   }
 
+
+  // @A5a
+  /**
+   Creates a file input stream to read from the file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.
+   @param file The file to be opened for reading.
+ 
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+    **/
+  public IFSFileInputStream(IFSJavaFile file)
+    throws AS400SecurityException, IOException
+  {
+    this((file==null ? null : file.getSystem()), file, SHARE_ALL);
+  }
+
   // @A1A Added IFSJavaFile support
   /**
    Creates a file input stream to read from the file specified by <i>file</i>.
@@ -211,18 +249,17 @@ public class IFSFileInputStream extends InputStream
     throws AS400SecurityException, IOException
   {
     // Validate arguments.
-    if (system == null)
-      throw new NullPointerException("system");
-    else if (file == null)
+    if (file == null)                         // @A5c Swapped order of checks.
       throw new NullPointerException("file");
+    else if (system == null)
+      throw new NullPointerException("system");
     validateShareOption(shareOption);
     initializeTransient();
 
     // Instantiate a file descriptor.
     fd_ = new IFSFileDescriptor(system, file.getAbsolutePath().replace (file.separatorChar, IFSFile.separatorChar), shareOption, this);
 
-    // Connect to the byte stream server, and
-    // open the file.
+    // Connect to the byte stream server, and open the file.
     connectAndOpen();
   }
   //@A1A End if IFSJavaFile support.

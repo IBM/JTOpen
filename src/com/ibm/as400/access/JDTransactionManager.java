@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDTransactionManager.java
 //                                                                             
@@ -62,27 +62,31 @@ class JDTransactionManager
 	private static final int		COMMIT_MODE_NOT_SET_	= -1;
 	private static final int		COMMIT_MODE_NONE_		= 0;    // TRANSACTION_NONE
 	private static final int		COMMIT_MODE_CHG_		= 1;    // TRANSACTION_READ_UNCOMMITTED
-	private static final int		COMMIT_MODE_CS_		= 2;    // TRANSACTION_READ_COMMITTED
+	private static final int		COMMIT_MODE_CS_			= 2;    // TRANSACTION_READ_COMMITTED
 	private static final int		COMMIT_MODE_ALL_		= 3;    // TRANSACTION_REPEATABLE_READ
-	private static final int      COMMIT_MODE_RR_      = 4;    // TRANSACTION_SERIALIZABLE
+	private static final int        COMMIT_MODE_RR_         = 4;    // TRANSACTION_SERIALIZABLE
 
-	private static final String[]	COMMIT_MODE_	      = { "NONE",
-	                                                       "CHG",
-	                                                       "CS",
-	                                                       "ALL",
-	                                                       "RR" };
+	private static final String[]	COMMIT_MODE_	        = { "NONE",
+	                                                            "CHG",
+	                                                            "CS",
+	                                                            "ALL",
+	                                                            "RR" };
 
             static final int      CURSOR_HOLD_FALSE = 0;     // @C1 @B1C
             static final int      CURSOR_HOLD_TRUE  = 1;     // @C1 @B1C
 
-	private boolean             active_;                    // Is a transaction active?
-   private boolean             autoCommit_;                // Is auto-commit on?
-   private AS400JDBCConnection connection_;
-   private int                 currentCommitMode_;         // Current commit mode.
+	private boolean             activeLocal_;               // Is a local transaction active?       @C4C
+    private boolean             activeGlobal_;              // Is a global transaction active?      @C4A
+    private boolean             autoCommit_;                // Is auto-commit on?
+    private AS400JDBCConnection connection_;
+    private int                 holdIndicator_;             // Current cursor hold indicator.  @C1
+    private int                 currentCommitMode_;         // Current commit mode.
 	private int                 currentIsolationLevel_;     // Current isolation level.
-   private int                 holdIndicator_;             // Current cursor hold indicator.  @C1
-   private int                 id_;
+    private int                 id_;
 	private int                 initialCommitMode_;         // Initial commit mode.
+    private boolean             localAutoCommit_    = true;  // @C4A
+    private boolean             localTransaction_   = true;  // @C4A
+    // @C5D private boolean             newAutoCommitSupport_ = false;                             // @C5A
 	private int                 serverCommitMode_;          // Commit mode on the server.
 
 
@@ -95,28 +99,30 @@ back to the initial commit mode, we need to remember what
 this initial commit mode is, so we can predict how the
 server is behaving.
 
-@param  connection          Connection to the server.
-@param  id                  The id.
-@param  initialLevel        One of the Connection.TRANSACTION_*
-                            values.
+@param  connection              Connection to the server.
+@param  id                      The id.
+@param  initialLevel            One of the Connection.TRANSACTION_*
+                                values.
 
 @exception      SQLException    If an invalid or unsupported
                                 level is input.
 **/
 	JDTransactionManager (AS400JDBCConnection connection,
 	                      int id,
-      	                  String initialLevel)
+      	                  String initialLevel)  
         throws SQLException
 	{
-		active_                 = false;
-	   autoCommit_             = true;
-	   connection_             = connection;
-      holdIndicator_          = CURSOR_HOLD_TRUE;                       // @C1
-	   id_                     = id;
-	   currentIsolationLevel_  = mapStringToLevel (initialLevel);
-	   currentCommitMode_      = mapLevelToCommitMode (currentIsolationLevel_);
+		activeLocal_            = false;                                                // @C4C
+		activeGlobal_           = false;                                                // @C4A
+	    autoCommit_             = true;
+	    connection_             = connection;
+        holdIndicator_          = CURSOR_HOLD_TRUE;                                     // @C1
+	    id_                     = id;
+
+	    currentIsolationLevel_  = mapStringToLevel (initialLevel);
+	    currentCommitMode_      = mapLevelToCommitMode (currentIsolationLevel_);
 		initialCommitMode_		= currentCommitMode_;
-		serverCommitMode_		= currentCommitMode_;
+        serverCommitMode_		= currentCommitMode_;
 	}
 
 
@@ -134,9 +140,9 @@ Commit the current transaction.
 			    DBSQLRequestDS.FUNCTIONID_COMMIT, id_,
 			    DBBaseRequestDS.ORS_BITMAP_RETURN_DATA,	0);
 
-           // Set cursor hold.
-	        // request.setHoldIndicator (1);                    // @C1
-           request.setHoldIndicator(getHoldIndicator());       // @C1
+            // Set cursor hold.
+	       //request.setHoldIndicator (1);                     // @C1
+          request.setHoldIndicator(getHoldIndicator());       // @C1
 
 	    	DBReplyRequestedDS reply = connection_.sendAndReceive (request);
 
@@ -151,7 +157,7 @@ Commit the current transaction.
 	    }
 
    		resetServer ();
-        active_ = false;
+        activeLocal_ = false;               // @C4C
     }
 
 
@@ -187,14 +193,6 @@ Return the current commit mode.
 
 
 /**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-/**
 *  Returns the hold indicator.
 *  @return The hold indicator.
 **/
@@ -215,16 +213,37 @@ Return the current transaction isolation level.
 
 
 
-/**
-Is a transaction active?
+    boolean isGlobalActive ()               // @C4A
+    {                                       // @C4A
+        return activeGlobal_;               // @C4A
+    }                                       // @C4A
 
-@return     true if a transaction is active.
+
+
+// @C4C
+/**
+Is a local transaction active?
+
+@return     true if a local transaction is active.
 **/
-    boolean isActive ()
+    boolean isLocalActive ()
     {
-        return active_;
+        return activeLocal_;
     }
 
+
+
+// @C4A
+    boolean isLocalTransaction()
+    {
+        return localTransaction_;
+    }
+
+    
+    // @C5D boolean isNewAutoCommitSupport()                     // @C5A
+    // @C5D {                                                    // @C5A
+    // @C5D     return newAutoCommitSupport_;                    // @C5A
+    // @C5D }                                                    // @C5A
 
 
 /**
@@ -301,6 +320,38 @@ to its corresponding int value.
 
 
 
+// @C4A
+/**
+Marks a global transaction boundary.
+**/
+    void markGlobalTransactionBoundary()
+    {
+        activeGlobal_ = false;
+    }
+
+
+
+
+// @C2A
+/**
+Processes a commit on return indicator from a reply.
+If this indicator is set, it means that the transaction
+was committed or rolled back on the server and we should
+mark the transaction as not being active.
+
+@param reply            The reply.
+**/
+    void processCommitOnReturn(DBBaseReplyDS reply)
+        throws DBDataStreamException
+    {
+        // If the server indicates commit-on-, reflect that fact.            
+        DBReplySQLCA sqlca = reply.getSQLCA ();                             
+        if (sqlca.getEyecatcherBit54())
+            activeLocal_ = false;                                           // @C4C
+    }
+                                                                           
+
+    
 /**
 Reset the server to the current commit mode.  This is useful
 since after commits and rollbacks, the server automatically
@@ -352,7 +403,7 @@ enabled, then do nothing.
    		}
 
     	resetServer ();
-	    active_ = false;
+	    activeLocal_ = false;   // @C4C
     }
 
 
@@ -368,17 +419,51 @@ Set the auto-commit mode.
     void setAutoCommit (boolean autoCommit)
       throws SQLException
     {
-		// If going from false to true, then commit any outstanding
-		// transaction.
-		if (!autoCommit_ && autoCommit && active_) {
-			commit ();
-			connection_.postWarning (JDError.getSQLWarning (JDError.WARN_TXN_COMMITTED));
-		}
+        // If we are in a distributed transaction, then reject a request           @C4A
+        // to turn on auto-commit.  If we are supposed to turn it off,             @C4A
+        // then just remember for when we are out of the distributed               @C4A
+        // transaction, since the server won't let us do any transaction           @C4A
+        // stuff during the distributed transaction.                               @C4A
+        if (!localTransaction_) {                                               // @C4A
+            if (autoCommit == true)                                             // @C4A
+                JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @C4A
+            else                                                                // @C4A
+                localAutoCommit_ = false;                                       // @C4A
+        }                                                                       // @C4A
 
-        // Save the auto commit state.
-		autoCommit_ = autoCommit;
+        // If we are in the local transaction, just go ahead and set it.           @C4A
+        else {                                                                  // @C4A
+        
+		    // If going from false to true, then commit any outstanding
+		    // transaction.
+		    if (!autoCommit_ && autoCommit && activeLocal_) {                   // @C4C
+			    commit ();
+			    connection_.postWarning (JDError.getSQLWarning (JDError.WARN_TXN_COMMITTED));
+		    }
 
-        setCommitMode (currentCommitMode_);
+            // Save the auto commit state.
+		    autoCommit_ = autoCommit;
+
+            // @C5D if (newAutoCommitSupport_) {                                                    // @C5A
+            // @C5D     try {                                                                       // @C5A
+        	// @C5D 		DBSQLAttributesDS request = new DBSQLAttributesDS(                      // @C5A
+        	// @C5D 		    DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,                        // @C5A
+        	// @C5D 		    id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0, 0);                 // @C5A
+            // @C5D         request.setAutoCommit(autoCommit ? 1 : 0);                              // @C5A
+        	// @C5D 		DBReplyRequestedDS reply = connection_.sendAndReceive(request);         // @C5A
+        	// @C5D 		int errorClass = reply.getErrorClass();                                 // @C5A
+        	// @C5D 		int returnCode = reply.getReturnCode();                                 // @C5A
+        	// @C5D 		if (errorClass != 0)                                                    // @C5A
+        	// @C5D 			JDError.throwSQLException(connection_, id_, errorClass, returnCode);// @C5A
+        	// @C5D 	}                                                                           // @C5A
+        	// @C5D 	catch (DBDataStreamException e) {                                           // @C5A
+    	    // @C5D 		JDError.throwSQLException (JDError.EXC_INTERNAL, e);                    // @C5A
+    		// @C5D     }                                                                           // @C5A
+            // @C5D }                                                                               // @C5A
+            // @C5D else                                                                            // @C5A
+            setCommitMode (currentCommitMode_);
+    
+        }                                                                       // @C4A
     }
 
 
@@ -395,7 +480,7 @@ Set the commit mode on the server.
 	{
 	    // If auto-commit is on, then override the commit mode
 	    // to "NONE".
-	    if (autoCommit_)
+	    if (autoCommit_) //@C5D && (!newAutoCommitSupport_))                                  // @C5C
 	        commitMode = COMMIT_MODE_NONE_;
 
 	    // Act only if the server commit mode is something other
@@ -412,7 +497,7 @@ Set the commit mode on the server.
 		    	    DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
     		    	+ DBBaseRequestDS.ORS_BITMAP_SQLCA, 0);
 
-    			request.setStatementText (sqlStatement.toString (), connection_.getConverter ());
+    			request.setStatementText (sqlStatement.toString (), connection_.getConverter(AS400JDBCConnection.UNICODE_CCSID_)); // @C3C
         		request.setStatementType (sqlStatement.getNativeType ());
 
         		// This statement certainly does not need a cursor, but some
@@ -470,8 +555,8 @@ java.sql.Connection.TRANSACTION_* values.
 		throws SQLException
 	{
 	    // This is invalid if a transaction is active.
-		if (active_)
-			JDError.throwSQLException (JDError.EXC_TXN_ACTIVE);
+		if (activeLocal_)                                               // @C4C
+			JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);  // @C4C
 
         // We do not allow TRANSACTION_NONE at this time.
         if (level == Connection.TRANSACTION_NONE)
@@ -487,14 +572,59 @@ java.sql.Connection.TRANSACTION_* values.
 
 
 
+// @C4A
+/**
+Sets whether to enable the local transaction. 
+XA support needs this to be false so that commit(), rollback(), etc. 
+can not be called directly on this object.
+
+@param enableLocalTransaction    true to enable the local transaction, false otherwise.
+
+@exception          SQLException    If the connection is not open
+                                    or an error occurs.
+**/
+    void setLocalTransaction(boolean enableLocalTransaction) 
+    throws SQLException
+    {
+        localTransaction_ = enableLocalTransaction;
+
+        // Auto commit is disabled while in a distributed transaction.
+        if (localTransaction_) {
+            autoCommit_ = localAutoCommit_;
+            // ??? setCommitMode(currentCommitMode_);
+        }
+        else {
+            localAutoCommit_ = autoCommit_;
+            autoCommit_ = false;
+            setCommitMode(currentCommitMode_);
+        }
+    }
+
+
+
+    // @C5D void setNewAutoCommitSupport(boolean newAutoCommitSupport)          // @C5A
+    // @C5D     throws SQLException                                             // @C5A
+    // @C5D {                                                                   // @C5A
+    // @C5D     newAutoCommitSupport_ = newAutoCommitSupport;                   // @C5A
+    // @C5D                                                                     // @C5A
+    // @C5D     if (newAutoCommitSupport)                                       // @C5A                              
+    // @C5D         setAutoCommit (true);                                       // @C5A        
+    // @C5D                     // The default - but we have to send it now     // @C5A   
+    // @C5D                     // so that the server nows we want to use       // @C5A
+    // @C5D                     // the new support.                             // @C5A
+    // @C5D }                                                                   // @C5A
+
+
+
 /**
 Take note that a statement has been executed.
 **/
     void statementExecuted ()
     {
-        // A transaction is now active if and only if auto-commit
-        // mode is turned off.
-        active_ = ! autoCommit_;
+        if (localTransaction_)                                                  // @C4A
+            activeLocal_ = ! autoCommit_;
+        else                                                                    // @C4A
+            activeGlobal_ = true;                                               // @C4A
     }
 
 

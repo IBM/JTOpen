@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileOutputStream.java
 //                                                                             
@@ -46,178 +46,232 @@ public class SpooledFileOutputStream extends OutputStream
       *                          parameter.
       *                          The following parameters may be set:
       * <ul>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY2">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY2">
       *          ATTR_ALIGN - Align page
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_1">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_1">
       *          ATTR_BACK_OVERLAY - Back overlay integrated file system Name
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY12">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY12">
       *          ATTR_BKOVL_DWN - Back overlay offset down
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY11">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY11">
       *          ATTR_BKOVL_ACR - Back overlay offset across
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY13">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY13">
       *          ATTR_CPI - Characters per inch
       *       </A>
-      *  <li> (1) <A HREF="PrintAttributes.html#HDRKEY14">
+      *  <li> (1) <A HREF="../../../../PrintAttributes.html#HDRKEY14">
       *          ATTR_CODEPAGE - Code page
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY17">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY17.5">
+      *          ATTR_CONTROLCHAR - Control character
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY177">
+      *          ATTR_CONVERT_LINEDATA - Convert line data
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY191">
+      *          ATTR_CORNER_STAPLE - Corner staple		
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY17">
       *          ATTR_COPIES - Copies
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY24">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY24">
       *          ATTR_DBCSDATA - User-specified DBCS data
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY25">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY25">
       *          ATTR_DBCSEXTENSN - DBCS extension characters
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY26">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY26">
       *          ATTR_DBCSROTATE - DBCS character rotation
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY27">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY27">
       *          ATTR_DBCSCPI - DBCS characters per inch
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY28">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY28">
       *          ATTR_DBCSSISO - DBCS SO/SI spacing
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY29">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY29">
       *          ATTR_DFR_WRITE - Defer write
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY31">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY31">
       *          ATTR_PAGRTT - Degree of page rotation
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY40">
+      *   <li> <A HREF="../../../../PrintAttributes.html#HDRKEY194">
+      *       ATTR_EDGESTITCH_NUMSTAPLES - Edge Stitch Number of Staples
+      *       </A>
+      *   <li> <A HREF="../../../../PrintAttributes.html#HDRKEY192">
+      *         ATTR_EDGESTITCH_REF - Edge Stitch Reference	
+      *       </A>
+      *   <li> <A HREF="../../../../PrintAttributes.html#HDRKEY193">
+      *        ATTR_EDGESTITCH_REFOFF - Edge Stitch Reference Offset
+      *       </A> 	
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY40">
       *          ATTR_ENDPAGE - Ending page
       *       </A>
-      *  <li> (2) <A HREF="PrintAttributes.html#HDRKEY41">
+      *  <li> (2) <A HREF="../../../../PrintAttributes.html#HDRKEY41">
       *          ATTR_FILESEP - File separators
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY42">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY42">
       *         ATTR_FOLDREC - Fold records
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY43">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY43">
       *         ATTR_FONTID - Font identifier
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_3">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_3">
       *         ATTR_FORM_DEFINITION - Form definition integrated file system name
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY44">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY44">
       *         ATTR_FORMFEED - Form feed
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY45">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY45">
       *         ATTR_FORMTYPE - Form type
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_4">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_4">
       *         ATTR_FRONT_OVERLAY - Front overlay integrated file system same
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY51">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY51">
       *         ATTR_FTOVL_ACR - Front overlay offset across
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY52">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY52">
       *         ATTR_FTOVL_DWN - Front overlay offset down
       *       </A>
-      *  <li> (1) <A HREF="PrintAttributes.html#HDRKEY53">
+      *  <li> (1) <A HREF="../../../../PrintAttributes.html#HDRKEY53">
       *         ATTR_CHAR_ID - Graphic character set
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY54">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY54">
       *         ATTR_JUSTIFY - Hardware justification
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY55">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY55">
       *         ATTR_HOLD - Hold spool file
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY64">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY55.5">
+      *         ATTR_HOLDPNDSTS - Hold Pending Status
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY180">
+      *         ATTR_IPP_ATTR_CCSID - IPP Attributes-ccsid
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY181">
+      *         ATTR_IPP_JOB_ID - IPP Job ID
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY182">
+      *         ATTR_IPP_JOB_NAME - IPP Job Name
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY183">
+      *         ATTR_IPP_JOB_NAME_NL - IPP Job Name NL
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY184">
+      *         ATTR_IPP_JOB_ORIGUSER - IPP Job Originating User Name
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY185">
+      *         ATTR_IPP_JOB_ORIGUSER_NL - IPP Job Originating User Name NL
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY186">
+      *         ATTR_IPP_PRINTER_NAME - IPP Printer Name
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY180.5">
+      *         ATTR_IPP_ATTR_NL - IPP Natural Language
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY64">
       *         ATTR_LPI - Lines per inch
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY66">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY66">
       *         ATTR_MAXRCDS - Maximum spooled output records
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY80">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY80">
       *        ATTR_OUTPTY - Output priority
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_6">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_6">
       *         ATTR_OUTPUT_QUEUE - Output queue integrated file system name
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY84">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY84">
       *         ATTR_OVERFLOW - Overflow line number
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY62">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_D">
+      *         ATTR_PAGE_DEFINITION - Page definition integrated file system name
+      *       </A>
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY62">
       *         ATTR_PAGELEN - Length of page
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY67">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY67">
       *         ATTR_MEASMETHOD - Measurement method
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY126">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY126">
       *         ATTR_PAGEWIDTH - Width of page
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY85">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY85">
       *         ATTR_MULTIUP - Pages per side
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY86">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY86">
       *         ATTR_POINTSIZE - Point size
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY87">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY87">
       *         ATTR_FIDELITY - Print fidelity
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY88">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY88">
       *         ATTR_DUPLEX - Print on both sides
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY89">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY89">
       *         ATTR_PRTQUALITY - Print quality
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY91">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY91">
       *         ATTR_PRTTEXT - Print text
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY92">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY92">
       *         ATTR_PRINTER - Printer
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY93">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY93">
       *         ATTR_PRTDEVTYPE - Printer device type
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY99">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY99">
       *         ATTR_RPLUNPRT - Replace unprintable characters
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY100">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY100">
       *         ATTR_RPLCHAR - Replacement character
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY102">
+      *   <li> <A HREF="../../../../PrintAttributes.html#HDRKEY197">
+      *        ATTR_SADDLESTITCH_NUMSTAPLES - Saddle Stitch Number of Staples		
+      *       </A>
+      *   <li> <A HREF="../../../../PrintAttributes.html#HDRKEY196">
+      *         ATTR_SADDLESTITCH_REF - Saddle Stitch Reference		
+      *       </A>
+      *   <li> <A HREF="../../../../PrintAttributes.html#HDRKEY102">
       *         ATTR_SAVE - Save spooled file
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY106">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY106">
       *         ATTR_SRCDRWR - Source drawer
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY107">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY107">
       *         ATTR_SPOOL - Spool the data
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY108">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY108">
       *         ATTR_SPOOLFILE - Spooled file name
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY111">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY111">
       *         ATTR_SCHEDULE - Spooled output schedule
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY112">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY112">
       *         ATTR_STARTPAGE - Starting page
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY117">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY117">
       *         ATTR_UNITOFMEAS - Unit of measure
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY118">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY118">
       *         ATTR_USERCMT - User comment
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY119">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY119">
       *         ATTR_USERDATA - User data
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY1061">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY1061">
       *         ATTR_SPLSCS - Spool SCS
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEY1191">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEY1191">
       *         ATTR_USRDEFDATA - User defined data
       *       </A>
-      *  <li> (3) <A HREF="PrintAttributes.html#HDRKEY1192">
+      *  <li> (3) <A HREF="../../../../PrintAttributes.html#HDRKEY1192">
       *         ATTR_USRDEFOPT - User defined options
       *       </A>
-      *  <li> <A HREF="PrintAttributes.html#HDRKEYIFS_9">
+      *  <li> <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_9">
       *         ATTR_USER_DEFINED_OBJECT - User defined object integrated file system name
       *       </A>
       *
@@ -229,6 +283,8 @@ public class SpooledFileOutputStream extends OutputStream
       *  spooled file.
       * <br>
       * Note 3: Up to 4 user-defined options may be specified.
+      * <br>
+      * Note 4: A page definition can be specified with *LINE data.
       *<p>
       * @param printerFile   Optional.  The printer file that should be used
       *                          to create the spooled file.  This printer file

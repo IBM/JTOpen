@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Text.java
 //                                                                             
@@ -17,7 +17,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 
 /**
-   The <A HREF="../dtad.htm">AS400Text</A> class provides
+   The AS400Text class provides
    character set conversion between Java String objects and
    AS/400 native code pages.
 **/
@@ -25,11 +25,17 @@ public class AS400Text implements AS400DataType
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+    static final long serialVersionUID = 4L;
+
+
+
   private int length_;
   private int ccsid_ = 65535;
   transient private String encoding_ = null; //@D2A
   private AS400 system_;
-  transient Converter table_; 
+  transient Converter table_;
   transient ConverterImpl tableImpl_;
   private static final String defaultValue = "";
   private byte[] padding_ = null; //@E3A
@@ -38,7 +44,7 @@ public class AS400Text implements AS400DataType
     Constructs an AS400Text object.
     It uses the most likely CCSID based on the default locale.
     @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
-    
+
     @deprecated Replaced by AS400Text(int, AS400).
     Any AS400Text object that is created without
     specifying an AS400 system object on its constructor may
@@ -51,6 +57,7 @@ public class AS400Text implements AS400DataType
       throw new ExtendedIllegalArgumentException("length (" + String.valueOf(length) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     length_ = length;
+//@D2D      setTable();
   }
 
 
@@ -58,12 +65,12 @@ public class AS400Text implements AS400DataType
     Constructs an AS400Text object.
     @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
     @param  ccsid  The CCSID of the AS/400 text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
-    
+
     @deprecated Replaced by AS400Text(int, int, AS400).
     Any AS400Text object that is created without
     specifying an AS400 system object on its constructor may
     not behave as expected in certain environments.
-    
+
   **/
   public AS400Text(int length, int ccsid)
   {
@@ -77,7 +84,8 @@ public class AS400Text implements AS400DataType
       throw new ExtendedIllegalArgumentException("ccsid (" + String.valueOf(ccsid) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID); //@D2A
     } //@D2A
     length_ = length;
-    ccsid_ = ccsid;      
+    ccsid_ = ccsid;
+//@D2D      setTable();
   }
 
 
@@ -85,12 +93,12 @@ public class AS400Text implements AS400DataType
     Constructs AS400Text object.
     @param  length  The byte length of the AS/400 text.  It must be greater than or equal to zero.
     @param  encoding  The name of a character encoding.  It must be a valid and available encoding.
-    
+
     @deprecated Replaced by AS400Text(int, int, AS400).
     Any AS400Text object that is created without
     specifying an AS400 system object on its constructor may
     not behave as expected in certain environments.
-    
+
   **/
   public AS400Text(int length, String encoding)
   {
@@ -104,6 +112,18 @@ public class AS400Text implements AS400DataType
     }
     length_ = length;
     encoding_ = encoding; //@D2A
+
+//@D2M      try
+//@D2M      {
+//@D2M        table_ = new Converter(encoding); //@B5C
+//@D2M        ccsid_ = table_.getCcsid();
+//@D2M        tableImpl_ = table_.impl; //@D0A
+//@D2M      }
+//@D2M      catch (UnsupportedEncodingException e)
+//@D2M      {
+//@D2M        throw new ExtendedIllegalArgumentException("encoding (" + encoding + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+//@D2M      }
+
   }
 
 
@@ -147,6 +167,7 @@ public class AS400Text implements AS400DataType
     length_ = length;
     ccsid_ = ccsid;
     system_ = system;
+//@D2D      setTable();
   }
 
 
@@ -257,6 +278,9 @@ public class AS400Text implements AS400DataType
   public String getEncoding()
   {
     if(encoding_ == null) setTable(); //@D2A
+//@D2D      setTable(); // Make sure the table is set
+//@D2D      if (tableImpl_ != null) return tableImpl_.getEncoding();
+//@D2D      return table_.getEncoding();
     return encoding_; //@D2A
   }
 
@@ -335,7 +359,7 @@ public class AS400Text implements AS400DataType
             else
             {
               table_ = new Converter(ccsid_); // I realize this is deprecated, but the user never specified a system object.
-            }  
+            }
             tableImpl_ = table_.impl;
           }
           else
@@ -399,7 +423,7 @@ public class AS400Text implements AS400DataType
     if(AS400BidiTransform.isBidiCcsid(getCcsid()))                         //$E2A
       return toBytes(javaValue, as400Value, offset, AS400BidiTransform.getStringType((char)getCcsid()));   //$E2A
     else
-      return toBytes(javaValue, as400Value, offset, ConverterImpl.LTR);    //$E0C   $E2C
+      return toBytes(javaValue, as400Value, offset, BidiStringType.DEFAULT);    //$E0C   $E2C
   }
 
 
@@ -408,9 +432,9 @@ public class AS400Text implements AS400DataType
     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
     @param  as400Value  The array to receive the data type in AS/400 format.  There must be enough space to hold the AS/400 value.
     @param  offset  The offset into the byte array for the start of the AS/400 value.  It must be greater than or equal to zero.
-    @param  type    The output string type as defined by the CDRA (Character Data Respresentation Architecture).
-                    One of the following constants defined in BidiStringType: ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR),
-                    or ST11 (Contextual RTL).
+    @param type The bidi string type, as defined by the CDRA (Character
+                Data Representataion Architecture). See <a href="BidiStringType.html">
+                BidiStringType</a> for more information and valid values.
     @return  The number of bytes in the AS/400 representation of the data type.
     @see com.ibm.as400.access.BidiStringType
    **/
@@ -426,10 +450,16 @@ public class AS400Text implements AS400DataType
     setTable(); // Make sure the table is set
     if(tableImpl_ != null)
     {
+//@E3D         if (type != 0)                                                        //$E0A
+//@E3D            eValue = tableImpl_.stringToByteArray((String)javaValue, type);    //$E0C
+//@E3D         else                                                                  //$E0A
       eValue = tableImpl_.stringToByteArray((String)javaValue, type);    //$E0C
     }
     else
     {
+//@E3D         if (type != 0)                                                  //$E0A
+//@E3D            eValue = table_.stringToByteArray((String)javaValue, type);  //$E0C  // allow this line to throw ClassCastException
+//@E3D         else                                                            //$E0A
       eValue = table_.stringToByteArray((String)javaValue, type);  //$E0C  // allow this line to throw ClassCastException
     }
 
@@ -440,8 +470,158 @@ public class AS400Text implements AS400DataType
     }
     System.arraycopy(eValue, 0, as400Value, offset, eValue.length);  // Let this line throw ArrayIndexException
 
+/*@E3D
+      // pad with spaces
+      int i = eValue.length;
+      if (i < length_)
+      {
+        switch (ccsid_)
+        {
+                // Unicode space 0x0020
+                case 13488:
+      case 17584: //@E1A
+                case 61952:
+                {
+                    for (; i < length_-1; i+=2)
+                    {
+                        as400Value[offset+i] = 0x00;
+                        as400Value[offset+i+1] = 0x20;
+                    }
+                    break;
+                }
+
+                // Ascii space 0x20
+                case 437:
+      case 720: //@E1A
+                case 737:
+                case 775:
+                case 813:
+                case 819:
+                case 850:
+                case 852:
+                case 855:
+                case 856:
+                case 857:
+                case 860:
+                case 861:
+                case 862:
+                case 863:
+                case 864:
+                case 865:
+                case 866:
+                case 868:
+                case 869:
+                case 874:
+      case 878: //@E1A
+                case 912:
+                case 913:
+                case 914:
+                case 915:
+                case 916:
+                case 920:
+                case 921:
+                case 922:
+                case 942:
+                case 943:
+                case 948:
+                case 949:
+                case 950:
+                case 954:
+                case 964:
+                case 970:
+                case 1006:
+                case 1046:
+                case 1089:
+                case 1098:
+                case 1124:
+                case 1250:
+                case 1251:
+                case 1252:
+                case 1253:
+                case 1254:
+                case 1255:
+                case 1256:
+                case 1257:
+                case 1258:
+                case 1275:
+                case 1280:
+                case 1281:
+                case 1282:
+                case 1283:
+                case 1350:
+                case 1381:
+                case 1383:
+      case 5479: //@E1A
+      case 9146: //@E1A
+                case 33722:
+                {
+                    for (; i < length_; ++i)
+                    {
+                        as400Value[offset+i] = 0x20;
+                    }
+                    break;
+                }
+
+                // Ebcdic space 0x40
+                // case 37:
+                // case 273:
+                // case 277:
+                // case 278:
+                // case 280:
+                // case 284:
+                // case 285:
+                // case 297:
+                // case 290:
+                // case 300:
+                // case 420:
+                // case 423:
+                // case 424:
+                // case 500:
+                // case 833:
+                // case 834:
+                // case 835:
+                // case 836:
+                // case 837:
+                // case 838:
+                // case 870:
+                // case 871:
+                // case 875:
+                // case 880:
+                // case 918:
+                // case 930:
+                // case 933:
+                // case 935:
+                // case 937:
+                // case 939:
+                // case 1025:
+                // case 1026:
+                // case 1027:
+                // case 1097:
+                // case 1112:
+                // case 1122:
+                // case 1123:
+                // case 1130:
+                // case 1132:
+                // case 1388:
+                // case 4933:
+                // case 5026:
+                // case 5035:
+                // case 28709:
+                default:
+                {
+                    for (; i < length_; ++i)
+                    {
+                        as400Value[offset+i] = 0x40;
+                    }
+                    break;
+                }
+        }
+      }
+*///@E0D
+
+
 //@E0A - pad with spaces
-    // Note that this may sort of kludge the byte array in cases where the allocated size isn't 
+    // Note that this may sort of kludge the byte array in cases where the allocated size isn't
     // an even number for double-byte ccsids.
     // e.g. new AS400Text(11, 13488) and wrote "ABCDE" which would take up 5*2=10 bytes, so
     // we would pad the 11th byte with a double-byte space (0x00 0x20), so only the 0x00 would
@@ -588,9 +768,9 @@ public class AS400Text implements AS400DataType
     Converts the specified AS/400 data type to a Java object.
     @param  as400Value  The array containing the data type in AS/400 format.  The entire data type must be represented.
     @param  offset  The offset into the byte array for the start of the AS/400 value. It must be greater than or equal to zero.
-    @param  type    The output string type as defined by the CDRA (Character Data Respresentation Architecture).
-                    One of the following constants defined in BidiStringType: ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR),
-                    or ST11 (Contextual RTL).      
+    @param type The bidi string type, as defined by the CDRA (Character
+                Data Representataion Architecture). See <a href="BidiStringType.html">
+                BidiStringType</a> for more information and valid values.
     @return  The String object corresponding to the data type.
     @see com.ibm.as400.access.BidiStringType
    **/

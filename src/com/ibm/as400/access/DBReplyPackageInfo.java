@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBReplyPackageInfo.java
 //                                                                             
@@ -51,6 +51,42 @@ class DBReplyPackageInfo {
     {
         return Copyright.copyright;
     }
+
+
+
+    //---------------------------------------------------------
+    // The following structure is used to determine the amount
+    // needed to be added to the offset to get the appropriate
+    // data.
+    //
+    //  offset+  field              length
+    //
+    //     0     total length       4  bytes
+    //     4     ccsid              2  bytes
+    //     6     default collection 18 bytes
+    //    24     statement count    2  bytes
+    //    26     reserved   		16 bytes
+    //
+    //    42     package entry info (repeated for each field)
+    //           0   statement needs default collection      1  byte
+    //           1   statement type                          2  bytes
+    //           3   statement name                          18 bytes
+    //           21  reserved                                19 bytes
+    //           40  format offset                           4  bytes
+    //           44  format length                           4  bytes
+    //           48  text offset                             4  bytes
+    //           52  text length                             4  bytes
+    //           56  parameter marker format offset          4  bytes
+    //           60  parameter marker format length          4  bytes
+    //
+    //           Note: these offsets are in terms of the start
+    //                 of the LL for this parameter (i.e.
+    //                 actually count from (offset_ - 6).
+    //
+    //     x     package statement text and formats
+    //
+    //---------------------------------------------------------
+
 
 
     public DBDataFormat getDataFormat (int statementIndex)

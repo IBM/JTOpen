@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCConnection.java
 //                                                                             
@@ -23,8 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.BitSet;                    // @EFA
-import java.util.Enumeration;               // @EFA
+import java.util.BitSet;                    // @DAA
+import java.util.Enumeration;               // @DAA
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
@@ -37,8 +37,14 @@ to a specific DB2 for OS/400 database.  Use
 DriverManager.getConnection() to create new AS400JDBCConnection
 objects.
 
-<p>Note that a connection may contain at most 256 open
-statements.  
+<p>There are many optional properties that can be specified
+when the connection is created.  Properties can be specified either
+as part of the URL or in a java.util.Properties object.  See
+<a href="../../../../JDBCProperties.html"> JDBC properties</a> for a complete
+list of properties supported by the AS400JDBCDriver.
+
+<p>Note that a connection may contain at most 9999 open
+statements.
 **/
 //
 // Implementation notes:
@@ -104,55 +110,71 @@ implements Connection
     //   true  = Enable request chaining (for production code).
     //   false = Disable request chaining.
     //
-    private static final boolean        DEBUG_REQUEST_CHAINING_ = true;
+    // @E5D private static final boolean        DEBUG_REQUEST_CHAINING_ = true;
 
 
 
     // This is a compile time flag for forcing the use of
-    // extended datastream formats.  This can be useful when 
+    // extended datastream formats.  This can be useful when
     // testing extended formats, but the server is not reporting
-    // the correct VRM. 
+    // the correct VRM.
     //
     // The choices are:
     //   true  = Force extended datastream formats.
     //   false = Decide based on server VRM (for production code).
     //
-    private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
+    // @E9D private static final boolean        FORCE_EXTENDED_FORMATS_ = false;
 
 
 
             static final int            BIGINT_SUPPORTED_       = 0x00040500; // @D0A
-    private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;  // @B1A
-    private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @EFA
-    private static final int            INITIAL_STATEMENT_TABLE_SIZE_ = 256;    // @EFA
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "1         "; // @EDA
+    private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
+    private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
+    private static final int            INITIAL_STATEMENT_TABLE_SIZE_ = 256;    // @DAA
             static final int            LOB_SUPPORTED_          = 0x00040400; // @D6A
-            static final int            MAX_STATEMENTS_         = 9999;         // @EFC 
+            static final int            UNICODE_CCSID_          = 13488;      // @E3C
 
+            // The max number of open statements per connection.  If this          @DAA
+            // changes, then change the relevant sentence in the javadoc, too.     @DAA
+            static final int            MAX_STATEMENTS_         = 9999;         // @DAC
+
+            static final int            DATA_COMPRESSION_NONE_  = 0;            // @ECA
+            static final int            DATA_COMPRESSION_OLD_   = 1;            // @ECA
+            static final int            DATA_COMPRESSION_RLE_   = 0x3832;       // @ECA @EIC @EJC
 
 
     // Private data.
     private AS400ImplRemote             as400_;
     private AS400                       as400PublicClassObj_; // Prevents garbage collection.
-    private BitSet                      assigned_;                      // @EFC
+    private BitSet                      assigned_;                      // @DAC
+    private boolean                     cancelling_;                    // @E8A
+    private Object                      cancelLock_ = new Object();     // @E8A
     private String                      catalog_;
     private boolean                     closing_;            // @D4A
     private ConverterImplRemote         converter_;
-    private JDDataSourceURL			    dataSourceUrl_;
+    private int                         dataCompression_            = -1;               // @ECA
+    private JDDataSourceURL                 dataSourceUrl_;
     private boolean                     drda_;                          // @B1A
     private String                      defaultSchema_;
-	private boolean                     extendedFormats_;
-    private ConverterImplRemote          graphicConverter_;
-    private boolean                     graphicConverterLoaded_;
-    private int					        id_;
+     private boolean                     extendedFormats_;
+    // @E2D private ConverterImplRemote          graphicConverter_;
+    // @E2D private boolean                     graphicConverterLoaded_;
+    private Vector                      heldRequests_;                                  // @E5A
+    private Object                      heldRequestsLock_           = new Object();     // @E5A
+    private int                                 id_;
     private AS400JDBCDatabaseMetaData   metaData_;
-	private JDPackageManager            packageManager_;
-	private JDProperties                properties_;
-	private boolean                     readOnly_;
-	private BitSet                      requestPending_;                // @EFC
-	private AS400Server				    server_;
-    private SQLWarning				    sqlWarning_;
-    private Vector		                statements_;                    // @EFC
-	private JDTransactionManager  	    transactionManager_;
+     private JDPackageManager            packageManager_;
+     private JDProperties                properties_;
+     private boolean                     readOnly_;
+     private BitSet                      requestPending_;                // @DAC
+     private AS400Server                    server_;
+    private int                         serverFunctionalLevel_;         // @E7A
+    private String                      serverJobIdentifier_ = null;    // @E8A
+    private SQLWarning                      sqlWarning_;
+    private Vector                       statements_;                    // @DAC
+     private JDTransactionManager           transactionManager_;
+    private ConverterImplRemote         unicodeConverter_;              // @E3A
     private int                         vrm_;                           // @D0A
 
 
@@ -164,8 +186,8 @@ that we expect to receive.
     static
     {
         // The database server will only return 1 type of reply.
-	    AS400Server.addReplyStream (new DBReplyRequestedDS (),
-	        AS400.DATABASE);
+         AS400Server.addReplyStream (new DBReplyRequestedDS (),
+             AS400.DATABASE);
     }
 
 
@@ -175,9 +197,74 @@ that we expect to receive.
     {}
 
 
+
 // @A3D  Deleted constructor:
 //    AS400JDBCConnection (JDDataSourceURL dataSourceUrl, JDProperties properties)
 //        throws SQLException
+
+
+
+// @E8A
+/**
+Cancels a statement within this connection.
+
+@param id   The id.
+
+@exception              SQLException    If the statement cannot be executed.
+**/
+    void cancel(int id)
+        throws SQLException
+    {
+        // Lock out all other operations for this connection.
+        synchronized(cancelLock_) {
+            cancelling_ = true;
+
+            try {
+                // If the server job identifier was returned, and the server is at a
+                // functional level 5 or greater, then use the job identifier to issue
+                // the cancel from another connection.  Otherwise, do nothing.
+                if ((serverJobIdentifier_ != null) && (serverFunctionalLevel_ >= 5)){
+
+                    if (JDTrace.isTraceOn())
+                        JDTrace.logInformation (this, "Cancelling statement " + id);
+
+                    // Create another connection to issue the cancel.
+                    AS400JDBCConnection cancelConnection = new AS400JDBCConnection();
+                    AS400 system = new AS400(as400PublicClassObj_);
+                    cancelConnection.setSystem(system);
+                    cancelConnection.setProperties(dataSourceUrl_, properties_, system);
+
+                   // Send the cancel request.
+              try {
+                   DBSQLRequestDS request = new DBSQLRequestDS(DBSQLRequestDS.FUNCTIONID_CANCEL, id_,
+                       DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
+                        request.setJobIdentifier(serverJobIdentifier_, converter_);
+                        DBReplyRequestedDS reply = cancelConnection.sendAndReceive (request);
+
+                        int errorClass = reply.getErrorClass();
+                   int returnCode = reply.getReturnCode();
+                   if (errorClass != 0)
+                        JDError.throwSQLException(this, id_, errorClass, returnCode);
+                   }
+                   catch (DBDataStreamException e) {
+                   JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+                  }
+
+                    cancelConnection.close();
+                }
+                else {
+                    if (JDTrace.isTraceOn())
+                        JDTrace.logInformation (this, "Cancel of statement " + id + " requested, but is not supported by server");
+                }
+            }
+            finally {
+                // Let others back in.
+                    cancelling_ = false;
+                    cancelLock_.notifyAll();
+            }
+        }
+    }
+
 
 
 /**
@@ -189,25 +276,46 @@ and the read only mode.
 
 @exception              SQLException    If the statement cannot be executed.
 **/
-	void checkAccess (JDSQLStatement sqlStatement)
-	    throws SQLException
-	{
-	    String access = properties_.getString (JDProperties.ACCESS);
+     void checkAccess (JDSQLStatement sqlStatement)
+         throws SQLException
+     {
+         String access = properties_.getString (JDProperties.ACCESS);
 
-	    // If we only have read only access, then anything other
-	    // than a SELECT can not be executed.
-	    if ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
-	        && (! sqlStatement.isSelect ()))
-			JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
+         // If we only have read only access, then anything other
+         // than a SELECT can not be executed.
+         if ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
+             && (! sqlStatement.isSelect ()))
+               JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
 
         // If we have read call access, then anything other than
         // a SELECT or CALL can not be executed.
-		if (((readOnly_)
-		    || ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_CALL))))
-		    && (! sqlStatement.isSelect())
-		    && (! sqlStatement.isProcedureCall()))
-			JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
-	}
+          if (((readOnly_)
+              || ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_CALL))))
+              && (! sqlStatement.isSelect())
+              && (! sqlStatement.isProcedureCall()))
+               JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
+     }
+
+
+
+// @E8A
+/**
+Checks to see if we are cancelling a statement.  If so, wait until the
+cancel is done.  If not, go ahead.
+**/
+    private void checkCancel()
+    {
+        synchronized(cancelLock_) {
+            if (cancelling_) {
+                try {
+                    cancelLock_.wait();
+                }
+                catch(InterruptedException e) {
+                    // Ignore.
+                }
+            }
+        }
+    }
 
 
 
@@ -236,7 +344,7 @@ is reported for the connection.
     public void clearWarnings ()
         throws SQLException
     {
-		sqlWarning_ = null;
+          sqlWarning_ = null;
     }
 
 
@@ -269,51 +377,39 @@ of the connection, and disconnects from the server.
         closing_ = true;
 
         // If this is already closed, then just do nothing.
-        // 
+        //
         // The spec does not define what happens when a connection
-        // is closed multiple times.  The official word from the Sun 
-        // JDBC team is that "the driver's behavior in this case 
-        // is implementation defined.   Applications that do this are 
-        // non-portable." 
+        // is closed multiple times.  The official word from the Sun
+        // JDBC team is that "the driver's behavior in this case
+        // is implementation defined.   Applications that do this are
+        // non-portable."
         if (isClosed ())
             return;
 
-		// Rollback before closing.
-		rollback ();
+        // partial close (moved rollback and closing of all the statements).     @E1
+        pseudoClose();
 
-		// Close all statements that are running in the context
-		// of this connection.
-   // Make a clone of the vector, since it will be modified as each statement          @EFA
-   // closes itself                                                                 // @EFA
-   Vector statements = (Vector)statements_.clone();                                 // @EFA
-   Enumeration enum = statements.elements();                                        // @EFA
-   while(enum.hasMoreElements()) {                                                  // @EFC
-       AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @EFA
-       if (! statement.isClosed())                                                  // @EFC
-           statement.close();                                                       // @EFC
-   }
-
-		// Disconnect from the server.
-		if (server_ != null) {
+          // Disconnect from the server.
+          if (server_ != null) {
 
             // @B3  It turns out that we were closing the connection,
             // @B3  then the AS400Server object was in its disconnectServer()
             // @B3  method.  Since the AS400Server object needs to do other
             // @B3  cleanup, we still need to call it.
 
-			// @B3D try {
-			// @B3D 	DBSQLEndCommDS request = new DBSQLEndCommDS (
-			// @B3D 	    DBSQLEndCommDS.FUNCTIONID_END_COMMUNICATION,
-			// @B3D 	    id_, 0, 0);
-			// @B3D 	send (request);
-			// @B3D }
-			// @B3D catch (Exception e) {
-			// @B3D 	JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-			// @B3D }
+               // @B3D try {
+               // @B3D   DBSQLEndCommDS request = new DBSQLEndCommDS (
+               // @B3D       DBSQLEndCommDS.FUNCTIONID_END_COMMUNICATION,
+               // @B3D       id_, 0, 0);
+               // @B3D   send (request);
+               // @B3D }
+               // @B3D catch (Exception e) {
+               // @B3D   JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+               // @B3D }
 
-   			as400_.disconnectServer (server_);
-	    	server_ = null;
-		}
+               as400_.disconnectServer (server_);
+          server_ = null;
+          }
 
         if (JDTrace.isTraceOn())
             JDTrace.logClose (this);
@@ -321,11 +417,16 @@ of the connection, and disconnects from the server.
 
 
 
+// @E4C
 /**
 Commits all changes made since the previous commit or
 rollback and releases any database locks currently held by
 the connection.  This has no effect when the connection
 is in auto-commit mode.
+
+<p>This method can not be called when the connection is part
+of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
+AS400JDBCXAResource</a> for more information.
 
 @exception SQLException     If the connection is not open
                             or an error occurs.
@@ -334,6 +435,9 @@ is in auto-commit mode.
       throws SQLException
     {
         checkOpen ();
+
+        if (!transactionManager_.isLocalTransaction())                      // @E4A
+            JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
         // Note:  Intuitively, it seems like if we are in
         //        auto-commit mode, that we should not need to
@@ -357,16 +461,17 @@ is in auto-commit mode.
 Corrects the result set type based on the result set concurrency
 and posts a warning.
 
-@param resultSetType            The result set type. 
-@param resultSetConcurrency     The result set concurrency. 
+@param resultSetType            The result set type.
+@param resultSetConcurrency     The result set concurrency.
 @return                         The correct result set type.
 **/
     private int correctResultSetType (int resultSetType,
                                       int resultSetConcurrency)
+    throws SQLException // @EGA
     {
         int newResultSetType = (resultSetConcurrency == ResultSet.CONCUR_UPDATABLE)
             ? ResultSet.TYPE_SCROLL_SENSITIVE : ResultSet.TYPE_SCROLL_INSENSITIVE;
-        postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));  
+        postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
         return newResultSetType;
     }
 
@@ -384,8 +489,8 @@ ResultSet.CONCUR_READ_ONLY.
 @return     The statement object.
 
 @exception  SQLException    If the connection is not open,
-				    the maximum number of statements
-				    for this connection has been reached, or an
+                        the maximum number of statements
+                        for this connection has been reached, or an
                             error occurs.
 **/
     public Statement createStatement ()
@@ -416,14 +521,14 @@ is more efficient to use prepareStatement().
                                 </ul>
 @return                         The statement object.
 
-@exception      SQLException    If the connection is not open, 
-					  the maximum number of statements
-				        for this connection has been reached, the
+@exception      SQLException    If the connection is not open,
+                           the maximum number of statements
+                            for this connection has been reached, the
                                 result type or currency is not supported,
                                 or an error occurs.
 **/
     public Statement createStatement (int resultSetType,
-					                  int resultSetConcurrency)
+                                           int resultSetConcurrency)
       throws SQLException
     {
         // Validation.
@@ -433,14 +538,14 @@ is more efficient to use prepareStatement().
 
         // Create the statement.
         int statementId = getUnusedId (resultSetType); // @B1C
-		AS400JDBCStatement statement = new AS400JDBCStatement (this,
-		    statementId, transactionManager_, packageManager_,
-		    properties_.getString (JDProperties.BLOCK_CRITERIA),
-		    properties_.getInt (JDProperties.BLOCK_SIZE),
-		    properties_.getBoolean (JDProperties.PREFETCH),
-		    properties_.getString (JDProperties.PACKAGE_CRITERIA), // @A2A
-		    resultSetType, resultSetConcurrency);
-        statements_.addElement(statement);
+          AS400JDBCStatement statement = new AS400JDBCStatement (this,
+              statementId, transactionManager_, packageManager_,
+              properties_.getString (JDProperties.BLOCK_CRITERIA),
+              properties_.getInt (JDProperties.BLOCK_SIZE),
+              properties_.getBoolean (JDProperties.PREFETCH),
+              properties_.getString (JDProperties.PACKAGE_CRITERIA), // @A2A
+              resultSetType, resultSetConcurrency);
+        statements_.addElement(statement);          // @DAC
         return statement;
     }
 
@@ -481,11 +586,11 @@ for debugging the JDBC driver and is not intended for production code.
         if (DEBUG_COMM_TRACE_ >= 2)
             reply.dump (System.out);
 
-       	int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
-       	int returnCode = ((DBReplyRequestedDS) reply).getReturnCode();
+          int errorClass = ((DBReplyRequestedDS) reply).getErrorClass();
+          int returnCode = ((DBReplyRequestedDS) reply).getReturnCode();
 
         if (DEBUG_COMM_TRACE_ >= 1)
-   	        if ((errorClass != 0) || (returnCode != 0))
+             if ((errorClass != 0) || (returnCode != 0))
                 System.out.println ("Server error = " + errorClass + ":"
                     + returnCode + ".");
     }
@@ -514,6 +619,7 @@ Returns the AS400 object for this connection.
 @return     The AS400 object.
 **/
     AS400Impl getAS400 ()
+    throws SQLException // @EGA
     {
         return as400_;
     }
@@ -532,7 +638,7 @@ Returns the auto-commit state.
         throws SQLException
     {
         checkOpen ();
-		return transactionManager_.getAutoCommit ();
+          return transactionManager_.getAutoCommit ();
     }
 
 
@@ -548,7 +654,7 @@ Returns the catalog name.
         throws SQLException
     {
         checkOpen ();
-		return catalog_;
+          return catalog_;
     }
 
 
@@ -559,6 +665,7 @@ Returns the converter for this connection.
 @return     The converter.
 **/
     ConverterImplRemote getConverter ()
+    throws SQLException // @EGA
     {
         return converter_;
     }
@@ -581,15 +688,38 @@ in a generic manner.
         throws SQLException
     {
         try {
-            return ((ccsid == 0) || (ccsid == -1))
-                ? converter_
-                : ConverterImplRemote.getConverter (ccsid, as400_);
+            switch(ccsid) {                                                                 // @E3A
+            case -1:                                                                        // @E3A
+            case 0:                                                                         // @E3A
+            case 1:                                                                         // @E3A
+                return converter_;                                                          // @E3A
+            case UNICODE_CCSID_:                                                            // @E3A
+                if (unicodeConverter_ == null)                                              // @E3A
+                    unicodeConverter_ = ConverterImplRemote.getConverter(13488, as400_);    // @E3A
+                return unicodeConverter_;                                                   // @E3A
+            default:                                                                        // @E3A
+                return ConverterImplRemote.getConverter (ccsid, as400_);                    // @E3C
+            }                                                                               // @E3A
         }
         catch (UnsupportedEncodingException e) {
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
             return null;
         }
     }
+
+
+
+// @ECA
+/**
+Returns the style of data compression.
+
+@return The style of data compression.  Possible values are DATA_COMPRESSION_NONE_,
+        DATA_COMPRESSION_OLD_, and DATA_COMPRESSION_RLE_.
+**/
+    int getDataCompression()                                                                // @ECA
+    {                                                                                       // @ECA
+        return dataCompression_;                                                            // @ECA
+    }                                                                                       // @ECA
 
 
 
@@ -600,57 +730,58 @@ Returns the default schema.
             specified.
 **/
     String getDefaultSchema ()
+    throws SQLException // @EGA
     {
         return ((defaultSchema_ == null) ? "QGPL" : defaultSchema_);
     }
 
 
 
-/**
-Returns the graphic converter for this connection.
-
-@return     The graphic converter.
-
-@exception  SQLException    If no graphic converter was loaded.
-**/
-//
-// Implementation note:
-//
-// * Graphic data is pure double-byte, so we will need a
-//   different converter for that.  If there is no associated
-//   double-byte CCSID, or the converter can not be loaded,
-//   then we should throw an exception.  We wait to load this,
-//   since the majority of callers do not need this converter.
-//
-    ConverterImplRemote getGraphicConverter ()
-        throws SQLException
-    {
-        // If the graphic converter has not yet been loaded,
-        // then do so.
-        if (graphicConverterLoaded_ == false) {
-			int serverGraphicCCSID = ExecutionEnvironment.getAssociatedDbcsCcsid (converter_.getCcsid ());
-			if (serverGraphicCCSID != -1) {
-			    try {
-        			graphicConverter_ = ConverterImplRemote.getConverter (serverGraphicCCSID, as400_);
-        		}
-        		catch (UnsupportedEncodingException e) {
-        		    graphicConverter_ = null;
-        		}
-			}
-
-            if (JDTrace.isTraceOn ()) {
-                if (graphicConverter_ != null)
-                    JDTrace.logInformation (this, "Server graphic CCSID = " + serverGraphicCCSID);
-                else
-                    JDTrace.logInformation (this, "No graphic CCSID was loaded");
-            }
-        }
-
-        // Return the graphic converter, or throw an exception.
-        if (graphicConverter_ == null)
-            JDError.throwSQLException (JDError.EXC_CCSID_INVALID);
-        return graphicConverter_;
-    }
+// @E2D /**
+// @E2D Returns the graphic converter for this connection.
+// @E2D
+// @E2D @return     The graphic converter.
+// @E2D
+// @E2D @exception  SQLException    If no graphic converter was loaded.
+// @E2D **/
+// @E2D //
+// @E2D // Implementation note:
+// @E2D //
+// @E2D // * Graphic data is pure double-byte, so we will need a
+// @E2D //   different converter for that.  If there is no associated
+// @E2D //   double-byte CCSID, or the converter can not be loaded,
+// @E2D //   then we should throw an exception.  We wait to load this,
+// @E2D //   since the majority of callers do not need this converter.
+// @E2D //
+// @E2D     ConverterImplRemote getGraphicConverter ()
+// @E2D         throws SQLException
+// @E2D     {
+// @E2D         // If the graphic converter has not yet been loaded,
+// @E2D         // then do so.
+// @E2D         if (graphicConverterLoaded_ == false) {
+// @E2D             int serverGraphicCCSID = ExecutionEnvironment.getAssociatedDbcsCcsid (converter_.getCcsid ());
+// @E2D             if (serverGraphicCCSID != -1) {
+// @E2D                 try {
+// @E2D                       graphicConverter_ = ConverterImplRemote.getConverter (serverGraphicCCSID, as400_);
+// @E2D                  }
+// @E2D                  catch (UnsupportedEncodingException e) {
+// @E2D                      graphicConverter_ = null;
+// @E2D                  }
+// @E2D             }
+// @E2D
+// @E2D             if (JDTrace.isTraceOn ()) {
+// @E2D                 if (graphicConverter_ != null)
+// @E2D                     JDTrace.logInformation (this, "Server graphic CCSID = " + serverGraphicCCSID);
+// @E2D                 else
+// @E2D                     JDTrace.logInformation (this, "No graphic CCSID was loaded");
+// @E2D             }
+// @E2D         }
+// @E2D
+// @E2D         // Return the graphic converter, or throw an exception.
+// @E2D         if (graphicConverter_ == null)
+// @E2D             JDError.throwSQLException (JDError.EXC_CCSID_INVALID);
+// @E2D         return graphicConverter_;
+// @E2D     }
 
 
 
@@ -664,12 +795,12 @@ capabilities and more.
 @exception  SQLException    If an error occurs.
 **/
     public DatabaseMetaData getMetaData ()
-		throws SQLException
+          throws SQLException
     {
         // We allow a user to get this object even if the
         // connection is closed.
 
-		return metaData_;
+          return metaData_;
     }
 
 
@@ -680,10 +811,45 @@ Returns the connection properties.
 @return    The connection properties.
 **/
     JDProperties getProperties ()
+    throws SQLException // @EGA
     {
         return properties_;
     }
 
+
+
+// @E8A
+/**
+Returns the job identifier of the host server job corresponding to this connection.
+Every JDBC connection is associated with a host server job on the AS/400.  The
+format is:
+<ul>
+  <li>10 character job name
+  <li>10 character user name
+  <li>6 character job number
+</ul>
+
+<p>Note: Since this method is not defined in the JDBC Connection interface,
+you typically need to cast a Connection object to AS400JDBCConnection in order
+to call this method:
+<blockquote><pre>
+String serverJobIdentifier = ((AS400JDBCConnection)connection).getServerJobIdentifier();
+</pre></blockquote>
+
+@return The server job identifier, or null if not known.
+**/
+    public String getServerJobIdentifier()                              // @E8A
+    {                                                                   // @E8A
+        return serverJobIdentifier_;                                    // @E8A
+    }                                                                   // @E8A
+
+
+
+
+    int getServerFunctionalLevel()                                      // @EEA
+    {                                                                   // @EEA
+        return serverFunctionalLevel_;                                  // @EEA
+    }                                                                   // @EEA
 
 
 // @EHA
@@ -717,17 +883,24 @@ Returns the transaction isolation level.
             <li>TRANSACTION_NONE
             <li>TRANSACTION_READ_UNCOMMITTED
             <li>TRANSACTION_READ_COMMITTED
-			<li>TRANSACTION_REPEATABLE_READ
+               <li>TRANSACTION_REPEATABLE_READ
             </ul>
 
 @exception  SQLException    If the connection is not open.
 **/
     public int getTransactionIsolation ()
-		throws SQLException
+          throws SQLException
     {
         checkOpen ();
-		return transactionManager_.getIsolation ();
+          return transactionManager_.getIsolation ();
     }
+
+
+
+    JDTransactionManager getTransactionManager()                                // @E4A
+    {                                                                           // @E4A
+        return transactionManager_;                                             // @E4A
+    }                                                                           // @E4A
 
 
 
@@ -739,7 +912,7 @@ Returns the type map.
 
 @return     The type map.
 
-@exception  SQLException    This exception is always thrown. 
+@exception  SQLException    This exception is always thrown.
 **/
     public Map getTypeMap ()
         throws SQLException
@@ -773,21 +946,21 @@ Returns the next unused id.
         // must use statement ids of 1-128 for non-scrollable
         // cursors and 129-255 for scrollable cursors.
         if (drda_) {
-            if (resultSetType == ResultSet.TYPE_FORWARD_ONLY) {             
+            if (resultSetType == ResultSet.TYPE_FORWARD_ONLY) {
                 for (int i = 1; i < DRDA_SCROLLABLE_CUTOFF_; ++i) {
-                    if (assigned_.get(i) == false) {                                    // @EFC
-                        assigned_.set(i);                                               // @EFC
+                    if (assigned_.get(i) == false) {                                    // @DAC
+                        assigned_.set(i);                                               // @DAC
                         return i;
                     }
-                }            
+                }
             }
             else {
-                for (int i = DRDA_SCROLLABLE_CUTOFF_; i < DRDA_SCROLLABLE_MAX_; ++i) {  // @EFC
-                    if (assigned_.get(i) == false) {                                    // @EFC
-                        assigned_.set(i);                                               // @EFC
+                for (int i = DRDA_SCROLLABLE_CUTOFF_; i < DRDA_SCROLLABLE_MAX_; ++i) {  // @DAC
+                    if (assigned_.get(i) == false) {                                    // @DAC
+                        assigned_.set(i);                                               // @DAC
                         return i;
                     }
-                }            
+                }
             }
         }
 
@@ -795,16 +968,16 @@ Returns the next unused id.
         // we can use any statement id.
         else {
             for (int i = 1; i < MAX_STATEMENTS_; ++i) {
-                if (assigned_.get(i) == false) {                                    // @EFC
-                    assigned_.set(i);                                               // @EFC
+                if (assigned_.get(i) == false) {                                    // @DAC
+                    assigned_.set(i);                                               // @DAC
                     return i;
                 }
             }
         }
 
-		// All ids are being used.
-		JDError.throwSQLException (JDError.EXC_MAX_STATEMENTS_EXCEEDED);
-		return -1;
+          // All ids are being used.
+          JDError.throwSQLException (JDError.EXC_MAX_STATEMENTS_EXCEEDED);
+          return -1;
     }
 
 
@@ -814,10 +987,11 @@ Returns the URL for the connection's database.
 
 @return      The URL for the database.
 **/
-	String getURL ()
-	{
-		return dataSourceUrl_.toString ();
-	}
+     String getURL ()
+    throws SQLException // @EGA
+     {
+          return dataSourceUrl_.toString ();
+     }
 
 
 
@@ -826,14 +1000,16 @@ Returns the user name as currently signed on to the server.
 
 @return      The user name.
 **/
-	String getUserName ()
-	{
-	    return as400_.getUserId ();
-	}
+     String getUserName ()
+    throws SQLException // @EGA
+     {
+         return as400_.getUserId ();
+     }
 
 
 
     int getVRM()                                            // @D0A
+    throws SQLException // @EGA
     {                                                       // @D0A
         return vrm_;                                        // @D0A
     }                                                       // @D0A
@@ -850,9 +1026,9 @@ Subsequent warnings may be chained to this warning.
 @exception  SQLException    If an error occurs.
 **/
     public SQLWarning getWarnings ()
-		throws SQLException
+          throws SQLException
     {
-		return sqlWarning_;
+          return sqlWarning_;
     }
 
 
@@ -865,13 +1041,14 @@ in the connection.
             false otherwise.
 **/
     boolean isCursorNameUsed (String cursorName)
+    throws SQLException // @EGA
     {
-        Enumeration enum = statements_.elements();                                                          // @EFA
-        while(enum.hasMoreElements()) {                                                                     // @EFC
-            if (((AS400JDBCStatement)enum.nextElement()).getCursorName().equalsIgnoreCase(cursorName))      // @EFC
+        Enumeration enum = statements_.elements();                                                          // @DAA
+        while(enum.hasMoreElements()) {                                                                     // @DAC
+            if (((AS400JDBCStatement)enum.nextElement()).getCursorName().equalsIgnoreCase(cursorName))      // @DAC
                 return true;
         }
-		return false;
+          return false;
     }
 
 
@@ -885,9 +1062,9 @@ Indicates if the connection is closed.
 @exception  SQLException    If an error occurs.
 **/
     public boolean isClosed ()
-		throws SQLException
+          throws SQLException
     {
-		if (server_ == null)                        // @EFC
+          if (server_ == null)                        // @EFC
             return true;                            // @EFA
         if (!server_.isConnected()) {               // @EFA
             server_ = null;                         // @EFA
@@ -908,12 +1085,12 @@ Indicates if the connection is in read-only mode.
 @exception  SQLException    If the connection is not open.
 **/
     public boolean isReadOnly ()
-		throws SQLException
+          throws SQLException
     {
         checkOpen ();
-		return ((readOnly_)
-		        || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
-		        || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_CALL)));
+          return ((readOnly_)
+                  || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
+                  || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_CALL)));
     }
 
 
@@ -927,9 +1104,9 @@ Marks all of the cursors as closed.
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Cursors were not held.  Marking all closed");
 
-        Enumeration enum = statements_.elements();                              // @EFA
-        while(enum.hasMoreElements())                                           // @EFC
-            ((AS400JDBCStatement)enum.nextElement()).markCursorClosed();        // @EFC
+        Enumeration enum = statements_.elements();                              // @DAA
+        while(enum.hasMoreElements())                                           // @DAC
+            ((AS400JDBCStatement)enum.nextElement()).markCursorClosed();        // @DAC
     }
 
 
@@ -949,10 +1126,10 @@ SQL grammar prior to executing them.
     public String nativeSQL (String sql)
       throws SQLException
     {
-		JDSQLStatement sqlStatement = new JDSQLStatement (sql,
-		    properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-		    properties_.getString (JDProperties.PACKAGE_CRITERIA) );           // @A2A
-		return sqlStatement.toString ();
+          JDSQLStatement sqlStatement = new JDSQLStatement (sql,
+              properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
+              properties_.getString (JDProperties.PACKAGE_CRITERIA) );           // @A2A
+          return sqlStatement.toString ();
     }
 
 
@@ -965,15 +1142,16 @@ been closed.
 @param   id          The statement's id.
 **/
     void notifyClose (AS400JDBCStatement statement, int id)
+    throws SQLException // @EGA
     {
-        statements_.removeElement(statement);                  // @EFC
-        assigned_.clear(id);                            // @EFC
+        statements_.removeElement(statement);           // @DAC
+        assigned_.clear(id);                            // @DAC
     }
 
 
 // @A3D - Moved this logic up into AS400JDBCDriver:
 //    private void open ()
-//		throws SQLException
+//        throws SQLException
 
 
 
@@ -982,12 +1160,13 @@ Posts a warning for the connection.
 
 @param   sqlWarning  The warning.
 **/
-	void postWarning (SQLWarning sqlWarning)
+     void postWarning (SQLWarning sqlWarning)
+    throws SQLException // @EGA
     {
-		if (sqlWarning_ == null)
-			sqlWarning_ = sqlWarning;
-		else
-			sqlWarning_.setNextWarning (sqlWarning);
+          if (sqlWarning_ == null)
+               sqlWarning_ = sqlWarning;
+          else
+               sqlWarning_.setNextWarning (sqlWarning);
     }
 
 
@@ -1006,15 +1185,15 @@ ResultSet.CONCUR_READ_ONLY.
 @return         The callable statement object.
 
 @exception      SQLException    If the connection is not open,
-					  the maximum number of statements
-      				  for this connection has been reached,  or an
+                           the maximum number of statements
+                           for this connection has been reached,  or an
                                 error occurs.
 **/
     public CallableStatement prepareCall (String sql)
       throws SQLException
     {
-		return prepareCall (sql, ResultSet.TYPE_FORWARD_ONLY,
-		    ResultSet.CONCUR_READ_ONLY);
+          return prepareCall (sql, ResultSet.TYPE_FORWARD_ONLY,
+              ResultSet.CONCUR_READ_ONLY);
     }
 
 
@@ -1040,15 +1219,15 @@ stored procedure multiple times.
                                 </ul>
 @return                         The prepared statement object.
 
-@exception      SQLException    If the connection is not open, 
-					  the maximum number of statements
-				        for this connection has been reached, the
+@exception      SQLException    If the connection is not open,
+                           the maximum number of statements
+                            for this connection has been reached, the
                                 result type or currency is not valid,
                                 or an error occurs.
 **/
     public CallableStatement prepareCall (String sql,
                                           int resultSetType,
-					                      int resultSetConcurrency)
+                                               int resultSetConcurrency)
         throws SQLException
     {
         // Validation.
@@ -1057,19 +1236,19 @@ stored procedure multiple times.
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
 
         // Create the statement.
-		JDSQLStatement sqlStatement = new JDSQLStatement (sql,
-		    properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-		    properties_.getString (JDProperties.PACKAGE_CRITERIA) );           // @A2A
-		int statementId = getUnusedId (resultSetType); // @B1C
-		AS400JDBCCallableStatement statement = new AS400JDBCCallableStatement (this,
+          JDSQLStatement sqlStatement = new JDSQLStatement (sql,
+              properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
+              properties_.getString (JDProperties.PACKAGE_CRITERIA) );           // @A2A
+          int statementId = getUnusedId (resultSetType); // @B1C
+          AS400JDBCCallableStatement statement = new AS400JDBCCallableStatement (this,
             statementId, transactionManager_, packageManager_,
             properties_.getString (JDProperties.BLOCK_CRITERIA),
-		    properties_.getInt (JDProperties.BLOCK_SIZE),
-		    sqlStatement,
-		    properties_.getString (JDProperties.PACKAGE_CRITERIA),
-		    resultSetType, resultSetConcurrency);
-        statements_.addElement(statement);                  // @EFC
-		return statement;
+              properties_.getInt (JDProperties.BLOCK_SIZE),
+              sqlStatement,
+              properties_.getString (JDProperties.PACKAGE_CRITERIA),
+              resultSetType, resultSetConcurrency);
+        statements_.addElement(statement);                  // @DAC
+          return statement;
     }
 
 
@@ -1088,15 +1267,15 @@ ResultSet.CONCUR_READ_ONLY.
 @return         The prepared statement object.
 
 @exception      SQLException    If the connection is not open,
-					  the maximum number of statements
-   				    	  for this connection has been reached,  or an
+                           the maximum number of statements
+                           for this connection has been reached,  or an
                                 error occurs.
 **/
     public PreparedStatement prepareStatement (String sql)
       throws SQLException
     {
-		return prepareStatement (sql, ResultSet.TYPE_FORWARD_ONLY,
-		    ResultSet.CONCUR_READ_ONLY);
+          return prepareStatement (sql, ResultSet.TYPE_FORWARD_ONLY,
+              ResultSet.CONCUR_READ_ONLY);
     }
 
 
@@ -1122,15 +1301,15 @@ multiple times.
                                 </ul>
 @return                         The prepared statement object.
 
-@exception      SQLException    If the connection is not open, 
-					  the maximum number of statements
-				        for this connection has been reached, the
+@exception      SQLException    If the connection is not open,
+                           the maximum number of statements
+                            for this connection has been reached, the
                                 result type or currency is not valid,
                                 or an error occurs.
 **/
     public PreparedStatement prepareStatement (String sql,
                                                int resultSetType,
-					                           int resultSetConcurrency)
+                                                    int resultSetConcurrency)
       throws SQLException
     {
         // Validation.
@@ -1139,29 +1318,58 @@ multiple times.
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
 
         // Create the statement.
-		JDSQLStatement sqlStatement = new JDSQLStatement (sql,
-		    properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
-		    properties_.getString (JDProperties.PACKAGE_CRITERIA) );           // @A2A
-		int statementId = getUnusedId (resultSetType); // @B1C
-		AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (this,
-		    statementId, transactionManager_, packageManager_,
-		    properties_.getString (JDProperties.BLOCK_CRITERIA),
-		    properties_.getInt (JDProperties.BLOCK_SIZE),
-		    properties_.getBoolean (JDProperties.PREFETCH),
-		    sqlStatement, false,
-		    properties_.getString (JDProperties.PACKAGE_CRITERIA),
-		    resultSetType, resultSetConcurrency);
-		statements_.addElement(statement);                      // @EFC
-		return statement;
+          JDSQLStatement sqlStatement = new JDSQLStatement (sql,
+              properties_.getString (JDProperties.DECIMAL_SEPARATOR), true,
+              properties_.getString (JDProperties.PACKAGE_CRITERIA) );           // @A2A
+          int statementId = getUnusedId (resultSetType); // @B1C
+          AS400JDBCPreparedStatement statement = new AS400JDBCPreparedStatement (this,
+              statementId, transactionManager_, packageManager_,
+              properties_.getString (JDProperties.BLOCK_CRITERIA),
+              properties_.getInt (JDProperties.BLOCK_SIZE),
+              properties_.getBoolean (JDProperties.PREFETCH),
+              sqlStatement, false,
+              properties_.getString (JDProperties.PACKAGE_CRITERIA),
+              resultSetType, resultSetConcurrency);
+          statements_.addElement(statement);                      // @DAC
+          return statement;
     }
 
 
 
 /**
+Partial closing of the connection.
+@exception SQLException If a database error occurs.
+**/
+void pseudoClose() throws SQLException                      // @E1
+{
+   // Rollback before closing.
+   if ((transactionManager_.isLocalTransaction()) && (transactionManager_.isLocalActive()))  // @E4A
+       rollback ();
+
+   // Close all statements that are running in the context of this connection.
+   // Make a clone of the vector, since it will be modified as each statement          @DAA
+   // closes itself                                                                 // @DAA
+   Vector statements = (Vector)statements_.clone();                                 // @DAA
+   Enumeration enum = statements.elements();                                        // @DAA
+   while(enum.hasMoreElements()) {                                                  // @DAC
+       AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @DAA
+       if (! statement.isClosed())                                                  // @DAC
+           statement.close();                                                       // @DAC
+   }
+}
+
+
+
+// @E4C
+/**
 Drops all changes made since the previous commit or
 rollback and releases any database locks currently held by
 the connection.  This has no effect when the connection
 is in auto-commit mode.
+
+<p>This method can not be called when the connection is part
+of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
+AS400JDBCXAResource</a> for more information.
 
 @exception SQLException     If the connection is not open
                             or an error occurs.
@@ -1170,6 +1378,9 @@ is in auto-commit mode.
       throws SQLException
     {
         checkOpen ();
+
+        if (!transactionManager_.isLocalTransaction())                      // @E4A
+            JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
         if (! transactionManager_.getAutoCommit ()) {
             transactionManager_.rollback ();
@@ -1196,10 +1407,10 @@ connection's id and does not expect a reply.
 // See implementation notes for sendAndReceive().
 //
     void send (DBBaseRequestDS request)
-		throws SQLException
-	{
-	    send (request, id_, true);
-	}
+          throws SQLException
+     {
+         send (request, id_, true);
+     }
 
 
 
@@ -1216,10 +1427,10 @@ expect a reply.
 // See implementation notes for sendAndReceive().
 //
     void send (DBBaseRequestDS request, int id)
-		throws SQLException
-	{
-	    send (request, id, true);
-	}
+          throws SQLException
+     {
+         send (request, id, true);
+     }
 
 
 
@@ -1240,78 +1451,172 @@ expect a reply.
 // See implementation notes for sendAndReceive().
 //
     void send (DBBaseRequestDS request, int id, boolean leavePending)
-		throws SQLException
-	{
-	    try {
-	        request.setBasedOnORSHandle (requestPending_.get(id) ? id : 0);                 // @EFC
-    		DBReplyRequestedDS reply = null;
+          throws SQLException
+     {
+        checkCancel();                                                                      // @E8A
 
-            if (DEBUG_REQUEST_CHAINING_ == true) {
-       		    server_.send (request);
-                if (leavePending)                                                           // @EFA
-                    requestPending_.set(id);                                                // @EFC
-                else                                                                        // @EFA
-                    requestPending_.clear(id);                                              // @EFA
-            }
-            else {
-                request.addOperationResultBitmap (DBBaseRequestDS.ORS_BITMAP_RETURN_DATA);
-                reply = (DBReplyRequestedDS) server_.sendAndReceive (request);
-                    requestPending_.clear(id);                                              // @EFC
-            }
+         try {
+            // Since we are just calling send() (instead of sendAndReceive()),              // @EAA
+            // make sure we are not asking the server for a reply.  Otherwise,              // @EAA
+            // the reply will come back and it will get held in the AS400                   // @EAA
+            // read daemon indefinitely - - a memory leak.                                  // @EAA
+            if (JDTrace.isTraceOn()) {                                                      // @EAA
+                if (request.getOperationResultBitmap() != 0)                                // @EAA
+                    JDTrace.logInformation (this, "Reply requested but not collected:" + request.getReqRepID()); // @EAA
+            }                                                                               // @EAA
+
+             request.setBasedOnORSHandle (0);                 // @DAC @EKC
+          DBReplyRequestedDS reply = null;
+
+            if (dataCompression_ == DATA_COMPRESSION_RLE_) {                                // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
+                request.compress();                                                         // @ECA
+            }                                                                               // @ECA
+
+            DataStream actualRequest;                                                       // @E5A
+            synchronized(heldRequestsLock_) {                                               // @E5A
+                if (heldRequests_ != null)                                                  // @E5A
+                    actualRequest = new DBConcatenatedRequestDS(heldRequests_, request);    // @E5A
+                else                                                                        // @E5A
+                    actualRequest = request;                                                // @E5A
+                heldRequests_ = null;                                                       // @E5A
+            }                                                                               // @E5A
+
+            // @E5D if (DEBUG_REQUEST_CHAINING_ == true) {
+                   server_.send(actualRequest);                                                // @E5C
+                if (leavePending)                                                           // @DAA
+                    requestPending_.set(id);                                                // @DAC
+                else                                                                        // @DAA
+                    requestPending_.clear(id);                                              // @DAA
+
+            // @E5D }
+            // @E5D else {
+            // @E5D     request.addOperationResultBitmap (DBBaseRequestDS.ORS_BITMAP_RETURN_DATA);
+            // @E5D     reply = (DBReplyRequestedDS) server_.sendAndReceive (request);
+            // @E5D     requestPending_[id] = false;
+            // @E5D }
 
             if (DEBUG_COMM_TRACE_ > 0) {
                 debug (request);
-                if (DEBUG_REQUEST_CHAINING_ == false)
-                    debug (reply);
+                // @E5D if (DEBUG_REQUEST_CHAINING_ == false)
+                // @E5D     debug (reply);
             }
         }
        catch (ConnectionDroppedException e) {                               // @C1A
            server_ = null;                                                  // @D8
            JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
        }                                                                    // @C1A
-		catch (Exception e) {
-			JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-		}
-	}
+          catch (Exception e) {
+               JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+          }
+     }
 
 
 
+// @EBD /**
+// @EBD Sends a request data stream to the server and discards
+// @EBD the reply.
+// @EBD
+// @EBD @param   request        The request.
+// @EBD @param   id             The id.
+// @EBD @param   leavePending   Indicates if the request should
+// @EBD                         be left pending.  This indicates
+// @EBD                         whether or not to base the next
+// @EBD                         request on this one.
+// @EBD
+// @EBD @exception              SQLException   If an error occurs.
+// @EBD **/
+// @EBD //
+// @EBD // See implementation notes for sendAndReceive().
+// @EBD //
+// @EBD     void sendAndDiscardReply (DBBaseRequestDS request, int id)
+// @EBD        throws SQLException
+// @EBD   {
+// @EBD         checkCancel();                                                                      // @E8A
+// @EBD
+// @EBD       try {
+// @EBD           request.setBasedOnORSHandle (0); 		//@EKC
+// @EBD
+// @EBD             DataStream actualRequest;                                                       // @E5A
+// @EBD             synchronized(heldRequestsLock_) {                                               // @E5A
+// @EBD                 if (heldRequests_ != null)                                                  // @E5A
+// @EBD                     actualRequest = new DBConcatenatedRequestDS(heldRequests_, request);    // @E5A
+// @EBD                 else                                                                        // @E5A
+// @EBD                     actualRequest = request;                                                // @E5A
+// @EBD                 heldRequests_ = null;                                                       // @E5A
+// @EBD             }                                                                               // @E5A
+// @EBD
+// @EBD                 server_.sendAndDiscardReply(actualRequest);                                     // @E5C
+// @EBD             requestPending_[id] = false;
+// @EBD
+// @EBD             if (DEBUG_COMM_TRACE_ > 0)
+// @EBD                 debug (request);
+// @EBD         }
+// @EBD         catch (ConnectionDroppedException e) {                               // @C1A
+// @EBD             server_ = null;                                                  // @D8
+// @EBD             JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
+// @EBD         }                                                                    // @C1A
+// @EBD        catch (Exception e) {
+// @EBD             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+// @EBD        }
+// @EBD   }
+
+
+
+// @E5A
 /**
-Sends a request data stream to the server and discards
-the reply.
+Holds a request until the next explicit request.  It will
+be concatenated at the beginning of the next request.
 
-@param   request        The request.
-@param   id             The id.
-@param   leavePending   Indicates if the request should
-                        be left pending.  This indicates
-                        whether or not to base the next
-                        request on this one.
+@param   request     The request.
+@param   id          The id.
 
-@exception              SQLException   If an error occurs.
+@exception           SQLException   If an error occurs.
 **/
 //
 // See implementation notes for sendAndReceive().
 //
-    void sendAndDiscardReply (DBBaseRequestDS request, int id)
-		throws SQLException
-	{
-	    try {
-	        request.setBasedOnORSHandle (requestPending_.get(id) ? id : 0);                 // @EFC
+    void sendAndHold(DBBaseRequestDS request, int id)
+          throws SQLException
+     {
+        checkCancel();                                                                      // @E8A
 
-   		    server_.sendAndDiscardReply (request);
-                    requestPending_.clear(id);                                              // @EFC
+        try {
+            // Since we are just calling send() (instead of sendAndReceive()),              // @EAA
+            // make sure we are not asking the server for a reply.  Otherwise,              // @EAA
+            // the reply will come back and it will get held in the AS400                   // @EAA
+            // read daemon indefinitely - - a memory leak.                                  // @EAA
+            if (JDTrace.isTraceOn()) {                                                      // @EAA
+                if (request.getOperationResultBitmap() != 0)                                // @EAA
+                    JDTrace.logInformation (this, "Reply requested but not collected:" + request.getReqRepID()); // @EAA
+            }                                                                               // @EAA
 
-            if (DEBUG_COMM_TRACE_ > 0)
+            request.setBasedOnORSHandle(0);                  // @DAC @EKC
+
+            if (dataCompression_ == DATA_COMPRESSION_RLE_) {                                // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
+                request.compress();                                                         // @ECA
+            }                                                                               // @ECA
+
+            synchronized(heldRequestsLock_) {
+                if (heldRequests_ == null)
+                    heldRequests_ = new Vector();
+                heldRequests_.addElement(request);
+            }
+
+            requestPending_.set(id);                                                        // @DAC
+
+            if (DEBUG_COMM_TRACE_ > 0) {
                 debug (request);
+                System.out.println("This request was HELD.");
+            }
         }
-        catch (ConnectionDroppedException e) {                               // @C1A
-            server_ = null;                                                  // @D8
-            JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
-        }                                                                    // @C1A
-		catch (Exception e) {
-			JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-		}
-	}
+          catch (Exception e) {
+               JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+          }
+     }
 
 
 
@@ -1328,11 +1633,11 @@ the server.
 //
 // See implementation notes for sendAndReceive().
 //
-	DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request)
-		throws SQLException
-	{
-	    return sendAndReceive (request, id_);
-	}
+     DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request)
+          throws SQLException
+     {
+         return sendAndReceive (request, id_);
+     }
 
 
 
@@ -1367,35 +1672,54 @@ corresponding reply from the server.
 //    The status of the based on id depends on whether a
 //    request is pending, which is maintained in the id table.
 //
-	DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request, int id)
-		throws SQLException
-	{
-		DBReplyRequestedDS reply = null;
+     DBReplyRequestedDS sendAndReceive (DBBaseRequestDS request, int id)
+          throws SQLException
+     {
+        checkCancel();                                                                      // @E8A
 
-		try {
-	        request.setBasedOnORSHandle (requestPending_.get(id) ? id : 0);                 // @EFC
+          DBReplyRequestedDS reply = null;
 
-   			reply = (DBReplyRequestedDS) server_.sendAndReceive (request);
-            requestPending_.clear(id);                                                      // @EFC
+          try {
+             request.setBasedOnORSHandle (0);                 // @DAC @EKC
+
+            if (dataCompression_ == DATA_COMPRESSION_RLE_) {                                // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REQUEST_RLE_COMPRESSION); // @ECA
+                request.addOperationResultBitmap(DBBaseRequestDS.ORS_BITMAP_REPLY_RLE_COMPRESSION); // @ECA
+                request.compress();                                                         // @ECA
+            }                                                                               // @ECA
+
+            DataStream actualRequest;                                                       // @E5A
+            synchronized(heldRequestsLock_) {                                               // @E5A
+                if (heldRequests_ != null)                                                  // @E5A
+                    actualRequest = new DBConcatenatedRequestDS(heldRequests_, request);    // @E5A
+                else                                                                        // @E5A
+                    actualRequest = request;                                                // @E5A
+                heldRequests_ = null;                                                       // @E5A
+            }                                                                               // @E5A
+
+               reply = (DBReplyRequestedDS)server_.sendAndReceive(actualRequest);              // @E5C
+            reply.parse(dataCompression_);                                                  // @E5A
+            requestPending_.clear(id);                                                      // @DAC
 
             if (DEBUG_COMM_TRACE_ > 0) {
                 debug (request);
                 debug (reply);
             }
-		}
+          }
       catch (ConnectionDroppedException e) {                               // @C1A
           server_ = null;                                                  // @D8
           JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
       }                                                                    // @C1A
-		catch (Exception e) {
-			JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-		}
+          catch (Exception e) {
+               JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+          }
 
-		return (DBReplyRequestedDS) reply;
-	}
+          return (DBReplyRequestedDS) reply;
+     }
 
 
 
+// @E4C
 /**
 Sets the auto-commit mode.   If the connection is in auto-commit
 mode, then all of its SQL statements are executed and committed
@@ -1413,6 +1737,10 @@ cases, a single statement may return multiple results as well
 as output parameter values.  Here the commit occurs when all results
 and output parameter values have been retrieved.
 
+<p>The auto-commit mode is always false when the connection is part
+of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
+AS400JDBCXAResource</a> for more information.
+
 @param  autoCommit  true to turn on auto-commit mode, false to
                     turn it off.
 
@@ -1423,6 +1751,7 @@ and output parameter values have been retrieved.
         throws SQLException
     {
         checkOpen ();
+
         transactionManager_.setAutoCommit (autoCommit);
 
         if (JDTrace.isTraceOn())
@@ -1437,7 +1766,7 @@ This method is not supported.
 @exception          SQLException    If the connection is not open.
 **/
     public void setCatalog (String catalog)
-		throws SQLException
+          throws SQLException
     {
         checkOpen ();
 
@@ -1454,6 +1783,7 @@ Sets whether the connection is being used for DRDA.
                     false otherwise.
 **/
     void setDRDA (boolean drda)
+    throws SQLException // @EGA
     {
         drda_ = drda;
 
@@ -1488,12 +1818,12 @@ Sets whether the connection is being used for DRDA.
     {
       // Initialization.
       as400_                  = (AS400ImplRemote) as400;           //@A3A
-      assigned_               = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);          // @EFC
+      assigned_               = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);          // @DAC
       dataSourceUrl_          = dataSourceUrl;
       extendedFormats_        = false;
       properties_             = properties;
-      requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @EFC
-      statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @EFC
+      requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
+      statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
 
       // Issue any warnings.
       if (dataSourceUrl_.isExtraPathSpecified ())
@@ -1520,7 +1850,7 @@ Sets whether the connection is being used for DRDA.
 
       // Initialize a transaction manager for this connection.
       transactionManager_ = new JDTransactionManager (this, id_,
-                                            properties_.getString (JDProperties.TRANSACTION_ISOLATION));
+                                             properties_.getString (JDProperties.TRANSACTION_ISOLATION));
 
       transactionManager_.setHoldIndicator(properties_.getString(JDProperties.CURSOR_HOLD));       // @D9
 
@@ -1550,10 +1880,16 @@ Sets whether the connection is being used for DRDA.
       // the actual name.
       catalog_ = dataSourceUrl.getServerName();                              // @D7A
       if (catalog_.length() == 0)                                            // @D7A
-        catalog_ = as400_.getSystemName ().toUpperCase ();                   // @A3A 
+        catalog_ = as400_.getSystemName ().toUpperCase ();                   // @A3A
 
       setServerAttributes ();
       libraryList.addOnServer (this, id_);
+
+      // @E7D // Initialize a transaction manager for this connection.  Turn on                                @E7A
+      // @E7D // new auto-commit support when the server functional level is                                   @E7A
+      // @E7D // greater than or equal to 3.                                                                   @E7A
+      // @E7D boolean newAutoCommitSupport = (serverFunctionalLevel_ >= 3);                                 // @E7A
+      // @E7D transactionManager_.setNewAutoCommitSupport(newAutoCommitSupport);                            // @E7A
 
       // We keep a metadata object around for quick access.
       // The metadata object should share the id of the
@@ -1593,9 +1929,9 @@ specified "read only" or "read call" for the "access" property,
 then the read-only mode cannot be set to false.  The read-only
 mode cannot be changed while in the middle of a transaction.
 
-@param  readOnly    true to set the connection to read-only mode;
-                    false to set the connection to read-write
-                    mode.
+<p>This method can not be called when the connection is part
+of a distributed transaction.  See <a href="AS400JDBCXAResource.html">
+AS400JDBCXAResource</a> for more information.
 
 @exception          SQLException    If the connection is not open,
                                     a transaction is active, or the
@@ -1603,19 +1939,19 @@ mode cannot be changed while in the middle of a transaction.
                                     only".
 **/
     public void setReadOnly (boolean readOnly)
-		throws SQLException
+          throws SQLException
     {
         checkOpen ();
 
-		if (transactionManager_.isActive ())
-			JDError.throwSQLException (JDError.EXC_TXN_ACTIVE);
+          if (transactionManager_.isLocalActive () || transactionManager_.isGlobalActive()) // @E4C
+               JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @E4C
 
         if ((readOnly == false)
             && ((properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
                 || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_CALL))))
             JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
 
-		readOnly_ = readOnly;
+          readOnly_ = readOnly;
 
         if (JDTrace.isTraceOn())
             JDTrace.logProperty (this, "Read only", readOnly_);
@@ -1630,15 +1966,16 @@ Sets the server attributes.
 
 @exception  SQLException    If an error occurs.
 **/
-	private void setServerAttributes ()
-		throws SQLException
-	{
-		try {
+     private void setServerAttributes ()
+          throws SQLException
+     {
+          try {
+            vrm_ = as400_.getVRM();                                     // @D0A @ECM
 
-			DBSQLAttributesDS request = new DBSQLAttributesDS (
-			    DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
-			    id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
-			    + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0, 0);
+               DBSQLAttributesDS request = new DBSQLAttributesDS (
+                   DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                   id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                   + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0, 0);
 
             // We need to set a temporary CCSID just for this
             // request, since we use this request to get the
@@ -1646,17 +1983,18 @@ Sets the server attributes.
             ConverterImplRemote tempConverter =
                   ConverterImplRemote.getConverter (as400_.getCcsid(), as400_);
 
-			// Do not set the client CCSID.  We do not want
-			// the server to convert data, since we are going
-			// to do all conersion on the client.  By not telling
-			// the server our CCSID, then we achieve this.
-			//
-			// Note that the database server documentation
-			// states that when we do this, the CCSID values
-			// in data formats may be incorrect and that we
-			// should always use the server job's CCSID.
-			//
-			// request.setClientCCSID (xxx);
+               // @E2D // Do not set the client CCSID.  We do not want
+               // @E2D // the server to convert data, since we are going
+               // @E2D // to do all conersion on the client.  By not telling
+               // @E2D // the server our CCSID, then we achieve this.
+               // @E2D //
+               // @E2D // Note that the database server documentation
+               // @E2D // states that when we do this, the CCSID values
+               // @E2D // in data formats may be incorrect and that we
+               // @E2D // should always use the server job's CCSID.
+
+            // Set the client CCSID to Unicode.                             // @E2A
+            request.setClientCCSID(13488);                                  // @E2A
 
             // This language feature code is used to tell the
             // server what language to send error messages in.
@@ -1665,13 +2003,16 @@ Sets the server attributes.
             // was installed on the server.
             //
             String nlv = ExecutionEnvironment.getNlv ();
-			request.setLanguageFeatureCode (nlv, tempConverter);
+               request.setLanguageFeatureCode(nlv);                            // @EDC
 
-			if (JDTrace.isTraceOn ())
+               if (JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Setting server NLV = " + nlv);
 
-			// Client functional level.
-			request.setClientFunctionalLevel ("1         ", tempConverter);
+               // Client functional level.
+               request.setClientFunctionalLevel(CLIENT_FUNCTIONAL_LEVEL_);    // @EDC
+
+               if (JDTrace.isTraceOn ())                                                                   // @EDC
+                JDTrace.logInformation (this, "Client functional level = " + CLIENT_FUNCTIONAL_LEVEL_); // @EDC
 
             // Sort sequence.
             if (! properties_.equals (JDProperties.SORT, JDProperties.SORT_JOB)) {
@@ -1687,8 +2028,8 @@ Sets the server attributes.
                     tempConverter);
             }
 
-		    request.setTranslateIndicator (0xF1);
-			request.setDRDAPackageSize (1);
+              request.setTranslateIndicator (0xF0);                       // @E2C
+               request.setDRDAPackageSize (1);
 
             // Server attributes based on property values.
             // These all match the index within the property's
@@ -1715,16 +2056,37 @@ Sets the server attributes.
 
             request.setNamingConventionParserOption (properties_.getIndex (JDProperties.NAMING));
 
-			// Do not set the ignore decimal data error parser option.
+               // Do not set the ignore decimal data error parser option.
 
-			request.setCommitmentControlLevelParserOption (
-			    transactionManager_.getCommitMode ());
+               request.setCommitmentControlLevelParserOption (
+                   transactionManager_.getCommitMode ());
 
-            request.setDataCompressionOption(properties_.getIndex (JDProperties.DATA_COMPRESSION));    // @D3A
+            // If the system supports RLE data compression, then use it.               @ECA
+            // Otherwise, use the old-style data compression.                          @ECA
+            if (properties_.getBoolean(JDProperties.DATA_COMPRESSION)) {            // @ECA
+                if (vrm_ >= AS400.generateVRM(5, 1, 0)) {                           // @ECA
+                    dataCompression_ = DATA_COMPRESSION_RLE_;                       // @ECA
+                    request.setDataCompressionOption(0);                            // @ECA
+                    if (JDTrace.isTraceOn ())                                       // @ECA
+                        JDTrace.logInformation (this, "Data compression = RLE");    // @ECA
+                }                                                                   // @ECA
+                else {                                                              // @ECA
+                    dataCompression_ = DATA_COMPRESSION_OLD_;                       // @ECA
+                    request.setDataCompressionOption(1);                            // @D3A @ECC
+                    if (JDTrace.isTraceOn ())                                       // @ECA
+                        JDTrace.logInformation (this, "Data compression = old");    // @ECA
+                }                                                                   // @ECA
+            }                                                                       // @ECA
+            else {                                                                  // @ECA
+                dataCompression_ = DATA_COMPRESSION_NONE_;                          // @ECA
+                request.setDataCompressionOption(0);                                // @ECA
+                if (JDTrace.isTraceOn ())                                           // @ECA
+                    JDTrace.logInformation (this, "Data compression = none");       // @ECA
+            }                                                                       // @ECA
 
             // Default schema.
-			if (defaultSchema_ != null)
-				request.setDefaultSQLLibraryName (defaultSchema_, tempConverter);
+               if (defaultSchema_ != null)
+                    request.setDefaultSQLLibraryName (defaultSchema_, tempConverter);
 
             // There is no need to tell the server what our code
             // page is, nor is there any reason to get a translation
@@ -1737,36 +2099,45 @@ Sets the server attributes.
             // The difference is that ODBC has the luxury of setting cursor
             // concurrency.
 
-			request.setPackageAddStatementAllowed (properties_.getBoolean (JDProperties.PACKAGE_ADD) ? 1 : 0);
-            
+               request.setPackageAddStatementAllowed (properties_.getBoolean (JDProperties.PACKAGE_ADD) ? 1 : 0);
+
             // If the server is at V4R4 or later, then set some more attributes.
-            vrm_ = as400_.getVRM();                                     // @D0A
-            if ((vrm_ >= AS400.generateVRM (4, 4, 0))                   // @D0C
-                || (FORCE_EXTENDED_FORMATS_)) {
+            if (vrm_ >= AS400.generateVRM (4, 4, 0)) {                  // @D0C @E9C
+                // @E9D || (FORCE_EXTENDED_FORMATS_)) {
 
                 request.setUseExtendedFormatsIndicator (0xF1);
-                request.setLOBFieldThreshold (properties_.getInt (JDProperties.LOB_THRESHOLD));
 
-				extendedFormats_ = true;
+                // Although we publish a max lob threshold of 16777216,                   @E6A
+                // the server can only handle 15728640.  We do it this                    @E6A
+                // way to match ODBC.                                                     @E6A
+                int lobThreshold = properties_.getInt (JDProperties.LOB_THRESHOLD);    // @E6A
+                if (lobThreshold <= 0)                                                 // @E6A
+                    request.setLOBFieldThreshold(0);                                   // @E6A
+                else if (lobThreshold >= 15728640)                                     // @E6A
+                    request.setLOBFieldThreshold(15728640);                            // @E6A
+                else                                                                   // @E6A
+                    request.setLOBFieldThreshold(lobThreshold);                        // @E6C
+
+                    extendedFormats_ = true;
             }
-            
+
             if (JDTrace.isTraceOn ()) {
-                if (extendedFormats_)           
+                if (extendedFormats_)
                     JDTrace.logInformation (this, "Using extended datastreams");
                 else
                     JDTrace.logInformation (this, "Using original datastreams");
             }
 
             // Send the request and process the reply.
-			DBReplyRequestedDS reply = sendAndReceive (request);
+               DBReplyRequestedDS reply = sendAndReceive (request);
 
-			int errorClass = reply.getErrorClass();
-			int returnCode = reply.getReturnCode();
+               int errorClass = reply.getErrorClass();
+               int returnCode = reply.getReturnCode();
 
-			// Sort sequence attribute cannot be set.
-			if ((errorClass == 7)
-				&& ((returnCode == 301) || (returnCode == 303)))
-				postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
+               // Sort sequence attribute cannot be set.
+               if ((errorClass == 7)
+                    && ((returnCode == 301) || (returnCode == 303)))
+                    postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
 
             // Language feature code id was not changed.   This is caused
             // when the secondary language can not be added to the library
@@ -1774,19 +2145,33 @@ Sets the server attributes.
             else if ((errorClass == 7) && (returnCode == 304))
                 postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
 
-			// Other server errors.
-			else if (errorClass != 0)
-				JDError.throwSQLException (this, id_, errorClass, returnCode);
+               // Other server errors.
+               else if (errorClass != 0)
+                    JDError.throwSQLException (this, id_, errorClass, returnCode);
 
-			// Process the returned server attributes.
-			DBReplyServerAttributes serverAttributes = reply.getServerAttributes ();
+               // Process the returned server attributes.
+               DBReplyServerAttributes serverAttributes = reply.getServerAttributes ();
 
-			// The CCSID that comes back is a mixed CCSID (i.e. mixed
-			// SBCS and DBCS).  This will be the CCSID that all
-			// non-graphic data will be returned as for this
-			// connection, so we own the converter here.
+               // The CCSID that comes back is a mixed CCSID (i.e. mixed
+               // SBCS and DBCS).  This will be the CCSID that all
+               // non-graphic data will be returned as for this
+               // connection, so we own the converter here.
             int serverCCSID = serverAttributes.getServerCCSID();
-			converter_ = ConverterImplRemote.getConverter (serverCCSID, as400_);
+               converter_ = ConverterImplRemote.getConverter (serverCCSID, as400_);
+
+            // Get the server functional level.  It comes back as in the                           @E7A
+            // format VxRxMx9999.                                                                  @E7A
+            String serverFunctionalLevelAsString = serverAttributes.getServerFunctionalLevel(converter_); // @E7A
+            try {                                                                               // @E7A
+                serverFunctionalLevel_ = Integer.parseInt(serverFunctionalLevelAsString.substring(6)); // @E7A
+            }                                                                                   // @E7A
+            catch(NumberFormatException e) {                                                    // @E7A
+                serverFunctionalLevel_ = 0;                                                     // @E7A
+            }                                                                                   // @E7A
+
+            // Get the job number, but only if .                                                   @E8A
+            if (serverFunctionalLevel_ >= 5)                                                    // @E8A
+                serverJobIdentifier_ = serverAttributes.getServerJobIdentifier(converter_);     // @E8A
 
         if (JDTrace.isTraceOn ()) {                                         // @C2C
             int v = (vrm_ & 0xffff0000) >>> 16;                             // @D1A
@@ -1797,18 +2182,33 @@ Sets the server attributes.
             JDTrace.logInformation (this, "AS/400 VRM = V" + v              // @C2A
                                     + "R" + r + "M" + m);                   // @C2A
             JDTrace.logInformation (this, "Server CCSID = " + serverCCSID);
+            JDTrace.logInformation(this, "Server functional level = "       // @E7A
+                                   + serverFunctionalLevelAsString          // @E7A
+                                   + " (" + serverFunctionalLevel_ + ")");  // @E7A
+
+            StringBuffer buffer = new StringBuffer();                                           // @E8A
+            if (serverJobIdentifier_ == null)                                                   // @E8A
+                buffer.append("Not available");                                                 // @E8A
+            else {                                                                              // @E8A
+                buffer.append(serverJobIdentifier_.substring(20, 26).trim());  // job number    // @E8A
+                buffer.append('/');                                                             // @E8A
+                buffer.append(serverJobIdentifier_.substring(10, 20).trim());  // user name     // @E8A
+                buffer.append('/');                                                             // @E8A
+                buffer.append(serverJobIdentifier_.substring(0, 10).trim());   // job name      // @E8A
+            }                                                                                   // @E8A
+            JDTrace.logInformation(this, "Server job identifier = " + buffer);                  // @E8A
         }                                                                   // @C2A
 
-            // Wait to load graphic converter until it is needed.
-			graphicConverter_ = null;
-            graphicConverterLoaded_ = false;
+            // @E2D // Wait to load graphic converter until it is needed.
+               // @E2D graphicConverter_ = null;
+            // @E2D graphicConverterLoaded_ = false;
 
             // Get the catalog name from the RDB entry.  If no RDB entry is
             // set on the system, then use the system name from the AS400 object
             // (which originally came from the URL).
-			String rdbEntry = serverAttributes.getRelationalDBName (converter_).trim();
-			if ((rdbEntry.length() > 0) && (! rdbEntry.equalsIgnoreCase ("*N")))
-			    catalog_ = rdbEntry;
+               String rdbEntry = serverAttributes.getRelationalDBName (converter_).trim();
+               if ((rdbEntry.length() > 0) && (! rdbEntry.equalsIgnoreCase ("*N")))
+                   catalog_ = rdbEntry;
 
             // In the cases where defaults come from the server
             // job, get the defaults for properties that were not set.
@@ -1908,19 +2308,20 @@ Sets the server attributes.
                     break;
                 }
             }
-		}
-		catch (DBDataStreamException e) {
-			JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-		}
+          }
+          catch (DBDataStreamException e) {
+               JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+          }
         catch (IOException e) {
-			JDError.throwSQLException (JDError.EXC_INTERNAL, e);
-		}
-	}
+               JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+          }
+     }
 
 
 
-    //@A3A 
+    //@A3A
     void setSystem (AS400 as400)
+    throws SQLException // @EGA
     {
       as400PublicClassObj_    = as400;
     }
@@ -1933,8 +2334,8 @@ Sets the transaction isolation level.  The transaction
 isolation level cannot be changed while in the middle of
 a transaction.
 
-<p>JDBC and DB2/400 use different terminology for transaction 
-isolation levels.  The following table provides a terminology 
+<p>JDBC and DB2/400 use different terminology for transaction
+isolation levels.  The following table provides a terminology
 mapping:
 
 <p><table border>
@@ -1944,13 +2345,13 @@ mapping:
 <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
 <tr><td>*RR</td>  <td>TRANSACTION_SERIALIZABLE</td></tr>
 </table>
-       
+
 @param      level   The transaction isolation level.  Possible
                     values are:
                     <ul>
                     <li>TRANSACTION_READ_UNCOMMITTED
                     <li>TRANSACTION_READ_COMMITTED
-			        <li>TRANSACTION_REPEATABLE_READ
+                       <li>TRANSACTION_REPEATABLE_READ
                     <li>TRANSACTION_SERIALIZABLE
                     </ul>
 
@@ -1963,7 +2364,8 @@ mapping:
       throws SQLException
     {
         checkOpen ();
-		transactionManager_.setIsolation (level);
+
+          transactionManager_.setIsolation (level);
 
         if (JDTrace.isTraceOn())
             JDTrace.logProperty (this, "Transaction isolation", transactionManager_.getIsolation ());
@@ -1984,7 +2386,7 @@ Consequently, this driver does not support the type map.
 
 @param typeMap  The type map.
 
-@exception  SQLException    This exception is always thrown. 
+@exception  SQLException    This exception is always thrown.
 **/
     public void setTypeMap (Map typeMap)
       throws SQLException
@@ -2014,6 +2416,7 @@ Indicates if the connection is using extended formats.
             otherwise.
 **/
     boolean useExtendedFormats ()
+    throws SQLException // @EGA
     {
         return extendedFormats_;
     }

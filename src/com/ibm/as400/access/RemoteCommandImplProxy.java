@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RemoteCommandImplProxy.java
 //                                                                             
@@ -14,7 +14,6 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 // The RemoteCommandImplProxy class is an implementation of the CommandCall and ProgramCall classes used on a client communicating with a proxy server.
@@ -25,6 +24,18 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     public RemoteCommandImplProxy()
     {
         super("RemoteCommand");
+    }
+
+    public String getJobInfo(boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+        try
+        {
+            return (String)connection_.callMethod(pxId_, "getJobInfo", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(threadSafety) }).getReturnValue ();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow4(e);
+        }
     }
 
     // Get the message list from the proxy server.
@@ -40,12 +51,38 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
         }
     }
 
-    // Run the command on the proxy server.
-    public boolean runCommand(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean isCommandThreadSafe(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         try
         {
-            return connection_.callMethod(pxId_, "runCommand", new Class[] { String.class }, new Object[] { command }, true).getReturnValueBoolean();
+            return connection_.callMethod(pxId_, "isCommandThreadSafe", new Class[] { String.class }, new Object[] { command }).getReturnValueBoolean();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow4(e);
+        }
+    }
+
+    // Run the command on the proxy server.
+    public boolean runCommand(String command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+        try
+        {
+            return connection_.callMethod(pxId_, "runCommand", new Class[] { String.class, Boolean.TYPE }, new Object[] { command, new Boolean(threadSafety) }, true).getReturnValueBoolean();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow4(e);
+        }
+    }
+
+    // @D2a new method
+    // Run the command on the proxy server.
+    public boolean runCommand(byte[] command, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    {
+        try
+        {
+            return connection_.callMethod(pxId_, "runCommand", new Class[] { byte[].class, Boolean.TYPE }, new Object[] { command, new Boolean(threadSafety) }, true).getReturnValueBoolean();
         }
         catch (InvocationTargetException e)
         {
@@ -54,12 +91,12 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     }
 
     // Run the program on the proxy server.
-    public boolean runProgram(String program, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runProgram", new Class[] { String.class, ProgramParameter[].class }, new Object[] { program, parameterList }, new boolean[] { false, true }, true);
-            ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(1);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runProgram", new Class[] { String.class, String.class, ProgramParameter[].class, Boolean.TYPE }, new Object[] { library,  name, parameterList, new Boolean(threadSafety) }, new boolean[] { false, false, true, false }, true);
+            ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(2);
             for (int i = 0; i < parameterList.length; ++i)
             {
                 parameterList[i].setOutputData(returnParmL[i].getOutputData());
@@ -73,15 +110,22 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     }
 
     // Run the service program on the proxy server.
-    public Object[] runServiceProgram(String program, String procedureName, int returnValueFormat, ProgramParameter[] parmList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public Object[] runServiceProgram(String library,
+                                      String name,
+                                      String procedureName,
+                                      int returnValueFormat,
+                                      ProgramParameter[] parameterList,
+                                      boolean threadSafety,
+                                      int procedureNameCCSID)            //@D9a
+                    throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, Integer.TYPE, ProgramParameter[].class }, new Object[] { program, procedureName, new Integer(returnValueFormat), parmList }, new boolean[] { false, false, false, true }, true);
-            ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(3);
-            for (int i = 0; i < parmList.length; ++i)
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.TYPE, Integer.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, new Boolean(threadSafety), new Integer(procedureNameCCSID) }, new boolean[] { false, false, false, false, true, false, false }, true);  //@D9c
+            ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
+            for (int i = 0; i < parameterList.length; ++i)
             {
-                parmList[i].setOutputData(returnParmL[i].getOutputData());
+                parameterList[i].setOutputData(returnParmL[i].getOutputData());
             }
             return (Object[])rv.getReturnValue();
         }

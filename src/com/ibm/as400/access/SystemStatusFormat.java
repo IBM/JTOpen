@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemStatusFormat.java
 //                                                                             
@@ -22,6 +22,11 @@ types of formats on the QWCRSSTS API.
 class SystemStatusFormat extends RecordFormat
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
   static AS400Bin4 bin4 = new AS400Bin4();
   AS400 system_;

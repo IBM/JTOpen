@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BidiStringType.java
 //                                                                             
@@ -35,74 +35,99 @@ public interface BidiStringType
    final static int DEFAULT = 0;
    
    /**
-   *  String Type 1
-   **/
-   public final static int ST1 = 1;
-   
-   /**
-   *  String Type 2
-   **/
-   public final static int ST2 = 2;
-
-   /**
-   *  String Type 3
-   **/
-   public final static int ST3 = 3;
-
-   /**
-   *  String Type 4
-   **/
+    *  String Type 4
+    *  <ul>
+    *     <li>Type of text:  Visual  
+    *     <li>Orientation:  LTR
+    *     <li>Symetric swapping:  No
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Shaped
+    *  </ul>
+    **/
    public final static int ST4 = 4;
 
    /**
-   *  String Type 5
-   **/
+    *  String Type 5
+    *  <ul>
+    *     <li>Type of text:  Implicit  
+    *     <li>Orientation:  LTR
+    *     <li>Symetric swapping:  Yes
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Nominal
+    *  </ul>
+    **/
    public final static int ST5 = 5;
 
    /**
-   *  String Type 6
-   **/
+    *  String Type 6
+    *  <ul>
+    *     <li>Type of text:  Implicit  
+    *     <li>Orientation:  RTL
+    *     <li>Symetric swapping:  Yes
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Nominal
+    *  </ul>
+    **/
    public final static int ST6 = 6;
 
    /**
-   *  String Type 7
-   **/
+    *  String Type 7
+    *  <ul>
+    *     <li>Type of text:  Visual  
+    *     <li>Orientation:  Contextual LTR
+    *     <li>Symetric swapping:  No
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Nominal
+    *  </ul>
+    **/
    public final static int ST7 = 7;
 
    /**
-   *  String Type 8
-   **/
+    *  String Type 8
+    *  <ul>
+    *     <li>Type of text:  Visual  
+    *     <li>Orientation:  RTL
+    *     <li>Symetric swapping:  No
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Shaped
+    *  </ul>
+    **/
    public final static int ST8 = 8;
 
    /**
-   *  String Type 9
-   **/
+    *  String Type 9
+    *  <ul>
+    *     <li>Type of text:  Visual  
+    *     <li>Orientation:  RTL
+    *     <li>Symetric swapping:  Yes
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Shaped
+    *  </ul>
+    **/
    public final static int ST9 = 9;
 
    /**
-   *  String Type 10
-   **/
+    *  String Type 10
+    *  <ul>
+    *     <li>Type of text:  Implicit
+    *     <li>Orientation:  Contextual LTR
+    *     <li>Symetric swapping:  Yes
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Nominal
+    *  </ul>
+    **/
    public final static int ST10 = 10;
 
    /**
-   *  String Type 11
-   **/
+    *  String Type 11
+    *  <ul>
+    *     <li>Type of text:  Implicit
+    *     <li>Orientation:  Contextual RTL
+    *     <li>Symetric swapping:  Yes
+    *     <li>Numeral shape:  Nominal
+    *     <li>Text shapes:  Nominal
+    *  </ul>
+    **/
    public final static int ST11 = 11;
-
-   /**
-   *  String Type 12
-   **/
-   public final static int ST12 = 12;
-
-   /**
-   *  String Type 13
-   **/
-   public final static int ST13 = 13;
-
-   /**
-   *  String Type 14
-   **/
-   public final static int ST14 = 14;
-   
 }
 

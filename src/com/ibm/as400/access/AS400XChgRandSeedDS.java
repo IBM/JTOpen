@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400XChgRandSeedDS.java
 //                                                                             
@@ -23,10 +23,11 @@ class AS400XChgRandSeedDS extends ClientAccessDataStream
 
     AS400XChgRandSeedDS(int serverId)
     {
-        super();
-        data_ = new byte[28];
+        super(new byte[28]);
         setLength(28);
-        // setHeaderID(0x0000);
+        // Header ID replaced with Attributes.
+        data_[4] = 0x01;  // Client Attributes, 1 means can use SHA-1.
+        // data_[5] = 0x00;  // Server Attributes.
         setServerID(serverId);
         // setCSInstance(0x00000000);
         // setCorrelation(0x00000000);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BaseDataQueueImpl.java
 //                                                                             
@@ -18,7 +18,7 @@ import java.io.IOException;
 // Interface that supports native, remote, and proxy implementations of data queues.
 interface BaseDataQueueImpl
 {
-    // Set needed impl properties.
+    // Set needed implementation properties.
     void setSystemAndPath(AS400Impl system, String path, String name, String library) throws IOException;
     // Provide an implementation of connect.
     void processConnect() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileDescriptorImplRemote.java
 //                                                                             
@@ -171,7 +171,7 @@ implements IFSFileDescriptorImpl
       {
         Trace.log(Trace.ERROR, "Access to byte stream server on '" +
                   system_.getSystemName() + "' denied.");
-        throw (AS400SecurityException)e.fillInStackTrace();
+        throw e;
       }
 
       // Exchange attributes with the server.
@@ -193,7 +193,7 @@ implements IFSFileDescriptorImpl
       isOpen_ = false;  // Note: Not relevant for IFSFileImplRemote.
     }
     Trace.log(Trace.ERROR, "Byte stream connection lost.");
-    throw (ConnectionDroppedException)e.fillInStackTrace();
+    throw e;
   }
 
 
@@ -258,7 +258,7 @@ implements IFSFileDescriptorImpl
                   system_.disconnectServer(server_);
                   server_ = null;
                   Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
-                  throw (IOException)e.fillInStackTrace();
+                  throw e;
               }
           }
 
@@ -311,7 +311,7 @@ implements IFSFileDescriptorImpl
       }
       catch(IOException e)
       {
-        throw (IOException)e.fillInStackTrace();
+        throw e;
       }
       catch(Exception e)
       {

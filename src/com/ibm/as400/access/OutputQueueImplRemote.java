@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputQueueImplRemote.java
 //                                                                             
@@ -87,13 +87,13 @@ implements OutputQueueImpl
      * @param clearOptions A PrintParameterList object that may have any of the
      *        following attributes set:
      * <UL>
-     *   <LI> <A HREF="PrintAttributes.html#HDRKEY60>
+     *   <LI> <A HREF="PrintAttributes.html#HDRKEY60">
      *        ATTR_JOBUSER</A> - Clear output queue by a user id.  May be a specific userid, "*ALL" or
      *                       "*CURRENT".  "*CURRENT" is the default.
-     *   <LI> <A HREF="PrintAttributes.html#HDRKEY45>
+     *   <LI> <A HREF="PrintAttributes.html#HDRKEY45">
      *        ATTR_FORMTYPE</A> - Clear output queue by a form type.  May be a specific form type, "*ALL" or
      *                        "*STD".  "*ALL" is the default.
-     *   <LI> <A HREF="PrintAttributes.html#HDRKEY119>
+     *   <LI> <A HREF="PrintAttributes.html#HDRKEY119">
      *        ATTR_USERDATA</A> - Clear output queue by user data.  May be a specific user data or "*ALL".
      *                        "*ALL" is the default.
      * </UL>

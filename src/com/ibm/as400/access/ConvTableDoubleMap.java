@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableDoubleMap.java
 //                                                                             
@@ -52,6 +52,52 @@ abstract class ConvTableDoubleMap extends ConvTable
     }
     char[] buf = new char[65536];
     int c = 0;
+/*@E4D    
+    for(int i=0; i<arr.length; ++i)
+    {
+      if(arr[i] == cic_) // Are we in compression?
+      {
+        if(arr[i+1] == cic_) // No, we just had a substitute char.
+        {
+          buf[c++] = arr[i++];
+        }
+        else // Yes, expand the correct number of chars.
+        {
+//@E1D          int max = (0xFFFF & ((0xFFFF & arr[i+2]) + (0xFFFF & c)));
+          long max = (0xFFFF & arr[i+2]) + (0xFFFF & c); //@E1A - in case this results in 0x10000.
+          char ch = arr[i+1];
+          while(c < max)
+          {
+            buf[c++] = ch;
+          }
+          i = i + 2;
+        }
+      }
+      else if(arr[i] == ric_) // Are we ramping?
+      {
+        if(arr[i+1] == ric_) // No, we just had a substitute char.
+        {
+          buf[c++] = arr[i++];
+        }
+        else // Yes, expand the correct chars.
+        {
+          int start = (0xFFFF & arr[i+1]);
+          int end = (0xFFFF & arr[i+2]);
+          for(int j=start; j<=end; ++j)
+          {
+            buf[c++] = (char)j;
+          }
+          i = i + 2;
+        }
+      }
+      else // Neither, we must be just a normal char.
+      {
+        buf[c++] = arr[i];
+      }
+    }
+*///@E4D
+
+//@E4A
     for (int i=0; i<arr.length; ++i)
     {
       if (arr[i] == cic_)
@@ -132,7 +178,19 @@ abstract class ConvTableDoubleMap extends ConvTable
     char[] dest = new char[length/2];
     for(int i=0; i<length/2; ++i)
     {
-      dest[i] = toUnicode_[((0x00FF & buf[(i*2)+offset]) << 8) + (0x00FF & buf[(i*2)+1+offset])]; //@E3C
+      try //@E6A
+      {
+        dest[i] = toUnicode_[((0x00FF & buf[(i*2)+offset]) << 8) + (0x00FF & buf[(i*2)+1+offset])]; //@E3C
+      }
+      catch(ArrayIndexOutOfBoundsException aioobe) //@E6A
+      {
+        // Swallow this if we are doing fault-tolerant conversion
+System.out.println(i);
+        if(!CharConverter.isFaultTolerantConversion()) //@E6A
+        {
+          throw aioobe; //@E6A
+        }
+      }
     }
     if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E3A
     {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLDate.java
 //                                                                             
@@ -227,13 +227,6 @@ implements SQLData
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
 //---------------------------------------------------------//
 //                                                         //
 // CONVERSION TO AND FROM RAW BYTES                        //
@@ -342,7 +335,7 @@ implements SQLData
             ccsidConverter.stringToByteArray (buffer.toString (), rawBytes, offset);
         }
         catch (CharConversionException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);        // @E2C
         }
     }
 
@@ -483,10 +476,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPConversation.java
 //                                                                             
@@ -23,7 +23,6 @@ import java.util.*;
   * conversation with the host (exchanging CCSIDs and Language IDs) and holding
   * the attributes of the server job.
   **/
-
 class NPConversation extends Object
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -179,7 +178,7 @@ class NPConversation extends Object
                           break;
                        // NLV_NOT_AVAILABLE  means that we requested the server change
                        // its attributes to use our NLV and it doesn't have our NLV
-                       // installed.  We'll just eat this RC and continue with the default
+                       // installed.  We'll just consume this RC and continue with the default
                        // host NLV
                        case NPDataStream.RET_NLV_NOT_AVAILABLE:
                           Trace.log(Trace.WARNING, "NetPrint DataStream host cannot change to our NLV.  RC = " + rc);

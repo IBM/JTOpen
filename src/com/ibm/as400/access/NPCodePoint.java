@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCodePoint.java
 //                                                                             
@@ -17,6 +17,13 @@ class NPCodePoint extends Object implements Cloneable,
                                             java.io.Serializable 
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+
+    static final long serialVersionUID = 4L;
+
+
 
     // Code Points defined in the Network Print data stream.
     static final int SPOOLED_FILE_ID = 0x0001;

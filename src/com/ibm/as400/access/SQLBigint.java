@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLBigint.java
 //                                                                             
@@ -31,6 +31,8 @@ implements SQLData
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+    
     // Private data.
     private int                 truncated_;
     private long                value_              = 0;
@@ -91,10 +93,10 @@ implements SQLData
         else if (object instanceof Number) {
             value_ = ((Number) object).longValue();
 
-            // Compute truncation.
-            double doubleValue = ((Number) object).doubleValue();
-            if (doubleValue != value_)
-                truncated_ = Double.toString(doubleValue - value_).length() / 2;
+            // @B2D // Compute truncation.
+            // @B2D double doubleValue = ((Number) object).doubleValue();
+            // @B2D if (doubleValue != value_)
+            // @B2D     truncated_ = Double.toString(doubleValue - value_).length() / 2;
         }
 
         else if (object instanceof Boolean)
@@ -200,10 +202,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+    // @B1D public boolean isGraphic ()
+    // @B1D {
+    // @B1D     return false;
+    // @B1D }
 
 
 

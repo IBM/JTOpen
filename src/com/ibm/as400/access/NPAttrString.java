@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPAttrString.java
 //                                                                             
@@ -22,6 +22,10 @@ class NPAttrString extends NPAttribute implements Cloneable,
                                                   java.io.Serializable  
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
 
     private String attrValue_;    // stored string byte value in PC terms
@@ -62,7 +66,7 @@ class NPAttrString extends NPAttribute implements Cloneable,
     {
        byte[] hostValue;
        hostValue = new byte[attrValue_.length() + 1];   // EBCDIC string must be null-terminated
-       // @B1D // what to do if we get a character conversion exception here?
+       // @B1D // ??? what should we do if we get a character conversion exception here?
        // @B1D try
        // @B1D {
        byte[] temp = converter.stringToByteArray(attrValue_);   // move string into byte array // @B1C
@@ -136,6 +140,12 @@ class NPAttrString extends NPAttribute implements Cloneable,
        if ( (getID() != PrintObject.ATTR_USERCMT)   &&
             (getID() != PrintObject.ATTR_USERDATA)  &&
             (getID() != PrintObject.ATTR_RMTPRTQ)   &&
+            (getID() != PrintObject.ATTR_IPP_ATTR_NL)   &&       //@A1A
+            (getID() != PrintObject.ATTR_IPP_PRINTER_NAME)   &&  //@A1A
+            (getID() != PrintObject.ATTR_IPP_JOB_NAME)   &&      //@A1A
+            (getID() != PrintObject.ATTR_IPP_JOB_NAME_NL)   &&   //@A1A
+            (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER)   &&  //@A1A
+            (getID() != PrintObject.ATTR_IPP_JOB_ORIGUSER_NL)  &&//@A1A
             (getID() != PrintObject.ATTR_RMTSYSTEM)
             )
            {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConnectionPool.java
 //                                                                             
@@ -42,6 +42,10 @@ import java.io.ObjectInputStream;
 public abstract class ConnectionPool implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
    private ConnectionPoolProperties properties_;
    private boolean inUse_ = false;
@@ -466,8 +470,7 @@ public abstract class ConnectionPool implements Serializable
                catch (InterruptedException ie)
                {
                   Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
-                  ie.printStackTrace();
-               }
+	       }
                cleanupConnections();
 
                lastRun_ = System.currentTimeMillis();       // set the time of last run.
@@ -480,8 +483,7 @@ public abstract class ConnectionPool implements Serializable
             }
             catch (InterruptedException e)
             {
-            Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
-                  e.printStackTrace();
+		Trace.log(Trace.ERROR, "Connection pool maintenance daemon failed.");
             }
          }
          }

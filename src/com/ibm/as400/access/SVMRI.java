@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SVMRI.java
 //                                                                             
@@ -22,12 +22,24 @@ public class SVMRI extends ListResourceBundle
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+//@B0D    private String copyright = "(C)Copyright IBM Corp. 1997, 1999";
+
     public Object[][] getContents()
     {
         return resources;
     }
 
     private static final Object[][] resources = {
+           // #
+           // # 5769-SS1
+           // # (C) Copyright IBM Corp. 1997, 1998
+           // # All rights reserved.
+           // # US Government Users Restricted Rights -
+           // # Use, duplication, or disclosure restricted
+           // # by GSA ADP Schedule Contract with IBM Corp.
+           // #
+           // # Licensed Materials - Property of IBM
+           // #
 
            // #TRANNOTE Before you add a new resource, please make
            // #TRANNOTE sure you are not duplicating another.  The
@@ -70,6 +82,7 @@ public class SVMRI extends ListResourceBundle
         { "QBOOKPATH_DES" , "Book and bookshelf search path" },
         { "QCCSID_DES" , "Coded character set identifier" },
         { "QCENTURY_DES" , "Century" },
+        { "QCFGMSGQ_DES" , "Configuration message queue" },              //@D1a
         { "QCHRID_DES" , "Graphic character set and code page" },
         { "QCHRIDCTL_DES" , "Character identifier control" },
         { "QCMNARB_DES" , "Comunication arbiters" },
@@ -113,14 +126,18 @@ public class SVMRI extends ListResourceBundle
         { "QKBDTYPE_DES" , "Keyboard language character set" },
         { "QLANGID_DES" , "Language identifier" },
         { "QLEAPADJ_DES" , "Leap year adjustment" },
+        { "QLIBLCKLVL_DES" , "Library locking level" },              //@D2a
         { "QLMTDEVSSN_DES" , "Limit device sessions" },
         { "QLMTSECOFR_DES" , "Limit security officer device access" },
         { "QLOCALE_DES" , "Locale path name" },
-        { "QMAXACTLVL_DES" , "Maximum activity level of system" },
+        { "QMAXACTLVL_DES" , "Maximum activity level of server" },
+        { "QMAXJOB_DES" , "Maximum number of jobs" },              //@D2a
         { "QMAXSGNACN_DES" , "Action to take for failed signon attempts" },
         { "QMAXSIGN_DES" , "Maximum sign-on attempts allowed" },
+        { "QMAXSPLF_DES" , "Maximum number of spooled files" },     //@D2a
         { "QMCHPOOL_DES" , "Machine storage pool size" },
         { "QMINUTE_DES" , "Minute of the hour" },
+        { "QMLTTHDACN_DES" , "Multithreaded job action" },              //@D1a
         { "QMODEL_DES" , "System model number" },
         { "QMONTH_DES" , "Month of the year" },
         { "QPASTHRSVR_DES" , "Pass-through servers" },
@@ -136,6 +153,7 @@ public class SVMRI extends ListResourceBundle
         { "QPWDLMTAJC_DES" , "Limit adjacent digits in password" },
         { "QPWDLMTCHR_DES" , "Limit characters in password" },
         { "QPWDLMTREP_DES" , "Limit repeating characters in password" },
+        { "QPWDLVL_DES"    , "Password Level" },                         //@D2a
         { "QPWDMAXLEN_DES" , "Maximum password length" },
         { "QPWDMINLEN_DES" , "Minimum password length" },
         { "QPWDPOSDIF_DES" , "Limit password character positions" },
@@ -156,6 +174,7 @@ public class SVMRI extends ListResourceBundle
         { "QSECURITY_DES" , "System security level" },
         { "QSETJOBATR_DES" , "Set job attributes from locale" }, //@A2A
         { "QSFWERRLOG_DES" , "Software error logging" },
+        { "QSHRMEMCTL_DES" , "Shared memory control" },              //@D2a
         { "QSPCENV_DES" , "Special environment" },
         { "QSRLNBR_DES" , "System serial number" },
         { "QSRTSEQ_DES" , "Sort sequence" },
@@ -176,6 +195,7 @@ public class SVMRI extends ListResourceBundle
         { "QUSEADPAUT_DES" , "Use adopted authority" },
         { "QUSRLIBL_DES" , "User part of the library list" },
         { "QUTCOFFSET_DES" , "Coordinated universal time offset" },
+        { "QVFYOBJRST_DES" , "Verify object on restore" },              //@D2a
         { "QYEAR_DES" , "Year" },
         { "ALRBCKFP_DES" , "Alert backup focal point" },
         { "ALRCTLD_DES" , "Alert controller" },
@@ -186,6 +206,7 @@ public class SVMRI extends ListResourceBundle
         { "ALRPRIFP_DES" , "Alert primary focal point" },
         { "ALRRQSFP_DES" , "Alert focal point to request" },
         { "ALRSTS_DES" , "Alert status" },
+        { "ALWADDCLU_DES" , "Allow add to cluster" },            //@D1a
         { "ALWANYNET_DES" , "Allow AnyNet support" },
         { "ALWHPRTWR_DES" , "Allow HPR tower support" },
         { "ALWVRTAPPN_DES" , "Allow virtual APPN support" },
@@ -200,11 +221,12 @@ public class SVMRI extends ListResourceBundle
         { "JOBACN_DES" , "Job action" },
         { "LCLCPNAME_DES" , "Local control point" },
         { "LCLLOCNAME_DES" , "Local location" },
-        { "LCLNETID_DES" , "Local network ID" },
+        { "LCLNETID_DES" , "Local network identifier" },
         { "MAXINTSSN_DES" , "Maximum sessions" },
         { "MAXHOP_DES" , "Maximum hop count" },
+        { "MDMCNTRYID_DES" , "Modem country identifier" },            //@D1a
         { "MSGQ_DES" , "Message queue" },
-        { "NETSERVER_DES" , "Server network ID" },
+        { "NETSERVER_DES" , "Server network identifier" },
         { "NODETYPE_DES" , "APPN node type" },
         { "NWSDOMAIN_DES" , "Network server domain" },
         { "OUTQ_DES" , "Output queue" },

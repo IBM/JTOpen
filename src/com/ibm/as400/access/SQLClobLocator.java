@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLClobLocator.java
 //                                                                             
@@ -55,7 +55,8 @@ implements SQLLocator                                       // @B3C
                     int id,
                     int maxLength, 
                     boolean graphic, 
-                    SQLConversionSettings settings)
+                    SQLConversionSettings settings,
+                    ConverterImplRemote converter)                                  // @E1A
     {
         connection_     = connection;
         graphic_        = graphic;
@@ -65,38 +66,32 @@ implements SQLLocator                                       // @B3C
         settings_       = settings;
         truncated_      = 0;
 
-        try {
-            converter_      = graphic ? connection.getGraphicConverter ()
-                                      : connection.getConverter ();            
-        }
-        catch (SQLException e) {
-            converter_  = null;
-        }
+        // @E1D try {
+        // @E1D     converter_      = graphic ? connection.getGraphicConverter ()
+        // @E1D                               : connection.getConverter ();            
+        // @E1D }
+        // @E1D catch (SQLException e) {
+        // @E1D     converter_  = null;
+        // @E1D }
+        
+        converter_      = converter;                                                // @E1A
     }
 
 
 
-    SQLClobLocator (AS400JDBCConnection connection,
-                    int id,
-                    int maxLength, 
-                    SQLConversionSettings settings)
-    {
-        this (connection, id, maxLength, false, settings);
-    }
+// @E1D     SQLClobLocator (AS400JDBCConnection connection,
+// @E1D                     int id,
+// @E1D                     int maxLength, 
+// @E1D                     SQLConversionSettings settings)                           
+// @E1D     {
+// @E1D         this (connection, id, maxLength, false, settings);             
+// @E1D     }
 
 
 
     public Object clone ()
     {
-        return new SQLClobLocator (connection_, id_, maxLength_, 
-                                   graphic_, settings_);
-    }
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
+        return new SQLClobLocator (connection_, id_, maxLength_, graphic_, settings_, converter_);                // @E1C
     }
 
 
@@ -149,7 +144,7 @@ implements SQLLocator                                       // @B3C
         if (object instanceof String) {                                                 // @B3A
             String string = (String) object;                                            // @B3A
             byte[] bytes = converter_.stringToByteArray (string);                       // @B3A
-            locator_.writeData (0, bytes.length, bytes);                                // @B3A
+            locator_.writeData (0, string.length(), bytes);                             // @B3A @E2C
             set = true;                                                                 // @B3A
         }                                                                               // @B3A
         else {                                                                          // @B3A
@@ -276,10 +271,10 @@ implements SQLLocator                                       // @B3C
 
 
 
-    public boolean isGraphic ()
-    {
-        return graphic_;
-    }
+// @E1D     public boolean isGraphic ()
+// @E1D     {
+// @E1D         return graphic_;
+// @E1D     }
 
 
 

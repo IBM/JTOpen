@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JDServerRowCache.java
 //                                                                             
@@ -257,13 +257,6 @@ Sets the fetch size.
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
     public void open ()
         throws SQLException
     {
@@ -340,6 +333,20 @@ Sets the fetch size.
         // we have to start at the first or last (depending
         // on the sign of the row number) and go relative
         // from there.
+        // 
+        // @E1A: I investigated making the call to first()
+        // or last() more efficient.  In a nutshell, I changed
+        // them to position the cursor on the server, but
+        // not to fetch data.  In addition, I tried to chain
+        // the requests to the following call to relative().
+        // This did not work since, in some cases, the call
+        // to first() or last() resulted in an error class:
+        // return code of 2:701, signalling the last block.
+        // Since this is a non-zero error code, the chained
+        // relative() request fails with 7:1000 return code.
+        // So, I decided to resign to the fact the absolute
+        // will be slow in many cases!
+        //
         if (rowNumber > 0) {
             first ();
             relative (rowNumber - 1);
@@ -504,9 +511,10 @@ Sets the fetch size.
             else {
                 boolean endBlock = fetch (DBSQLRequestDS.FETCH_RELATIVE,
                     rowNumber);
+                firstBlock_ = false;                                // @E1A
                 if (endBlock == false) {
                     index_ = 0;
-                    firstBlock_ = false;
+                    // @E1D firstBlock_ = false;
                     lastBlock_ = endBlock;
                 }
             }

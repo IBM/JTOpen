@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400StrSvrDS.java
 //                                                                             
@@ -23,9 +23,9 @@ class AS400StrSvrDS extends ClientAccessDataStream
 
     AS400StrSvrDS(int serverId, byte[] userIDbytes, byte[] encryptedPw)
     {
-        data_ = new byte[52];
+        super(new byte[(encryptedPw.length == 8) ? 52 : 64]);
 
-        setLength(52);
+        setLength(data_.length);
         // setHeaderID(0x0000);
         setServerID(serverId);
         // setCSInstance(0x00000000);
@@ -33,7 +33,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
         setTemplateLen(2);
         setReqRepID(0x7002);
 
-        data_[20] = 0x01;  // Password encryption on.
+        data_[20] = (encryptedPw.length == 8) ? (byte)0x01 : (byte)0x03;  // Password encryption on.
         data_[21] = 0x01;  // Send reply true.
 
         // Set user ID info.
@@ -46,11 +46,11 @@ class AS400StrSvrDS extends ClientAccessDataStream
 
         // Set password info.
         //   LL
-        set32bit(14, 38);
+        set32bit(6 + encryptedPw.length, 38);
         //   CP
         set16bit(0x1105, 42);
         //   Password data.
-        System.arraycopy(encryptedPw, 0, data_, 44, 8);
+        System.arraycopy(encryptedPw, 0, data_, 44, encryptedPw.length);
     }
 
     void write(OutputStream out) throws IOException

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: UserSpaceImplRemote.java
 //                                                                             
@@ -170,11 +170,8 @@ class UserSpaceImplRemote extends UserSpaceImpl
         parmlist[8] = new ProgramParameter(domainAttr);
 
         // Create the pgm call object
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
+        rmtCmd_ = new RemoteCommandImplRemote();                             //$C0C
+        rmtCmd_.setSystem(system_);                                        //$C0A
         //try                                                               //$C0D
         //{
         //   pgmCall_.setProgram( "/QSYS.LIB/QUSCRTUS.PGM", parmlist );
@@ -182,12 +179,12 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //catch (PropertyVetoException v) {}       // $B1
 
         // Run the program.  Failure is returned as a message list.
-        if(rmtCmd_.runProgram( "/QSYS.LIB/QUSCRTUS.PGM", parmlist ) != true)   //$C0C
+        if(rmtCmd_.runProgram("QSYS", "QUSCRTUS", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // Throw AS400MessageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
             for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toString());
+                throw new IOException(messageList[msg].toStringM2());
         }
 
         // Construct the user space file object.
@@ -230,23 +227,20 @@ class UserSpaceImplRemote extends UserSpaceImpl
         byte[] errorlist = new byte[32];
         parmlist[1] = new ProgramParameter(errorlist, 0);
 
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
+        rmtCmd_ = new RemoteCommandImplRemote();                             //$C0C
+        rmtCmd_.setSystem(system_);                                        //$C0A
         //try
         //{
         //   pgmCall_.setProgram("/QSYS.LIB/QUSDLTUS.PGM", parmlist );
         //}
         //catch (PropertyVetoException v) {}       // $B1
 
-        if(rmtCmd_.runProgram( "/QSYS.LIB/QUSDLTUS.PGM", parmlist ) != true)   //$C0C
+        if (rmtCmd_.runProgram("QSYS", "QUSDLTUS", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // failure occurred, throw AS400Message list
             AS400Message[] messageList = rmtCmd_.getMessageList();
             for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toString());
+                throw new IOException(messageList[msg].toStringM2());
         }
     }
 
@@ -295,11 +289,8 @@ class UserSpaceImplRemote extends UserSpaceImpl
         byte[] errorInfo = new byte[32];
         parmlist[4] = new ProgramParameter( errorInfo, 0 );
 
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
+        rmtCmd_ = new RemoteCommandImplRemote();                             //$C0C
+        rmtCmd_.setSystem(system_);                                        //$C0A
         //try                                                               //$C0D
         //{                                                                 //$C0D
         //   pgmCall_.setProgram("/QSYS.LIB/QUSRUSAT.PGM", parmlist );      //$C0D
@@ -307,12 +298,12 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //catch (PropertyVetoException v) {}       // $B1                   //$C0D
 
         // Run the program.  Failure returns message list
-        if(rmtCmd_.runProgram("/QSYS.LIB/QUSRUSAT.PGM", parmlist) != true)     //$C0C
+        if(rmtCmd_.runProgram("QSYS", "QUSRUSAT", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // failure, Throw AS400MessageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
             for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toString());
+                throw new IOException(messageList[msg].toStringM2());
         }
         else
         {
@@ -574,7 +565,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
 
         if (messageList != null)
         {
-            String message = messageList[0].toString();
+            String message = messageList[0].toStringM2();
 
             if (message.startsWith("CPF3C14"))
             {
@@ -594,7 +585,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
                     if (messageList != null)
                     {
                         for (int msg = 0; msg < messageList.length; msg++)
-                            throw new IOException(messageList[msg].toString());
+                            throw new IOException(messageList[msg].toStringM2());
                     }
                 }
             }
@@ -613,7 +604,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
             else
             {
                 for (int msg = 0; msg < messageList.length; msg++)
-                    throw new IOException(messageList[msg].toString());
+                    throw new IOException(messageList[msg].toStringM2());
             }
         }
         return actualLength;
@@ -678,14 +669,11 @@ class UserSpaceImplRemote extends UserSpaceImpl
         byte[] errorInfo = new byte[32];
         parmlist[4] = new ProgramParameter( errorInfo, 0 );
 
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
+        rmtCmd_ = new RemoteCommandImplRemote();                              //$C0C
+        rmtCmd_.setSystem(system_);                                         //$C0A
 
         // Run the program.
-        if(rmtCmd_.runProgram("/QSYS.LIB/QUSRTVUS.PGM", parmlist) != true)      //$C0C
+        if(rmtCmd_.runProgram("QSYS", "QUSRTVUS", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             messageList = rmtCmd_.getMessageList();
         }
@@ -742,11 +730,8 @@ class UserSpaceImplRemote extends UserSpaceImpl
         byte[] errorInfo = new byte[32];
         parmlist[3] = new ProgramParameter( errorInfo, 0 );
 
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
+        rmtCmd_ = new RemoteCommandImplRemote();                              //$C0C
+        rmtCmd_.setSystem(system_);                                         //$C0A
         //try                                                                //$C0D
         //{                                                                  //$C0D
         //   pgmCall_.setProgram("/QSYS.LIB/QUSCUSAT.PGM", parmlist );       //$C0D
@@ -754,12 +739,12 @@ class UserSpaceImplRemote extends UserSpaceImpl
         //catch(PropertyVetoException v) {}        // $B1
 
         // Run the program.
-        if(rmtCmd_.runProgram("/QSYS.LIB/QUSCUSAT.PGM", parmlist) != true)      //$C0C
+        if(rmtCmd_.runProgram("QSYS", "QUSCUSAT", parmlist, true) != true)  // This API is threadsafe.  @D3A $C0C @D2C
         {
             // Throw messageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
             for (int msg = 0; msg < messageList.length; msg++)
-                throw new IOException(messageList[msg].toString());
+                throw new IOException(messageList[msg].toStringM2());
         }
 
         // Reopen the user space
@@ -996,19 +981,16 @@ class UserSpaceImplRemote extends UserSpaceImpl
         byte[] errorInfo = new byte[32];
         parmlist[5] = new ProgramParameter( errorInfo, 0 );
 
-        if (rmtCmd_ == null)
-        {
-            rmtCmd_ = new RemoteCommandImplRemote();
-            rmtCmd_.setSystem(system_);
-        }
+        rmtCmd_ = new RemoteCommandImplRemote();                              //$C0C
+        rmtCmd_.setSystem(system_);                                         //$C0A
 
         // Run the program.
-        if(rmtCmd_.runProgram("/QSYS.LIB/QUSCHGUS.PGM", parmlist) != true)      //$C0C
+        if(rmtCmd_.runProgram("QSYS", "QUSCHGUS", parmlist, true) != true)  // This API is threadsafe.   @D3A $C0C @D2C
         {
             // Throw messageList
             AS400Message[] messageList = rmtCmd_.getMessageList();
 
-            String message = messageList[0].toString();
+            String message = messageList[0].toStringM2();
 
             if (message.startsWith("CPF9820") ||
                 message.startsWith("CPF9802"))
@@ -1025,7 +1007,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
             else
             {
                 for (int msg = 0; msg < messageList.length; msg++)
-                    throw new IOException(messageList[msg].toString());
+                    throw new IOException(messageList[msg].toStringM2());
             }
         }
     }

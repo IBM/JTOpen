@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSConfig.java
 //                                                                             
@@ -63,7 +63,7 @@ Static initializer.
 **/
     static 
     {        
-        // Expection options for the ProxyServer application.
+        // Expected options for the ProxyServer application.
         expectedOptions_.addElement ("-balanceThreshold");
         expectedOptions_.addElement ("-configuration");
         expectedOptions_.addElement ("-jdbcDrivers");
@@ -71,6 +71,8 @@ Static initializer.
         expectedOptions_.addElement ("-peers");
         expectedOptions_.addElement ("-port");
         expectedOptions_.addElement ("-securePort");
+        expectedOptions_.addElement ("-keyringName");                               //$B1A
+        expectedOptions_.addElement ("-keyringPassword");                           //$B1A
         expectedOptions_.addElement ("-verbose");
         expectedOptions_.addElement ("-help");
 
@@ -83,11 +85,11 @@ Static initializer.
         shortcuts_.put ("-pe", "-peers");
         shortcuts_.put ("-po", "-port");
         shortcuts_.put ("-sp", "-securePort");
+        shortcuts_.put ("-kn", "-keyringName");                                     //$B1A
+        shortcuts_.put ("-kp", "-keyringPassword");                                 //$B1A
         shortcuts_.put ("-v", "-verbose");
         shortcuts_.put ("-h", "-help");
         shortcuts_.put ("-?", "-help");
-
-        String x = Copyright.copyright;
     }
 
 
@@ -168,7 +170,6 @@ Applies the command line arguments to the configuration.
             loadBalancer_.setPeers (optionValue);
             properties_.put (OPTION_PEERS, optionValue);
         }
-
     }
 
 
@@ -379,11 +380,13 @@ Prints the application usage information.
         out.println ();
         out.println ("  -balanceThreshold balanceThreshold");
         out.println ("  -configuration configuration");
-        out.println ("  -jdbcDrivers jdbcDrive1[;jdbcDriver2;...]");
+        out.println ("  -jdbcDrivers jdbcDriver1[;jdbcDriver2;...]");       // @B2C
         out.println ("  -maxConnections maxConnections");
         out.println ("  -peers hostname1[:port1][;hostname2[:port2];...");
         out.println ("  -port port");
-        // out.println ("  -securePort securePort");
+        out.println ("  -securePort securePort");                           //$B1C
+        out.println ("  -keyringName ProxyServerKeyringName");              //$B1A
+        out.println ("  -keyringPassword ProxyServerKeyringPassword");      //$B1A
         out.println ("  -verbose [true|false]");
         out.println ("  -help");
         out.println ();                                                     // @A1A
@@ -391,11 +394,13 @@ Prints the application usage information.
         out.println ();                                                     // @A1A
         out.println ("  -bt balanceThreshold");                             // @A1A
         out.println ("  -c configuration");                                 // @A1A
-        out.println ("  -jd jdbcDrive1[;jdbcDriver2;...]");                 // @A1A
+        out.println ("  -jd jdbcDriver1[;jdbcDriver2;...]");                // @A1A @B2C
         out.println ("  -mc maxConnections");                               // @A1A
         out.println ("  -pe hostname1[:port1][;hostname2[:port2];...");     // @A1A
         out.println ("  -po port");                                         // @A1A
-        // out.println ("  -sp securePort");                                // @A1A
+        out.println ("  -sp securePort");                                   // @A1A  $B1C
+        out.println ("  -kn ProxyServerKeyringName");                       //$B1A
+        out.println ("  -kp ProxyServerKeyringPassword");                   //$B1A
         out.println ("  -v [true|false]");                                  // @A1A
         out.println ("  -h");                                               // @A1A
         out.println ("  -?");                                               // @A1A

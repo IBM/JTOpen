@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PasswordDialog.java
 //                                                                             
@@ -35,6 +35,7 @@ public class PasswordDialog extends Dialog
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
     // Implementation notes:
     // * There is a concern that making this class public makes it too easy for external developers to display a Toolbox signon prompt and gather end-user passwords.  The general consensus is that this would be easy enough for most Java developers to do, anyway (without this class)!
     // * We are intentionally NOT exposing control over the checkboxes.  No reason other than to minimize the public interface.
@@ -102,7 +103,7 @@ public class PasswordDialog extends Dialog
         add(label, layout, constraints, 0, 2, 1, 1);
 
         // Create the password text field and add to the panel.
-        passwordTextField_ = new AS400SignonTextField();
+        passwordTextField_ = new TextField(10);
         passwordTextField_.setEchoChar('*');
         passwordTextField_.addFocusListener(listener_);
         passwordTextField_.addKeyListener(listener_);

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BaseDataQueueImplProxy.java
 //                                                                             
@@ -26,7 +26,7 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
         super("BaseDataQueue");
     }
 
-    // Get the impl properties to the ProxyServer.
+    // Get the implementation properties to the ProxyServer.
     public void setSystemAndPath(AS400Impl system, String path, String name, String library) throws IOException
     {
         try

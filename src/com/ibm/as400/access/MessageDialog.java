@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MessageDialog.java
 //                                                                             
@@ -32,6 +32,7 @@ class MessageDialog extends Dialog
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
     private Button positiveButton_ = null;  // Push button for OK or Yes.
     private Button negativeButton_ = null;  // Push button for No.
     private AS400SignonDialogAdapter listener_ = null;

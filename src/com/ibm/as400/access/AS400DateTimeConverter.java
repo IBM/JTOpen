@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400DateTimeConverter.java
 //                                                                             
@@ -21,7 +21,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * The AS400DateTimeConverter class represents a converted date and time.
    The AS/400 System API QWCCVTDT is used to convert a date and time value
-   from one format to another format. 
+   from one format to another format.
  @deprecated This class has been replaced by the DateTimeConverter class.
  @see com.ibm.as400.access.DateTimeConverter
  **/
@@ -34,11 +34,11 @@ public class AS400DateTimeConverter
        The system.
     **/
     protected static AS400 as400_;
-    
+
     /**
-    * Constructs a AS400DateTimeConverter object. 
+    * Constructs a AS400DateTimeConverter object.
     *
-    * @param system The AS/400 system. 
+    * @param system The AS/400 system.
     **/
     public AS400DateTimeConverter(AS400 system)
     {
@@ -47,7 +47,7 @@ public class AS400DateTimeConverter
           throw new NullPointerException("system"); //@A2A
         this.as400_=system;
     }
-    
+
     /**
      * Converts date and time values from the input format to the requested output format.
      *
@@ -83,7 +83,7 @@ public class AS400DateTimeConverter
        </UL>
      * @return The converted date and time value.
     **/
-    
+
     public static byte[] convert(AS400 system, byte[] in, String inFormat, String outFormat)
     {
         byte[] out = null;
@@ -127,6 +127,7 @@ public class AS400DateTimeConverter
 
             // Set the program name and parameter list
             pgm.setProgram( progName, parmlist );
+            pgm.setThreadSafe(true);  // QWCCVTDT is thread-safe.  @B1A
 
             // Run the program
             if (pgm.run()!=true)
@@ -153,26 +154,17 @@ public class AS400DateTimeConverter
         }
 
         return out;
- 
+
     }
 
 
-  /**
-     Returns the copyright.
-   **/
-   private static String getCopyright()
-   {
-      return Copyright.copyright;
-   }
 
 
-
-  
     /**
      * Returns the Date object in the YYMD format.
-     * @param in The date and time value to be converted. 
+     * @param in The date and time value to be converted.
      * @param format The format of the date and time value being provided.
-     * @return The Date object in the YYMD format. 
+     * @return The Date object in the YYMD format.
      *
     **/
     public static Date getDate(byte[] in, String format)
@@ -181,10 +173,10 @@ public class AS400DateTimeConverter
         Trace.log(Trace.INFORMATION,"getDate");
         String outFormat = new String("*YYMD");
         byte[] out = convert(as400_, in, format, outFormat);
-        
+
         RecordFormat recordFormat=new RecordFormat();
 
-        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];;  
+        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];;
         cfd[0] = new CharacterFieldDescription(new AS400Text(4),"year");
         cfd[1] = new CharacterFieldDescription(new AS400Text(2),"month");
         cfd[2] = new CharacterFieldDescription(new AS400Text(2),"day");
@@ -199,9 +191,9 @@ public class AS400DateTimeConverter
             Record record = recordFormat.getNewRecord(out);
             Calendar dateTime = Calendar.getInstance();
             dateTime.clear();
-            dateTime.set ( 
+            dateTime.set (
                 Integer.parseInt(((String)record.getField("year")).trim()),// year
-                Integer.parseInt(((String)record.getField("month")).trim())-1,  // month 
+                Integer.parseInt(((String)record.getField("month")).trim())-1,  // month
                 Integer.parseInt(((String)record.getField("day")).trim()),   // day
                 Integer.parseInt(((String)record.getField("hour")).trim()),  //hour
                 Integer.parseInt(((String)record.getField("minute")).trim()), //minute
@@ -219,7 +211,7 @@ public class AS400DateTimeConverter
     /**
      * Returns the converted date and time in a byte array.
      * @param date The Date object to be converted. It must be in the format YYMD.
-     * @param format The output date and time format. 
+     * @param format The output date and time format.
      * @return The converted date and time in a byte array.
      *
     **/
@@ -228,10 +220,10 @@ public class AS400DateTimeConverter
         Trace.log(Trace.INFORMATION,"getByteArray");
         Calendar dateTime=Calendar.getInstance();
         dateTime.setTime(date);
-        
+
         RecordFormat recordFormat=new RecordFormat();
 
-        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];;  
+        CharacterFieldDescription[] cfd=new CharacterFieldDescription[7];;
         cfd[0] = new CharacterFieldDescription(new AS400Text(4),"year");
         cfd[1] = new CharacterFieldDescription(new AS400Text(2),"month");
         cfd[2] = new CharacterFieldDescription(new AS400Text(2),"day");
@@ -260,7 +252,7 @@ public class AS400DateTimeConverter
         catch(Exception e)
         {
             Trace.log(Trace.ERROR,"Error constructing program parameters");
-        }   
+        }
         String inFormat = new String("*YYMD");
         return convert(as400_, in,inFormat, format);
 

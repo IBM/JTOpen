@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: KeyedDataQueue.java
 //                                                                             
@@ -23,6 +23,10 @@ import java.net.UnknownHostException;
 public class KeyedDataQueue extends BaseDataQueue
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
     //The length of the key for each entry in the queue.
     int keyLength_ = 0;
@@ -486,13 +490,13 @@ public class KeyedDataQueue extends BaseDataQueue
         // Send attribute request.
         DQQueryRecord record = impl_.processRetrieveAttrs(true);
 
-        maxEntryLength_ = record.maxEntryLength;
-        saveSenderInformation_ = record.saveSenderInformation;
+        maxEntryLength_ = record.maxEntryLength_;
+        saveSenderInformation_ = record.saveSenderInformation_;
         FIFO_ = true;   // Keyed queues always FIFO.
-        forceToAuxiliaryStorage_ = record.forceToAuxiliaryStorage;
-        description_ = record.description;
+        forceToAuxiliaryStorage_ = record.forceToAuxiliaryStorage_;
+        description_ = record.description_;
 
-        keyLength_ = record.keyLength;
+        keyLength_ = record.keyLength_;
 
         attributesRetrieved_ = true;
     }

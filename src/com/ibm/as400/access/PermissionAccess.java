@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionAccess.java
 //                                                                             
@@ -28,13 +28,12 @@ abstract class PermissionAccess
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    //AS400 object.
     AS400 as400_;
     private int ccsid_;         // @A4A
     private boolean gotCcsid_;  // @A4A
 
     //Default receiver length.
-    private final int defaultLength_=600;
+    private static final int DEFAULT_LENGTH=600;
 
     /**
      * Constructs a PermissionAccess object.
@@ -131,10 +130,11 @@ abstract class PermissionAccess
         QSYSObjectPathName prgName=new QSYSObjectPathName("QSYS","QSYRTVUA","PGM");
 
         ProgramParameter[] parmList=new ProgramParameter[8];
-        parmList=getParameters(defaultLength_,objName);
+        parmList=getParameters(DEFAULT_LENGTH,objName);
 
         ProgramCall rtvUsersAUT=new ProgramCall(as400_);
         rtvUsersAUT.setProgram(prgName.getPath(),parmList);
+        rtvUsersAUT.setThreadSafe(false); // API isn't threadsafe as of V4R4. @A5A
 
         if (rtvUsersAUT.run()!=true)
         {
@@ -165,7 +165,7 @@ abstract class PermissionAccess
 
         if(requiredLength>receiverLength)
         {
-            // If there is no enough space provided, retrieve data again.
+            // If there is not enough space provided, retrieve data again.
             parmList=getParameters(requiredLength+400,objName);
             rtvUsersAUT.setProgram(prgName.getPath(),parmList);
             if (rtvUsersAUT.run()!=true)
@@ -246,21 +246,13 @@ abstract class PermissionAccess
       }
       return ccsid_;
     }
-
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
     
     /**
      * Returns the RecordFormat of the feedback informations.
      * @return The RecordFormat of the feedback informations.
      *
     **/
-    private  RecordFormat getFeedbackRecordFormat()
+    private RecordFormat getFeedbackRecordFormat()
     {
         BinaryFieldDescription[] bfd;
         bfd=new BinaryFieldDescription[6];
@@ -524,8 +516,6 @@ abstract class PermissionAccess
             throw new NullPointerException("system");
         }
         as400_ = system;
-        return;
-
     }
 
 }

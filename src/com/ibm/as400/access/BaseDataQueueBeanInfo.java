@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BaseDataQueueBeanInfo.java
 //                                                                             
@@ -114,7 +114,7 @@ public class BaseDataQueueBeanInfo extends SimpleBeanInfo
      **/
     public int getDefaultPropertyIndex()
     {
-        // The index for the "path" property
+        // The index for the "path" property.
         return 0;
     }
 

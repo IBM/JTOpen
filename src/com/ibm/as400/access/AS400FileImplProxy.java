@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImplProxy.java
 //                                                                             
@@ -49,6 +49,20 @@ class AS400FileImplProxy extends AbstractProxyImpl implements AS400FileImpl
     try
     {
       return connection_.callMethod(pxId_, methodName).getReturnValueBoolean();
+    }      
+    catch(InvocationTargetException e)
+    {
+      throw ProxyClientConnection.rethrow(e);
+    }
+  }
+
+
+  //@E0A
+  public boolean doItBoolean(String methodName, Class[] classes, Object[] objects)
+  {
+    try
+    {
+      return connection_.callMethod(pxId_, methodName, classes, objects).getReturnValueBoolean();
     }      
     catch(InvocationTargetException e)
     {

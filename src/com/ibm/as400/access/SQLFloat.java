@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLFloat.java
 //                                                                             
@@ -34,13 +34,19 @@ implements SQLData
 
 
 
-    private String x = Copyright.copyright;
-
-
     // Private data.
     private SQLConversionSettings   settings_;
     private int                     truncated_;
+    // @D0D private static AS400Float8      typeConverter_;
 	private double	                value_;
+
+
+
+    // @D0D static
+    // @D0D {
+    // @D0D     typeConverter_ = new AS400Float8 ();
+    // @D0D }
+
 
 
     SQLFloat (SQLConversionSettings settings)
@@ -99,10 +105,10 @@ implements SQLData
         if (object instanceof String) {
             try {
                 value_ = Double.valueOf ((String) object).doubleValue ();
-                int objectLength = ((String) object).length ();
-                int valueLength = Double.toString (value_).length ();
-                if (valueLength < objectLength)
-                    truncated_ = objectLength - valueLength;
+                //@E2D int objectLength = ((String) object).length ();
+                //@E2D int valueLength = Double.toString (value_).length ();
+                //@E2D if (valueLength < objectLength)
+                //@E2D    truncated_ = objectLength - valueLength;
             }
             catch (NumberFormatException e) {
                 JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
@@ -222,10 +228,10 @@ implements SQLData
 	}
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D        return false;
+// @E1D    }
 
 
 
@@ -290,6 +296,8 @@ implements SQLData
         // exponent (the part after 'E'). The base is then used
         // to construct the BigDecimal object and then the exponent
         // is used to shift the decimal point to its rightful place.
+
+        // BigDecimal bigDecimal = new BigDecimal (Double.toString (value_))    // @A0D
 
         BigDecimal bigDecimal = null;                                           // @A0A
 

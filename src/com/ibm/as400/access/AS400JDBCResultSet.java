@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCResultSet.java
 //                                                                             
@@ -168,6 +168,7 @@ implements ResultSet {
     private PreparedStatement           deleteStatement_;
     private int                         fetchDirection_;
     private int                         fetchSize_;
+    private Object                      internalLock_;      // @D1A
     private int                         maxRows_;
     private InputStream                 openInputStream_;
     private Reader                      openReader_;
@@ -231,6 +232,7 @@ Constructs an AS400JDBCResultSet object.
         deleteStatement_        = null;
         fetchDirection_         = fetchDirection;
         fetchSize_              = fetchSize;
+        internalLock_           = (statement != null) ? statement.internalLock_ : new Object();  // @D1A
         maxRows_                = maxRows;
         openInputStream_        = null;
         openReader_             = null;
@@ -404,27 +406,29 @@ waiting for them to be automatically released.
     public void close ()
     throws SQLException
     {
-        // If this is already closed, then just do nothing.
-        // 
-        // The spec does not define what happens when a connection
-        // is closed multiple times.  The official word from the Sun 
-        // JDBC team is that "the driver's behavior in this case 
-        // is implementation defined.   Applications that do this are 
-        // non-portable." 
-        if (isClosed ())
-            return;
-
-        rowCache_.close ();
-        closed_ = true;
-        if (statement_ != null)
-            statement_.notifyClose ();
-
-        // Close the delete statement if opened.
-        if (deleteStatement_ != null)
-            deleteStatement_.close ();
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logClose (this);
+        synchronized(internalLock_) {                                            // @D1A
+            // If this is already closed, then just do nothing.
+            // 
+            // The spec does not define what happens when a connection
+            // is closed multiple times.  The official word from the Sun 
+            // JDBC team is that "the driver's behavior in this case 
+            // is implementation defined.   Applications that do this are 
+            // non-portable." 
+            if (isClosed ())
+                return;
+    
+            rowCache_.close ();
+            closed_ = true;
+            if (statement_ != null)
+                statement_.notifyClose ();
+    
+            // Close the delete statement if opened.
+            if (deleteStatement_ != null)
+                deleteStatement_.close ();
+    
+            if (JDTrace.isTraceOn())
+                JDTrace.logClose (this);
+        }
     }
 
 
@@ -456,8 +460,10 @@ Returns the column index for the specified column name.
     public int findColumn (String columnName)
     throws SQLException
     {
-        checkOpen ();
-        return row_.findField ((columnName != null) ? columnName : "");
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return row_.findField ((columnName != null) ? columnName : "");
+        }
     }
 
 
@@ -478,28 +484,27 @@ Returns the result set concurrency.
     public int getConcurrency ()
     throws SQLException
     {
-        checkOpen ();
-        return concurrency_;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return concurrency_;
+        }
     }
 
 
 
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
+// @D3C
 /**
 Returns the name of the SQL cursor in use by the result set.
 In SQL, results are retrieved through a named cursor.  The
 current row of a result can be updated or deleted using a
 positioned UPDATE or DELETE statement that references a
 cursor name.
+       
+<p>Cursor names are case sensitive.  However, when using a cursor
+name within other SQL positioned UPDATE or DELETE statements,
+the cursor name will be uppercased.  If you use a cursor name
+with lowercase characters, you need to enclose it in double
+quotes when referring to it in other SQL statements.
 
 @return     The cursor name.
 
@@ -508,8 +513,10 @@ cursor name.
     public String getCursorName ()
     throws SQLException
     {
-        checkOpen ();
-        return cursorName_;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return cursorName_;
+        }
     }
 
 
@@ -533,8 +540,10 @@ Returns the fetch direction.
     public int getFetchDirection ()
     throws SQLException
     {
-        checkOpen ();
-        return fetchDirection_;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return fetchDirection_;
+        }
     }
 
 
@@ -550,8 +559,10 @@ Returns the fetch size.
     public int getFetchSize ()
     throws SQLException
     {
-        checkOpen ();
-        return fetchSize_;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return fetchSize_;
+        }
     }
 
 
@@ -601,7 +612,7 @@ Returns the result set type.
                                 <ul>
                                   <li>TYPE_FORWARD_ONLY
                                   <li>TYPE_SCROLL_INSENSITIVE
-                                  <li>.TYPE_SCROLL_SENSITIVE
+                                  <li>TYPE_SCROLL_SENSITIVE
                                 </ul>
 
 
@@ -610,8 +621,10 @@ Returns the result set type.
     public int getType ()
     throws SQLException
     {
-        checkOpen ();
-        return type_;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return type_;
+        }
     }
 
 
@@ -696,18 +709,20 @@ processed.
     public void setFetchDirection (int fetchDirection)
     throws SQLException
     {
-        if (((fetchDirection != FETCH_FORWARD)
-             && (fetchDirection != FETCH_REVERSE)
-             && (fetchDirection != FETCH_UNKNOWN))
-            || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
-                && (fetchDirection != ResultSet.FETCH_FORWARD)))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        checkOpen ();
-        fetchDirection_ = fetchDirection;
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
+        synchronized(internalLock_) {                                            // @D1A
+            if (((fetchDirection != FETCH_FORWARD)
+                 && (fetchDirection != FETCH_REVERSE)
+                 && (fetchDirection != FETCH_UNKNOWN))
+                || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
+                    && (fetchDirection != ResultSet.FETCH_FORWARD)))
+                JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    
+            checkOpen ();
+            fetchDirection_ = fetchDirection;
+    
+            if (JDTrace.isTraceOn())
+                JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
+        }
     }
 
 
@@ -734,21 +749,23 @@ is only used if the "block size" property is set to "0".
     public void setFetchSize (int fetchSize)
     throws SQLException
     {
-        if ((fetchSize < 0)
-            || ((fetchSize > maxRows_) && (maxRows_ > 0)))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        checkOpen ();
-        fetchSize_ = fetchSize;
-
-        // This is a kludgy way of keeping the fetch size
-        // out of the JDRowCache interface.  It only applies
-        // to JDServerRowCache anyway.
-        if (rowCache_ instanceof JDServerRowCache)
-            ((JDServerRowCache) rowCache_).setFetchSize (fetchSize_);
-
-        if (JDTrace.isTraceOn())
-            JDTrace.logProperty (this, "Fetch size", fetchSize_);
+        synchronized(internalLock_) {                                            // @D1A
+            if ((fetchSize < 0)
+                || ((fetchSize > maxRows_) && (maxRows_ > 0)))
+                JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    
+            checkOpen ();
+            fetchSize_ = fetchSize;
+    
+            // This is a kludgy way of keeping the fetch size
+            // out of the JDRowCache interface.  It only applies
+            // to JDServerRowCache anyway.
+            if (rowCache_ instanceof JDServerRowCache)
+                ((JDServerRowCache) rowCache_).setFetchSize (fetchSize_);
+    
+            if (JDTrace.isTraceOn())
+                JDTrace.logProperty (this, "Fetch size", fetchSize_);
+        }
     }
 
 
@@ -823,30 +840,32 @@ are cleared.
     public boolean absolute (int rowNumber)
     throws SQLException
     {
-        // Initialization.
-        beforePositioning (true);
-        if (rowNumber == 0)
-            JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
-
-        // Handle max rows.
-        if ((rowNumber > maxRows_) && (maxRows_ > 0)) {
-            afterLast ();
-            return false;
+        synchronized(internalLock_) {                                            // @D1A
+            // Initialization.
+            beforePositioning (true);
+            if (rowNumber == 0)
+                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
+    
+            // Handle max rows.
+            if ((rowNumber > maxRows_) && (maxRows_ > 0)) {
+                afterLast ();
+                return false;
+            }
+    
+            // Position the cursor.
+            rowCache_.absolute (rowNumber);
+            boolean validPosition = (rowCache_.isValid ());
+            if (rowNumber > 0) {
+                positionFromFirst_ = validPosition ? rowNumber : -1;
+                positionFromLast_ = validPosition ? -1 : 0;
+            } else {
+                positionFromFirst_ = validPosition ? -1 : 0;
+                positionFromLast_ = validPosition ? -rowNumber : -1;
+            }
+    
+            positionValid_ = rowCache_.isValid ();
+            return positionValid_;
         }
-
-        // Position the cursor.
-        rowCache_.absolute (rowNumber);
-        boolean validPosition = (rowCache_.isValid ());
-        if (rowNumber > 0) {
-            positionFromFirst_ = validPosition ? rowNumber : -1;
-            positionFromLast_ = validPosition ? -1 : 0;
-        } else {
-            positionFromFirst_ = validPosition ? -1 : 0;
-            positionFromLast_ = validPosition ? -rowNumber : -1;
-        }
-
-        positionValid_ = rowCache_.isValid ();
-        return positionValid_;
     }
 
 
@@ -865,11 +884,13 @@ are cleared.
     public void afterLast ()
     throws SQLException
     {
-        beforePositioning (true);
-        rowCache_.afterLast ();
-        positionFromFirst_ = -1;
-        positionFromLast_ = 0;
-        positionValid_ = false;
+        synchronized(internalLock_) {                                            // @D1A
+            beforePositioning (true);
+            rowCache_.afterLast ();
+            positionFromFirst_ = -1;
+            positionFromLast_ = 0;
+            positionValid_ = false;
+        }
     }
 
 
@@ -887,11 +908,13 @@ closed.  In addition, all warnings and pending updates are cleared.
     public void beforeFirst ()
     throws SQLException
     {
-        beforePositioning (true);
-        rowCache_.beforeFirst ();
-        positionFromFirst_ = 0;
-        positionFromLast_ = -1;
-        positionValid_ = false;
+        synchronized(internalLock_) {                                            // @D1A
+            beforePositioning (true);
+            rowCache_.beforeFirst ();
+            positionFromFirst_ = 0;
+            positionFromLast_ = -1;
+            positionValid_ = false;
+        }
     }
 
 
@@ -918,7 +941,6 @@ position.
 
         // Get off of the insert row, if on it.
         positionInsert_ = false;
-
     }
 
 
@@ -940,45 +962,52 @@ are cleared.
     public boolean first ()
     throws SQLException
     {
-        beforePositioning (true);
-        rowCache_.first ();
-
-        // If the result set is not empty, then mark the
-        // position as being on the first row.
-        if (rowCache_.isValid ()) {
-            positionFromFirst_ = 1;
-            positionFromLast_ = -1;
-            positionValid_ = true;
+        synchronized(internalLock_) {                                            // @D1A
+            beforePositioning (true);
+            rowCache_.first ();
+    
+            // If the result set is not empty, then mark the
+            // position as being on the first row.
+            if (rowCache_.isValid ()) {
+                positionFromFirst_ = 1;
+                positionFromLast_ = -1;
+                positionValid_ = true;
+            }
+    
+            // Otherwise, there is no first row.
+            else {
+                positionFromFirst_ = -1;
+                positionFromLast_ = -1;
+                positionValid_ = false;
+            }
+    
+            return positionValid_;
         }
-
-        // Otherwise, there is no first row.
-        else {
-            positionFromFirst_ = -1;
-            positionFromLast_ = -1;
-            positionValid_ = false;
-        }
-
-        return positionValid_;
     }
 
 
 
-// JDBC 2.0
+// JDBC 2.0 @D2C
 /**
-Returns the current row number.
+Returns the current row number.  Depending on the cursor position within
+the result set, the current row number may not be available.  Specifically,
+the use of last(), afterLast(), and absolute() with a negative value will
+make the current row number not available.
 
-@return The current row number (1-based). If there is no current
-        row or if the cursor is positioned on the insert row,
-        0 is returned.
+@return The current row number (1-based), or 0 if there is no
+        current row, if the cursor is positioned on the insert
+        row, or the current row number is not known.
 
 @exception SQLException If the result set is not open.
 **/
     public int getRow ()
     throws SQLException
     {
-        checkOpen ();
-        return ((positionFromFirst_ > 0) && (positionInsert_ == false))
-        ? positionFromFirst_ : 0;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return ((positionFromFirst_ > 0) && (positionInsert_ == false))
+            ? positionFromFirst_ : 0;
+        }
     }
 
 
@@ -996,11 +1025,13 @@ Indicates if the cursor is positioned after the last row.
     public boolean isAfterLast ()
     throws SQLException
     {
-        checkOpen ();
-        return ((positionFromLast_ == 0)
-                && (positionFromFirst_ != 0)
-                && (positionInsert_ == false)
-                && (! rowCache_.isEmpty ()));
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return ((positionFromLast_ == 0)
+                    && (positionFromFirst_ != 0)
+                    && (positionInsert_ == false)
+                    && (! rowCache_.isEmpty ()));
+        }
     }
 
 
@@ -1018,11 +1049,13 @@ Indicates if the cursor is positioned before the first row.
     public boolean isBeforeFirst ()
     throws SQLException
     {
-        checkOpen ();
-        return ((positionFromFirst_ == 0)
-                && (positionFromLast_ != 0)
-                && (positionInsert_ == false)
-                && (! rowCache_.isEmpty ()));
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return ((positionFromFirst_ == 0)
+                    && (positionFromLast_ != 0)
+                    && (positionInsert_ == false)
+                    && (! rowCache_.isEmpty ()));
+        }
     }
 
 
@@ -1040,8 +1073,10 @@ Indicates if the cursor is positioned on the first row.
     public boolean isFirst ()
     throws SQLException
     {
-        checkOpen ();
-        return ((positionFromFirst_ == 1) && (positionInsert_ == false));
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return ((positionFromFirst_ == 1) && (positionInsert_ == false));
+        }
     }
 
 
@@ -1059,11 +1094,13 @@ Indicates if the cursor is positioned on the last row.
     public boolean isLast ()
     throws SQLException
     {
-        checkOpen ();
-        return (((positionFromLast_ == 1)
-                 || ((positionFromFirst_ == maxRows_)
-                     && (maxRows_ > 0)))
-                && (positionInsert_ == false));
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return (((positionFromLast_ == 1)
+                     || ((positionFromFirst_ == maxRows_)
+                         && (maxRows_ > 0)))
+                    && (positionInsert_ == false));
+        }
     }
 
 
@@ -1085,25 +1122,27 @@ are cleared.
     public boolean last ()
     throws SQLException
     {
-        beforePositioning (true);
-        rowCache_.last ();
-
-        // If the result set is not empty, then mark the
-        // position as being on the last row.
-        if (rowCache_.isValid ()) {
-            positionFromFirst_ = -1;
-            positionFromLast_ = 1;
-            positionValid_ = true;
+        synchronized(internalLock_) {                                            // @D1A
+            beforePositioning (true);
+            rowCache_.last ();
+    
+            // If the result set is not empty, then mark the
+            // position as being on the last row.
+            if (rowCache_.isValid ()) {
+                positionFromFirst_ = -1;
+                positionFromLast_ = 1;
+                positionValid_ = true;
+            }
+    
+            // Otherwise, there is no last row.
+            else {
+                positionFromFirst_ = -1;
+                positionFromLast_ = -1;
+                positionValid_ = false;
+            }
+    
+            return positionValid_;
         }
-
-        // Otherwise, there is no last row.
-        else {
-            positionFromFirst_ = -1;
-            positionFromLast_ = -1;
-            positionValid_ = false;
-        }
-
-        return positionValid_;
     }
 
 
@@ -1126,7 +1165,9 @@ are cleared.
     public void moveToCurrentRow ()
     throws SQLException
     {
-        beforePositioning (true);
+        synchronized(internalLock_) {                                            // @D1A
+            beforePositioning (true);
+        }
     }
 
 
@@ -1146,9 +1187,11 @@ are cleared.
     public void moveToInsertRow ()
     throws SQLException
     {
-        beforePositioning (true);
-        beforeUpdate ();
-        positionInsert_ = true;
+        synchronized(internalLock_) {                                            // @D1A
+            beforePositioning (true);
+            beforeUpdate ();
+            positionInsert_ = true;
+        }
     }
 
 
@@ -1168,39 +1211,41 @@ are cleared.
     public boolean next ()
     throws SQLException
     {
-        // Initialization.
-        beforePositioning (false);
-
-        // Handle max rows.
-        if ((positionFromFirst_ >= maxRows_) && (maxRows_ > 0)) {
-            // @B3D afterLast ();
-            rowCache_.afterLast ();         // @B3A
-            positionFromFirst_ = -1;        // @B3A
-            positionFromLast_ = 0;          // @B3A
-            positionValid_ = false;         // @B3A
-            return false;                   
-        }
-
-        // Normal case. If the row is null after a next, then
-        // the cursor is positioned after the last row.
-        rowCache_.next();
-        if (rowCache_.isValid ()) {
-            if (positionFromFirst_ >= 0)
-                ++positionFromFirst_;
-            if (positionFromLast_ > 0)
-                --positionFromLast_;
-            positionValid_ = true;
-        } else {
-            // If this is the first time row has been null,
-            // then increment one more time.
-            if (positionFromLast_ != 0)
+        synchronized(internalLock_) {                                            // @D1A
+            // Initialization.
+            beforePositioning (false);
+    
+            // Handle max rows.
+            if ((positionFromFirst_ >= maxRows_) && (maxRows_ > 0)) {
+                // @B3D afterLast ();
+                rowCache_.afterLast ();         // @B3A
+                positionFromFirst_ = -1;        // @B3A
+                positionFromLast_ = 0;          // @B3A
+                positionValid_ = false;         // @B3A
+                return false;                   
+            }
+    
+            // Normal case. If the row is null after a next, then
+            // the cursor is positioned after the last row.
+            rowCache_.next();
+            if (rowCache_.isValid ()) {
                 if (positionFromFirst_ >= 0)
                     ++positionFromFirst_;
-            positionFromLast_ = 0;
-            positionValid_ = false;
+                if (positionFromLast_ > 0)
+                    --positionFromLast_;
+                positionValid_ = true;
+            } else {
+                // If this is the first time row has been null,
+                // then increment one more time.
+                if (positionFromLast_ != 0)
+                    if (positionFromFirst_ >= 0)
+                        ++positionFromFirst_;
+                positionFromLast_ = 0;
+                positionValid_ = false;
+            }
+    
+            return positionValid_;
         }
-
-        return positionValid_;
     }
 
 
@@ -1222,29 +1267,31 @@ are cleared.
     public boolean previous ()
     throws SQLException
     {
-        // Initialization.
-        beforePositioning (true);
-
-        // Normal case. If the row is null after a previous, then
-        // the cursor is positioned before the first row.
-        rowCache_.previous();
-        if (rowCache_.isValid ()) {
-            if (positionFromFirst_ > 0)
-                --positionFromFirst_;
-            if (positionFromLast_ >= 0)
-                ++positionFromLast_;
-            positionValid_ = true;
-        } else {
-            // If this is the first time row has been null,
-            // then increment one more time.
-            if (positionFromFirst_ != 0)
+        synchronized(internalLock_) {                                            // @D1A
+            // Initialization.
+            beforePositioning (true);
+    
+            // Normal case. If the row is null after a previous, then
+            // the cursor is positioned before the first row.
+            rowCache_.previous();
+            if (rowCache_.isValid ()) {
+                if (positionFromFirst_ > 0)
+                    --positionFromFirst_;
                 if (positionFromLast_ >= 0)
                     ++positionFromLast_;
-            positionFromFirst_ = 0;
-            positionValid_ = false;
+                positionValid_ = true;
+            } else {
+                // If this is the first time row has been null,
+                // then increment one more time.
+                if (positionFromFirst_ != 0)
+                    if (positionFromLast_ >= 0)
+                        ++positionFromLast_;
+                positionFromFirst_ = 0;
+                positionValid_ = false;
+            }
+    
+            return positionValid_;
         }
-
-        return positionValid_;
     }
 
 
@@ -1266,17 +1313,19 @@ addition, all warnings and pending updates are cleared.
     public void refreshRow ()
     throws SQLException
     {
-        if (positionInsert_ == true)
-            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-        beforePositioning (true);
-        if (positionValid_ == false)
-            JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);       
-        
-        if (concurrency_ == CONCUR_UPDATABLE)
-            for (int i = 0; i < columnCount_; ++i)
-                updateSet_[i] = false;
-
-        rowCache_.refreshRow ();
+        synchronized(internalLock_) {                                            // @D1A
+            if (positionInsert_ == true)
+                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+            beforePositioning (true);
+            if (positionValid_ == false)
+                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);       
+            
+            if (concurrency_ == CONCUR_UPDATABLE)
+                for (int i = 0; i < columnCount_; ++i)
+                    updateSet_[i] = false;
+    
+            rowCache_.refreshRow ();
+        }
     }
 
 
@@ -1311,38 +1360,40 @@ are cleared.
     public boolean relative (int rowNumber)
     throws SQLException
     {
-        // Initialization.
-        beforePositioning (true);
-        if ((positionFromFirst_ == 0) || (positionFromLast_ == 0))
-            return false;
-
-        // Handle max rows.
-        if ((positionFromFirst_ >= 0)
-            && (positionFromFirst_ + rowNumber > maxRows_)
-            && (maxRows_ > 0))
-            return false;
-
-        // Normal case.  If the row is null after relative,
-        // then we are off the edge of the result set.
-        rowCache_.relative (rowNumber);
-        if (rowCache_.isValid ()) {
-            if (positionFromFirst_ >= 0)
-                positionFromFirst_ += rowNumber;
-            if (positionFromLast_ >= 0)
-                positionFromLast_ -= rowNumber;
-            positionValid_ = true;
-        } else {
-            if (rowNumber >= 0) {
-                positionFromFirst_ = -1;
-                positionFromLast_ = 0;
+        synchronized(internalLock_) {                                            // @D1A
+            // Initialization.
+            beforePositioning (true);
+            if ((positionFromFirst_ == 0) || (positionFromLast_ == 0))
+                return false;
+    
+            // Handle max rows.
+            if ((positionFromFirst_ >= 0)
+                && (positionFromFirst_ + rowNumber > maxRows_)
+                && (maxRows_ > 0))
+                return false;
+    
+            // Normal case.  If the row is null after relative,
+            // then we are off the edge of the result set.
+            rowCache_.relative (rowNumber);
+            if (rowCache_.isValid ()) {
+                if (positionFromFirst_ >= 0)
+                    positionFromFirst_ += rowNumber;
+                if (positionFromLast_ >= 0)
+                    positionFromLast_ -= rowNumber;
+                positionValid_ = true;
             } else {
-                positionFromFirst_ = 0;
-                positionFromLast_ = -1;
+                if (rowNumber >= 0) {
+                    positionFromFirst_ = -1;
+                    positionFromLast_ = 0;
+                } else {
+                    positionFromFirst_ = 0;
+                    positionFromLast_ = -1;
+                }
+                positionValid_ = false;
             }
-            positionValid_ = false;
+    
+            return positionValid_;
         }
-
-        return positionValid_;
     }
 
 
@@ -1413,12 +1464,14 @@ call to a get method implicitly closes the stream.
     public InputStream getAsciiStream (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        InputStream value = (data == null) ? null : data.toAsciiStream ();
-        openInputStream_ = value;
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            InputStream value = (data == null) ? null : data.toAsciiStream ();
+            openInputStream_ = value;
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1466,11 +1519,13 @@ NUMERIC, CHAR, and VARCHAR.
     public BigDecimal getBigDecimal (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1526,11 +1581,13 @@ NUMERIC, CHAR, and VARCHAR.
         if (scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1582,12 +1639,14 @@ implicitly closes the stream.
     public InputStream getBinaryStream (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        InputStream value = (data == null) ? null : data.toBinaryStream ();
-        openInputStream_ = value;
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            InputStream value = (data == null) ? null : data.toBinaryStream ();
+            openInputStream_ = value;
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1633,11 +1692,13 @@ types BINARY, VARBINARY, and BLOB.
     public Blob getBlob (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Blob value = (data == null) ? null : data.toBlob ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Blob value = (data == null) ? null : data.toBlob ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1682,11 +1743,13 @@ NUMERIC, CHAR, and VARCHAR.
     public boolean getBoolean (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        boolean value = (data == null) ? false : data.toBoolean ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            boolean value = (data == null) ? false : data.toBoolean ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1732,11 +1795,13 @@ NUMERIC, CHAR, and VARCHAR.
     public byte getByte (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        byte value = (data == null) ? 0 : data.toByte ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            byte value = (data == null) ? 0 : data.toByte ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1785,24 +1850,28 @@ result sets returned by a DatabaseMetaData object.
     public byte[] getBytes (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        byte[] value;                                                               // @C1C
-        
-        // Treat this differently from the other get's.  If the data is not a       // @C1A
-        // BINARY or VARBINARY, and we have access to the bytes, then return        // @C1A
-        // the bytes directly.                                                      // @C1A
-        if ((!(data instanceof SQLBinary)) 
-            && (!(data instanceof SQLVarbinary))
-            && (data != null)
-            && (row_ instanceof JDServerRow))                                       // @C1A
-            value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
-                                                                                    // @C1A
-        else {                                                                      // @C1A
-            value = (data == null) ? null : data.toBytes ();                        // @C1C
-            testDataTruncation (columnIndex, data);
-        }                                                                           // @C1A
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            byte[] value;                                                               // @C1C
+            
+            // Treat this differently from the other get's.  If the data is not a       // @C1A
+            // BINARY, VARBINARY, or BLOB, and we have access to the bytes, then return // @C1A @D4C
+            // the bytes directly.                                                      // @C1A
+            if ((!(data instanceof SQLBinary)) 
+                && (!(data instanceof SQLVarbinary))
+                && (!(data instanceof SQLBlob))                                         // @D4A
+                && (!(data instanceof SQLBlobLocator))                                  // @D4A
+                && (data != null)
+                && (row_ instanceof JDServerRow))                                       // @C1A
+                value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
+                                                                                        // @C1A
+            else {                                                                      // @C1A
+                value = (data == null) ? null : data.toBytes ();                        // @C1C
+                testDataTruncation (columnIndex, data);
+            }                                                                           // @C1A
+            return value;
+        }
     }
 
 
@@ -1853,12 +1922,14 @@ method implicitly closes the stream.
     public Reader getCharacterStream (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Reader value = (data == null) ? null : data.toCharacterStream ();
-        openReader_ = value;
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Reader value = (data == null) ? null : data.toCharacterStream ();
+            openReader_ = value;
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -1905,11 +1976,13 @@ types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
     public Clob getClob (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Clob value = (data == null) ? null : data.toClob ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Clob value = (data == null) ? null : data.toClob ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2001,11 +2074,13 @@ from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Date value = (data == null) ? null : data.toDate (calendar);
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Date value = (data == null) ? null : data.toDate (calendar);
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2052,11 +2127,13 @@ NUMERIC, CHAR, and VARCHAR.
     public double getDouble (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        double value = (data == null) ? 0 : data.toDouble ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            double value = (data == null) ? 0 : data.toDouble ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2102,11 +2179,13 @@ NUMERIC, CHAR, and VARCHAR.
     public float getFloat (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        float value = (data == null) ? 0 : data.toFloat ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            float value = (data == null) ? 0 : data.toFloat ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2152,11 +2231,13 @@ NUMERIC, CHAR, and VARCHAR.
     public int getInt (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        int value = (data == null) ? 0 : data.toInt ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            int value = (data == null) ? 0 : data.toInt ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2202,11 +2283,13 @@ NUMERIC, CHAR, and VARCHAR.
     public long getLong (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        long value = (data == null) ? 0 : data.toLong ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            long value = (data == null) ? 0 : data.toLong ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2245,8 +2328,10 @@ result set's columns.
     public ResultSetMetaData getMetaData ()
     throws SQLException
     {
-        return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
-            cursorName_, row_);
+        synchronized(internalLock_) {                                            // @D1A
+            return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
+                cursorName_, row_);
+        }
     }
 
 
@@ -2268,11 +2353,13 @@ connection's type map is used to created the object.
     public Object getObject (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Object value = (data == null) ? null : data.toObject ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Object value = (data == null) ? null : data.toObject ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2408,11 +2495,13 @@ NUMERIC, CHAR, and VARCHAR.
     public short getShort (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        short value = (data == null) ? 0 : data.toShort ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            short value = (data == null) ? 0 : data.toShort ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2456,11 +2545,13 @@ type.
     public String getString (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        String value = (data == null) ? null : data.toString ();
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            String value = (data == null) ? null : data.toString ();
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2547,15 +2638,17 @@ from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
     public Time getTime (int columnIndex, Calendar calendar)
     throws SQLException
     {
-        // Check for null calendar.
-        if (calendar == null)
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
-
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Time value = (data == null) ? null : data.toTime (calendar);
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Check for null calendar.
+            if (calendar == null)
+                JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+    
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Time value = (data == null) ? null : data.toTime (calendar);
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2650,11 +2743,13 @@ and TIMESTAMP.
         if (calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2706,12 +2801,14 @@ call to a get method implicitly closes the stream.
     public InputStream getUnicodeStream (int columnIndex)
     throws SQLException
     {
-        // Get the data and check for SQL NULL.
-        SQLData data = getValue (columnIndex);
-        InputStream value = (data == null) ? null : data.toUnicodeStream ();
-        openInputStream_ = value;
-        testDataTruncation (columnIndex, data);
-        return value;
+        synchronized(internalLock_) {                                            // @D1A
+            // Get the data and check for SQL NULL.
+            SQLData data = getValue (columnIndex);
+            InputStream value = (data == null) ? null : data.toUnicodeStream ();
+            openInputStream_ = value;
+            testDataTruncation (columnIndex, data);
+            return value;
+        }
     }
 
 
@@ -2825,9 +2922,10 @@ Indicates if the last column read has the value of SQL NULL.
     public boolean wasNull ()
     throws SQLException
     {
-        checkOpen ();
-
-        return wasNull_;
+        synchronized(internalLock_) {                                            // @D1A
+            checkOpen ();
+            return wasNull_;
+        }
     }
 
 
@@ -2870,10 +2968,12 @@ has already been called, then this method has no effect.
     public void cancelRowUpdates ()
     throws SQLException
     {
-        beforeUpdate ();
+        synchronized(internalLock_) {                                            // @D1A
+            beforeUpdate ();
 
-        for (int i = 0; i < columnCount_; ++i)
-            updateSet_[i] = false;
+            for (int i = 0; i < columnCount_; ++i)
+                updateSet_[i] = false;
+        }
     }
 
 
@@ -2893,26 +2993,33 @@ so it must be explicitly repositioned.
     public void deleteRow ()
     throws SQLException
     {
-        beforeUpdate ();
-
-        if (positionInsert_ == true)
-            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-
-        if (JDTrace.isTraceOn ())
-            JDTrace.logInformation (this, "Deleting a row.");
-
-        // Prepare the delete statement the first time
-        // we need it.
-        if (deleteStatement_ == null)
-            deleteStatement_ = connection_.prepareStatement (
-                                                            "DELETE FROM " + selectTable_ + " WHERE CURRENT OF "
-                                                            + cursorName_);
-
-        deleteStatement_.execute ();
-
-        // Mark the cursor position not valid.
-        positionValid_ = false;
-        rowCache_.flush ();
+        synchronized(internalLock_) {                                            // @D1A
+            beforeUpdate ();
+    
+            if (positionInsert_ == true)
+                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+    
+            if (JDTrace.isTraceOn ())
+                JDTrace.logInformation (this, "Deleting a row.");
+    
+            // Prepare the delete statement the first time
+            // we need it.
+            if (deleteStatement_ == null) {                                             // @D3C
+                StringBuffer buffer = new StringBuffer();                               // @D3A
+                buffer.append("DELETE FROM ");                                          // @D3A
+                buffer.append(selectTable_);                                            // @D3A
+                buffer.append(" WHERE CURRENT OF \"");                                  // @D3A
+                buffer.append(cursorName_);                                             // @D3A
+                buffer.append("\"");                                                    // @D3A
+                deleteStatement_ = connection_.prepareStatement(buffer.toString());     // @D3C
+            }                                                                           // @D3A
+    
+            deleteStatement_.execute ();
+    
+            // Mark the cursor position not valid.
+            positionValid_ = false;
+            rowCache_.flush ();
+        }
     }
 
 
@@ -2941,63 +3048,65 @@ and the database.
     public void insertRow ()
     throws SQLException
     {
-        beforeUpdate ();
-
-        if (positionInsert_ == false)
-            JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
-
-        // Build up the SQL statement.  Make sure a correlation name
-        // is not used.
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("INSERT INTO ");       
-        buffer.append (selectTable_);
-        buffer.append (" (");
-        StringBuffer values = new StringBuffer ();
-        int columnsSet = 0;
-        for (int i = 0; i < columnCount_; ++i) {
-            if (updateSet_[i] == true) {
-                if (columnsSet++ > 0) {
-                    buffer.append (",");
-                    values.append (",");
+        synchronized(internalLock_) {                                            // @D1A
+            beforeUpdate ();
+    
+            if (positionInsert_ == false)
+                JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
+    
+            // Build up the SQL statement.  Make sure a correlation name
+            // is not used.
+            StringBuffer buffer = new StringBuffer ();
+            buffer.append ("INSERT INTO ");       
+            buffer.append (selectTable_);
+            buffer.append (" (");
+            StringBuffer values = new StringBuffer ();
+            int columnsSet = 0;
+            for (int i = 0; i < columnCount_; ++i) {
+                if (updateSet_[i] == true) {
+                    if (columnsSet++ > 0) {
+                        buffer.append (",");
+                        values.append (",");
+                    }
+                    buffer.append (row_.getFieldName (i+1));
+                    values.append ("?");
                 }
-                buffer.append (row_.getFieldName (i+1));
-                values.append ("?");
             }
-        }
-        if (columnsSet == 0)
-            buffer.append (row_.getFieldName (1));
-        buffer.append (") VALUES (");
-        if (columnsSet == 0)
-            buffer.append ("NULL");
-        else
-            buffer.append (values);
-        buffer.append (")");
-
-        if (JDTrace.isTraceOn ())
-            JDTrace.logInformation (this, "Inserting a row: " + buffer);
-
-        // Prepare the statement and set the parameters.
-        PreparedStatement insertStatement = connection_.prepareStatement (buffer.toString ());
-        for (int i = 0, columnsSet2 = 0; i < columnCount_; ++i) {
-            if (updateSet_[i] == true) {
-                Object columnValue = updateRow_.getSQLData (i+1).toObject ();
-                if (updateNulls_[i])
-                    insertStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
-                else
-                    insertStatement.setObject (++columnsSet2, columnValue);                
-                updateSet_[i] = false;
+            if (columnsSet == 0)
+                buffer.append (row_.getFieldName (1));
+            buffer.append (") VALUES (");
+            if (columnsSet == 0)
+                buffer.append ("NULL");
+            else
+                buffer.append (values);
+            buffer.append (")");
+    
+            if (JDTrace.isTraceOn ())
+                JDTrace.logInformation (this, "Inserting a row: " + buffer);
+    
+            // Prepare the statement and set the parameters.
+            PreparedStatement insertStatement = connection_.prepareStatement (buffer.toString ());
+            for (int i = 0, columnsSet2 = 0; i < columnCount_; ++i) {
+                if (updateSet_[i] == true) {
+                    Object columnValue = updateRow_.getSQLData (i+1).toObject ();
+                    if (updateNulls_[i])
+                        insertStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
+                    else
+                        insertStatement.setObject (++columnsSet2, columnValue);                
+                    updateSet_[i] = false;
+                }
             }
+    
+            // Execute and close the statement.  Dispatch the warnings,
+            // if any.
+            insertStatement.executeUpdate ();
+            SQLWarning warnings = insertStatement.getWarnings ();
+            if (warnings != null)
+                postWarning (warnings); // The whole link gets added.
+            insertStatement.close ();
+    
+            rowCache_.flush ();
         }
-
-        // Execute and close the statement.  Dispatch the warnings,
-        // if any.
-        insertStatement.executeUpdate ();
-        SQLWarning warnings = insertStatement.getWarnings ();
-        if (warnings != null)
-            postWarning (warnings); // The whole link gets added.
-        insertStatement.close ();
-
-        rowCache_.flush ();
     }
 
 
@@ -3015,15 +3124,17 @@ been deleted.
     public boolean rowDeleted ()
     throws SQLException
     {
-        // We almost always return false because we don't allow 
-        // updates to scroll insensitive or forward only result 
-        // sets, so we never have holes.
-        //
-        // The only case where this may be true is if they call
-        // it immediately after deleting a row and then don't
-        // reposition the cursor.
-        return ((positionValid_ == false) && (positionInsert_ == false)
-                && ((positionFromFirst_ > 0) || (positionFromLast_ > 0)));
+        synchronized(internalLock_) {                                            // @D1A
+            // We almost always return false because we don't allow 
+            // updates to scroll insensitive or forward only result 
+            // sets, so we never have holes.
+            //
+            // The only case where this may be true is if they call
+            // it immediately after deleting a row and then don't
+            // reposition the cursor.
+            return ((positionValid_ == false) && (positionInsert_ == false)
+                    && ((positionFromFirst_ > 0) || (positionFromLast_ > 0)));
+        }
     }
 
 
@@ -3078,13 +3189,14 @@ data and posts a DataTruncation warning if so.
 @param  data          The data that was written, or null for SQL NULL.
 **/
     private void testDataTruncation2 (int columnIndex, SQLData data)
+        throws DataTruncation                                                               // @D5A
     {
         if (data != null) {
             int truncated = data.getTruncated ();
             if (truncated > 0) {
                 int actualSize = data.getActualSize ();
-                postWarning (new DataTruncation (columnIndex, false, false,
-                                                 actualSize + truncated, actualSize));
+                throw new DataTruncation (columnIndex, false, false,                        // @D5C
+                                                 actualSize + truncated, actualSize);       // @D5C
             }
         }
     }
@@ -3902,7 +4014,7 @@ The driver converts this to a value of an SQL type, depending on
 the type of the specified value.  The JDBC specification defines
 a standard mapping from Java types to SQL types.  In the cases
 where an SQL type is not supported by DB2 for OS/400, the 
-<a href="SQLTypes.html#unsupported">next closest matching type</a>
+<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
 is used.
 
 <p>This does not update the database directly.  Instead, it updates
@@ -3937,7 +4049,7 @@ The driver converts this to a value of an SQL type, depending on
 the type of the specified value.  The JDBC specification defines
 a standard mapping from Java types to SQL types.  In the cases
 where an SQL type is not supported by DB2 for OS/400, the 
-<a href="SQLTypes.html#unsupported">next closest matching type</a>
+<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
 is used.
 
 <p>This does not update the database directly.  Instead, it updates
@@ -3969,7 +4081,7 @@ The driver converts this to a value of an SQL type, depending on
 the type of the specified value.  The JDBC specification defines
 a standard mapping from Java types to SQL types.  In the cases
 where an SQL type is not supported by DB2 for OS/400, the 
-<a href="SQLTypes.html#unsupported">next closest matching type</a>
+<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
 is used.
 
 <p>This does not update the database directly.  Instead, it updates
@@ -4012,7 +4124,7 @@ The driver converts this to a value of an SQL type, depending on
 the type of the specified value.  The JDBC specification defines
 a standard mapping from Java types to SQL types.  In the cases
 where an SQL type is not supported by DB2 for OS/400, the 
-<a href="SQLTypes.html#unsupported">next closest matching type</a>
+<a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
 is used.
 
 <p>This does not update the database directly.  Instead, it updates
@@ -4089,8 +4201,9 @@ row.
                 buffer.append ("=?");
             }
         }
-        buffer.append (" WHERE CURRENT OF ");
+        buffer.append (" WHERE CURRENT OF \"");                                 // @D3C
         buffer.append (cursorName_);
+        buffer.append ("\"");                                                   // @D3C
 
         // Only go through with this if columns were set.
         if (columnsSet > 0) {
@@ -4370,27 +4483,29 @@ appropriate validation.
                               int scale)
     throws SQLException
     {
-        beforeUpdate ();
-
-        // Check that there is a current row.
-        if ((positionValid_ == false) && (positionInsert_ == false))
-            JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
-
-        // Validate The column index.
-        if ((columnIndex < 1) || (columnIndex > columnCount_))
-            JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
-
-        // Set the update value.  If there is a type mismatch,
-        // set() with throw an exception.
-        SQLData sqlData = updateRow_.getSQLData (columnIndex);
-        int columnIndex0 = columnIndex - 1;
-        if (columnValue != null)
-            sqlData.set (columnValue, calendar, scale);
-        updateNulls_[columnIndex0] = (columnValue == null);
-        updateSet_[columnIndex0] = true;
-
-        if (dataTruncation_)                                    // @B2A
-            testDataTruncation2 (columnIndex, sqlData);         // @B2C
+        synchronized(internalLock_) {                                            // @D1A
+            beforeUpdate ();
+    
+            // Check that there is a current row.
+            if ((positionValid_ == false) && (positionInsert_ == false))
+                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
+    
+            // Validate The column index.
+            if ((columnIndex < 1) || (columnIndex > columnCount_))
+                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+    
+            // Set the update value.  If there is a type mismatch,
+            // set() with throw an exception.
+            SQLData sqlData = updateRow_.getSQLData (columnIndex);
+            int columnIndex0 = columnIndex - 1;
+            if (columnValue != null)
+                sqlData.set (columnValue, calendar, scale);
+            updateNulls_[columnIndex0] = (columnValue == null);
+            updateSet_[columnIndex0] = true;
+    
+            if (dataTruncation_)                                    // @B2A
+                testDataTruncation2 (columnIndex, sqlData);         // @B2C
+        }
     }
 
 

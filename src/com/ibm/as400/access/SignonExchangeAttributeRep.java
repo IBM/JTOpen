@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonExchangeAttributeRep.java
 //                                                                             
@@ -40,6 +40,12 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
         byte[] seed = new byte[8];
         System.arraycopy(data_, 48, seed, 0, 8);
         return seed;
+    }
+
+    boolean getPasswordLevel()
+    {
+        if (data_.length <= 56) return false;
+        return data_[62] >= 2;
     }
 
     void read(InputStream in) throws IOException

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLBinary.java
 //                                                                             
@@ -256,10 +256,10 @@ implements SQLData
 
 
 
-    public boolean isGraphic ()
-    {
-        return false;
-    }
+    // @E1D public boolean isGraphic ()
+    // @E1D {
+    // @E1D    return false;
+    // @E1D }
 
 
 
@@ -362,12 +362,14 @@ implements SQLData
         // Do not signal a DataTruncation per the spec. @B1A
 	    int maxFieldSize = settings_.getMaxFieldSize ();
 	    if ((value_.length > maxFieldSize) && (maxFieldSize > 0)) {
-	        byte[] truncatedValue = new byte[maxFieldSize];     // @B1D
+	        // @B1D truncated_ = value_.length - maxFieldSize;
+	        byte[] truncatedValue = new byte[maxFieldSize];
 	        System.arraycopy (value_, 0, truncatedValue, 0, maxFieldSize);
 	        return truncatedValue;
 	    }
 	    else {
-	        return value_;     // @B1D
+	        // @B1D truncated_ = 0;
+	        return value_;
 	    }
 	}
 

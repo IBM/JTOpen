@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DQReceiveRecord.java
 //                                                                             
@@ -18,6 +18,8 @@ import java.io.Serializable;
 class DQReceiveRecord implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+    static final long serialVersionUID = 4L;
 
     String senderInformation_;
     byte[] data_;

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSTextFileInputStream.java
 //                                                                             
@@ -47,6 +47,7 @@ public class IFSTextFileInputStream extends IFSFileInputStream
 
 
    
+    static final long serialVersionUID = 4L;
 
   /**
    Constructs an IFSTextFileInputStream object.
@@ -93,6 +94,23 @@ public class IFSTextFileInputStream extends IFSFileInputStream
     super(system, name, shareOption);
   }
 
+   // @A5a
+  /**
+   Constructs an IFSTextFileInputStream object. 
+   It creates a file input stream to read from the text file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.  The file is
+   opened if it exists; otherwise an exception is thrown.
+   @param file The file to be opened for reading.
+
+   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public IFSTextFileInputStream(IFSFile file)
+    throws AS400SecurityException, IOException
+  {
+    super(file);
+  }
+
   /**
    Constructs an IFSTextFileInputStream object. 
    It creates a file input stream to read from the text file specified by <i>file</i>.
@@ -109,6 +127,23 @@ public class IFSTextFileInputStream extends IFSFileInputStream
     throws AS400SecurityException, IOException
   {
     super(system, file, shareOption);
+  }
+
+  // @A5a
+  /**
+   Constructs an IFSTextFileInputStream object. 
+   It creates a file input stream to read from the text file specified by <i>file</i>.
+   Other readers and writers are allowed to access the file.  The file is
+   opened if it exists; otherwise an exception is thrown.
+   @param file The file to be opened for reading.
+
+   @exception AS400SecurityException If  a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public IFSTextFileInputStream(IFSJavaFile file)
+    throws AS400SecurityException, IOException
+  {
+    super(file);
   }
 
   // @A2A

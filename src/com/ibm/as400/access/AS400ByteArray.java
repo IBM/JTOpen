@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ByteArray.java
 //                                                                             
@@ -21,6 +21,12 @@ public class AS400ByteArray implements AS400DataType
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
+
+
+    static final long serialVersionUID = 4L;
+
+
+
     private int length;
     private static final int defaultValue = 0;
 

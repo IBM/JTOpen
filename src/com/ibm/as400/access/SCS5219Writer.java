@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCS5219Writer.java
 //                                                                             
@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
   * @see SCS5224Writer
 **/
 
- /* @A1C
+ /* @A1C 
   * Moved AHPP/AVPP to 5256 class
   * Moved setBold to 3812 class
   * Added setCodePage method that uses SCG command

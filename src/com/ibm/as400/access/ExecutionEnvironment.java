@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ExecutionEnvironment.java
 //                                                                             
@@ -19,23 +19,27 @@ import java.util.Locale;
 abstract class ExecutionEnvironment
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-  
-  
-    /**
-     * Get the associated DBCS CCSID.
-     * @return The CCSID.  Negative one is returned if there is no associated DBCS CCSID.
-     **/
-    static int getAssociatedDbcsCcsid(int ccsid)
+
+  //@B0 - deleted a bunch of static initialization stuff here
+
+// @B1D  /**
+// @B1D   * Get the associated DBCS CCSID.
+// @B1D   * @return The CCSID.  Negative one is returned if there is no associated DBCS CCSID.
+// @B1D   **/
+/* @B1D
+  static int getAssociatedDbcsCcsid(int ccsid)
+  {
+    //@B0D String prop = associatedDbcsCcsid.getProperty(String.valueOf(ccsid));
+    String prop = (String)ConversionMaps.associatedDbcsCcsidMap_.get(String.valueOf(ccsid)); //@B0A
+    if(prop == null)
     {
-     String prop = (String)ConversionMaps.associatedDbcsCcsidMap_.get(String.valueOf(ccsid));
-     if (prop == null)
-     {
-         return -1;
-     }
-     return Integer.parseInt(prop);
+      return -1;
     }
+    return Integer.parseInt(prop);
+  }
+@B1D */  
 
-
+  
   /**
    * Get the "best guess" CCSID for the AS/400 based on the default locale.
    * @return The CCSID.

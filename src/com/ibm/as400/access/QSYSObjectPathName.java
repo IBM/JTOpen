@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: QSYSObjectPathName.java
 //                                                                             
@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
+// @D3D import java.util.MissingResourceException;                      // @D1A
 import java.util.Vector;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -121,6 +122,9 @@ public class QSYSObjectPathName extends Object
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
+    static final long serialVersionUID = 4L;
+
+
 String fullPathName_="";      // full IFS path
 String libraryName_="";       // library name
 String objectName_="";        // object name
@@ -129,6 +133,54 @@ String objectType_="";        // object type
 private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
 transient private Vector vetoListeners_ = new Vector();
 
+
+/* @D3D
+// If you add a type here, make sure and add MRI for it with the                    // @D1A
+// key "TYPE_name".                                                                 // @D1A
+private static final String[] supportedObjectTypes_ = {                             // @D1A
+        "ALRTBL", "AUTL",                                                           // @D1A
+        "BLKS", "BNDDIR",                                                           // @D1A
+        "CFGL", "CHTFMT", "CLD", "CLS", "CMD", "CNNL", "COSD",                      // @D1A
+        "CRG", "CRQD", "CSI", "CSPMAP", "CSPTBL", "CTLD", "CTLSTS",                 // @D1A
+        "DDIR", "DEVD", "DEVSTS", "DIR", "DOC", "DSTMF", "DTAARA",                  // @D1A
+        "DTADCT", "DTAQ",                                                           // @D1A
+        "EDTD", "EXITRG",                                                           // @D1A
+        "FCT", "FILE", "FLR", "FNTRSC", "FNTTBL", "FORMDF", "FTR",                  // @D1A
+        "GSS",                                                                      // @D1A
+        "IGCDCT", "IGCSRT", "IGCTBL", "IPXD",                                       // @D1A
+        "JOBD", "JOBQ", "JOBSCD", "JRN", "JRNRCV",                                  // @D1A
+        "LIB", "LIND", "LINSTS", "LOCALE",                                          // @D1A
+        "M36", "M36CFG", "MEDDFN", "MENU", "MGTCOL", "MODD", "MODULE",              // @D1A
+        "MSGF", "MSGQ",                                                             // @D1A
+        "NETF", "NODGRP", "NODL", "NTBD", "NWID", "NWISTS", "NWSD",                 // @D1A
+        "OOPOOL", "OUTQ", "OVL",                                                    // @D1A
+        "PAGDFN", "PAGSEG", "PDG", "PGM", "PNLGRP", "PRDAVL",                       // @D1A
+        "PRDDFN", "PRDLOD", "PSFCFG",                                               // @D1A
+        "QMFORM", "QMQRY", "QRYDFN",                                                // @D1A
+        "RCT",                                                                      // @D1A
+        "S36", "SBSD", "SBSSTS", "SCHIDX", "SOCKET", "SPADCT",                      // @D1A
+        "SQLPKG", "SQLUDT", "SRVPGM", "SSND", "STMF", "SVRSTG", "SYMLNK",           // @D1A
+        "TBL",                                                                      // @D1A
+        "USRIDX", "USRPRF", "USRQ", "USRSPC",                                       // @D1A
+        "VLDL",                                                                     // @D1A
+        "WSCST"                                                                     // @D1A
+        };                                                                          // @D1A
+    
+private static final String fileType_ = "FILE";                                     // @D1A
+private static final String pgmType_ = "PGM";                                       // @D1A
+private static final String[] noAttributes_ = new String[0];                        // @D1A
+
+// If you add a attribute here, make sure and add MRI for it with the               // @D1A
+// key "TYPE_FILE_name".                                                            // @D1A
+private static final String[] supportedFileAttributes_ = {                          // @D1A
+        "CMNF", "DKTF", "DSPF", "ICFF", "LF", "PF",                                 // @D1A
+        "PRTF", "SAVF", "TAPF" };                                                   // @D1A
+
+// If you add a attribute here, make sure and add MRI for it with the               // @D1A
+// key "TYPE_PGM_name".                                                             // @D1A
+private static final String[] supportedPgmAttributes_ = {                           // @D1A
+        "RPG", "CLP", "C", "PAS", "CBL", "BAS", "PLI", "FTN", "CLE" };              // @D1A @D2C
+*/        
 
 
 /**
@@ -550,6 +602,108 @@ public String getLibraryName()
 }
 
 
+// @D1A
+/**
+Returns a localized description of the object type.
+
+@return The localized description.
+**/
+/* @D3D
+public String getLocalizedObjectType()
+{
+    return QSYSObjectTypeTable.getLocalizedObjectType(objectType_, null);   // @D3C
+}
+*/
+
+
+
+// @D1A
+/**
+Returns a localized description of an object type.
+
+@param type                 The object type.
+@return The localized description.
+**/
+/* @D3D
+public static String getLocalizedObjectType(String type)
+{
+    return QSYSObjectTypeTable.getLocalizedObjectType(type, null); // @D3C
+}
+*/
+
+
+
+// @D3A - Note: We need to remove this method.
+// @D1A
+/**
+Returns a localized description of an object type.
+
+@param type                 The object type.
+@param attribute            The attribute, or null if none.
+@return                     The localized description, or the type name
+                            if no localized desription can be determined.
+**/
+//
+// Design note:  I thought about allowing attribute == "" to mean
+//               the same thing as null, but I decided against it, in case
+//               we ever need to differentiate between a type with no 
+//               attribute and a type with an attribute not specified.
+//
+/* @D3D 
+public static String getLocalizedObjectType(String type, String attribute)
+{
+    return QSYSObjectTypeTable.getLocalizedObjectType(type, attribute);                    // @D3A
+    // /* @D3D
+    if (type == null)
+        throw new NullPointerException("type");
+
+    // Concoct the MRI key.
+    StringBuffer buffer = new StringBuffer();
+    buffer.append("TYPE_");
+
+    // Add the type.  Uppercase it and remove a * if included in the first character.
+    if (type.length() > 0) {
+        if (type.charAt(0) == '*') {
+            if (type.length() > 1)
+                buffer.append(type.substring(1).toUpperCase());
+            else
+                throw new ExtendedIllegalArgumentException("type(" + type + ")",
+                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        else
+            buffer.append(type.toUpperCase());
+    }
+
+    // Add the attribute if included.
+    if (attribute != null) {
+        buffer.append('_');
+        buffer.append(attribute.toUpperCase());
+    }
+
+    String mriKey = buffer.toString();
+
+    // Get the MRI.
+    try {
+        return ResourceBundleLoader.getText(mriKey);
+    }
+    catch(MissingResourceException e) {
+        
+        // If there was an attribute specified, assume the attribute is             @D2A
+        // not in our list and try without an attribute specified.                  @D2A
+        if (attribute != null)                                                   // @D2A
+            return getLocalizedObjectType(type, null);                           // @D2A
+        else                                                                     // @D2A
+            return type;                                                         // @D2A
+
+        // @D2D throw new ExtendedIllegalArgumentException("type(" + type + ")",
+        // @D2D    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+  //  * /
+}
+*/
+
+
+
 /**
 Returns the name of the member.  If this object does not represent a
 member, an empty string is returned.
@@ -599,6 +753,46 @@ public String getPath()
 {
   return fullPathName_;
 }
+
+
+
+// @D1A
+/**
+Returns a list of the supported attributes for an object type.  
+
+@param type                 The object type.
+@return The list of the supported attributes.
+**/
+/* @D3D
+public static String[] getSupportedAttributes(String type)
+{
+    return QSYSObjectTypeTable.getSupportedAttributes(type);    // @D3A
+    / * @D3D
+    if (type.equals(fileType_))
+        return supportedFileAttributes_;
+    else if (type.equals(pgmType_))
+        return supportedPgmAttributes_;
+    else
+        return noAttributes_;
+        * /
+}
+*/
+
+
+
+// @D1A
+/**
+Returns a list of the supported object types.  
+
+@return The list of the supported object types.
+**/
+/* @D3D
+public static String[] getSupportedObjectTypes()
+{
+    return QSYSObjectTypeTable.getSupportedObjectTypes();  // @D3C
+}
+*/
+
 
 
 /**

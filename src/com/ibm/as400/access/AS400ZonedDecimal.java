@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ZonedDecimal.java
 //                                                                             
@@ -22,6 +22,10 @@ import java.math.BigInteger;
 public class AS400ZonedDecimal implements AS400DataType
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
     private int digits;
     private int scale;
@@ -181,6 +185,182 @@ public class AS400ZonedDecimal implements AS400DataType
          as400Value[offset] = (byte)((inChars[inPosition] & 0x000F) | 0x00D0);
      }
      return outDigits;
+    }
+
+    // @E0A
+    /**
+     * Converts the specified Java object to AS/400 format.
+     *
+     * @param doubleValue   The value to be converted to AS/400 format.  If the decimal part
+     *                      of this value needs to be truncated, it will be rounded towards
+     *                      zero.  If the integral part of this value needs to be truncated,
+     *                      an exception will be thrown.
+     * @return              The AS/400 representation of the data type.
+     **/
+    public byte[] toBytes(double doubleValue)
+    {
+        byte[] as400Value = new byte[digits];
+        toBytes(doubleValue, as400Value, 0);
+        return as400Value;
+    }
+
+    // @E0A
+    /**
+     * Converts the specified Java object into AS/400 format in 
+     * the specified byte array.
+     *
+     * @param doubleValue   The value to be converted to AS/400 format.  If the decimal part
+     *                      of this value needs to be truncated, it will be rounded towards
+     *                      zero.  If the integral part of this value needs to be truncated,
+     *                      an exception will be thrown.
+     * @param as400Value    The array to receive the data type in AS/400 format.  There must 
+     *                      be enough space to hold the AS/400 value.
+     * @return              The number of bytes in the AS/400 representation of the data type.
+     **/
+    public int toBytes(double doubleValue, byte[] as400Value)
+    {
+        return toBytes(doubleValue, as400Value, 0);
+    }
+
+    // @E0A
+    /**
+     * Converts the specified Java object into AS/400 format in 
+     * the specified byte array.
+     *
+     * @param doubleValue   The value to be converted to AS/400 format.  If the decimal part
+     *                      of this value needs to be truncated, it will be rounded towards
+     *                      zero.  If the integral part of this value needs to be truncated,
+     *                      an exception will be thrown.
+     * @param as400Value    The array to receive the data type in AS/400 format.  
+     *                      There must be enough space to hold the AS/400 value.
+     * @param offset        The offset into the byte array for the start of the AS/400 value. 
+     *                      It must be greater than or equal to zero.
+     * @return              The number of bytes in the AS/400 representation of the data type.
+     **/
+    public int toBytes(double doubleValue, byte[] as400Value, int offset)
+    {
+        // GOAL:  For performance reasons, we need to do this conversion
+        //        without creating any Java objects (e.g., BigDecimals,
+        //        Strings).
+
+        // If the number is too big, we can't do anything with it.
+        double absValue = Math.abs(doubleValue);
+        if (absValue > Long.MAX_VALUE)
+            throw new ExtendedIllegalArgumentException("doubleValue", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        // Extract the normalized value.  This is the value represented by
+        // two longs (one for each side of the decimal point).  Using longs 
+        // here improves the quality of the algorithm as well as the 
+        // performance of arithmetic operations.  We may need to use an
+        // "effective" scale due to the lack of precision representable
+        // by a long.
+        long leftSide = (long)absValue;
+        int effectiveScale = (scale > 15) ? 15 : scale;       
+        long rightSide = (long)Math.round((absValue - (double)leftSide) * Math.pow(10, effectiveScale));
+
+        // Ok, now we are done with any double arithmetic!
+
+        // If the effective scale is different than the actual scale,
+        // then pad with zeros.
+        int rightmostOffset = offset + digits - 1;
+        int padOffset = rightmostOffset - (scale - effectiveScale);
+        for (int i = rightmostOffset; i > padOffset; --i)
+            as400Value[i] = (byte)0x00F0;       
+
+        // Compute the bytes for the right side of the decimal point. 
+        int decimalOffset = rightmostOffset - scale;
+        int nextDigit;
+        for (int i = padOffset; i > decimalOffset; --i) {
+            nextDigit = (int)(rightSide % 10);
+            as400Value[i] = (byte)(0x00F0 | nextDigit);
+            rightSide /= 10;
+        }
+
+        // Compute the bytes for the left side of the decimal point.
+        for (int i = decimalOffset; i >= offset; --i) {
+            nextDigit = (int)(leftSide % 10);
+            as400Value[i] = (byte)(0x00F0 | nextDigit);
+            leftSide /= 10;
+        }
+
+        // Fix the sign, if negative.
+        if (doubleValue < 0)
+            as400Value[rightmostOffset] = (byte)(as400Value[rightmostOffset] & 0x00DF);
+
+        // If left side still has digits, then the value was too big
+        // to fit.
+        if (leftSide > 0)
+            throw new ExtendedIllegalArgumentException("doubleValue", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        return digits;
+    }
+
+    // @E0A
+    /**
+     * Converts the specified AS/400 data type to a Java double value.  If the
+     * decimal part of the value needs to be truncated to be represented by a
+     * Java double value, then it is rounded towards zero.  If the integral
+     * part of the value needs to be truncated to be represented by a Java
+     * double value, then it converted to either Double.POSITIVE_INFINITY
+     * or Double.NEGATIVE_INFINITY.
+     * 
+     * @param as400Value The array containing the data type in AS/400 format.  
+     *                   The entire data type must be represented.
+     * @return           The Java double value corresponding to the data type.
+     **/
+    public double toDouble(byte[] as400Value)
+    {
+        return toDouble(as400Value, 0);
+    }
+
+    // @E0A
+    /**
+     * Converts the specified AS/400 data type to a Java double value.  If the
+     * decimal part of the value needs to be truncated to be represented by a
+     * Java double value, then it is rounded towards zero.  If the integral
+     * part of the value needs to be truncated to be represented by a Java
+     * double value, then it converted to either Double.POSITIVE_INFINITY
+     * or Double.NEGATIVE_INFINITY.
+     * 
+     * @param as400Value The array containing the data type in AS/400 format.  
+     *                   The entire data type must be represented.
+     * @param offset     The offset into the byte array for the start of the AS/400 value.  
+     *                   It must be greater than or equal to zero.
+     * @return           The Java double value corresponding to the data type.
+     **/
+    public double toDouble(byte[] as400Value, int offset)
+    {
+        // Check the offset to prevent bogus NumberFormatException message.
+        if (offset < 0)
+            throw new ArrayIndexOutOfBoundsException(String.valueOf(offset));
+
+        // Compute the value.
+        double doubleValue = 0;
+        double multiplier = Math.pow(10, digits - scale - 1);
+        int rightMostOffset = offset + digits - 1;
+        for(int i = offset; i <= rightMostOffset; ++i) {
+            doubleValue += ((byte)(as400Value[i] & 0x000F)) * multiplier;
+            multiplier /= 10;
+        }
+                        
+        // Determine the sign.
+        switch(as400Value[rightMostOffset] & 0x00F0) {
+            case 0x00B0:
+            case 0x00D0:
+                // Negative.
+                doubleValue *= -1;
+                break;
+            case 0x00A0:
+            case 0x00C0:
+            case 0x00E0:
+            case 0x00F0:
+                // Positive.
+                break;
+            default: 
+                throw new NumberFormatException("as400Value");
+        }
+
+        return doubleValue;
     }
 
     /**

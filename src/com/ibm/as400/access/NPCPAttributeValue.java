@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPAttributeValue.java
 //                                                                             
@@ -33,9 +33,9 @@ import java.util.Enumeration;
   *       CPID - code point ID (2 bytes)
   *       data - code point data as follows:
   *
-  *       ----------------------------------------------------------------------------------
-  *       |nn | LEN | ID1 | tt | llll | ofof | ...... | IDnn| tt | llll | ofof |   values  |
-  *       ----------------------------------------------------------------------------------
+  *       ----------------------------------------------------------------------------------ÝÝ
+  *       |nn | LEN | ID1 | tt | llll | ofof | ...... | IDnn| tt | llll | ofof |  Ývalues  |ÝÝ
+  *       ----------------------------------------------------------------------------------ÝÝ
   *
   *         nn   - two byte total # of attributes in code point
   *         LEN  - two byte length of each attribute entry, right
@@ -53,9 +53,15 @@ import java.util.Enumeration;
   *   and to build a list of NPAttribute from the raw data.
   *
 */
+
 abstract class NPCPAttributeValue extends NPCodePoint
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
 
     // private data members
     private Hashtable attrTable_;
@@ -139,7 +145,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
        return super.getLength();
     }
     
-    // @B2A - Added method below to be package scope only! (for use by PrintObject.java(
+    // @B2A - Added method below to be package scope only! (for use by PrintObject.java)
     boolean getfListOutOfDate()         // @B2A
     {                                   // @B2A
         return fListOutOfDate_;         // @B2A

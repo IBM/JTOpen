@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400EndJobDS.java
 //                                                                             
@@ -23,16 +23,7 @@ class AS400EndJobDS extends ClientAccessDataStream
 
     AS400EndJobDS(int serverId)
     {
-        super();
-
-        if (serverId == 0xE004)  // Database Server.
-        {
-            data_ = new byte[40];
-        }
-        else
-        {
-            data_ = new byte[20];
-        }
+        super(new byte[(serverId == 0xE004) ? 40 : 20]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);

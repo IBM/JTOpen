@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTable.java
 //                                                                             
@@ -28,7 +28,7 @@ import java.util.Hashtable;
 abstract class ConvTable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-  
+
   final static char cic_  = '\uFFFF'; // Used for decompression
   final static char ric_  = '\uFFFE'; // Used for decompression
   final static char hbic_ = '\u0000'; // Used for decompression
@@ -38,6 +38,8 @@ abstract class ConvTable
   int ccsid_ = -1;
   
   private static final Hashtable converterPool_ = new Hashtable();
+  
+  //@E2D static final boolean debug_ = Trace.isTraceOn() && Trace.isTraceConversionOn();
   
   private static final String prefix_ = "com.ibm.as400.access.ConvTable";
   
@@ -170,12 +172,12 @@ abstract class ConvTable
   /**
    * Convenience function for tracing character strings.
   **/
-  static final byte[] dumpCharArray(char[] charArray)
+  static final byte[] dumpCharArray(char[] charArray, int numChars)
   {
-    byte[] retData = new byte[charArray.length*2];
+    byte[] retData = new byte[numChars*2];
     int inPos = 0;
     int outPos = 0;
-    while(inPos < charArray.length)
+    while(inPos < numChars)
     {
       retData[outPos++] = (byte)(charArray[inPos] >> 8);
       retData[outPos++] = (byte)charArray[inPos++];
@@ -183,6 +185,10 @@ abstract class ConvTable
     return retData;
   }
 
+  static final byte[] dumpCharArray(char[] charArray)
+  {
+    return dumpCharArray(charArray, charArray.length);
+  }
 
   /**
    * Returns the ccsid of this conversion object.
@@ -190,6 +196,7 @@ abstract class ConvTable
   **/
   int getCcsid()
   {
+    //return Integer.parseInt(CcsidEncodingMap.encodingToCcidString(encoding_));
     return ccsid_;
   }
 
@@ -227,7 +234,7 @@ abstract class ConvTable
     {
       newTable = (ConvTable)Class.forName(className).newInstance();
     }
-    catch(Exception e)
+    catch(Throwable e) //@E5C
     {
       if (Trace.isTraceOn()) //@E3A
       {
@@ -246,6 +253,8 @@ abstract class ConvTable
       }
       // It's not cached, so we can try to instantiate one.
       newTable = new ConvTableJavaMap(encoding); //@E3A
+      
+//@E3D      throw new UnsupportedEncodingException();
     }
       
     if(Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
@@ -281,7 +290,7 @@ abstract class ConvTable
     {
       newTable = (ConvTable)Class.forName(className).newInstance();
     }
-    catch(Exception e)
+    catch(Throwable e) //@E5C
     {
       if (Trace.isTraceOn()) //@E3A
       {
@@ -308,6 +317,8 @@ abstract class ConvTable
       }
       // It's not cached, so we can try to instantiate one.
       newTable = new ConvTableJavaMap(className); //@E3A
+      
+//@E3D      throw new UnsupportedEncodingException();
     }
     
     if(Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonConverter.java
 //                                                                             
@@ -23,13 +23,17 @@ class SignonConverter
 
     static String byteArrayToString(byte[] source)
     {
+        return new String(byteArrayToCharArray(source)).trim();
+    }
+
+    static char[] byteArrayToCharArray(byte[] source)
+    {
         char[] returnChars = new char[10];
-        int i = 0;
-        for (boolean notSpace = true; i < 10 && notSpace; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             switch (source[i] & 0xFF)
             {
-                case 0x40: notSpace = false; --i; break;  // (SP)
+                case 0x40: returnChars[i] = 0x0020; break;  // (SP)
 
                 case 0x5B: returnChars[i] = 0x0024; break;  // $
                 case 0x6D: returnChars[i] = 0x005F; break;  // _
@@ -76,7 +80,7 @@ class SignonConverter
                 default: throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.SIGNON_CHAR_NOT_VALID);
             }
         }
-        return new String(returnChars, 0, i);
+        return returnChars;
     }
 
     static byte[] stringToByteArray(String source)

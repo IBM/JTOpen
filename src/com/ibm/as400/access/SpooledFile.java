@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFile.java
 //                                                                             
@@ -23,7 +23,7 @@ import java.io.ObjectInputStream;
  * To create new spooled files on the AS/400, use the
  * SpooledFileOutputStream class.
  *
- * See <a href="SpooledFileAttrs.html">Spooled File Attributes</a> for
+ * See <a href="../../../../SpooledFileAttrs.html">Spooled File Attributes</a> for
  * valid attributes.
  *
  * @see PrintObjectInputStream
@@ -38,6 +38,9 @@ implements java.io.Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
    
+    static final long serialVersionUID = 4L;
+
+
     transient boolean       fMsgRetrieved_  = false;    /* @A2C - Changed to transient */
 
     // constructor used internally (not externalized since it takes
@@ -88,9 +91,9 @@ implements java.io.Serializable
             throw new NullPointerException("name");
         }
 
-        if (number < 1)
+        if (number < -1)    // @B2C  (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
         {
-	    Trace.log(Trace.ERROR, "Parameter 'number' is less than 1.");
+	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");   // @B2C
 	    throw new ExtendedIllegalArgumentException(
                 "number(" + number + ")",
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -291,7 +294,7 @@ implements java.io.Serializable
     /**
       * Returns the message that is associated with this spooled file.
       * A spooled file has a message associated with it if its
-      * ATTR_SPLFSTATUS attribute returns *MSGW.
+      * ATTR_SPLFSTATUS attribute returns *MESSAGE.
       *
       * @return The AS400Message object that contains the message text,
       *   type, severity, id, date, time, and default reply.
@@ -357,7 +360,7 @@ implements java.io.Serializable
      * Returns a page input stream that can be used to read the contents of the
      * spooled file, one page at a time.
      * <br>
-     * See <a href="transInStr.html">Example using PrintObjectPageInputStream</a>
+     * See <a href="../../../../transInStr.html">Example using PrintObjectPageInputStream</a>
      * <br>
      * @param pageStreamOptions A print parameter list that contains
      *  parameters for generating the page input stream. <br>
@@ -406,7 +409,7 @@ implements java.io.Serializable
      * Returns a transformed input stream that can be used to read the contents of the
      * spooled file.
      * <br>
-     * See <a href="transInStr.html">Example using PrintObjectTransformedInputStream</a>
+     * See <a href="../../../../transInStr.html">Example using PrintObjectTransformedInputStream</a>
      * <br>
      * @param transformOptions A print parameter list that contains
      *  parameters for generating the transformed input stream. <br>
@@ -738,7 +741,7 @@ implements java.io.Serializable
 
     /**
      * Sets one or more attributes of the object.  See
-     * <a href="SpooledFileAttrs.html">Spooled File Attributes</a> for
+     * <a href="../../../../SpooledFileAttrs.html">Spooled File Attributes</a> for
      * a list of valid attributes that can be changed.
      *
      * @param attributes A print parameter list that contains the

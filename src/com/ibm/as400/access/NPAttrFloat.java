@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPAttrFloat.java
 //                                                                             
@@ -13,7 +13,7 @@
 
 package com.ibm.as400.access;
 
-/** 
+/**
   * For a list of valid attribute IDs, see the NPObject class.
   **/
 
@@ -21,6 +21,9 @@ class NPAttrFloat extends NPAttribute implements Cloneable,
                                                  java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
 
 
     //
@@ -86,7 +89,7 @@ class NPAttrFloat extends NPAttribute implements Cloneable,
 
        // find out how many bytes are need to hold this guy
        // needed = (unsigned)((((float)digits+1)/2)+0.5);
-       needed = (int)((((float)DIGITS+1)/2)+0.5);     // should be 8 
+       needed = (int)((((float)DIGITS+1)/2)+0.5);     // should be 8
        byteIndex = needed - 1;         // start with the last byte
        hostValue = new byte[needed];   // allocate host byte array
 
@@ -174,7 +177,7 @@ class NPAttrFloat extends NPAttribute implements Cloneable,
               } /* endif */
               fHighNibble = !fHighNibble;
 
-              // should really check j to be >= 0 && <= 9 here
+              // should we check j to be >= 0 && <= 9 here?
               attrValue_ += j*(float)mult;
               mult /= 10.0;
 

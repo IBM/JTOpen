@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxRejectRepCV.java
 //                                                                             
@@ -15,60 +15,35 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 
-
-
-/**
-The PxRejectRepCV class represents the client
-view of a reject reply.
-**/
-class PxRejectRepCV
-extends PxRepCV
+// The PxRejectRepCV class represents the client view of a reject reply.
+class PxRejectRepCV extends PxRepCV
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    
-
-
     // Private data.
-    private ProxyClientConnection   connection_;
+    private ProxyClientConnection connection_;
 
-
-
-/**
-Constructs a PxRejectRepCV object.
-
-@param connection   The connection.
-**/
-    public PxRejectRepCV (ProxyClientConnection connection)
+    // Constructs a PxRejectRepCV object.
+    // @param  connection  The connection.
+    public PxRejectRepCV(ProxyClientConnection connection)
     { 
-        super (ProxyConstants.DS_REJECT_REP);
+        super(ProxyConstants.DS_REJECT_REP);
         connection_ = connection;
-      
     }
 
-
-
-/**
-Processes the reply.
-
-@return The returned object, or null if none.
-**/
-    public Object process ()
-        throws InvocationTargetException
+    // Processes the reply.
+    // @return  The returned object, or null if none.
+    public Object process() throws InvocationTargetException
     {
-        String peer = ((PxStringParm) getParm (0)).getStringValue ();
-        boolean secure = ((PxBooleanParm) getParm (1)).getBooleanValue ();
+        String peer = ((PxStringParm)getParm(0)).getStringValue();
 
-        connection_.close ();
-        if (peer.length() > 0) {
-            connection_.open (peer, secure);
-            connection_.connect ();
+        connection_.close();
+        if (peer.length() > 0)
+        {
+            connection_.open(peer);
+            connection_.connect();
+            return null; 
         }
-        else
-            throw new ProxyException (ProxyException.CONNECTION_REJECTED);
-
-        return null; 
+        throw new ProxyException(ProxyException.CONNECTION_REJECTED);
     }
-      
-
 }

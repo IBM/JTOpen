@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramParameter.java
 //                                                                             
@@ -31,6 +31,13 @@ public class ProgramParameter implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+
+    static final long serialVersionUID = 4L;
+
+
+
     /**
      Constant indicating parameter data is passed by value.
      **/
@@ -54,8 +61,18 @@ public class ProgramParameter implements Serializable
     private int outputDataLength_ = 0;
     private byte[] outputData_ = null;
 
-    transient private PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
-    transient private VetoableChangeSupport vetoableChangeListeners_ = new VetoableChangeSupport(this);
+    // Temporary variables to hold information needed to put parameter on datastream.
+    // These are transient to prevent increasing serialized size.
+    // Values only valid during datastream construction.
+    transient int length_ = 0;  // Byte length of parameter information.
+    transient int maxLength_ = 0;  // Max length of input and output data.
+    transient int usage_ = 0;  // Parameter usage: in, out, inout & no compression, 0-truncation, RLE
+    transient byte[] compressedInputData_ = null;  // Input data compressed.
+
+    // List of property change event bean listeners.
+    private transient PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
+    // List of vetoable change event bean listeners.
+    private transient VetoableChangeSupport vetoableChangeListeners_ = new VetoableChangeSupport(this);
 
     /**
      Constructs a ProgramParameter object.
@@ -71,17 +88,17 @@ public class ProgramParameter implements Serializable
      **/
     public ProgramParameter(byte[] inputData)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object for input.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, input data:", inputData);
         inputData_ = inputData;
     }
 
     /**
-     Constructs a ProgramParameter object.  An output parameter is created since the size of the output data is passed on this constructor.
+     Constructs a ProgramParameter object.  An output parameter is created, since the size of the output data is passed on this constructor.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
     public ProgramParameter(int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object for output.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, output data length:", outputDataLength);
         if (outputDataLength < 0)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
@@ -91,13 +108,13 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs ProgramParameter object.  An input/output parameter is created since both data passed to the program and the amount of data returned from the program is passed on this constructor.
+     Constructs ProgramParameter object. An input/output parameter is created, since both data passed to the program and the amount of data returned from the program is passed on this constructor.
      @param  inputData  Parameter data passed to the program.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
     public ProgramParameter(byte[] inputData, int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object for inout.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, output data length: " + outputDataLength + " input data:", inputData);
         if (outputDataLength < 0)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'outputDataLength' is not valid:", outputDataLength);
@@ -108,13 +125,13 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs a ProgramParameter object.  An input parameter is created since a byte array containing parameter data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value and is used only by ServiceProgramCall.
+     Constructs a ProgramParameter object.  An input parameter is created, since a byte array containing parameter data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
      @param  inputData  The parameter data to be used as input to the program.
      **/
     public ProgramParameter(int parameterType, byte[] inputData)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object for input for service program.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " input data:", inputData);
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
@@ -125,13 +142,13 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs a ProgramParameter object.  An output parameter is created since the size of the output data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value and is used only by ServiceProgramCall.
+     Constructs a ProgramParameter object.  An output parameter is created, since the size of the output data is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
     public ProgramParameter(int parameterType, int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object for output for service program.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " output data length:", outputDataLength);
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
@@ -147,14 +164,14 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Constructs ProgramParameter object.  An input/output parameter is created since both data passed to the program and the amount of data returned from the program is passed on this constructor.  The type indicates if the data is pass by reference or pass by value and is used only by ServiceProgramCall.
+     Constructs ProgramParameter object.  An input/output parameter is created, since both data passed to the program and the amount of data returned from the program is passed on this constructor.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of parameter.
      @param  inputData  The parameter data to be used as input to the program.
      @param  outputDataLength  The amount of data to be returned from the program.
      **/
     public ProgramParameter(int parameterType, byte[] inputData, int outputDataLength)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object for output for service program.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing ProgramParameter object, service program parameter type: " + parameterType + " output data length: " + outputDataLength + " input data:", inputData);
         if (parameterType < PASS_BY_VALUE || parameterType > PASS_BY_REFERENCE)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'parameterType' is not valid:", parameterType);
@@ -171,7 +188,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Adds a PropertyChangeListener.  The specified PropertyChangeListeners <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this ProgramParameter; it can be removed with removePropertyChangeListener.
+     Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  The PropertyListener object is added to a list of PropertyChangeListeners managed by this ProgramParameter; it can be removed with removePropertyChangeListener.
      @param  listener  The PropertyChangeListener.
      @see  #removePropertyChangeListener
      **/
@@ -202,13 +219,23 @@ public class ProgramParameter implements Serializable
         vetoableChangeListeners_.addVetoableChangeListener(listener);
     }
 
+    // Returns the parameter max length.  This is the maximum of the input data length and the output data length.
+    // @return  The parameter max length (number of bytes).
+    int getMaxLength()
+    {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting max length.");
+        int maxLength = (inputData_ == null) ? outputDataLength_ : Math.max(inputData_.length, outputDataLength_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Max length:", maxLength);
+        return maxLength;
+    }
+
     /**
      Returns the parameter data that will be sent to the program.  Null is returned if the input data has not been set.
      @return  The parameter data to be used as input to the program.
      **/
     public byte[] getInputData()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting input data.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting input data:", inputData_);
         return inputData_;
     }
 
@@ -218,13 +245,13 @@ public class ProgramParameter implements Serializable
      **/
     public byte[] getOutputData()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting output data.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting output data:", outputData_);
         return outputData_;
     }
 
     /**
      Returns the output parameter data length.
-     @return  The amount of data to be returned from the program.
+     @return  The amount of data to be returned from the program (number of bytes).
      **/
     public int getOutputDataLength()
     {
@@ -233,8 +260,12 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Returns the program parameter type.  The type indicates if data is passed by reference or passed by value, and is used only by ServiceProgramCall.
-     @return  The program parameter type.
+     Returns the program parameter type.  The type indicates if data is passed by reference or passed by value.  The type attribute is used by ServiceProgramCall.
+     @return  The program parameter type.  The type is one of the following:
+     <UL>
+     <LI>PASS_BY_VALUE  The parameter is passed as data.
+     <LI>PASS_BY_REFERENCE  The parameter is passed as a reference.
+     </UL>
      **/
     public int getParameterType()
     {
@@ -242,12 +273,13 @@ public class ProgramParameter implements Serializable
         return parameterType_;
     }
 
-    // Returns the parameter type.
-    int getType()
+    // Returns the parameter usage.
+    int getUsage()
     {
-        if (inputData_ == null) return OUTPUT;
-        if (outputDataLength_ == 0) return INPUT;
-        return INOUT;
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting parameter usage.");
+        int usage = (inputData_ == null) ? OUTPUT : (outputDataLength_ == 0) ? INPUT : INOUT;
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Parameter usage:", usage);
+        return usage;
     }
 
     // Deserialize and initialize transient data.
@@ -299,7 +331,7 @@ public class ProgramParameter implements Serializable
      **/
     public void setInputData(byte[] inputData) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting input data.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting input data:", inputData);
         byte[] oldValue = inputData_;
         byte[] newValue = inputData;
         vetoableChangeListeners_.fireVetoableChange("inputData", oldValue, newValue);
@@ -307,16 +339,17 @@ public class ProgramParameter implements Serializable
         propertyChangeListeners_.firePropertyChange("inputData", oldValue, newValue);
     }
 
-    // Sets the parameter data that has been recieved from the program.
+    // Sets the parameter data that has been received from the program.
     // @param  outputData  The data to be returned from the program.
     void setOutputData(byte[] outputData)
     {
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting output data:", outputData);
         outputData_ = outputData;
     }
 
     /**
      Sets the output parameter data length.
-     @param  outputDataLength  The amount of data to be returned from the program.
+     @param  outputDataLength  The amount of data to be returned from the program (number of bytes).
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setOutputDataLength(int outputDataLength) throws PropertyVetoException
@@ -335,7 +368,7 @@ public class ProgramParameter implements Serializable
     }
 
     /**
-     Sets the type of program parameter.  The type indicates if the data is pass by reference or pass by value and is used only by ServiceProgramCall.
+     Sets the type of program parameter.  The type indicates if the data is pass by reference or pass by value.  The type attribute is used by ServiceProgramCall.
      @param  parameterType  The type of the program parameter.  The type must be one of the following:
      <UL>
      <LI>PASS_BY_VALUE  The parameter is passed as data.

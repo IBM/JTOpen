@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ObjectEvent.java
 //                                                                             
@@ -22,8 +22,13 @@ public class ObjectEvent extends EventObject
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+    static final long serialVersionUID = 4L;
+
+
     /**
-     Constructs a ObjectEvent object.  It uses the specified source.
+     Constructs an ObjectEvent object.  It uses the specified source.
      @param  source  The object where the event originated.
      **/
     public ObjectEvent(Object source)

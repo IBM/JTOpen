@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPSelRes.java
 //                                                                             
@@ -20,11 +20,18 @@ package com.ibm.as400.access;
   * point that has as its data a list of any attributes that can filter a
   * AFP resource list.  These include the resource library name, the resource
   * name, the resource object type and the pel density for font resources.
-**/
+  *
+ **/
 
 class NPCPSelRes extends NPCPSelection implements Cloneable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+
+    static final long serialVersionUID = 4L;
+
+
 
     static final int FNTRSC = 0x0001;
     static final int FORMDF = 0x0002;

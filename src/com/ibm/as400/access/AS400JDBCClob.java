@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCClob.java
 //                                                                             
@@ -71,7 +71,7 @@ Returns the entire clob as a stream of ASCII characters.
             return new ByteArrayInputStream (data_.getBytes ("ISO8859_1"));
         }
         catch (UnsupportedEncodingException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);    // @C2C
             return null;
         }
     }
@@ -196,7 +196,7 @@ Returns the position at which a pattern is found in the clob.
         if ((start < 0) || (start >= length_) || (pattern == null))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        return data_.indexOf (pattern.getSubString (0, (int) pattern.length ()), (int) start);
+        return data_.indexOf (pattern.getSubString (1, (int) pattern.length ()), (int) start); // @C1C
     }
 
 

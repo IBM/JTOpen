@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400CertificateUtilImpl.java
 //                                                                             
@@ -23,6 +23,9 @@ abstract class AS400CertificateUtilImpl  implements java.io.Serializable, AS400C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+
+
+    static final long serialVersionUID = 4L;
 
 
   Converter converter_;        // The string to AS400 data converter. @C0C @C1C

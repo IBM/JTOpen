@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxRepCV.java
 //                                                                             
@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 The PxRepCV class represents the client
 portion of a reply.
 **/
-abstract class PxRepCV 
+abstract class PxRepCV
 extends PxCompDS
 implements PxDSRV
 {
@@ -36,6 +36,7 @@ implements PxDSRV
 
     // Private data.
     private long    correlationId_  = -1;
+    private long    clientId_       = -1;     // @D1A @D2A
 
 
 
@@ -62,11 +63,27 @@ Dumps the datastream for debugging and tracing.
         synchronized (output) {
            super.dump (output);
            output.println("   Correlation id = " + correlationId_);
-        }
 
-      
+           // @D2D if (clientId_ != null)                                // @D1a
+           // @D2D {
+               output.println ("   Client id = " + clientId_);          // @D2C
+           // @D2D     for (int i=0; i<clientId_.length; i++)
+           // @D2D        output.print(clientId_[i]);
+           // @D2D     output.println();
+           // @D2D }
+        }
     }
-  
+
+//
+// @D1 New method @D2C
+// Return the client id read off the stream.  -1 is returned
+// if there is no client id.
+//
+   public long getClientId()            // @D2C
+   {
+      return clientId_;
+   }
+
 
 
     public long getCorrelationId()
@@ -75,7 +92,7 @@ Dumps the datastream for debugging and tracing.
     }
 
 
-                                         
+
 /**
 Processes the reply.
 
@@ -93,7 +110,7 @@ Loads this datastream by reading from an input stream.
 @param factory  The datastream factory.  This is sometimes
                 needed when datastreams are nested.
 
-@exception IOException  If an error occurs.                
+@exception IOException  If an error occurs.
 **/
     public void readFrom (InputStream input, PxDSFactory factory)
         throws IOException
@@ -101,8 +118,13 @@ Loads this datastream by reading from an input stream.
         super.readFrom (input, factory);
         DataInputStream dataInput = new DataInputStream (input);
         correlationId_  = dataInput.readLong();
+
+        // read the client id off the end of the stream.      @D1a
+        // @D2D if (clientId_ == null)
+        // @D2D    clientId_ = new byte[8];
+        clientId_ = dataInput.readLong();                           // @D2C
     }
 
 
-
 }
+

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PxClientReadDaemon.java
 //                                                                             
@@ -13,20 +13,30 @@
 
 package com.ibm.as400.access;
 
-
+//
+// Tunneling -- HTTP is stateless which means there is no persistent
+// connection between the client and server.  With tunneling, a connection
+// is made, data sent and received, then disconnected.  This class now
+// has two personalities:
+//   1) normal proxy -- start a background thread that sits on
+//      on the connection waiting for data.  When
+//      data arrives, handle it (possible asnychronous processing).
+//   2) tunnel proxy -- no additional thread is started.  When it is time
+//      to read data a connection is passed to this class.
+//
 
 import java.util.Hashtable;
 import java.io.EOFException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.SocketException;                                                    // @A1A
+// @B1D import java.net.SocketException;                                                    // @A1A
 
 
 
 /**
 The PxClientReadDaemon class represents a read daemon for reading
-replies from the proxy server.  
+replies from the proxy server.
 **/
 class PxClientReadDaemon
 extends StoppableThread
@@ -42,11 +52,22 @@ extends StoppableThread
     private InvocationTargetException   invocationTargetException_          = null;
     private IOException                 ioException_                        = null;
     private Hashtable                   replies_                            = new Hashtable();
-    private boolean                     running_                            = false;    
-    private boolean                     started_                            = false;    
-    
-    
-    
+    private boolean                     running_                            = false;
+    private boolean                     started_                            = false;
+
+
+    // @D1a new c'tor
+    // Use this c'tor when Tunneling
+    public PxClientReadDaemon ()
+    {
+        super("Proxy client read daemon-" + newId());
+
+        // Mark this as a daemon thread so that its running does
+        // not prevent the JVM from going away.
+        setDaemon(true);
+    }
+
+
     public PxClientReadDaemon (InputStream input)
     {
         super("Proxy client read daemon-" + newId());
@@ -65,7 +86,7 @@ extends StoppableThread
     }
 
 
-
+    // Traditional proxy uses this method.
     public PxRepCV getReply(long correlationId)
         throws InvocationTargetException, IOException
     {
@@ -73,7 +94,7 @@ extends StoppableThread
 
         // Loop and poll, until the correct reply has been read by the
         // read daemon thread.
-        while(true) {            
+        while(true) {
 
             // If any relevant exceptions were caught by the read daemon
             // thread, then throw them now.
@@ -91,7 +112,7 @@ extends StoppableThread
                     return reply;
                 }
 
-                // If not found, but the read daemon is still running, 
+                // If not found, but the read daemon is still running,
                 // then wait patiently and efficiently.
                 if (running_ || !started_) {
                     try {
@@ -112,7 +133,7 @@ extends StoppableThread
             }
         }
     }
-          
+
 
 
     public void register(PxDSRV datastream)
@@ -121,26 +142,27 @@ extends StoppableThread
     }
 
 
+    // A thread is created only when using traditional proxy.
     public void run()
     {
         started_ = true;
         running_ = true;
-        int exceptionCounter = 0;                                                   // @A1A
+        // @B1D int exceptionCounter = 0;                                                   // @A1A
 
         PxRepCV reply;
         try {
             while (canContinue()) {
-                try {                                                               // @A1A
+                // @B1D try {                                                               // @A1A
                     reply = (PxRepCV)factory_.getNextDS(input_);
                     if (Trace.isTraceProxyOn())
                         reply.dump (Trace.getPrintWriter ());
 
-                    // We had a successful read, reset the exception counter.       // @A1A
-                    exceptionCounter = 0;                                           // @A1A
-    
+                    // @B1D // We had a successful read, reset the exception counter.       // @A1A
+                    // @B1D exceptionCounter = 0;                                           // @A1A
+
                     // If the correlation id is set, just store the reply
-                    // in the hashtable.  This means that somebody is 
-                    // waiting for it and they will ask for it when the 
+                    // in the hashtable.  This means that somebody is
+                    // waiting for it and they will ask for it when the
                     // time is right.
                     long correlationId = reply.getCorrelationId();
                     if (correlationId >= 0) {
@@ -149,18 +171,18 @@ extends StoppableThread
                             notifyAll();
                         }
                     }
-    
+
                     // Otherwise, process it and forget about it!
-                    else 
-                        reply.process();                
-                }                                                                   // @A1A
-                catch(SocketException e) {                                          // @A1A
-                    // Ignore this.  Netscape is throwing this in certain           // @A1A
-                    // situations.  Try again and it will go away!                  // @A1A
-                    // If we get it a few times in a row, then rethrow it.          // @A1A
-                    if (++exceptionCounter >= 3)                                    // @A1A
-                        throw e;                                                    // @A1A
-                }                                                                   // @A1A
+                    else
+                        reply.process();
+                // @B1D }                                                                   // @A1A
+                // @B1D catch(SocketException e) {                                          // @A1A
+                // @B1D     // Ignore this.  Netscape is throwing this in certain           // @A1A
+                // @B1D     // situations.  Try again and it will go away!                  // @A1A
+                // @B1D     // If we get it a few times in a row, then rethrow it.          // @A1A
+                // @B1D     if (++exceptionCounter >= 3)                                    // @A1A
+                // @B1D         throw e;                                                    // @A1A
+                // @B1D }                                                                   // @A1A
             }
         }
         catch(InvocationTargetException e) {
@@ -169,7 +191,7 @@ extends StoppableThread
         catch(IOException e) {
 
             // If an exception is thrown AND the thread was stopped safely,
-            // then ignore the exception, i.e., assume the exception just 
+            // then ignore the exception, i.e., assume the exception just
             // resulted in the socket being closed.
             if ((! wasStoppedSafely()) && (!(e instanceof EOFException))) {
                 ioException_ = e;
@@ -185,6 +207,60 @@ extends StoppableThread
         }
 
         running_ = false;
+    }
+
+    // @D1a new method.
+    // This method is used when tunneling.  The CID and stream to read are
+    // passed each time we retrieve data from the server.
+    public PxRepCV getReply(long CID, InputStream input_)
+        throws InvocationTargetException, IOException
+    {
+    //  try
+    //  {
+           Long key = new Long(CID);
+
+           if (replies_.containsKey(key))
+           {
+              PxRepCV reply = (PxRepCV)replies_.get(key);
+              replies_.remove(key);
+              return reply;
+           }
+
+           while(true)
+           {
+              PxRepCV reply;
+              reply = (PxRepCV)factory_.getNextDS(input_);
+
+              if (Trace.isTraceProxyOn())
+                 reply.dump (Trace.getPrintWriter ());
+
+
+                    // If the correlation id is set, just store the reply
+                    // in the hashtable.  This means that somebody is
+                    // waiting for it and they will ask for it when the
+                    // time is right.
+              long correlationId = reply.getCorrelationId();
+              if (correlationId != CID)
+                 replies_.put(new Long(correlationId), reply);
+              else
+              {
+                 reply.process();
+                 return reply;
+              }
+           }
+    //  }
+    //  catch(InvocationTargetException e)
+    //  {
+    //     invocationTargetException_ = e;
+    //  }
+    //  catch(IOException e)
+    //  {
+    //     if (Trace.isTraceErrorOn ())
+    //     Trace.log(Trace.ERROR, "Ending read daemon", e);
+    //
+    //  }
+    //  running_ = false;
+    //  return null;
     }
 
 

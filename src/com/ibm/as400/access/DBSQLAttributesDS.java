@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBSQLAttributesDS.java
 //                                                                             
@@ -50,13 +50,6 @@ extends DBBaseRequestDS
    }
 
 
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-
 
        //--------------------------------------------------//
        // Create the data stream optional /         	   //
@@ -94,6 +87,14 @@ extends DBBaseRequestDS
 
 
 
+    // @E1D void setAutoCommit(int value)                                           // @E1A
+    // @E1D     throws DBDataStreamException                                        // @E1A
+    // @E1D {                                                                       // @E1A
+    // @E1D     addParameter(0x3824, (short)value);                                 // @E1A
+    // @E1D }                                                                       // @E1A
+
+
+
 /**
    Sets the Client CCSID parameter in the data stream.
    @param value	the value to be used to set the default
@@ -108,17 +109,19 @@ extends DBBaseRequestDS
 
 
 
+// @E2C
 /**
    Sets the Client Functional Level parameter in the data stream.
    @param value	the client functional level.
-   @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
 
-	void setClientFunctionalLevel (String value, ConverterImplRemote converter)
+	void setClientFunctionalLevel(String value)                         // @E2C
 		throws DBDataStreamException
 	{
-		addParameter (0x3803, converter, value, 10);
+        // There is no need to use a Converter for this value              @E2A
+        // since it is always numeric.                                     @E2A
+		addParameter (0x3803, value);                                   // @E2C
 	}
 
 
@@ -227,16 +230,18 @@ extends DBBaseRequestDS
 
 
 
+// @E2C
 /**
    Sets the Language Feature Code parameter in the data stream.
    @param value	the server language feature code.
-   @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setLanguageFeatureCode (String value, ConverterImplRemote converter)
+   	void setLanguageFeatureCode(String value)                           // @E2C
 		throws DBDataStreamException
 	{
-		addParameter (0x3802, converter, value, 4);
+        // There is no need to use a Converter for this value              @E2A
+        // since it is always numeric.                                     @E2A
+		addParameter(0x3802, value);                                    // @E2C
 	}
 
 

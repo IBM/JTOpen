@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: BinaryConverter.java
 //                                                                             
@@ -38,6 +38,19 @@ public class BinaryConverter
 	as400Value[offset+1] = (byte) shortValue;
     }
 
+    // @C0A
+    /**
+      Convert the specified short into AS/400 format in the specified byte array.
+      @param  shortValue  the value to be converted to AS/400 format.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] shortToByteArray(short shortValue)
+    {
+        byte[] as400Value = new byte[2];
+        shortToByteArray(shortValue, as400Value, 0);
+        return as400Value;
+    }
+
     /**
       Convert the specified AS/400 data type to a short.
       @param  as400Value  the array containing the data type in AS/400 format.
@@ -62,6 +75,19 @@ public class BinaryConverter
 	as400Value[offset+1] = (byte)(intValue >>> 16);
 	as400Value[offset+2] = (byte)(intValue >>>  8);
 	as400Value[offset+3] = (byte) intValue;
+    }
+
+    // @C0A
+    /**
+      Convert the specified int into AS/400 format in the specified byte array.
+      @param  intValue  the value to be converted to AS/400 format.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] intToByteArray(int intValue)
+    {
+        byte[] as400Value = new byte[4];
+        intToByteArray(intValue, as400Value, 0);
+        return as400Value;
     }
 
     /**
@@ -91,6 +117,19 @@ public class BinaryConverter
 	as400Value[offset+1] = (byte)(bits >>> 16);
 	as400Value[offset+2] = (byte)(bits >>>  8);
 	as400Value[offset+3] = (byte) bits;
+    }
+
+    // @C0A
+    /**
+      Convert the specified float into AS/400 format in the specified byte array.
+      @param  floatValue  the value to be converted to AS/400 format.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] floatToByteArray(int floatValue)
+    {
+        byte[] as400Value = new byte[4];
+        floatToByteArray(floatValue, as400Value, 0);
+        return as400Value;
     }
 
     /**
@@ -132,6 +171,20 @@ public class BinaryConverter
 	as400Value[offset+7] = (byte) low;
     }
 
+    // @C0A
+    /**
+      Convert the specified double into AS/400 format in the specified byte array.
+      @param  doubleValue  the value to be converted to AS/400 format.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] doubleToByteArray(double doubleValue)
+    {
+        byte[] as400Value = new byte[8];
+        doubleToByteArray(doubleValue, as400Value, 0);
+        return as400Value;
+    }
+
+
     /**
       Convert the specified AS/400 data type to a double.
       @param  as400Value  the array containing the data type in AS/400 format.
@@ -165,6 +218,19 @@ public class BinaryConverter
 	as400Value[offset+1] = (byte) intValue;
     }
 
+    // @C0A
+    /**
+      Convert the specified int into AS/400 format in the specified byte array.
+      @param  intValue  the value to be converted to AS/400 format.  The integer should be greater than or equal to zero and representable in two bytes.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] unsignedShortToByteArray(int intValue)
+    {
+        byte[] as400Value = new byte[2];
+        unsignedShortToByteArray(intValue, as400Value, 0);
+        return as400Value;
+    }
+
     /**
       Convert the specified AS/400 data type to an int.
       @param  as400Value  the array containing the data type in AS/400 format.
@@ -191,6 +257,19 @@ public class BinaryConverter
 	as400Value[offset+1] = (byte)(bits >>> 16);
 	as400Value[offset+2] = (byte)(bits >>>  8);
 	as400Value[offset+3] = (byte) bits;
+    }
+
+    // @C0A
+    /**
+      Convert the specified long into AS/400 format in the specified byte array.
+      @param  longValue  the value to be converted to AS/400 format.  The long should be greater than or equal to zero and representable in four bytes.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] unsignedIntToByteArray(long longValue)
+    {
+        byte[] as400Value = new byte[4];
+        unsignedIntToByteArray(longValue, as400Value, 0);
+        return as400Value;
     }
 
     /**
@@ -230,6 +309,19 @@ public class BinaryConverter
 	as400Value[offset+7] = (byte) low;
     }
 
+    // @C0A
+    /**
+      Convert the specified long into AS/400 format in the specified byte array.
+      @param  longValue  the value to be converted to AS/400 format.
+      @return           the array with the data type in AS/400 format.
+     **/
+    public static byte[] longToByteArray(long longValue)
+    {
+        byte[] as400Value = new byte[8];
+        longToByteArray(longValue, as400Value, 0);
+        return as400Value;
+    }
+
     /**
       Convert the specified AS/400 data type to a long.
       @param  as400Value  the array containing the data type in AS/400 format.
@@ -248,5 +340,32 @@ public class BinaryConverter
 	                 ((as400Value[offset+6] & 0xFF) <<  8) +
 	                  (as400Value[offset+7] & 0xFF);
 	return ((long)firstPart << 32) + (secondPart & 0xFFFFFFFFL);
+    }
+
+    static byte[] charArrayToByteArray(char[] charValue)
+    {
+        if (charValue == null) return null;
+        byte[] byteValue = new byte[charValue.length * 2];
+        int inPos = 0;
+        int outPos = 0;
+        while (inPos < charValue.length)
+        {
+            byteValue[outPos++] = (byte)(charValue[inPos] >> 8);
+            byteValue[outPos++] = (byte)charValue[inPos++];
+        }
+        return byteValue;
+    }
+
+    static char[] byteArrayToCharArray(byte[] byteValue)
+    {
+        if (byteValue == null) return null;
+        char[] charValue = new char[byteValue.length / 2];
+        int inPos = 0;
+        int outPos = 0;
+        while (inPos < byteValue.length)
+        {
+            charValue[outPos++] = (char)(((byteValue[inPos++] & 0xFF) << 8) + (byteValue[inPos++] & 0xFF));
+        }
+        return charValue;
     }
 }

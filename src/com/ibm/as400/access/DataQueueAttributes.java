@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DataQueueAttributes.java
 //                                                                             
@@ -28,6 +28,10 @@ import java.io.Serializable;
 public class DataQueueAttributes implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
     // The public authority of the data queue.
     private String authority_ = "*LIBCRTAUT";

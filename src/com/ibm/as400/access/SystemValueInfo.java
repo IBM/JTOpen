@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemValueInfo.java
 //                                                                             
@@ -21,6 +21,10 @@ such as its data and caching, are encapsulated by the SystemValue class.
 class SystemValueInfo implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+
+    static final long serialVersionUID = 4L;
+
 
   String name_ = null;   // The name of this system value
   char type_ = '\0';     // The AS400 data type of this system value
@@ -89,12 +93,19 @@ class SystemValueInfo implements java.io.Serializable
     description_ = description;
   }
 
-   /**
-    Returns the copyright.
-   **/
-   private static String getCopyright()
-   {
-     return Copyright.copyright;
-   }
+
+  //@B0A
+  /**
+  Equals method for comparison of 2 SystemValueInfo objects.
+  **/
+  public boolean equals(Object obj)
+  { 
+    if (obj == null || !(obj instanceof SystemValueInfo))
+      return false;
+
+    SystemValueInfo target = (SystemValueInfo)obj;
+    return name_.equals(target.name_);
+  }
+                
 }
 

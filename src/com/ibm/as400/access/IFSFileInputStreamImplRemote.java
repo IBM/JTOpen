@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileInputStreamImplRemote.java
 //                                                                             
@@ -34,8 +34,9 @@ implements IFSFileInputStreamImpl
   private IFSFileDescriptorImplRemote fd_; // file info
 
   // Variables needed by subclass IFSTextFileOutputStream:
-  //transient private InputStreamReader reader_;     // @B4d
-  transient private ConverterImplRemote converter_;   // @B3a
+  //transient private InputStreamReader reader_;        // @B4d
+  //transient private ConverterImplRemote converter_;   // @B3a @B7d
+  transient private ConvTableReader reader_;            // @B7a
 
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.
@@ -439,7 +440,7 @@ implements IFSFileInputStreamImpl
 
     // Create the InputStreamReader if we don't already have one.
     //if (reader_ == null && converter_ == null)   // @B3c @B4d
-    if (converter_ == null)   // @B4c
+    if (reader_ == null)   // @B4c
     {
       // Issue a List File Attributes request to obtain the CCSID (or code page)
       // of the file.
@@ -537,7 +538,6 @@ implements IFSFileInputStreamImpl
       }
 
 /*  @B4d
-
       // Convert the CCSID to the encoding string.  
 //    String encoding = ConversionMaps.ccsidToEncoding(fileCCSID == 0xf200 ? //@B0C
 //                                                        0x34b0 : fileCCSID);//@B3d
@@ -568,7 +568,8 @@ implements IFSFileInputStreamImpl
 //      encoding = "Unicode";            // @A1A @B3d
 */
 
-        converter_ = ConverterImplRemote.getConverter(fileCCSID, fd_.getSystem()); //@B3a
+        //converter_ = ConverterImplRemote.getConverter(fileCCSID, fd_.getSystem()); //@B3a @B7d
+        reader_ = new ConvTableReader(this, fileCCSID);  // @B7a
 /* @B4d
 
       }
@@ -581,7 +582,7 @@ implements IFSFileInputStreamImpl
     }
 
     // Read the requested number of characters.
-    int numBytesRead;
+    //int numBytesRead;  // @B7d
 
 /* @B4d
     if (reader_ != null)
@@ -598,10 +599,16 @@ implements IFSFileInputStreamImpl
     else if (converter_ != null)  // @B3a
     {
 */
+
+    data = reader_.read(length);  // @B7a
+    if (data == null) data = "";  // @B7a
+
+/*  @B7d
       byte[] byteArray = new byte[length*2]; // Allow 2 chars per Unicode char.
       numBytesRead = this.read(byteArray, 0, byteArray.length);
       if (numBytesRead != -1)                                         // @B4a
         data = converter_.byteArrayToString(byteArray, 0, numBytesRead);
+*/
 /* @B4d
     }
     else

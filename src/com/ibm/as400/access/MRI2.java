@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: MRI2.java
 //                                                                             
@@ -98,7 +98,7 @@ public class MRI2 extends ListResourceBundle
            // #TRANNOTE names start with EVT_NAME.
            // #TRANNOTE #####################################################
 
-      { "EVT_DESC_AS400CERTIFICATE_EVENT", "An AS/400 certificate event has occurred." },
+      { "EVT_DESC_AS400CERTIFICATE_EVENT", "A certificate event has occurred." },
       { "EVT_NAME_AS400CERTIFICATE_EVENT", "AS400Certificate" },
       { "EVT_DESC_SV_EVENT", "A system value event has occurred." },
 
@@ -119,39 +119,6 @@ public class MRI2 extends ListResourceBundle
 
 
            // #TRANNOTE #####################################################
-           // #TRANNOTE Short descriptions and display names for job lists.
-           // #TRANNOTE Descriptions start with JOB_LIST_ prefix.
-           // #TRANNOTE #####################################################
-
-      { "JOB_LIST_COMMAND", "Command" },
-      { "JOB_LIST_DELAY", "Delay" },
-      { "JOB_LIST_GROUPJOB", "Group job" },
-      { "JOB_LIST_LOG", "Log" },
-      { "JOB_LIST_MENU", "Menu" },
-
-      { "JOB_LIST_SYSTEM", "System" },
-      { "JOB_LIST_BATCH", "Batch" },
-      { "JOB_LIST_INTERACTIVE", "Interactive" },
-      { "JOB_LIST_SYSTEM_SCPF", "System (SCPF)" },
-      { "JOB_LIST_SUBSYSTEM_MONITOR", "Subsystem Monitor" },
-      { "JOB_LIST_AUTOSTART", "Autostart" },
-      { "JOB_LIST_WRITER", "Writer" },
-      { "JOB_LIST_READER", "Reader" },
-
-      { "JOB_LIST_IMMEDIATE", "Immediate" },
-      { "JOB_LIST_EVOKE", "Evoke" },
-      { "JOB_LIST_A36", "Advanced 36 Machine Server" },
-      { "JOB_LIST_PRESTART", "Prestart" },
-      { "JOB_LIST_PRINT_DRIVER", "Print Driver" },
-      { "JOB_LIST_A36_MRT", "System/36 Multiple Requester Terminal" },
-      { "JOB_LIST_ALTERNATE_SPOOL_USER", "Alternate Spool User" },
-
-      { "JOB_LIST_SCHEDULED", "scheduled" },
-      { "JOB_LIST_HELD", "held" },
-      { "JOB_LIST_READY_TO_SELECT", "ready to select" },
-
-
-           // #TRANNOTE #####################################################
            // #TRANNOTE System Status MRI.
            // #TRANNOTE #####################################################
 
@@ -159,13 +126,13 @@ public class MRI2 extends ListResourceBundle
       { "PROP_DESC_SS_DTG", "The date and time status gathered." },
 
       { "PROP_NAME_SS_UCSO", "usersCurrentSignedOn" },
-      { "PROP_DESC_SS_UCSO", "Number of users currently signed on the AS/400." },
+      { "PROP_DESC_SS_UCSO", "Number of users currently signed on the server." },
 
       { "PROP_NAME_SS_UTSO", "usersTemporarilySignedOff" },
-      { "PROP_DESC_SS_UTSO", "Number of users temporarily signed off the AS/400." },
+      { "PROP_DESC_SS_UTSO", "Number of users temporarily signed off the server." },
 
       { "PROP_NAME_SS_USBS", "usersSuspendedBySystem" },
-      { "PROP_DESC_SS_USBS", "Number of user jobs suspended by the system." },
+      { "PROP_DESC_SS_USBS", "Number of user jobs suspended by the server." },
 
       { "PROP_NAME_SS_USOWP", "usersSignedOffWithPrinter" },
       { "PROP_DESC_SS_USOWP", "Number of users signed off with printer output waiting to print." },
@@ -302,6 +269,13 @@ public class MRI2 extends ListResourceBundle
       { "PROP_NAME_MF_HELP_TEXT_FORMATTING", "helpTextFormatting" },
       { "PROP_DESC_MF_HELP_TEXT_FORMATTING", "The type of help text formatting." },
 
+      // Job MRI @D9a
+      { "PROP_NAME_JOB_NUMBER", "number" },
+      { "PROP_DESC_JOB_NUMBER", "Job number." },
+      { "PROP_NAME_JOB_USER", "user" },
+      { "PROP_DESC_JOB_USER", "Job user." },
+
+
 
 
       // Proxy support MRI.
@@ -312,7 +286,7 @@ public class MRI2 extends ListResourceBundle
       { "PROXY_CONFIGURATION_UPDATED",      "The configuration has been updated."},
       { "PROXY_CONFIGURATION_NOT_LOADED",   "Configuration not loaded: &0"},
       { "PROXY_JDBC_DRIVER_NOT_REGISTERED", "JDBC driver not registered: &0"},
-      { "PROXY_JDBC_DRIVER_REGISTERED",     "Registered JDBC driver &0."},
+      { "PROXY_JDBC_DRIVER_REGISTERED",     "Registered JDBC driver: &0."},             // @E2C
       { "PROXY_OPTION_NOT_VALID",           "Option not valid: &0" },
       { "PROXY_OPTION_VALUE_NOT_VALID",     "Value for option &0 not valid: &1" },
       { "PROXY_PEER_NOT_RESPONDING",        "Peer proxy server &0 is not responding." },
@@ -328,6 +302,9 @@ public class MRI2 extends ListResourceBundle
       { "PROXY_SERVER_STARTED",             "Proxy server started." },
       { "PROXY_SERVER_USAGE",               "Usage" },
       { "PROXY_VALUE_NO_OPTION",            "Value with no option ignored: &0" },       // @D2A
+      { "PROXY_SERVER_NO_KEYRING",          "The -keyringName or -keyringPassword option were not properly specified." },  //$E9A
+      { "PROXY_SERVER_KEYRING_EXPLAIN",     "The CLASSPATH contains the SSLight classes. To use SSL with the proxy, the " + //$E9A
+                                            "-keyringName and -keyringPassword options must both be specified.  "},        //$E9A
 
 
 
@@ -388,7 +365,7 @@ public class MRI2 extends ListResourceBundle
          // #TRANNOTE #####################################################
          // #TRANNOTE MRI For ConnectionPoolProperties
          // #TRANNOTE #####################################################     // @E3
-      { "PROP_NAME_CPP_CLEANUP_INTERVAL", "cleanupInterval" },                      
+      { "PROP_NAME_CPP_CLEANUP_INTERVAL", "cleanupInterval" },
       { "PROP_NAME_CPP_MAX_CONNECTIONS", "maxConnections" },
       { "PROP_NAME_CPP_MAX_INACTIVITY", "maxInactivity" },
       { "PROP_NAME_CPP_MAX_LIFETIME", "maxLifetime" },
@@ -405,7 +382,7 @@ public class MRI2 extends ListResourceBundle
          // #TRANNOTE #####################################################
          // #TRANNOTE MRI For ConnectionPool
          // #TRANNOTE #####################################################      // @E3
-      { "PROP_NAME_CP_DATA_SOURCE", "dataSource"},                                 
+      { "PROP_NAME_CP_DATA_SOURCE", "dataSource"},
       { "PROP_NAME_CP_PROPERTIES", "properties"},
       { "PROP_NAME_CP_RUN_MAINTENANCE", "runMaintenance"},
       { "PROP_NAME_CP_THREAD_USED", "threadUsed"},                               // @E5
@@ -419,17 +396,27 @@ public class MRI2 extends ListResourceBundle
       { "PROP_DESC_SAVE_FILE_PUBLIC_AUTHORITY", "Authority value for *PUBLIC." },
       { "CREATE_SAVE_FILE_FAILED", "The CRTSAVFIL command failed: " },
 
-           // #TRANNOTE The properties of ProductLicense.                //@C2A
-      { "PROP_DESC_LICENSE_PRODUCT", "The product name." },              //@C2A
-      { "PROP_NAME_LICENSE_PRODUCT", "product" },                        //@C2A
-      { "PROP_DESC_LICENSE_FEATURE", "The product feature name." },      //@C2A
-      { "PROP_NAME_LICENSE_FEATURE", "feature" },                        //@C2A
-      { "PROP_DESC_LICENSE_RELEASE", "The product release." },           //@C2A
-      { "PROP_NAME_LICENSE_RELEASE", "release" },                        //@C2A
+           // #TRANNOTE The properties of ProductLicense.                 // @C2A
+      { "PROP_DESC_LICENSE_PRODUCTID", "The product identifier." },       // @F7C
+      { "PROP_NAME_LICENSE_PRODUCTID", "productID" },                     // @F7C
+      { "PROP_DESC_LICENSE_FEATUREID", "The product feature." },          // @C2A
+      { "PROP_NAME_LICENSE_FEATUREID",  "feature" },                      // @C2A
+      { "PROP_DESC_LICENSE_RELEASELEVEL", "The product release level." }, // @F7C
+      { "PROP_NAME_LICENSE_RELEASELEVEL", "releaseLevel" },               // @F7C
 
            // #TRANNOTE A license event has occurred.
       { "EVT_DESC_LICENSE_EVENT", "A product license event has occurred." }, //@C2A
       { "EVT_NAME_LICENSE_EVENT", "productLicenseEvent" },                   //@C2A
+
+
+
+           // #TRANNOTE #####################################################
+           // #TRANNOTE MRI For CommandCall and ProgramCall
+           // #TRANNOTE #####################################################
+      //@E4A
+      { "PROP_NAME_CMD_THREADSAFE",  "threadSafe" },
+      { "PROP_DESC_CMD_THREADSAFE",  "The thread-safety of the command or program." },
+
 
       // #TRANNOTE #####################################################
       // #TRANNOTE MRI For AS400ConnectionPool and ConnectionList
@@ -444,7 +431,7 @@ public class MRI2 extends ListResourceBundle
       { "AS400CP_SHUTDOWN", "the connection pool is shutting down" },
 
       { "AS400CP_SHUTDOWNCOMP", "shutdown of connection pool completed" },
-   
+
       // #TRANNOTE cleaning up connections for system/userid
       { "CL_CLEANUP", "cleaning up connections for &0/&1" },
 
@@ -467,7 +454,7 @@ public class MRI2 extends ListResourceBundle
       { "CL_REMOLDCOMP", "completed removing oldest connection for &0/&1" },
 
       // #TRANNOTE removing connection that exceeded maximum inactivity time for system/userid    // @E8C
-      { "CL_REMUNUSED", "removing connection that exceeded maximum inactivity time for &0/&1" },  // @E8C 
+      { "CL_REMUNUSED", "removing connection that exceeded maximum inactivity time for &0/&1" },  // @E8C
 
       // #TRANNOTE replacing connection that exceeded maximum lifetime for system/userid
       { "CL_REPLIFE", "replacing connection that exceeded maximum lifetime for &0/&1" },
@@ -479,6 +466,391 @@ public class MRI2 extends ListResourceBundle
       { "AS400CP_FILLING", "filling &0 connections to &1/&2" },                  // @E8A
 
       { "AS400CP_FILLEXC", "filling of connections failed with an exception" },  // @E8A
+
+         // #TRANNOTE #####################################################
+         // #TRANNOTE MRI For AS400JPing
+         // #TRANNOTE #####################################################      // @E7A
+      { "PROP_NAME_AJP_FAILED", "Failed to make connection to server application:  &0&1"},
+      { "PROP_NAME_AJP_SUCCESS", "Successfully connected to server application:  &0&1"},
+
+         // #TRANNOTE #####################################################
+         // #TRANNOTE MRI For AS400JDBCDataSource
+         // #TRANNOTE #####################################################     // @F1A
+
+      { "AS400_JDBC_DS_CONN_CREATED", "connection created" },
+      { "AS400_JDBC_DS_PASSWORD_SET", "password is set" },
+
+
+
+      // @F3A @F6C
+      // Localized object types - These are used in QSYSObjectTypeTable.
+      //
+      // #TRANNOTE ################################################################
+      // #TRANNOTE AS/400 object types.
+      // #TRANNOTE
+      // #TRANNOTE These are MRI for object types and subtypes.  They will be
+      // #TRANNOTE concatenated with a hyphen in the form "Type - Subtype".
+      // #TRANNOTE Each type is an MRI string with the key TYPE_type.  The
+      // #TRANNOTE subtype are listed separately with the key TYPE_type_subtype.
+      // #TRANNOTE
+      // #TRANNOTE ################################################################
+      { "TYPE_ALRTBL",                      "Alert table" },
+      { "TYPE_AUTL",                        "Authorization list" },
+      { "TYPE_BLKSF",                       "Block special file" },
+      { "TYPE_BNDDIR",                      "Binding directory" },
+      { "TYPE_CFGL",                        "Configuration list" },
+      { "TYPE_CFGL_APPNDIR",                "APPN directory search filter" },
+      { "TYPE_CFGL_APPNLCL",                "APPN local location" },
+      { "TYPE_CFGL_APPNRMT",                "APPN remote location" },
+      { "TYPE_CFGL_APPNSSN",                "APPN session end point filter" },
+      { "TYPE_CFGL_ASYNCADR",               "Asynchronous network address" },
+      { "TYPE_CFGL_ASYNCLOC",               "Asynchronous remote location" },
+      { "TYPE_CFGL_SNAPASTHR",              "SNA pass-through" },
+      { "TYPE_CHTFMT",                      "Chart format" },
+      { "TYPE_CHRSF",                       "Character special file" },
+      { "TYPE_CLD",                         "C/400 locale description" },
+      { "TYPE_CLS",                         "Class" },
+      { "TYPE_CMD",                         "Command" },
+      { "TYPE_CNNL",                        "Connection list" },
+      { "TYPE_COSD",                        "Class-of-service description" },
+      { "TYPE_CRG",                         "Cluster resource group" },
+      { "TYPE_CRQD",                        "Change request description" },
+      { "TYPE_CSI",                         "Communications side information" },
+      { "TYPE_CSPMAP",                      "Cross-system product map" },
+      { "TYPE_CSPTBL",                      "Cross-system product table" },
+      { "TYPE_CTLD",                        "Controller description" },
+      { "TYPE_CTLD_APPC",                   "APPC" },
+      { "TYPE_CTLD_ASC",                    "Asynchronous" },
+      { "TYPE_CTLD_BSC",                    "Binary synchronous" },
+      { "TYPE_CTLD_FNC",                    "Finance" },
+      { "TYPE_CTLD_HOST",                   "SNA host" },
+      { "TYPE_CTLD_LWS",                    "Local workstation" },
+      { "TYPE_CTLD_NET",                    "Network" },
+      { "TYPE_CTLD_RTL",                    "Retail" },
+      { "TYPE_CTLD_RWS",                    "Remote workstation" },
+      { "TYPE_CTLD_TAP",                    "Tape" },
+      { "TYPE_CTLD_VWS",                    "Virtual workstation" },
+      { "TYPE_DDIR",                        "Distributed directory" },
+      { "TYPE_DEVD",                        "Device description" },
+      { "TYPE_DEVD_APPC",                   "APPC" },
+      { "TYPE_DEVD_ASC",                    "Asynchronous" },
+      { "TYPE_DEVD_ASP",                    "Disk pool" },                          // @F6C
+      { "TYPE_DEVD_BSC",                    "Binary synchronous" },
+      { "TYPE_DEVD_CRP",                    "Cryptographic" },
+      { "TYPE_DEVD_DKT",                    "Diskette" },
+      { "TYPE_DEVD_DSPLCL",                 "Local display" },
+      { "TYPE_DEVD_DSPRMT",                 "Remote display" },
+      { "TYPE_DEVD_DSPSNP",                 "SNA pass-through display" },
+      { "TYPE_DEVD_DSPVRT",                 "Virtual display" },                    // @F6C
+      { "TYPE_DEVD_FNC",                    "Finance" },
+      { "TYPE_DEVD_HOST",                   "SNA host" },
+      { "TYPE_DEVD_INTR",                   "Intrasystem" },
+      { "TYPE_DEVD_MLB",                    "Media library" },
+      { "TYPE_DEVD_NET",                    "Network" },
+      { "TYPE_DEVD_OPT",                    "Optical" },
+      { "TYPE_DEVD_PRTLCL",                 "Local printer" },
+      { "TYPE_DEVD_PRTLAN",                 "LAN printer" },
+      { "TYPE_DEVD_PRTRMT",                 "Remote printer" },
+      { "TYPE_DEVD_PRTSNP",                 "SNA pass-through printer" },
+      { "TYPE_DEVD_PRTVRT",                 "Virtual printer" },
+      { "TYPE_DEVD_RTL",                    "Retail" },
+      { "TYPE_DEVD_SNPTUP",                 "SNA pass-through upstream" },
+      { "TYPE_DEVD_SNPTDN",                 "SNA pass-through downstream" },
+      { "TYPE_DEVD_SNUF",                   "SNA upline facility" },
+      { "TYPE_DEVD_TAP",                    "Tape" },
+      { "TYPE_DIR",                         "Directory" },
+      { "TYPE_DOC",                         "Document" },
+      { "TYPE_DSTMF",                       "Distributed stream file" },
+      { "TYPE_DTAARA",                      "Data area" },
+      { "TYPE_DTADCT",                      "Data dictionary" },
+      { "TYPE_DTAQ",                        "Data queue" },
+      { "TYPE_DTAQ_DDMDTAQUE",              "DDM" },
+      { "TYPE_EDTD",                        "Edit description" },
+      { "TYPE_EXITRG",                      "Exit registration" },
+      { "TYPE_FCT",                         "Forms control table" },
+      { "TYPE_FIFO",                        "First-in-first-out special file" },
+      { "TYPE_FILE",                        "File" },
+      { "TYPE_FILE_PF",                     "Physical" },
+      { "TYPE_FILE_LF",                     "Logical" },
+      { "TYPE_FILE_BSCF38",                 "Binary synchronous (S/38)" },
+      { "TYPE_FILE_CMNF38",                 "Communications (S/38)" },
+      { "TYPE_FILE_CRDF38",                 "Card (S/38)" },
+      { "TYPE_FILE_DFU",                    "DFU" },
+      { "TYPE_FILE_DFUEXC",                 "DFU (S/38)" },
+      { "TYPE_FILE_DFUNOTEXC",              "DFU (S/38)" },
+      { "TYPE_FILE_DSPF",                   "Display" },
+      { "TYPE_FILE_DSPF36",                 "Display (S/36)" },
+      { "TYPE_FILE_DSPF38",                 "Display (S/38)" },
+      { "TYPE_FILE_DDMF",                   "DDM" },
+      { "TYPE_FILE_DKTF",                   "Diskette" },
+      { "TYPE_FILE_ICFF",                   "Intersystem communication" },
+      { "TYPE_FILE_LF38",                   "Logical (S/38)" },
+      { "TYPE_FILE_MXDF38",                 "Mixed (S/38)" },
+      { "TYPE_FILE_PF38",                   "Physical (S/38)" },
+      { "TYPE_FILE_PRTF",                   "Printer" },
+      { "TYPE_FILE_PRTF38",                 "Printer (S/38)" },
+      { "TYPE_FILE_SAVF",                   "Save" },
+      { "TYPE_FILE_TAPF",                   "Tape" },
+      { "TYPE_FLR",                         "Folder" },
+      { "TYPE_FNTRSC",                      "Font resource" },                                  // @F6C
+      { "TYPE_FNTRSC_CDEFNT",               "Coded font" },
+      { "TYPE_FNTRSC_FNTCHRSET",            "Font character set" },
+      { "TYPE_FNTRSC_CDEPAG",               "Code page" },
+      { "TYPE_FNTTBL",                      "Font mapping table" },
+      { "TYPE_FORMDF",                      "Form definition" },
+      { "TYPE_FTR",                         "Filter" },
+      { "TYPE_FTR_ALR",                     "Alert" },
+      { "TYPE_FTR_PRB",                     "Problem" },
+      { "TYPE_GSS",                         "Symbol set" },
+      { "TYPE_GSS_VSS",                     "Vector" },
+      { "TYPE_GSS_ISS",                     "Image" },
+      { "TYPE_IGCDCT",                      "DBCS conversion dictionary" },
+      { "TYPE_IGCSRT",                      "DBCS sort table" },
+      { "TYPE_IGCTBL",                      "DBCS font table" },
+      { "TYPE_IPXD",                        "Internetwork packet exchange description" },
+      { "TYPE_JOBD",                        "Job description" },
+      { "TYPE_JOBQ",                        "Job queue" },
+      { "TYPE_JOBSCD",                      "Job schedule" },
+      { "TYPE_JRN",                         "Journal" },
+      { "TYPE_JRNRCV",                      "Journal receiver" },
+      { "TYPE_LIB",                         "Library" },
+      { "TYPE_LIB_PROD",                    "" }, // We don't want the text "Production" here.  @F6C
+      { "TYPE_LIB_TEST",                    "Test" },
+      { "TYPE_LIND",                        "Line description" },
+      { "TYPE_LIND_ASC",                    "Asynchronous" },
+      { "TYPE_LIND_BSC",                    "Binary synchronous" },
+      { "TYPE_LIND_DDI",                    "Distributed data interface" },
+      { "TYPE_LIND_ETH",                    "Ethernet" },
+      { "TYPE_LIND_FAX",                    "Facsimile (fax)" },
+      { "TYPE_LIND_FR",                     "Frame relay" },
+      { "TYPE_LIND_IDLC",                   "ISDN data link control" },
+      { "TYPE_LIND_NET",                    "Network" },
+      { "TYPE_LIND_PPP",                    "Point-to-point protocol" },
+      { "TYPE_LIND_SDLC",                   "Synchronous data link control" },
+      { "TYPE_LIND_TDLC",                   "Twinaxial data link control" },
+      { "TYPE_LIND_TRN",                    "Token-Ring" },
+      { "TYPE_LIND_WLS",                    "Wireless" },
+      { "TYPE_LIND_X25",                    "X.25" },
+      { "TYPE_LOCALE",                      "Locale" },
+      { "TYPE_MEDDFN",                      "Media definition" },
+      { "TYPE_MENU",                        "Menu" },
+      { "TYPE_MENU_UIM",                    "UIM" },
+      { "TYPE_MENU_DSPF",                   "Display file" },
+      { "TYPE_MENU_PGM",                    "Program" },
+      { "TYPE_MGTCOL",                      "Management collection" },
+      { "TYPE_MGTCOL_PFR",                  "Collection Services performance data" },
+      { "TYPE_MGTCOL_PFRHST",               "Archived performance data" },
+      { "TYPE_MGTCOL_PFRDTL",               "System Monitor performance data" },
+      { "TYPE_MODD",                        "Mode description" },
+      { "TYPE_MODULE",                      "Module" },
+      { "TYPE_MODULE_CLE",                  "C" },
+      { "TYPE_MODULE_CLLE",                 "CL" },
+      { "TYPE_MODULE_RPGLE",                "RPG" },
+      { "TYPE_MODULE_CBLLE",                "COBOL" },
+      { "TYPE_MODULE_CPPLE",                "C++" },
+      { "TYPE_MSGF",                        "Message file" },
+      { "TYPE_MSGQ",                        "Message queue" },
+      { "TYPE_M36",                         "AS/400 Advanced 36 machine" },
+      { "TYPE_M36CFG",                      "AS/400 Advanced 36 machine configuration" },
+      { "TYPE_NODGRP",                      "Node group" },
+      { "TYPE_NODL",                        "Node list" },
+      { "TYPE_NTBD",                        "NetBIOS description" },
+      { "TYPE_NWID",                        "Network interface description" },
+      { "TYPE_NWID_ATM",                    "Asynchronous transfer mode" },
+      { "TYPE_NWID_FR",                     "Frame relay" },
+      { "TYPE_NWID_ISDN",                   "ISDN" },
+      { "TYPE_NWSD",                        "Network server description" },
+      { "TYPE_NWSD_WINDOWSNT",              "Windows" },
+      { "TYPE_OUTQ",                        "Output queue" },
+      { "TYPE_OVL",                         "Overlay" },
+      { "TYPE_PAGDFN",                      "Page definition" },
+      { "TYPE_PAGSEG",                      "Page segment" },
+      { "TYPE_PDG",                         "Print descriptor group" },
+      { "TYPE_PGM",                         "Program" },
+      { "TYPE_PGM_ASM38",                   "Assembler (S/38)" },
+      { "TYPE_PGM_BAS",                     "BASIC (OPM)" },
+      { "TYPE_PGM_BAS38",                   "BASIC (S/38)" },
+      { "TYPE_PGM_C",                       "C (OPM)" },
+      { "TYPE_PGM_CBL",                     "COBOL (OPM)" },
+      { "TYPE_PGM_CBLLE",                   "COBOL (ILE)" },
+      { "TYPE_PGM_CBL36",                   "COBOL (S/36)" },
+      { "TYPE_PGM_CBL38",                   "COBOL (S/38)" },
+      { "TYPE_PGM_CLE",                     "C (ILE)" },
+      { "TYPE_PGM_CLLE",                    "CL (ILE)" },
+      { "TYPE_PGM_CLP",                     "CL (OPM)" },
+      { "TYPE_PGM_CLP38",                   "CL (S/38)" },
+      { "TYPE_PGM_CPPLE",                   "C++ (ILE)" },
+      { "TYPE_PGM_CSP",                     "CSP (OPM)" },
+      { "TYPE_PGM_DFU",                     "DFU (OPM)" },
+      { "TYPE_PGM_DFUEXC",                  "DFU (S/38)" },
+      { "TYPE_PGM_DFUNOTEXC",               "DFU (S/38)" },
+      { "TYPE_PGM_FTN",                     "FORTRAN (OPM)" },
+      { "TYPE_PGM_PAS",                     "Pascal (OPM)" },
+      { "TYPE_PGM_PAS38",                   "Pascal (S/38)" },
+      { "TYPE_PGM_PLI",                     "PL/I (OPM)" },
+      { "TYPE_PGM_PLI38",                   "PL/I (S/38)" },                        // @F6C
+      { "TYPE_PGM_RMC",                     "RM/COBOL (OPM)" },
+      { "TYPE_PGM_RPG",                     "RPG (OPM)" },
+      { "TYPE_PGM_RPGLE",                   "RPG (ILE)" },
+      { "TYPE_PGM_RPG36",                   "RPG (S/36)" },
+      { "TYPE_PGM_RPG38",                   "RPG (S/38)" },
+      { "TYPE_PNLGRP",                      "Panel group" },
+      { "TYPE_PRDAVL",                      "Product availability" },
+      { "TYPE_PRDDFN",                      "Product definition" },
+      { "TYPE_PRDLOD",                      "Product load" },
+      { "TYPE_PSFCFG",                      "PSF configuration" },
+      { "TYPE_QMFORM",                      "Query management report form" },
+      { "TYPE_QMQRY",                       "Query" },
+      { "TYPE_QMQRY_PROMPT",                "Prompted" },
+      { "TYPE_QMQRY_SQL",                   "SQL" },
+      { "TYPE_QRYDFN",                      "Query definition" },
+      { "TYPE_RCT",                         "Reference code translate table" },
+      { "TYPE_SBSD",                        "Subsystem description" },
+      // @F6D { "TYPE_SBSSTS",                      "Subsystem status" },
+      { "TYPE_SCHIDX",                      "Search index" },
+      { "TYPE_SOCKET",                      "Local socket" },
+      { "TYPE_SPADCT",                      "Spelling aid dictionary" },
+      { "TYPE_SPADCT_AFRIKAAN",             "Afrikaans" },
+      { "TYPE_SPADCT_AKTUEEL",              "Obsolete (Pre-Reform) Dutch" },
+      { "TYPE_SPADCT_BRASIL",               "Brazilian Portuguese" },
+      { "TYPE_SPADCT_CATALA",               "Catalan" },
+      { "TYPE_SPADCT_DANSK",                "Danish" },
+      { "TYPE_SPADCT_DEUTSCH",              "German" },
+      { "TYPE_SPADCT_DEUTSCH2",             "German Reform" },
+      { "TYPE_SPADCT_DSCHWEIZ",             "Swiss-German" },
+      { "TYPE_SPADCT_ESPANA",               "Spanish" },
+      { "TYPE_SPADCT_FRANCAIS",             "French" },
+      { "TYPE_SPADCT_FRA2",                 "French Canadian" },
+      { "TYPE_SPADCT_GREEK",                "Greek" },
+      { "TYPE_SPADCT_ISLENSK",              "Icelandic" },
+      { "TYPE_SPADCT_ITALIANO",             "Italian" },
+      { "TYPE_SPADCT_LEGAL",                "US Legal" },
+      { "TYPE_SPADCT_MEDICAL",              "US Medical" },
+      { "TYPE_SPADCT_NEDERLND",             "Dutch" },
+      { "TYPE_SPADCT_NEDPLUS",              "Dutch Reform Permissive" },
+      { "TYPE_SPADCT_NORBOK",               "Bokmal Norwegian" },
+      { "TYPE_SPADCT_NORNYN",               "Nynorsk Norwegian" },
+      { "TYPE_SPADCT_PORTUGAL",             "Portuguese" },
+      { "TYPE_SPADCT_RUSSIAN",              "Russian" },
+      { "TYPE_SPADCT_SUOMI",                "Finnish" },
+      { "TYPE_SPADCT_SVENSK",               "Swedish" },
+      { "TYPE_SPADCT_UK",                   "UK English" },
+      { "TYPE_SPADCT_US",                   "US English" },
+      { "TYPE_SQLPKG",                      "SQL package" },
+      { "TYPE_SQLUDT",                      "User-defined SQL type" },
+      { "TYPE_SRVPGM",                      "Service program" },
+      { "TYPE_SRVPGM_CLE",                  "C" },
+      { "TYPE_SRVPGM_CLLE",                 "CL" },
+      { "TYPE_SRVPGM_RPGLE",                "RPG" },
+      { "TYPE_SRVPGM_CBLLE",                "COBOL" },
+      { "TYPE_SRVPGM_CPPLE",                "C++" },
+      { "TYPE_SSND",                        "Session description" },
+      { "TYPE_STMF",                        "Bytestream file" },
+      { "TYPE_SVRSTG",                      "Server storage space" },
+      { "TYPE_SYMLNK",                      "Symbolic link" },
+      { "TYPE_S36",                         "S/36 environment configuration" },             // @F6C
+      { "TYPE_TBL",                         "Table" },
+      { "TYPE_USRIDX",                      "User index" },
+      { "TYPE_USRPRF",                      "User profile" },
+      { "TYPE_USRQ",                        "User queue" },
+      { "TYPE_USRSPC",                      "User space" },
+      { "TYPE_VLDL",                        "Validation list" },
+      { "TYPE_WSCST",                       "Workstation customizing object" },
+        // @F3A
+
+
+      // @F4A
+      // #TRANNOTE #####################################################
+      // #TRANNOTE NetServer component MRI.
+      // #TRANNOTE #####################################################
+
+      { "PROP_DESC_NAME",                              "The name of the object." },
+      { "PROP_NAME_NAME",                              "name" },
+      { "PROP_DESC_ID",                                "The ID of the object." },
+      { "PROP_NAME_ID",                                "ID" },
+
+      { "NETSERVER_DESCRIPTION",                       "NetServer" },
+
+         // #TRANNOTE The properties of NetServer.
+      { "NETSERVER_ALLOW_SYSTEM_NAME_NAME",            "Allow system name" },
+      { "NETSERVER_ALLOW_SYSTEM_NAME_PENDING_NAME",    "Allow system name (pending)" },
+      { "NETSERVER_AUTOSTART_NAME",                    "Autostart" },
+      { "NETSERVER_BROWSING_INTERVAL_NAME",            "Browsing interval" },
+      { "NETSERVER_BROWSING_INTERVAL_PENDING_NAME",    "Browsing interval (pending)" },
+      { "NETSERVER_CCSID_NAME",                        "CCSID" },
+      { "NETSERVER_CCSID_PENDING_NAME",                "CCSID (pending)" },
+      { "NETSERVER_DESCRIPTION_NAME",                  "Description" },
+      { "NETSERVER_DESCRIPTION_PENDING_NAME",          "Description (pending)" },
+      { "NETSERVER_DOMAIN_NAME",                       "Domain name" },
+      { "NETSERVER_DOMAIN_PENDING_NAME",               "Domain name (pending)" },
+      { "NETSERVER_GUEST_SUPPORT_NAME",                "Guest support" },
+      { "NETSERVER_GUEST_SUPPORT_PENDING_NAME",        "Guest support (pending)" },
+      { "NETSERVER_GUEST_USER_PROFILE_NAME",           "Guest user profile" },
+      { "NETSERVER_GUEST_USER_PROFILE_PENDING_NAME",   "Guest user profile (pending)" },
+      { "NETSERVER_IDLE_TIMEOUT_NAME",                 "Idle timeout" },
+      { "NETSERVER_IDLE_TIMEOUT_PENDING_NAME",         "Idle timeout (pending)" },
+      { "NETSERVER_LOGON_SUPPORT_NAME",                "Logon support" },
+      { "NETSERVER_LOGON_SUPPORT_PENDING_NAME",        "Logon support (pending)" },
+      { "NETSERVER_NAME_NAME",                         "Name" },
+      { "NETSERVER_NAME_PENDING_NAME",                 "Name (pending)" },
+      { "NETSERVER_OPPORTUNISTIC_LOCK_TIMEOUT_NAME",   "Opportunistic lock timeout" },
+      { "NETSERVER_OPPORTUNISTIC_LOCK_TIMEOUT_PENDING_NAME", "Opportunistic lock timeout (pending)" },
+      { "NETSERVER_WINS_ENABLEMENT_NAME",              "WINS enablement" },
+      { "NETSERVER_WINS_ENABLEMENT_PENDING_NAME",      "WINS enablement (pending)" },
+      { "NETSERVER_WINS_PRIMARY_ADDRESS_NAME",         "Address of primary WINS server" },
+      { "NETSERVER_WINS_PRIMARY_ADDRESS_PENDING_NAME", "Address of primary WINS server (pending)" },
+      { "NETSERVER_WINS_SCOPE_ID_NAME",                "WINS scope ID" },
+      { "NETSERVER_WINS_SCOPE_ID_PENDING_NAME",        "WINS scope ID (pending)" },
+      { "NETSERVER_WINS_SECONDARY_ADDRESS_NAME",       "Address of secondary WINS server" },
+      { "NETSERVER_WINS_SECONDARY_ADDRESS_PENDING_NAME","Address of secondary WINS server (pending)" },
+
+         // #TRANNOTE The properties of NetServerConnection.
+      { "NETSERVER_CONNECTION_DESCRIPTION",            "Connection" },
+      { "NETSERVER_TYPE_NAME",                         "Connection type" },
+      { "NETSERVER_TYPE_0_NAME",                       "Disk driver" },
+      { "NETSERVER_TYPE_1_NAME",                       "Spooled output queue" },
+      { "NETSERVER_FILES_OPEN_COUNT_NAME",             "Number of files open" },
+      { "NETSERVER_USER_COUNT_NAME",                   "Number of users" },
+      { "NETSERVER_CONNECT_TIME_NAME",                 "Connection time" },
+      { "NETSERVER_USER_NAME",                         "User name" },
+
+         // #TRANNOTE The properties of NetServerFileShare.
+      { "NETSERVER_FILESHARE_DESCRIPTION",             "File share" },
+      { "NETSERVER_PATH_NAME",                         "Path" },
+      { "NETSERVER_PATH_LENGTH_NAME",                  "Path length" },
+      { "NETSERVER_PERMISSION_NAME",                   "Permission" },
+      { "NETSERVER_PERMISSION_1_NAME",                 "Read-only" },
+      { "NETSERVER_PERMISSION_2_NAME",                 "Read/write" },
+      { "NETSERVER_MAXIMUM_USERS_NAME",                "Maximum number of users" },
+
+         // #TRANNOTE The properties of NetServerPrintShare.
+      { "NETSERVER_PRINTSHARE_DESCRIPTION",            "Print share" },
+      { "NETSERVER_OUTPUT_QUEUE_LIBRARY_NAME",         "Output queue library" },
+      { "NETSERVER_OUTPUT_QUEUE_NAME_NAME",            "Output queue name" },
+      { "NETSERVER_PRINT_DRIVER_TYPE_NAME",            "Print driver type" },
+      { "NETSERVER_SPOOLED_FILE_TYPE_NAME",            "Spooled file type" },
+      { "NETSERVER_SPOOLED_FILE_TYPE_1_NAME",          "User ASCII" },
+      { "NETSERVER_SPOOLED_FILE_TYPE_2_NAME",          "Advanced function printing" },
+      { "NETSERVER_SPOOLED_FILE_TYPE_3_NAME",          "SNA character string" },
+      { "NETSERVER_SPOOLED_FILE_TYPE_4_NAME",          "Automatic type sensing" },
+
+         // #TRANNOTE The properties of NetServerSession.
+      { "NETSERVER_SESSION_DESCRIPTION",               "Session" },
+      { "NETSERVER_CONNECTION_COUNT_NAME",             "Number of connections" },
+      { "NETSERVER_FILES_OPEN_COUNT_NAME",             "Number of files open" },
+      { "NETSERVER_SESSION_COUNT_NAME",                "Number of sessions" },
+      { "NETSERVER_SESSION_TIME_NAME",                 "Session time" },
+      { "NETSERVER_IDLE_TIME_NAME",                    "Idle time" },
+      { "NETSERVER_IS_GUEST_NAME",                     "Is guest" },
+      { "NETSERVER_IS_ENCRYPT_PASSWORD_NAME",          "Is encrypted password used" },
+
+         // #TRANNOTE The properties of NetServerShare.
+      { "NETSERVER_SHARE_DESCRIPTION",                 "Share" },
+
+
+      { "LM_EXCEPTION",     "A license error occurred.  The primary return code is &0.  The secondary return code is &1." }, // @F5A
+
+
 
 
    };

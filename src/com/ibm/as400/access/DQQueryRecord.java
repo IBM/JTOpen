@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DQQueryRecord.java
 //                                                                             
@@ -19,11 +19,13 @@ class DQQueryRecord implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
+
     // These variables contain the values for the data queue attributes.
-    int maxEntryLength;
-    boolean saveSenderInformation;
-    boolean FIFO;
-    int keyLength;
-    boolean forceToAuxiliaryStorage;
-    String description;
+    int maxEntryLength_;
+    boolean saveSenderInformation_;
+    boolean FIFO_;
+    int keyLength_;
+    boolean forceToAuxiliaryStorage_;
+    String description_;
 }

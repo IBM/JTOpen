@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBSQLRequestDS.java
 //                                                                             
@@ -51,6 +51,7 @@ extends DBBaseRequestDS
     public static final int	FUNCTIONID_ROLLBACK     	     = 0x1808;
     public static final int	FUNCTIONID_STREAM_FETCH     	 = 0x180C;
     public static final int	FUNCTIONID_WRITE_LOB_DATA   	 = 0x1817;
+    public static final int	FUNCTIONID_CANCEL   	         = 0x1818;      // @E2A
 
 
 
@@ -122,6 +123,14 @@ extends DBBaseRequestDS
 
 
 
+	void setReturnCurrentLengthIndicator(int value)                     // @E1A
+		throws DBDataStreamException                                    // @E1A
+	{                                                                   // @E1A
+		addParameter(0x3821, (byte)value);                              // @E1A
+	}                                                                   // @E1A
+
+
+
 /**
    Sets the Cursor Name parameter in the data stream.
    @param value	the name for the open cursor.
@@ -181,6 +190,14 @@ extends DBBaseRequestDS
 
 
 
+     void setJobIdentifier(String value, ConverterImplRemote converter)  // @E2A
+         throws DBDataStreamException                                    // @E2A
+     {                                                                   // @E2A
+         addParameter(0x3826, converter, value);                         // @E2A
+     }                                                                   // @E2A
+ 
+ 
+ 
 /**
    Sets the Library Name parameter in the data stream.
    @param value	the name of the library.

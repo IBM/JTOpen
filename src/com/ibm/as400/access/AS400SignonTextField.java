@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400SignonTextField.java
 //                                                                             
@@ -28,24 +28,25 @@ class AS400SignonTextField extends TextField implements KeyListener
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+    static final long serialVersionUID = 4L;
     private final String allowableChars_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$#_@";
 
     public AS400SignonTextField()
     {
         super();
-        this.addKeyListener(this);
+        addKeyListener(this);
     }
 
     public void keyTyped(KeyEvent e)
     {
         char c = e.getKeyChar();
 
-        if(c == KeyEvent.VK_BACK_SPACE)
+        if (c == KeyEvent.VK_BACK_SPACE)
         {
             return;
         }
 
-        switch(e.getKeyCode())
+        switch (e.getKeyCode())
         {
             case KeyEvent.VK_ENTER:
             case KeyEvent.VK_TAB:
@@ -66,9 +67,9 @@ class AS400SignonTextField extends TextField implements KeyListener
                 return;
         }
 
-        if(getText().length() < 10) // Max length is 10.
+        if (getText().length() < 10) // Max length is 10.
         {
-            if(allowableChars_.indexOf(c) > -1)
+            if (allowableChars_.indexOf(c) > -1)
             {
                 e.setKeyChar(Character.toUpperCase(c));
                 return;
@@ -77,7 +78,7 @@ class AS400SignonTextField extends TextField implements KeyListener
 
         // Rejected -- either too many chars, or bad char entered.
         e.consume();
-        // Toolkit.getDefaultToolkit().beep();
+        Toolkit.getDefaultToolkit().beep();
     }
 
     public void keyPressed(KeyEvent e)

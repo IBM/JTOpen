@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DBSQLDADataFormat.java
 //                                                                             
@@ -19,12 +19,6 @@ package com.ibm.as400.access;
 The DBSQLDADataFormat class is an implementation of
 DBDataFormat which describes the data format used in
 the SQLDA, specifically for the package cache.
-
-<p>The total length of the structure depends on the following
-fields, which are cached:
-<ul>
-<li>Number of fields
-</ul>
 **/
 class DBSQLDADataFormat
 implements DBDataFormat
@@ -56,6 +50,18 @@ is called.
     { 
         jobCCSID_ = jobCCSID;                                           // @D1A
     }
+
+
+
+// @D1D /**
+// @D1D Constructs a DBSQLDADataFormat object.  Use this when overlaying
+// @D1D on a request datastream.  This sets the cached data so that
+// @D1D the total length can be calculated before calling overlay().
+// @D1D **/
+// @D1D     public DBSQLDADataFormat (int numberOfFields)
+// @D1D     {
+// @D1D         numberOfFields_ = numberOfFields;
+// @D1D     }
 
 
 

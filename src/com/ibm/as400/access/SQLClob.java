@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SQLClob.java
 //                                                                             
@@ -41,8 +41,8 @@ implements SQLData
     private static final String     default_ = ""; // @B3A
 
     private boolean                 graphic_;
-    private int                     length_;
-    private int                     maxLength_;
+    private int                     length_;                    // Length of string, in characters.     @E3C
+    private int                     maxLength_;                 // Max length of field, in bytes.       @E3C
     private SQLConversionSettings   settings_;
     private int                     truncated_;
     private String                  value_;
@@ -63,23 +63,16 @@ implements SQLData
 
 
 
-    SQLClob (int maxLength, SQLConversionSettings settings)
-    {
-        this (maxLength, false, settings);
-    }
+    // @E1D SQLClob (int maxLength, SQLConversionSettings settings)
+    // @E1D {
+    // @E1D    this (maxLength, false, settings);
+    // @E1D }
 
 
 
     public Object clone ()
     {
-        return new SQLClob (maxLength_, settings_);
-    }
-
-
-
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
+        return new SQLClob (maxLength_, graphic_, settings_);           // @E1C
     }
 
 
@@ -98,15 +91,21 @@ implements SQLData
         length_ = BinaryConverter.byteArrayToInt (rawBytes, offset);
 
         // Do hand conversion if ccsidConverter is null.
-        if (ccsidConverter != null)                                             
+        if (ccsidConverter != null)
+	{
+	    int bidiStringType = settings_.getBidiStringType();  //@E4A
+	    // if bidiStringType is not set by user, use ccsid to get value
+	    if (bidiStringType == -1)			         //@E4A
+		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
             // If the field is DBCLOB, length_ contains the number
             // of characters in the string, while the converter is expecting
             // the number of bytes. Thus, we need to multiply length_ by 2.
             if (graphic_)
-                value_ = ccsidConverter.byteArrayToString (rawBytes, offset + 4, length_*2);
+                value_ = ccsidConverter.byteArrayToString (rawBytes, offset + 4, length_*2, bidiStringType); //@E4A
             else
-                value_ = ccsidConverter.byteArrayToString (rawBytes, offset + 4, length_);
-        else {                                                                  
+                value_ = ccsidConverter.byteArrayToString (rawBytes, offset + 4, length_, bidiStringType); //@E4A
+	}
+	else {                                                                  
             // This is a 13488 Unicode ccsid. Do the hand conversion.
             // Note that the length_ here for a VARGRAPHIC field is the
             // number of characters in the string.
@@ -136,7 +135,11 @@ implements SQLData
     {
         BinaryConverter.intToByteArray (length_, rawBytes, offset);
         try {
-            ccsidConverter.stringToByteArray (value_, rawBytes, offset + 4, length_);
+	    int bidiStringType = settings_.getBidiStringType(); //@E4A
+	    if (bidiStringType == -1)			        //@E4A
+		bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+
+            ccsidConverter.stringToByteArray (value_, rawBytes, offset + 4, maxLength_, bidiStringType); // @E3C @E4C
         }
         catch (Exception e) {
           JDError.throwSQLException (JDError.EXC_INTERNAL, e);
@@ -284,10 +287,10 @@ implements SQLData
 
 
 
-    public boolean isGraphic ()
-    {
-        return graphic_;
-    }
+// @E1D    public boolean isGraphic ()
+// @E1D    {
+// @E1D         return graphic_;
+// @E1D    }
 
 
 
@@ -335,7 +338,7 @@ implements SQLData
             return new ByteArrayInputStream (value_.getBytes ("ISO8859_1"));
         }
         catch (UnsupportedEncodingException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);            // @E2C
             return null;
         }
 	}
@@ -505,7 +508,7 @@ implements SQLData
             return new ByteArrayInputStream (value_.getBytes ("UnicodeBugUnmarked")); // @B1C
         }
         catch (UnsupportedEncodingException e) {
-            JDError.throwSQLException (JDError.EXC_INTERNAL);
+            JDError.throwSQLException (JDError.EXC_INTERNAL, e);                    // @E2C
             return null;
         }
 	}

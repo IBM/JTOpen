@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// AS/400 Toolbox for Java - OSS version                                       
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSRandomAccessFileImplRemote.java
 //                                                                             
@@ -165,7 +165,7 @@ implements IFSRandomAccessFileImpl
     {
       Trace.log(Trace.ERROR, "Byte stream server connection lost");
       fd_.setServer(null);
-      throw (ConnectionDroppedException)e.fillInStackTrace();
+      throw e;
     }
     catch(InterruptedException e)
     {
