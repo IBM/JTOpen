@@ -317,11 +317,13 @@ result set.
         if (isClosed ())
             return;
 
-        // Close the current result set.  (Note: This has no
-        // effect if the user explicitly closed the result set
-        // before closing the statement.
-        closeResultSet (JDCursor.REUSE_NO);
-
+            // Close the current result set.  (Note: This has no
+            // effect if the user explicitly closed the result set
+            // before closing the statement.
+            if (! cursor_.isClosed()) {                                     // @B3A
+                closeResultSet (JDCursor.REUSE_NO);
+            }                                                               // @B3A
+    
         // If, even after closing the current result set,
         // there are more result sets that were returned, we
         // need to close them, too.  At first I though we
@@ -1596,6 +1598,18 @@ Indicates if the statement is closed.
     {
 		return closed_;
     }
+
+
+
+// @B3A
+/**
+Marks the cursor as closed.
+**/
+    void markCursorClosed()
+    {
+        cursor_.setState(true);
+    }
+
 
 
 

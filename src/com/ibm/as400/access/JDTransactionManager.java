@@ -72,8 +72,8 @@ class JDTransactionManager
 	                                                       "ALL",
 	                                                       "RR" };
 
-   private static final int      CURSOR_HOLD_FALSE = 0;     // @C1
-   private static final int      CURSOR_HOLD_TRUE  = 1;     // @C1
+            static final int      CURSOR_HOLD_FALSE = 0;     // @C1 @B1C
+            static final int      CURSOR_HOLD_TRUE  = 1;     // @C1 @B1C
 
 	private boolean             active_;                    // Is a transaction active?
    private boolean             autoCommit_;                // Is auto-commit on?

@@ -283,6 +283,9 @@ of the connection, and disconnects from the server.
 
 		// Close all statements that are running in the context
 		// of this connection.
+   // Make a clone of the vector, since it will be modified as each statement          @EFA
+   // closes itself                                                                 // @EFA
+   Vector statements = (Vector)statements_.clone();                                 // @EFA
    Enumeration enum = statements_.elements();                                       // @EFA
    while(enum.hasMoreElements()) {                                                  // @EFC
        AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @EFA
@@ -340,6 +343,9 @@ is in auto-commit mode.
         //        anyway.
 
         transactionManager_.commit ();
+
+        if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE)   // @B4A
+            markCursorsClosed();                                                                // @B4A
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, "Transaction commit");
@@ -883,6 +889,22 @@ Indicates if the connection is in read-only mode.
 
 
 
+// @B4A
+/**
+Marks all of the cursors as closed.
+**/
+    private void markCursorsClosed()
+    {
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, "Cursors were not held.  Marking all closed");
+
+        Enumeration enum = statements_.elements();                              // @EFA
+        while(enum.hasMoreElements())                                           // @EFC
+            ((AS400JDBCStatement)enum.nextElement()).markCursorClosed();        // @EFC
+    }
+
+
+
 /**
 Returns the native form of an SQL statement without
 executing it. The JDBC driver converts all SQL statements
@@ -1122,6 +1144,9 @@ is in auto-commit mode.
 
         if (! transactionManager_.getAutoCommit ()) {
             transactionManager_.rollback ();
+
+            if (transactionManager_.getHoldIndicator() == JDTransactionManager.CURSOR_HOLD_FALSE)   // @B4A
+                markCursorsClosed();                                                                // @B4A
 
             if (JDTrace.isTraceOn())
                 JDTrace.logInformation (this, "Transaction rollback");
