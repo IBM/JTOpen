@@ -13,10 +13,18 @@
 
 package com.ibm.as400.access;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
+/**
+ * Represents a Program Temporary Fix (PTF) for an OS/400 licensed program
+ * product. Call {@link #refresh refresh()} to reload all of the values from the server.
+ * Individual getters will only refresh their own necessary information.
+ * @see com.ibm.as400.access.Product#getPTFs
+**/
 public class PTF
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
@@ -26,7 +34,7 @@ public class PTF
   private boolean actionPending_;
   private String actionRequired_;
   private boolean hasCoverLetter_;
-  private String iplAction_;
+  private int iplAction_;
   private String iplRequired_;
   private String loadedStatus_;
   private String maximumLevel_;
@@ -42,7 +50,6 @@ public class PTF
 
   private String currentIPLSource_;
   private String licGroup_;
-  private String ptfType_;
   private String saveFile_;  
   private String supersedingPTF_;
   private String targetRelease_;
@@ -50,14 +57,195 @@ public class PTF
   private boolean loaded_ = false;
   private boolean partiallyLoaded_ = false;
   private boolean loaded200_ = false;
-  private int chunkSize200_ = 8192;
+  private boolean loaded300_ = false;
+  private boolean loaded500_ = false;
+  private boolean loaded600_ = false;
+  private boolean loaded700_ = false;
+  private boolean loaded800_ = false;
+  private int chunkSize_ = 8192;
 
   // PTFR0200
   private PTFCoverLetter[] coverLetters_;
 
+  // PTFR0300
+  private PTF[] requisites_;
+  private boolean isPreRequisite_; // type
+  private boolean isCoRequisite_; // type
+  private boolean isConditional_;
+  private boolean isRequired_;
+
+  // PTFR0500
+  private PTF[] dependents_;
+  private boolean isDependent_; // type
+
+  // PTFR0600
+  private String[] apars_;
+
+  // PTFR0700
+  private String[] symptoms_;
+
+  // PTFR0800
+  private PTFExitProgram[] exitPrograms_;
+
+
+  private String messageData_; // This is loaded from CPX3501 and contains the translated text.
+
+
+  
+  /**
+   * Constant indicating that no action is required.
+  **/
+  public static final String ACTION_NOT_REQUIRED = "0";
+  
+  /**
+   * Constant indicating that the PTF contains activation instructions
+   * in the cover letter. The PTF has an exit program to update the
+   * status of the PTF after the activation instructions have been
+   * performed.
+  **/
+  public static final String ACTION_REQUIRED_EXIT_PROGRAM = "1";
+  
+  /**
+   * Constant indicating that the PTF contains activation instructions
+   * in the cover letter, but no exit program exists to verify the
+   * activation instructions were performed.
+  **/
+  public static final String ACTION_REQUIRED_CANNOT_VERIFY = "2";
+  
+  
+  
+  /**
+   * Constant indicating no action will occur at the next IPL.
+  **/
+  public static final int IPL_ACTION_NONE = 0;
+  
+  /**
+   * Constant indicating the PTF will be temporarily applied at the next IPL.
+  **/
+  public static final int IPL_ACTION_APPLY_TEMPORARY = 1;
+  
+  /**
+   * Constant indicating the PTF will be temporarily removed at the next IPL.
+  **/
+  public static final int IPL_ACTION_REMOVE_TEMPORARY = 2;
+  
+  /**
+   * Constant indicating the PTF will be permanently applied at the next IPL.
+  **/
+  public static final int IPL_ACTION_APPLY_PERMANENT = 3;
+  
+  /**
+   * Constant indicating the PTF will be permanently removed at the next IPL.
+  **/
+  public static final int IPL_ACTION_REMOVE_PERMANENT = 4;
+  
+  
+  
+  /**
+   * Constant indicating the system is currently operating on the A IPL source.
+  **/
+  public static final String IPL_SOURCE_A = "A";
+  
+  /**
+   * Constant indicating the system is currently operating on the B IPL source.
+  **/
+  public static final String IPL_SOURCE_B = "B";
+  
+  /**
+   * Constant indicating the current IPL source could not be determined.
+  **/
+  public static final String IPL_SOURCE_UNKNOWN = " ";
+  
+  
+  
+  /**
+   * Constant representing a product ID of *ONLY.
+  **/
   public static final String PRODUCT_ID_ONLY = "*ONLY";
+  
+  /**
+   * Constant representing a release level of *ONLY.
+  **/
   public static final String PRODUCT_RELEASE_ONLY = "*ONLY";
 
+
+  
+  /**
+   * Constant indicating that the PTF is delayed and must be applied at IPL time.
+  **/
+  public static final String PTF_TYPE_DELAYED = "0";
+  
+  /**
+   * Constant indicating that the PTF is immediate and can be applied immediately.
+   * No IPL is needed.
+  **/
+  public static final String PTF_TYPE_IMMEDIATE = "1";
+  
+  /**
+   * Constant indicating that the PTF type is not known.
+  **/
+  public static final String PTF_TYPE_UNKNOWN = " ";
+  
+  
+  
+  /**
+   * Constant indicating that a PTF is not loaded.
+  **/
+  public static final String STATUS_NOT_LOADED = "0";
+  
+  /**
+   * Constant indicating that a PTF is loaded.
+  **/
+  public static final String STATUS_LOADED = "1";
+  
+  /**
+   * Constant indicating that a PTF is applied.
+  **/
+  public static final String STATUS_APPLIED = "2";
+  
+  /**
+   * Constant indicating that a PTF is permanently applied.
+  **/
+  public static final String STATUS_APPLIED_PERMANENT = "3";
+  
+  /**
+   * Constant indicating that a PTF is permanently removed.
+  **/
+  public static final String STATUS_REMOVED_PERMANENT = "4";
+  
+  /**
+   * Constant indicating that a PTF is damaged.
+  **/
+  public static final String STATUS_DAMAGED = "5";
+  
+  /**
+   * Constant indicating that a PTF is superseded.
+  **/
+  public static final String STATUS_SUPERSEDED = "6";
+  
+  
+  
+  /**
+   * Constructs a PTF object. The product ID defaults to PRODUCT_ID_ONLY
+   * and the release level defaults to PRODUCT_RELEASE_ONLY.
+   * @param system The system.
+   * @param ptfID The PTF ID (e.g. "SF64578")
+  **/
+  public PTF(AS400 system, String ptfID)
+  {
+    this(system, ptfID, PRODUCT_ID_ONLY, PRODUCT_RELEASE_ONLY);
+  }
+
+  
+  /**
+   * Constructs a PTF object.
+   * @param system The system.
+   * @param ptfID The PTF ID (e.g. "SF64578")
+   * @param productID The product ID (e.g. "5722JC1"). This value must
+   * either be {@link #PRODUCT_ID_ONLY PRODUCT_ID_ONLY} or a valid product ID.
+   * @param releaseLevel The PTF release level (e.g. "V5R1M0"). This value
+   * must either be {@link #PRODUCT_RELEASE_ONLY PRODUCT_RELEASE_ONLY} or a valid release level.
+  **/
   public PTF(AS400 system, String ptfID, String productID, String releaseLevel)
   {
     if (system == null) throw new NullPointerException("system");
@@ -86,18 +274,60 @@ public class PTF
     ptfReleaseLevel_ = release;
   }
 
-
-  PTF(AS400 system, String productID, String ptfID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
-      String loadedStatus, boolean saveFileExists, boolean hasCoverLetter, boolean ptfOnOrder,
-      String iplAction, boolean actionPending, String actionRequired, String iplRequired,
-      boolean isPTFReleased, String minimumLevel, String maximumLevel, Date statusDate)
+  
+  /**
+   * Package scope constructor called by the others.
+  **/
+  PTF(AS400 system, String productID, String ptfID, String ptfReleaseLevel, String ptfOption, String ptfFeature)
   {
     system_ = system;
     productID_ = productID;
     ptfID_ = ptfID;
     ptfReleaseLevel_ = ptfReleaseLevel;
-    ptfProductOption_ = ptfProductOption;
-    ptfProductLoad_ = ptfProductLoad_;
+    ptfProductOption_ = ptfOption;
+    ptfProductLoad_ = ptfFeature;
+  }
+
+  
+  /**
+   * Package scope constructor used for dependent PTFs.
+  **/
+  PTF(AS400 system, String productID, String ptfID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
+      String minLevel, String maxLevel, boolean type)
+  {
+    this(system, productID, ptfID, ptfReleaseLevel, ptfProductOption, ptfProductLoad);
+    minimumLevel_ = minLevel;
+    maximumLevel_ = maxLevel;
+    isDependent_ = type;
+    isCoRequisite_ = !type;
+  }
+
+  
+  /**
+   * Package scope constructor used for requisite PTFs.
+  **/
+  PTF(AS400 system, String productID, String ptfID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
+      String minLevel, String maxLevel, boolean type, boolean cond, boolean reqRequired)
+  {
+    this(system, productID, ptfID, ptfReleaseLevel, ptfProductOption, ptfProductLoad);
+    minimumLevel_ = minLevel;
+    maximumLevel_ = maxLevel;
+    isPreRequisite_ = type;
+    isCoRequisite_ = !type;
+    isConditional_ = cond;
+    isRequired_ = reqRequired;
+  }
+
+
+  /**
+   * Package scope constructor used by Product.getPTFs().
+  **/
+  PTF(AS400 system, String productID, String ptfID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
+      String loadedStatus, boolean saveFileExists, boolean hasCoverLetter, boolean ptfOnOrder,
+      int iplAction, boolean actionPending, String actionRequired, String iplRequired,
+      boolean isPTFReleased, String minimumLevel, String maximumLevel, Date statusDate)
+  {
+    this(system, productID, ptfID, ptfReleaseLevel, ptfProductOption, ptfProductLoad);
     loadedStatus_ = loadedStatus;
     saveFileExists_ = saveFileExists;
     hasCoverLetter_ = hasCoverLetter;
@@ -113,6 +343,18 @@ public class PTF
     partiallyLoaded_ = true;
   }
 
+  
+  /**
+   * Returns the action required to make this PTF active when it is applied.
+   * See the cover letter to determine what action needs to be taken. Possible
+   * return values are:
+   * <UL>
+   * <LI>{@link #ACTION_NOT_REQUIRED ACTION_NOT_REQUIRED}
+   * <LI>{@link #ACTION_REQUIRED_EXIT_PROGRAM ACTION_REQUIRED_EXIT_PROGRAM
+   * <LI>{@link #ACTION_REQUIRED_CANNOT_VERIFY ACTION_REQUIRED_CANNOT_VERIFY}
+   * <UL>
+   * @return The action required.
+  **/
   public String getActionRequired()
   throws AS400Exception,
          AS400SecurityException,
@@ -121,10 +363,86 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return actionRequired_;
   }
 
+  
+  /** 
+   * Retrieves the list of APAR numbers that were fixed by this PTF.
+   * @return The APAR numbers.
+   * @see #getSymptomStrings
+  **/
+  public String[] getAPARNumbers()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded600_) refresh(600);
+    return apars_;
+  }
+
+     
+  /**
+   * Retrieves the cover letter for this PTF from the system.
+   * The cover letter returned is for the default NLV for the system.
+   * If there are no cover letters, this method returns null.
+   * @return The cover letter.
+  **/
+  public PTFCoverLetter getCoverLetter()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    return getCoverLetter(system_.getLocale());
+  }
+
+
+  /**
+   * Retrieves the cover letter for this PTF from the system based on the given locale.
+   * The cover letter returned is for the NLV that corresponds to the given locale.
+   * If there is no cover letter that corresponds to the determined NLV, the first one
+   * retrieved from the system is returned. If there are no cover letters, null is returned.
+   * @param locale The locale.
+   * @return The cover letter.
+  **/
+  public PTFCoverLetter getCoverLetter(Locale locale)
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    PTFCoverLetter[] letters = getCoverLetters();
+    if (letters.length > 0)
+    {
+      String nlv = ExecutionEnvironment.getNlv(locale);
+      for (int i=0; i<letters.length; ++i)
+      {
+        if (letters[i].getNLV().equals(nlv))
+        {
+          return letters[i];
+        }
+      }
+      return letters[0];
+    }
+    return null;
+  }
+
+
+  /**
+   * Retrieves the cover letters for this PTF from the system, if they exist.
+   * Each cover letter is for its own national language version (NLV).
+   * @return The array of cover letters. If there are no cover letters, an array
+   * of size 0 is returned.
+  **/
   public PTFCoverLetter[] getCoverLetters()
   throws AS400Exception,
          AS400SecurityException,
@@ -133,11 +451,26 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded200_) refresh(200);
-    return coverLetters_;
+    if (hasCoverLetter())
+    {
+      if (!loaded200_) refresh(200);
+      return coverLetters_;
+    }
+    return new PTFCoverLetter[0];
   }
 
 
+  /**
+   * Returns the copy of Licensed Internal Code that the system is currently
+   * operating from. The previous IPL of the system used this copy of Licensed
+   * Internal Code. Possible values are:
+   * <UL>
+   * <LI>{@link #IPL_SOURCE_A IPL_SOURCE_A}
+   * <LI>{@link #IPL_SOURCE_B IPL_SOURCE_B}
+   * <LI>{@link #IPL_SOURCE_UNKNOWN IPL_SOURCE_UNKNOWN}
+   * </UL>
+   * @return The current IPL source.
+  **/
   public String getCurrentIPLSource()
   throws AS400Exception,
          AS400SecurityException,
@@ -146,16 +479,19 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh();
+    if (!loaded_) refresh(100);
     return currentIPLSource_;
   }
 
-  public String getID()
-  {
-    return ptfID_;
-  }
-
-  public String getIPLAction()
+  
+  /**
+   * Retrieves the list of PTFs that are dependent upon this PTF.
+   * If there are no dependent PTFs, an array of size 0 will be returned.
+   * @return The array of dependent PTFs.
+   * @see #getRequisitePTFs
+   * @see #getSupersedingPTF
+  **/
+  public PTF[] getDependentPTFs()
   throws AS400Exception,
          AS400SecurityException,
          ErrorCompletingRequestException,
@@ -163,10 +499,73 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded500_) refresh(500);
+    return dependents_;
+  }
+
+  
+  /**
+   * Retrieves the list of exit programs for this PTF.
+   * @return The array of exit programs.
+  **/
+  public PTFExitProgram[] getExitPrograms()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded800_) refresh(800);
+    return exitPrograms_;
+  }
+
+
+  /**
+   * Returns the ID number for this PTF (e.g. "SF64578").
+   * @return The PTF ID.
+  **/
+  public String getID()
+  {
+    return ptfID_;
+  }
+
+  
+  /**
+   * Returns the action to be taken on this PTF during the next IPL.
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #IPL_ACTION_NONE IPL_ACTION_NONE}
+   * <LI>{@link #IPL_ACTION_APPLY_TEMPORARY IPL_ACTION_APPLY_TEMPORARY}
+   * <LI>{@link #IPL_ACTION_REMOVE_TEMPORARY IPL_ACTION_REMOVE_TEMPORARY}
+   * <LI>{@link #IPL_ACTION_APPLY_PERMANENT IPL_ACTION_APPLY_PERMANENT}
+   * <LI>{@link #IPL_ACTION_REMOVE_PERMANENT IPL_ACTION_REMOVE_PERMANENT}
+   * </UL>
+   * @return The IPL action.
+  **/
+  public int getIPLAction()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return iplAction_;
   }
 
+  
+  /**
+   * Returns the type of PTF (delayed or immediate).
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #PTF_TYPE_DELAYED PTF_TYPE_DELAYED}
+   * <LI>(@link #PTF_TYPE_IMMEDIATE PTF_TYPE_IMMEDIATE}
+   * <LI>(@link #PTF_TYPE_UNKNOWN PTF_TYPE_UNKNOWN}
+   * </UL>
+   * @return The type of PTF. This indicates if an IPL is required to apply the PTF.
+  **/
   public String getIPLRequired()
   throws AS400Exception,
          AS400SecurityException,
@@ -175,10 +574,17 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return iplRequired_;
   }
 
+  
+  /**
+   * Returns the name of the Licensed Internal Code Group for this PTF. If the name
+   * of the group is not available or if the PTF is not a Licensed Internal Code
+   * fix, this method returns "".
+   * @return The Licensed Interanl Code Group name.
+  **/
   public String getLICGroup()
   throws AS400Exception,
          AS400SecurityException,
@@ -187,10 +593,28 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh();
+    if (!loaded_) refresh(100);
     return licGroup_;
   }
 
+     
+  /**
+   * Returns the current loaded status of this PTF. See the
+   * {@link #getLoadedStatusMessage getLoadedStatusMessage()} method
+   * for the translated description text of the loaded status.
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #STATUS_NOT_LOADED STATUS_NOT_LOADED}
+   * <LI>{@link #STATUS_LOADED STATUS_LOADED}
+   * <LI>{@link #STATUS_APPLIED STATUS_APPLIED}
+   * <LI>{@link #STATUS_APPLIED_PERMANENT STATUS_APPLED_PERMANENT}
+   * <LI>{@link #STATUS_REMOVED_PERMANENT STATUS_REMOVED_PERMANENT}
+   * <LI>{@link #STATUS_DAMAGED STATUS_DAMAGED}
+   * <LI>{@link #STATUS_SUPERSEDED STATUS_SUPERSEDED}
+   * </UL>
+   * @return The loaded status.
+   * @see #getLoadedStatusMessage
+  **/
   public String getLoadedStatus()
   throws AS400Exception,
          AS400SecurityException,
@@ -199,10 +623,95 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return loadedStatus_;
   }
 
+  
+  /**
+   * Returns the translated description text for the specified status.
+   * The text is retrieved from the CPX3501 message on the system.
+   * @param loadedStatus The loaded status. See {@link #getLoadedStatus getLoadedStatus()}
+   * for the list of valid values.
+   * @return The status message, or "" if the loaded status was not valid.
+  **/
+  public String getLoadedStatusMessage(String loadedStatus)
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (messageData_ == null)
+    {
+      MessageFile mf = new MessageFile(system_, "/QSYS.LIB/QCPFMSG.MSGF");
+      AS400Message msg = null;
+      try
+      {
+        msg = mf.getMessage("CPX3501");
+      }
+      catch(PropertyVetoException pve)
+      {
+      }
+      messageData_ = msg.getHelp();
+    }
+    // String, offset, length
+    // NONE, 0, 11
+    // DAMAGED, 11, 16
+    // SUPERSEDED, 27, 20
+    // TEMPORARILY APPLIED, 47, 35
+    // NOT APPLIED, 82, 22
+    // PERMANENTLY APPLIED, 104, 35
+    // ON ORDER ONLY, 139, 25
+    // SAVE FILE ONLY, 164, 27
+    // COVER LETTER ONLY, 191, 32
+    // TEMPORARILY APPLIED - ACN, 223, 43
+    // TEMPORARILY REMOVED - ACN, 266, 43
+    // PERMANENTLY REMOVED - ACN, 309, 43
+    // PERMANENTLY APPLIED - ACN, 352, 43
+    // TEMPORARILY APPLIED - PND, 395, 43
+    // TEMPORARILY REMOVED - PND, 438, 43
+    // PERMANENTLY REMOVED - PND, 481, 43
+    // PERMANENTLY APPLIED - PND, 524, 43
+    // PERMANENTLY REMOVED, 567, 35
+    if (loadedStatus.equals(STATUS_DAMAGED))
+    {
+      return messageData_.substring(11, 27).trim();
+    }
+    else if (loadedStatus.equals(STATUS_SUPERSEDED))
+    {
+      return messageData_.substring(27, 47).trim();
+    }
+    else if (loadedStatus.equals(STATUS_APPLIED))
+    {
+      return messageData_.substring(47, 82).trim(); // temporarily applied
+    }
+    else if (loadedStatus.equals(STATUS_APPLIED_PERMANENT))
+    {
+      return messageData_.substring(104, 139).trim();
+    }
+    else if (loadedStatus.equals(STATUS_LOADED))
+    {
+      return messageData_.substring(82, 104).trim(); // not applied
+    }
+    else if (loadedStatus.equals(STATUS_REMOVED_PERMANENT))
+    {
+      return messageData_.substring(567, 602).trim();
+    }
+    return "";
+  }
+
+  
+  /**
+   * Returns the highest release level of the product on which this
+   * PTF can be installed. If the minimum and maximum levels are the
+   * same, this PTF can only be installed on one level of the product.
+   * The level can be "AA" through "99", or blank if the product has
+   * no level.
+   * @return The release level.
+   * @see #getMinimumLevel
+  **/
   public String getMaximumLevel()
   throws AS400Exception,
          AS400SecurityException,
@@ -211,10 +720,20 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return maximumLevel_;
   }
 
+  
+  /**
+   * Returns the lowest release level of the product on which this
+   * PTF can be installed. If the minimum and maximum levels are the
+   * same, this PTF can only be installed on one level of the product.
+   * The level can be "AA" through "99", or blank if the product has
+   * no level.
+   * @return The release level.
+   * @see #getMaximumLevel
+  **/
   public String getMinimumLevel()
   throws AS400Exception,
          AS400SecurityException,
@@ -223,10 +742,17 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return minimumLevel_;
   }
 
+ 
+  /**
+   * Returns the product feature to which this PTF applies. This
+   * value will be blank if the feature cannot be determined (as in
+   * the case of a dependent or requisite PTF).
+   * @return The product feature.
+  **/
   public String getProductFeature()
   throws AS400Exception,
          AS400SecurityException,
@@ -235,15 +761,30 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return ptfProductLoad_;
   }
 
+     
+  /**
+   * Returns the product ID of this PTF (e.g. "5722JC1").
+   * If this value was initially set to PRODUCT_ID_ONLY, it
+   * will be overwritten with the value returned from the system
+   * after the values have been refreshed.
+   * @return The product ID.
+  **/
   public String getProductID()
   {
     return productID_;
   }
 
+     
+  /**
+   * Returns the product option to which this PTF applies. This value
+   * will be blank if the option cannot be determined (as in the case
+   * of a dependent or requisite PTF).
+   * @return The product option.
+  **/ 
   public String getProductOption()
   throws AS400Exception,
          AS400SecurityException,
@@ -252,16 +793,45 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return ptfProductOption_;
   }
 
+     
+  /**
+   * Returns the release level of this PTF (e.g. "V5R1M0").
+   * If this value was initially set to PRODUCT_RELEASE_ONLY, it
+   * will be overwritten with the value returned from the system
+   * after the values have been refreshed.
+   * @return The release level.
+  **/
   public String getReleaseLevel()
   {
     return ptfReleaseLevel_;
   }
 
+     
+  /**
+   * Retrieves the list of pre- and co-requisite PTFs for this PTF.
+   * @return The list of PTFs.
+  **/
+  public PTF[] getRequisitePTFs()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded300_) refresh(300);
+    return requisites_;
+  }
 
+
+  /**
+   * Returns the full pathname of the save file for this PTF, if one exists.
+   * @return The save file, or null if this PTF has no save file on the system.
+  **/
   public String getSaveFile()
   throws AS400Exception,
          AS400SecurityException,
@@ -270,11 +840,20 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh();
-    return saveFile_;
+    if (hasSaveFile())
+    {
+      if (!loaded_) refresh(100);
+      return saveFile_;
+    }
+    return null;
   }
 
 
+  /**
+   * Returns the date and time the PTF status last changed. This will be blank
+   * if the status date and time are not available.
+   * @return The status date.
+  **/
   public Date getStatusDate()
   throws AS400Exception,
          AS400SecurityException,
@@ -283,10 +862,18 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return statusDate_;
   }
 
+  
+  /**
+   * Returns the PTF ID of the PTF that supersedes this PTF. This will be ""
+   * if there is no superseding PTF, or if the superseding PTF is not known.
+   * @return The PTF ID.
+   * @see #getDependentPTFs
+   * @see #getRequisitePTFs
+  **/
   public String getSupersedingPTF()
   throws AS400Exception,
          AS400SecurityException,
@@ -295,10 +882,34 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh();
+    if (!loaded_) refresh(100);
     return supersedingPTF_;
   }
 
+  
+  /**
+   * Returns the list of symptom strings for the problems fixed by this PTF.
+   * @return The symptom strings.
+   * @see #getAPARNumbers
+  **/
+  public String[] getSymptomStrings()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded700_) refresh(700);
+    return symptoms_;
+  }
+
+  
+  /**
+   * Returns the earliest release of OS/400 on which you can load and apply
+   * this PTF (e.g. "V4R5M0").
+   * @return The target release.
+  **/
   public String getTargetRelease()
   throws AS400Exception,
          AS400SecurityException,
@@ -307,11 +918,17 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh();
+    if (!loaded_) refresh(100);
     return targetRelease_;
   }
 
-  public String getType()
+  
+  /**
+   * This method is used internally by getCoverLetters().
+   * getCoverLetters() just returns an array of size 0
+   * if hasCoverLetter() is false.
+  **/
+  boolean hasCoverLetter()
   throws AS400Exception,
          AS400SecurityException,
          ErrorCompletingRequestException,
@@ -319,23 +936,16 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_) refresh();
-    return ptfType_;
-  }
-
-  public boolean hasCoverLetter()
-  throws AS400Exception,
-         AS400SecurityException,
-         ErrorCompletingRequestException,
-         InterruptedException,
-         IOException,
-         ObjectDoesNotExistException
-  {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return hasCoverLetter_;
   }
 
-  public boolean hasSaveFile()
+  
+  /**
+   * This method is used internally by getSaveFile().
+   * getSaveFile() just returns null if hasSaveFile() is false.
+  **/
+  boolean hasSaveFile()
   throws AS400Exception,
          AS400SecurityException,
          ErrorCompletingRequestException,
@@ -343,10 +953,21 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return saveFileExists_;
   }
 
+  
+  /**
+   * Indicates if a required action has yet to be performed to make
+   * this PTF active. If true, check the activation instructions in
+   * the cover letter to determine what the action is.
+   * @return true if a required action needs to occur for this PTF
+   * to be active; false if no required actions are pending for this
+   * PTF.
+   * @see #getActionRequired
+   * @see #getCoverLetters
+  **/ 
   public boolean isActionPending()
   throws AS400Exception,
          AS400SecurityException,
@@ -355,10 +976,76 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return actionPending_;
   }
 
+  
+  /**
+   * Indicates if this PTF has a conditional relationship
+   * with any of its dependents or requisites. This determines whether
+   * it is necessary to check the system for the presence of software
+   * that is described by this product ID, release level, option,
+   * and feature.
+   * @return true if the requisite PTF is required by this PTF only on
+   * systems that contain the software described in the other fields;
+   * false if the requisite PTF is required by this PTF on all systems
+   * that can use this PTF.
+  **/
+  public boolean isConditional()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded300_) refresh(300);
+    return isConditional_;
+  }
+
+  
+  /**
+   * Indicates if this PTF has a co-requisite relationship with another PTF.
+   * @return true if this PTF is a co-requisite, false otherwise.
+   * @see #getRequisitePTFs
+   * @see #isPreRequisite
+  **/
+  public boolean isCoRequisite()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded300_) refresh(300); // Could use the 500 format too.
+    return isCoRequisite_;
+  }
+
+  
+  /**
+   * Indicates if this PTF has a dependent relationship with another PTF.
+   * @return true if this PTF is dependent on another PTF, false otherwise.
+  **/
+  public boolean isDependent()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded300_) refresh(300);
+    return isDependent_;
+  }
+
+  
+  /**
+   * Indicates if this PTF has been ordered.
+   * @return true if the PTF has been ordered; false if it has not been ordered
+   * or has already been received.
+  **/
   public boolean isOnOrder()
   throws AS400Exception,
          AS400SecurityException,
@@ -367,10 +1054,38 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return ptfOnOrder_;
   }
 
+  
+  /**
+   * Indicates if this PTF has a pre-requisite relationship with another PTF.
+   * @return true if this PTF is a pre-requisite of another PTF, false otherwise.
+   * @see #getRequisitePTFs
+   * @see #isCoRequisite
+  **/
+  public boolean isPreRequisite()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded500_) refresh(500);
+    return isPreRequisite_;
+  }
+
+  
+  /**
+   * Indicates if the PTF save file is available for distribution to other systems.
+   * This is true only when the System Manager licensed product is on the system and
+   * the product is supported. The save file status should also be checked.
+   * @return true if the PTF save file is released and can be distributed; false if
+   * the save file cannot be distributed.
+   * @see #getSaveFile
+  **/
   public boolean isReleased()
   throws AS400Exception,
          AS400SecurityException,
@@ -379,11 +1094,32 @@ public class PTF
          IOException,
          ObjectDoesNotExistException
   {
-    if (!loaded_ && !partiallyLoaded_) refresh();
+    if (!loaded_ && !partiallyLoaded_) refresh(100);
     return isPTFReleased_;
   }
 
+  
+  /**
+   * Indicates if this PTF is required on the system because it is a pre-requisite
+   * for another PTF.
+   * @return true if this PTF is required on the system, false if it is not required.
+  **/ 
+  public boolean isRequired()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded300_) refresh(300);
+    return isRequired_;
+  }
 
+
+  /**
+   * Refreshes all the values for this PTF by retrieving them from the system.
+  **/
   public void refresh()
        throws AS400Exception,
               AS400SecurityException,
@@ -393,9 +1129,17 @@ public class PTF
               ObjectDoesNotExistException
   {
     refresh(200);
+    refresh(300);
+    refresh(500);
+    refresh(600);
+    refresh(700);
+    refresh(800);
   }
 
 
+  /**
+   * This refresh method does all the work.
+  **/
   private void refresh(int whichFormat)
     throws AS400Exception,
            AS400SecurityException,
@@ -410,15 +1154,35 @@ public class PTF
     {
       case 100:
         format = "PTFR0100";
-        len = 108;
+        len = 112; // Why isn't this 108? Hmm.
         break;
       case 200:
         format = "PTFR0200";
-        len = 108+12+chunkSize200_; // 108+12+(36*numberOfCoverLetters)
+        len = 108+12+chunkSize_; // 108+12+(36*numberOfCoverLetters)
+        break;
+      case 300:
+        format = "PTFR0300";
+        len = 108+12+chunkSize_; // 108+12+(35*numberOfRequisites)
+        break;
+      case 500:
+        format = "PTFR0500";
+        len = 108+12+chunkSize_; // 108+12+(33*numberOfDependents)
+        break;
+      case 600:
+        format = "PTFR0600";
+        len = 108+12+chunkSize_; // 108+12+(7*numberOfAPARs)
+        break;
+      case 700:
+        format = "PTFR0700";
+        len = 108+12+chunkSize_; // 108+12+(symptomStringData)
+        break;
+      case 800:
+        format = "PTFR0800";
+        len = 108+12+chunkSize_; // 108+12+(29*numberOfExitPrograms)
         break;
       default:
         format = "PTFR0100";
-        len = 108;
+        len = 108+chunkSize_;
         break;
     }
     int ccsid = system_.getCcsid();
@@ -434,7 +1198,7 @@ public class PTF
     text7.toBytes(ptfID_, ptfInfo, 0);
     text7.toBytes(productID_, ptfInfo, 7);
     text6.toBytes(ptfReleaseLevel_, ptfInfo, 14);
-    ptfInfo[24] = (byte)0xF0; // '0' means close the PTF database when query is done.
+    ptfInfo[24] = (byte)0xF0; // '0' means close the PTF database when query is done, '1' means leave it open.
     text25.toBytes(" ", ptfInfo, 25);
     parms[2] = new ProgramParameter(ptfInfo); // PTF information
     parms[3] = new ProgramParameter(conv.stringToByteArray(format)); // format name
@@ -448,6 +1212,14 @@ public class PTF
     }
 
     byte[] output = parms[0].getOutputData();
+    int bytesReturned = BinaryConverter.byteArrayToInt(output, 0);
+    int bytesAvailable = BinaryConverter.byteArrayToInt(output, 4);
+    if (bytesReturned < bytesAvailable)
+    {
+      chunkSize_ = bytesAvailable;
+      refresh(whichFormat);
+      return;
+    }
     ptfProductOption_ = conv.byteArrayToString(output, 32, 4);
     ptfProductLoad_ = conv.byteArrayToString(output, 36, 4);
     loadedStatus_ = conv.byteArrayToString(output, 40, 1);
@@ -464,13 +1236,13 @@ public class PTF
     {
       saveFile_ = "";
     }
-    ptfType_ = conv.byteArrayToString(output, 64, 1);
-    iplAction_ = conv.byteArrayToString(output, 65, 1);
+    iplRequired_ = conv.byteArrayToString(output, 64, 1); // also known as PTF type
+    iplAction_ = (int)(output[65] & 0x000F); // EBCDIC 0xF0 = '0', 0xF1 = '1', etc.
     actionPending_ = (output[66] == (byte)0xF1);
     actionRequired_ = conv.byteArrayToString(output, 67, 1);
     isPTFReleased_ = (output[68] == (byte)0xF1);
     targetRelease_ = conv.byteArrayToString(output, 69, 6);
-    supersedingPTF_ = conv.byteArrayToString(output, 75, 7);
+    supersedingPTF_ = conv.byteArrayToString(output, 75, 7).trim();
     currentIPLSource_ = conv.byteArrayToString(output, 82, 1);
     minimumLevel_ = conv.byteArrayToString(output, 83, 2);
     maximumLevel_ = conv.byteArrayToString(output, 85, 2);
@@ -493,7 +1265,7 @@ public class PTF
     {
       statusDate_ = null;
     }
-    licGroup_ = conv.byteArrayToString(output, 101, 7);
+    licGroup_ = conv.byteArrayToString(output, 101, 7).trim();
     loaded_ = true;
 
     if (whichFormat == 200)
@@ -504,18 +1276,7 @@ public class PTF
       int numberOfNLVs = BinaryConverter.byteArrayToInt(output, offset);
       offset += 4;
       int entryLength = BinaryConverter.byteArrayToInt(output, offset);
-      int newSize = numberOfNLVs*entryLength;
-      if (newSize > chunkSize200_)
-      {
-        if (Trace.traceOn_)
-        {
-          Trace.log(Trace.DIAGNOSTIC, "Increasing PTF cover letter chunk size from "+chunkSize200_+" to "+newSize+" and re-retrieving.");
-        }
-        chunkSize200_ = newSize;
-        refresh(200);
-        return;
-      }
-      PTFCoverLetter[] records = new PTFCoverLetter[numberOfNLVs];
+      coverLetters_ = new PTFCoverLetter[numberOfNLVs];
       for (int i=0; i<numberOfNLVs; ++i)
       {
         offset = entryOffset + (i*entryLength);
@@ -527,17 +1288,167 @@ public class PTF
         offset += 10;
         String fileMember = conv.byteArrayToString(output, offset, 10).trim();
         offset += 10;
-        String preInstructions = conv.byteArrayToString(output, offset++, 1);
-        String postInstructions = conv.byteArrayToString(output, offset, 1);
+        int preInstructions = (int)(output[offset++] & 0x000F);
+        int postInstructions = (int)(output[offset] & 0x000F);
         String path = QSYSObjectPathName.toPath(fileLibrary, fileName, fileMember, "MBR");
-        records[i] = new PTFCoverLetter(system_, nlv, path, preInstructions, postInstructions);
+        coverLetters_[i] = new PTFCoverLetter(system_, nlv, path, preInstructions, postInstructions);
       }
-      coverLetters_ = records;
       loaded200_ = true;
+    }
+    else if (whichFormat == 300) // Pre-requisites of this PTF
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numReqs = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      requisites_ = new PTF[numReqs];
+      isDependent_ = false;
+      isConditional_ = false;
+      for (int i=0; i<numReqs; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        String reqProdID = conv.byteArrayToString(output, offset, 7);
+        offset += 7;
+        String reqPTFID = conv.byteArrayToString(output, offset, 7);
+        offset += 7;
+        String release = conv.byteArrayToString(output, offset, 6);
+        offset += 6;
+        String reqMinLvl = conv.byteArrayToString(output, offset, 2);
+        offset += 2;
+        String reqMaxLvl = conv.byteArrayToString(output, offset, 2);
+        offset += 2;
+        boolean type = (output[offset++] == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
+        boolean cond = (output[offset++] == (byte)0xF1); // '1' is conditional; '0' is not.
+        boolean required = (output[offset++] == (byte)0xF1); // '1' is required; '0' is not.
+        String option = conv.byteArrayToString(output, offset, 4);
+        offset += 4;
+        String reqLoadID = conv.byteArrayToString(output, offset, 4);
+        requisites_[i] = new PTF(system_, reqProdID, reqPTFID, release, option, reqLoadID, reqMinLvl, reqMaxLvl, type, cond, required);
+        if (type)
+        {
+          isDependent_ = true;
+        }
+        else
+        {
+          isCoRequisite_ = true;
+        }
+        if (cond)
+        {
+          isConditional_ = true;
+        }
+      }
+      loaded300_ = true;
+    }
+    else if (whichFormat == 500) // Dependents of this PTF
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numDeps = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      dependents_ = new PTF[numDeps];
+      isPreRequisite_ = false;
+      for (int i=0; i<numDeps; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        String depProdID = conv.byteArrayToString(output, offset, 7);
+        offset += 7;
+        String depPTFID = conv.byteArrayToString(output, offset, 7);
+        offset += 7;
+        String release = conv.byteArrayToString(output, offset, 6);
+        offset += 6;
+        String depMinLvl = conv.byteArrayToString(output, offset, 2);
+        offset += 2;
+        String depMaxLvl = conv.byteArrayToString(output, offset, 2);
+        offset += 2;
+        boolean type = (output[offset++] == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
+        String option = conv.byteArrayToString(output, offset, 4);
+        offset += 4;
+        String depLoadID = conv.byteArrayToString(output, offset, 4);
+        dependents_[i] = new PTF(system_, depProdID, depPTFID, release, option, depLoadID, depMinLvl, depMaxLvl, type);
+        if (type)
+        {
+          isPreRequisite_ = true;
+        }
+        else
+        {
+          isCoRequisite_ = true;
+        }
+      }
+      loaded500_ = true;
+    }
+    else if (whichFormat == 600)
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numAPARs = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      apars_ = new String[numAPARs];
+      for (int i=0; i<numAPARs; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        apars_[i] = conv.byteArrayToString(output, offset, 7);
+      }
+      loaded600_ = true;
+    }
+    else if (whichFormat == 700)
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numStrings = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      symptoms_ = new String[numStrings];
+      for (int i=0; i<numStrings; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        int symptomOffset = BinaryConverter.byteArrayToInt(output, offset);
+        offset += 4;
+        int symptomLength = BinaryConverter.byteArrayToInt(output, offset);
+        symptoms_[i] = conv.byteArrayToString(output, symptomOffset, symptomLength);
+      }
+      loaded700_ = true;
+    }
+    else if (whichFormat == 800)
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numProgs = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      exitPrograms_ = new PTFExitProgram[numProgs];
+      for (int i=0; i<numProgs; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        int userDataOffset = BinaryConverter.byteArrayToInt(output, offset);
+        offset += 4;
+        int userDataLength = BinaryConverter.byteArrayToInt(output, offset);
+        offset += 4;
+        String name = conv.byteArrayToString(output, offset, 10).trim();
+        offset += 10;
+        String lib = conv.byteArrayToString(output, offset, 10).trim();
+        offset += 10;
+        String path = QSYSObjectPathName.toPath(lib, name, "PGM");
+        String runOption = conv.byteArrayToString(output, offset, 1);
+        String userData = conv.byteArrayToString(output, userDataOffset, userDataLength);
+        exitPrograms_[i] = new PTFExitProgram(path, runOption, userData);
+      }
+      loaded800_ = true;
     }
   }
 
 
+  /**
+   * Returns a String representation of this PTF in the format "PTF ID/release level/product ID".
+   * @return The String representing this PTF.
+  **/
   public String toString()
   {
     StringBuffer buf = new StringBuffer(ptfID_);
@@ -548,5 +1459,3 @@ public class PTF
     return buf.toString();
   }
 }
-
-

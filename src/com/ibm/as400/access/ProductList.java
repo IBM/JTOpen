@@ -24,51 +24,58 @@ public class ProductList
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   private AS400 system_;
-  private static final AS400Bin4 bin4_ = new AS400Bin4();
   private String[] productIDs_ = new String[1];
   private String[] productOptions_ = new String[1];
   private String[] releaseLevels_ = new String[1];
   private int currentProduct_ = 0;
 
-  private String filter_ = ALL;
-  private String option_ = ALL;
+  private String filter_ = PRODUCT_FILTER_ALL;
+  private String option_ = PRODUCT_OPTION_ALL;
 
   // Retrieve 1000 products at a time since we don't
   // know how many are actually installed on the system
   // until we make the first API call.
   private int chunkSize_ = 1000;
 
-  // Public constants.
+
 
   /**
-   * Constant representing the value *ALL.
+   * Constant representing a list of all products.
   **/
-  public static final String ALL = "*ALL";
+  public static final String PRODUCT_FILTER_ALL = "*ALL";
 
   /**
-   * Constant representing the value *BASE.
+   * Constant representing a list of all installed products.
   **/
-  public static final String BASE = "*BASE";
+  public static final String PRODUCT_FILTER_INSTALLED = "*INSTLD";
   
   /**
-   * Constant representing the value *INSTLD.
+   * Constant representing a list of all installed products and all supported products.
   **/
-  public static final String INSTALLED = "*INSTLD";
+  public static final String PRODUCT_FILTER_INSTALLED_OR_SUPPORTED = "*INSSPT";
   
   /**
-   * Constant representing the value *INSSPT.
+   * Constant representing a list filtered by user-specified criteria.
   **/
-  public static final String INSTALLED_OR_SUPPORTED = "*INSSPT";
+  public static final String PRODUCT_FILTER_LIST = "*LIST";
   
   /**
-   * Constant representing the value *LIST.
+   * Constant representing a list of all supported products.
   **/
-  public static final String LIST = "*LIST";
-  
+  public static final String PRODUCT_FILTER_SUPPORTED = "*SUPPTD";
+
+
+
   /**
-   * Constant representing the value *SUPPTD.
+   * Constant representing a list of all product options.
   **/
-  public static final String SUPPORTED = "*SUPPTD";
+  public static final String PRODUCT_OPTION_ALL = "*ALL";
+
+  /**
+   * Constant representing the base product option.
+  **/
+  public static final String PRODUCT_OPTION_BASE = "*BASE";
+  
 
 
   /**
@@ -81,8 +88,8 @@ public class ProductList
 
 
   /**
-   * Constructs a ProductList for the specified system. The default product filter is ALL.
-   * The default product option is ALL.
+   * Constructs a ProductList for the specified system. The default product filter is PRODUCT_FILTER_ALL.
+   * The default product option is PRODUCT_OPTION_ALL.
    * @param system The system from which to retrieve the list of products.
   **/
   public ProductList(AS400 system)
@@ -94,10 +101,16 @@ public class ProductList
 
   /**
    * Adds a product to the list of products to retrieve when the product
-   * filter is set to LIST. If the product filter is not set to LIST,
-   * then the products added via this method are ignored.
+   * filter is set to PRODUCT_FILTER_LIST. If the product filter is not set to
+   * PRODUCT_FILTER_LIST, then the products added via this method are ignored when
+   * the list of products is retrieved from the system.
    * @param productID The product ID, for example: "5722SS1" or "5769JC1". The length must be 7 characters.
-   * @param productOption The product option, for example: {@link #BASE ProductList.BASE} or "00001". The length must be 5 characters.
+   * @param productOption The product option. Valid values are:
+   * <UL>
+   * <LI>Any valid product option, e.g. "30".
+   * <LI>{@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE}
+   * <LI>{@link #PRODUCT_OPTION_ALL PRODUCT_OPTION_ALL}
+   * </UL>
    * @param releaseLevel The product release level, for example "V5R1M0" or "V4R5M0". The length must be 6 characters.
    * @see #clearProductsToRetrieve
   **/
@@ -113,10 +126,19 @@ public class ProductList
       throw new ExtendedIllegalArgumentException("productID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     String option = productOption.toUpperCase().trim();
-    if (option.length() != 5)
+    if (!option.equals(PRODUCT_OPTION_BASE) &&
+        !option.equals(PRODUCT_OPTION_ALL))
+    {
+      while (option.length() < 5)
+      {
+        option = "0"+option;
+      }
+    }
+    if (option.length() > 5)
     {
       throw new ExtendedIllegalArgumentException("productOption", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
+    
     String level = releaseLevel.toUpperCase().trim();
     if (level.length() != 6)
     {
@@ -145,7 +167,7 @@ public class ProductList
 
   /**
    * Clears the list of products to retrieve and sets the product filter
-   * to {@link #ALL ProductList.ALL}.
+   * to {@link #PRODUCT_FILTER_ALL PRODUCT_FILTER_ALL}.
    * @see #addProductToRetrieve
   **/
   public void clearProductsToRetrieve()
@@ -154,7 +176,7 @@ public class ProductList
     productOptions_ = new String[1];
     releaseLevels_ = new String[1];
     currentProduct_ = 0;
-    filter_ = ALL;
+    filter_ = PRODUCT_FILTER_ALL;
   }
 
 
@@ -164,7 +186,7 @@ public class ProductList
    * {@link #setProductOption setProductOption()} to change the types of
    * products that are returned.
    * Use {@link #addProductToRetrieve addProductToRetrieve()} to add a 
-   * specific product to retrieve and specify {@link #LIST ProductList.LIST}
+   * specific product to retrieve and specify {@link #PRODUCT_FILTER_LIST PRODUCT_FILTER_LIST}
    * for the product filter.
    * @return The array of Product objects.
   **/
@@ -176,11 +198,11 @@ public class ProductList
               IOException,
               ObjectDoesNotExistException
   {
-    if (filter_ == LIST && currentProduct_ == 0)
+    if (filter_.equals(PRODUCT_FILTER_LIST) && currentProduct_ == 0)
     {
       if (Trace.traceOn_)
       {
-        Trace.log(Trace.ERROR, "ProductList filter is set to LIST but no products have been added.");
+        Trace.log(Trace.ERROR, "ProductList filter is set to PRODUCT_FILTER_LIST but no products have been added.");
       }
       throw new ExtendedIllegalArgumentException("filter", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -193,12 +215,12 @@ public class ProductList
     final byte[] inputInformation = new byte[40];
     BinaryConverter.intToByteArray(chunkSize_, inputInformation, 0); // number of records to return
     AS400Text text10 = new AS400Text(10, ccsid, system_);
-    text10.toBytes(ALL, inputInformation, 4); // number of products to select
+    text10.toBytes("*ALL", inputInformation, 4); // number of products to select
     inputInformation[14] = (byte)0xF1; // '1' but it doesn't matter 
     inputInformation[15] = (byte)0xF1; // '1' but it doesn't matter
     text10.toBytes(option_, inputInformation, 16); // product options to display
     text10.toBytes(filter_, inputInformation, 26); // product
-    if (currentProduct_ > 0 && filter_ == LIST)
+    if (currentProduct_ > 0 && filter_.equals(PRODUCT_FILTER_LIST))
     {
       BinaryConverter.intToByteArray(currentProduct_, inputInformation, 36); // records in list
     }
@@ -208,7 +230,7 @@ public class ProductList
     parms[2] = new ProgramParameter(conv.stringToByteArray("PRDS0200")); // format name
     
     byte[] inputList = null;
-    if (currentProduct_ > 0 && filter_ == LIST)
+    if (currentProduct_ > 0 && filter_.equals(PRODUCT_FILTER_LIST))
     {
       inputList = new byte[18*currentProduct_];
       AS400Text text5 = new AS400Text(5, ccsid, system_);
@@ -231,7 +253,7 @@ public class ProductList
     }
     parms[3] = new ProgramParameter(inputList); // input list
     parms[4] = new ProgramParameter(12); // output information
-    parms[5] = new ProgramParameter(bin4_.toBytes(0)); // error code
+    parms[5] = new ProgramParameter(new byte[4]); // error code
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QSZSLTPR.PGM", parms);
     if (!pc.run())
@@ -292,14 +314,24 @@ public class ProductList
   
   /**
    * Sets the product filter used to filter the list.
-   * Valid values are INSTALLED, SUPPORTED, INSTALLED_OR_SUPPORTED, ALL, and LIST.
+   * Valid values are:
+   * <UL>
+   * <LI>{@link #PRODUCT_FILTER_INSTALLED PRODUCT_FILTER_INSTALLED}
+   * <LI>{@link #PRODUCT_FILTER_SUPPORTED PRODUCT_FILTER_SUPPORTED}
+   * <LI>{@link #PRODUCT_FILTER_INSTALLED_OR_SUPPORTED PRODUCT_FILTER_INSTALLED_OR_SUPPORTED}
+   * <LI>{@link #PRODUCT_FILTER_ALL PRODUCT_FILTER_ALL}
+   * <LI>{@link #PRODUCT_FILTER_LIST PRODUCT_FILTER_LIST}
+   * </UL>
    * @param filter The product filter.
   **/
   public void setProductFilter(String filter)
   {
     if (filter == null) throw new NullPointerException("filter");
-    if (filter != INSTALLED && filter != SUPPORTED && filter != INSTALLED_OR_SUPPORTED &&
-        filter != ALL && filter != LIST)
+    if (!filter.equals(PRODUCT_FILTER_INSTALLED) &&
+        !filter.equals(PRODUCT_FILTER_SUPPORTED) &&
+        !filter.equals(PRODUCT_FILTER_INSTALLED_OR_SUPPORTED) &&
+        !filter.equals(PRODUCT_FILTER_ALL) &&
+        !filter.equals(PRODUCT_FILTER_LIST))
     {
       throw new ExtendedIllegalArgumentException("filter", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
@@ -309,13 +341,17 @@ public class ProductList
   
   /**
    * Sets the product option used to filter the list.
-   * Valid values are ALL and BASE.
+   * Valid values are:
+   * <UL>
+   * <LI>{@link #PRODUCT_OPTION_ALL PRODUCT_OPTION_ALL}
+   * <LI>{@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE}
+   * </UL>
    * @param The product option.
   **/
   public void setProductOption(String option)
   {
     if (option == null) throw new NullPointerException("option");
-    if (option != ALL && option != BASE)
+    if (!option.equals(PRODUCT_OPTION_ALL) && !option.equals(PRODUCT_OPTION_BASE))
     {
       throw new ExtendedIllegalArgumentException("option", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
