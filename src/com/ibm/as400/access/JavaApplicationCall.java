@@ -1378,7 +1378,6 @@ public class JavaApplicationCall implements Serializable
        </UL>
 
        @param jobname The value of the job name.
-       @exception PropertyVetoException If the change is vetoed.
        @since OS/400 V5R3M0
     **/
     public void setJobName(String jobname) // @F0A
