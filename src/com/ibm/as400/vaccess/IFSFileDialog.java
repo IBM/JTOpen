@@ -73,6 +73,10 @@ public class IFSFileDialog extends Dialog
 
     private Listeners listener_;
 
+    // MRI.
+    private static String READY_TEXT = ResourceLoader.getPrintText ("READY"); //@A6A
+    private static String WORKING_TEXT = ResourceLoader.getText ("EVT_NAME_WORKING"); //@A6A
+
     /**
       * Dialog still active.
       **/
@@ -117,7 +121,8 @@ Constructs an IFSFileDialog object.
         // Set the background color to light gray.
         setBackground(Color.lightGray);
 
-        label1 = new Label("Directory", Label.LEFT); // @A4C
+        String text = ResourceLoader.getText ("IFS_DIRECTORY"); //@A6a
+        label1 = new Label(text, Label.LEFT); // @A4C @A6c
         add(label1, layout, constraints, 0, 0, 3, 1);
 
         directoryList = new IFSList();
@@ -125,7 +130,8 @@ Constructs an IFSFileDialog object.
         constraints.ipady = 90;
         add(directoryList, layout, constraints, 0, 1, 3, 5);
 
-        label2 = new Label("File", Label.LEFT);
+        text = ResourceLoader.getText ("IFS_FILE"); //@A6a
+        label2 = new Label(text, Label.LEFT); //@A6c
         constraints.ipadx = 0;
         constraints.ipady = 0;
         add(label2, layout, constraints, 3, 0, 3, 1);
@@ -135,7 +141,8 @@ Constructs an IFSFileDialog object.
         constraints.ipady = 90;
         add(fileList, layout, constraints, 3, 1, 3, 5);
 
-        label3 = new Label("File name:");
+        text = ResourceLoader.getText ("IFS_FILE_NAME"); //@A6a
+        label3 = new Label(text);  //@A6c
         constraints.ipadx = 0;
         constraints.ipady = 0;
         add(label3, layout, constraints, 0, 7, 1, 1);
@@ -143,17 +150,20 @@ Constructs an IFSFileDialog object.
         fileName = new TextField(21);
         add(fileName, layout, constraints, 1, 7, 5, 1);
 
-        label4 = new Label("File type:");
+        text = ResourceLoader.getPrintText ("TYPE"); //@A6a
+        label4 = new Label(text);  //@A6c
         add(label4, layout, constraints, 0, 8, 1, 1);
 
         fileType = new Choice();
         add(fileType, layout, constraints, 1, 8, 5, 1);
 
-        open = new Button("Open");
+        text = ResourceLoader.getPrintText ("OPEN"); //@A6a
+        open = new Button(text);  //@A6c
         constraints.ipadx = 20;
         add(open, layout, constraints, 6, 0, 3, 1);
 
-        cancel = new Button("Cancel");
+        text = ResourceLoader.getText ("DLG_CANCEL"); //@A6a
+        cancel = new Button(text);  //@A6c
         add(cancel, layout, constraints, 6, 1, 3, 1);
 
         currentDirectory = new Label("/");
@@ -184,8 +194,9 @@ Constructs an IFSFileDialog object.
         fileList.setListType(IFSList.FILEONLY);
 
         filters_ = new Hashtable();
-        filters_.put("All files", "*.*");
-        fileType.addItem("All files");
+        text = ResourceLoader.getText ("IFS_ALL_FILES_FILTER"); //@A6a
+        filters_.put(text, "*.*");  //@A6c
+        fileType.addItem(text);  //@A6c
 
         open.addActionListener(listener_);
         cancel.addActionListener(listener_);
@@ -212,7 +223,7 @@ Constructs an IFSFileDialog object.
         directoryList.addErrorListener(listener_);
         fileList.addErrorListener(listener_);
 
-        status.setText("Ready");
+        status.setText(READY_TEXT);  //@A6c
 
         setResizable(false);
 
@@ -429,11 +440,12 @@ Constructs an IFSFileDialog object.
 
         if (dir.compareTo(".") == 0)
         {
-            status.setText("Retrieving list of files...");
+            status.setText(WORKING_TEXT);  //@A6c
+            ///status.setText("Retrieving list of files...");  @A6d
             try
             {
                 fileList.populateList();
-                status.setText("Ready");
+                status.setText(READY_TEXT);  //@A6c
             }
             catch (Exception e)
             {
@@ -458,12 +470,13 @@ Constructs an IFSFileDialog object.
             try
             {
                 directoryList.setPath(s);
-                status.setText("Retrieving list of directories...");
+                status.setText(WORKING_TEXT);  //@A6c
+                ///status.setText("Retrieving list of directories..."); @A6d
                 directoryList.populateList();
                 fileList.setPath(s);
-                status.setText("Retrieving list of files...");
+                ///status.setText("Retrieving list of files...");  @A6d
                 fileList.populateList();
-                status.setText("Ready");
+                status.setText(READY_TEXT);  //@A6c
                 showCurrentDir(s);
             }
             catch (Exception e)
@@ -489,11 +502,12 @@ Constructs an IFSFileDialog object.
             {
                 directoryList.setPath(newPath);
                 fileList.setPath(newPath);
-                status.setText("Retrieving list of directories...");
+                status.setText(WORKING_TEXT);  //@A6c
+                ///status.setText("Retrieving list of directories...");  @A6d
                 directoryList.populateList();
-                status.setText("Retrieving list of files...");
+                ///status.setText("Retrieving list of files...");  @A6d
                 fileList.populateList();
-                status.setText("Ready");
+                status.setText(READY_TEXT);  //@A6c
                 showCurrentDir(newPath);
             }
             catch (Exception e)
@@ -532,7 +546,9 @@ Constructs an IFSFileDialog object.
         {
           String pathAndFilter = null;   // @A5a
           if (list != null) {            // @A5a
-            pathAndFilter = "(path=" + list.getPath() + ", filter=" + list.getFilter()+") "; // @A5a
+            String text0 = ResourceLoader.getText ("PROP_NAME_PATH"); //@A6a
+            String text1 = ResourceLoader.getText ("PROP_NAME_FILTER"); //@A6a
+            pathAndFilter = "("+text0+"=" + list.getPath() + ", "+text1+"=" + list.getFilter()+") "; // @A5a @A6c
           }
           else {
             pathAndFilter = "";          // @A5a
@@ -642,11 +658,12 @@ Shows the dialog and returns the current state.
             {
                 String s = fileType.getSelectedItem();
                 fileList.setFilter((String)filters_.get(s));
-                status.setText("Updating file list...");
+                status.setText(WORKING_TEXT);  //@A6c
+                ///status.setText("Updating file list...");  @A6d
                 try
                 {
                     fileList.populateList();
-                    status.setText("Ready");
+                    status.setText(READY_TEXT);  //@A6c
                 }
                 catch (Exception ex)
                 {
@@ -686,11 +703,12 @@ Shows the dialog and returns the current state.
                     {
                         // not a path, so treat it like a filter
                         fileList.setFilter(fileName.getText());
-                        status.setText("Updating file list...");
+                        status.setText(WORKING_TEXT);  //@A6c
+                        ///status.setText("Updating file list...");  @A6d
                         try
                         {
                             fileList.populateList();
-                            status.setText("Ready");
+                            status.setText(READY_TEXT);  //@A6c
                         }
                         catch (Exception ex)
                         {
@@ -707,11 +725,12 @@ Shows the dialog and returns the current state.
                             {
                                 fileList.setPath(s);
                                 directoryList.setPath(s);
-                                status.setText("Updating directory list...");
+                                status.setText(WORKING_TEXT);  //@A6c
+                                ///status.setText("Updating directory list..."); @A6d
                                 directoryList.populateList();
-                                status.setText("Updating file list...");
+                                ///status.setText("Updating file list...");  @A6d
                                 fileList.populateList();
-                                status.setText("Ready");
+                                status.setText(READY_TEXT);  //@A6c
                                 showCurrentDir(s);
                             }
                             else
@@ -724,11 +743,12 @@ Shows the dialog and returns the current state.
                                 String newFilter = s.substring(i+1);
                                 fileList.setFilter(newFilter);
 
-                                status.setText("Updating directory list...");
+                                status.setText(WORKING_TEXT);  //@A6c
+                                ///status.setText("Updating directory list..."); @A6d
                                 directoryList.populateList();
-                                status.setText("Updating file list...");
+                                ///status.setText("Updating file list..."); @A6d
                                 fileList.populateList();
-                                status.setText("Ready");
+                                status.setText(READY_TEXT);  //@A6c
                                 showCurrentDir(newPath);
                             }
                         }
@@ -754,7 +774,7 @@ Shows the dialog and returns the current state.
                 {
                     // enter pressed in one of those controls that should
                     // act like the default button has been pressed
-                    System.out.println("key event");
+                    ///System.out.println("key event");             @A6d
                     String s = fileName.getText();
                     if ((s != null) && (s.length() > 0))
                     {
@@ -856,18 +876,9 @@ Shows the dialog and returns the current state.
         public void windowOpened(WindowEvent e)
         {
         }
-        
 
-
-        private String getCopyright()
-        {
-          return Copyright_v.copyright;
-        }
+        // @A6d  Deleted copyright() method.
     }
-
-    private static String getCopyright()
-    {
-       return Copyright_v.copyright;
-    }
+    // @A6d  Deleted copyright() method.
 }
 
