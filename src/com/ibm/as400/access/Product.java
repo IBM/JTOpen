@@ -678,16 +678,16 @@ public class Product
     {
       String fileName = getDescriptionMessageFile();
       String id = getDescriptionID();
-      MessageFile mf = new MessageFile(system_, fileName);
       try
       {
+        MessageFile mf = new MessageFile(system_, fileName);
         AS400Message msg = mf.getMessage(id);
         descriptionText_ = msg.getText();
       }
       catch(Exception e)
       {
         // Couldn't find the message file, or some other error.
-        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to retrieve product description text: ", e);
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to retrieve product description text for "+fileName+" and "+id+": ", e);
       }      
       loadedDescriptionText_ = true;
     }
@@ -1370,9 +1370,10 @@ public class Product
   {
     if (releaseLevel_.equals(PRODUCT_RELEASE_ANY))
     {
-      // First try CURRENT, then PREVIOUS, then ONLY.
+      // First try ONLY, then PREVIOUS, then CURRENT, since there will
+      // almost always be a product definition for CURRENT.
       error100_ = false;
-      releaseLevel_ = PRODUCT_RELEASE_CURRENT;
+      releaseLevel_ = PRODUCT_RELEASE_ONLY;
       try
       {
         refresh(whichFormat);
@@ -1392,7 +1393,7 @@ public class Product
         if (error100_)
         {
           error100_ = false;
-          releaseLevel_ = PRODUCT_RELEASE_ONLY;
+          releaseLevel_ = PRODUCT_RELEASE_CURRENT;
           refresh(whichFormat);
           return;
         }
