@@ -52,6 +52,7 @@ abstract class PcmlDocNode extends PcmlNode
 
     // @E0A - Add holder for condensed name if used
     private String m_CondensedName;                        //@E0A
+    private boolean m_IsExtendedType;                     //@E0A
 
     // @E0A - Add counter for use in xpcml output processing
     private   int       m_CountReps;                    //@E0A
@@ -65,6 +66,7 @@ abstract class PcmlDocNode extends PcmlNode
         m_QualName = null;
         m_TagName = "";
         m_CondensedName="";                                        //@E0A
+        m_IsExtendedType=false;                                    //@E0A
         m_NodeType = PcmlNodeType.UNSUPPORTED;
         m_CountReps = -10;                                         //@E0A
     }
@@ -75,6 +77,7 @@ abstract class PcmlDocNode extends PcmlNode
         m_XmlAttrs = attrs;                                         // @C1A
         m_TagName = "";                                             // @C1A
         m_CondensedName="";                                         //@E0A
+        m_IsExtendedType=false;                                    //@E0A
         m_CountReps=-10;                                            //@E0A
         m_NodeType = PcmlNodeType.UNSUPPORTED;                      // @C1A
 
@@ -455,6 +458,16 @@ abstract class PcmlDocNode extends PcmlNode
     String getCondensedName()
     {
         return m_CondensedName;
+    }
+
+    void setIsExtendedType(boolean extendedType)
+    {
+        m_IsExtendedType = extendedType;
+    }
+
+    boolean getIsExtendedType()
+    {
+        return m_IsExtendedType;
     }
 
     protected void setCountReps(int reps)

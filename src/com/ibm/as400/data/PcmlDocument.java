@@ -1352,7 +1352,7 @@ class PcmlDocument extends PcmlDocRoot
         // QUESTION-- NEED TO DECIDE WHAT TO DO WITH PRECISION FOR UNSIGNED NUMERICS
         String[] attrs = node.getAttributeList();
         // Check if user-defined node.  If so, don't print out attributes
-        if (node.getCondensedName() == "")
+        if (node.getCondensedName() == "" || node.getIsExtendedType())
         {
            if ( node.getNodeType() == PcmlNodeType.DATA  && dimensions.at(current_dimension) > 0)
            {

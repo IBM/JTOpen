@@ -484,6 +484,7 @@ class PcmlSAXParser extends DefaultHandler
     String equivQName=qName;
     AttributesImpl uAttrs= new AttributesImpl();
     boolean uDefinedQName=false;
+    boolean extendedType=false;
 
     // Reset initValue
     initValue="";
@@ -815,10 +816,24 @@ class PcmlSAXParser extends DefaultHandler
       }
       else
       {
-        if (uDefinedQName)
-          curList = uAttrs;
-        else
-          curList = new AttributesImpl(xmlAttrs);
+         if (uDefinedQName)
+         {
+            curList = uAttrs;
+            for (int attr = 0; attr < xmlAttrs.getLength(); attr++)
+            {
+                if (curList.getIndex(xmlAttrs.getQName(attr)) == -1)
+                {
+                    extendedType=true;
+                    curList.addAttribute(xmlAttrs.getURI(attr),
+                                         xmlAttrs.getLocalName(attr),
+                                         xmlAttrs.getQName(attr),
+                                         xmlAttrs.getType(attr),
+                                         xmlAttrs.getValue(attr));
+                }
+            }
+         }
+         else
+           curList = new AttributesImpl(xmlAttrs);
         curName = equivQName;
       }
 
@@ -1181,6 +1196,10 @@ class PcmlSAXParser extends DefaultHandler
 
         if (newNode != null)
         {
+          if (extendedType)
+          {
+            newNode.setIsExtendedType(true);
+          }
           if (m_rootNode == null)
           {
             m_rootNode = (PcmlDocument) newNode;
