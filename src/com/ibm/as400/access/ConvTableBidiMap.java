@@ -83,7 +83,7 @@ abstract class ConvTableBidiMap extends ConvTable
             {
                 properties.setBidiStringType(bidiStringType_);
             }
-            abt.setJavaProperties(properties);
+            abt.setServerProperties(properties);
             src = abt.toAS400Layout(source).toCharArray();
             if (Trace.traceOn_)
             {
