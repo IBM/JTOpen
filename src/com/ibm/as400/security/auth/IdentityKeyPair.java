@@ -14,6 +14,9 @@ import java.util.Locale;
  **/
 public final class IdentityKeyPair {
 
+  public static final long DEFAULT_KEY_TIMEOUT_SECONDS = 1200; // 20 minutes
+  public static final int  DEFAULT_KEY_SIZE = 512;             // 512 bytes
+
   // The encapsulated KeyPair object.
   private KeyPair innerKeyPair_;
 
@@ -31,6 +34,17 @@ public final class IdentityKeyPair {
 
   // Key size, for use when generating a new inner keypair.
   private int keySize_;
+
+
+  IdentityKeyPair(java.security.KeyPair keyPair, Eid appEimID, String appInstanceID)
+  {
+    // Assume caller has validated args.
+    innerKeyPair_ = keyPair;
+    eid_ = appEimID;
+    appInstanceID_ = appInstanceID;
+    lifeSpan_ = DEFAULT_KEY_TIMEOUT_SECONDS;
+    keySize_ = DEFAULT_KEY_SIZE;
+  }
 
 
   IdentityKeyPair(java.security.KeyPair keyPair, Eid appEimID, String appInstanceID, long lifeSpan, int keySize)
