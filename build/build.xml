@@ -1,0 +1,448 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: build.xml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<project name="JTOpen" basedir="." default="all">
+  
+
+<!--///////////////////////////////////////////////////////////////////////////
+    // PROPERTIES
+    ///////////////////////////////////////////////////////////////////////////-->
+
+  <!-- The "build" value is the root directory in which the JTOpen
+       files will get downloaded and built. All of the other
+       subdirectories required by this build stem off of this
+       directory. --> 
+  <property name="build" value="/jtopen_build"/>
+  
+  <property name="source" value="${build}/src"/>
+  <property name="source-contrib" value="${build}/contrib"/>
+  <property name="source-micro" value="${build}/micro"/>
+  <property name="dist" value="${build}/dist"/>
+  <property name="include" value="${build}/include"/>
+  <property name="javadoc" value="${build}/javadoc"/>
+  <property name="output" value="${build}/output"/>
+  <property name="output-xerces-4.0" value="${build}/output-xerces-4.0"/>
+
+  <property name="build.sysclasspath" value="ignore"/>
+  
+  <taskdef name="pcml" classname="PCMLTask"/>
+  <taskdef name="pdml" classname="PDMLTask"/>
+
+  <path id="jtopen.includes">
+    <pathelement path="${include}"/>
+    <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
+    <pathelement location="${include}/x4j400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
+    <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
+    <pathelement location="${include}/jta.jar"/>
+    <pathelement location="${include}/jdbc2_0-stdext.jar"/>
+    <pathelement location="${include}/jsse.jar"/>
+    <pathelement location="${include}/jtStubs.jar"/>
+    <pathelement location="${include}/ibmjgssprovider.jar"/>
+    <pathelement location="${include}/jnet.jar"/>
+  </path>
+
+  <path id="jtopen.includes-xerces-4.0">
+    <pathelement path="${include}"/>
+    <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
+    <pathelement location="${include}/xerces400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
+    <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
+    <pathelement location="${include}/jta.jar"/>
+    <pathelement location="${include}/jdbc2_0-stdext.jar"/>
+    <pathelement location="${include}/jsse.jar"/>
+    <pathelement location="${include}/jtStubs.jar"/>
+    <pathelement location="${include}/ibmjgssprovider.jar"/>
+    <pathelement location="${include}/jnet.jar"/>
+  </path>
+
+  <patternset id="exclude.native.optimizations">
+    <exclude name="com/ibm/as400/access/AS400CertificateUsrPrfUtilImplNative.class"/>
+    <exclude name="com/ibm/as400/access/AS400CertificateUtilImplNative.class"/>
+    <exclude name="com/ibm/as400/access/AS400CertificateVldlUtilImplNative.class"/>
+    <exclude name="com/ibm/as400/access/AS400FileImplNative.class"/>
+    <exclude name="com/ibm/as400/access/AS400ImplNative.class"/>
+    <exclude name="com/ibm/as400/access/BaseDataQueueImplNative.class"/>
+    <exclude name="com/ibm/as400/access/BytesWithOffset.class"/>
+    <exclude name="com/ibm/as400/access/LocalIOFB.class"/>
+    <exclude name="com/ibm/as400/access/LocalOpenFeedback.class"/>
+    <exclude name="com/ibm/as400/access/MessageFBDataFormat.class"/>
+    <exclude name="com/ibm/as400/access/MessageFBFormat.class"/>
+    <exclude name="com/ibm/as400/access/NativeVersion.class"/>
+    <exclude name="com/ibm/as400/access/NLSImplNative.class"/>
+    <exclude name="com/ibm/as400/access/ProfileHandleImplNative.class"/>
+    <exclude name="com/ibm/as400/access/ProfileTokenImplNative.class"/>
+    <exclude name="com/ibm/as400/access/RemoteCommandImplNative.class"/>
+    <exclude name="com/ibm/as400/access/SocketContainerUnix.class"/>
+    <exclude name="com/ibm/as400/access/UnixSocket.class"/>
+    <exclude name="com/ibm/as400/access/UnixSocketImpl.class"/>
+    <exclude name="com/ibm/as400/access/UnixSocketInputStream.class"/>
+    <exclude name="com/ibm/as400/access/UnixSocketOutputStream.class"/>
+    <exclude name="com/ibm/as400/access/UnixSocketUser.class"/>
+    <exclude name="com/ibm/as400/access/UserSpaceImplNative.class"/>
+  </patternset>
+
+
+<!--///////////////////////////////////////////////////////////////////////////
+    // TARGETS
+    ///////////////////////////////////////////////////////////////////////////-->
+  
+  <target name="all" depends="jar,javadoc,zip"/>
+
+  
+  <target name="clean" depends="clean-javadoc,clean-dist,clean-output,clean-source"/>
+  
+  <target name="clean-javadoc">
+    <delete dir="${javadoc}"/>
+  </target>
+  <target name="clean-dist">
+    <delete dir="${dist}"/>
+  </target>
+  <target name="clean-output">
+    <delete dir="${output}"/>
+    <delete dir="${output-xerces-4.0}"/>
+  </target>
+  <target name="clean-source">
+    <delete dir="${source}"/>
+    <delete dir="${source-contrib}"/>
+    <delete dir="${source-micro}"/>
+    <delete dir="${build}/CVS"/>
+    <delete file="${build}/license.html"/>
+    <delete file="${build}/readme.html"/>
+  </target>
+
+  
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${build}"/>
+    <mkdir dir="${dist}"/>
+    <mkdir dir="${javadoc}"/>
+    <!-- mkdir dir="${include}"/ -->
+    <mkdir dir="${output}"/>
+    <mkdir dir="${output-xerces-4.0}"/>
+    
+    <condition property="compileIncludesExist-1.4">
+      <and>
+        <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
+        <available file="${include}/servlet.jar" type="file"/>
+        <available file="${include}/x4j400.jar" type="file"/>
+        <available file="${include}/jui400.jar" type="file"/>
+      </and>
+    </condition>
+    
+    <condition property="compileIncludesExist-1.3">
+      <and>
+        <available classname="java.lang.StrictMath"/> <!-- JDK 1.3 and higher. -->
+        <available file="${include}/servlet.jar" type="file"/>
+        <available file="${include}/x4j400.jar" type="file"/>
+        <available file="${include}/jui400.jar" type="file"/>
+        <available file="${include}/jdbc2_0-stdext.jar" type="file"/>
+        <available file="${include}/jsse.jar" type="file"/>
+        <available file="${include}/jta.jar" type="file"/>
+        <available file="${include}/jtStubs.jar" type="file"/>
+        <available file="${include}/ibmjgssprovider.jar" type="file"/>
+        <available file="${include}/jnet.jar" type="file"/>
+      </and>
+    </condition>
+    
+    <condition property="compileIncludesExist-1.3-xerces-4.0">
+      <and>
+        <available classname="java.lang.StrictMath"/> <!-- JDK 1.3 and higher. -->
+        <available file="${include}/servlet.jar" type="file"/>
+        <available file="${include}/xerces400.jar" type="file"/>
+        <available file="${include}/jui400.jar" type="file"/>
+        <available file="${include}/jdbc2_0-stdext.jar" type="file"/>
+        <available file="${include}/jsse.jar" type="file"/>
+        <available file="${include}/jta.jar" type="file"/>
+        <available file="${include}/jtStubs.jar" type="file"/>
+        <available file="${include}/ibmjgssprovider.jar" type="file"/>
+        <available file="${include}/jnet.jar" type="file"/>
+      </and>
+    </condition>
+    
+    <condition property="pdmlRuntimeExists">
+      <and>
+        <available file="${include}/uitools.jar" type="file"/>
+        <available file="${include}/jui400.jar" type="file"/>
+        <available file="${include}/x4j400.jar" type="file"/>
+      </and>
+    </condition>
+    
+    <available property="pcmlRuntimeExists" file="${include}/x4j400.jar" type="file"/>
+    
+  </target>
+
+
+  <target name="zip" depends="zip-source,zip-javadoc"/>
+  
+  <target name="zip-javadoc">  
+    <zip zipfile="${dist}/doc.zip" update="false">
+      <zipfileset dir="${javadoc}"/>
+      <zipfileset dir="${build}" includes="license.html"/>
+    </zip>
+  </target>
+  
+  <target name="zip-source">
+    <zip zipfile="${dist}/src.zip" update="false">
+      <zipfileset dir="${source}"/>
+      <zipfileset dir="${source-contrib}"/>
+      <zipfileset dir="${source-micro}"/>
+      <zipfileset dir="${build}" includes="license.html"/>
+      <zipfileset dir="${build}" includes="readme.html"/>
+    </zip>
+  </target>  
+  
+  
+  <target name="jar" depends="jar-jt400,jar-jt400Native,jar-jt400Proxy,jar-jt400Servlet,jar-jt400-xerces-4.0,jar-jt400Native-xerces-4.0"/>
+
+  <!-- Note that the utilities package is now included in the jt400.jar. -->  
+  <target name="jar-jt400" depends="init,compile,pcml,pdml">
+    <jar jarfile="${dist}/jt400.jar">
+      <fileset dir="${output}">
+        <patternset refid="exclude.native.optimizations"/>
+        <patternset>
+            <exclude name="com/ibm/as400/util/**"/>
+        </patternset>
+      </fileset>
+      <fileset dir="${include}"
+               includes="com/ibm/as400/**,utilities/**">
+        <patternset refid="exclude.native.optimizations"/>
+      </fileset>
+      <fileset dir="${source}"
+               includes="**/*.gif,**/*.ser,**/*.dtd"
+               excludes="com/ibm/as400/util/**"/>
+      <fileset dir="${build}" includes="license.html"/>
+    </jar>
+  </target>
+  
+  <target name="jar-jt400-xerces-4.0" depends="init,compile-1.3-xerces-4.0,pcml,pdml">
+    <jar jarfile="${dist}/jt400-xerces-40.jar">
+      <fileset dir="${output-xerces-4.0}">
+        <patternset refid="exclude.native.optimizations"/>
+        <patternset>
+            <exclude name="com/ibm/as400/util/**"/>
+        </patternset>
+      </fileset>
+      <fileset dir="${include}"
+               includes="com/ibm/as400/**,utilities/**">
+        <patternset refid="exclude.native.optimizations"/>
+      </fileset>
+      <fileset dir="${source}"
+               includes="**/*.gif,**/*.ser,**/*.dtd"
+               excludes="com/ibm/as400/util/**"/>
+      <fileset dir="${build}" includes="license.html"/>
+    </jar>
+  </target>
+  
+  <target name="jar-jt400Native" depends="init,compile,pcml,pdml">
+    <jar jarfile="${dist}/jt400Native.jar">
+      <fileset dir="${output}">
+        <patternset>
+            <exclude name="utilities/**"/>
+            <exclude name="com/ibm/as400/vaccess/**"/>
+        </patternset>
+      </fileset>
+      <fileset dir="${include}" includes="com/ibm/as400/**"/>
+      <fileset dir="${source}"
+               includes="**/*.gif,**/*.ser,**/*.dtd"
+               excludes="com/ibm/as400/vaccess/**"/>
+      <fileset dir="${build}" includes="license.html"/>
+    </jar>
+  </target>
+  
+  <target name="jar-jt400Native-xerces-4.0" depends="init,compile-1.3-xerces-4.0,pcml,pdml">
+    <jar jarfile="${dist}/jt400Native-xerces-40.jar">
+      <fileset dir="${output-xerces-4.0}">
+        <patternset>
+            <exclude name="utilities/**"/>
+            <exclude name="com/ibm/as400/vaccess/**"/>
+        </patternset>
+      </fileset>
+      <fileset dir="${include}" includes="com/ibm/as400/**"/>
+      <fileset dir="${source}"
+               includes="**/*.gif,**/*.ser,**/*.dtd"
+               excludes="com/ibm/as400/vaccess/**"/>
+      <fileset dir="${build}" includes="license.html"/>
+    </jar>
+  </target>
+  
+  <target name="jar-jt400Proxy" depends="init,compile">
+    <jar jarfile="${dist}/jt400Proxy.jar">
+      <fileset dir="${output}" includesfile="proxy.includes"/>
+      <fileset dir="${include}" includesfile="proxy.includes"/>
+      <fileset dir="${source}" includesfile="proxy.includes"/>
+      <fileset dir="${build}" includes="license.html"/>
+    </jar>
+  </target>
+
+  <target name="jar-jt400Servlet" depends="init,compile">
+    <jar jarfile="${dist}/jt400Servlet.jar">
+      <fileset dir="${output}">
+        <patternset>
+            <include name="com/ibm/as400/util/**"/>
+            <include name="com/ibm/as400/access/ResourceBundleLoader.class"/>
+            <include name="com/ibm/as400/access/ExtendedIllegalArgumentException.class"/>
+            <include name="com/ibm/as400/access/ExtendedIllegalStateException.class"/>
+            <include name="com/ibm/as400/access/PasswordDialog.class"/>
+            <include name="com/ibm/as400/access/Trace.class"/>
+        </patternset>
+      </fileset>
+      <fileset dir="${source}">
+        <patternset>
+          <include name="com/ibm/as400/util/**/**.gif"/>
+        </patternset>
+      </fileset>
+      <fileset dir="${build}" includes="license.html"/>
+    </jar>
+  </target>
+  
+
+  <target name="pcml" if="pcmlRuntimeExists">
+    <pcml srcdir="${source}"
+          destdir="${output}"
+          classpath="${output}:${include}:${include}/x4j400.jar:${source}"
+          includes="**/*.pcml"/>
+    <!-- Classpath:
+           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
+           Need "include" for the ProgramCallDocument class to use the AS400 object.
+           Need "x4j400.jar" to parse the PCML.
+           Need "source" to find the pcml.dtd.  -->
+           
+  </target>
+
+
+  <target name="pdml" if="pdmlRuntimeExists">
+    <pdml srcdir="${source}"
+          destdir="${output}"
+          classpath="${include}/uitools.jar:${include}/jui400.jar:${include}/x4j400.jar"
+          includes="**/*.pdml"/>
+    <!-- Classpath:
+           Need "uitools.jar" to run the com.ibm.as400.ui.tools.RCXML class.
+           Need "jui400.jar" for the RCXML class to use the framework.
+           Need "x4j400.jar" to parse the PDML. -->
+           
+  </target>
+    
+
+  <target name="compileCheckIncludes-1.4" unless="compileIncludesExist-1.4">
+    <echo>
+     Unable to compile using JDK 1.4.
+     Missing one of: JDK 1.4,
+                     ${include}/servlet.jar, 
+                     ${include}/x4j400.jar, or
+                     ${include}/jui400.jar.
+     </echo>
+  </target>
+  
+  <target name="compileCheckIncludes-1.3" unless="compileIncludesExist-1.3">
+     <echo>
+     Unable to compile using JDK 1.3.
+     Missing one of: JDK 1.3,
+                     ${include}/servlet.jar, 
+                     ${include}/x4j400.jar,
+                     ${include}/jui400.jar,
+                     ${include}/jdbc2_0-stdext.jar,
+                     ${include}/jsse.jar,
+                     ${include}/jta.jar,
+                     ${include}/jtStubs.jar,
+                     ${include}/ibmjgssprovider.jar, or
+                     ${include}/jnet.jar.
+     </echo>
+  </target>
+
+  
+  <target name="compileCheckIncludes-1.3-xerces-4.0" unless="compileIncludesExist-1.3-xerces-4.0">
+     <echo>
+     Unable to compile using JDK 1.3.
+     Missing one of: JDK 1.3,
+                     ${include}/servlet.jar, 
+                     ${include}/xerces400.jar,
+                     ${include}/jui400.jar,
+                     ${include}/jdbc2_0-stdext.jar,
+                     ${include}/jsse.jar,
+                     ${include}/jta.jar,
+                     ${include}/jtStubs.jar,
+                     ${include}/ibmjgssprovider.jar, or
+                     ${include}/jnet.jar.
+     </echo>
+  </target>
+
+  <target name="xerces-4.0" depends="init,jar-jt400-xerces-4.0,jar-jt400Native-xerces-4.0"/>
+  
+  <target name="compile" depends="compile-1.4,compileCheckIncludes-1.4,compile-1.3,compileCheckIncludes-1.3"/>
+  
+  <target name="compile-1.4" depends="init" if="compileIncludesExist-1.4">
+    <javac srcdir="${source}:${source-contrib}"
+           destdir="${output}"
+           memoryMaximumSize="256m"
+           failonerror="true"
+           fork="true">
+      <classpath>
+        <pathelement path="${include}"/>
+        <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
+        <pathelement location="${include}/x4j400.jar"/> <!-- Need a xerces parser to compile the com.ibm.as400.data package. -->
+        <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="compile-1.3" depends="init" if="compileIncludesExist-1.3">
+    <javac srcdir="${source}:${source-contrib}"
+           destdir="${output}"
+           memoryMaximumSize="256m"
+           failonerror="true"
+           fork="true">
+      <classpath refid="jtopen.includes"/>
+    </javac>
+  </target>
+
+  <target name="compile-1.3-xerces-4.0" depends="init,compileCheckIncludes-1.3-xerces-4.0" if="compileIncludesExist-1.3-xerces-4.0">
+    <javac srcdir="${source}:${source-contrib}"
+           destdir="${output-xerces-4.0}"
+           memoryMaximumSize="256m"
+           failonerror="true"
+           fork="true">
+      <classpath refid="jtopen.includes-xerces-4.0"/>
+    </javac>
+  </target>
+  
+
+  <target name="source" depends="init">
+    <cvspass cvsroot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400" password="anonymous" passfile="mypasswd"/>
+    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
+             command="checkout -P -R -A" package="src" dest="${build}" passfile="mypasswd"/>
+    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
+             command="checkout -P -R -A" package="contrib" dest="${build}" passfile="mypasswd"/>
+    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
+             command="checkout -P -R -A" package="include" dest="${build}" passfile="mypasswd"/>
+    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
+             command="checkout -P -R -A" package="micro" dest="${build}" passfile="mypasswd"/>
+    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
+             command="checkout -P -R -A" package="license.html" dest="${build}" passfile="mypasswd"/>
+    <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
+             command="checkout -P -R -A" package="readme.html" dest="${build}" passfile="mypasswd"/>
+  </target>
+
+
+  <target name="javadoc" depends="init">
+    <javadoc packagenames="com.*,java.*,utilities"
+                    sourcepath="${source}:${source-contrib}:${source-micro}"
+                    destdir="${javadoc}"
+                    use="false"
+                    link="http://java.sun.com/j2se/1.3/docs/api/"
+                    maxmemory="256m">
+      <classpath refid="jtopen.includes"/>
+      <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.vaccess"/>
+      <group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,utilities"/>
+      <group title="Toolbox Micro Edition Packages" packages="com.ibm.as400.micro,java.sql"/>
+    </javadoc>
+  </target>
+</project>
