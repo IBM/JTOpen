@@ -874,7 +874,7 @@ implements CallableStatement
     throws SQLException
     {
         callMethod ("setBytes",
-                    new Class[] { String.class, Byte.class},
+                    new Class[] { String.class, byte[].class},       //@K1C Changed from Byte.class to byte[].class 
                     new Object[] { parameterName,
                         parameterValue});
     }
