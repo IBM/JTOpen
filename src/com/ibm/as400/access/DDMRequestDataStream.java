@@ -849,7 +849,7 @@ class DDMRequestDataStream extends DDMDataStream
   {
     // Set up null key field map
     // Set to true if any field is null
-    boolean containsNullKey = false;       //@C2A
+/*@E0D    boolean containsNullKey = false;       //@C2A
     for (int i=0; i<keyFields.length; ++i) //@C2A
     {                                      //@C2A
       if (keyFields[i] == null)            //@C2A
@@ -858,7 +858,8 @@ class DDMRequestDataStream extends DDMDataStream
         break;                             //@C2A
       }                                    //@C2A
     }                                      //@C2A
-    
+*///@E0D
+
     int reqLength = 60;
     // Determine the total length of all data in keyFields.
     FieldDescription description;
@@ -914,15 +915,16 @@ class DDMRequestDataStream extends DDMDataStream
             // case that the user specifies a value that does not exactly match the key
             // field in the record.
             
-            String toWrite = (String)keyFields[i]; //@D1A
+//@E0D            String toWrite = (String)keyFields[i]; //@D1A
             
-            if (varLength)
+/*@E0D            if (varLength)
             {
               // Need to write two bytes of length info prior to writing the
               // data
               BinaryConverter.shortToByteArray((short)toWrite.length(), lengthBytes, 0); //@D1A
               keyAsBytes.write(lengthBytes, 0, lengthBytes.length);
             }
+*///@E0D
 //            conv = Converter.getConverter(((AS400Text)description.getDataType()).getCcsid());  // @A1D
 //            fieldAsBytes = conv.stringToByteArray((String)keyFields[i]);                       // @A1D
 
@@ -935,10 +937,10 @@ class DDMRequestDataStream extends DDMDataStream
 //     its converter table "filled in" yet, and there's no way to do that 
 //     on the remote side since we don't have access to an AS400 object.
 //     Go back to using the Converter like before.
-            ConverterImplRemote conv = ConverterImplRemote.getConverter(system.getCcsid(), system); //@D0A
-            fieldAsBytes = conv.stringToByteArray((String)keyFields[i]); //@D0A
+//@E0D            ConverterImplRemote conv = ConverterImplRemote.getConverter(system.getCcsid(), system); //@D0A
+//@E0D            fieldAsBytes = conv.stringToByteArray((String)keyFields[i]); //@D0A
             
-            keyAsBytes.write(fieldAsBytes, 0, fieldAsBytes.length);
+//@E0D            keyAsBytes.write(fieldAsBytes, 0, fieldAsBytes.length);
 
             // We need to get rid of this if now since AS400Text does the padding for us.
             // Start of @A1D
@@ -960,7 +962,7 @@ class DDMRequestDataStream extends DDMDataStream
             
             //@D0A: Put the varLength code back in since we can't rely on the
             // AS400Text's converter table being filled in.
-            if (varLength)
+/*@E0D            if (varLength)
             {
               int fieldLength = description.getDataType().getByteLength();
               byte[] b = { 0x40 };
@@ -969,6 +971,50 @@ class DDMRequestDataStream extends DDMDataStream
                 keyAsBytes.write(b, 0, 1);
               }
             }
+*///@E0D
+
+//@E0A
+            String toWrite = (String)keyFields[i]; // Java String we want to write to the data stream
+            AS400Text text = (AS400Text)description.getDataType();
+            int fieldLength = text.getByteLength(); // How many bytes is the AS400Text object's size
+            int textCcsid = text.getCcsid();
+            ConverterImplRemote conv = null; // Need a converter
+            if (textCcsid != 65535)
+            {
+              conv = ConverterImplRemote.getConverter(textCcsid, system);
+            }
+            else
+            {
+              conv = ConverterImplRemote.getConverter(system.getCcsid(), system);
+            }
+            
+            if (varLength) // If we are variable length, need to write the 2-byte length header
+            {
+              fieldAsBytes = conv.stringToByteArray(toWrite); // Convert the Java String to AS/400 EBCDIC bytes
+              if (fieldLength < fieldAsBytes.length) // If the converted data is too big to fit into the size specified by the AS400Text object
+              {
+                if (Trace.isTraceOn())
+                {
+                  Trace.log(Trace.ERROR, "DDM: Cannot convert value under CCSID ("+system.getCcsid()+"):\n" +
+                                         "     Specified field length ("+fieldLength+") not large enough for converted key: '"+toWrite+"'", fieldAsBytes);
+                }
+                throw new ExtendedIOException(toWrite, ExtendedIOException.CANNOT_CONVERT_VALUE);
+              }
+              BinaryConverter.shortToByteArray((short)fieldAsBytes.length, lengthBytes, 0); // The length in bytes of the unpadded converted data
+              keyAsBytes.write(lengthBytes, 0, lengthBytes.length); // Write the length
+            }
+            else
+            {
+              // If we are not variable length, we don't need to write the 2-byte length header.
+              // Instead, we need to write the entire String out into the data stream, to its full length...
+              // AS400Text will pad it for us.
+              text.setConverter(conv); // Set the converter into the AS400Text object (side effect of proxification)
+              fieldAsBytes = text.toBytes(toWrite); // Convert the data again using the AS400Text object, which will pad it.
+            }
+            
+            keyAsBytes.write(fieldAsBytes, 0, fieldAsBytes.length); // Write the entire field out to the data stream
+                        
+
           }
         }
         else

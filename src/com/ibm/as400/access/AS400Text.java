@@ -431,6 +431,7 @@ public class AS400Text implements AS400DataType
       }
       System.arraycopy(eValue, 0, as400Value, offset, eValue.length);  // Let this line throw ArrayIndexException
 
+/*@E3D
       // pad with spaces
       int i = eValue.length;
       if (i < length_)
@@ -572,6 +573,89 @@ public class AS400Text implements AS400DataType
                 }
         }
       }
+*///@E3D
+        
+      
+//@E3A - pad with spaces
+      // Note that this may sort of kludge the byte array in cases where the allocated size isn't 
+      // an even number for double-byte ccsids.
+      // e.g. new AS400Text(11, 13488) and wrote "ABCDE" which would take up 5*2=10 bytes, so
+      // we would pad the 11th byte with a double-byte space (0x00 0x20), so only the 0x00 would
+      // get written. Not much we can do about it though.
+      
+      // Build padding string
+      int index = offset+eValue.length;
+      if (index < length_)
+      {
+        // Convert padding string using appropriate ccsid
+        byte[] padding = null;
+        if (tableImpl_ != null)
+        {
+          padding = tableImpl_.stringToByteArray("\u0020"); // the single-byte space
+          if (padding.length == 1) // single-byte substitution character
+          {
+            if (padding[0] == 0x3F ||
+                padding[0] == 0x7F ||
+                padding[0] == 0x1A)
+            {
+              padding = tableImpl_.stringToByteArray("\u3000"); // the double-byte space
+              // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
+            }
+          }
+          else // double-byte substitution character
+          {
+            int s = (0xFFFF & BinaryConverter.byteArrayToShort(padding, 0));
+            if (s == 0xFEFE ||
+                s == 0xFFFD ||
+                s == 0x003F ||
+                s == 0x007F ||
+                s == 0x001A)
+            {
+              padding = tableImpl_.stringToByteArray("\u3000"); // the double-byte space
+              // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
+            }
+          }
+        }
+        else
+        {
+          padding = table_.stringToByteArray("\u0020");
+          if (padding.length == 1) // single-byte substitution character
+          {
+            if (padding[0] == 0x3F ||
+                padding[0] == 0x7F ||
+                padding[0] == 0x1A)
+            {
+              padding = table_.stringToByteArray("\u3000"); // the double-byte space
+              // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
+            }
+          }
+          else // double-byte substitution character
+          {
+            int s = (0xFFFF & BinaryConverter.byteArrayToShort(padding, 0));
+            if (s == 0xFEFE ||
+                s == 0xFFFD ||
+                s == 0x003F ||
+                s == 0x007F ||
+                s == 0x001A)
+            {
+              padding = table_.stringToByteArray("\u3000"); // the double-byte space
+              // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
+            }
+          }
+        }
+        // Copy padding bytes into destination as many times as necessary
+        // Could've used a StringBuffer and a System.arraycopy, but this is faster...
+        for (int i=0; i<length_-index; ++i)
+        {
+          as400Value[i+index] = padding[i % padding.length];
+        }
+      }
+        
+      if (Trace.isTraceOn())
+      {
+        Trace.log(Trace.CONVERSION, "AS400Text.toBytes(): Converted javaValue ("+javaValue+") to:", as400Value, offset, length_);
+      }
+      
       return length_;
     }
 
