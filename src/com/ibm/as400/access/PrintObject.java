@@ -506,7 +506,6 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_SADDLESTITCH_STPL_OFFSEINFO = 0x00F4;  // saddle stitch staple offset
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0064">Save spooled file after written</A>. **/
     public static final int ATTR_SAVE         = 0x0064;  // Save spooled file after written
-    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY0x0142">Save command</A>. **/
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY111">Spooled output schedule</A>. **/
     public static final int ATTR_SCHEDULE     = 0x006B;  // when available to the writer
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY116">Transform SCS to ASCII</A>. **/
