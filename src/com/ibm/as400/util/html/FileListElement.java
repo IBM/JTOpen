@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -314,583 +314,593 @@ import com.ibm.as400.util.servlet.RowDataException;
 **/
 public class FileListElement implements java.io.Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    private AS400     system_;
-    private HTMLTable table_;
-    private HttpServletRequest request_;
-    private FileListRenderer   renderer_;                   // @A4A
-    private StringBuffer       sharePath_;                           // @B1A
-    private StringBuffer       shareName_;                           // @B1A
-    private String parameterPathInfo_; //@CRS
+  private AS400     system_;
+  private HTMLTable table_;
+  private HttpServletRequest request_;
+  private FileListRenderer   renderer_;                   // @A4A
+  private StringBuffer       sharePath_;                           // @B1A
+  private StringBuffer       shareName_;                           // @B1A
+  private String parameterPathInfo_; //@CRS
 
-    private boolean   sort_   = true;                       // @A2A                   
-    transient private Collator  collator_ = null;                            // @A2A        @B3C
+  private boolean   sort_   = true;                       // @A2A                   
+  transient private Collator  collator_ = null;                            // @A2A        @B3C
 
-    transient private PropertyChangeSupport changes_; //@P2C
-
-
-    /**
-     *  Constructs a default FileListElement object.
-     **/
-    public FileListElement()
-    {
-        // @B3A
-        // If the locale is Korean, then this throws
-        // an ArrayIndexOutOfBoundsException.  This is
-        // a bug in the JDK.  The workarond in that case
-        // is just to use String.compareTo().
-        try                                                                            // @B3A
-        {
-            collator_ = Collator.getInstance ();                           // @B3A
-            collator_.setStrength (Collator.PRIMARY);                // @B3A
-        }
-        catch (Exception e)                                                    // @B3A
-        {
-            collator_ = null;                                                      // @B3A
-        }
-
-        renderer_ = null;
-        system_ = null;
-        request_ = null;
-        shareName_ = null;
-        sharePath_ = null;
-    }
+  transient private PropertyChangeSupport changes_; //@P2C
 
 
-    // @A7A
-    /**
-     *  Constructs an FileListElement for the local file system            
-     *  using the pathInfo from the specified <i>request</i>.  
-     *
-     *  Internally a java.io.File object will be used to retrieve 
-     *  the contents of the file system.                                    
-     *  
-     *  @param request The Http servlet request.
-     **/
-    public FileListElement(HttpServletRequest request)
-    {
-        this();                                                                                    // @B3A
-        setHttpServletRequest(request); 
-        setRenderer(new FileListRenderer(request));                              
-    }
-
-
-    /**
-     *  Constructs an FileListElement for an iSeries file system
-     *  using the pathInfo from the specified <i>request</i>, and 
-     *  the designated <i>system</i>.
-     *
-     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
-     *  used to retrieve the contents of the file system.  
-     *
-     *  @param system  The AS/400 system.
-     *  @param request The Http servlet request. 
-     **/
-    public FileListElement(AS400 system, HttpServletRequest request)
-    {
-        this();                                                                                    // @B3A
-        setSystem(system);
-        setHttpServletRequest(request); 
-        setRenderer(new FileListRenderer(request));                              // @A4A
-    }
-
-
-    //@CRS
-    /**
-     *  Constructs an FileListElement for an iSeries file system
-     *  using the pathInfo from the specified <i>request</i>, and 
-     *  the designated <i>system</i>.
-     *
-     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
-     *  used to retrieve the contents of the file system.  
-     *
-     *  @param system  The AS/400 system.
-     *  @param request The Http servlet request. 
-     **/
-    public FileListElement(AS400 system, HttpServletRequest request, String parameterPathInfo)
-    {
-        this();                                                                                    // @B3A
-        setSystem(system);
-        setHttpServletRequest(request); 
-        setRenderer(new FileListRenderer(request));                              // @A4A
-        parameterPathInfo_ = parameterPathInfo;
-    }
-
-
-    /**
-     *  Constructs an FileListElement with the specified <i>system</i>, <i>request</i>, and <i>table</i>.
-     *
-     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
-     *  used to retrieve the contents of the file system.  
-     *
-     *  @param system  The AS/400 system.
-     *  @param request The Http servlet request.
-     *  @param table   The HTML table.
-     **/
-    public FileListElement(AS400 system, HttpServletRequest request, HTMLTable table)
-    {
-        this();                                                                                    // @B3A
-        setSystem(system);
-        setHttpServletRequest(request);
-        setTable(table);
-        setRenderer(new FileListRenderer(request));                              // @A4A
-    }
-
-
-    /**
-     *  Constructs a FileListElement with the specified <i>system</i>, <i>requst</i>, NetServer <i>sharePath</i>, and
-     *  NetServer <i>shareName</i>.
-     *
-     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
-     *  used to retrieve the contents of the file system at the network share point.  
-     *
-     *  @param system    The iSeries system.
-     *  @param request   The Http servlet request.
-     *  @param shareName The NetServer share name.
-     *  @param sharePath The NetServer share path.
-     *
-     **/
-    public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath) // @B1A
-    {
-        this();                                                                                                  // @B3A
-        setSystem(system);                                                                               // @B1A
-        setHttpServletRequest(request);                                                            // @B1A
-        setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
-        setShareName(shareName);                                                                  // @B1A
-        setSharePath(sharePath);                                                                     // @B1A
-    }
-
-
-    //@CRS
-    /**
-     *  Constructs a FileListElement with the specified <i>system</i>, <i>requst</i>, NetServer <i>sharePath</i>, and
-     *  NetServer <i>shareName</i>.
-     *
-     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
-     *  used to retrieve the contents of the file system at the network share point.  
-     *
-     *  @param system    The iSeries system.
-     *  @param request   The Http servlet request.
-     *  @param shareName The NetServer share name.
-     *  @param sharePath The NetServer share path.
-     *
-     **/
-    public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath, String parameterPathInfo) // @B1A
-    {
-        this();                                                                                                  // @B3A
-        setSystem(system);                                                                               // @B1A
-        setHttpServletRequest(request);                                                            // @B1A
-        setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
-        setShareName(shareName);                                                                  // @B1A
-        setSharePath(sharePath);                                                                     // @B1A
-        parameterPathInfo_ = parameterPathInfo;
-    }
-
-
-    /**
-     *  Adds a PropertyChangeListener.  The specified 
-     *  PropertyChangeListener's <b>propertyChange</b> 
-     *  method is called each time the value of any
-     *  bound property is changed.
-     *
-     *  @see #removePropertyChangeListener
-     *  @param listener The PropertyChangeListener.
-    **/
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-        if (listener == null)
-            throw new NullPointerException("listener");
-        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@P2A
-        changes_.addPropertyChangeListener(listener);
-    }
-
-
-    /**
-    *  Returns the Collator.
-    *
-    *  @return The collator.
-    **/
-    public Collator getCollator()           // @B3A
-    {
-        return collator_;
-    }
-
-
-
-    /**
-     *  Returns the Http servlet request.
-     *
-     *  @return The request.
-     **/
-    public HttpServletRequest getHttpServletRequest()
-    {
-        return request_;
-    }
-
-
-    /**
-     *  Return the file list renderer.
-     *
-     *  @return The renderer.
-     **/
-    public FileListRenderer getRenderer()
-    {
-        return renderer_;
-    }
-
-    /**
-     *  Return the NetServer share point.
-     *
-     *  @return The NetServer share path.
-     **/
-    public String getSharePath()                    // @B1A
-    {                                               // @B1A
-        // Need to check for null before
-        // performing a toString().
-        if (sharePath_ == null)
-            return null;
-        else
-            return sharePath_.toString();               // @B1A
-    }                                               // @B1A
-
-    /**
-     *  Return the name of the NetServer share.
-     *
-     *  @return The name of the NetServer share.
-     **/
-    public String getShareName()                    // @B1A
-    {
-        // Need to check for null before
-        // performing a toString().
-        if (shareName_ == null)                                             // @B1A
-            return null;
-        else
-            return shareName_.toString();               // @B1A
-    }                                               // @B1A
-
-
-    /**
-     *  Returns the AS/400 system.
-     *
-     *  @return The system.
-     *
-     **/
-    public AS400 getSystem()
-    {
-        return system_;
-    }
-
-
-    /**
-     *  Returns the HTMLTable.
-     *
-     *  @return The table.
-     **/
-    public HTMLTable getTable()
-    {
-        return table_;
-    }
-
-
-    /**
-     *  Returns a string containing the list of files and directories
-     *  in the path defined in the HttpServletRequest.  
-     *
-     *  If the <i>system</i> has not been set, a java.io.File object 
-     *  will be created with the pathInfo from the HttpServletRequest
-     *  to retrieve the list of file and directories from the
-     *  local file system.
-     *
-     *  @return The list.
-     **/
-    public String list() 
-    {
-        if (request_ == null)
-            throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-
-        // @A7D - If a system_ object is not provided then a java.io.File object will be created with the
-        //        path info from the request.
-        //
-        //if (system_ == null)
-        //    throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-
-        // @C1D
-
-        //@P2D StringBuffer buffer = new StringBuffer();
-
-        String path = null; //@CRS
-        if (parameterPathInfo_ == null) //@CRS
-        {
-          path = request_.getPathInfo();                                               // @A3C @CRS
-        }
-        else //@CRS
-        {
-          path = parameterPathInfo_; //@CRS
-        }
-
-        if (path == null)
-            path = "/";
-
-        if (sharePath_ != null)                                                                     // @B1A
-        {
-            try                                                                                            // @B1A
-            {
-                path = sharePath_.append(path.substring(path.indexOf('/', 1), path.length())).toString();  // @B1A
-            }                                                                                              // @B1A
-            catch (StringIndexOutOfBoundsException e)                                // @B1A
-            {
-                path = sharePath_.insert(0, "/").toString();                               // @B1A
-            }
-        }
-
-        try
-        {
-            File file;                                                                // @A7A
-
-            // @A7A
-            // If a system_ object is not provided then a java.io.File object will be created with the
-            // path info from the request.
-
-            if (system_ != null)                                                        // @A7A
-                file = new IFSJavaFile(system_, path.replace('\\','/'));
-            else                                                                            // @A7A
-                file = new File(path);                                                // @A7A
-
-            if (Trace.isTraceOn())                                                   // @A6A
-                Trace.log(Trace.INFORMATION, "FileListElement path: " + path);     // @A6A  @C1C
-
-            // Create a table converter object.
-            HTMLTableConverter conv = new HTMLTableConverter();
-
-            // Set the default table properties if the user has not set the table.
-            if (table_ == null)
-            {
-                table_ = new HTMLTable();
-                table_.setCellPadding(7);
-
-                // Set the converter meta data property.
-                conv.setUseMetaData(true);
-            }
-            else
-            {
-                // If the table has been set and the headers are empty, use
-                // the default headers from the meta data.
-                if (table_.getHeader() == null)
-                    conv.setUseMetaData(true);
-            }
-
-            // Set the converter table property.
-            conv.setTable(table_);
-
-            // Use the default renderer if one has not been set.          // $C2A
-            if (renderer_ == null)                                                       // $C2A
-                renderer_ = new FileListRenderer(request_);                 // $C2A
-
-            ListRowData rowData = renderer_.getRowData(file, sort_, collator_);     // $C2C
-
-            if (rowData.length() > 0)                                                   // @A6C
-            {
-                // @C1D
-
-                return conv.convert(rowData)[0]; //@P2C
-                //@P2D buffer.append(table[0]);
-            }
-        }
-        catch (PropertyVetoException e)
-        { /* Ignore */
-        }
-        catch (RowDataException rde)
-        {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, rde);
-        }
-
-        return ""; //@P2C
-    }
-
-
-    /**
-     *  Deserializes and initializes transient data.
-     **/
-    private void readObject(java.io.ObjectInputStream in)          
-    throws java.io.IOException, ClassNotFoundException
-    {
-        // @B3A
-        // If the locale is Korean, then this throws
-        // an ArrayIndexOutOfBoundsException.  This is
-        // a bug in the JDK.  The workarond in that case
-        // is just to use String.compareTo().
-        try                                                                            // @B3A
-        {
-            collator_ = Collator.getInstance ();                           // @B3A
-            collator_.setStrength (Collator.PRIMARY);                // @B3A
-        }
-        catch (Exception e)                                                    // @B3A
-        {
-            collator_ = null;                                                      // @B3A
-        }
-
-        in.defaultReadObject();
-        //@P2D changes_ = new PropertyChangeSupport(this);
-    }
-
-
-    /**
-    *  Removes the PropertyChangeListener from the internal list.
-    *  If the PropertyChangeListener is not on the list, nothing is done.
-    *  
-    *  @see #addPropertyChangeListener
-    *  @param listener The PropertyChangeListener.
+  /**
+   *  Constructs a default FileListElement object.
    **/
-    public void removePropertyChangeListener(PropertyChangeListener listener)
+  public FileListElement()
+  {
+    // @B3A
+    // If the locale is Korean, then this throws
+    // an ArrayIndexOutOfBoundsException.  This is
+    // a bug in the JDK.  The workarond in that case
+    // is just to use String.compareTo().
+    try                                                                            // @B3A
     {
-        if (listener == null)
-            throw new NullPointerException("listener");
-        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@P2C
+      collator_ = Collator.getInstance ();                           // @B3A
+      collator_.setStrength (Collator.PRIMARY);                // @B3A
     }
-
-
-    /**
-    *  Sets the <i>collator</i>.  The collator allows the tree to perform
-    *  locale-sensitive String comparisons when sorting the file list elements. 
-    *
-    *  @param collator The Collator.
-    **/
-    public void setCollator(Collator collator)           // @B3A
+    catch (Exception e)                                                    // @B3A
     {
-        if (collator == null)
-            throw new NullPointerException("collator");
-
-        Collator old = collator_;
-
-        collator_ = collator;
-
-        if (changes_ != null) changes_.firePropertyChange("collator", old, collator_); //@P2C
+      collator_ = null;                                                      // @B3A
     }
 
+    renderer_ = null;
+    system_ = null;
+    request_ = null;
+    shareName_ = null;
+    sharePath_ = null;
+  }
 
 
-    /**
-     *  Sets the Http servlet request for the element.
-     *
-     *  @param request The Http servlet request. 
-     **/
-    public void setHttpServletRequest(HttpServletRequest request)
+  // @A7A
+  /**
+   *  Constructs an FileListElement for the local file system            
+   *  using the pathInfo from the specified <i>request</i>.  
+   *
+   *  Internally a java.io.File object will be used to retrieve 
+   *  the contents of the file system.                                    
+   *  
+   *  @param request The Http servlet request.
+   **/
+  public FileListElement(HttpServletRequest request)
+  {
+    this();                                                                                    // @B3A
+    setHttpServletRequest(request); 
+    setRenderer(new FileListRenderer(request));                              
+  }
+
+
+  /**
+   *  Constructs an FileListElement for an iSeries file system
+   *  using the pathInfo from the specified <i>request</i>, and 
+   *  the designated <i>system</i>.
+   *
+   *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+   *  used to retrieve the contents of the file system.  
+   *
+   *  @param system  The AS/400 system.
+   *  @param request The Http servlet request. 
+   **/
+  public FileListElement(AS400 system, HttpServletRequest request)
+  {
+    this();                                                                                    // @B3A
+    setSystem(system);
+    setHttpServletRequest(request); 
+    setRenderer(new FileListRenderer(request));                              // @A4A
+  }
+
+
+  //@CRS
+  /**
+   *  Constructs an FileListElement for an iSeries file system
+   *  using the pathInfo from the specified <i>request</i>, and 
+   *  the designated <i>system</i>.
+   *
+   *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+   *  used to retrieve the contents of the file system.  
+   *
+   *  @param system  The AS/400 system.
+   *  @param request The Http servlet request. 
+   **/
+  public FileListElement(AS400 system, HttpServletRequest request, String parameterPathInfo)
+  {
+    this();                                                                                    // @B3A
+    setSystem(system);
+    setHttpServletRequest(request); 
+    setRenderer(new FileListRenderer(request));                              // @A4A
+    parameterPathInfo_ = parameterPathInfo;
+  }
+
+
+  /**
+   *  Constructs an FileListElement with the specified <i>system</i>, <i>request</i>, and <i>table</i>.
+   *
+   *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+   *  used to retrieve the contents of the file system.  
+   *
+   *  @param system  The AS/400 system.
+   *  @param request The Http servlet request.
+   *  @param table   The HTML table.
+   **/
+  public FileListElement(AS400 system, HttpServletRequest request, HTMLTable table)
+  {
+    this();                                                                                    // @B3A
+    setSystem(system);
+    setHttpServletRequest(request);
+    setTable(table);
+    setRenderer(new FileListRenderer(request));                              // @A4A
+  }
+
+
+  /**
+   *  Constructs a FileListElement with the specified <i>system</i>, <i>requst</i>, NetServer <i>sharePath</i>, and
+   *  NetServer <i>shareName</i>.
+   *
+   *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+   *  used to retrieve the contents of the file system at the network share point.  
+   *
+   *  @param system    The iSeries system.
+   *  @param request   The Http servlet request.
+   *  @param shareName The NetServer share name.
+   *  @param sharePath The NetServer share path.
+   *
+   **/
+  public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath) // @B1A
+  {
+    this();                                                                                                  // @B3A
+    setSystem(system);                                                                               // @B1A
+    setHttpServletRequest(request);                                                            // @B1A
+    setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
+    setShareName(shareName);                                                                  // @B1A
+    setSharePath(sharePath);                                                                     // @B1A
+  }
+
+
+  //@CRS
+  /**
+   *  Constructs a FileListElement with the specified <i>system</i>, <i>requst</i>, NetServer <i>sharePath</i>, and
+   *  NetServer <i>shareName</i>.
+   *
+   *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+   *  used to retrieve the contents of the file system at the network share point.  
+   *
+   *  @param system    The iSeries system.
+   *  @param request   The Http servlet request.
+   *  @param shareName The NetServer share name.
+   *  @param sharePath The NetServer share path.
+   *
+   **/
+  public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath, String parameterPathInfo) // @B1A
+  {
+    this();                                                                                                  // @B3A
+    setSystem(system);                                                                               // @B1A
+    setHttpServletRequest(request);                                                            // @B1A
+    setRenderer(new FileListRenderer(request, shareName, sharePath));         // @B1A
+    setShareName(shareName);                                                                  // @B1A
+    setSharePath(sharePath);                                                                     // @B1A
+    parameterPathInfo_ = parameterPathInfo;
+  }
+
+
+  /**
+   *  Adds a PropertyChangeListener.  The specified 
+   *  PropertyChangeListener's <b>propertyChange</b> 
+   *  method is called each time the value of any
+   *  bound property is changed.
+   *
+   *  @see #removePropertyChangeListener
+   *  @param listener The PropertyChangeListener.
+  **/
+  public void addPropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@P2A
+    changes_.addPropertyChangeListener(listener);
+  }
+
+
+  /**
+  *  Returns the Collator.
+  *
+  *  @return The collator.
+  **/
+  public Collator getCollator()           // @B3A
+  {
+    return collator_;
+  }
+
+
+
+  /**
+   *  Returns the Http servlet request.
+   *
+   *  @return The request.
+   **/
+  public HttpServletRequest getHttpServletRequest()
+  {
+    return request_;
+  }
+
+
+  /**
+   *  Return the file list renderer.
+   *
+   *  @return The renderer.
+   **/
+  public FileListRenderer getRenderer()
+  {
+    return renderer_;
+  }
+
+  /**
+   *  Return the NetServer share point.
+   *
+   *  @return The NetServer share path.
+   **/
+  public String getSharePath()                    // @B1A
+  {                                               // @B1A
+    // Need to check for null before
+    // performing a toString().
+    if (sharePath_ == null)
+      return null;
+    else
+      return sharePath_.toString();               // @B1A
+  }                                               // @B1A
+
+  /**
+   *  Return the name of the NetServer share.
+   *
+   *  @return The name of the NetServer share.
+   **/
+  public String getShareName()                    // @B1A
+  {
+    // Need to check for null before
+    // performing a toString().
+    if (shareName_ == null)                                             // @B1A
+      return null;
+    else
+      return shareName_.toString();               // @B1A
+  }                                               // @B1A
+
+
+  /**
+   *  Returns the AS/400 system.
+   *
+   *  @return The system.
+   *
+   **/
+  public AS400 getSystem()
+  {
+    return system_;
+  }
+
+
+  /**
+   *  Returns the HTMLTable.
+   *
+   *  @return The table.
+   **/
+  public HTMLTable getTable()
+  {
+    return table_;
+  }
+
+
+  /**
+   *  Returns a string containing the list of files and directories
+   *  in the path defined in the HttpServletRequest.  
+   *
+   *  If the <i>system</i> has not been set, a java.io.File object 
+   *  will be created with the pathInfo from the HttpServletRequest
+   *  to retrieve the list of file and directories from the
+   *  local file system.
+   *
+   *  @return The list.
+   **/
+  public String list() 
+  {
+    return list(new HTMLTableConverter());
+  }
+
+
+  //@CRS - Added HTMLTableConverter parameter.
+  /**
+   *  Returns a string containing the list of files and directories
+   *  in the path defined in the HttpServletRequest.  
+   *
+   *  If the <i>system</i> has not been set, a java.io.File object 
+   *  will be created with the pathInfo from the HttpServletRequest
+   *  to retrieve the list of file and directories from the
+   *  local file system.
+   *  @param conv An HTMLTableConverter used to format the list of files.
+   *  @return The list.
+   **/
+  public String list(HTMLTableConverter conv) 
+  {
+    if (conv == null) throw new NullPointerException("conv");
+
+    if (request_ == null) throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+
+    String path = null;
+    if (parameterPathInfo_ == null)
     {
-        if (request == null)
-            throw new NullPointerException("request");
-
-        HttpServletRequest old = request_;
-
-        request_ = request;
-
-        if (changes_ != null) changes_.firePropertyChange("request", old, request_); //@P2C
+      path = request_.getPathInfo();
     }
-
-
-    /**
-     *  Set the renderer for the FileListElement.  The default
-     *  is FileListRenderer.
-     *
-     *  @param renderer The file list renderer.
-     **/
-    public void setRenderer(FileListRenderer renderer)
+    else
     {
-        if (renderer == null)
-            throw new NullPointerException("renderer");
-
-        FileListRenderer old = renderer_;
-
-        renderer_ = renderer;
-
-        if (changes_ != null) changes_.firePropertyChange("renderer", old, renderer_); //@P2C
+      path = parameterPathInfo_;
     }
 
+    if (path == null) path = "/";
 
-    /**
-     *  Set the NetServer share path.  
-     *
-     *  @param sharePath The NetServer share path.
-     **/
-    public void setSharePath(String sharePath)                                      // @B1A
-    {                                                                                                 // @B1A
-        if (sharePath == null)                                                                 // @B1A
-            throw new NullPointerException("sharePath");                         // @B1A
-        // @B1A
-        StringBuffer old = sharePath_;                                                   // @B1A
-        // @B1A
-        sharePath_ = new StringBuffer(sharePath);                                  // @B1A
-        // @B1A
-        if (changes_ != null) changes_.firePropertyChange("sharePath", //@P2C
-                                    old==null ? null : old.toString(), sharePath_.toString());       // @B1A
-    }
-
-
-    /**
-     *  Set the name of the NetServer share.
-     *
-     *  @param shareName The NetServer share name.
-     **/
-    public void setShareName(String shareName)                 // @B1A
-    {                                                                               // @B1A
-        if (shareName == null)                                             // @B1A
-            throw new NullPointerException("shareName");     // @B1A
-        // @B1A
-        StringBuffer old = shareName_;                                // @B1A
-        // @B1A
-        shareName_ = new StringBuffer(shareName);            // @B1A
-        // @B1A
-        if (changes_ != null) changes_.firePropertyChange("shareName", //@P2C
-                                    old==null ? null : old.toString(), shareName_.toString());       // @B1A
-    }
-
-
-    /**
-     *  Set the AS/400 system.
-     *
-     *  @param The system.
-     **/
-    public void setSystem(AS400 system)
+    if (sharePath_ != null)                                                                     // @B1A
     {
-        if (system == null)
-            throw new NullPointerException("system");
-
-        AS400 old = system_;
-
-        system_ = system;
-
-        if (changes_ != null) changes_.firePropertyChange("system", old, system_); //@P2C
+      try                                                                                            // @B1A
+      {
+        path = sharePath_.append(path.substring(path.indexOf('/', 1), path.length())).toString();  // @B1A
+      }                                                                                              // @B1A
+      catch (StringIndexOutOfBoundsException e)                                // @B1A
+      {
+        path = sharePath_.insert(0, "/").toString();                               // @B1A
+      }
     }
 
-
-    /**
-     *  Set the HTMLTable to use when displaying the file list.
-     *  This will replace the default HTMLTable used.
-     *
-     *  @param table The HTML table.
-     **/
-    public void setTable(HTMLTable table)
+    try
     {
-        if (table == null)
-            throw new NullPointerException("table");
+      File rootFile = null;
 
-        HTMLTable old = table;
+      // @A7A
+      // If a system_ object is not provided then a java.io.File object will be created with the
+      // path info from the request.
 
-        table_ = table;
+      if (system_ != null)                                                        // @A7A
+      {
+        rootFile = new IFSJavaFile(system_, path.replace('\\','/'));
+      }
+      else                                                                            // @A7A
+      {
+        rootFile = new File(path);                                                // @A7A
+      }
 
-        if (changes_ != null) changes_.firePropertyChange("table", old, table_); //@P2C
+      if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "FileListElement path: " + path);     // @A6A  @C1C
+
+      // Set the default table properties if the user has not set the table.
+      if (table_ == null)
+      {
+        table_ = new HTMLTable();
+        table_.setCellPadding(7);
+
+        // Set the converter meta data property.
+        conv.setUseMetaData(true);
+      }
+      else
+      {
+        // If the table has been set and the headers are empty, use
+        // the default headers from the meta data.
+        if (table_.getHeader() == null) conv.setUseMetaData(true);
+      }
+
+      // Set the converter table property.
+      conv.setTable(table_);
+
+      // Use the default renderer if one has not been set.          // $C2A
+      if (renderer_ == null) renderer_ = new FileListRenderer(request_);                 // $C2A
+
+      ListRowData rowData = renderer_.getRowData(rootFile, sort_, collator_);     // $C2C
+
+      if (rowData.length() > 0)                                                   // @A6C
+      {
+System.out.println("Converting using "+conv.getClass().getName());
+//@CRS        return conv.convert(rowData)[0]; //@P2C
+        HTMLTable[] tables = conv.convertToTables(rowData); //@CRS
+        StringBuffer buf = new StringBuffer(); //@CRS
+        for (int i=0; i<tables.length; ++i) //@CRS
+        {
+          buf.append(tables[i].getTag()); //@CRS
+        }
+        return buf.toString(); //@CRS
+      }
     }
-
-
-    /**
-     *  Sorts the list elements.
-     *
-     *  @param sort true if the elements are sorted; false otherwise.
-     *              The default is true.
-     **/
-    public void sort(boolean sort)                         // @A2A
+    catch (PropertyVetoException e)
     {
-        sort_ = sort;
     }
+    catch (RowDataException rde)
+    {
+      if (Trace.isTraceOn()) Trace.log(Trace.ERROR, rde);
+    }
+
+    return "";
+  }
+
+
+  /**
+   *  Deserializes and initializes transient data.
+   **/
+  private void readObject(java.io.ObjectInputStream in)          
+  throws java.io.IOException, ClassNotFoundException
+  {
+    // @B3A
+    // If the locale is Korean, then this throws
+    // an ArrayIndexOutOfBoundsException.  This is
+    // a bug in the JDK.  The workarond in that case
+    // is just to use String.compareTo().
+    try                                                                            // @B3A
+    {
+      collator_ = Collator.getInstance();                           // @B3A
+      collator_.setStrength(Collator.PRIMARY);                // @B3A
+    }
+    catch (Exception e)                                                    // @B3A
+    {
+      collator_ = null;                                                      // @B3A
+    }
+
+    in.defaultReadObject();
+    //@P2D changes_ = new PropertyChangeSupport(this);
+  }
+
+
+  /**
+  *  Removes the PropertyChangeListener from the internal list.
+  *  If the PropertyChangeListener is not on the list, nothing is done.
+  *  
+  *  @see #addPropertyChangeListener
+  *  @param listener The PropertyChangeListener.
+ **/
+  public void removePropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null)
+      throw new NullPointerException("listener");
+    if (changes_ != null) changes_.removePropertyChangeListener(listener); //@P2C
+  }
+
+
+  /**
+  *  Sets the <i>collator</i>.  The collator allows the tree to perform
+  *  locale-sensitive String comparisons when sorting the file list elements. 
+  *
+  *  @param collator The Collator.
+  **/
+  public void setCollator(Collator collator)           // @B3A
+  {
+    if (collator == null)
+      throw new NullPointerException("collator");
+
+    Collator old = collator_;
+
+    collator_ = collator;
+
+    if (changes_ != null) changes_.firePropertyChange("collator", old, collator_); //@P2C
+  }
+
+
+
+  /**
+   *  Sets the Http servlet request for the element.
+   *
+   *  @param request The Http servlet request. 
+   **/
+  public void setHttpServletRequest(HttpServletRequest request)
+  {
+    if (request == null)
+      throw new NullPointerException("request");
+
+    HttpServletRequest old = request_;
+
+    request_ = request;
+
+    if (changes_ != null) changes_.firePropertyChange("request", old, request_); //@P2C
+  }
+
+
+  /**
+   *  Set the renderer for the FileListElement.  The default
+   *  is FileListRenderer.
+   *
+   *  @param renderer The file list renderer.
+   **/
+  public void setRenderer(FileListRenderer renderer)
+  {
+    if (renderer == null)
+      throw new NullPointerException("renderer");
+
+    FileListRenderer old = renderer_;
+
+    renderer_ = renderer;
+
+    if (changes_ != null) changes_.firePropertyChange("renderer", old, renderer_); //@P2C
+  }
+
+
+  /**
+   *  Set the NetServer share path.  
+   *
+   *  @param sharePath The NetServer share path.
+   **/
+  public void setSharePath(String sharePath)                                      // @B1A
+  {                                                                                                 // @B1A
+    if (sharePath == null)                                                                 // @B1A
+      throw new NullPointerException("sharePath");                         // @B1A
+    // @B1A
+    StringBuffer old = sharePath_;                                                   // @B1A
+    // @B1A
+    sharePath_ = new StringBuffer(sharePath);                                  // @B1A
+    // @B1A
+    if (changes_ != null) changes_.firePropertyChange("sharePath", //@P2C
+                                                      old==null ? null : old.toString(), sharePath_.toString());       // @B1A
+  }
+
+
+  /**
+   *  Set the name of the NetServer share.
+   *
+   *  @param shareName The NetServer share name.
+   **/
+  public void setShareName(String shareName)                 // @B1A
+  {                                                                               // @B1A
+    if (shareName == null)                                             // @B1A
+      throw new NullPointerException("shareName");     // @B1A
+    // @B1A
+    StringBuffer old = shareName_;                                // @B1A
+    // @B1A
+    shareName_ = new StringBuffer(shareName);            // @B1A
+    // @B1A
+    if (changes_ != null) changes_.firePropertyChange("shareName", //@P2C
+                                                      old==null ? null : old.toString(), shareName_.toString());       // @B1A
+  }
+
+
+  /**
+   *  Set the AS/400 system.
+   *
+   *  @param The system.
+   **/
+  public void setSystem(AS400 system)
+  {
+    if (system == null)
+      throw new NullPointerException("system");
+
+    AS400 old = system_;
+
+    system_ = system;
+
+    if (changes_ != null) changes_.firePropertyChange("system", old, system_); //@P2C
+  }
+
+
+  /**
+   *  Set the HTMLTable to use when displaying the file list.
+   *  This will replace the default HTMLTable used.
+   *
+   *  @param table The HTML table.
+   **/
+  public void setTable(HTMLTable table)
+  {
+    if (table == null)
+      throw new NullPointerException("table");
+
+    HTMLTable old = table;
+
+    table_ = table;
+
+    if (changes_ != null) changes_.firePropertyChange("table", old, table_); //@P2C
+  }
+
+
+  /**
+   *  Sorts the list elements.
+   *
+   *  @param sort true if the elements are sorted; false otherwise.
+   *              The default is true.
+   **/
+  public void sort(boolean sort)                         // @A2A
+  {
+    sort_ = sort;
+  }
 }
