@@ -22,7 +22,7 @@ import java.net.Socket;
 
 
 /**
- *  The AS400JPing class is used to determine if AS/400 services are running.
+ *  The AS400JPing class is used to determine if OS/400 services are running.
  *  <p>
  *  Here is an example of calling AS400JPing within a Java program to ping the AS400 Remote Command Service:
  *  <br>
@@ -40,7 +40,7 @@ public class AS400JPing
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
    /**
-    *  Constant for pinging all the AS/400 services.    
+    *  Constant for pinging all the OS/400 services.    
     **/
    public final static int ALL_SERVICES = 99;      // The default service is 99, which pings all the servers.
 
@@ -53,10 +53,11 @@ public class AS400JPing
    private long       time_ = 20000;            //$A1D   $A2A
 
    private PrintWriter     writer_;
-   private SocketContainer sc_;                   // SocketContainer to all AS/400 Services but the DDM Server.      $A2A
+   private SocketContainer sc_;                   // SocketContainer to all OS/400 Services but the DDM Server.      $A2A
    private Socket          s_;                    // Socket to the DDM Server.                                       $A2A
    private Thread          thread_;               // Thread to handle timeout values.                                $A2A
    private JPingThread     jpingThread;           // Inner class that implements runnable.                           $A2A
+   private SocketProperties socketProperties_ = new SocketProperties();
 
    // Handles loading the appropriate resource bundle
    private static ResourceBundleLoader loader_;
@@ -66,9 +67,9 @@ public class AS400JPing
     *  Constructs an AS400JPing object with the specified <i>systemName</i>.
     *
     *  A JPing object created with this constructor
-    *  will ping all of the AS/400 services when ping() is called.
+    *  will ping all of the OS/400 services when ping() is called.
     *
-    *  @param systemName The AS/400 system to ping.  The <i>systemName</i> string can be
+    *  @param systemName The server to ping.  The <i>systemName</i> string can be
     *                    in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), 
     *                    or IP address (eg. "9.1.2.3").
     *
@@ -81,7 +82,7 @@ public class AS400JPing
    /**
     *  Constructs an AS400JPing object with the specified <i>systemName</i> and <i>service</i>.
     *
-    *  @param systemName The AS/400 system to ping.  The <i>systemName</i> string can be
+    *  @param systemName The server to ping.  The <i>systemName</i> string can be
     *                    in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), 
     *                    or IP address (eg. "9.1.2.3").
     *  @param service The AS/40 service to ping.  One of the following constants: AS400.FILE, 
@@ -100,10 +101,10 @@ public class AS400JPing
    /**
     *  Constructs an AS400JPing object.
     *
-    *  @param systemName The AS/400 system to ping.  The <i>systemName</i> string can be
+    *  @param systemName The server to ping.  The <i>systemName</i> string can be
     *                    in 3 forms:  shortname (eg. "myAS400"), longname (eg. "myAS400.myCompany.com"), 
     *                    or IP address (eg. "9.1.2.3").
-    *  @param service  The AS/400 service to ping.  One of the following constants: AS400.FILE, AS400.DATABASE, 
+    *  @param service  The OS/400 service to ping.  One of the following constants: AS400.FILE, AS400.DATABASE, 
     *                  AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, 
     *                  AS400.RECORDACCESS, AS400.PRINT, or ALL_SERVICES.
     *  @param useSSL  true if the pinging the SSL port for the service, false otherwise.  The default is false.
@@ -126,7 +127,7 @@ public class AS400JPing
 
 
    /**
-    *  Ping the AS/400.  
+    *  Ping the iSeries server.  
     *
     *  @return true if all of the services can be pinged successfully, and false otherwise.
     *
@@ -153,7 +154,7 @@ public class AS400JPing
 
 
    /**
-    *  Ping a specific AS/400 service.  One of the following constants: AS400.FILE, AS400.DATABASE, 
+    *  Ping a specific OS/400 service.  One of the following constants: AS400.FILE, AS400.DATABASE, 
     *  AS400.COMMAND, AS400.SIGNON, AS400.CENTRAL, AS400.DATAQUEUE, AS400.RECORDACCESS, AS400.PRINT, 
     *  or ALL_SERVICES.  
     *
@@ -255,7 +256,7 @@ public class AS400JPing
             }
          }
          
-         // If we have gotten this far without an exception, then the AS/400 
+         // If we have gotten this far without an exception, then the iSeries system 
          // service has successfully been pinged.
          if (writer_ != null)
             writer_.println(loader_.substitute(loader_.getText("PROP_NAME_AJP_SUCCESS"),  
@@ -437,7 +438,7 @@ public class AS400JPing
    
    
    /**
-    *  JPingThread is the inner class that tries to create the Socket connection to the AS/400 service
+    *  JPingThread is the inner class that tries to create the Socket connection to the iSeries system service
     *  using a Thread.  An inner class is used so that the user does not see that the AS400JPing
     *  class implements Runnable and does not see the run() method and they don't try to call that
     *  method in their applications.
@@ -453,9 +454,9 @@ public class AS400JPing
       
       /**
        *  A Thread is started to do the Socket creation.  The socket creation
-       *  will hang if the AS/400 is not responding.  To aleviate the long
+       *  will hang if the server is not responding.  To aleviate the long
        *  hang times, if this Thread does not return within the timeout period,
-       *  it is assumed the AS/400 is unreachable.  The hang could also be 
+       *  it is assumed the server is unreachable.  The hang could also be 
        *  attributed to network speed.  The default timeout period is 20000ms. (20 sec)
        *
        **/
@@ -471,7 +472,7 @@ public class AS400JPing
             else
             {
                // Create a socket to the service.
-               sc_ = PortMapper.getServerSocket(systemName_, service_, useSSL_);
+               sc_ = PortMapper.getServerSocket(systemName_, service_, useSSL_, socketProperties_);
             }
          }
          catch (Exception e)

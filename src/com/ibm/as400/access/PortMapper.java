@@ -107,7 +107,7 @@ class PortMapper
         return portList[service];
     }
 
-    static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL) throws IOException
+    static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL, SocketProperties socketProperties) throws IOException
     {
         SocketContainer sc = null;
         String serviceName = AS400.getServerName(service);
@@ -116,7 +116,7 @@ class PortMapper
         {
             try
             {
-                if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Starting a local socket to " + serviceName);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a local socket to " + serviceName);
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix");
                 if (sc != null)
                 {
@@ -135,7 +135,7 @@ class PortMapper
         if (srvPort == AS400.USE_PORT_MAPPER)
         {
             // Establish a socket connection to the "port mapper" through port 449...
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting to port mapper..."); //@P0C
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting to port mapper...");
             Socket pmSocket = new Socket(systemName, 449);
             InputStream pmInstream = pmSocket.getInputStream();
             OutputStream pmOutstream = pmSocket.getOutputStream();
@@ -160,34 +160,63 @@ class PortMapper
                 throw e;
             }
 
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding entry to Service Port table: system " + systemName + ", service " + fullServiceName + ", port " + srvPort); //@P0C
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding entry to Service Port table: system " + systemName + ", service " + fullServiceName + ", port " + srvPort);
             PortMapper.setServicePort(systemName, service, srvPort, useSSL);
         }
 
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to server..."); //@P0C
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening socket to server...");
         Socket socket = new Socket(systemName, srvPort);
 
-        // Try to set the no delay option, but if that doesn't work, keep going.
-        try
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket options...");
+        if (socketProperties.keepAliveSet_)
         {
-            socket.setTcpNoDelay(true);
-        }
-        catch (SocketException e)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.WARNING, "Socket exception setting no delay:", e); //@P0C
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting keep alive:", socketProperties.keepAlive_);
+            socket.setKeepAlive(socketProperties.keepAlive_);
         }
 
-        // Try to set the SoLinger option, but if that doesn't work, keep going.
-        try
+        if (socketProperties.receiveBufferSizeSet_)
         {
-            if (socket.getSoLinger() != -1)
-            {
-                socket.setSoLinger(true, 60);
-            }
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting receive buffer size:", socketProperties.receiveBufferSize_);
+            socket.setReceiveBufferSize(socketProperties.receiveBufferSize_);
         }
-        catch (SocketException e)
+
+        if (socketProperties.sendBufferSizeSet_)
         {
-            if (Trace.traceOn_) Trace.log(Trace.WARNING, "Socket exception setting so linger:", e); //@P0C
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting send buffer size:", socketProperties.sendBufferSize_);
+            socket.setSendBufferSize(socketProperties.sendBufferSize_);
+        }
+
+        if (socketProperties.soLingerSet_)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting so linger:", socketProperties.soLinger_);
+            socket.setSoLinger(true, socketProperties.soLinger_);
+        }
+
+        if (socketProperties.soTimeoutSet_)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting so timeout:", socketProperties.soTimeout_);
+            socket.setSoTimeout(socketProperties.soTimeout_);
+        }
+
+        if (socketProperties.tcpNoDelaySet_)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting TCP no delay:", socketProperties.tcpNoDelay_);
+            socket.setTcpNoDelay(socketProperties.tcpNoDelay_);
+        }
+
+        if (Trace.traceOn_)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "Socket properties:");
+            Trace.log(Trace.DIAGNOSTIC, "    Remote address: " + socket.getInetAddress());
+            Trace.log(Trace.DIAGNOSTIC, "    Remote port:", socket.getPort());
+            Trace.log(Trace.DIAGNOSTIC, "    Local address: " + socket.getLocalAddress());
+            Trace.log(Trace.DIAGNOSTIC, "    Local port:", socket.getLocalPort());
+            Trace.log(Trace.DIAGNOSTIC, "    Keep alive:", socket.getKeepAlive());
+            Trace.log(Trace.DIAGNOSTIC, "    Receive buffer size:", socket.getReceiveBufferSize());
+            Trace.log(Trace.DIAGNOSTIC, "    Send buffer size:", socket.getSendBufferSize());
+            Trace.log(Trace.DIAGNOSTIC, "    So linger:", socket.getSoLinger());
+            Trace.log(Trace.DIAGNOSTIC, "    So timeout:", socket.getSoTimeout());
+            Trace.log(Trace.DIAGNOSTIC, "    TCP no delay:", socket.getTcpNoDelay());
         }
 
         // We use the port returned in the previous reply to establish a new socket connection to the requested service...

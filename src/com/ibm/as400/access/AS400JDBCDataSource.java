@@ -113,7 +113,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
     private JDProperties properties_;                         // OS/400 connection properties.
-    //private SocketProperties sockProps_;                      // OS/400 socket properties @F1A
+    private SocketProperties sockProps_;                      // OS/400 socket properties @F1A
     transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
     transient private EventLog log_;       //@C7c
 
@@ -189,7 +189,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         initializeTransient();
         properties_ = new JDProperties(null, null);
-        //sockProps_ = new SocketProperties();
+        sockProps_ = new SocketProperties();
     }
 
     /**
@@ -300,7 +300,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         properties_ = new JDProperties(null, null);
 
         Properties properties = new Properties();
-        //sockProps_ = new SocketProperties();
+        sockProps_ = new SocketProperties();
 
         Enumeration list = reference.getAll();
         while (list.hasMoreElements())
@@ -333,7 +333,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             } else if (property.equals(SECURE) || property.equals(KEY_RING_NAME) || property.equals(KEY_RING_PASSWORD)) {
                 // do nothing for these keys, they have already been handled
             }
-            /*else if (property.equals(SOCKET_KEEP_ALIVE)) {
+            else if (property.equals(SOCKET_KEEP_ALIVE)) {
                 sockProps_.setKeepAlive((value.equals(TRUE_)? true : false));
             }
             else if (property.equals(SOCKET_RECEIVE_BUFFER_SIZE)) {
@@ -350,7 +350,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             }
             else if (property.equals(SOCKET_TCP_NO_DELAY)) {
                 sockProps_.setTcpNoDelay((value.equals(TRUE_)? true : false));
-            }*/
+            }
             else
             {
                 properties.put(property, value);
@@ -848,12 +848,12 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         }
 
         // Add the Socket options
-        //if (sockProps_.keepAliveSet_) ref.add(new StringRefAddr(SOCKET_KEEP_ALIVE, (sockProps_.keepAlive_ ? "true" : "false")));
-        //if (sockProps_.receiveBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_RECEIVE_BUFFER_SIZE, Integer.toString(sockProps_.receiveBufferSize_)));
-        //if (sockProps_.sendBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_SEND_BUFFER_SIZE, Integer.toString(sockProps_.sendBufferSize_)));
-        //if (sockProps_.soLingerSet_) ref.add(new StringRefAddr(SOCKET_LINGER, Integer.toString(sockProps_.soLinger_)));
-        //if (sockProps_.soTimeoutSet_) ref.add(new StringRefAddr(SOCKET_TIMEOUT, Integer.toString(sockProps_.soTimeout_)));
-        //if (sockProps_.tcpNoDelaySet_) ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, (sockProps_.tcpNoDelay_ ? "true" : "false")));
+        if (sockProps_.keepAliveSet_) ref.add(new StringRefAddr(SOCKET_KEEP_ALIVE, (sockProps_.keepAlive_ ? "true" : "false")));
+        if (sockProps_.receiveBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_RECEIVE_BUFFER_SIZE, Integer.toString(sockProps_.receiveBufferSize_)));
+        if (sockProps_.sendBufferSizeSet_) ref.add(new StringRefAddr(SOCKET_SEND_BUFFER_SIZE, Integer.toString(sockProps_.sendBufferSize_)));
+        if (sockProps_.soLingerSet_) ref.add(new StringRefAddr(SOCKET_LINGER, Integer.toString(sockProps_.soLinger_)));
+        if (sockProps_.soTimeoutSet_) ref.add(new StringRefAddr(SOCKET_TIMEOUT, Integer.toString(sockProps_.soTimeout_)));
+        if (sockProps_.tcpNoDelaySet_) ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, (sockProps_.tcpNoDelay_ ? "true" : "false")));
 
         // Add the data source properties.  (unique constant identifiers for storing in JNDI).
         if (getDatabaseName() != null)

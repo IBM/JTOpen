@@ -63,6 +63,7 @@ com/ibm/as400/access/ServerVersion.class
 com/ibm/as400/access/SignonConverter.class
 com/ibm/as400/access/SignonInfo.class
 com/ibm/as400/access/SocketContainer.class
+com/ibm/as400/access/SocketProperties.class
 com/ibm/as400/access/StoppableThread.class
 com/ibm/as400/access/SystemProperties.class
 
