@@ -105,7 +105,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_MAXIMUM_SCALE", "maximumScale" },                // @M0A
       { "PROP_NAME_TRANSLATE_HEX", "translateHex" },                // @M0A
       { "PROP_NAME_QAQQINILIB", "qaqqiniLibrary" },                 // @K2A
-      { "PROM_NAME_LOGIN_TIMEOUT", "loginTimeout" },                // @K4A
+      { "PROP_NAME_LOGIN_TIMEOUT", "loginTimeout" },                // @K4A
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
