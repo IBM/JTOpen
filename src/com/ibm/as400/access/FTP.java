@@ -75,7 +75,7 @@ import java.beans.*;
 public class FTP
              implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -139,6 +139,7 @@ public class FTP
                // amount of data to transfer at one time
     private int bufferSize_ = 4096;
 
+    private int mode_ = PASSIVE_MODE;
 
     /**
      * Transfer files in ASCII mode.
@@ -149,6 +150,18 @@ public class FTP
      * Transfer files in binary mode.
     **/
     public static final int BINARY = 1;
+
+
+    /**
+     * Use active mode transfers with the server.
+    **/
+    public static final int ACTIVE_MODE = 10;
+
+    /**
+     * Use passive mode transfers with the server.
+     * This is the default.
+    **/
+    public static final int PASSIVE_MODE = 11;
 
 
 // -----------------------------------------------------------------------
@@ -413,7 +426,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public boolean cd(String directory)
+    public synchronized boolean cd(String directory)
                    throws IOException
     {
         if (Trace.isTraceOn())
@@ -510,8 +523,6 @@ public class FTP
 
 
         controlSocket_ = new Socket(server_, port_);
-//      controlSocket_.setTcpNoDelay(true);
-//      controlSocket_.setSoLinger(true, 60);
 
         reader_ = new BufferedReader(new InputStreamReader(controlSocket_.getInputStream()));
         ps_ = new PrintWriter(controlSocket_.getOutputStream(), true);
@@ -519,8 +530,6 @@ public class FTP
         String s = readReply();
 
         login(user_, password_);
-        //String s1 = issueCommand("USER " + user_);
-        //String s2 = issueCommand("PASS " + password_);
 
         if (lastMessage_.startsWith("230"))
            connectionState_ = ACTIVE;
@@ -590,7 +599,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public String[] dir()
+    public synchronized String[] dir()
                     throws IOException
     {
         if (Trace.isTraceOn())
@@ -616,7 +625,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public String[] dir(String criteria)
+    public synchronized String[] dir(String criteria)
                     throws IOException
     {
         if (Trace.isTraceOn())
@@ -685,40 +694,52 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    synchronized OutputStream doAppendOrPut(String fileName, String command)
+    OutputStream doAppendOrPut(String fileName, String command)
                                           throws IOException
     {
-          if (Trace.isTraceOn())
-             Trace.log(Trace.DIAGNOSTIC,"entering doAppendOrPut(file)");
+      if (Trace.isTraceOn())
+        Trace.log(Trace.DIAGNOSTIC,"entering doAppendOrPut(file)");
 
-          connect();
+      connect();
 
-          String response = issueCommand("PASV");
-          int p = extractPortAddress(response);
+      Socket dataSocket = null;
+      ServerSocket serverSocket = null;
+      if (mode_ == PASSIVE_MODE)
+      {
+        dataSocket = getDataSocket();
+      }
+      else  // active_mode
+      {
+        serverSocket = getServerSocket();
+      }
 
+      String result = issueCommand(command + " " + fileName);
 
+      if (result.startsWith("4") || result.startsWith("5"))
+      {
+        if (Trace.isTraceOn())
+          Trace.log(Trace.DIAGNOSTIC,"put failed " + result);
+        if (dataSocket != null) { // passive_mode
+          dataSocket.close();
+        }
+        if (serverSocket != null) { // active_mode
+          serverSocket.close();
+        }
+        throw new IOException(result);
+      }
 
-          Socket dataSocket = new Socket(server_, p);
+      if (Trace.isTraceOn())
+        Trace.log(Trace.DIAGNOSTIC,"leaving put(file)");
 
-       // dataSocket.setTcpNoDelay(false);
-       // dataSocket.setSoLinger(true, 60);
+      fireEvent(FTPEvent.FTP_PUT);
 
-          String result = issueCommand(command + " " + fileName);
+      if (serverSocket != null) // active_mode
+      {
+        dataSocket = serverSocket.accept();
+        serverSocket.close();
+      }
 
-          if (result.startsWith("4") || result.startsWith("5"))
-          {
-             if (Trace.isTraceOn())
-                 Trace.log(Trace.DIAGNOSTIC,"put failed " + result);
-
-             throw new IOException(result);
-          }
-
-          if (Trace.isTraceOn())
-              Trace.log(Trace.DIAGNOSTIC,"leaving put(file)");
-
-          fireEvent(FTPEvent.FTP_PUT);
-
-          return new FTPOutputStream(dataSocket, this);
+      return new FTPOutputStream(dataSocket, this);
     }
 
 
@@ -807,7 +828,7 @@ public class FTP
           StringTokenizer tokens = new StringTokenizer(s, ",");
 
           if (tokens.countTokens() < 6)
-             throw new IOException("Bad port address, in " + s);
+             throw new IOException("Unable to extract port address from PASV response: " + s);
 
           //skip first four tokens that are not required, they are
           // the TCP address (we already know that)
@@ -816,26 +837,32 @@ public class FTP
              tokens.nextToken();
           }
 
-          int highOrderPort = Integer.parseInt(tokens.nextToken());
-          String lowOrder = tokens.nextToken();
-
-          //the reply for ftp server other than Mainframe server
-          //ends with ")". But for mainfrmae server there is no
-          //trailing ")". hence check for that
-          int lowOrderPort;
-          int index = lowOrder.indexOf(")");
-
-          // if the string has the ")"
-          if (index != -1)
+          try
           {
-             lowOrderPort = Integer.parseInt(lowOrder.substring(0, index));
-          }
-          else
-          {
-             lowOrderPort = Integer.parseInt(lowOrder);
-          }
+            int highOrderPort = Integer.parseInt(tokens.nextToken());
+            String lowOrder = tokens.nextToken();
 
-          returnValue = (highOrderPort * 256) + lowOrderPort;
+            //the reply for ftp server other than Mainframe server
+            //ends with ")". But for mainfrmae server there is no
+            //trailing ")". hence check for that
+            int lowOrderPort;
+            int index = lowOrder.indexOf(")");
+
+            // if the string has the ")"
+            if (index != -1)
+            {
+              lowOrderPort = Integer.parseInt(lowOrder.substring(0, index));
+            }
+            else
+            {
+              lowOrderPort = Integer.parseInt(lowOrder);
+            }
+
+            returnValue = (highOrderPort * 256) + lowOrderPort;
+          }
+          catch (NumberFormatException e) {
+            throw new IOException("Unable to extract port address from PASV response: " + s);
+          }
 
           if (Trace.isTraceOn())
              Trace.log(Trace.DIAGNOSTIC,"leaving extractPortAddress()");
@@ -929,45 +956,56 @@ public class FTP
     *   @exception FileNotFoundException If the name is a directory or the name is not found.
    **/
 
-    public InputStream get(String fileName)
+    public synchronized InputStream get(String fileName)
                        throws IOException, FileNotFoundException
     {
-          if (Trace.isTraceOn())
-             Trace.log(Trace.DIAGNOSTIC,"entering get(file)");
+      if (Trace.isTraceOn())
+        Trace.log(Trace.DIAGNOSTIC,"entering get(file)");
 
-          if (fileName == null)
-             throw new NullPointerException("file");
+      if (fileName == null)
+        throw new NullPointerException("file");
 
-          if (fileName.length() == 0)
-             throw new IllegalArgumentException("file");
+      if (fileName.length() == 0)
+        throw new IllegalArgumentException("file");
 
 
-          connect();
+      connect();
 
-          String response = issueCommand("PASV");
-          int p = extractPortAddress(response);
+      Socket dataSocket = null;
+      ServerSocket serverSocket = null;
+      if (mode_ == PASSIVE_MODE)
+      {
+        dataSocket = getDataSocket();
+      }
+      else  // active_mode
+      {
+        serverSocket = getServerSocket();
+      }
 
-          Socket dataSocket = new Socket(server_, p);
- //       dataSocket.setTcpNoDelay(true);
- //       dataSocket.setSoLinger(true, 60);
+      issueCommand("RETR " + fileName);
 
-          issueCommand("RETR " + fileName);
+      if (Trace.isTraceOn())
+        Trace.log(Trace.DIAGNOSTIC,"leaving get(file)");
 
-          if (Trace.isTraceOn())
-              Trace.log(Trace.DIAGNOSTIC,"leaving get(file)");
+      // 150 appears to be success
+      if (lastMessage_.startsWith("550"))
+      {
+        if (dataSocket != null) { // passive_mode
+          dataSocket.close();
+        }
+        if (serverSocket != null) { // active_mode
+          serverSocket.close();
+        }
+        throw new FileNotFoundException();
+      }
 
-          // 150 appears to be success
-          if (lastMessage_.startsWith("550"))
-          {
-             dataSocket.close();
-             throw new FileNotFoundException();
-          }
-          else
-          {
-             fireEvent(FTPEvent.FTP_RETRIEVED);
-             return new FTPInputStream(dataSocket, this);
-          }
+      if (serverSocket != null) { // active_mode
+        dataSocket = serverSocket.accept();
+        serverSocket.close();
+      }
 
+      fireEvent(FTPEvent.FTP_RETRIEVED);
+      return new FTPInputStream(dataSocket, this);
     }
 
 
@@ -988,7 +1026,7 @@ public class FTP
     *              cannot be accessed.
    **/
 
-    public boolean get(String sourceFileName, String targetFileName)
+    public synchronized boolean get(String sourceFileName, String targetFileName)
                    throws IOException, FileNotFoundException
     {
          if (Trace.isTraceOn())
@@ -1034,7 +1072,7 @@ public class FTP
     *              cannot be accessed.
    **/
 
-    public boolean get(String sourceFileName, java.io.File targetFile)
+    public synchronized boolean get(String sourceFileName, java.io.File targetFile)
                    throws IOException, FileNotFoundException
     {
          if (Trace.isTraceOn())
@@ -1118,7 +1156,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public String getCurrentDirectory()
+    public synchronized String getCurrentDirectory()
                   throws IOException
     {
         if (Trace.isTraceOn())
@@ -1143,6 +1181,17 @@ public class FTP
            Trace.log(Trace.DIAGNOSTIC,"entering lastMessage(), (no leaving entry)");
 
         return lastMessage_;
+    }
+
+
+    /**
+     * Returns the current transfer mode.
+     * @return The transfer mode. Valid values are ACTIVE_MODE or PASSIVE_MODE.
+     * The default is PASSIVE_MODE.
+    **/
+    public int getMode()
+    {
+      return mode_;
     }
 
 
@@ -1287,7 +1336,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    synchronized String[] list(boolean details, String criteria)    // @D4c
+    String[] list(boolean details, String criteria)    // @D4c
         throws IOException
     {
         if (Trace.isTraceOn())
@@ -1295,12 +1344,16 @@ public class FTP
 
         connect();
 
-        String response = issueCommand("PASV");
-        int p = extractPortAddress(response);
-
-        Socket dataSocket = new Socket(server_, p);
-     // dataSocket.setTcpNoDelay(true);
-     // dataSocket.setSoLinger(true, 60);
+      Socket dataSocket = null;
+      ServerSocket serverSocket = null;
+      if (mode_ == PASSIVE_MODE)
+      {
+        dataSocket = getDataSocket();
+      }
+      else  // active_mode
+      {
+        serverSocket = getServerSocket();
+      }
 
         String FTPCommand;                                      // @D4a
 
@@ -1322,6 +1375,12 @@ public class FTP
 
         if (lastMessage_.startsWith("125") || lastMessage_.startsWith("150"))
         {
+          if (serverSocket != null) // active_mode
+          {
+            dataSocket = serverSocket.accept();
+            serverSocket.close();
+          }
+
            InputStream in = dataSocket.getInputStream();
            Vector v = new Vector();
            BufferedReader rdr = new BufferedReader(new InputStreamReader(in));
@@ -1391,7 +1450,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public String[] ls()
+    public synchronized String[] ls()
                     throws IOException
     {
         if (Trace.isTraceOn())
@@ -1413,7 +1472,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public String[] ls(String criteria)
+    public synchronized String[] ls(String criteria)
                     throws IOException
     {
         if (Trace.isTraceOn())
@@ -1436,7 +1495,7 @@ public class FTP
    **/
 
     // $$$ change this to package scoped after testing
-    public boolean noop()
+    public synchronized boolean noop()
                    throws IOException
     {
         if (Trace.isTraceOn())
@@ -1653,8 +1712,6 @@ public class FTP
    **/
    public void removeVetoableChangeListener(VetoableChangeListener listener)
    {
-      String x = Copyright.copyright;
-
       if (listener == null)
       {
          throw new NullPointerException("listener");
@@ -1834,7 +1891,7 @@ public class FTP
     *   @exception IOException If an error occurs while communicating with the server.
    **/
 
-    public void setDataTransferType(int transferType)
+    public synchronized void setDataTransferType(int transferType)
                 throws IOException
     {
         if (Trace.isTraceOn())
@@ -1859,6 +1916,18 @@ public class FTP
 
 
 
+    /**
+     * Sets the transfer mode.
+     * @param mode The mode. Valid values are {@link #ACTIVE_MODE ACTIVE_MODE} or {@link #PASSIVE_MODE PASSIVE_MODE}.
+    **/
+    public void setMode(int mode)
+    {
+      if (mode != ACTIVE_MODE && mode != PASSIVE_MODE)
+      {
+        throw new IllegalArgumentException("mode");
+      }
+      mode_ = mode;
+    }
 
 
 
@@ -2166,7 +2235,7 @@ public class FTP
      * @param toName the new name, containing no more than 1 asterisk.
      * @return the constructed name.
      **/
-    /*protected*/ static String newNamePart(String fromName, String toName)
+    static String newNamePart(String fromName, String toName)
     {
       int indexA = toName.indexOf('*');
 
@@ -2205,7 +2274,7 @@ public class FTP
      * @param c the character at which to split the string.
      * @return String array with exactly 2 elements. 
      */
-    /*protected*/ static String[] splitName(String stringValue, char c) {
+    static String[] splitName(String stringValue, char c) {
 
       String[] pieces = new String[2];
 
@@ -2224,6 +2293,52 @@ public class FTP
       }
 
       return pieces;
+    }
+
+
+    /**
+     * Utility method used to establish "passive" mode.
+     * 
+     * @return The socket. 
+     */
+    final Socket getDataSocket()
+      throws IOException
+    {
+      String response = issueCommand("PASV");
+      int p = extractPortAddress(response);
+      return new Socket(server_, p);
+    }
+
+
+    /**
+     * Utility method used to establish "active" mode.
+     * 
+     * @return The server socket. 
+     */
+    final ServerSocket getServerSocket()
+      throws UnknownHostException, IOException
+    {
+      ServerSocket ss = new ServerSocket(0);
+      int p = ss.getLocalPort();
+      InetAddress inet = InetAddress.getLocalHost();
+      String addr = inet.getHostAddress();
+      StringTokenizer st = new StringTokenizer(addr, ".");
+      StringBuffer cmd = new StringBuffer("PORT ");
+      while (st.hasMoreTokens())
+      {
+        cmd.append(st.nextToken());
+        cmd.append(",");
+      }
+      cmd.append(p/256);
+      cmd.append(",");
+      cmd.append(p % 256);
+      String response = issueCommand(cmd.toString());
+      // A "successful" response will begin with 200.
+      if (!lastMessage_.startsWith("200"))
+      {
+        Trace.log(Trace.ERROR, "Unexpected response to " + cmd + ": " + lastMessage_);
+      }
+      return ss;
     }
 
 }
