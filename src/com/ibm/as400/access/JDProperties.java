@@ -118,12 +118,13 @@ class JDProperties implements Serializable {
     static final int              TRACE_SERVER            = 46;   // @j1a
     static final int              DATABASE_NAME           = 47;   // @j2a
     static final int              EXTENDED_METADATA       = 48;   // @F5A
+    static final int              CURSOR_SENSITIVITY      = 49;   // @F6A
 
                                                                 // @W2 always add to the end of the array!
 
-     private static final int    NUMBER_OF_ATTRIBUTES_ = 49;    // @A0C @C1C @A3A @D0C @E0C
+     private static final int    NUMBER_OF_ATTRIBUTES_ = 50;    // @A0C @C1C @A3A @D0C @E0C
                                                                 // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                                // @W1c @j1c @J2c @F5C
+                                                                // @W1c @j1c @J2c @F5C @F6C
 
 
 
@@ -135,6 +136,7 @@ class JDProperties implements Serializable {
     private static final String BLOCK_CRITERIA_         = "block criteria";
     private static final String CURSOR_HOLD_            = "cursor hold";            // @D1
     private static final String CURSORHOLD_             = "CURSORHOLD";             // @D1
+    private static final String CURSOR_SENSITIVITY_     = "cursor sensitivity";     // @F6A
     private static final String DATA_COMPRESSION_       = "data compression";       // @D0A
     private static final String DATA_TRUNCATION_        = "data truncation";        // @C1A
     private static final String DATABASE_NAME_          = "database name";          // @J2A
@@ -221,6 +223,10 @@ class JDProperties implements Serializable {
     static final String         BLOCK_SIZE_128                  = "128";
     static final String         BLOCK_SIZE_256                  = "256";
     static final String         BLOCK_SIZE_512                  = "512";
+
+    static final String         CURSOR_SENSITIVITY_ASENSITIVE   = "asensitive";   //@F6A
+    static final String         CURSOR_SENSITIVITY_INSENSITIVE  = "insensitive";   //@F6A
+    static final String         CURSOR_SENSITIVITY_SENSITIVE    = "sensitive";   //@F6A
 
     static final String         DATE_FORMAT_JULIAN              = "julian";
     static final String         DATE_FORMAT_MDY                 = "mdy";
@@ -414,6 +420,17 @@ Static initializer.
         dpi_[i].choices[0]    = TRUE_;
         dpi_[i].choices[1]    = FALSE_;
           defaults_[i]        = TRUE_;
+
+        // Cursor sensitivity  @F6
+        i = CURSOR_SENSITIVITY;
+        dpi_[i] = new DriverPropertyInfo (CURSOR_SENSITIVITY_, "");
+        dpi_[i].description = "CURSOR_SENSITIVITY_DESC";
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[3];
+        dpi_[i].choices[0]    = CURSOR_SENSITIVITY_ASENSITIVE;
+        dpi_[i].choices[1]    = CURSOR_SENSITIVITY_INSENSITIVE;
+        dpi_[i].choices[2]    = CURSOR_SENSITIVITY_SENSITIVE;
+          defaults_[i]        = CURSOR_SENSITIVITY_ASENSITIVE;
 
         // Data compression.  @D0A
         i = DATA_COMPRESSION;
