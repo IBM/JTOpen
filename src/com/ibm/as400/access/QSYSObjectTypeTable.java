@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: QSYSObjectTypeTable.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -21,13 +21,13 @@ import java.util.Vector;
 
 /**
 The QSYSObjectTypeTable class maintains a list of object types
-and extended attributes for AS/400 objects.
+and extended attributes for objects on the server.
 
 <p>For example, to list all possible extended attributes for
 the "FILE" object type.
 <pre><code>
 String[] extendedAttributes = QSYSObjectTypeTable.getSupportedAttributes("FILE");
-for(int i = 0; i < extendedAttributes.length; ++i) 
+for(int i = 0; i < extendedAttributes.length; ++i)
 {
 System.out.println(QSYSObjectTypeTable.getLocalizedObjectType("FILE", extendedAttributes[i]));
 }
@@ -43,7 +43,7 @@ System.out.println(QSYSObjectTypeTable.getLocalizedObjectType("FILE", extendedAt
 //
 public class QSYSObjectTypeTable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -55,7 +55,7 @@ public class QSYSObjectTypeTable
 
 
 
-    static 
+    static
     {
         add("ALRTBL");
         add("AUTL");
@@ -218,7 +218,7 @@ Returns a localized description of an object type.
 //
 // Design note:  I thought about allowing attribute == "" to mean
 //               the same thing as null, but I decided against it, in case
-//               we ever need to differentiate between a type with no 
+//               we ever need to differentiate between a type with no
 //               attribute and a type with an attribute not specified
 //               (i.e. <blank>).
 //
@@ -257,7 +257,7 @@ Returns a localized description of an object type.
             localized.append(ResourceBundleLoader.getText(mriKey));
         }
         catch(MissingResourceException e) {
-            localized.append(type); 
+            localized.append(type);
         }
 
         // Add the attribute if included.
@@ -279,7 +279,7 @@ Returns a localized description of an object type.
                     // The attribute was not found.  For the types where                       @A1C
                     // <user-defined> is allowed, we will add the attribute as                 @A1A
                     // it is specified.  For all others, we will just return the               @A1A
-                    // type with no hyphen.  This accounts for <other>.                        @A1A 
+                    // type with no hyphen.  This accounts for <other>.                        @A1A
                     if (userDefinedAttributesAllowed_.contains(type)) {                     // @A1A
                         localized.append(" - ");                                            // @A1A
                         localized.append(attributeOriginalCase);                            // @A1A
@@ -295,7 +295,7 @@ Returns a localized description of an object type.
 
 
 /**
-Returns a list of the supported extended attributes for an object type.  
+Returns a list of the supported extended attributes for an object type.
 
 @param type                 The object type.
 @return The list of the supported extended attributes.
@@ -312,7 +312,7 @@ Returns a list of the supported extended attributes for an object type.
 
 
 /**
-Returns a list of the supported object types.  
+Returns a list of the supported object types.
 
 @return The list of the supported object types.
 **/

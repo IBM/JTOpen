@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DateTimeConverter.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -21,12 +21,12 @@ import java.util.Date;
 
 /**
  The DateTimeConverter class represents a converted date and time.
- The AS/400 System API QWCCVTDT is used to convert a date and time value
+ The system API QWCCVTDT is used to convert a date and time value
  from one format to another format.
 **/
 public class DateTimeConverter
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private AS400 system_;
   private ProgramCall program_;
@@ -37,7 +37,7 @@ public class DateTimeConverter
 
   /**
    * Constructs a DateTimeConverter object.
-   * @param system The AS/400 system.
+   * @param system The system.
   **/
   public DateTimeConverter(AS400 system)
   {
@@ -93,9 +93,8 @@ public class DateTimeConverter
    *            the request is completed.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
-   *            the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not
-   *            exist.
+   *            the server.
+   * @exception ObjectDoesNotExistException If the object does not exist on the server.
   **/
   public byte[] convert(byte[] data, String inFormat, String outFormat)
       throws AS400SecurityException,
@@ -183,9 +182,8 @@ public class DateTimeConverter
    *            the request is completed.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
-   *            the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not
-   *            exist.
+   *            the server.
+   * @exception ObjectDoesNotExistException If the object does not exist on the server.
   **/
   public Date convert(byte[] data, String inFormat)
       throws AS400SecurityException,
@@ -243,9 +241,8 @@ public class DateTimeConverter
    *            the request is completed.
    * @exception InterruptedException If this thread is interrupted.
    * @exception IOException If an error occurs while communicating with
-   *            the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not
-   *            exist.
+   *            the server.
+   * @exception ObjectDoesNotExistException If the object does not exist on the server.
   **/
   public byte[] convert(Date date, String outFormat)
       throws AS400SecurityException,

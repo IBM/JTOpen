@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: SystemPool.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 /**
- * The SystemPool class represents a system pool on an AS/400. It provides
+ * The SystemPool class represents a system pool on a server. It provides
  * facilities for retrieving and changing system pool information.
  *
  * Here is a example:
@@ -46,11 +46,11 @@ import java.io.UnsupportedEncodingException;
  **/
 public class SystemPool
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
      /**
-      * Constant used to indicate that the AS/400 should calculate
+      * Constant used to indicate that the server should calculate
       * a system pool attribute.
      **/
      public static final float CALCULATE = -2;
@@ -59,7 +59,7 @@ public class SystemPool
      private static final Integer calculate_ = new Integer(-2);
      private static final Integer noChange_ = new Integer(-1);
 
-     // Private variable representing the object of AS/400 system.
+     // Private variable representing the server.
      private AS400 system_;
 
      // Private variable representing the array of the system pool attribute.
@@ -105,7 +105,7 @@ public class SystemPool
      /**
       * Constructs a SystemPool object.
       *
-      * @param system The AS/400 system.
+      * @param system The system.
       * @param poolName The name of the system pool.
       **/
      public SystemPool(AS400 system, String poolName)
@@ -127,7 +127,7 @@ public class SystemPool
      /**
       * Constructs a SystemPool object.
       *
-      * @param system The AS/400 system.
+      * @param system The system.
       * @param attributes The array of system pool attribute.
       **/
 /*     SystemPool(AS400 system, SystemPoolAttribute[] attributes)
@@ -172,12 +172,12 @@ public class SystemPool
      }
 
     /**
-     * Commits any cached system pool information changes to the AS/400.
+     * Commits any cached system pool information changes to the server.
      * If caching is not enabled, this method does nothing.
      * @see #isCaching
      * @see #refreshCache
      * @see #setCaching
-     * @exception AS400Exception If the AS/400 system returns an error
+     * @exception AS400Exception If the server returns an error
      *            message.
      * @exception AS400SecurityException If a security or authority error
      *            occurs.
@@ -187,9 +187,8 @@ public class SystemPool
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
-     *            exist.
+     *            the server.
+     * @exception ObjectDoesNotExistException If the object does not exist on the server.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
     **/
@@ -297,9 +296,8 @@ public class SystemPool
      *            the request is completed.
      * @exception InterruptedException If this thread is interrupted.
      * @exception IOException If an error occurs while communicating with
-     *            the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not
-     *            exist.
+     *            the server.
+     * @exception ObjectDoesNotExistException If the object does not exist on the server.
      * @exception UnsupportedEncodingException If the character encoding is
      *            not supported.
     **/
@@ -366,9 +364,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
      **/
@@ -394,9 +391,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -426,9 +422,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -454,9 +449,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -501,9 +495,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -530,9 +523,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -558,9 +550,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -596,9 +587,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -623,9 +613,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -678,9 +667,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -707,9 +695,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -735,9 +722,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -753,9 +739,9 @@ public class SystemPool
      }
 
      /**
-      * Returns the AS/400 system.
+      * Returns the system.
       *
-      * @return The AS/400 system.
+      * @return The system.
       **/
      public AS400 getSystem()
      {
@@ -773,9 +759,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
       **/
@@ -826,7 +811,7 @@ public class SystemPool
     }
 
      /**
-      * Loads the system pool information. The AS/400 system and the system pool
+      * Loads the system pool information. The system and the system pool
       * name should be set before this method is invoked.
       *
       * Note: This method is equivalent to the refreshCache() method.
@@ -837,9 +822,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
      **/
@@ -911,7 +895,7 @@ public class SystemPool
      }
 
   /**
-   * Loads system pool data from the AS/400 using the SSTS0300 format.
+   * Loads system pool data from the server using the SSTS0300 format.
    * If the information is cached, this method does nothing.
   **/
   private void retrieveInformation()
@@ -1096,8 +1080,8 @@ public class SystemPool
      * Turns caching on or off.
      * If caching is turned off, the next get() or set() will go to the system.
      * @param cache true if caching should be used when getting
-     *              and setting information to and from the AS/400; false
-     *              if every get or set should communicate with the AS/400
+     *              and setting information to and from the server; false
+     *              if every get or set should communicate with the server
      *              immediately. Any cached changes that are not committed
      *              when caching is turned off will be lost.
      *              The default behavior is no caching.
@@ -1124,7 +1108,7 @@ public class SystemPool
       * @param minValue The new minimum faults-per-second guideline.
       * @param perValue The new faults per second for each active thread.
       * @param maxValue The new maximum faults-per-second guideline.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1134,9 +1118,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1181,7 +1164,7 @@ public class SystemPool
       * specify SystemPool.CALCULATE for this parameter.
       *
       * @param value The new maximum faults-per-second guideline.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1191,9 +1174,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1225,7 +1207,7 @@ public class SystemPool
       * you must specify SystemPool.CALCULATE for this parameter.
       *
       * @param value The new maximum pool size.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1235,9 +1217,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1274,7 +1255,7 @@ public class SystemPool
       * @param log The value indicating whether messages reporting that a
       *              change was made are written to the current job's job log
       *              and to the QHST message log.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1284,9 +1265,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1315,7 +1295,7 @@ public class SystemPool
       *
       * @param value The new minumum faults-per-second guideline.
       *
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1325,9 +1305,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1360,7 +1339,7 @@ public class SystemPool
       *
       * @param minValue The new minimum pool size.
       * @param maxValue The new maximum pool size.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1370,9 +1349,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1416,7 +1394,7 @@ public class SystemPool
       * priority, you must specify SystemPool.CALCULATE for this parameter.
       *
       * @param value  The new minimum pool size.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1426,9 +1404,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1466,7 +1443,7 @@ public class SystemPool
       * @param value The value indicating whether the system dynamically adjust
       *              the paging characteristics of the sorage pool for optimum
       *              performance.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1476,9 +1453,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1508,7 +1484,7 @@ public class SystemPool
       * the priority, you must specify SystemPool.CALCULATE for this parameter.
       *
       * @param value The new faults.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1518,9 +1494,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1548,7 +1523,7 @@ public class SystemPool
       * machine pool can not be changed.
       *
       * @param value The new activity level for the pool.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1558,9 +1533,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1608,7 +1582,7 @@ public class SystemPool
       * minimum is 256.
       *
       * @param value The new size of the system pool.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1618,9 +1592,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1648,7 +1621,7 @@ public class SystemPool
       * SystemPool.CALCULATE_INT for this parameter.
       *
       * @param value The new priority.
-      * @exception AS400Exception If the AS/400 system returns an error
+      * @exception AS400Exception If the server returns an error
       *            message.
       * @exception AS400SecurityException If a security or authority error
       *            occurs.
@@ -1658,9 +1631,8 @@ public class SystemPool
       *            the request is completed.
       * @exception InterruptedException If this thread is interrupted.
       * @exception IOException If an error occurs while communicating with
-      *            the AS/400.
-      * @exception ObjectDoesNotExistException If the AS/400 object does not
-      *            exist.
+      *            the server.
+      * @exception ObjectDoesNotExistException If the object does not exist on the server.
       * @exception PropertyVetoException If the change is vetoed.
       * @exception UnsupportedEncodingException If the character encoding is
       *            not supported.
@@ -1680,8 +1652,8 @@ public class SystemPool
      }
 
      /**
-      * Sets the AS/400 system.
-      * @param system The AS/400 system.
+      * Sets the system.
+      * @param system The system.
       * @exception PropertyVetoException If the change is vetoed.
       **/
      public void setSystem(AS400 system)
