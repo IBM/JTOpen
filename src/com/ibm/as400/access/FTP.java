@@ -18,9 +18,6 @@ import java.net.*;
 import java.util.*;
 import java.beans.*;
 
-import netscape.security.*;                                          // @D1a
-import com.ms.security.*;                                            // @D1a
-
 /**
  * The FTP class represents a generic ftp client.  Methods
  * on the FTP class allow you to connect to an ftp server,
@@ -376,79 +373,6 @@ public class FTP
            inConnect_ = false;
            throw new IllegalStateException("password");
         }
-
-
-
-        // If running inside a browser we must enable the proper
-        // connect privileges so that signed applets using our classes can
-        // connect to servers other than the web server that delivered
-        // the applet.
-        //
-        // You probably noticed this code is in four places.  The privilege
-        // is lost when the code that requests it 'pops off the stack'
-        // so we cannot put common code in a subroutine.
-        //
-        // Start of change for @D1
-
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes");
-
-        Class privilegeManagerClass = null;
-        Class permissionIDClass     = null;
-        Class policyEngineClass     = null;
-
-        try
-        {
-           privilegeManagerClass = Class.forName("netscape.security.PrivilegeManager");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes not available");
-        }
-
-        try
-        {
-           permissionIDClass = Class.forName("com.ms.security.PermissionID");
-           policyEngineClass = Class.forName("com.ms.security.PolicyEngine");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes not available");
-        }
-
-        // If available, invoke the Navigator enablePrivilege method.
-        if (privilegeManagerClass != null)
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling Netscape privilige");
-              PrivilegeManager.enablePrivilege("UniversalConnect");
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling Netscape privilige");
-           }
-           catch (Throwable e)
-           {
-             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling Netscape privilege", e);
-           }
-        }
-
-        // If available, invoke the IE assertPermission method.
-        if ((permissionIDClass != null) && (policyEngineClass != null))
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling IE privilige");
-              PolicyEngine.assertPermission(PermissionID.NETIO);
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling IE privilige");
-           }
-           catch (Throwable e)
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling IE privilege", e);
-           }
-        }
-
-        // End of change for @D1
-
 
         controlSocket_ = new Socket(server_, port_);
 //      controlSocket_.setTcpNoDelay(true);
@@ -828,88 +752,6 @@ public class FTP
           String response = issueCommand("PASV");
           int p = extractPortAddress(response);
 
-
-
-
-
-        // If running inside a browser we must enable the proper
-        // connect privileges so that signed applets using our classes can
-        // connect to servers other than the web server that delivered
-        // the applet.
-        //
-        // You probably noticed this code is in four places.  The privilege
-        // is lost when the code that requests it 'pops off the stack'
-        // so we cannot put common code in a subroutine.
-        //
-        // Start of change for @D1
-
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes");
-
-        Class privilegeManagerClass = null;
-        Class permissionIDClass     = null;
-        Class policyEngineClass     = null;
-
-        try
-        {
-           privilegeManagerClass = Class.forName("netscape.security.PrivilegeManager");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes not available");
-        }
-
-        try
-        {
-           permissionIDClass = Class.forName("com.ms.security.PermissionID");
-           policyEngineClass = Class.forName("com.ms.security.PolicyEngine");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes not available");
-        }
-
-        // If available, invoke the Navigator enablePrivilege method.
-        if (privilegeManagerClass != null)
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling Netscape privilige");
-              PrivilegeManager.enablePrivilege("UniversalConnect");
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling Netscape privilige");
-           }
-           catch (Throwable e)
-           {
-             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling Netscape privilege", e);
-           }
-        }
-
-        // If available, invoke the IE assertPermission method.
-        if ((permissionIDClass != null) && (policyEngineClass != null))
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling IE privilige");
-              PolicyEngine.assertPermission(PermissionID.NETIO);
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling IE privilige");
-           }
-           catch (Throwable e)
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling IE privilege", e);
-           }
-        }
-
-        // End of change for @D1
-
-
-
-
-
-
-
-
-
           Socket dataSocket = new Socket(server_, p);
  //       dataSocket.setTcpNoDelay(true);
  //       dataSocket.setSoLinger(true, 60);
@@ -1261,84 +1103,6 @@ public class FTP
         String response = issueCommand("PASV");
         int p = extractPortAddress(response);
 
-
-
-
-        // If running inside a browser we must enable the proper
-        // connect privileges so that signed applets using our classes can
-        // connect to servers other than the web server that delivered
-        // the applet.
-        //
-        // You probably noticed this code is in four places.  The privilege
-        // is lost when the code that requests it 'pops off the stack'
-        // so we cannot put common code in a subroutine.
-        //
-        // Start of change for @D1
-
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes");
-
-        Class privilegeManagerClass = null;
-        Class permissionIDClass     = null;
-        Class policyEngineClass     = null;
-
-        try
-        {
-           privilegeManagerClass = Class.forName("netscape.security.PrivilegeManager");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes not available");
-        }
-
-        try
-        {
-           permissionIDClass = Class.forName("com.ms.security.PermissionID");
-           policyEngineClass = Class.forName("com.ms.security.PolicyEngine");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes not available");
-        }
-
-        // If available, invoke the Navigator enablePrivilege method.
-        if (privilegeManagerClass != null)
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling Netscape privilige");
-              PrivilegeManager.enablePrivilege("UniversalConnect");
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling Netscape privilige");
-           }
-           catch (Throwable e)
-           {
-             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling Netscape privilege", e);
-           }
-        }
-
-        // If available, invoke the IE assertPermission method.
-        if ((permissionIDClass != null) && (policyEngineClass != null))
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling IE privilige");
-              PolicyEngine.assertPermission(PermissionID.NETIO);
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling IE privilige");
-           }
-           catch (Throwable e)
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling IE privilege", e);
-           }
-        }
-
-        // End of change for @D1
-
-
-
-
-
-
         Socket dataSocket = new Socket(server_, p);
      // dataSocket.setTcpNoDelay(true);
      // dataSocket.setSoLinger(true, 60);
@@ -1527,81 +1291,6 @@ public class FTP
 
           String response = issueCommand("PASV");
           int p = extractPortAddress(response);
-
-
-
-
-        // If running inside a browser we must enable the proper
-        // connect privileges so that signed applets using our classes can
-        // connect to servers other than the web server that delivered
-        // the applet.
-        //
-        // You probably noticed this code is in four places.  The privilege
-        // is lost when the code that requests it 'pops off the stack'
-        // so we cannot put common code in a subroutine.
-        //
-        // Start of change for @D1
-
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Loading browser security classes");
-
-        Class privilegeManagerClass = null;
-        Class permissionIDClass     = null;
-        Class policyEngineClass     = null;
-
-        try
-        {
-           privilegeManagerClass = Class.forName("netscape.security.PrivilegeManager");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Netscape classes not available");
-        }
-
-        try
-        {
-           permissionIDClass = Class.forName("com.ms.security.PermissionID");
-           policyEngineClass = Class.forName("com.ms.security.PolicyEngine");
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes available");
-        }
-        catch (Throwable e)
-        {
-           if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "IE classes not available");
-        }
-
-        // If available, invoke the Navigator enablePrivilege method.
-        if (privilegeManagerClass != null)
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling Netscape privilige");
-              PrivilegeManager.enablePrivilege("UniversalConnect");
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling Netscape privilige");
-           }
-           catch (Throwable e)
-           {
-             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling Netscape privilege", e);
-           }
-        }
-
-        // If available, invoke the IE assertPermission method.
-        if ((permissionIDClass != null) && (policyEngineClass != null))
-        {
-           try
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Enabling IE privilige");
-              PolicyEngine.assertPermission(PermissionID.NETIO);
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Done enabling IE privilige");
-           }
-           catch (Throwable e)
-           {
-              if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Error enabling IE privilege", e);
-           }
-        }
-
-        // End of change for @D1
-
-
 
           Socket dataSocket = new Socket(server_, p);
 
