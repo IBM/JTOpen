@@ -355,6 +355,9 @@ public class AS400Message implements Serializable
 
     /**
      Returns the substitution data.  This is unconverted data used to fill in the replacement characters in the message.
+     To convert the data to something useful, see the {@link com.ibm.as400.access.CharConverter CharConverter} class
+     for String conversions (CHAR fields) and the {@link com.ibm.as400.access.BinaryConverter BinaryConverter} class for
+     integer (BIN fields) and other numeric conversions.
      @return  The subsitution data, or null if not set.
      **/
     public byte[] getSubstitutionData()
