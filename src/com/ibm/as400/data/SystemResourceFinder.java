@@ -28,6 +28,9 @@ class SystemResourceFinder
   public static final String  m_rfmlSerializedExtension = ".rfml.ser";            // @B2A
   private static final String  m_rfmlHeaderName = "com/ibm/as400/data/rfml.dtd";  // @B2A
 
+  private static final String  m_pcmlHeaderName = "com/ibm/as400/data/pcml.dtd";
+  private static int   m_headerLineCount;
+
   private static ResourceLoader m_loader = new ResourceLoader();
 
   static
@@ -61,21 +64,6 @@ class SystemResourceFinder
     return m_loader.getStringWithNoSubstitute(key);
   }
 
-  public static final InputStream getPCMLHeader()
-  {
-    return getPCMLHeader(getLoader());
-  }
-
-  // B4A -- new method for XPCML to find XSL files
-  public static final InputStream getXPCMLTransformFile(String fileName)
-  {
-    return getXPCMLTransformFile(getLoader(), "com/ibm/as400/data/"+fileName);
-  }
-
-  public static final InputStream getRFMLHeader()     // @B2A
-  {
-    return getRFMLHeader(getLoader());
-  }
 
   public static final int getHeaderLineCount()
   {
@@ -83,73 +71,99 @@ class SystemResourceFinder
   }
 
 
-  /*
-   * Automatic determination of the ClassLoader to be used to load
-   * resources on behalf of the client.  N.B. The client is getLoader's
-   * caller's caller.
-   */
-  private static ClassLoader getLoader()
+  /**
+   * Helper method used to try loading from all 3 of our class loaders.
+  **/
+  private static final InputStream loadResource(String docPath)
   {
-    debug("SecurityManager=" + System.getSecurityManager());
+    InputStream stream = null;
+    
+    ClassLoader loader = getLoader1();
+    if (loader != null) stream = loader.getResourceAsStream(docPath);
+    if (stream != null) return new BufferedInputStream(stream);
 
-    Class c = null;
+    loader = getLoader2();
+    if (loader != null) stream = loader.getResourceAsStream(docPath);
+    if (stream != null) return new BufferedInputStream(stream);
+
+    loader = getLoader3();
+    if (loader != null) stream = loader.getResourceAsStream(docPath);
+    if (stream != null) return new BufferedInputStream(stream);
+    
+    return null;
+  }
+
+
+  /**
+   * This method tries to get the current thread's context class loader.
+  **/
+  private static final ClassLoader getLoader1()
+  {
+    //3/5/2003 OYG: This doesn't work if this class is in a parent
+    //classloader and the resource being loaded is in the child.
+    //Fixed by using the current thread's class loader.
     try
     {
-      c = Class.forName("com.ibm.as400.data.SystemResourceFinder");
+      return Thread.currentThread().getContextClassLoader(); // Fix for WAS.
     }
     catch (Throwable t)
     {
-      if (Trace.isTraceOn()) Trace.log(Trace.PCML, format("Couldn't get SystemResourceFinder class."));
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Couldn't get current thread's context class loader: "+t.toString());
+      return null;
     }
-
-    ClassLoader cl = null;
-    if (c != null)
-    {
-      //3/5/2003 OYG: This doesn't work if this class is in a parent
-      //classloader and the resource being loaded is in the child.
-      //Fixed by using the current thread's class loader.
-      try
-      {
-        cl = Thread.currentThread().getContextClassLoader(); // Fix for WAS.
-      }
-      catch (Throwable t)
-      {
-        if (Trace.isTraceOn()) Trace.log(Trace.PCML, format("Couldn't get current thread's context class loader."));
-        try
-        {
-          cl = c.getClassLoader();
-        }
-        catch (Throwable t2)
-        {
-          if (Trace.isTraceOn()) Trace.log(Trace.PCML, format("Couldn't get SystemResourceFinder class loader."));
-        }
-      }
-      if (cl == null)
-      {
-        cl = new SystemClassLoader();
-      }
-    }
-    else
-    {
-      cl = new SystemClassLoader();
-    }
-
-    debug("getLoader returning " + cl);
-    return cl; 
   }
 
-  private static synchronized InputStream getPCMLHeader(ClassLoader loader)
-  throws MissingResourceException 
+
+  /**
+   * This method tries to get the SystemResourceFinder class's class loader.
+  **/
+  private static final ClassLoader getLoader2()
   {
+    try
+    {
+      Class c = Class.forName("com.ibm.as400.data.SystemResourceFinder");
+      try
+      {
+        return c.getClassLoader();
+      }
+      catch (Throwable t2)
+      {
+        if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Couldn't get SystemResourceFinder class loader: "+t2.toString());
+        return null;
+      }
+    }
+    catch (Throwable t)
+    {
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Couldn't get SystemResourceFinder class: "+t.toString());
+      return null;
+    }
+  }
 
-    InputStream stream = loader.getResourceAsStream(m_pcmlHeaderName);
 
+  /**
+   * This method returns our own SystemClassLoader, and should be called when
+   * the previous getLoaderX() methods either return null or return a class loader
+   * that is unable to load the PCML.
+  **/
+  private static final ClassLoader getLoader3()
+  {
+    return new SystemClassLoader();
+  }
+
+
+  public static synchronized InputStream getPCMLHeader()
+  {
+    // Construct the full resource name
+    String docPath = m_pcmlHeaderName;
+
+    InputStream stream = loadResource(docPath);
     if (stream == null)
     {
+      // We couldn't load the resource, no matter how many class loaders we tried.
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {m_pcmlHeaderName}), m_pcmlHeaderName, "");
     }
 
-    if (!(m_headerLineCount > 0))
+    if (m_headerLineCount <= 0)
     {
       // Cache the line count of the header
       LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
@@ -168,27 +182,26 @@ class SystemResourceFinder
       }
 
       // Get the stream again
-      stream = loader.getResourceAsStream(m_pcmlHeaderName);
+      stream = loadResource(docPath);
     }
 
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    return stream;
   }
 
-  // @B4A -- New method for XPCML
-  private static synchronized InputStream getXPCMLTransformFile(ClassLoader loader, String fileName)
-  throws MissingResourceException 
-  {
 
-    InputStream stream = loader.getResourceAsStream(fileName);
+  // @B4A -- New method for XPCML
+  public static synchronized InputStream getXPCMLTransformFile(String fileName)
+  {
+    String docPath = "com/ibm/as400/data/"+fileName;
+
+    InputStream stream = loadResource(docPath);
 
     if (stream == null)
     {
-      Trace.log(Trace.ERROR, "XSL file not found");
+      if (Trace.isTraceOn()) Trace.log(Trace.PCML, "XSL file not found.");
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.XML_NOT_FOUND, new Object[] {fileName}), fileName, "");
     }
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    return stream;
   }
 
 
@@ -211,54 +224,62 @@ class SystemResourceFinder
       docPath = docName.replace('.', '/') + m_pcmlExtension;
     }
 
-    if (loader == null)                                         // @B1A
-      loader = getLoader();                                   // @B1A
-
-    InputStream stream = loader.getResourceAsStream(docPath);
-    if (stream == null)
+    InputStream stream = null;
+    if (loader != null)
     {
+      stream = loader.getResourceAsStream(docPath);
+      if (stream != null) return new BufferedInputStream(stream);
+      // We throw an exception here because if the user specified a ClassLoader,
+      // they probably don't want us to use ours, and we don't want to return another
+      // version of the document found by a different class loader.
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_NOT_FOUND, new Object[] {docName}), docName, "");
     }
-
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    
+    stream = loadResource(docPath);
+    if (stream != null) return stream;
+    
+    // We couldn't load the resource, no matter how many class loaders we tried.
+    throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_NOT_FOUND, new Object[] {docName}), docName, "");
   }
 
 
   static synchronized InputStream getSerializedPCMLDocument(String docName, ClassLoader loader)   // @B1C
   throws MissingResourceException
   {
-
-    if (loader == null)                                         // @B1A
-      loader = getLoader();                                   // @B1A
-
     // Construct the full resource name
     String docPath = docName.replace('.', '/') + m_pcmlSerializedExtension;
 
-    InputStream stream = loader.getResourceAsStream(docPath);
-    if (stream == null)
+    InputStream stream = null;
+    if (loader != null)
     {
+      stream = loader.getResourceAsStream(docPath);
+      if (stream != null) return new BufferedInputStream(stream);
+      // We throw an exception here because if the user specified a ClassLoader,
+      // they probably don't want us to use ours, and we don't want to return another
+      // version of the document found by a different class loader.
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_PCML_NOT_FOUND, new Object[] {docName} ), docName, "");
     }
 
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    stream = loadResource(docPath);
+    if (stream != null) return stream;
+
+    // We couldn't load the resource, no matter how many class loaders we tried.
+    throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_PCML_NOT_FOUND, new Object[] {docName}), docName, "");
   }
 
-  private static synchronized InputStream getRFMLHeader(ClassLoader loader)   // @B2A
-  throws MissingResourceException 
+
+  public static synchronized InputStream getRFMLHeader()
   {
+    String docPath = m_rfmlHeaderName;
 
-    InputStream stream = loader.getResourceAsStream(m_rfmlHeaderName);
-
+    InputStream stream = loadResource(docPath);
     if (stream == null)
     {
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.DTD_NOT_FOUND, new Object[] {"RFML", m_rfmlHeaderName}), m_rfmlHeaderName, "");
     }
-
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    return stream;
   }
+
 
   static synchronized InputStream getRFMLDocument(String docName, ClassLoader loader)     // @B2A
   throws MissingResourceException
@@ -278,39 +299,47 @@ class SystemResourceFinder
       docPath = docName.replace('.', '/') + m_rfmlExtension;
     }
 
-    if (loader == null)
-      loader = getLoader();
-
-    InputStream stream = loader.getResourceAsStream(docPath);
-
-    if (stream == null)
+    InputStream stream = null;
+    if (loader != null)
     {
+      stream = loader.getResourceAsStream(docPath);
+      if (stream != null) return new BufferedInputStream(stream);
+      // We throw an exception here because if the user specified a ClassLoader,
+      // they probably don't want us to use ours, and we don't want to return another
+      // version of the document found by a different class loader.
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.XML_NOT_FOUND, new Object[] {"RFML", docName}), docName, "");
     }
 
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    stream = loadResource(docPath);
+    if (stream != null) return stream;
+
+    // We couldn't load the resource, no matter how many class loaders we tried.
+    throw new MissingResourceException(SystemResourceFinder.format(DAMRI.XML_NOT_FOUND, new Object[] {"RFML", docName}), docName, "");
   }
 
 
   static synchronized InputStream getSerializedRFMLDocument(String docName, ClassLoader loader)   // @B2A
   throws MissingResourceException
   {
-
-    if (loader == null)
-      loader = getLoader();
-
     // Construct the full resource name
     String docPath = docName.replace('.', '/') + m_rfmlSerializedExtension;
 
-    InputStream stream = loader.getResourceAsStream(docPath);
-    if (stream == null)
+    InputStream stream = null;
+    if (loader != null)
     {
+      stream = loader.getResourceAsStream(docPath);
+      if (stream != null) return new BufferedInputStream(stream);
+      // We throw an exception here because if the user specified a ClassLoader,
+      // they probably don't want us to use ours, and we don't want to return another
+      // version of the document found by a different class loader.
       throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_XML_NOT_FOUND, new Object[] {"RFML", docName} ), docName, "");
     }
 
-    // Make sure stream is buffered
-    return new BufferedInputStream(stream);
+    stream = loadResource(docPath);
+    if (stream != null) return stream;
+
+    // We couldn't load the resource, no matter how many class loaders we tried.
+    throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_XML_NOT_FOUND, new Object[] {"RFML", docName} ), docName, "");
   }
 
 
@@ -340,15 +369,28 @@ class SystemResourceFinder
     }
 
     boolean isXPCML = false;
-    if (loader==null)
-      loader = getLoader();
-
-    InputStream stream = loader.getResourceAsStream(docPath);
+    InputStream stream = null;
+    if (loader != null)
+    {
+      stream = loader.getResourceAsStream(docPath);
+      if (stream == null)
+      {
+        // We throw an exception here because if the user specified a ClassLoader,
+        // they probably don't want us to use ours, and we don't want to return another
+        // version of the document found by a different class loader.
+        throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
+      }
+    }
     if (stream == null)
     {
-      throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
+      stream = loadResource(docPath);
+      if (stream == null)
+      {
+        // We couldn't load the resource, no matter how many class loaders we tried.
+        throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
+      }
     }
-
+    
     // Cache the line count of the header
     LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
     try
@@ -381,48 +423,5 @@ class SystemResourceFinder
     // Return isXPCML
     return isXPCML;
   }
-
-
-  /**
-     * For printf debugging.
-     */
-  private static boolean debugFlag = false;
-  private static void debug(String str)
-  {
-    if (debugFlag)
-    {
-      System.out.println("SystemResourceFinder: " + str);
-    }
-  }
-
-  private static final String  m_pcmlHeaderName = "com/ibm/as400/data/pcml.dtd";
-  private static int   m_headerLineCount;
-
 }
 
-
-/**
- * The SystemClassLoader loads system classes (those in your classpath).
- * This is an attempt to unify the handling of system classes and ClassLoader
- * classes.
- */
-class SystemClassLoader extends java.lang.ClassLoader
-{
-
-  protected Class loadClass(String name, boolean resolve)
-  throws ClassNotFoundException
-  {
-    return findSystemClass(name);
-  }
-
-  public InputStream getResourceAsStream(String name)
-  {
-    return ClassLoader.getSystemResourceAsStream(name);
-  }
-
-  public java.net.URL getResource(String name)
-  {
-    return ClassLoader.getSystemResource(name);
-  }
-
-}
