@@ -450,6 +450,7 @@ implements SQLData
         truncated_ = 16;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
         calendar.set(year_, month_, day_, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);      //@KBA  added per JTOpen Bug 3818.  According to java.sql.Date, the milliseconds also need to be 'normalized' to zero.
         return new Date(calendar.getTime().getTime());
     }
 
