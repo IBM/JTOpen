@@ -1009,7 +1009,7 @@ public class MRI2 extends ListResourceBundle
       { "GENCMDDOC_VALUE_PATH_NAME",         "path-name" },            
       { "GENCMDDOC_VALUE_SIMPLE_NAME",       "simple-name" },          
       { "GENCMDDOC_VALUE_TIME",              "time" },                 
-      { "GENCMDDOC_VALUE_UNSIGNED_INTEGER",  "unsigned-integer-number" },
+      { "GENCMDDOC_VALUE_UNSIGNED_INTEGER",  "unsigned-integer" },
       { "GENCMDDOC_VALUES_OTHER",            "Other values" },
       { "GENCMDDOC_VALUES_OTHER_REPEAT",     "Other values (up to &1 repetitions)" },
       { "GENCMDDOC_VALUES_REPEAT",           "Values (up to &1 repetitions)" },
