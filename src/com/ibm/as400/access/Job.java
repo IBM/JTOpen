@@ -1426,6 +1426,47 @@ public class Job implements Serializable
     public static final int JOB_END_REASON = 1014;
 
     /**
+     Job attribute representing how a job log will be produced when the job completes.  This does not affect job logs produced when the message queue is full and the job message queue full action specifies *PRTWRAP.  Messages in the job messages queue are written to a spooled file, from which the job log can be printed, unless the Control Job Log Output (QMHCTLJL) API was used in the job to specify that the messages in the job log are to be written to a database file.
+     <p>The job log output value can be changed at any time until the job log has been produced or removed.  To change the job log output value for a job, use the Change Job (QWTCHGJB) API or the Change Job (CHGJOB) command.
+     <p>The job log can be displayed at any time until the job log has been produced or removed.  To display a job's job log, use the Display Job Log (DSPJOBLOG) command.
+     <p>The job log can be removed when the job has completed and the job log has not yet been produced or removed.  To remove the job log, use the Remove Pending Job Log (QWTRMVJL) API or the End Job (ENDJOB) command.
+     <p>Possible values are:
+     <ul>
+     <li>{@link #JOB_LOG_OUTPUT_SYSTEM_VALUE JOB_LOG_OUTPUT_SYSTEM_VALUE}
+     <li>{@link #JOB_LOG_OUTPUT_JOB_LOG_SERVER JOB_LOG_OUTPUT_JOB_LOG_SERVER}
+     <li>{@link #JOB_LOG_OUTPUT_JOB_END JOB_LOG_OUTPUT_JOB_END}
+     <li>{@link #JOB_LOG_OUTPUT_PENDING JOB_LOG_OUTPUT_PENDING}
+     </ul>
+     <p>Type: String
+     <p>Only valid on V5R4 systems and higher.
+     **/
+    public static final int JOB_LOG_OUTPUT = 1018;
+
+    /**
+     Constant indicating that the value is specifed by the QLOGOUTPUT system value.
+     @see  #JOB_LOG_OUTPUT
+     **/
+    public static final String JOB_LOG_OUTPUT_SYSTEM_VALUE = "*SYSVAL";
+
+    /**
+     Constant indicating that the job log will be produced by a job log server.  For more information about job log servers, refer to the Start Job Log Server (STRLOGSVR) command.
+     @see  #JOB_LOG_OUTPUT
+     **/
+    public static final String JOB_LOG_OUTPUT_JOB_LOG_SERVER = "*JOBLOGSVR";
+
+    /**
+     Constant indicating that the job log will be produced by the job itself.  If the job cannot produce its own job log, the job log will be produced by a job log server.  For example, a job does not produce its own job log when the system is processing a Power Down System (PWRDWNSYS) command.
+     @see  #JOB_LOG_OUTPUT
+     **/
+    public static final String JOB_LOG_OUTPUT_JOB_END = "*JOBEND";
+
+    /**
+     Constant indicating that the job log will not be produced.  The job log remains pending until removed.
+     @see  #JOB_LOG_OUTPUT
+     **/
+    public static final String JOB_LOG_OUTPUT_PENDING = "*PND";
+
+    /**
      Job attribute representing whether a job's log has been written or not.  If the system fails while the job was active or the job ends abnormally, the job log may not be written yet.  This flag remains on until the job log has been written.  Possible values are:
      <ul>
      <li>{@link #JOB_LOG_PENDING_NO JOB_LOG_PENDING_NO}
@@ -1439,13 +1480,13 @@ public class Job implements Serializable
 
     /**
      Constant indicating that the job log is not pending.
-     @see  #DBCS_CAPABLE
+     @see  #JOB_LOG_PENDING
      **/
     public static final String JOB_LOG_PENDING_NO = "0";
 
     /**
      Constant indicating that the job log is pending and waiting to be written.
-     @see  #DBCS_CAPABLE
+     @see  #JOB_LOG_PENDING
      **/
     public static final String JOB_LOG_PENDING_YES = "1";
 
@@ -2958,6 +2999,7 @@ public class Job implements Serializable
         setterKeys_.put(INQUIRY_MESSAGE_REPLY, 10);
         setterKeys_.put(ACCOUNTING_CODE, 15);
         setterKeys_.put(JOB_DATE, 7);
+        setterKeys_.put(JOB_LOG_OUTPUT, 10);
         setterKeys_.put(JOB_QUEUE, 20);
         setterKeys_.put(JOB_QUEUE_PRIORITY, 2);
         setterKeys_.put(JOB_SWITCHES, 8);
@@ -5259,7 +5301,7 @@ public class Job implements Serializable
             case 3:  // Format JOBI0300.
                 return 187;
             case 4:  // Format JOBI0400.
-                return 532;
+                return 564;
             case 5:  // Format JOBI0500.
                 return 83;
             case 6:  // Format JOBI0600.
@@ -5372,6 +5414,7 @@ public class Job implements Serializable
             case CHARACTER_ID_CONTROL:
             case SERVER_TYPE:
             case ALLOW_MULTIPLE_THREADS:
+            case JOB_LOG_OUTPUT:
             case JOB_LOG_PENDING:
             case JOB_END_REASON:
             case JOB_TYPE_ENHANCED:
@@ -5566,6 +5609,7 @@ public class Job implements Serializable
                 setAsInt(JOB_TYPE_ENHANCED, BinaryConverter.byteArrayToInt(data, 504));
                 setValueInternal(DATE_ENDED, conv.byteArrayToString(data, 508, 13));
                 setValueInternal(SPOOLED_FILE_ACTION, conv.byteArrayToString(data, 522, 10));
+                setValueInternal(JOB_LOG_OUTPUT, conv.byteArrayToString(data, 554, 10));
                 break;
             case 5:  // Format JOBI0500.
                 setAsInt(END_SEVERITY, BinaryConverter.byteArrayToInt(data, 64));
