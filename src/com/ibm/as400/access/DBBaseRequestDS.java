@@ -485,6 +485,44 @@ Adds a variable length string parameter.
     unlock();
   }
 
+  /**
+Adds a fixed length string parameter, but uses character conversion.
+**/
+  protected void addParameter(int codePoint,
+                              ConvTable converter, //@P0C
+                              String value, 
+                              boolean fixed)
+  throws DBDataStreamException, SQLException                              // @E9a
+  {
+      if(fixed){
+        // Changed code to use the converter to find out the exact
+        // number of bytes the string needs to occupy so that it works
+        // for both single-byte and double-byte strings.
+        byte[] rawBytes = converter.stringToByteArray(value);
+    
+        if (rawBytes.length > 65535)                                            
+        JDError.throwSQLException (JDError.EXC_SQL_STATEMENT_TOO_LONG);       
+
+        lock(rawBytes.length + 4, codePoint);
+
+        set16bit(converter.ccsid_, currentOffset_);       
+
+        try
+        {
+            System.arraycopy(rawBytes, 0, data_, currentOffset_ + 2,
+                       rawBytes.length);
+        }
+        catch (Exception e)
+        {
+        throw new DBDataStreamException();
+        }
+
+        unlock();
+      }
+      else
+          addParameter(codePoint, converter, value);
+  }
+
 
 
 /**

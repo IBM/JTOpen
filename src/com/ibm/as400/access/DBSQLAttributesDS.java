@@ -114,7 +114,7 @@ extends DBBaseRequestDS
             //@H1D There is no need to use a Converter for this value             @E2A
             //@H1D since it is always numeric.                                    @E2A
             //@H1A Need to use Converter now since this is not all numeric any more.
-            addParameter(0x3803, ConvTable.getTable(37, null), value); // @E2C @H1C 
+            addParameter(0x3803, ConvTable.getTable(37, null), value, true); // @E2C @H1C 
         }
         catch(SQLException se)                                               //@H1A
         {
