@@ -119,17 +119,19 @@ class JDProperties implements Serializable {
     static final int              DATABASE_NAME           = 47;   // @j2a
     static final int              EXTENDED_METADATA       = 48;   // @F5A
     static final int              CURSOR_SENSITIVITY      = 49;   // @F6A
+    static final int              BEHAVIOR_OVERRIDE       = 50;   // @F7A
 
                                                                 // @W2 always add to the end of the array!
 
-     private static final int    NUMBER_OF_ATTRIBUTES_ = 50;    // @A0C @C1C @A3A @D0C @E0C
+     private static final int    NUMBER_OF_ATTRIBUTES_ = 51;    // @A0C @C1C @A3A @D0C @E0C
                                                                 // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                                // @W1c @j1c @J2c @F5C @F6C
+                                                                // @W1c @j1c @J2c @F5C @F6C @F7c
 
 
 
     // Property names.
     private static final String ACCESS_                 = "access";
+    private static final String BEHAVIOR_OVERRIDE_      = "behavior override";      // @F7A
     private static final String BIDI_STRING_TYPE_       = "bidi string type";       // @E9A
     private static final String BIG_DECIMAL_            = "big decimal";            // @E0A
     private static final String BLOCK_SIZE_             = "block size";
@@ -355,6 +357,17 @@ Static initializer.
           dpi_[i].choices[1]  = ACCESS_READ_CALL;
           dpi_[i].choices[2]  = ACCESS_READ_ONLY;
           defaults_[i]        = ACCESS_ALL;
+
+          // @f7a
+          // Behavior Override.  This property is a bit mask.  The following have
+          // been defined:
+          //   1 - (v5r2f) Don't throw exception of executeQuery() does not return a result set
+          i = BEHAVIOR_OVERRIDE;
+          dpi_[i] = new DriverPropertyInfo (BEHAVIOR_OVERRIDE_, "");
+          dpi_[i].description = "BEHAVIOR_OVERRIDE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices     = new String[0];
+          defaults_[i]        = "0x00";
 
      // Bidi string type.  @E9A
         i = BIDI_STRING_TYPE;
