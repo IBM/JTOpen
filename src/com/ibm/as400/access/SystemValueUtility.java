@@ -194,17 +194,26 @@ class SystemValueUtility
               throw new ExtendedIOException("QDATE (length)",
                    ExtendedIOException.CANNOT_CONVERT_VALUE);
             }
-            int century = (new Integer(as400Date.substring(0,1))).intValue();
-            int year = (new Integer(as400Date.substring(1,3))).intValue();
-            int month = (new Integer(as400Date.substring(3,5))).intValue()-1;
-            int day = (new Integer(as400Date.substring(5,7))).intValue();
-            year = year + 1900 + (100*century); // C=0 or C=1
-            Calendar cal = Calendar.getInstance();
-            //@A2D cal.clear();
-            cal.set(Calendar.YEAR, year);
-            cal.set(Calendar.MONTH, month);
-            cal.set(Calendar.DAY_OF_MONTH, day);
-            value = new java.sql.Date(cal.getTime().getTime());
+            try
+            {
+              int century = (new Integer(as400Date.substring(0,1))).intValue();
+              int year = (new Integer(as400Date.substring(1,3))).intValue();
+              int month = (new Integer(as400Date.substring(3,5))).intValue()-1;
+              int day = (new Integer(as400Date.substring(5,7))).intValue();
+              year = year + 1900 + (100*century); // C=0 or C=1
+              Calendar cal = Calendar.getInstance();
+              //@A2D cal.clear();
+              cal.set(Calendar.YEAR, year);
+              cal.set(Calendar.MONTH, month);
+              cal.set(Calendar.DAY_OF_MONTH, day);
+              value = new java.sql.Date(cal.getTime().getTime());
+            }
+            catch (NumberFormatException e)
+            {
+              Trace.log(Trace.ERROR, e);
+              throw new ExtendedIOException("QDATE",
+                   ExtendedIOException.CANNOT_CONVERT_VALUE);
+            }
           }
           else if (obj.name_.equals("QTIME"))
           {
