@@ -38,9 +38,9 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     private PcmlDimensions m_indices; // Indices into owning PcmlNode's vectors of PcmlDataValues
 
     private Object m_value;        // Java native value: (String, Short, Integer, Long, Float, Double, BigDecimal. byte[])
-    private long   m_valueTs;      // Timestamp of Java native value from System.currentTimeMillis()
+    private long   m_valueTs;      // Correllation id of Java native value from PcmlDocument.getCorrellationID()
     private byte[] m_bytes;        // AS/400 bytes (ebcdic/big-endian)
-    private long   m_bytesTs;      // Timestamp of AS/400 bytes from System.currentTimeMillis()
+    private long   m_bytesTs;      // Correllation id of AS/400 bytes from PcmlDocument.getCorrellationID()
     
     private int    m_bidiStringType;    // Type of string that is contained in the value @C6A
 
@@ -186,14 +186,14 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             m_value = convertValue(v, getDataType(), getLength(), getPrecision(), getNameForException());
         }
         // Update the value timestamp
-        m_valueTs = System.currentTimeMillis();
+        m_valueTs = PcmlDocument.getCorrellationID();           // @C7C
     }
 
     // Set AS/400 bytes
     public void setBytes(byte[] ba) 
     {
         m_bytes = ba;
-        m_bytesTs = System.currentTimeMillis();
+        m_bytesTs = PcmlDocument.getCorrellationID();           // @C7C
     }
 
     // Set the bidi string type 
