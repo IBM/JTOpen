@@ -315,7 +315,7 @@ implements SQLData
 
     public String getTypeName()
     {
-        return "LONG VARCHAR() FOR BIT DATA";
+        return "LONG VARCHAR FOR BIT DATA";
     }
 
     public boolean isSigned()
