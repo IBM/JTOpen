@@ -237,7 +237,7 @@ public class UserSpace
    /**
      Creates the user space.
 
-        @param length  The initial size in bytes of the user space.
+        @param length  The initial size (in bytes) of the user space.
             Valid values are 1 through 16,776,704.
         @param replace The value indicating if an existing user space is to be replaced.
         @param extendedAttribute  The user-defined extended attribute of the user space.  This string must be 10 characters or less.
@@ -281,7 +281,7 @@ public class UserSpace
         @param domain  The domain into which the user space is created.
             Valid value are: *DEFAULT, *USER, or *SYSTEM.
             *DEFAULT uses the allow user domain system value to determine if *USER or *SYSTEM will be used.
-        @param length  The initial size in bytes of the user space.
+        @param length  The initial size (in bytes) of the user space.
               Valid values are 1 through 16,776,704.
         @param replace The value indicating if an existing user space is to be replaced.
         @param extendedAttribute  The user-defined extended attribute of the user space.  This string must be 10 characters or less.
@@ -492,9 +492,9 @@ public class UserSpace
    }
 
    /**
-     Returns the size in bytes of the user space.
+     Returns the size (in bytes) of the user space.
 
-        @return The size in bytes of the user space.
+        @return The size (in bytes) of the user space.
         @exception AS400SecurityException If a security or authority error occurs.
         @exception ErrorCompletingRequestException If an error occurs before the request is completed.
         @exception InterruptedException If this thread is interrupted.
@@ -887,9 +887,9 @@ public class UserSpace
    }
 
    /**
-     Sets the size of the user space.  Valid values are 1 through 16,776,704.
+     Sets the size (in bytes) of the user space.  Valid values are 1 through 16,776,704.
 
-        @param length  The new size of the user space.
+        @param length  The new size (in bytes) of the user space.
         @exception AS400SecurityException If a security or authority error occurs.
         @exception ErrorCompletingRequestException If an error occurs before the request is completed.
         @exception InterruptedException If this thread is interrupted.
@@ -1092,7 +1092,7 @@ public class UserSpace
         @param dataBuffer  The data buffer to be written.
         @param userSpaceOffset  The position in the user space to start writing.
         @param dataOffset  The position in the write data buffer from which to start copying.
-        @param length  The length of data to be written.
+        @param length  The length (in bytes) of data to be written.
         @exception AS400SecurityException If a security or authority error occurs.
         @exception ErrorCompletingRequestException If an error occurs before the request is completed.
         @exception InterruptedException If this thread is interrupted.
@@ -1116,7 +1116,7 @@ public class UserSpace
         @param dataBuffer  The data buffer to be written to the user space.
         @param userSpaceOffset  The position in the user space to start writing.
         @param dataOffset  The position in the write data buffer from which to start copying.
-        @param length  The length of data to be written.
+        @param length  The length (in bytes) of data to be written.
         @param forceAuxiliary  The method of forcing changes made to the user space to
               auxiliary storage.  Valid values are:
               <UL>
