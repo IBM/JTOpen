@@ -187,7 +187,7 @@ Get the extended attribute value.
 Returns null if the reply contains no extended attribute.
 @return extended attribute value
 **/
-  byte[] getExtendedAttributeValue(int datastreamLevel)
+  byte[] getExtendedAttributeValue(/*int datastreamLevel*/)
   {
     // The offset to the start of the "optional/variable section" depends on the datastream level.
 
@@ -261,7 +261,7 @@ Get the date/time that the file was last modified.
 Get the file name.
 @return the file name
 **/
-  byte[] getName(int datastreamLevel)
+  byte[] getName(/*int datastreamLevel*/)
   {
     // Assume that the "File Name" field is at the beginning of the Optional Section.
     int file_name_LL_offset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
@@ -335,7 +335,7 @@ Determine the file size (in bytes).
 Get the length of the file (8 bytes).
 @return length of the file
 **/
-  long getSize8Bytes(int datastreamLevel)
+  long getSize8Bytes(/*int datastreamLevel*/)
   {
     long fileSize = 0L;
 

@@ -225,7 +225,7 @@ implements IFSFileImpl
     // Don't need to check if attributeList == null because it has already been
     // checked by the two methods that call it.  Also don't check converter
     // because it is set by a connect() method before calling this.
-    String name = fd_.converter_.byteArrayToString(attributeList.getName(fd_.serverDatastreamLevel_));
+    String name = fd_.converter_.byteArrayToString(attributeList.getName(/*fd_.serverDatastreamLevel_*/));
     switch (attributeList.getObjectType())
     {
       case IFSListAttrsRep.DIRECTORY:
@@ -260,7 +260,7 @@ implements IFSFileImpl
     // Don't need to check if attributeList == null because it has already been
     // checked by the two methods that call it.   Also don't check converter
     // because it is set by a connect() method before calling this.
-    String name = fd_.converter_.byteArrayToString(attributeList.getName(fd_.serverDatastreamLevel_));
+    String name = fd_.converter_.byteArrayToString(attributeList.getName(/*fd_.serverDatastreamLevel_*/));
     switch(attributeList.getObjectType())
     {
       case IFSListAttrsRep.DIRECTORY:
@@ -506,7 +506,7 @@ implements IFSFileImpl
                   replys.size() + ")");
       }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-      byte[] subtypeAsBytes = reply.getExtendedAttributeValue(fd_.serverDatastreamLevel_);
+      byte[] subtypeAsBytes = reply.getExtendedAttributeValue(/*fd_.serverDatastreamLevel_*/);
       if (subtypeAsBytes != null)
       {
         // Note: The EA value field is always returned in EBCDIC (ccsid=37).
@@ -876,7 +876,7 @@ implements IFSFileImpl
                       replys.size() + ")");
         }
         IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-        size = reply.getSize8Bytes(fd_.serverDatastreamLevel_);
+        size = reply.getSize8Bytes(/*fd_.serverDatastreamLevel_*/);
       }
     }
     return size;
@@ -1147,11 +1147,11 @@ implements IFSFileImpl
     {
       names = new String[replys.size()];
       int j = 0;
-      int dsl = fd_.serverDatastreamLevel_;
+      ///int dsl = fd_.serverDatastreamLevel_;
       for (int i = 0; i < replys.size(); i++)
       {
         IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(i);
-        String name = fd_.converter_.byteArrayToString(reply.getName(dsl));
+        String name = fd_.converter_.byteArrayToString(reply.getName(/*dsl*/));
         if (!(name.equals(".") || name.equals("..")))
         {
           names[j++] = name;
@@ -1209,7 +1209,7 @@ implements IFSFileImpl
         for (int i = 0; i < replys.size(); i++)
         {
           IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(i);
-          String name = fd_.converter_.byteArrayToString(reply.getName(dsl));
+          String name = fd_.converter_.byteArrayToString(reply.getName(/*dsl*/));
           if (!(name.equals(".") || name.equals("..")))
           {
              // isDirectory and isFile should be different unless the
