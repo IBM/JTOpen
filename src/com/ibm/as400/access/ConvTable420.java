@@ -1,41 +1,22 @@
-//////////////////////////////////////////////////////////////////////
-//
-// IBM Confidential
-//
-// OCO Source Materials
-//
-// The Source code for this program is not published or otherwise
-// divested of its trade secrets, irrespective of what has been
-// deposited with the U.S. Copyright Office
-//
-// 5722-JC1
-// (C) Copyright IBM Corp. 1997, 2000
-//
-////////////////////////////////////////////////////////////////////////
-//
-// File Name:    ConvTable420.java
-//
-// Description:  Contains Unicode converter tables for ccsid 420.
-//
-// Classes:      ConvTable420
-//
-////////////////////////////////////////////////////////////////////////
-//
-// CHANGE ACTIVITY:
-//
-// $A0=PTR/DCR   Release      Date        Userid    Comments
-//     D98012    v5r1m0.jacl  10/29/1999  csmith    Created.
-//               v5r1m0.jacl  05/11/2000  csmith    Regenerated.
-//
-//
-// END CHANGE ACTIVITY
-//
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: ConvTable420.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
 class ConvTable420 extends ConvTableBidiMap
 {
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+
   private static final String toUnicode_ = 
     "\u0000\u0001\u0002\u0003\u009C\t\u0086\u007F\u0097\u008D\u008E\u000B\f\r\u000E\u000F" +
     "\u0010\u0011\u0012\u0013\u009D\u0085\b\u0087\u0018\u0019\u0092\u008F\u001C\u001D\u001E\u001F" +
