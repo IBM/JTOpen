@@ -2024,4 +2024,204 @@ public class FTP
 
     }
 
+    /**
+     * Renames one or more files on the server, according to a specified pattern.
+     * <p>
+     * For example:
+     * <ul>
+     * <li>ren("*.txt","*.DONE") renames "file1.txt" to "file1.DONE", and so on
+     * <li>ren("*.txt","*_DONE.*) renames "file1.txt" to "file1_DONE.txt", and so on
+     * <li>ren("*.txt","*_1055am") renames "file1.txt" to "file1.txt_1055am", and so on
+     * </ul>
+     *  
+     * @param fromName A pattern specifying the file(s) to be renamed.
+     * The syntax of the pattern is similar to the syntax for {@link #ls ls()}.
+     * @param toName The new file name, or a simple pattern
+     * describing how to construct the new name out of fromName.
+     * <tt>toName</tt> can contain up to two asterisks, one on each side of the ".".
+     * @return The number of files renamed. 
+     * @throws IOException If an error occurs while communicating with the server.
+     **/
+
+    public synchronized int ren(String fromName, String toName)
+      throws IOException
+    {
+      int renamedCount = 0;
+
+      if (Trace.isTraceOn())
+        Trace.log(
+                  Trace.DIAGNOSTIC,
+                  "entering ren(), from file name is "
+                  + fromName
+                  + ", to file name is "
+                  + toName
+                  + ".");
+
+      if (fromName == null)
+        throw new NullPointerException("fromName");
+      if (toName == null)
+        throw new NullPointerException("toName");
+
+      if (fromName.trim().length() == 0)
+        throw new IllegalArgumentException("fromName");
+      if (toName.trim().length() == 0)
+        throw new IllegalArgumentException("toName");
+
+      String[] entries = ls(fromName);
+
+      for (int i=0; i<entries.length; i++) {	
+
+        issueCommand("RNFR " + entries[i]);
+
+        // If server returns status 35x, then it has accepted the file name
+        // ok and is waiting for the RNTO subcomand.
+        if (lastMessage_.startsWith("35")) {
+          issueCommand("RNTO " + generateNewName(entries[i], toName));
+          if (lastMessage_.startsWith("25")) {
+            renamedCount += 1;
+          }
+        }
+
+      }
+
+      if (Trace.isTraceOn())
+        Trace.log(
+                  Trace.DIAGNOSTIC,
+                  "leaving ren(). renamedCount = " + renamedCount);
+
+      return renamedCount;
+    }
+
+    /**
+     * Returns a new file name constructed out of the old
+     * file name and a simple expression containing asterisks.
+     * <p>
+     * For example:
+     * <ul>
+     * <li>generateNewName("file.txt","*.DONE") returns "file.DONE"
+     * <li>generateNewName("file.txt","*_DONE.*) returns "file_DONE.txt"
+     * <li>generateNewName("file.txt","*_1055am") returns "file.txt_1055am"
+     * </ul>
+     *  
+     * @param fromName The original file name
+     * @param toName The new file name, or a simple pattern
+     * describing how to construct the new name out of fromName.
+     * <tt>toName</tt> can contain up to two asterisks, one on each side of the ".".
+     * @return The new file name.
+     * @throws NullPointerException if the fromName or toName
+     * parameters are null.
+     * @throws IllegalArgumentException if fromName or toName
+     * is null, or if the toName contains an invalid expression.
+     **/
+    public static String generateNewName(String fromName, String toName)
+    {
+      if (fromName == null)
+        throw new NullPointerException("fromName");
+      if (toName == null)
+        throw new NullPointerException("toName");
+
+      fromName = fromName.trim();
+      if (fromName.length() < 1)
+        throw new IllegalArgumentException("fromName");
+      toName = toName.trim();
+      if (toName.length() < 1)
+        throw new IllegalArgumentException("toName");
+
+      if (toName.indexOf('*') < 0)
+        return toName;
+
+      if (toName.indexOf('.') < 0)
+        return newNamePart(fromName, toName);
+
+      String[] fromParts = splitName(fromName, '.');
+      String[] toParts = splitName(toName, '.');
+
+      String theFront = newNamePart(fromParts[0], toParts[0]);
+      String theBack = newNamePart(fromParts[1], toParts[1]);
+
+      String theNewName = theFront;
+      if (theBack.length() > 0)
+        theNewName = theNewName + "." + theBack;
+
+      System.out.println("generateNewName(): " + fromName +", " + toName + ", -> " + theNewName);
+      return theNewName;
+    }
+
+    /**
+     * Returns a new name constructed out of an old name
+     * using a very simple pattern containing at most one
+     * asterisk. The asterisk is replaced with the value
+     * of the old name.
+     * <p>
+     * For example:
+     * <ul>
+     * <li>newNamePart("abc","xyz") returns "xyz"
+     * <li>newNamePart("abc","*_DONE") returns "abc_DONE"</li>
+     * <li>newNamePart("abc","DONE_*") returns "DONE_abc"</li>
+     * <li>newNamePart("abc","DONE_*_DONE") returns "DONE_abc_DONE"
+     * </ul>
+     * @param fromName the old name.
+     * @param toName the new name, containing no more than 1 asterisk.
+     * @return the constructed name.
+     **/
+    /*protected*/ static String newNamePart(String fromName, String toName)
+    {
+      int indexA = toName.indexOf('*');
+
+      // Return immediately if there is no asterisk in the to name.
+      if (indexA < 0)
+        return toName;
+
+      // Cannot be more than 1 asterisk in the to name.
+      if ((indexA < (toName.length() - 1))
+          && (toName.indexOf('*', indexA + 1) > 0))
+        throw new IllegalArgumentException("toName");
+
+      StringBuffer nameBuff = new StringBuffer();
+
+      // LHS of asterisk
+      if (indexA > 0)
+        nameBuff.append(toName.substring(0, indexA));
+
+      // Asterisk is replaced with original name
+      nameBuff.append(fromName);
+
+      // RHS of asterisk
+      if (indexA < (toName.length() - 1))
+        nameBuff.append(toName.substring(indexA + 1));
+
+      return nameBuff.toString();
+    }
+
+    /**
+     * Utility method used to split a string into exactly
+     * two parts at the <em>last occurrence</em> of a
+     * given character. If the character is not found then
+     * the original string is returned as the first part.
+     * 
+     * @param stringValue the striung value to split.
+     * @param c the character at which to split the string.
+     * @return String array with exactly 2 elements. 
+     */
+    /*protected*/ static String[] splitName(String stringValue, char c) {
+
+      String[] pieces = new String[2];
+
+      int splitIndex = stringValue.lastIndexOf(c);
+
+      if (splitIndex >= 0) {
+        pieces[0] = stringValue.substring(0, splitIndex);
+        if (splitIndex < (stringValue.length() - 1)) {
+          pieces[1] = stringValue.substring(splitIndex + 1);
+        } else {
+          pieces[1] = "";
+        }
+      } else {
+        pieces[0] = stringValue;
+        pieces[1] = "";
+      }
+
+      return pieces;
+    }
+
 }
