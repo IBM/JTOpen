@@ -148,13 +148,14 @@ implements SQLData
         throws SQLException
     {
         try {
-            // The length in the first 2 bytes is actually the length in bytes, not             // @BAA
-            // the length in characters.  Therefore, we have to convert before setting the      // @BAA
-            // length.  The only way to get the length is to convert into a temporary           // @BAA
-            // byte array.  Performance-wise, this is okay, since Converter would have          // @BAA
-            // done that anyway.                                                                // @BAA
+            // @BAD ccsidConverter.stringToByteArray (value_, rawBytes, offset + 2, maxLength_); // @C2C
+
+            // The length in the first 2 bytes is actually the length in characters.            // @BAA @E2C
             byte[] temp = ccsidConverter.stringToByteArray(value_);                             // @BAA
-            BinaryConverter.unsignedShortToByteArray (temp.length, rawBytes, offset);           // @BAA
+            if (graphic_)                                                                       // @E2A
+                BinaryConverter.unsignedShortToByteArray (temp.length/2, rawBytes, offset);     // @E2A
+            else                                                                                // @E2A
+                BinaryConverter.unsignedShortToByteArray (temp.length, rawBytes, offset);       // @BAA
             if (temp.length > maxLength_) {                                                     // @BAA
                 maxLength_ = temp.length;                                                       // @BAA
                 JDError.throwSQLException (JDError.EXC_INTERNAL);                               // @BAA
