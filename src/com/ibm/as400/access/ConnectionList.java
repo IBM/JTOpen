@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.util.Vector;	  // Java 2
 import java.io.IOException;
+import java.util.Locale;		  //@B2A
 
 /** 
   *  ConnectionList is a list of AS400 connections specific to an AS400 and userID.  The 
@@ -95,7 +96,7 @@ class ConnectionList
 	 *  @exception ConnectionPoolException If max connection limit is reached.
 	 **/
 	private PoolItem createNewConnection(int service, boolean connect, boolean secure, 
-										 ConnectionPoolEventSupport poolListeners)   
+										 ConnectionPoolEventSupport poolListeners, Locale locale) //@B2C  
 	throws AS400SecurityException, IOException, ConnectionPoolException	 //@A1C
 	{     
 		if (log_ != null)
@@ -116,29 +117,29 @@ class ConnectionList
 				// if not enough connections were freed, throw an exception!
 				if (getConnectionCount() >= properties_.getMaxConnections())
 				{
-				    throw new ConnectionPoolException(ConnectionPoolException.MAX_CONNECTIONS_REACHED); //@A1C
+					throw new ConnectionPoolException(ConnectionPoolException.MAX_CONNECTIONS_REACHED);	//@A1C
 				}
 			}
 		}
 
 		// create a new connection
-		PoolItem sys = new PoolItem(systemName_, userID_, secure);	
+		PoolItem sys = new PoolItem (systemName_, userID_, secure, locale);	  //@B2C 
 		if (connect)
 		{
 			sys.getAS400Object().connectService(service);
 		}
 
-		if (!properties_.isThreadUsed())				//@A2A
-		{							//@A2A
+		if (!properties_.isThreadUsed())						//@A2A
+		{									//@A2A
 			try
-			{												  //@A2A												   //@A2A
+			{							  //@A2A						   //@A2A		
 				sys.getAS400Object().setThreadUsed(false);	//@A2A
-			}													//@A2A
-			catch (java.beans.PropertyVetoException e)			//@A2A
-			{													//@A2A
+			}							//@A2A
+			catch (java.beans.PropertyVetoException e)		//@A2A
+			{							//@A2A
 				//Ignore                                        //@A2A
-			}													//@A2A
-		}							//@A2A
+			}							//@A2A
+		}									//@A2A
 
 		// set the item is in use since we are going to return it to caller
 		sys.setInUse(true);
@@ -223,12 +224,13 @@ class ConnectionList
 	 *
 	 *  @param secure  If true a secure AS400 object was requested.
 	 *  @param poolListeners The pool listeners to which events will be fired.
+	 *  @param locale The locale of the AS400 object.
 	 *  @exception AS400SecurityException If a security error occured.
 	 *  @exception IOException If a communications error occured.
 	 *  @exception ConnectionPoolException If a connection pool error occured.
 	 *  @return The pool item.
 	 **/
-	PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners)  
+	PoolItem getConnection(boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale)	//@B2C 
 	throws AS400SecurityException, IOException, ConnectionPoolException
 	{
 		PoolItem poolItem = null;
@@ -241,13 +243,20 @@ class ConnectionList
 				// check to see if that connection is in use
 				if (!item.isInUse())
 				{
-					if (secure && item.getAS400Object() instanceof SecureAS400)
+					//@B2A Add a check for locales.  If the user did not specify a locale at
+					//creation time, item.getLocale() will be "".  If the user did 
+					// not pass in a locale on their getConnection(), locale will be null.
+					if (secure && item.getAS400Object() instanceof SecureAS400
+						&& ((item.getLocale().equals("") && locale == null)	       //@B2A
+							|| (locale != null && item.getLocale().equals(locale.toString()))))   //@B2A
 					{
 						// return item found
 						poolItem = item; 
 						break;   
 					}
-					else if (!secure && !(item.getAS400Object() instanceof SecureAS400))
+					else if (!secure && !(item.getAS400Object() instanceof SecureAS400)
+							 && ((item.getLocale().equals("") && locale == null)   //@B2A
+								 || (locale != null && item.getLocale().equals(locale.toString()))))   //@B2A
 					{
 						// return item found
 						poolItem = item; 
@@ -264,7 +273,7 @@ class ConnectionList
 		if (poolItem == null)
 		{
 			// didn't find a suitable connection, create a new one
-			poolItem = createNewConnection (0, false, secure, poolListeners);
+			poolItem = createNewConnection (0, false, secure, poolListeners, locale);	//@B2C
 		}
 
 		return poolItem;
@@ -282,7 +291,7 @@ class ConnectionList
 	 *  @exception ConnectionPoolException If a connection pool error occured.
 	 *  @return The pool item.
 	 **/
-	PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners)  
+	PoolItem getConnection(int service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale)  //@B2C  
 	throws AS400SecurityException, IOException, ConnectionPoolException
 	{
 		PoolItem poolItem = null;
@@ -296,14 +305,19 @@ class ConnectionList
 				if (!item.isInUse())
 				{
 					if (secure && item.getAS400Object() instanceof SecureAS400 &&
-						item.getAS400Object().isConnected(service))
+						item.getAS400Object().isConnected(service) 
+						&& ((item.getLocale().equals("") && locale == null)			//@B2A
+							|| (locale != null && item.getLocale().equals(locale.toString()))))	//@B2A
 					{
 						Trace.log(Trace.INFORMATION, "Using already connected connection");
 						poolItem = item;
 						break;
 					}
 					else if (!secure && !(item.getAS400Object() instanceof SecureAS400) &&
-							 item.getAS400Object().isConnected(service))
+							 item.getAS400Object().isConnected(service)
+							 && ((item.getLocale().equals("") && locale == null)	 //@B2A
+								 || (locale != null && item.getLocale().equals(locale.toString()))))	 //@B2A
+
 					{
 						Trace.log(Trace.INFORMATION, "Using already connected connection");
 						poolItem = item;
@@ -322,13 +336,18 @@ class ConnectionList
 					// check to see if that connection is in use
 					if (!item.isInUse())
 					{
-						if (secure && item.getAS400Object() instanceof SecureAS400)
+						if (secure && item.getAS400Object() instanceof SecureAS400
+							&& ((item.getLocale().equals("") && locale == null)	 //@B2A
+								|| (locale != null && item.getLocale().equals(locale.toString()))))		 //@B2A
+
 						{
 							Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
 							poolItem = item;                  
 							break;
 						}
-						else if (!secure && !(item.getAS400Object() instanceof SecureAS400))
+						else if (!secure && !(item.getAS400Object() instanceof SecureAS400)
+								 && ((item.getLocale().equals("") && locale == null)	 //@B2A
+									 || (locale != null && item.getLocale().equals(locale.toString()))))	 //@B2A
 						{
 							Trace.log(Trace.INFORMATION, "Must not have found a suitable connection, using first available");
 							poolItem = item;                  
@@ -345,7 +364,7 @@ class ConnectionList
 
 		if (poolItem == null)
 		{
-			poolItem = createNewConnection(service, true, secure, poolListeners);
+			poolItem = createNewConnection(service, true, secure, poolListeners, locale);	   //@B2C
 		}
 
 		return poolItem;
@@ -485,7 +504,7 @@ class ConnectionList
 						if (log_ != null)
 							log(loader_.getText("CL_REPUSE", new String[] {systemName_, userID_} ));
 						p.getAS400Object().disconnectAllServices();
-						PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400));
+						PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400), p.getAS400Object().getLocale());	  //@B2C
 						reconnectAllServices(p, newItem);
 						connectionList_.removeElementAt(i);             
 						connectionList_.insertElementAt(newItem, i);
@@ -501,7 +520,7 @@ class ConnectionList
 						if (log_ != null)
 							log(loader_.getText("CL_REPLIFE", new String[] {systemName_, userID_} ));
 						p.getAS400Object().disconnectAllServices();
-						PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400)); 
+						PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400), p.getAS400Object().getLocale());	  //@B2C
 						reconnectAllServices(p, newItem);
 						connectionList_.removeElementAt(i);           
 						connectionList_.insertElementAt(newItem, i);             
