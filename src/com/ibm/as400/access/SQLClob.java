@@ -32,7 +32,8 @@ final class SQLClob implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    private static final String     default_ = "";
+    // public static field to prevent the need to instanceof the SQLData types
+    public static final int SQL_TYPE = SQLData.CLOB;
 
     private int                     length_;                    // Length of string, in characters.
     private int                     maxLength_;                 // Max length of field, in bytes.
@@ -49,7 +50,7 @@ final class SQLClob implements SQLData
         maxLength_      = maxLength;
         settings_       = settings;
         truncated_      = 0;
-        value_          = default_;
+        value_          = "";
     }
 
     public Object clone()
@@ -423,7 +424,7 @@ final class SQLClob implements SQLData
         }
         catch(SQLException sqle)
         {
-            value_ = default_;
+            value_ = "";
         }
         return new AS400JDBCClob(value_, maxLength_);
     }
@@ -443,7 +444,7 @@ final class SQLClob implements SQLData
         }
         catch(SQLException sqle)
         {
-            value_ = default_;
+            value_ = "";
         }
         return value_;     
     }

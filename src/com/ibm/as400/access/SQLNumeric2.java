@@ -32,10 +32,13 @@ import java.util.Calendar;
 // JDBC semantics.  This will be documented in the "big decimal"
 // property.
 //
-class SQLNumeric2
+final class SQLNumeric2
 implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+
+    // public static field to prevent the need to instanceof the SQLData types
+    public static final int SQL_TYPE = SQLData.NUMERIC_USING_DOUBLE;
 
     // Private data.
     private SQLConversionSettings   settings_;

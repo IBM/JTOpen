@@ -168,7 +168,7 @@ index rather than accessing them by their name.
 //
 public class AS400JDBCResultSet implements ResultSet
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.
@@ -273,10 +273,10 @@ public class AS400JDBCResultSet implements ResultSet
         // paraenthesis overload, the added check in mod 5
         // is if we are connected to a v5r1 (without PTF) or earlier 
         // system and "for update" is not specified)
-        if ((connection_  == null) ||
-            (sqlStatement == null) ||
-            (((((AS400JDBCConnection) connection_).getMustSpecifyForUpdate()) &&   // @J3a @J31c
-              (! sqlStatement.isForUpdate()))))
+        if((connection_  == null) ||
+           (sqlStatement == null) ||
+           (((((AS400JDBCConnection) connection_).getMustSpecifyForUpdate()) &&   // @J3a @J31c
+             (! sqlStatement.isForUpdate()))))
         {
             selectTable_        = null;
             correlationName_    = null;
@@ -289,24 +289,27 @@ public class AS400JDBCResultSet implements ResultSet
         }
 
         // Initialize the update row.
-        if (concurrency_ == CONCUR_UPDATABLE) {
+        if(concurrency_ == CONCUR_UPDATABLE)
+        {
             updateRow_              = new JDSimpleRow (row_, true);
             updateSet_              = new boolean[columnCount_];
             updateNulls_            = new boolean[columnCount_];
-            for (int i = 0; i < columnCount_; ++i) {
+            for(int i = 0; i < columnCount_; ++i)
+            {
                 updateSet_[i]       = false;
                 updateNulls_[i]     = true;
             }
         }
 
         // Initialize the data truncation.                                             @B2A
-        if (connection_ != null)                                                    // @B2A
+        if(connection_ != null)                                                    // @B2A
             dataTruncation_ = ((AS400JDBCConnection) connection_).getProperties ().getBoolean (JDProperties.DATA_TRUNCATION); // @B2A
         else                                                                        // @B2A
             dataTruncation_ = false;
 
         // Trace messages.
-        if (JDTrace.isTraceOn()) {
+        if(JDTrace.isTraceOn())
+        {
             JDTrace.logOpen (this, statement_);                           // @J33a
             JDTrace.logProperty (this, "Conncurrency", concurrency_);
             JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
@@ -352,7 +355,7 @@ public class AS400JDBCResultSet implements ResultSet
     void checkOpen ()
     throws SQLException
     {
-        if (closed_)
+        if(closed_)
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
     }
 
@@ -368,8 +371,10 @@ public class AS400JDBCResultSet implements ResultSet
         clearCurrentValue ();
         clearWarnings ();
 
-        if (concurrency_ == CONCUR_UPDATABLE) {
-            for (int i = 0; i < columnCount_; ++i) {
+        if(concurrency_ == CONCUR_UPDATABLE)
+        {
+            for(int i = 0; i < columnCount_; ++i)
+            {
                 updateNulls_[i]  = true;
                 updateSet_[i]    = false;
             }
@@ -384,22 +389,28 @@ public class AS400JDBCResultSet implements ResultSet
     private void clearCurrentValue ()
     {
         // Implicitly close the InputStream if left open.
-        if (openInputStream_ != null) {
-            try {
+        if(openInputStream_ != null)
+        {
+            try
+            {
                 openInputStream_.close ();
             }
-            catch (IOException e) {
+            catch(IOException e)
+            {
                 // Ignore the exception.              
             }
             openInputStream_ = null;
         }
 
         // Implicitly close the InputStream if left open.
-        if (openReader_ != null) {
-            try {
+        if(openReader_ != null)
+        {
+            try
+            {
                 openReader_.close ();
             }
-            catch (IOException e) {
+            catch(IOException e)
+            {
                 // Ignore the exception.           
             }
             openReader_ = null;
@@ -433,7 +444,8 @@ public class AS400JDBCResultSet implements ResultSet
     public void close ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // If this is already closed, then just do nothing.
             // 
             // The spec does not define what happens when a connection
@@ -441,19 +453,19 @@ public class AS400JDBCResultSet implements ResultSet
             // JDBC team is that "the driver's behavior in this case 
             // is implementation defined.   Applications that do this are 
             // non-portable." 
-            if (isClosed ())
+            if(isClosed ())
                 return;
 
             rowCache_.close ();
             closed_ = true;
-            if (statement_ != null)
+            if(statement_ != null)
                 statement_.notifyClose ();
 
             // Close the delete statement if opened.
-            if (deleteStatement_ != null)
+            if(deleteStatement_ != null)
                 deleteStatement_.close ();
 
-            if (JDTrace.isTraceOn())
+            if(JDTrace.isTraceOn())
                 JDTrace.logClose (this);
         }
     }
@@ -468,7 +480,7 @@ public class AS400JDBCResultSet implements ResultSet
     protected void finalize ()
     throws Throwable
     {
-        if (! closed_)
+        if(! closed_)
             close ();
         super.finalize ();
     }
@@ -487,7 +499,8 @@ public class AS400JDBCResultSet implements ResultSet
     public int findColumn (String columnName)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return row_.findField ((columnName != null) ? columnName : "");
         }
@@ -511,7 +524,8 @@ public class AS400JDBCResultSet implements ResultSet
     public int getConcurrency ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return concurrency_;
         }
@@ -540,7 +554,8 @@ public class AS400JDBCResultSet implements ResultSet
     public String getCursorName ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return cursorName_;
         }
@@ -567,7 +582,8 @@ public class AS400JDBCResultSet implements ResultSet
     public int getFetchDirection ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return fetchDirection_;
         }
@@ -586,7 +602,8 @@ public class AS400JDBCResultSet implements ResultSet
     public int getFetchSize ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return fetchSize_;
         }
@@ -649,7 +666,8 @@ public class AS400JDBCResultSet implements ResultSet
     public int getType ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return type_;
         }
@@ -675,13 +693,14 @@ public class AS400JDBCResultSet implements ResultSet
     public URL getURL (int columnIndex)
     throws SQLException   
     {
-        synchronized(internalLock_) {                                           
+        synchronized(internalLock_)
+        {
             checkOpen ();
             try
             {
                 return new java.net.URL(getString(columnIndex));
             }
-            catch (MalformedURLException e)
+            catch(MalformedURLException e)
             {
                 JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID, e);
                 return null;
@@ -750,7 +769,7 @@ public class AS400JDBCResultSet implements ResultSet
     **/
     void postWarning (SQLWarning sqlWarning)
     {
-        if (sqlWarning_ == null)
+        if(sqlWarning_ == null)
             sqlWarning_ = sqlWarning;
         else
             sqlWarning_.setNextWarning (sqlWarning);
@@ -793,18 +812,19 @@ public class AS400JDBCResultSet implements ResultSet
     public void setFetchDirection (int fetchDirection)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
-            if (((fetchDirection != FETCH_FORWARD)
-                 && (fetchDirection != FETCH_REVERSE)
-                 && (fetchDirection != FETCH_UNKNOWN))
-                || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
-                    && (fetchDirection != ResultSet.FETCH_FORWARD)))
+        synchronized(internalLock_)
+        {                                            // @D1A
+            if(((fetchDirection != FETCH_FORWARD)
+                && (fetchDirection != FETCH_REVERSE)
+                && (fetchDirection != FETCH_UNKNOWN))
+               || ((type_ == ResultSet.TYPE_FORWARD_ONLY)
+                   && (fetchDirection != ResultSet.FETCH_FORWARD)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
             checkOpen ();
             fetchDirection_ = fetchDirection;
 
-            if (JDTrace.isTraceOn())
+            if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Fetch direction", fetchDirection_);
         }
     }
@@ -833,9 +853,10 @@ public class AS400JDBCResultSet implements ResultSet
     public void setFetchSize (int fetchSize)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
-            if ((fetchSize < 0)
-                || ((fetchSize > maxRows_) && (maxRows_ > 0)))
+        synchronized(internalLock_)
+        {                                            // @D1A
+            if((fetchSize < 0)
+               || ((fetchSize > maxRows_) && (maxRows_ > 0)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
             checkOpen ();
@@ -844,10 +865,10 @@ public class AS400JDBCResultSet implements ResultSet
             // This is a kludgy way of keeping the fetch size
             // out of the JDRowCache interface.  It only applies
             // to JDServerRowCache anyway.
-            if (rowCache_ instanceof JDServerRowCache)
+            if(rowCache_ instanceof JDServerRowCache)
                 ((JDServerRowCache) rowCache_).setFetchSize (fetchSize_);
 
-            if (JDTrace.isTraceOn())
+            if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "Fetch size", fetchSize_);
         }
     }
@@ -960,10 +981,11 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         synchronized(internalLock_)                                              // @D1A
-        {      
+        {
             // @E2a absolute(0) moves you to before the first row
-            if (rowNumber == 0)                                     // @E2a
-            {                                                       // @E2a
+            if(rowNumber == 0)                                     // @E2a
+            {
+                // @E2a
                 beforeFirst();                                       // @E2a
                 return false;                                        // @E2a
             }                                                       // @E2a
@@ -990,12 +1012,15 @@ public class AS400JDBCResultSet implements ResultSet
             // }
             //
             //      new code:
-            if (maxRows_ > 0)                                        // @E3a
-            {                                                        // @E3a
-                if (rowNumber > 0)                                    // @E3a
-                {                                                     // @E3a
-                    if (rowNumber > maxRows_)                          // @E3a
-                    {                                                  // @E3a
+            if(maxRows_ > 0)                                        // @E3a
+            {
+                // @E3a
+                if(rowNumber > 0)                                    // @E3a
+                {
+                    // @E3a
+                    if(rowNumber > maxRows_)                          // @E3a
+                    {
+                        // @E3a
                         afterLast();                                    // @E3a
                         return false;                                   // @E3a
                     }                                                  // @E3a
@@ -1003,13 +1028,15 @@ public class AS400JDBCResultSet implements ResultSet
                 }                                                     // @E3a
                 else
                 {                                                  // @E3a                                                     // @E3a
-                    if (totalRows_ == NOT_KNOWN)                       // @E3a
-                    {                                                  // @E3a
+                    if(totalRows_ == NOT_KNOWN)                       // @E3a
+                    {
+                        // @E3a
                         findLastRow();                                  // @E3a
                     }                                                  // @E3a
                     int distanceFromFirst = totalRows_ + rowNumber;    // @E3a
-                    if (distanceFromFirst < 0)                         // @E3a
-                    {                                                  // @E3a
+                    if(distanceFromFirst < 0)                         // @E3a
+                    {
+                        // @E3a
                         beforeFirst();                                  // @E3a
                         return false;                                   // @E3a
                     }                                                  // @E3a
@@ -1023,17 +1050,18 @@ public class AS400JDBCResultSet implements ResultSet
             // Position the cursor.
             rowCache_.absolute (rowNumber);
             positionValid_ = (rowCache_.isValid ());
-            if (rowNumber > 0)
+            if(rowNumber > 0)
             {
                 positionFromFirst_ = positionValid_ ? rowNumber : -1;
                 positionFromLast_ = positionValid_ ? -1 : 0;         
 
-                if (positionValid_)                                 // @E1a
-                {                                                   // @E1a
-                    if (highestKnownRow_ < rowNumber)                // @E1a             
+                if(positionValid_)                                 // @E1a
+                {
+                    // @E1a
+                    if(highestKnownRow_ < rowNumber)                // @E1a             
                         highestKnownRow_ = rowNumber;                 // @E1a      
 
-                    if (totalRows_ != NOT_KNOWN)                         // @E2a
+                    if(totalRows_ != NOT_KNOWN)                         // @E2a
                         positionFromLast_ = totalRows_ - rowNumber + 1;   // @E2a
                 }                                                   // @E1a
             }
@@ -1042,13 +1070,15 @@ public class AS400JDBCResultSet implements ResultSet
                 positionFromFirst_ = positionValid_ ? -1 : 0;
                 positionFromLast_ = positionValid_ ? -rowNumber : -1;
 
-                if (positionValid_)                                 // @E1a
-                {                                                   // @E1a
-                    if (totalRows_ != NOT_KNOWN)                     // @E2a
-                    {                                                // @E2a
+                if(positionValid_)                                 // @E1a
+                {
+                    // @E1a
+                    if(totalRows_ != NOT_KNOWN)                     // @E2a
+                    {
+                        // @E2a
                         int currentRow = totalRows_ + rowNumber;      // @E1a
 
-                        if (highestKnownRow_ < currentRow)            // @E1a
+                        if(highestKnownRow_ < currentRow)            // @E1a
                             highestKnownRow_ = currentRow;             // @E1a
 
                         positionFromFirst_ = currentRow + 1;          // @E2a
@@ -1094,7 +1124,7 @@ public class AS400JDBCResultSet implements ResultSet
         //   done in last())
         //   
         synchronized(internalLock_)                             
-        {                                         
+        {
             last();
             next();
         }
@@ -1133,7 +1163,7 @@ public class AS400JDBCResultSet implements ResultSet
         //   done in last())
         //   
         synchronized(internalLock_)                             
-        {                                         
+        {
             first();
             previous();
         }
@@ -1156,7 +1186,7 @@ public class AS400JDBCResultSet implements ResultSet
     {
         checkOpen ();
 
-        if ((scrollable) && (type_ == TYPE_FORWARD_ONLY))
+        if((scrollable) && (type_ == TYPE_FORWARD_ONLY))
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
         clearCurrentRow ();
@@ -1186,31 +1216,31 @@ public class AS400JDBCResultSet implements ResultSet
         checkOpen ();
 
         // if we already know how many rows are in the result set simply return.
-        if (totalRows_ != NOT_KNOWN)
+        if(totalRows_ != NOT_KNOWN)
             return;
 
 
-        if (highestKnownRow_ > 0)
+        if(highestKnownRow_ > 0)
         {
             // If we are already past the maximum number of rows (probably
             // an error condition) simply re-set highestKnownRow (total
             // Rows is reset at the end of this routine).
-            if (highestKnownRow_ >= maxRows_)
+            if(highestKnownRow_ >= maxRows_)
             {
                 highestKnownRow_ = maxRows_;      
             }
             else
-            {                                            
+            {
                 // As a last resort set the cursor to the highest known
                 // row then loop through the rows until we hit the end. 
                 rowCache_.absolute(highestKnownRow_);
                 rowCache_.next();
 
-                while (rowCache_.isValid())
+                while(rowCache_.isValid())
                 {
                     highestKnownRow_ ++;    
 
-                    if ((maxRows_ > 0) && (highestKnownRow_ == maxRows_))
+                    if((maxRows_ > 0) && (highestKnownRow_ == maxRows_))
                         break;
 
                     rowCache_.next();
@@ -1224,18 +1254,18 @@ public class AS400JDBCResultSet implements ResultSet
         {
             rowCache_.first();
 
-            if (! rowCache_.isValid())
+            if(! rowCache_.isValid())
             {
                 return;
             }
             else
             {
                 highestKnownRow_ = 0;              
-                while (rowCache_.isValid())
+                while(rowCache_.isValid())
                 {
                     highestKnownRow_ ++;    
 
-                    if ((maxRows_ > 0) && (highestKnownRow_ == maxRows_))
+                    if((maxRows_ > 0) && (highestKnownRow_ == maxRows_))
                         break;
 
                     rowCache_.next();
@@ -1271,18 +1301,18 @@ public class AS400JDBCResultSet implements ResultSet
 
             // If the result set is not empty, then mark the
             // position as being on the first row.
-            if (rowCache_.isValid ())
+            if(rowCache_.isValid ())
             {
                 positionFromFirst_ = 1;               
 
-                if (totalRows_ == NOT_KNOWN)                     // @E1a
+                if(totalRows_ == NOT_KNOWN)                     // @E1a
                     positionFromLast_ = -1;
                 else                                             // @E1a
                     positionFromLast_ = totalRows_;               // @E1a
 
                 positionValid_ = true;                                  
 
-                if (highestKnownRow_ < 1)                        // @E1a
+                if(highestKnownRow_ < 1)                        // @E1a
                     highestKnownRow_ = 1;                         // @E1a
             }
 
@@ -1334,7 +1364,7 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         synchronized(internalLock_)                                         // @D1A
-        {  
+        {
             checkOpen ();
 
             // @E1
@@ -1349,16 +1379,16 @@ public class AS400JDBCResultSet implements ResultSet
             //    return 0;
             //          
             // case 1: return 0 if not on a valid row.
-            if ((positionInsert_ == true)  ||
-                (positionValid_  == false) ||
-                (isBeforeFirst())          ||
-                (isAfterLast()))
+            if((positionInsert_ == true)  ||
+               (positionValid_  == false) ||
+               (isBeforeFirst())          ||
+               (isAfterLast()))
                 return 0;
 
             // case 2: we know what the current row is because scrolling has been
             //         from the beginning of the result set, or because previous
             //         method calls calculated the value.
-            if (positionFromFirst_ > 0)
+            if(positionFromFirst_ > 0)
                 return positionFromFirst_;
 
             // case 3a: don't know the current row because negative scrolling or
@@ -1366,21 +1396,22 @@ public class AS400JDBCResultSet implements ResultSet
             //          at the end of the rs ***.  If we don't know the number of 
             //          rows in the rs we will move the cursor to the highest
             //          known row then do next() until we get to the end.
-            if (isLast())
+            if(isLast())
             {
-                if (totalRows_ != NOT_KNOWN)
-                {                                     
+                if(totalRows_ != NOT_KNOWN)
+                {
                     positionFromFirst_ = totalRows_;       
                     return positionFromFirst_;
                 }
                 else
                 {
-                    if (highestKnownRow_ == NOT_KNOWN)
+                    if(highestKnownRow_ == NOT_KNOWN)
                         first();
                     else
                         absolute(highestKnownRow_);
 
-                    while (next()) {
+                    while(next())
+                    {
                     } 
                     previous();
 
@@ -1393,9 +1424,9 @@ public class AS400JDBCResultSet implements ResultSet
             //          at the end of the rs ***.  If we don't know how many rows are 
             //          in the result set we will move the cursor to the highest known
             //          row then do next() until we get back to where we were.
-            if (positionFromLast_ > 0)
-            {  
-                if (totalRows_ != NOT_KNOWN)
+            if(positionFromLast_ > 0)
+            {
+                if(totalRows_ != NOT_KNOWN)
                 {
                     positionFromFirst_ = totalRows_ - positionFromLast_ + 1;
                     return positionFromFirst_;
@@ -1404,12 +1435,13 @@ public class AS400JDBCResultSet implements ResultSet
                 {
                     int currentPositionFromLast = positionFromLast_;
 
-                    if (highestKnownRow_ == NOT_KNOWN)
+                    if(highestKnownRow_ == NOT_KNOWN)
                         first();
                     else
                         absolute(highestKnownRow_);
 
-                    while (next()) {
+                    while(next())
+                    {
                     }
                     absolute(totalRows_ - currentPositionFromLast + 1);
 
@@ -1418,7 +1450,7 @@ public class AS400JDBCResultSet implements ResultSet
             }
 
             // case 4: We don't have a clue how to figure out what the current row is.  Return 0;
-            if (JDTrace.isTraceOn ())
+            if(JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Could not determine row number in getRow().");
 
             return 0;
@@ -1440,7 +1472,8 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean isAfterLast ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return((positionFromLast_ == 0)
                    && (positionFromFirst_ != 0)
@@ -1464,7 +1497,8 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean isBeforeFirst ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return((positionFromFirst_ == 0)
                    && (positionFromLast_ != 0)
@@ -1488,7 +1522,8 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean isFirst ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();              
             return((positionFromFirst_ == 1) && (positionInsert_ == false));
         }
@@ -1528,11 +1563,11 @@ public class AS400JDBCResultSet implements ResultSet
             //         && (positionInsert_ == false));
             //
             //    New code:
-            if ((positionInsert_ == true) || (positionFromLast_ > 1) || (positionValid_ == false))
+            if((positionInsert_ == true) || (positionFromLast_ > 1) || (positionValid_ == false))
                 return false;
 
-            if (( positionFromLast_ == 1) || 
-                ((positionFromFirst_ == maxRows_) && (maxRows_ > 0)))
+            if(( positionFromLast_ == 1) || 
+               ((positionFromFirst_ == maxRows_) && (maxRows_ > 0)))
                 return true;
 
             boolean returnValue = ! next();
@@ -1565,11 +1600,12 @@ public class AS400JDBCResultSet implements ResultSet
         {
             beforePositioning (true);         
 
-            if (maxRows_ > 0)                                    // @E3a
-            {                                                    // @E3a
+            if(maxRows_ > 0)                                    // @E3a
+            {
+                // @E3a
                 findLastRow();                                    // @E3a     
                                                                   // @E3a
-                if (totalRows_ >= maxRows_)                       // @E3a    
+                if(totalRows_ >= maxRows_)                       // @E3a    
                 {
                     rowCache_.absolute(maxRows_);                  // @E3a
                 }
@@ -1583,14 +1619,15 @@ public class AS400JDBCResultSet implements ResultSet
 
             // If the result set is not empty, then mark the
             // position as being on the last row.
-            if (rowCache_.isValid ())
+            if(rowCache_.isValid ())
             {
                 positionFromFirst_ = -1;
                 positionFromLast_ = 1;
                 positionValid_ = true;     
 
-                if (totalRows_ != NOT_KNOWN)                     // @E1a
-                {                                                // @E1a
+                if(totalRows_ != NOT_KNOWN)                     // @E1a
+                {
+                    // @E1a
                     positionFromFirst_ = totalRows_;              // @E1a
                 }                                                // @E1a
             }
@@ -1629,7 +1666,8 @@ public class AS400JDBCResultSet implements ResultSet
     public void moveToCurrentRow ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             beforePositioning (true);
         }
     }
@@ -1651,7 +1689,8 @@ public class AS400JDBCResultSet implements ResultSet
     public void moveToInsertRow ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             beforePositioning (true);
             beforeUpdate ();
             positionInsert_ = true;
@@ -1675,12 +1714,13 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean next ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Initialization.
             beforePositioning (false);
 
             // Handle max rows.
-            if ((maxRows_ > 0) && (positionFromFirst_ >= maxRows_))
+            if((maxRows_ > 0) && (positionFromFirst_ >= maxRows_))
             {
                 // @B3D afterLast ();
                 // @E3D rowCache_.afterLast ();         // @B3a
@@ -1699,16 +1739,16 @@ public class AS400JDBCResultSet implements ResultSet
             // the cursor is positioned after the last row.
             rowCache_.next();
 
-            if (rowCache_.isValid ())
+            if(rowCache_.isValid ())
             {
-                if (positionFromFirst_ >= 0)
+                if(positionFromFirst_ >= 0)
                     ++positionFromFirst_;
 
-                if (positionFromLast_ > 0)
+                if(positionFromLast_ > 0)
                     --positionFromLast_;
 
-                if (positionFromFirst_ >= 0)                    // @E1a
-                    if (highestKnownRow_ < positionFromFirst_)   // @E1a             
+                if(positionFromFirst_ >= 0)                    // @E1a
+                    if(highestKnownRow_ < positionFromFirst_)   // @E1a             
                         highestKnownRow_ = positionFromFirst_;    // @E1a
 
                 positionValid_ = true;
@@ -1719,11 +1759,11 @@ public class AS400JDBCResultSet implements ResultSet
                 // If this is the first time row has been null,
                 // then increment one more time.    
                 // @E2a only if there are rows in the rs!
-                if (! rowCache_.isEmpty ())                        // @E2a
+                if(! rowCache_.isEmpty ())                        // @E2a
                 {
-                    if (positionFromLast_ != 0)
+                    if(positionFromLast_ != 0)
                     {
-                        if (positionFromFirst_ >= 0)
+                        if(positionFromFirst_ >= 0)
                         {
                             totalRows_ = positionFromFirst_;        // @E2a
                             ++positionFromFirst_;
@@ -1733,8 +1773,9 @@ public class AS400JDBCResultSet implements ResultSet
                 }                                                  // @E2a   
                 else
                 {                                               // @E1a                                                  // @E1a
-                    if (highestKnownRow_ > 0)                       // @E1a
-                    {                                               // @E1a
+                    if(highestKnownRow_ > 0)                       // @E1a
+                    {
+                        // @E1a
                         totalRows_ = highestKnownRow_;               // @E1a
                         positionFromFirst_ = totalRows_;             // @E1a
                         positionFromLast_ = 0;                       // @E1a
@@ -1775,12 +1816,12 @@ public class AS400JDBCResultSet implements ResultSet
             // the cursor is positioned before the first row.
             rowCache_.previous();  
 
-            if (rowCache_.isValid ())
+            if(rowCache_.isValid ())
             {
-                if (positionFromFirst_ > 0)
+                if(positionFromFirst_ > 0)
                     --positionFromFirst_;
 
-                if (positionFromLast_ >= 0)
+                if(positionFromLast_ >= 0)
                     ++positionFromLast_;
 
                 positionValid_ = true;
@@ -1789,8 +1830,8 @@ public class AS400JDBCResultSet implements ResultSet
             {
                 // If this is the first time row has been null,
                 // then increment one more time.
-                if (positionFromFirst_ != 0)
-                    if (positionFromLast_ >= 0)
+                if(positionFromFirst_ != 0)
+                    if(positionFromLast_ >= 0)
                         ++positionFromLast_;
 
                 positionFromFirst_ = 0;
@@ -1820,15 +1861,16 @@ public class AS400JDBCResultSet implements ResultSet
     public void refreshRow ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
-            if (positionInsert_ == true)
+        synchronized(internalLock_)
+        {                                            // @D1A
+            if(positionInsert_ == true)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
             beforePositioning (true);
-            if (positionValid_ == false)
+            if(positionValid_ == false)
                 JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
 
-            if (concurrency_ == CONCUR_UPDATABLE)
-                for (int i = 0; i < columnCount_; ++i)
+            if(concurrency_ == CONCUR_UPDATABLE)
+                for(int i = 0; i < columnCount_; ++i)
                     updateSet_[i] = false;
 
             rowCache_.refreshRow ();
@@ -1867,19 +1909,20 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean relative (int rowNumber)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Initialization.
             beforePositioning (true);
-            if ((positionFromFirst_ == 0) || (positionFromLast_ == 0))
+            if((positionFromFirst_ == 0) || (positionFromLast_ == 0))
                 return false;
 
             // Handle max rows.
-            if ((maxRows_ > 0) && (positionFromFirst_ == -1))                // @E3a
+            if((maxRows_ > 0) && (positionFromFirst_ == -1))                // @E3a
                 getRow();                                                     // @E3a
 
-            if ((positionFromFirst_ >= 0)
-                && (positionFromFirst_ + rowNumber > maxRows_)
-                && (maxRows_ > 0))
+            if((positionFromFirst_ >= 0)
+               && (positionFromFirst_ + rowNumber > maxRows_)
+               && (maxRows_ > 0))
             {                                                  // @E3a
                 afterLast();  // should this be absolute(max+1) // @E3a
                 return false;                              
@@ -1890,30 +1933,30 @@ public class AS400JDBCResultSet implements ResultSet
             // then we are off the edge of the result set.
             rowCache_.relative (rowNumber);
 
-            if (rowCache_.isValid ())
+            if(rowCache_.isValid ())
             {
-                if (positionFromFirst_ >= 0)
+                if(positionFromFirst_ >= 0)
                     positionFromFirst_ += rowNumber;
 
-                if (positionFromLast_ >= 0)
+                if(positionFromLast_ >= 0)
                     positionFromLast_ -= rowNumber;
 
                 positionValid_ = true;
 
-                if (positionFromFirst_ >= 0)                    // @E1a
-                    if (highestKnownRow_ < positionFromFirst_)   // @E1a             
+                if(positionFromFirst_ >= 0)                    // @E1a
+                    if(highestKnownRow_ < positionFromFirst_)   // @E1a             
                         highestKnownRow_ = positionFromFirst_;    // @E1a
 
             }
             else
             {
-                if (rowNumber >= 0)
+                if(rowNumber >= 0)
                 {
                     positionFromFirst_ = -1;
                     positionFromLast_ = 0;
                 }
                 else
-                {                
+                {
                     positionFromFirst_ = 0;
                     positionFromLast_ = -1;
                 }
@@ -1992,7 +2035,8 @@ public class AS400JDBCResultSet implements ResultSet
     public InputStream getAsciiStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.toAsciiStream ();
@@ -2047,7 +2091,8 @@ public class AS400JDBCResultSet implements ResultSet
     public BigDecimal getBigDecimal (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
@@ -2106,10 +2151,11 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         // Check for negative scale.
-        if (scale < 0)
+        if(scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
@@ -2167,7 +2213,8 @@ public class AS400JDBCResultSet implements ResultSet
     public InputStream getBinaryStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.toBinaryStream ();
@@ -2220,7 +2267,8 @@ public class AS400JDBCResultSet implements ResultSet
     public Blob getBlob (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Blob value = (data == null) ? null : data.toBlob ();
@@ -2271,7 +2319,8 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean getBoolean (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             boolean value = (data == null) ? false : data.toBoolean ();
@@ -2323,7 +2372,8 @@ public class AS400JDBCResultSet implements ResultSet
     public byte getByte (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             byte value = (data == null) ? 0 : data.toByte ();
@@ -2378,7 +2428,8 @@ public class AS400JDBCResultSet implements ResultSet
     public byte[] getBytes (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             byte[] value;                                                               // @C1C
@@ -2386,19 +2437,20 @@ public class AS400JDBCResultSet implements ResultSet
             // Treat this differently from the other get's.  If the data is not a       // @C1A
             // BINARY, VARBINARY, or BLOB, and we have access to the bytes, then return // @C1A @D4C
             // the bytes directly.                                                      // @C1A
-            if ((!(data instanceof SQLBinary)) 
-                && (!(data instanceof SQLVarbinary))
-                && (!(data instanceof SQLBlob))                                         // @D4A
-                && (!(data instanceof SQLBlobLocator))                                  // @D4A
-                && (!(data instanceof SQLCharForBitData))                               // @M0A
-                && (!(data instanceof SQLLongVarcharForBitData))                        // @M0A
-                && (!(data instanceof SQLVarcharForBitData))                            // @M0A
-                && (!(data instanceof SQLRowID))                                        // @M0A
-                && (data != null)
-                && (row_ instanceof JDServerRow))                                       // @C1A
+            if((!(data.SQL_TYPE == SQLData.BINARY)) 
+               && (!(data.SQL_TYPE == SQLData.VARBINARY))
+               && (!(data.SQL_TYPE == SQLData.BLOB))                                   // @D4A
+               && (!(data.SQL_TYPE == SQLData.BLOB_LOCATOR))                           // @D4A
+               && (!(data.SQL_TYPE == SQLData.CHAR_FOR_BIT_DATA))                      // @M0A
+               && (!(data.SQL_TYPE == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
+               && (!(data.SQL_TYPE == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
+               && (!(data.SQL_TYPE == SQLData.ROWID))                                  // @M0A
+               && (data != null)
+               && (row_ instanceof JDServerRow))                                       // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
                                                                                         // @C1A
-            else {                                                                      // @C1A
+            else
+            {                                                                      // @C1A
                 value = (data == null) ? null : data.toBytes ();                        // @C1C
                 testDataTruncation (columnIndex, data);
             }                                                                           // @C1A
@@ -2454,7 +2506,8 @@ public class AS400JDBCResultSet implements ResultSet
     public Reader getCharacterStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.toCharacterStream ();
@@ -2508,7 +2561,8 @@ public class AS400JDBCResultSet implements ResultSet
     public Clob getClob (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Clob value = (data == null) ? null : data.toClob ();
@@ -2618,7 +2672,7 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         // Check for null calendar.
-        if (calendar == null)
+        if(calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
         return internalGetDate(columnIndex, calendar); //@P0C
         /*@P0M
@@ -2676,7 +2730,8 @@ public class AS400JDBCResultSet implements ResultSet
     public double getDouble (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             double value = (data == null) ? 0 : data.toDouble ();
@@ -2728,7 +2783,8 @@ public class AS400JDBCResultSet implements ResultSet
     public float getFloat (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             float value = (data == null) ? 0 : data.toFloat ();
@@ -2780,7 +2836,8 @@ public class AS400JDBCResultSet implements ResultSet
     public int getInt (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             int value = (data == null) ? 0 : data.toInt ();
@@ -2832,7 +2889,8 @@ public class AS400JDBCResultSet implements ResultSet
     public long getLong (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             long value = (data == null) ? 0 : data.toLong ();
@@ -2877,17 +2935,20 @@ public class AS400JDBCResultSet implements ResultSet
     public ResultSetMetaData getMetaData ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             ConvTable convTable = null;                                                              // @G5A
             DBExtendedColumnDescriptors extendedDescriptors = null;                                  // @G5A
             // If a DMD method (internal call), statement_ will be null because we don't really have // @G5A
             // a statement object                                                                    // @G5A
-            if (statement_ != null)                                                                  // @G5A
-            {                                                                                        // @G5A
+            if(statement_ != null)                                                                  // @G5A
+            {
+                // @G5A
                 extendedDescriptors = statement_.getExtendedColumnDescriptors();                     // @G5A 
                 // If we have extendedDescriptors, send a ConvTable to convert them, else pass null  // @G5A
-                if (extendedDescriptors != null)                                                     // @G5A
-                {                                                                                    // @G5A
+                if(extendedDescriptors != null)                                                     // @G5A
+                {
+                    // @G5A
                     convTable = ((AS400JDBCConnection)connection_).converter_;                       // @G5A
                 }                                                                                    // @G5A
             }                                                                                        // @G5A
@@ -2916,7 +2977,8 @@ public class AS400JDBCResultSet implements ResultSet
     public Object getObject (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Object value = (data == null) ? null : data.toObject ();
@@ -2967,7 +3029,7 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         // Check for null type map, even though we don't use it.
-        if (typeMap == null)
+        if(typeMap == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return getObject (columnIndex);
@@ -2993,7 +3055,7 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         // Check for null type map, even though we don't use it.
-        if (typeMap == null)
+        if(typeMap == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
         return getObject (findColumn (columnName));
@@ -3058,7 +3120,8 @@ public class AS400JDBCResultSet implements ResultSet
     public short getShort (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             short value = (data == null) ? 0 : data.toShort ();
@@ -3108,7 +3171,8 @@ public class AS400JDBCResultSet implements ResultSet
     public String getString (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.toString ();
@@ -3217,7 +3281,7 @@ public class AS400JDBCResultSet implements ResultSet
     {
         //@P0D synchronized(internalLock_) {                                            // @D1A
         // Check for null calendar.
-        if (calendar == null)
+        if(calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
         return internalGetTime(columnIndex, calendar); //@P0C
         /*@P0M
@@ -3333,7 +3397,7 @@ public class AS400JDBCResultSet implements ResultSet
     throws SQLException
     {
         // Check for null calendar.
-        if (calendar == null)
+        if(calendar == null)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
         return internalGetTimestamp(columnIndex, calendar);
         /*@P0M
@@ -3396,7 +3460,8 @@ public class AS400JDBCResultSet implements ResultSet
     public InputStream getUnicodeStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.toUnicodeStream ();
@@ -3455,20 +3520,22 @@ public class AS400JDBCResultSet implements ResultSet
         clearCurrentValue ();
 
         // Check that there is a current row.
-        if ((positionValid_ == false) && (positionInsert_ == false))
+        if((positionValid_ == false) && (positionInsert_ == false))
             JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
 
         // Validate The column index.
-        if ((columnIndex < 1) || (columnIndex > columnCount_))
+        if((columnIndex < 1) || (columnIndex > columnCount_))
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
 
         // Check if an update was made or we are on the insert
         // row.
-        if (concurrency_ == CONCUR_UPDATABLE) {
-            if ((updateSet_[columnIndex-1] == true)
-                || (positionInsert_ == true)) {
+        if(concurrency_ == CONCUR_UPDATABLE)
+        {
+            if((updateSet_[columnIndex-1] == true)
+               || (positionInsert_ == true))
+            {
                 wasNull_ = updateNulls_[columnIndex-1];
-                if (wasNull_)
+                if(wasNull_)
                     return null;
                 else
                     return updateRow_.getSQLData (columnIndex);
@@ -3477,7 +3544,7 @@ public class AS400JDBCResultSet implements ResultSet
 
         // Get the data and check for SQL NULL.   @A1C
         wasNull_ = row_.isNull (columnIndex);
-        if (wasNull_)
+        if(wasNull_)
             return null;
         else
             return row_.getSQLData (columnIndex);
@@ -3494,9 +3561,11 @@ public class AS400JDBCResultSet implements ResultSet
     **/
     private void testDataTruncation (int columnIndex, SQLData data)
     {
-        if (data != null) {
+        if(data != null)
+        {
             int truncated = data.getTruncated ();
-            if (truncated > 0) {
+            if(truncated > 0)
+            {
                 int actualSize = data.getActualSize ();
                 postWarning (new DataTruncation (columnIndex, false, true,
                                                  actualSize, actualSize - truncated));
@@ -3517,7 +3586,8 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean wasNull ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             checkOpen ();
             return wasNull_;
         }
@@ -3545,7 +3615,7 @@ public class AS400JDBCResultSet implements ResultSet
     {
         checkOpen ();
 
-        if (concurrency_ != CONCUR_UPDATABLE)
+        if(concurrency_ != CONCUR_UPDATABLE)
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
     }
 
@@ -3563,10 +3633,11 @@ public class AS400JDBCResultSet implements ResultSet
     public void cancelRowUpdates ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             beforeUpdate ();
 
-            for (int i = 0; i < columnCount_; ++i)
+            for(int i = 0; i < columnCount_; ++i)
                 updateSet_[i] = false;
         }
     }
@@ -3588,21 +3659,23 @@ public class AS400JDBCResultSet implements ResultSet
     public void deleteRow ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             beforeUpdate ();
 
-            if (positionValid_ == false)                                         // @D9a
+            if(positionValid_ == false)                                         // @D9a
                 JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID); // @D9a
 
-            if (positionInsert_ == true)
+            if(positionInsert_ == true)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
-            if (JDTrace.isTraceOn ())
+            if(JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Deleting a row.");
 
             // Prepare the delete statement the first time
             // we need it.
-            if (deleteStatement_ == null) {                                             // @D3C
+            if(deleteStatement_ == null)
+            {                                             // @D3C
                 StringBuffer buffer = new StringBuffer();                               // @D3A
                 buffer.append("DELETE FROM ");                                          // @D3A
                 buffer.append(selectTable_);                                            // @D3A
@@ -3646,10 +3719,11 @@ public class AS400JDBCResultSet implements ResultSet
     public void insertRow ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             beforeUpdate ();
 
-            if (positionInsert_ == false)
+            if(positionInsert_ == false)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
             // Build up the SQL statement.  Make sure a correlation name
@@ -3660,9 +3734,12 @@ public class AS400JDBCResultSet implements ResultSet
             buffer.append (" (");
             StringBuffer values = new StringBuffer ();
             int columnsSet = 0;
-            for (int i = 0; i < columnCount_; ++i) {
-                if (updateSet_[i] == true) {
-                    if (columnsSet++ > 0) {
+            for(int i = 0; i < columnCount_; ++i)
+            {
+                if(updateSet_[i] == true)
+                {
+                    if(columnsSet++ > 0)
+                    {
                         buffer.append (",");
                         values.append (",");
                     }
@@ -3672,24 +3749,26 @@ public class AS400JDBCResultSet implements ResultSet
                     values.append ("?");
                 }
             }
-            if (columnsSet == 0)
+            if(columnsSet == 0)
                 buffer.append (row_.getFieldName (1));
             buffer.append (") VALUES (");
-            if (columnsSet == 0)
+            if(columnsSet == 0)
                 buffer.append ("NULL");
             else
                 buffer.append (values.toString());          // added toString() because 1.4 has a method that appends a string buffer
             buffer.append (")");
 
-            if (JDTrace.isTraceOn ())
+            if(JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Inserting a row: " + buffer);
 
             // Prepare the statement and set the parameters.
             PreparedStatement insertStatement = connection_.prepareStatement (buffer.toString ());
-            for (int i = 0, columnsSet2 = 0; i < columnCount_; ++i) {
-                if (updateSet_[i] == true) {
+            for(int i = 0, columnsSet2 = 0; i < columnCount_; ++i)
+            {
+                if(updateSet_[i] == true)
+                {
                     Object columnValue = updateRow_.getSQLData (i+1).toObject ();
-                    if (updateNulls_[i])
+                    if(updateNulls_[i])
                         insertStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
                     else
                         insertStatement.setObject (++columnsSet2, columnValue);                
@@ -3701,7 +3780,7 @@ public class AS400JDBCResultSet implements ResultSet
             // if any.
             insertStatement.executeUpdate ();
             SQLWarning warnings = insertStatement.getWarnings ();
-            if (warnings != null)
+            if(warnings != null)
                 postWarning (warnings); // The whole link gets added.
             insertStatement.close ();
 
@@ -3724,7 +3803,8 @@ public class AS400JDBCResultSet implements ResultSet
     public boolean rowDeleted ()
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             // We almost always return false because we don't allow 
             // updates to scroll insensitive or forward only result 
             // sets, so we never have holes.
@@ -3792,9 +3872,11 @@ public class AS400JDBCResultSet implements ResultSet
     private void testDataTruncation2 (int columnIndex, SQLData data)
     throws DataTruncation                                                               // @D5A
     {
-        if (data != null) {
+        if(data != null)
+        {
             int truncated = data.getTruncated ();
-            if (truncated > 0) {
+            if(truncated > 0)
+            {
                 int actualSize = data.getActualSize ();
                 throw new DataTruncation (columnIndex, false, false,                        // @D5C
                                           actualSize + truncated, actualSize);       // @D5C
@@ -3874,7 +3956,7 @@ public class AS400JDBCResultSet implements ResultSet
                                    int length)
     throws SQLException
     {
-        if (length < 0)
+        if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
@@ -4008,7 +4090,7 @@ public class AS400JDBCResultSet implements ResultSet
                                     int length)
     throws SQLException
     {
-        if (length < 0)
+        if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
@@ -4322,7 +4404,7 @@ public class AS400JDBCResultSet implements ResultSet
                                        int length)
     throws SQLException
     {
-        if (length < 0)
+        if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
@@ -4857,7 +4939,7 @@ public class AS400JDBCResultSet implements ResultSet
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
 
-        if (scale < 0)
+        if(scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID);
 
         updateValue (columnIndex, columnValue, null, scale); //@P0C
@@ -4972,22 +5054,25 @@ public class AS400JDBCResultSet implements ResultSet
     {
         beforeUpdate ();
 
-        if ((positionInsert_ == true) || (positionValid_ == false))
+        if((positionInsert_ == true) || (positionValid_ == false))
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
 
         // Build up the SQL statement.
         StringBuffer buffer = new StringBuffer ();
         buffer.append ("UPDATE ");
         buffer.append (selectTable_);
-        if (correlationName_ != null) {
+        if(correlationName_ != null)
+        {
             buffer.append (" AS ");
             buffer.append (correlationName_);
         }
         buffer.append (" SET ");
         int columnsSet = 0;
-        for (int i = 0; i < columnCount_; ++i) {
-            if (updateSet_[i] == true) {
-                if (columnsSet++ > 0)
+        for(int i = 0; i < columnCount_; ++i)
+        {
+            if(updateSet_[i] == true)
+            {
+                if(columnsSet++ > 0)
                     buffer.append (",");
                 buffer.append ("\"");                       // @D6a
                 buffer.append (row_.getFieldName (i+1));
@@ -4999,17 +5084,20 @@ public class AS400JDBCResultSet implements ResultSet
         buffer.append ("\"");                                                   // @D3C
 
         // Only go through with this if columns were set.
-        if (columnsSet > 0) {
+        if(columnsSet > 0)
+        {
 
-            if (JDTrace.isTraceOn ())
+            if(JDTrace.isTraceOn ())
                 JDTrace.logInformation (this, "Updating a row: " + buffer);
 
             // Prepare the statement and set the parameters.
             PreparedStatement updateStatement = connection_.prepareStatement (buffer.toString ());
-            for (int i = 0, columnsSet2 = 0; i < columnCount_; ++i) {
-                if (updateSet_[i] == true) {
+            for(int i = 0, columnsSet2 = 0; i < columnCount_; ++i)
+            {
+                if(updateSet_[i] == true)
+                {
                     Object columnValue = updateRow_.getSQLData (i+1).toObject ();
-                    if (updateNulls_[i] == true)
+                    if(updateNulls_[i] == true)
                         updateStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
                     else
                         updateStatement.setObject (++columnsSet2, columnValue);                    
@@ -5020,7 +5108,7 @@ public class AS400JDBCResultSet implements ResultSet
             // if any.
             updateStatement.executeUpdate ();
             SQLWarning warnings = updateStatement.getWarnings ();
-            if (warnings != null)
+            if(warnings != null)
                 postWarning (warnings); // The whole link gets added.
             updateStatement.close ();
 
@@ -5276,15 +5364,16 @@ public class AS400JDBCResultSet implements ResultSet
                               int scale)
     throws SQLException
     {
-        synchronized(internalLock_) {                                            // @D1A
+        synchronized(internalLock_)
+        {                                            // @D1A
             beforeUpdate ();
 
             // Check that there is a current row.
-            if ((positionValid_ == false) && (positionInsert_ == false))
+            if((positionValid_ == false) && (positionInsert_ == false))
                 JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
 
             // Validate The column index.
-            if ((columnIndex < 1) || (columnIndex > columnCount_))
+            if((columnIndex < 1) || (columnIndex > columnCount_))
                 JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID);
 
             // Set the update value.  If there is a type mismatch,
@@ -5293,14 +5382,18 @@ public class AS400JDBCResultSet implements ResultSet
             int columnIndex0 = columnIndex - 1;
 
             //@G7A If the data is a locator, then set its handle.
-            if (columnValue != null && sqlData instanceof SQLLocator) {     //@G8C                                              //@G7A
+            if(columnValue != null && (sqlData.SQL_TYPE == SQLData.CLOB_LOCATOR ||
+                                       sqlData.SQL_TYPE == SQLData.BLOB_LOCATOR ||
+                                       sqlData.SQL_TYPE == SQLData.DBCLOB_LOCATOR))
+            {     //@G8C                                              //@G7A
                 try
                 {                                                                                  //@G7A 
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A
                     sqlDataAsLocator.setHandle (((AS400JDBCBlobLocator)columnValue).getHandle());  //@G7A  
                 }                                                                                  //@G7A
-                catch (ClassCastException cce)                                                     //@G7A
-                { /*ignore*/                                                                       //@G7A
+                catch(ClassCastException cce)                                                     //@G7A
+                {
+                    /*ignore*/                                                                       //@G7A
                 }                                                                                  //@G7A
 
                 try
@@ -5308,17 +5401,18 @@ public class AS400JDBCResultSet implements ResultSet
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A
                     sqlDataAsLocator.setHandle (((AS400JDBCClobLocator)columnValue).getHandle());  //@G7A
                 }                                                                                  //@G7A
-                catch (ClassCastException cce)                                                     //@G7A
-                { /*ignore*/
+                catch(ClassCastException cce)                                                     //@G7A
+                {
+                    /*ignore*/
                 }                                                                                  //@G7A
             }
 
-            if (columnValue != null)
+            if(columnValue != null)
                 sqlData.set (columnValue, calendar, scale);
             updateNulls_[columnIndex0] = (columnValue == null);
             updateSet_[columnIndex0] = true;
 
-            if (dataTruncation_)                                    // @B2A
+            if(dataTruncation_)                                    // @B2A
                 testDataTruncation2 (columnIndex, sqlData);         // @B2C
         }
     }

@@ -39,6 +39,42 @@ interface SQLData
 extends Cloneable
 {
 
+    public static final int UNDEFINED = 0;
+    public static final int BIGINT = 1;
+    public static final int BINARY = 2;
+    public static final int BLOB = 3;
+    public static final int BLOB_LOCATOR = 4;
+    public static final int CHAR = 5;
+    public static final int CHAR_FOR_BIT_DATA = 6;
+    public static final int CLOB = 7;
+    public static final int CLOB_LOCATOR = 8;
+    public static final int DATALINK = 9;
+    public static final int DATE = 10;
+    public static final int DBCLOB = 11;
+    public static final int DBCLOB_LOCATOR = 12;
+    public static final int DECIMAL = 13;
+    public static final int DECIMAL_USING_DOUBLE = 14;
+    public static final int DOUBLE = 15;
+    public static final int FLOAT = 16;
+    public static final int GRAPHIC = 17;
+    public static final int INTEGER = 18;
+    public static final int LONG_VARCHAR = 19;
+    public static final int LONG_VARCHAR_FOR_BIT_DATA = 20;
+    public static final int LONG_VARGRAPHIC = 21;
+    public static final int NUMERIC = 22;
+    public static final int NUMERIC_USING_DOUBLE = 23;
+    public static final int REAL = 24;
+    public static final int ROWID = 25;
+    public static final int SMALLINT = 26;
+    public static final int TIME = 27;
+    public static final int TIMESTAMP = 28;
+    public static final int VARBINARY = 29;
+    public static final int VARCHAR = 30;
+    public static final int VARCHAR_FOR_BIT_DATA = 31;
+    public static final int VARGRAPHIC = 32;
+
+// public static field to prevent the need to instanceof the SQLData types
+    public static final int SQL_TYPE = UNDEFINED;
 
 
 /**
