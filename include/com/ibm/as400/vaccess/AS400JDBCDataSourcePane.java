@@ -475,12 +475,12 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
     
     scratchName = ((ChoiceDescriptor)m_dataBean.getMaxScale()).getTitle();                  //@A4A
     if (scratchName.equals("0"))                                                            //@A4A
-        dataSource.setMaximumPrecision(0);                                                  //@A4A
+        dataSource.setMaximumScale(0);                                                      //@A4A
     else                                                                                    //@A4A
     if (scratchName.equals("31"))                                                           //@A4A
-        dataSource.setMaximumPrecision(31);                                                 //@A4A
+        dataSource.setMaximumScale(31);                                                     //@A4A
     else                                                                                    //@A4A
-        dataSource.setMaximumPrecision(63);                                                 //@A4A
+        dataSource.setMaximumScale(63);                                                     //@A4A
 
     scratchName = ((ChoiceDescriptor)m_dataBean.getMinDivideScale()).getTitle();            //@A4A
     if (scratchName.equals("0"))                                                            //@A4A
@@ -933,48 +933,48 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
   
   int nValue = dataSource.getMaximumPrecision();                                        //@A4A
   if (nValue == 63)                                                                     //@A4A
-    m_dataBean.setMaxPrecision(new ChoiceDescriptor("63", "63"));                       //@A4A
+    m_dataBean.setMaxPrecision(new ChoiceDescriptor("AJDSP_MAXPREC_63", "63"));         //@A4A
   else                                                                                  //@A4A
-    m_dataBean.setMaxPrecision(new ChoiceDescriptor("31", "31"));                       //@A4A
+    m_dataBean.setMaxPrecision(new ChoiceDescriptor("AJDSP_MAXPREC_31", "31"));         //@A4A
   
   nValue = dataSource.getMaximumScale();                                                //@A4A
   if (nValue == 63)                                                                     //@A4A
-    m_dataBean.setMaxScale(new ChoiceDescriptor("63", "63"));                           //@A4A
+    m_dataBean.setMaxScale(new ChoiceDescriptor("AJDSP_MAXSCALE_63", "63"));            //@A4A
   else                                                                                  //@A4A
   if (nValue >= 31)                                                                     //@A4A
-    m_dataBean.setMaxScale(new ChoiceDescriptor("31", "31"));                           //@A4A
+    m_dataBean.setMaxScale(new ChoiceDescriptor("AJDSP_MAXSCALE_31", "31"));            //@A4A
   else                                                                                  //@A4A
-    m_dataBean.setMaxScale(new ChoiceDescriptor("0", "0"));                             //@A4A
+    m_dataBean.setMaxScale(new ChoiceDescriptor("AJDSP_MAXSCALE_0", "0"));              //@A4A
 
   nValue = dataSource.getMinimumDivideScale();                                          //@A4A
   if (nValue == 0)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("0", "0"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_0", "0"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 1)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("1", "1"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_1", "1"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 2)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("2", "2"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_2", "2"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 3)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("3", "3"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_3", "3"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 4)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("4", "4"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_4", "4"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 5)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("5", "5"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_5", "5"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 6)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("6", "6"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_6", "6"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 7)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("7", "7"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_7", "7"));     //@A4A
   else                                                                                  //@A4A
   if (nValue == 8)                                                                      //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("8", "8"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_8", "8"));     //@A4A
   else                                                                                  //@A4A
-    m_dataBean.setMinDivideScale(new ChoiceDescriptor("9", "9"));                       //@A4A
+    m_dataBean.setMinDivideScale(new ChoiceDescriptor("AJDSP_MINDIVSCALE_9", "9"));     //@A4A
   
   // Package Tab
   m_dataBean.setEnableExtDynamic(dataSource.isExtendedDynamic());
