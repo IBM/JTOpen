@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTable862.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 class ConvTable862 extends ConvTableBidiMap
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private static final String toUnicode_ = 
     "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\b\t\n\u000B\f\r\u000E\u000F" +
@@ -45,8 +45,8 @@ class ConvTable862 extends ConvTableBidiMap
     "\uA7AF\uACAB\u7FA8\uFFFF\b\u7F7F\u0000\n\u7FA5\u7F7F\u7F7F\u7F7F\uE1A0\u7F7F\u7F7F\u7FA1" +
     "\u7FA4\uA27F\uF67F\uA37F\uFFFF\u004B\u7F7F\u9F7F\uFFFF\u00FF\u7F7F\u7FE2\u7F7F\u7F7F\uE97F\uFFFF" +
     "\u0004\u7F7F\u7FE4\u7F7F\uE87F\u7FEA\u7F7F\u7F7F\u7F7F\u7FE0\u7F7F\uEBEE\u7F7F\u7F7F\u7F7F\uE67F" +
-    "\u7F7F\uE37F\u7FE5\uE77F\uED7F\uFFFF\u022F\u7F7F\u257F\uFFFF\u003F\u7F7F\u9A99\u9897\u9695\u9493" +
-    "\u9291\u908F\u8E8D\u8C8B\u8A89\u8887\u8685\u8483\u8281\u807F\uFFFF\u0BDE\u7F7F\u7FFC\uFFFF\u0013" +
+    "\u7F7F\uE37F\u7FE5\uE77F\uED7F\uFFFF\u022F\u7F7F\u7F25\uFFFF\u003F\u7F7F\u7F9A\u9998\u9796\u9594" +
+    "\u9392\u9190\u8F8E\u8D8C\u8B8A\u8988\u8786\u8584\u8382\u8180\uFFFF\u0BDE\u7F7F\u7FFC\uFFFF\u0013" +
     "\u7F7F\u7F9E\uFFFF\u00B8\u7F7F\u7FF9\uFB7F\u7F7F\uEC7F\uFFFF\u0004\u7F7F\u7FEF\uFFFF\u000F\u7F7F" +
     "\uF77F\uFFFF\u000B\u7F7F\u7FF0\u7F7F\uF3F2\uFFFF\u0055\u7F7F\uA97F\uFFFF\u0007\u7F7F\uF4F5\uFFFF" +
     "\u00EF\u7F7F\uC47F\uB37F\uFFFF\u0004\u7F7F\uDA7F\u7F7F\uBF7F\u7F7F\uC07F\u7F7F\uD97F\u7F7F\uC37F" +

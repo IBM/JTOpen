@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTable8612.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 class ConvTable8612 extends ConvTableBidiMap
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private static final String toUnicode_ = 
     "\u0000\u0001\u0002\u0003\u009C\t\u0086\u007F\u0097\u008D\u008E\u000B\f\r\u000E\u000F" +
@@ -33,7 +33,7 @@ class ConvTable8612 extends ConvTableBidiMap
     "\u061B\u0041\u0042\u0043\u0044\u0045\u0046\u0047\u0048\u0049\u00AD\u001A\u001A\u001A\u001A\u0648" +
     "\u061F\u004A\u004B\u004C\u004D\u004E\u004F\u0050\u0051\u0052\u0649\u001A\u064A\u001A\u001A\u001A" +
     "\u00D7\u001A\u0053\u0054\u0055\u0056\u0057\u0058\u0059\u005A\u001A\u001A\u001A\u001A\u001A\u001A" +
-    "\u0030\u0031\u0032\u0033\u0034\u0035\u0036\u0037\u0038\u0039\u001A\u001A\u001A\u001A\u001A\u009F";
+    "\u0030\u0031\u0032\u0033\u0034\u0035\u0036\u0037\u0038\u0039\u20AC\u001A\u001A\u001A\u001A\u009F";
 
 
   private static final String fromUnicode_ = 
@@ -43,16 +43,17 @@ class ConvTable8612 extends ConvTableBidiMap
     "\u3F81\u8283\u8485\u8687\u8889\u9192\u9394\u9596\u9798\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u4F3F\u3F07" +
     "\u2021\u2223\u2415\u0617\u2829\u2A2B\u2C09\u0A1B\u3031\u1A33\u3435\u3608\u3839\u3A3B\u0414\u3EFF" +
     "\u413F\u4A3F\u3F3F\u6A3F\u3F3F\u3F3F\u5FCA\uFFFF\u0014\u3F3F\u3FE0\uFFFF\u000F\u3F3F\u3FA1\uFFFF" +
-    "\u028A\u3F3F\u793F\uFFFF\u0006\u3F3F\u3FC0\u3F3F\u3FD0\u3F46\u4749\u523F\u5556\u5862\u6365\u6769" +
+    "\u028A\u3F3F\u793F\uFFFF\u0006\u3F3F\u3FC0\u3F3F\u3FD0\u3F46\u4749\u5256\u5556\u5862\u6365\u6769" +
     "\u7173\u7475\u7677\u808B\u8D8F\u909A\u9E3F\u3F3F\u3F3F\u44AB\uADAF\uB1BB\uBDBF\uCFDA\uDC3F\u3F3F" +
-    "\u3F3F\u3F42\uFFFF\f\u3F3F\u6C3F\u3F5C\uFFFF\u7943\u3F3F\u8B80\u778D\uFFFF\u02C2\u3F3F\u423F" +
-    "\u3F3F\u4647\u3F49\u3F52\u523F\u3F3F\u3F55\u5556\u3F58\u583F\u3F62\u6263\u633F\u3F65\u653F\u3F67" +
-    "\u673F\u3F69\u693F\u3F71\u713F\u3F73\u7374\u7475\u7576\u763F\uFFFF\b\u3F3F\u0000\u0003\u3F8F" +
-    "\u3F90\u9A3F\u9E3F\u3FAB\uAB3F\u3FAD\uAD3F\u3FAF\uAF3F\u3FB1\uB13F\u3FBB\uBB3F\u3FBD\uBD3F\u3FBF" +
-    "\uBF3F\u3FCF\uCFDA\u3FDC\uFFFF\u0007\u3F3F\u3F5A\u7F7B\u5B6C\u507D\u4D5D\u5C4E\u6B60\u4B61\uF0F1" +
-    "\uF2F3\uF4F5\uF6F7\uF8F9\u7A5E\u4C7E\u6E6F\u7CC1\uC2C3\uC4C5\uC6C7\uC8C9\uD1D2\uD3D4\uD5D6\uD7D8" +
-    "\uD9E2\uE3E4\uE5E6\uE7E8\uE93F\u3F3F\u3F6D\u3F81\u8283\u8485\u8687\u8889\u9192\u9394\u9596\u9798" +
-    "\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u4F3F\uFFFF\u0051\u3F3F";
+    "\u3F3F\u3F42\uFFFF\u0007\u3F3F\uF0F1\uF2F3\uF4F5\uF6F7\uF8F9\u6C6B\u4B5C\uFFFF\u0CCE\u3F3F\u3F40" +
+    "\uFFFF\u0050\u3F3F\uFA3F\uFFFF\u6EE1\u3F3F\u4044\u403F\u403F\u4044\u4044\u4044\u4242\u4044\u4647" +
+    "\u4749\u4952\u5256\u5655\u5555\u5556\u5658\u5858\u5862\u6263\u6363\u6365\u6565\u6567\u6767\u6769" +
+    "\u6969\u6971\u7171\u7173\u7374\u7475\u7576\u7677\u7777\u7780\u8080\u808B\u8B8B\u8B8D\u8D8D\u8D8F" +
+    "\u8F8F\u8F90\u9090\u909A\u9A9A\u9A9E\u9E9E\u9EAB\uABAB\uABAD\uADAD\uADAF\uAFAF\uAFB1\uB1B1\uB1BB" +
+    "\uBBBB\uBBBD\uBDBD\uBDBF\uBFBF\uBFCF\uCFDA\uDADC\uDCDC\uDC3F\uFFFF\u0005\u3F3F\u3F5A\u7F7B\u5B6C" +
+    "\u507D\u4D5D\u5C4E\u6B60\u4B61\uF0F1\uF2F3\uF4F5\uF6F7\uF8F9\u7A5E\u4C7E\u6E6F\u7CC1\uC2C3\uC4C5" +
+    "\uC6C7\uC8C9\uD1D2\uD3D4\uD5D6\uD7D8\uD9E2\uE3E4\uE5E6\uE7E8\uE93F\u3F3F\u3F6D\u3F81\u8283\u8485" +
+    "\u8687\u8889\u9192\u9394\u9596\u9798\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u4F3F\uFFFF\u0051\u3F3F";
 
 
   ConvTable8612()
