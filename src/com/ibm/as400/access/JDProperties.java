@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.Serializable;
+import java.io.IOException;                                // @W2a
 import java.sql.DriverPropertyInfo;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -30,13 +31,14 @@ attributes for the driver.
 // 1. If adding or changing any properties, please update the
 //    following:
 //
-//    __ Update JDProperties.java (this source file).
+//    __ Update JDProperties.java (this source file).  NEW PROPERTIES
+//       MUST BE ADDED TO THE END OF THE ARRAY (see @W2)
 //
 //    __ Add an entry to JDBCProperties.html.  Contact ID to
 //       change this file.
 //
 //    __ Add entries to JDMRI.java.  The description entry should
-//       match the first sentence in the description in 
+//       match the first sentence in the description in
 //       JDBCProperties.html.
 //
 //    __ Add getXXX/setXXX methods to AS400JDBCDataSource.java.
@@ -46,13 +48,15 @@ attributes for the driver.
 //    __ Update the testcase JDDriverGetPropertyInfo.java to
 //       reflect the new number of properties.
 //
+//    __ Test serialization
+//
 // 2. We only store the key to the descriptions.  We only
 //    load the actual descriptions when the caller asks
 //    for them.  This saves the descriptions from being
 //    loaded in all cases.
 //
 class JDProperties implements Serializable {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 
@@ -60,45 +64,47 @@ class JDProperties implements Serializable {
 
 
     // Callers should access the properties using one of the
-    // following indicies.
+    // following indicies.                                       
     //
-    static final int		    ACCESS      			= 0;
-    static final int		    BLOCK_SIZE		        = 1;
-    static final int		    BLOCK_CRITERIA	        = 2;
-    static final int		    DATE_FORMAT             = 3;
-    static final int		    DATE_SEPARATOR          = 4;
-    static final int		    DECIMAL_SEPARATOR       = 5;
+    // @W2 New properties must be added to the end of the list!!!
+    //
+    static final int              ACCESS                    = 0;
+    static final int              BLOCK_SIZE              = 1;
+    static final int              BLOCK_CRITERIA          = 2;
+    static final int              DATE_FORMAT             = 3;
+    static final int              DATE_SEPARATOR          = 4;
+    static final int              DECIMAL_SEPARATOR       = 5;
     static final int            ERRORS                  = 6;
     static final int            EXTENDED_DYNAMIC        = 7;
-	static final int		    LIBRARIES           	= 8;
-	static final int		    NAMING          		= 9;
-	static final int		    PACKAGE     			= 10;
-	static final int            PACKAGE_ADD             = 11;
-	static final int            PACKAGE_CACHE           = 12;
-	static final int            PACKAGE_CLEAR           = 13;
-	static final int            PACKAGE_ERROR           = 14;
-	static final int            PACKAGE_LIBRARY         = 15;
-	static final int		    PASSWORD				= 16;
-	static final int		    PREFETCH				= 17;
-	static final int            PROMPT                  = 18;
-    static final int		    REMARKS	                = 19;
+     static final int             LIBRARIES            = 8;
+     static final int             NAMING                    = 9;
+     static final int             PACKAGE                   = 10;
+     static final int            PACKAGE_ADD             = 11;
+     static final int            PACKAGE_CACHE           = 12;
+     static final int            PACKAGE_CLEAR           = 13;
+     static final int            PACKAGE_ERROR           = 14;
+     static final int            PACKAGE_LIBRARY         = 15;
+     static final int             PASSWORD                  = 16;
+     static final int             PREFETCH                  = 17;
+     static final int            PROMPT                  = 18;
+    static final int              REMARKS                    = 19;
     static final int            SORT                    = 20;
     static final int            SORT_LANGUAGE           = 21;
     static final int            SORT_TABLE              = 22;
     static final int            SORT_WEIGHT             = 23;
-    static final int		    TIME_FORMAT             = 24;
-    static final int		    TIME_SEPARATOR          = 25;
+    static final int              TIME_FORMAT             = 24;
+    static final int              TIME_SEPARATOR          = 25;
     static final int            TRACE                   = 26;
-	static final int		    TRANSACTION_ISOLATION	= 27;
-	static final int            TRANSLATE_BINARY        = 28;
-	static final int		    USER    				= 29;
-	static final int		    PACKAGE_CRITERIA        = 30;   // @A0A
-	static final int		    LOB_THRESHOLD           = 31;
-	static final int		    SECURE                  = 32;
+     static final int             TRANSACTION_ISOLATION     = 27;
+     static final int            TRANSLATE_BINARY        = 28;
+     static final int             USER                      = 29;
+     static final int             PACKAGE_CRITERIA        = 30;   // @A0A
+     static final int             LOB_THRESHOLD           = 31;
+     static final int             SECURE                  = 32;
     static final int            DATA_TRUNCATION         = 33;   // @C1A
-    static final int		    PROXY_SERVER            = 34;   // @A3A
-    //static final int		    PROXY_SERVER_SECURE     = 35;   // @A3A
-    static final int		    SECONDARY_URL           = 35;   // @A3A
+    static final int              PROXY_SERVER            = 34;   // @A3A
+    //static final int            PROXY_SERVER_SECURE     = 35;   // @A3A
+    static final int              SECONDARY_URL           = 35;   // @A3A
     static final int            DATA_COMPRESSION        = 36;   // @D0A
     static final int            BIG_DECIMAL             = 37;   // @E0A
     static final int            THREAD_USED             = 38;   // @E1A
@@ -108,9 +114,13 @@ class JDProperties implements Serializable {
     static final int            BIDI_STRING_TYPE        = 42;   // @E9A
     static final int            KEY_RING_NAME           = 43;   // @F1A
     static final int            KEY_RING_PASSWORD       = 44;   // @F1A
+    static final int            FULL_OPEN               = 45;   // @W1a
 
-	private static final int    NUMBER_OF_ATTRIBUTES_	= 45;   // @A0C @C1C @A3A @D0C @E0C 
+                                                                // @W2 always add to the end of the array!
+
+     private static final int    NUMBER_OF_ATTRIBUTES_ = 46;   // @A0C @C1C @A3A @D0C @E0C
                                                                 // @E1C @D1  @E2C @E3C @E9C @F1C
+                                                                 // @W1c
 
 
 
@@ -130,6 +140,7 @@ class JDProperties implements Serializable {
     private static final String DRIVER_                 = "driver";                 // @E3A
     private static final String ERRORS_                 = "errors";
     private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
+    private static final String FULL_OPEN_              = "full open";              // @W1a
     private static final String KEY_RING_NAME_          = "key ring name";          // @F1A
     private static final String KEY_RING_PASSWORD_      = "key ring password";      // @F1A
     private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
@@ -266,14 +277,14 @@ class JDProperties implements Serializable {
     static final String         TIME_SEPARATOR_SPACE            = SPACE_;
     static final String         TIME_SEPARATOR_NOTSET           = EMPTY_;
 
-	static final String         TRANSACTION_ISOLATION_NONE                  = NONE_;
-	static final String         TRANSACTION_ISOLATION_READ_COMMITTED        = "read committed";
-	static final String         TRANSACTION_ISOLATION_READ_UNCOMMITTED      = "read uncommitted";
-	static final String         TRANSACTION_ISOLATION_REPEATABLE_READ       = "repeatable read";
-	static final String         TRANSACTION_ISOLATION_SERIALIZABLE          = "serializable";
+     static final String         TRANSACTION_ISOLATION_NONE                  = NONE_;
+     static final String         TRANSACTION_ISOLATION_READ_COMMITTED        = "read committed";
+     static final String         TRANSACTION_ISOLATION_READ_UNCOMMITTED      = "read uncommitted";
+     static final String         TRANSACTION_ISOLATION_REPEATABLE_READ       = "repeatable read";
+     static final String         TRANSACTION_ISOLATION_SERIALIZABLE          = "serializable";
 
-	static final String         PACKAGE_CRITERIA_DEFAULT           = "default";   // @A0A
-	static final String         PACKAGE_CRITERIA_SELECT            = "select";    // @A0A
+     static final String         PACKAGE_CRITERIA_DEFAULT           = "default";   // @A0A
+     static final String         PACKAGE_CRITERIA_SELECT            = "select";    // @A0A
 
    static final String              CURSORHOLD_FALSE             = "FALSE";    // @D1
    static final String              CURSORHOLD_TRUE              = "TRUE";     // @D1
@@ -286,10 +297,10 @@ class JDProperties implements Serializable {
 
    static final String              NOT_SPECIFIED               = "";               // @E8A
 
-   static final String              BIDI_STRING_TYPE_NOTSET     = EMPTY_;	    // @E9A
+   static final String              BIDI_STRING_TYPE_NOTSET     = EMPTY_;      // @E9A
    static final String              BIDI_STRING_TYPE_DEFAULT    = "0";              // @E9A
-   static final String              BIDI_STRING_TYPE_ST4	= "4";	    	    // @E9A
-   static final	String 		    BIDI_STRING_TYPE_ST5        = "5";              // @E9A
+   static final String              BIDI_STRING_TYPE_ST4    = "4";             // @E9A
+   static final     String             BIDI_STRING_TYPE_ST5        = "5";              // @E9A
    static final String              BIDI_STRING_TYPE_ST6        = "6";              // @E9A
    static final String              BIDI_STRING_TYPE_ST7        = "7";              // @E9A
    static final String              BIDI_STRING_TYPE_ST8        = "8";              // @E9A
@@ -300,15 +311,15 @@ class JDProperties implements Serializable {
 
 
     // Static data.
-	private static DriverPropertyInfo[] dpi_;
-	private static String[]             defaults_;
+     private static DriverPropertyInfo[] dpi_;
+     private static String[]             defaults_;
 
 
 
     // Private data.
-	private boolean             extra_;
-	private String[]            values_;
-	private Properties          info_;   // @A3A
+     private boolean             extra_;
+     private String[]            values_;
+     private Properties          info_;   // @A3A
 
 
 
@@ -318,501 +329,512 @@ Static initializer.
     static
     {
         // Initialize.
-		dpi_ = new DriverPropertyInfo[NUMBER_OF_ATTRIBUTES_];
-		defaults_ = new String[NUMBER_OF_ATTRIBUTES_];
-		int i;
+          dpi_ = new DriverPropertyInfo[NUMBER_OF_ATTRIBUTES_];
+          defaults_ = new String[NUMBER_OF_ATTRIBUTES_];
+          int i;
 
-		// Access.
-		i = ACCESS;
-		dpi_[i] = new DriverPropertyInfo (ACCESS_, "");
-		dpi_[i].description = "ACCESS_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[3];
-		dpi_[i].choices[0]	= ACCESS_ALL;
-		dpi_[i].choices[1]	= ACCESS_READ_CALL;
-		dpi_[i].choices[2]	= ACCESS_READ_ONLY;
-		defaults_[i]        = ACCESS_ALL;
+          // Access.
+          i = ACCESS;
+          dpi_[i] = new DriverPropertyInfo (ACCESS_, "");
+          dpi_[i].description = "ACCESS_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[3];
+          dpi_[i].choices[0]  = ACCESS_ALL;
+          dpi_[i].choices[1]  = ACCESS_READ_CALL;
+          dpi_[i].choices[2]  = ACCESS_READ_ONLY;
+          defaults_[i]        = ACCESS_ALL;
 
-	// Bidi string type.  @E9A
+     // Bidi string type.  @E9A
         i = BIDI_STRING_TYPE;
         dpi_[i] = new DriverPropertyInfo (BIDI_STRING_TYPE_, "");
         dpi_[i].description = "BIDI_STRING_TYPE_DESC";
-        dpi_[i].required	= false;
-        dpi_[i].choices		= new String[10];
-        dpi_[i].choices[0]	= BIDI_STRING_TYPE_NOTSET;
-	dpi_[i].choices[1]      = BIDI_STRING_TYPE_DEFAULT;
-        dpi_[i].choices[2]	= BIDI_STRING_TYPE_ST4;
-	dpi_[i].choices[3]      = BIDI_STRING_TYPE_ST5;
-	dpi_[i].choices[4]      = BIDI_STRING_TYPE_ST6;
-	dpi_[i].choices[5]      = BIDI_STRING_TYPE_ST7;
-	dpi_[i].choices[6]      = BIDI_STRING_TYPE_ST8;
-	dpi_[i].choices[7]      = BIDI_STRING_TYPE_ST9;
-	dpi_[i].choices[8]      = BIDI_STRING_TYPE_ST10;
-	dpi_[i].choices[9]      = BIDI_STRING_TYPE_ST11;
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[10];
+        dpi_[i].choices[0]    = BIDI_STRING_TYPE_NOTSET;
+     dpi_[i].choices[1]      = BIDI_STRING_TYPE_DEFAULT;
+        dpi_[i].choices[2]    = BIDI_STRING_TYPE_ST4;
+     dpi_[i].choices[3]      = BIDI_STRING_TYPE_ST5;
+     dpi_[i].choices[4]      = BIDI_STRING_TYPE_ST6;
+     dpi_[i].choices[5]      = BIDI_STRING_TYPE_ST7;
+     dpi_[i].choices[6]      = BIDI_STRING_TYPE_ST8;
+     dpi_[i].choices[7]      = BIDI_STRING_TYPE_ST9;
+     dpi_[i].choices[8]      = BIDI_STRING_TYPE_ST10;
+     dpi_[i].choices[9]      = BIDI_STRING_TYPE_ST11;
         defaults_[i]        = BIDI_STRING_TYPE_NOTSET;
 
         // Big decimal.  @E0A
         i = BIG_DECIMAL;
         dpi_[i] = new DriverPropertyInfo (BIG_DECIMAL_, "");
         dpi_[i].description = "BIG_DECIMAL_DESC";
-        dpi_[i].required	= false;
-        dpi_[i].choices		= new String[2];
-        dpi_[i].choices[0]	= FALSE_;
-        dpi_[i].choices[1]	= TRUE_;
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = FALSE_;
+        dpi_[i].choices[1]    = TRUE_;
         defaults_[i]        = TRUE_;
-  
-		// Block criteria.
-		i = BLOCK_CRITERIA;
-		dpi_[i] = new DriverPropertyInfo (BLOCK_CRITERIA_, "");
-		dpi_[i].description = "BLOCK_CRITERIA_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[3];
-		dpi_[i].choices[0]	= BLOCK_CRITERIA_NONE;
-		dpi_[i].choices[1]	= BLOCK_CRITERIA_IF_FETCH;
-		dpi_[i].choices[2]	= BLOCK_CRITERIA_UNLESS_UPDATE;
+
+          // Block criteria.
+          i = BLOCK_CRITERIA;
+          dpi_[i] = new DriverPropertyInfo (BLOCK_CRITERIA_, "");
+          dpi_[i].description = "BLOCK_CRITERIA_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[3];
+          dpi_[i].choices[0]  = BLOCK_CRITERIA_NONE;
+          dpi_[i].choices[1]  = BLOCK_CRITERIA_IF_FETCH;
+          dpi_[i].choices[2]  = BLOCK_CRITERIA_UNLESS_UPDATE;
         defaults_[i]        = BLOCK_CRITERIA_UNLESS_UPDATE;
 
-		// Block size.
-		i = BLOCK_SIZE;
-		dpi_[i] = new DriverPropertyInfo (BLOCK_SIZE_, "");
-		dpi_[i].description = "BLOCK_SIZE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[8];
-		dpi_[i].choices[0]	= BLOCK_SIZE_0;
-		dpi_[i].choices[1]	= BLOCK_SIZE_8;
-		dpi_[i].choices[2]	= BLOCK_SIZE_16;
-		dpi_[i].choices[3]	= BLOCK_SIZE_32;
-		dpi_[i].choices[4]	= BLOCK_SIZE_64;
-		dpi_[i].choices[5]	= BLOCK_SIZE_128;
-		dpi_[i].choices[6]	= BLOCK_SIZE_256;
-		dpi_[i].choices[7]	= BLOCK_SIZE_512;
+          // Block size.
+          i = BLOCK_SIZE;
+          dpi_[i] = new DriverPropertyInfo (BLOCK_SIZE_, "");
+          dpi_[i].description = "BLOCK_SIZE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[8];
+          dpi_[i].choices[0]  = BLOCK_SIZE_0;
+          dpi_[i].choices[1]  = BLOCK_SIZE_8;
+          dpi_[i].choices[2]  = BLOCK_SIZE_16;
+          dpi_[i].choices[3]  = BLOCK_SIZE_32;
+          dpi_[i].choices[4]  = BLOCK_SIZE_64;
+          dpi_[i].choices[5]  = BLOCK_SIZE_128;
+          dpi_[i].choices[6]  = BLOCK_SIZE_256;
+          dpi_[i].choices[7]  = BLOCK_SIZE_512;
         defaults_[i]        = BLOCK_SIZE_32;
 
         // Cursor Hold.  @D1
         i = CURSOR_HOLD;
         dpi_[i] = new DriverPropertyInfo (CURSOR_HOLD_, "");
         dpi_[i].description = "CURSOR_HOLD_DESC";
-        dpi_[i].required	= false;
-        dpi_[i].choices		= new String[2];
-        dpi_[i].choices[0]	= TRUE_;
-        dpi_[i].choices[1]	= FALSE_;
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = TRUE_;
+        dpi_[i].choices[1]    = FALSE_;
           defaults_[i]        = TRUE_;
 
         // Data compression.  @D0A
         i = DATA_COMPRESSION;
         dpi_[i] = new DriverPropertyInfo (DATA_COMPRESSION_, "");
         dpi_[i].description = "DATA_COMPRESSION_DESC";
-        dpi_[i].required	= false;
-        dpi_[i].choices		= new String[2];
-        dpi_[i].choices[0]	= FALSE_;
-        dpi_[i].choices[1]	= TRUE_;
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = FALSE_;
+        dpi_[i].choices[1]    = TRUE_;
         defaults_[i]        = TRUE_;        // @F3C
-  
+
         // Data truncation.  @C1A
         i = DATA_TRUNCATION;
         dpi_[i] = new DriverPropertyInfo (DATA_TRUNCATION_, "");
         dpi_[i].description = "DATA_TRUNCATION_DESC";
-        dpi_[i].required	= false;
-        dpi_[i].choices		= new String[2];
-        dpi_[i].choices[0]	= TRUE_;
-        dpi_[i].choices[1]	= FALSE_;
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = TRUE_;
+        dpi_[i].choices[1]    = FALSE_;
         defaults_[i]        = TRUE_;        // @F2C
-  
-		// Date format.  The order that the choices are listed
-		// is significant - the index matches the server value.
-		// These also correspond to the constants defined in
-		// SQLConversionSettings.
-		i = DATE_FORMAT;
-		dpi_[i] = new DriverPropertyInfo (DATE_FORMAT_, "");
-		dpi_[i].description = "DATE_FORMAT_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[8];
-		dpi_[i].choices[0]	= DATE_FORMAT_JULIAN;
-		dpi_[i].choices[1]	= DATE_FORMAT_MDY;
-		dpi_[i].choices[2]	= DATE_FORMAT_DMY;
-		dpi_[i].choices[3]	= DATE_FORMAT_YMD;
-		dpi_[i].choices[4]	= DATE_FORMAT_USA;
-		dpi_[i].choices[5]	= DATE_FORMAT_ISO;
-		dpi_[i].choices[6]	= DATE_FORMAT_EUR;
-		dpi_[i].choices[7]	= DATE_FORMAT_JIS;
+
+          // Date format.  The order that the choices are listed
+          // is significant - the index matches the server value.
+          // These also correspond to the constants defined in
+          // SQLConversionSettings.
+          i = DATE_FORMAT;
+          dpi_[i] = new DriverPropertyInfo (DATE_FORMAT_, "");
+          dpi_[i].description = "DATE_FORMAT_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[8];
+          dpi_[i].choices[0]  = DATE_FORMAT_JULIAN;
+          dpi_[i].choices[1]  = DATE_FORMAT_MDY;
+          dpi_[i].choices[2]  = DATE_FORMAT_DMY;
+          dpi_[i].choices[3]  = DATE_FORMAT_YMD;
+          dpi_[i].choices[4]  = DATE_FORMAT_USA;
+          dpi_[i].choices[5]  = DATE_FORMAT_ISO;
+          dpi_[i].choices[6]  = DATE_FORMAT_EUR;
+          dpi_[i].choices[7]  = DATE_FORMAT_JIS;
         defaults_[i]        = DATE_FORMAT_NOTSET;
 
-		// Date separator.  The order that the choices are listed
-		// is significant - the index matches the server value.
-		i = DATE_SEPARATOR;
-		dpi_[i] = new DriverPropertyInfo (DATE_SEPARATOR_, "");
-		dpi_[i].description = "DATE_SEPARATOR_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[5];
-		dpi_[i].choices[0]	= DATE_SEPARATOR_SLASH;
-		dpi_[i].choices[1]	= DATE_SEPARATOR_DASH;
-		dpi_[i].choices[2]	= DATE_SEPARATOR_PERIOD;
-		dpi_[i].choices[3]	= DATE_SEPARATOR_COMMA;
-		dpi_[i].choices[4]	= DATE_SEPARATOR_SPACE;
+          // Date separator.  The order that the choices are listed
+          // is significant - the index matches the server value.
+          i = DATE_SEPARATOR;
+          dpi_[i] = new DriverPropertyInfo (DATE_SEPARATOR_, "");
+          dpi_[i].description = "DATE_SEPARATOR_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[5];
+          dpi_[i].choices[0]  = DATE_SEPARATOR_SLASH;
+          dpi_[i].choices[1]  = DATE_SEPARATOR_DASH;
+          dpi_[i].choices[2]  = DATE_SEPARATOR_PERIOD;
+          dpi_[i].choices[3]  = DATE_SEPARATOR_COMMA;
+          dpi_[i].choices[4]  = DATE_SEPARATOR_SPACE;
         defaults_[i]        = DATE_SEPARATOR_NOTSET;
 
-		// Decimal separator.  The order that the choices are listed
-		// is significant - the index matches the server value.
-		i = DECIMAL_SEPARATOR;
-		dpi_[i] = new DriverPropertyInfo (DECIMAL_SEPARATOR_, "");
-		dpi_[i].description = "DECIMAL_SEPARATOR_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= DECIMAL_SEPARATOR_PERIOD;
-		dpi_[i].choices[1]	= DECIMAL_SEPARATOR_COMMA;
+          // Decimal separator.  The order that the choices are listed
+          // is significant - the index matches the server value.
+          i = DECIMAL_SEPARATOR;
+          dpi_[i] = new DriverPropertyInfo (DECIMAL_SEPARATOR_, "");
+          dpi_[i].description = "DECIMAL_SEPARATOR_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = DECIMAL_SEPARATOR_PERIOD;
+          dpi_[i].choices[1]  = DECIMAL_SEPARATOR_COMMA;
         defaults_[i]        = DECIMAL_SEPARATOR_NOTSET;
 
-		// Driver. @E3A
-		i = DRIVER;
-		dpi_[i] = new DriverPropertyInfo(DRIVER_, "");
-		dpi_[i].description = "DRIVER_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= DRIVER_DEFAULT;
-		dpi_[i].choices[0]	= DRIVER_TOOLBOX;
-		dpi_[i].choices[1]	= DRIVER_NATIVE;
+          // Driver. @E3A
+          i = DRIVER;
+          dpi_[i] = new DriverPropertyInfo(DRIVER_, "");
+          dpi_[i].description = "DRIVER_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = DRIVER_DEFAULT;
+          dpi_[i].choices[0]  = DRIVER_TOOLBOX;
+          dpi_[i].choices[1]  = DRIVER_NATIVE;
         defaults_[i]        = DRIVER_DEFAULT;
 
-		// Extended dynamic.
-		i = EXTENDED_DYNAMIC;
-		dpi_[i] = new DriverPropertyInfo (EXTENDED_DYNAMIC_, "");
-		dpi_[i].description = "EXTENDED_DYNAMIC_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= TRUE_;
-		dpi_[i].choices[1]	= FALSE_;
+          // Extended dynamic.
+          i = EXTENDED_DYNAMIC;
+          dpi_[i] = new DriverPropertyInfo (EXTENDED_DYNAMIC_, "");
+          dpi_[i].description = "EXTENDED_DYNAMIC_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
-		// Errors.
-		i = ERRORS;
-		dpi_[i] = new DriverPropertyInfo (ERRORS_, "");
-		dpi_[i].description = "ERRORS_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[1]	= ERRORS_BASIC;
-		dpi_[i].choices[0]	= ERRORS_FULL;
+          // Errors.
+          i = ERRORS;
+          dpi_[i] = new DriverPropertyInfo (ERRORS_, "");
+          dpi_[i].description = "ERRORS_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[1]  = ERRORS_BASIC;
+          dpi_[i].choices[0]  = ERRORS_FULL;
         defaults_[i]        = ERRORS_BASIC;
 
-	 // KeyRingName.		//@F1A
-		i = KEY_RING_NAME;
-		dpi_[i] = new DriverPropertyInfo (KEY_RING_NAME_, "");
-		dpi_[i].description = "KEY_RING_NAME_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+      // KeyRingName.         //@F1A
+          i = KEY_RING_NAME;
+          dpi_[i] = new DriverPropertyInfo (KEY_RING_NAME_, "");
+          dpi_[i].description = "KEY_RING_NAME_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
 
-	 // KeyRingPassword.		//@F1A
-		i = KEY_RING_PASSWORD;
-		dpi_[i] = new DriverPropertyInfo (KEY_RING_PASSWORD_, "");
-		dpi_[i].description = "KEY_RING_PASSWORD_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+      // KeyRingPassword.          //@F1A
+          i = KEY_RING_PASSWORD;
+          dpi_[i] = new DriverPropertyInfo (KEY_RING_PASSWORD_, "");
+          dpi_[i].description = "KEY_RING_PASSWORD_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
+
+
+        // Full Open.   @W1a
+        i = FULL_OPEN;
+        dpi_[i] = new DriverPropertyInfo (FULL_OPEN_, "");
+        dpi_[i].description = "FULL_OPEN_DESC";
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = FALSE_;
+        dpi_[i].choices[1]    = TRUE_;
+        defaults_[i]        = FALSE_;
 
 
         // Lazy close.  @E2A
         i = LAZY_CLOSE;
         dpi_[i] = new DriverPropertyInfo (LAZY_CLOSE_, "");
         dpi_[i].description = "LAZY_CLOSE_DESC";
-        dpi_[i].required	= false;
-        dpi_[i].choices		= new String[2];
-        dpi_[i].choices[0]	= FALSE_;
-        dpi_[i].choices[1]	= TRUE_;
-        defaults_[i]        = FALSE_;	//@E6C
-  
-		// Libraries.
-		i = LIBRARIES;
-		dpi_[i] = new DriverPropertyInfo (LIBRARIES_, "");
-		dpi_[i].description = "LIBRARIES_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+        dpi_[i].required = false;
+        dpi_[i].choices       = new String[2];
+        dpi_[i].choices[0]    = FALSE_;
+        dpi_[i].choices[1]    = TRUE_;
+        defaults_[i]        = FALSE_;   //@E6C
+
+          // Libraries.
+          i = LIBRARIES;
+          dpi_[i] = new DriverPropertyInfo (LIBRARIES_, "");
+          dpi_[i].description = "LIBRARIES_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
-		// LOB threshold.
-		i = LOB_THRESHOLD;
-		dpi_[i] = new DriverPropertyInfo (LOB_THRESHOLD_, "");
-		dpi_[i].description = "LOB_THRESHOLD_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // LOB threshold.
+          i = LOB_THRESHOLD;
+          dpi_[i] = new DriverPropertyInfo (LOB_THRESHOLD_, "");
+          dpi_[i].description = "LOB_THRESHOLD_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = "32768";
 
         // Naming.  The order that the choices are listed
-		// is significant - the index matches the server value.
-		i = NAMING;
-		dpi_[i] = new DriverPropertyInfo (NAMING_, "");
-		dpi_[i].description = "NAMING_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= NAMING_SQL;
-		dpi_[i].choices[1]	= NAMING_SYSTEM;
+          // is significant - the index matches the server value.
+          i = NAMING;
+          dpi_[i] = new DriverPropertyInfo (NAMING_, "");
+          dpi_[i].description = "NAMING_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = NAMING_SQL;
+          dpi_[i].choices[1]  = NAMING_SYSTEM;
         defaults_[i]        = NAMING_SQL;
 
-		// Package.
-		i = PACKAGE;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_, "");
-		dpi_[i].description = "PACKAGE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // Package.
+          i = PACKAGE;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_, "");
+          dpi_[i].description = "PACKAGE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
-		// Package add.
-		i = PACKAGE_ADD;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_ADD_, "");
-		dpi_[i].description = "PACKAGE_ADD_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= TRUE_;
-		dpi_[i].choices[1]	= FALSE_;
+          // Package add.
+          i = PACKAGE_ADD;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_ADD_, "");
+          dpi_[i].description = "PACKAGE_ADD_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = TRUE_;
 
-		// Package cache.
-		i = PACKAGE_CACHE;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_CACHE_, "");
-		dpi_[i].description = "PACKAGE_CACHE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= TRUE_;
-		dpi_[i].choices[1]	= FALSE_;
+          // Package cache.
+          i = PACKAGE_CACHE;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_CACHE_, "");
+          dpi_[i].description = "PACKAGE_CACHE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
-		// Package clear.
-		i = PACKAGE_CLEAR;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_CLEAR_, "");
-		dpi_[i].description = "PACKAGE_CLEAR_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= TRUE_;
-		dpi_[i].choices[1]	= FALSE_;
+          // Package clear.
+          i = PACKAGE_CLEAR;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_CLEAR_, "");
+          dpi_[i].description = "PACKAGE_CLEAR_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
-		// @A0A
-		// Package criteria.
-		i = PACKAGE_CRITERIA;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_CRITERIA_, "");
-		dpi_[i].description = "PACKAGE_CRITERIA_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= PACKAGE_CRITERIA_DEFAULT;
-		dpi_[i].choices[1]	= PACKAGE_CRITERIA_SELECT;
+          // @A0A
+          // Package criteria.
+          i = PACKAGE_CRITERIA;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_CRITERIA_, "");
+          dpi_[i].description = "PACKAGE_CRITERIA_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = PACKAGE_CRITERIA_DEFAULT;
+          dpi_[i].choices[1]  = PACKAGE_CRITERIA_SELECT;
         defaults_[i]        = PACKAGE_CRITERIA_DEFAULT;
         // End of @A0A
 
-		// Package error.
-		i = PACKAGE_ERROR;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_ERROR_, "");
-		dpi_[i].description = "PACKAGE_ERROR_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[3];
-		dpi_[i].choices[0]	= PACKAGE_ERROR_NONE;
-		dpi_[i].choices[1]	= PACKAGE_ERROR_WARNING;
-		dpi_[i].choices[2]  = PACKAGE_ERROR_EXCEPTION;
+          // Package error.
+          i = PACKAGE_ERROR;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_ERROR_, "");
+          dpi_[i].description = "PACKAGE_ERROR_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[3];
+          dpi_[i].choices[0]  = PACKAGE_ERROR_NONE;
+          dpi_[i].choices[1]  = PACKAGE_ERROR_WARNING;
+          dpi_[i].choices[2]  = PACKAGE_ERROR_EXCEPTION;
         defaults_[i]        = PACKAGE_ERROR_WARNING;
 
-		// Package library.
-		i = PACKAGE_LIBRARY;
-		dpi_[i] = new DriverPropertyInfo (PACKAGE_LIBRARY_, "");
-		dpi_[i].description = "PACKAGE_LIBRARY_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // Package library.
+          i = PACKAGE_LIBRARY;
+          dpi_[i] = new DriverPropertyInfo (PACKAGE_LIBRARY_, "");
+          dpi_[i].description = "PACKAGE_LIBRARY_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
-		// Password.
-		i = PASSWORD;
-		dpi_[i] = new DriverPropertyInfo (PASSWORD_, "");
-		dpi_[i].description = "PASSWORD_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // Password.
+          i = PASSWORD;
+          dpi_[i] = new DriverPropertyInfo (PASSWORD_, "");
+          dpi_[i].description = "PASSWORD_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
-		// Prefetch.
-		i = PREFETCH;
-		dpi_[i] = new DriverPropertyInfo (PREFETCH_, "");
-		dpi_[i].description = "PREFETCH_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= TRUE_;
-		dpi_[i].choices[1]	= FALSE_;
+          // Prefetch.
+          i = PREFETCH;
+          dpi_[i] = new DriverPropertyInfo (PREFETCH_, "");
+          dpi_[i].description = "PREFETCH_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = TRUE_;
 
-		// Prompt.
-		i = PROMPT;
-		dpi_[i] = new DriverPropertyInfo (PROMPT_, "");
-		dpi_[i].description = "PROMPT_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]  = TRUE_;
-		dpi_[i].choices[1]  = FALSE_;
+          // Prompt.
+          i = PROMPT;
+          dpi_[i] = new DriverPropertyInfo (PROMPT_, "");
+          dpi_[i].description = "PROMPT_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = NOT_SPECIFIED;    // @E8C
 
-		// Proxy server.    //@A3A
-		i = PROXY_SERVER;
-		dpi_[i] = new DriverPropertyInfo (PROXY_SERVER_, "");
-		dpi_[i].description = "PROXY_SERVER_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // Proxy server.    //@A3A
+          i = PROXY_SERVER;
+          dpi_[i] = new DriverPropertyInfo (PROXY_SERVER_, "");
+          dpi_[i].description = "PROXY_SERVER_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
-		
+
         // Proxy server secure.    //@A3A
-		//i = PROXY_SERVER_SECURE;
-		//dpi_[i] = new DriverPropertyInfo (PROXY_SERVER_SECURE_, "");
-		//dpi_[i].description = "PROXY_SERVER_SECURE_DESC";
-		//dpi_[i].required	= false;
-		//dpi_[i].choices		= new String[2];
-		//dpi_[i].choices[0]  = TRUE_;
-		//dpi_[i].choices[1]  = FALSE_;
+          //i = PROXY_SERVER_SECURE;
+          //dpi_[i] = new DriverPropertyInfo (PROXY_SERVER_SECURE_, "");
+          //dpi_[i].description = "PROXY_SERVER_SECURE_DESC";
+          //dpi_[i].required  = false;
+          //dpi_[i].choices        = new String[2];
+          //dpi_[i].choices[0]  = TRUE_;
+          //dpi_[i].choices[1]  = FALSE_;
         //defaults_[i]        = FALSE_;
 
-		// Remarks.
-		i = REMARKS;
-		dpi_[i] = new DriverPropertyInfo (REMARKS_, "");
-		dpi_[i].description = "REMARKS_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= REMARKS_SQL;
-		dpi_[i].choices[1]	= REMARKS_SYSTEM;
+          // Remarks.
+          i = REMARKS;
+          dpi_[i] = new DriverPropertyInfo (REMARKS_, "");
+          dpi_[i].description = "REMARKS_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = REMARKS_SQL;
+          dpi_[i].choices[1]  = REMARKS_SYSTEM;
         defaults_[i]        = REMARKS_SYSTEM;
 
-		// Secondary URL.    //@A3A
-		i = SECONDARY_URL;
-		dpi_[i] = new DriverPropertyInfo (SECONDARY_URL_, "");
-		dpi_[i].description = "SECONDARY_URL_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // Secondary URL.    //@A3A
+          i = SECONDARY_URL;
+          dpi_[i] = new DriverPropertyInfo (SECONDARY_URL_, "");
+          dpi_[i].description = "SECONDARY_URL_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
-		
+
         // Secure.
-		i = SECURE;
-		dpi_[i] = new DriverPropertyInfo (SECURE_, "");
-		dpi_[i].description = "SECURE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]  = TRUE_;
-		dpi_[i].choices[1]  = FALSE_;
+          i = SECURE;
+          dpi_[i] = new DriverPropertyInfo (SECURE_, "");
+          dpi_[i].description = "SECURE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
-		// Sort.
-		i = SORT;
-		dpi_[i] = new DriverPropertyInfo (SORT_, "");
-		dpi_[i].description = "SORT_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[4];
-		dpi_[i].choices[0]	= SORT_HEX;
-		dpi_[i].choices[1]	= SORT_JOB;
-		dpi_[i].choices[2]	= SORT_LANGUAGE1;
-		dpi_[i].choices[3]	= SORT_TABLE1;
+          // Sort.
+          i = SORT;
+          dpi_[i] = new DriverPropertyInfo (SORT_, "");
+          dpi_[i].description = "SORT_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[4];
+          dpi_[i].choices[0]  = SORT_HEX;
+          dpi_[i].choices[1]  = SORT_JOB;
+          dpi_[i].choices[2]  = SORT_LANGUAGE1;
+          dpi_[i].choices[3]  = SORT_TABLE1;
         defaults_[i]        = SORT_JOB;
 
-		// Sort language.
+          // Sort language.
         //
         // We set the default to Engligh United States.  At first, we set              @E4A
         // it to "   " (3 spaces), but that causes an host server error.               @E4A
         // It would probably be better to choose a default based on the client         @E4A
         // locale, but that may prove to be a high-maintenance mapping,                @E4A
         // as locales are added to Java and languages are added to the AS/400.         @E4A
-		i = SORT_LANGUAGE;
-		dpi_[i] = new DriverPropertyInfo (SORT_LANGUAGE_, "");
-		dpi_[i].description = "SORT_LANGUAGE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          i = SORT_LANGUAGE;
+          dpi_[i] = new DriverPropertyInfo (SORT_LANGUAGE_, "");
+          dpi_[i].description = "SORT_LANGUAGE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = SORT_LANGUAGE_ENGLISH_UNITED_STATES;                  // @E4C
 
-		// Sort table.
-		i = SORT_TABLE;
-		dpi_[i] = new DriverPropertyInfo (SORT_TABLE_, "");
-		dpi_[i].description = "SORT_TABLE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // Sort table.
+          i = SORT_TABLE;
+          dpi_[i] = new DriverPropertyInfo (SORT_TABLE_, "");
+          dpi_[i].description = "SORT_TABLE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
-		// Sort weight.
-		i = SORT_WEIGHT;
-		dpi_[i] = new DriverPropertyInfo (SORT_WEIGHT_, "");
-		dpi_[i].description = "SORT_WEIGHT_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]	= SORT_WEIGHT_SHARED;
-		dpi_[i].choices[1]	= SORT_WEIGHT_UNIQUE;
+          // Sort weight.
+          i = SORT_WEIGHT;
+          dpi_[i] = new DriverPropertyInfo (SORT_WEIGHT_, "");
+          dpi_[i].description = "SORT_WEIGHT_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = SORT_WEIGHT_SHARED;
+          dpi_[i].choices[1]  = SORT_WEIGHT_UNIQUE;
         defaults_[i]        = SORT_WEIGHT_SHARED;
 
       // Thread used.                                          // @E1C
       i = THREAD_USED;
       dpi_[i] = new DriverPropertyInfo (THREAD_USED_, "");
       dpi_[i].description = "THREAD_USED_DESC";
-      dpi_[i].required	= false;
-      dpi_[i].choices		= new String[2];
+      dpi_[i].required   = false;
+      dpi_[i].choices         = new String[2];
       dpi_[i].choices[0]  = TRUE_;
       dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = TRUE_;
 
-		// Time format.  The order that the choices are listed
-		// is significant - the index matches the server value.
-		// These also correspond to the constants defined in
-		// SQLConversionSettings.
-		i = TIME_FORMAT;
-		dpi_[i] = new DriverPropertyInfo (TIME_FORMAT_, "");
-		dpi_[i].description = "TIME_FORMAT_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[5];
-		dpi_[i].choices[0]	= TIME_FORMAT_HMS;
-		dpi_[i].choices[1]	= TIME_FORMAT_USA;
-		dpi_[i].choices[2]	= TIME_FORMAT_ISO;
-		dpi_[i].choices[3]	= TIME_FORMAT_EUR;
-		dpi_[i].choices[4]	= TIME_FORMAT_JIS;
+          // Time format.  The order that the choices are listed
+          // is significant - the index matches the server value.
+          // These also correspond to the constants defined in
+          // SQLConversionSettings.
+          i = TIME_FORMAT;
+          dpi_[i] = new DriverPropertyInfo (TIME_FORMAT_, "");
+          dpi_[i].description = "TIME_FORMAT_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[5];
+          dpi_[i].choices[0]  = TIME_FORMAT_HMS;
+          dpi_[i].choices[1]  = TIME_FORMAT_USA;
+          dpi_[i].choices[2]  = TIME_FORMAT_ISO;
+          dpi_[i].choices[3]  = TIME_FORMAT_EUR;
+          dpi_[i].choices[4]  = TIME_FORMAT_JIS;
         defaults_[i]        = TIME_FORMAT_NOTSET;
 
-		// Time separator.  The order that the choices are listed
-		// is significant - the index matches the server value.
-		i = TIME_SEPARATOR;
-		dpi_[i] = new DriverPropertyInfo (TIME_SEPARATOR_, "");
-		dpi_[i].description = "TIME_SEPARATOR_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[4];
-		dpi_[i].choices[0]	= TIME_SEPARATOR_COLON;
-		dpi_[i].choices[1]	= TIME_SEPARATOR_PERIOD;
-		dpi_[i].choices[2]	= TIME_SEPARATOR_COMMA;
-		dpi_[i].choices[3]	= TIME_SEPARATOR_SPACE;
+          // Time separator.  The order that the choices are listed
+          // is significant - the index matches the server value.
+          i = TIME_SEPARATOR;
+          dpi_[i] = new DriverPropertyInfo (TIME_SEPARATOR_, "");
+          dpi_[i].description = "TIME_SEPARATOR_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[4];
+          dpi_[i].choices[0]  = TIME_SEPARATOR_COLON;
+          dpi_[i].choices[1]  = TIME_SEPARATOR_PERIOD;
+          dpi_[i].choices[2]  = TIME_SEPARATOR_COMMA;
+          dpi_[i].choices[3]  = TIME_SEPARATOR_SPACE;
         defaults_[i]        = TIME_SEPARATOR_NOTSET;
 
-		// Trace.
-		i = TRACE;
-		dpi_[i] = new DriverPropertyInfo (TRACE_, "");
-		dpi_[i].description = "TRACE_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]  = TRUE_;
-		dpi_[i].choices[1]  = FALSE_;
+          // Trace.
+          i = TRACE;
+          dpi_[i] = new DriverPropertyInfo (TRACE_, "");
+          dpi_[i].description = "TRACE_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
-		// Transaction isolation.
-		i = TRANSACTION_ISOLATION;
-		dpi_[i] = new DriverPropertyInfo (TRANSACTION_ISOLATION_, "");
-		dpi_[i].description = "TRANSACTION_ISOLATION_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[5];
-		dpi_[i].choices[0]	= TRANSACTION_ISOLATION_NONE;
-		dpi_[i].choices[1]	= TRANSACTION_ISOLATION_READ_COMMITTED;
-		dpi_[i].choices[2]	= TRANSACTION_ISOLATION_READ_UNCOMMITTED;
-		dpi_[i].choices[3]	= TRANSACTION_ISOLATION_REPEATABLE_READ;
-		dpi_[i].choices[4]	= TRANSACTION_ISOLATION_SERIALIZABLE;
+          // Transaction isolation.
+          i = TRANSACTION_ISOLATION;
+          dpi_[i] = new DriverPropertyInfo (TRANSACTION_ISOLATION_, "");
+          dpi_[i].description = "TRANSACTION_ISOLATION_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[5];
+          dpi_[i].choices[0]  = TRANSACTION_ISOLATION_NONE;
+          dpi_[i].choices[1]  = TRANSACTION_ISOLATION_READ_COMMITTED;
+          dpi_[i].choices[2]  = TRANSACTION_ISOLATION_READ_UNCOMMITTED;
+          dpi_[i].choices[3]  = TRANSACTION_ISOLATION_REPEATABLE_READ;
+          dpi_[i].choices[4]  = TRANSACTION_ISOLATION_SERIALIZABLE;
         defaults_[i]        = TRANSACTION_ISOLATION_READ_UNCOMMITTED;
 
-		// Translate binary.
-		i = TRANSLATE_BINARY;
-		dpi_[i] = new DriverPropertyInfo (TRANSLATE_BINARY_, "");
-		dpi_[i].description = "TRANSLATE_BINARY_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[2];
-		dpi_[i].choices[0]  = TRUE_;
-		dpi_[i].choices[1]  = FALSE_;
+          // Translate binary.
+          i = TRANSLATE_BINARY;
+          dpi_[i] = new DriverPropertyInfo (TRANSLATE_BINARY_, "");
+          dpi_[i].description = "TRANSLATE_BINARY_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[2];
+          dpi_[i].choices[0]  = TRUE_;
+          dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
-		// User.
-		i = USER;
-		dpi_[i] = new DriverPropertyInfo (USER_, "");
-		dpi_[i].description = "USER_DESC";
-		dpi_[i].required	= false;
-		dpi_[i].choices		= new String[0];
+          // User.
+          i = USER;
+          dpi_[i] = new DriverPropertyInfo (USER_, "");
+          dpi_[i].description = "USER_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices          = new String[0];
         defaults_[i]        = EMPTY_;
 
     }
@@ -825,17 +847,17 @@ Constructor.
 @param  urlProperties   The URL properties.
 @param  info            The info properties.
 **/
-	JDProperties (Properties urlProperties, Properties info)
+     JDProperties (Properties urlProperties, Properties info)
     {
         // Initialize the values.
-		info_ = info;
-		values_ = new String[NUMBER_OF_ATTRIBUTES_];
-		for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i)
-		    setString (i, getProperty (urlProperties, info, dpi_[i].name));
+          info_ = info;
+          values_ = new String[NUMBER_OF_ATTRIBUTES_];
+          for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i)
+              setString (i, getProperty (urlProperties, info, dpi_[i].name));
 
-		// Check both sets of properties for any extra
-		// properties.
-		extra_ = false;
+          // Check both sets of properties for any extra
+          // properties.
+          extra_ = false;
 
         Enumeration propertyNames;
         boolean found;
@@ -856,14 +878,14 @@ Constructor.
                        if (propertyName.equalsIgnoreCase(CURSORHOLD_))
                        {
                           String value = getProperty (urlProperties, info, CURSORHOLD_);
-                          
-                          if (JDTrace.isTraceOn()) 
+
+                          if (JDTrace.isTraceOn())
                              JDTrace.logInformation(this, propertyName + ": " + value);
 
                           if (value.equalsIgnoreCase(CURSORHOLD_YES))
                              setString(CURSOR_HOLD, TRUE_);
                           else if (value.equalsIgnoreCase(CURSORHOLD_NO))
-                             setString(CURSOR_HOLD, FALSE_);                              
+                             setString(CURSOR_HOLD, FALSE_);
                        }
                        else
                        {
@@ -898,14 +920,14 @@ Constructor.
                        if (propertyName.equalsIgnoreCase(CURSORHOLD_))
                        {
                           String value = getProperty (urlProperties, info, CURSORHOLD_);
-                          
-                          if (JDTrace.isTraceOn()) 
+
+                          if (JDTrace.isTraceOn())
                              JDTrace.logInformation(this, propertyName + ": " + value);
 
                           if (value.equalsIgnoreCase(CURSORHOLD_YES))
                              setString(CURSOR_HOLD, TRUE_);
                           else if (value.equalsIgnoreCase(CURSORHOLD_NO))
-                             setString(CURSOR_HOLD, FALSE_);                              
+                             setString(CURSOR_HOLD, FALSE_);
                        }
                        else
                        {
@@ -954,25 +976,25 @@ Get the driver property info.
         // Make a complete copy of the table so that if the
         // caller modifies it, it will not affect the connection.
         //
-		DriverPropertyInfo[] dpi = new DriverPropertyInfo[NUMBER_OF_ATTRIBUTES_];
+          DriverPropertyInfo[] dpi = new DriverPropertyInfo[NUMBER_OF_ATTRIBUTES_];
 
-		for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
+          for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
 
-		    if (i != PASSWORD && i != KEY_RING_PASSWORD) //@F1C
-    			dpi[i] = new DriverPropertyInfo (dpi_[i].name, values_[i]);
-    	    else
-    	        dpi[i] = new DriverPropertyInfo (dpi_[i].name, "");
+              if (i != PASSWORD && i != KEY_RING_PASSWORD) //@F1C
+               dpi[i] = new DriverPropertyInfo (dpi_[i].name, values_[i]);
+         else
+             dpi[i] = new DriverPropertyInfo (dpi_[i].name, "");
 
-			dpi[i].required = dpi_[i].required;
-			dpi[i].choices = new String[dpi_[i].choices.length];
-			for (int j = 0; j < dpi_[i].choices.length; ++j)
-				dpi[i].choices[j] = dpi_[i].choices[j];
+               dpi[i].required = dpi_[i].required;
+               dpi[i].choices = new String[dpi_[i].choices.length];
+               for (int j = 0; j < dpi_[i].choices.length; ++j)
+                    dpi[i].choices[j] = dpi_[i].choices[j];
 
             // Load the actual description from the resource bundle.
-			dpi[i].description = AS400JDBCDriver.getResource (dpi_[i].description);
-		}
+               dpi[i].description = AS400JDBCDriver.getResource (dpi_[i].description);
+          }
 
-		return dpi;
+          return dpi;
     }
 
 
@@ -1111,16 +1133,65 @@ which is why it is static.
 @param      info            The info properties.
 @return     Whether the trace property was set to true, false, or not specified when constructed.
 **/
-    static String isTraceSet (Properties urlProperties, Properties info)	//@E7C
+    static String isTraceSet (Properties urlProperties, Properties info)   //@E7C
     {
-	if (getProperty (urlProperties, info, TRACE_) == null)	 
-	   return TRACE_NOT_SPECIFIED;   
-	else if (Boolean.valueOf(getProperty (urlProperties, info, TRACE_)).booleanValue())
-	   return TRACE_SET_ON;
-	else
-	   return TRACE_SET_OFF;
+     if (getProperty (urlProperties, info, TRACE_) == null)
+        return TRACE_NOT_SPECIFIED;
+     else if (Boolean.valueOf(getProperty (urlProperties, info, TRACE_)).booleanValue())
+        return TRACE_SET_ON;
+     else
+        return TRACE_SET_OFF;
         //@E7D return Boolean.valueOf (getProperty (urlProperties, info, TRACE_)).booleanValue();
     }
+
+
+   // @W2 new method
+   //
+   // Fix up the properties array when the object is re-inflated.  Choices:
+   //   1) Objects match (the number of properties in the array is the same) --
+   //      don't do anything.
+   //   2) Old data into a new object -- fix up the array.  In this case the
+   //      array (values_) created during re-serialization is too small.  Take
+   //      the fullOpen case.  If a v4r5 object is serialized then the values_
+   //      array contains only 44 elements.  When that array is put in a post-v4r5 object
+   //      the object has the ability to give out fullOpen (element 45).  This
+   //      results in a indexOutOfBounds exception since we try to pull the 45th
+   //      element out of an array of size 44.  To fix this condition a new array
+   //      will be built.  The first N element will come from the old array.  The
+   //      last element(s) will be filled in with defaults.
+   //   3) Data into an older object -- don't do anything.  In this case the array
+   //      will be too big but that won't hurt anything.  Take again the full open
+   //      case.  Suppose a post-v4r5 object (45 elements) is serialized then de-serialized
+   //      into a v4r5 object.  Now values_ has one too many elements.  That doesn't
+   //      hurt anything since the code cannot get to the last element.
+   //
+   // This scheme works ONLY IF NEW ELEMENTS ARE ALWAYS ADDED TO THE END OF THE ARRAY!!!!
+   //
+   // @param in The input stream from which to deserialize the object.
+   // @exception ClassNotFoundException If the class being deserialized is not found.
+   // @exception IOException If an error occurs while communicating with the AS/400.
+   //
+   private void readObject(java.io.ObjectInputStream in)
+      throws ClassNotFoundException,
+             IOException
+   {
+      in.defaultReadObject();
+
+      if (values_.length < NUMBER_OF_ATTRIBUTES_)
+      {
+         String[] temp = new String[NUMBER_OF_ATTRIBUTES_];
+
+         for (int i = 0; i < values_.length; i++)
+            temp[i] = values_[i];
+
+         for (int i = values_.length; i < NUMBER_OF_ATTRIBUTES_; i++)
+            temp[i] = defaults_[i];
+
+         values_ = temp;
+      }
+   }
+
+
 
 
 
