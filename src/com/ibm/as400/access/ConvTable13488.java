@@ -68,7 +68,7 @@ class ConvTable13488 extends ConvTable // instead of ConvTableDoubleMap
       Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length)); //@E1A @G0C
     }
     byte[] dest = new byte[length*2]; //@G0C
-    for (int i=offset; i<src.length; ++i) //@G0C
+    for (int i=offset; i<length; ++i) //@G0C
     {
       dest[i*2] = (byte)(src[i] >>> 8);
       dest[i*2+1] = (byte)(0x00FF & src[i]);
