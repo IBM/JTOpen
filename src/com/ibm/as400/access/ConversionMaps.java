@@ -336,6 +336,7 @@ abstract class ConversionMaps
     localeNlvMap_.put("uz", "2979");
     localeNlvMap_.put("vi", "2905");
     localeNlvMap_.put("zh", "2989");
+    localeNLVMap_.put("zh_CN", "2989");
     localeNlvMap_.put("zh_HK", "2987");
     localeNlvMap_.put("zh_SG", "2989");
     localeNlvMap_.put("zh_TW", "2987");
@@ -421,6 +422,7 @@ abstract class ConversionMaps
     localeCcsidMap_.put("uz", "1025");
     localeCcsidMap_.put("vi", "1130");
     localeCcsidMap_.put("zh", "1388"); //@A1C - was 935
+    localeCcsidMap_.put("zh_CN", "1388");
     localeCcsidMap_.put("zh_HK", "937");
     localeCcsidMap_.put("zh_SG", "1388"); //@A1C - was 935
     localeCcsidMap_.put("zh_TW", "937");
