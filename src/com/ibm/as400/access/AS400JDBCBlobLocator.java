@@ -37,11 +37,14 @@ implements Blob
           
     // Private data.
     private JDLobLocator    locator_;
+    private Vector          bytesToUpdate_;            //@G5A
+    private Vector          positionsToStartUpdates_;  //@G5A
+    private Object          internalLock_;             //@G5A
 
-            
+
 
 /**
-Constructs an AS400JDBCBlob object.  The data for the
+Constructs an AS400JDBCBlobLocator object.  The data for the
 blob will be retrieved as requested, directly from the
 server, using the locator handle.
 
@@ -50,6 +53,7 @@ server, using the locator handle.
     AS400JDBCBlobLocator (JDLobLocator locator)
     {
         locator_  = locator;
+        internalLock_ = new Object();   //@G5A
     }
 
 
@@ -91,6 +95,64 @@ Returns part of the contents of the blob.
         System.arraycopy (data.getRawBytes (), data.getOffset (),
                           bytes, 0, actualLength);
         return bytes;
+    }
+
+
+
+//@G5A
+/**
+Returns the Vector of byte arrays that are currently cued up to update
+the BLOB when ResultSet.updateBlob() is called.  The bytes 
+were placed in the Vector as the user called setBytes on the BLOB.
+
+@return             The current array of bytes to update.
+**/
+    Vector getBytesToUpdate()
+    {
+        return bytesToUpdate_;
+    }
+
+
+
+//@G5A
+/**
+Returns the handle to this BLOB locator in the database.
+
+@return             The handle to this locator in the database.
+**/
+    int getHandle()
+    {
+        return locator_.getHandle();
+    }
+
+
+
+//@G5A
+/**
+Returns the internal lock to this BLOB locator so that the caller
+can synchronize on it and update 
+the positionsToStartUpdates_ and bytesToUpdates_ vectors.
+
+@return             The internal lock to this BLOB locator.
+**/
+    Object getInternalLock()
+    {
+        return internalLock_;
+    }
+
+
+
+//@G5A
+/**
+Returns the Vector of positions where byte updates, that are currently cued up to update
+the BLOB when ResultSet.updateBlob() is called, should start.  The positions 
+were placed in the Vector as the user called setBytes on the BLOB.
+
+@return             The current array of positions to start byte updates.
+**/
+    Vector getPositionsToStartUpdates()
+    {
+        return positionsToStartUpdates_;
     }
 
 
@@ -181,12 +243,13 @@ This method is not supported.
 
     //@G4A  JDBC 3.0
     /**
-    Retrieves a stream that can be used to write to the BLOB value that this Blob object 
-    represents. The stream begins at position pos.
+    Returns a stream that can be used to write to the BLOB value that this BLOB object 
+    represents.  The stream begins at position </i>pos<i>.
 
-    @param pos the position in the BLOB value at which to start writing.
-    @return a java.io.OutputStream object to which data can be written.
-    @exception SQLException if there is an error accessing the BLOB value.
+    @param pos The position (1-based) in the BLOB value at which to start writing.
+    @return An OutputStream object to which data can be written.
+    @exception SQLException If there is an error accessing the BLOB value or if the position
+    specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
@@ -196,9 +259,6 @@ This method is not supported.
         if ((pos <= 0) || (pos > locator_.getLength()))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         return new AS400JDBCLobOutputStream (this, pos);
     }
 
@@ -206,25 +266,28 @@ This method is not supported.
 
     //@G4A  JDBC 3.0
     /**
-    Writes the array of bytes to this Blob object starting at position pos.
+    Writes an array of bytes to this BLOB object starting at position <i>pos</i>.
 
-    @param pos The position in the BLOB object at which to start writing (1-based).
+    @param pos The position (1-based) in the BLOB object at which to start writing (1-based).
     @param bytes The array of bytes to be written to the BLOB value that this Blob object 
     represents.
     @return the number of bytes written.
 
-    @exception SQLException if there is an error accessing the BLOB value.
+    @exception SQLException If there is an error accessing the BLOB value or if the position
+    specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
     public int setBytes (long pos, byte[] bytes)
     throws SQLException
     {
+        if ((pos < 1) || (bytes == null) || (bytes.length < 0) || pos > locator_.getLength())
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
         pos--;
 
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-        
+        setVectors(pos, bytes);
+
         return bytes.length;
     }
 
@@ -233,26 +296,31 @@ This method is not supported.
     //@G4A  JDBC 3.0
     /**
     Writes all or part of the given byte array to the BLOB value that this Blob object
-    represents.  Writing starts at position pos in the BLOB value; len bytes
+    represents.  Writing starts at position <i>pos</i> in the BLOB value; <i>len</i> bytes
     from the given byte array are written.
 
-    @param pos the position in the BLOB object at which to start writing (1-based).
+    @param pos The position (1-based) in the BLOB object at which to start writing (1-based).
     @param bytes the array of bytes to be written to the BLOB value that this Blob object represents.
     @param offset the offset into the array bytes at which to start reading the bytes to be set 
     (1-based).
     @param len the number of bytes to be written to the BLOB value from the array of bytes bytes.
     @return the number of bytes written.
 
-    @exception SQLException if there is an error accessing the BLOB value.
+    @exception SQLException If there is an error accessing the BLOB value or if the position
+    specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
     public int setBytes (long pos, byte[] bytes, int offset, int len)
     throws SQLException
     {
-        offset--;
-        if ((len < 0) || (offset < 0) || (bytes == null) || (bytes.length < 0))
+        // Validate parameters
+        if ((len < 0) || (offset <= 0) || (bytes == null) || (bytes.length < 0)
+            || pos > locator_.getLength())
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        offset--;
+
         byte[] newData = new byte[len];
         System.arraycopy(bytes, offset, newData, 0, len);
         return setBytes(pos, newData);
@@ -260,14 +328,42 @@ This method is not supported.
 
 
 
+//@G5A
+/**
+Sets a position and byte array pair into the vectors that will be used to update the BLOB
+when ResultSet.updateBlob() is called.
+
+@param pos The position in the BLOB object at which to start writing (1-based).
+@param bytes The array of bytes to be written to the BLOB value that this BLOB object represents.
+**/
+    void setVectors(long pos, byte[] bytes)
+    {
+        synchronized (internalLock_)
+        {
+            if (positionsToStartUpdates_ == null)
+            {
+                positionsToStartUpdates_ = new Vector();
+            }
+            if (bytesToUpdate_ == null)
+            {
+                bytesToUpdate_ = new Vector();
+            }
+            positionsToStartUpdates_.addElement(new Long (pos));
+            bytesToUpdate_.addElement(bytes);
+        }
+    }
+
+
+
     //@G4A  JDBC 3.0
     /**
-    Truncates the BLOB value that this Blob object represents to be len bytes in length.
+    Truncates the BLOB value that this BLOB object represents to be <i>len</i> bytes in length.
      
     @param len the length, in bytes, to which the BLOB value that this Blob object 
     represents should be truncated.
      
-    @exception SQLException if there is an error accessing the BLOB value. 
+    @exception SQLException If there is an error accessing the BLOB value or if the length
+    specified is greater than the length of the BLOB. 
     
     @since Modification 5   
     **/
@@ -277,8 +373,4 @@ This method is not supported.
         //parameter validation will be done in setBytes
         setBytes(len, new byte[0]);
     }
-
-
-
-
 }

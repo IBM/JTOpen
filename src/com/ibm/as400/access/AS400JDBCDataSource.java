@@ -378,8 +378,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         {                                                                   //@C2A
             as400Object = new SecureAS400(getServerName(), user, password); //@C2A
         }                                                                   //@C2A
-        else                                                                //@C2A
-        {                                                                   //@C2A     
+        else
+        {                                                                //@C2A                                                                   //@C2A     
             as400Object = new AS400(getServerName(), user, password);       //@C2A
         }                                                                   //@C2A
 
@@ -592,7 +592,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Returns the log writer for this data source.
-    *  @return The
+    *  @return The log writer for this data source.
     *  @exception SQLException If a database error occurs.
     **/
     public PrintWriter getLogWriter() throws SQLException
@@ -926,8 +926,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
                    String keyRingPassword = xpwDeconfuse(serialKeyRingPWBytes_);  // @J3a
                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, keyRingPassword); //@J3A
                 }                                                            //@J3a
-                else                                                         //@J3a
-                {                                                            //@J3a
+                else
+                {                                                         //@J3a                                                            //@J3a
                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_); //@B4A
                 }                                                            //@J3a
             }                                                                //@J3a
@@ -944,8 +944,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         //     is passed on to the AS400 object.  That is what the new code does. 
         //     There is no affect on normal "new" objects since at the time this 
         //     method is called properties_ is null.
-        try                                                           //@J4A
-        {                                                             //@J4A
+        try
+        {                                                           //@J4A                                                             //@J4A
            if (properties_ != null)                                   //@J4A
               if (!isPrompt())                                        //@J4A
                  as400_.setGuiAvailable(false);                       //@J4A
@@ -1875,12 +1875,19 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     public void setLogWriter(PrintWriter writer) throws SQLException
     {
         String property = "writer";
-        if (writer == null)
-            throw new NullPointerException(property);
+
+        //@C4D if (writer == null)
+        //@C4D    throw new NullPointerException(property);
 
         PrintWriter old = getLogWriter();
         writer_ = writer;
         changes_.firePropertyChange(property, old, writer);
+
+        if (writer == null)         //@C4A
+        {                           //@C4A
+            log_ = null;            //@C4A
+            return;                 //@C4A
+        }                           //@C4A
 
         log_ = new EventLog(writer);
     }

@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.OutputStream; 
 import java.io.Writer;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 
@@ -35,67 +36,153 @@ extends Writer
 
 
     //Private data
-    boolean isStreamClosed_ = false;   // is the stream closed?
-    long positionToStartWriting_;      // position from which the user wanted us to start writing
-    Object lob_;                       // the lob object on which the user 
-    //CharConverter convTable_;          // convTable to convert bytes
+    private boolean isStreamClosed_ = false;   // is the stream closed?
+    private long positionToStartWriting_;      // position from which the user wanted us to start writing
+    private Object lob_;                       // the lob object on which the user wants a writer
 
 
-    AS400JDBCLobWriter (Object lob, long positionToStartWriting) //, CharConverter convTable)
+
+    /*
+    Construct an AS400JDBCLobWriter object.  
+    */
+    AS400JDBCLobWriter (Object lob, long positionToStartWriting) 
     {
+        //We assume the caller has already validated the arguments
         lob_ = lob;
         positionToStartWriting_ = positionToStartWriting;
-        //convTable_ = convTable;
     }
 
 
+
+    /*
+    Close the writer.
+    */
     public void close ()
     {
         isStreamClosed_ = true;
     }
 
 
+
+    /*
+    Flush the writer.
+    */
     public void flush ()
     {
         //no-op
     }
 
 
+
+    /*
+    Write a character array to the writer.
+    
+    @param cbuf The character byte array the user wants written to the writer.
+    */
     public void write (char[] cbuf)
     throws IOException
     {
+        // Validate arguments
+        if (cbuf == null)
+            throw new NullPointerException("byteArray");
+
         if (isStreamClosed_)
-            throw new IOException("Stream is closed");
-        write(new String(cbuf));
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
+        write(cbuf, 0, cbuf.length);
     }
 
 
+
+    /*
+    Write a character array to the writer from offset off for len characters.
+
+    @param cbuf      The character array the user wants written to the writer.
+    @param off       The offset into the character array that the user wants written to the 
+                     writer (1-based).
+    @param len       The number of bytes the user wants written to the writer
+                     from the byte array they passed in.  
+    */
     public void write (char[] cbuf, int off, int len)
     throws IOException
     {
+        // Validate arguments
+        if (cbuf == null)
+            throw new NullPointerException("cbuf");
+        if ((off < 0) || (off > len))
+            throw new ExtendedIllegalArgumentException("off", 
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (len < 0)
+            throw new ExtendedIllegalArgumentException("len", 
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
         if (isStreamClosed_)
-            throw new IOException("Stream is closed");
-        
-        write(new String(cbuf, off, len));
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
+
+        write (new String(cbuf), off, len);
     }
 
 
+
+    /*
+    Write a character to the writer.
+
+    @param cbuf      The character the user wants written to the writer.
+    */
     public void write(int c)
     throws IOException
     {
         if (isStreamClosed_)
-            throw new IOException("Stream is closed");
-        char[] charArray = new char[1];
-        charArray[0] = (char) c;        
-        write(charArray);
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
+        write(new char[] { (char)c }, 0, 1);
     }
 
 
+
+    /*
+    Write a String to the writer from offset off for len characters.
+
+    @param str       The string the user wants written to the writer.
+    */
     public void write (String str)
     throws IOException
     {
+        // Validate arguments
+        if (str == null)
+            throw new NullPointerException("byteArray");
+
         if (isStreamClosed_)
-            throw new IOException("Stream is closed");
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
+
+        write(str, 0, str.length());
+    }
+
+
+
+    /*
+    Write a String to the writer from offset off for len characters.
+
+    @param str       The String the user wants written to the writer.
+    @param off       The offset into the character array that the user wants written to the 
+                     writer.
+    @param len       The number of bytes the user wants written to the writer
+                     from the byte array they passed in.  
+    */
+    public void write(String str, int off, int len)
+    throws IOException
+    {
+        // Validate arguments
+        if (str == null)
+            throw new NullPointerException("cbuf");
+        if ((off < 0) || (off > len))
+            throw new ExtendedIllegalArgumentException("off", 
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (len < 0)
+            throw new ExtendedIllegalArgumentException("len", 
+                                                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        if (isStreamClosed_)
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
+        
         if (lob_ instanceof AS400JDBCClob)
         {
             try
@@ -104,6 +191,9 @@ extends Writer
             }
             catch (SQLException e)
             {
+                if (JDTrace.isTraceOn ())
+                    e.printStackTrace (DriverManager.getLogStream ());
+                isStreamClosed_ = true;
                 throw new IOException(e.getMessage());
             }
         } 
@@ -115,40 +205,41 @@ extends Writer
             }
             catch (SQLException e)
             {
+                if (JDTrace.isTraceOn ())
+                    e.printStackTrace (DriverManager.getLogStream ());
+                isStreamClosed_ = true;
                 throw new IOException(e.getMessage());
             }
         }
         else if (lob_ instanceof AS400JDBCBlob)
         {
-            byte[] byteArray = str.getBytes();//convTable_.stringToByteArray(str);
+            byte[] byteArray = str.getBytes();
             try
             {
                 ((AS400JDBCBlob)lob_).setBytes(positionToStartWriting_, byteArray);
             }
             catch (SQLException e)
             {
+                if (JDTrace.isTraceOn ())
+                    e.printStackTrace (DriverManager.getLogStream ());
+                isStreamClosed_ = true;
                 throw new IOException(e.getMessage());
             }
         }
         else if (lob_ instanceof AS400JDBCBlobLocator)
         {
-            byte[] byteArray = str.getBytes();//convTable.stringToByteArray(str);
+            byte[] byteArray = str.getBytes();
             try
             {
                 ((AS400JDBCBlobLocator)lob_).setBytes(positionToStartWriting_, byteArray);
             }
             catch (SQLException e)
             {
+                if (JDTrace.isTraceOn ())
+                    e.printStackTrace (DriverManager.getLogStream ());
+                isStreamClosed_ = true;
                 throw new IOException(e.getMessage());
             }  
         }
-    }
-    public void write(String str, int off, int len)
-    throws IOException
-    {
-        if (isStreamClosed_)
-            throw new IOException("Stream is closed");
-        String stringToWrite = str.substring(off, len);
-        write(stringToWrite);
     }
 }

@@ -95,16 +95,6 @@ Returns the entire clob as a character stream.
 
 
 
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-    
-
-
 // @B1C
 /**
 Returns part of the contents of the clob.
@@ -205,11 +195,12 @@ Returns the position at which a pattern is found in the clob.
     //@G4A  JDBC 3.0
     /**
     Returns a stream to be used to write Ascii characters to the CLOB value 
-    that this Clob designates, starting at position pos.
+    that this CLOB designates, starting at position <i>pos</i>.
     
-    @param pos the position in the CLOB value at which to start writing.
-    @return a java.io.OutputStream object to which data can be written.
-    @exception SQLException if there is an error accessing the CLOB value.
+    @param pos The position (1-based) in the CLOB value at which to start writing.
+    @return An OutputStream object to which data can be written.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
@@ -219,9 +210,6 @@ Returns the position at which a pattern is found in the clob.
         if (pos <= 0 || pos > length_)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
 
-        //Currently, this method is not supported for lobs
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         return new AS400JDBCLobOutputStream (this, pos); 
     }
 
@@ -229,12 +217,13 @@ Returns the position at which a pattern is found in the clob.
 
     //@G4A  JDBC 3.0
     /**
-    Retrieves a stream to be used to write a stream of Unicode characters to the CLOB value 
-    that this Clob designates, at position pos. The stream begins at position pos.
+    Returns a stream to be used to write a stream of Unicode characters to the CLOB value 
+    that this CLOB designates, at position <i>pos</i>. The stream begins at position pos.
 
-    @param pos the position in the CLOB value at which to start writing.
-    @return a java.io.OutputStream object to which data can be written.
-    @exception SQLException if there is an error accessing the CLOB value.
+    @param pos The position (1-based) in the CLOB value at which to start writing.
+    @return An OutputStream object to which data can be written.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
@@ -244,9 +233,6 @@ Returns the position at which a pattern is found in the clob.
         if (pos <= 0 || pos > length_)
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        //Currently, this method is not supported for lobs
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         return new AS400JDBCLobWriter (this, pos);  
     }
 
@@ -254,14 +240,15 @@ Returns the position at which a pattern is found in the clob.
 
     //@G4A  JDBC 3.0
     /**
-    Writes a String to the CLOB value that this Clob object designates at the position pos.
+    Writes a String to the CLOB value that this CLOB object designates at the position <i>pos</i>.
 
-    @param pos The position in the CLOB object at which to start writing.
-    @param string The array of bytes to be written to the CLOB value that this Clob object 
+    @param pos The position (1-based) in the CLOB object at which to start writing.
+    @param string The string to be written to the CLOB value that this CLOB object 
     represents
     @return The number of characters written.
 
-    @exception SQLException if there is an error accessing the CLOB value.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
@@ -269,10 +256,10 @@ Returns the position at which a pattern is found in the clob.
     throws SQLException
     {
         // Validate the parameters.
-        pos--;
-
-        if ((pos >= length_) || (pos < 0) || (str == null) || (str.length() < 0))
+        if ((pos > length_) || (pos <= 0) || (str == null))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        pos--;
 
         data_ = data_.substring(0, (int)pos) + str;
 
@@ -285,26 +272,28 @@ Returns the position at which a pattern is found in the clob.
 
     //@G4A  JDBC 3.0
     /**
-    Writes len characters of string starting at character offset, to the CLOB value 
+    Writes <i>len</i> characters of a String starting at character <i>offset</i>, to the CLOB value 
     that this Clob designates.
 
-    @param pos The position in the CLOB object at which to start writing.
-    @param string The array of bytes to be written to the CLOB value that this Clob object 
+    @param pos The position (1-based) in the CLOB object at which to start writing.
+    @param string The string to be written to the CLOB value that this CLOB object 
     represents
-    @param offset The offset into str to start writing the characters.
-    @param len The number of chracters to be written
+    @param offset The offset into str to start writing the characters (1-based).
+    @param len The number of characters to be written
     @return The number of characters written.
 
-    @exception SQLException if there is an error accessing the CLOB value.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
     public int setString (long pos, String str, int offset, int len)
     throws SQLException
     {
-        offset--;
-        if ((len < 0) || (offset < 0) || (str == null) || (str.length() < 0))
+        if ((len < 0) || (offset <= 0) || (str == null))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        offset--;
 
         return setString(pos, str.substring(offset,len));
     }
@@ -313,21 +302,19 @@ Returns the position at which a pattern is found in the clob.
 
     //@G4A  JDBC 3.0
     /**
-    Truncates the CLOB value that this Clob object represents to be len bytes in length.
+    Truncates the CLOB value that this CLOB object represents to be <i>len</i> characters in length.
      
-    @param len the length, in bytes, to which the CLOB value that this Clob object 
+    @param len The length, in characters, to which the CLOB value that this CLOB object 
     represents should be truncated.
      
-    @exception SQLException if there is an error accessing the CLOB value. 
+    @exception SQLException If there is an error accessing the CLOB value or if the length
+    specified is greater than the length of the CLOB. 
     
     @since Modification 5   
     **/
     public void truncate(long len)
     throws SQLException
     {
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         //parameter checking will be done in setString method 
         setString(len, "");
     }

@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Enumeration;  //@G5A
+import java.util.Vector;       //@G5A
 
 
 
@@ -131,12 +133,52 @@ implements SQLLocator           // @A2C
       {                                                                   // @A1C
         if (object instanceof Blob)
         {                                       // @A1C
+                    //@G5A Start new code for updateable locator case to go through the Vectors 
+                    //@G5A and update the blob copy when ResultSet.updateBlob() is called.
+                    try
+                    {
+                        AS400JDBCBlobLocator blob = (AS400JDBCBlobLocator) object;
+                        //Synchronize on a lock so that the user can't keep making updates
+                        //to the blob while we are taking updates off the vectors.
+                        synchronized (blob.getInternalLock())
+                        {
+                            Vector positionsToStartUpdates = blob.getPositionsToStartUpdates();
+                            if (positionsToStartUpdates != null)
+                            {
+                                Vector bytesToUpdate = blob.getBytesToUpdate();
+                                Enumeration bytesToUpdateElements = bytesToUpdate.elements();
+                                Enumeration positionsToStartUpdatesElements = positionsToStartUpdates.elements();
+                                for (int i = 0; positionsToStartUpdatesElements.hasMoreElements(); i++)
+                                {
+                                    long startPosition = ((Long)positionsToStartUpdatesElements.nextElement()).longValue();
+                                    byte[] updateBytes = (byte[])bytesToUpdateElements.nextElement();
+                                    locator_.writeData((int)startPosition, updateBytes.length, updateBytes);
+                                    bytesToUpdate.remove(i);
+                                    positionsToStartUpdates.remove(i);
+                                }
+                                // If writeData calls do not throw an exception, update has been successfully made.
+                                positionsToStartUpdates = null;
+                                bytesToUpdate = null;
+                                set = true;
+                            }
+                        }  //end synchronization
+                    }
+                    catch (ClassCastException e)
+                    {
+                        //ignore
+                    }
+                    //@G5A End new code
+
+                    //@G5A If the code for updateable lob locators did not run, then run old code.
+                    if (!set)
+                    {
           Blob blob = (Blob) object;                                      // @A1C
           int length = (int) blob.length ();
           locator_.writeData (0, length, blob.getBytes (1, length));      // @C4C Blobs are 1 based.
           set = true;                                                     // @A1A
         }                                                                   // @A1C
-      }                                                                       // @A1C
+                }                                                                       // @G5A
+            }                                                               // @A1C                                                                         // @A1C
       catch (NoClassDefFoundError e)
       {                                        // @A1C
         // Ignore.  It just means we are running under JDK 1.1.             // @A1C

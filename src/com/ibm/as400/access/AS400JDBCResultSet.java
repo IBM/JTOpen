@@ -5279,6 +5279,27 @@ implements ResultSet {
             SQLData sqlData = updateRow_.getSQLType(columnIndex); //@P0C
             int columnIndex0 = columnIndex - 1;
 
+            //@G7A If the data is a locator, then set its handle.
+            if (sqlData instanceof SQLLocator) {                                                   //@G7A
+                try
+                {                                                                                  //@G7A 
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A
+                    sqlDataAsLocator.setHandle (((AS400JDBCBlobLocator)columnValue).getHandle());  //@G7A  
+                }                                                                                  //@G7A
+                catch (ClassCastException cce)                                                     //@G7A
+                { /*ignore*/                                                                       //@G7A
+                }                                                                                  //@G7A
+
+                try
+                {                                                                                  //@G7A 
+                    SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                            //@G7A
+                    sqlDataAsLocator.setHandle (((AS400JDBCClobLocator)columnValue).getHandle());  //@G7A
+                }                                                                                  //@G7A
+                catch (ClassCastException cce)                                                     //@G7A
+                { /*ignore*/
+                }                                                                                  //@G7A
+            }
+
             if (columnValue != null)
                 sqlData.set (columnValue, calendar, scale);
             updateNulls_[columnIndex0] = (columnValue == null);
@@ -5292,4 +5313,5 @@ implements ResultSet {
 
 
 }
+
 

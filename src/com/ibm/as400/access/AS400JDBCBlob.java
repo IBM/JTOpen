@@ -225,12 +225,13 @@ Returns the position at which a pattern is found in the blob.
 
     //@G4A  JDBC 3.0
     /**
-    Retrieves a stream that can be used to write to the BLOB value that this Blob object 
-    represents. The stream begins at position pos.
+    Returns a stream that can be used to write to the BLOB value that this BLOB object 
+    represents. The stream begins at position <i>pos</i>.
 
-    @param pos the position in the BLOB value at which to start writing.
-    @return a java.io.OutputStream object to which data can be written.
-    @exception SQLException if there is an error accessing the BLOB value.
+    @param pos The position (1-based) in the BLOB value at which to start writing.
+    @return An OutputStream object to which data can be written.
+    @exception SQLException If there is an error accessing the BLOB value or if the position
+    specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
@@ -240,9 +241,6 @@ Returns the position at which a pattern is found in the blob.
         if ((pos <= 0) || (pos > length_))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         return new AS400JDBCLobOutputStream (this, pos);
     }
 
@@ -250,23 +248,26 @@ Returns the position at which a pattern is found in the blob.
 
     //@G4A  JDBC 3.0
     /**
-    Writes the array of bytes to this Blob object starting at position pos.
+    Writes an array of bytes to this BLOB object starting at position <i>pos</i>.
 
-    @param pos The position in the BLOB object at which to start writing (1-based).
+    @param pos The position (1-based) in the BLOB object at which to start writing (1-based).
     @param bytes The array of bytes to be written to the BLOB value that this Blob object 
     represents.
     @return the number of bytes written.
 
-    @exception SQLException if there is an error accessing the BLOB value.
+    @exception SQLException If there is an error accessing the BLOB value or if the position
+    specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
     public int setBytes (long pos, byte[] bytes)
     throws SQLException
     {
-        pos--;
-        if ((pos >= length_) || (pos < 0) || (bytes == null) || (bytes.length < 0))
+        // Validate parameters.
+        if ((pos > length_) || (pos <= 0) || (bytes == null) || (bytes.length < 0))
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        pos--;
 
         length_ = (int)pos + bytes.length + 1;
 
@@ -286,26 +287,29 @@ Returns the position at which a pattern is found in the blob.
     //@G4A  JDBC 3.0
     /**
     Writes all or part of the given byte array to the BLOB value that this Blob object
-    represents.  Writing starts at position pos in the BLOB value; len bytes
+    represents.  Writing starts at position <i>pos</i> in the BLOB value; <i>len</i> bytes
     from the given byte array are written.
 
-    @param pos the position in the BLOB object at which to start writing (1-based).
+    @param pos The position (1-based) in the BLOB object at which to start writing (1-based).
     @param bytes the array of bytes to be written to the BLOB value that this Blob object represents.
     @param offset the offset into the array bytes at which to start reading the bytes to be set 
     (1-based).
     @param len the number of bytes to be written to the BLOB value from the array of bytes bytes.
     @return the number of bytes written.
 
-    @exception SQLException if there is an error accessing the BLOB value.
+    @exception SQLException If there is an error accessing the BLOB value or if the position
+    specified is greater than the length of the BLOB.
     
     @since Modification 5
     **/
     public int setBytes (long pos, byte[] bytes, int offset, int len)
     throws SQLException
     {
+        // Validate parameters
+        if ((len < 0) || (offset <= 0) || (bytes == null) || (bytes.length < 0))
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID); 
+
         offset--;
-        if ((len < 0) || (offset < 0) || (bytes == null) || (bytes.length < 0))
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
         byte[] newData = new byte[len];
         System.arraycopy(bytes, offset, newData, 0, len);
         return setBytes(pos, newData);
@@ -315,12 +319,13 @@ Returns the position at which a pattern is found in the blob.
 
     //@G4A  JDBC 3.0
     /**
-    Truncates the BLOB value that this Blob object represents to be len bytes in length.
+    Truncates the BLOB value that this BLOB object represents to be <i>len</i> bytes in length.
      
     @param len the length, in bytes, to which the BLOB value that this Blob object 
     represents should be truncated.
      
-    @exception SQLException if there is an error accessing the BLOB value. 
+    @exception SQLException If there is an error accessing the BLOB value or if the length
+    specified is greater than the length of the BLOB. 
     
     @since Modification 5   
     **/

@@ -42,10 +42,10 @@ implements  Cloneable                                             // @d2a
   private AS400JDBCConnection    connection_;
   private boolean                 dataCompression_;                   // @B0A
   private int                     id_;
-  private int                     handle_;
+    private int                     handle_             = -1;           // @D3C
   private long                    length_             = -1;           // @C1A
   private int                     maxLength_;                         // @A1A
-  private int                     columnIndex_;                       // @C3A
+    private int                     columnIndex_        = -1;           // @C3A @D3C
   private boolean                 graphic_ = false;                   // @C4A
   private boolean                 firstTime_ = true;                  // @C4a 2
 
@@ -63,11 +63,9 @@ Constructs an JDLobLocator object.
   {
     connection_      = connection;
     id_              = id;
-    handle_          = -1;
     maxLength_       = maxLength;                                   // @A1A
     dataCompression_ = connection_.getDataCompression() == AS400JDBCConnection.DATA_COMPRESSION_OLD_;  // @B0A @C2C
-    columnIndex_     = -1;                                          // @C3A
-  }
+    }
 
 
 // @D2 new method.                                  
@@ -252,7 +250,12 @@ Retrieves part of the contents of the lob.
         request.setStartOffset (startingOffset);                  // @C4c 2
         request.setCompressionIndicator (dataCompression_ ? 0xF1 : 0xF0);   // @B0C
         request.setReturnCurrentLengthIndicator(0xF1);                      // @C1A
+                //@G5A If a column index has not been set for this locator, then do not pass
+                //@G5A the optional column index parameter to the server.
+                if (columnIndex_ != -1)   //@G5A
+                {
         request.setColumnIndex(columnIndex_);   //@C3A
+                }
 
         if (JDTrace.isTraceOn ())
           JDTrace.logInformation (connection_, "Retrieving lob data");

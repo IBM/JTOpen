@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;        // @A1A
 import java.io.Writer;                              // @G4A
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.util.Vector;                            // @G5A
 
 
 
@@ -41,6 +42,9 @@ implements Clob
     // Private data.
     private ConvTable converter_; //@P0C
     private JDLobLocator        locator_;
+    private Vector          stringsToUpdate_;          //@G5A
+    private Vector          positionsToStartUpdates_;  //@G5A
+    private Object          internalLock_;             //@G5A
 
 
 
@@ -57,6 +61,7 @@ implements Clob
     {
         locator_  = locator;
         converter_ = converter;
+        internalLock_ = new Object();       //@G5A
     }
 
 
@@ -98,6 +103,49 @@ implements Clob
 
 
 
+//@G5A
+/**
+Returns the handle to this CLOB locator in the database.
+
+@return             The handle to this locator in the databaes.
+**/
+    int getHandle()
+    {
+        return locator_.getHandle();
+    }
+
+
+
+//@G5A
+/**
+Returns the internal lock to this CLOB locator so that the caller
+can synchronize on it and update 
+the positionsToStartUpdates_ and stringsToUpdate_ vectors.
+
+@return             The internal lock to this CLOB locator.
+**/
+    Object getInternalLock()
+    {
+        return internalLock_;
+    }
+
+
+
+//@G5A
+/**
+Returns the array of positions where string updates, that are currently queued up to update
+the CLOB when ResultSet.updateClob() is called, should start.  The positions 
+were placed in the Vector as the user called setString on the CLOB.
+
+@return             The current array of positions to start string updates.
+**/
+    Vector getPositionsToStartUpdates()
+    {
+        return positionsToStartUpdates_;
+    }
+
+
+
     // @B2C
     /**
     Returns part of the contents of the clob.
@@ -129,6 +177,21 @@ implements Clob
                                                          data.getOffset (),
                                                          data.getLength ());
         return substring;
+    }
+
+
+
+//@G5A
+/**
+Returns the array of strings that are currently cued up to update
+the CLOB when ResultSet.updateClob() is called.  The strings 
+were placed in the Vector as the user called setString on the CLOB.
+
+@return             The current array of bytes to update.
+**/
+    Vector getStringsToUpdate()
+    {
+        return stringsToUpdate_;
     }
 
 
@@ -209,11 +272,12 @@ implements Clob
     //@G4A  JDBC 3.0
     /**
     Returns a stream to be used to write Ascii characters to the CLOB value 
-    that this Clob designates, starting at position pos.
+    that this CLOB designates, starting at position <i>pos</i>.
     
-    @param pos the position in the CLOB value at which to start writing.
-    @return a java.io.OutputStream object to which data can be written.
-    @exception SQLException if there is an error accessing the CLOB value.
+    @param pos The position (1-based) in the CLOB value at which to start writing.
+    @return An OutputStream object to which data can be written.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
@@ -223,9 +287,6 @@ implements Clob
         if (pos <= 0 || pos > locator_.getLength())
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         return new AS400JDBCLobOutputStream (this, pos); 
     }
 
@@ -233,12 +294,13 @@ implements Clob
 
     //@G4A  JDBC 3.0
     /**
-    Retrieves a stream to be used to write a stream of Unicode characters to the CLOB value 
-    that this Clob designates, at position pos. The stream begins at position pos.
+    Returns a stream to be used to write a stream of Unicode characters to the CLOB value 
+    that this CLOB designates, at position <i>pos</i>. The stream begins at position pos.
 
-    @param pos the position in the CLOB value at which to start writing.
-    @return a java.io.OutputStream object to which data can be written.
-    @exception SQLException if there is an error accessing the CLOB value.
+    @param pos The position (1-based) in the CLOB value at which to start writing.
+    @return An OutputStream object to which data can be written.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
@@ -248,9 +310,6 @@ implements Clob
         if (pos <= 0 || pos > locator_.getLength())
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
 
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
-
         return new AS400JDBCLobWriter (this, pos);  
     }
 
@@ -258,14 +317,15 @@ implements Clob
 
     //@G4A  JDBC 3.0
     /**
-    Writes a String to the CLOB value that this Clob object designates at the position pos.
+    Writes a String to the CLOB value that this CLOB object designates at the position <i>pos</i>.
 
-    @param pos The position in the CLOB object at which to start writing.
-    @param string The array of bytes to be written to the CLOB value that this Clob object 
+    @param pos The position (1-based) in the CLOB object at which to start writing.
+    @param string The string to be written to the CLOB value that this CLOB object 
     represents
     @return The number of characters written.
 
-    @exception SQLException if there is an error accessing the CLOB value.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
@@ -273,10 +333,12 @@ implements Clob
     throws SQLException
     {
         // Validate the parameters.
+        if ((pos < 1) || (str == null) || pos > locator_.getLength())
+            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
         pos--;
 
-        //Currently, this method is not supported for lob locators
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        setVectors(pos, str);  
 
         return str.length();
     }
@@ -285,40 +347,71 @@ implements Clob
 
     //@G4A  JDBC 3.0
     /**
-    Writes len characters of string starting at character offset, to the CLOB value 
+    Writes <i>len</i> characters of a String starting at character <i>offset</i>, to the CLOB value 
     that this Clob designates.
 
-    @param pos The position in the CLOB object at which to start writing.
-    @param string The array of bytes to be written to the CLOB value that this Clob object 
+    @param pos The position (1-based) in the CLOB object at which to start writing.
+    @param string The string to be written to the CLOB value that this CLOB object 
     represents
-    @param offset The offset into str to start writing the characters.
+    @param offset The offset into str to start writing the characters (1-based).
     @param len The number of chracters to be written
     @return The number of characters written.
 
-    @exception SQLException if there is an error accessing the CLOB value.
+    @exception SQLException If there is an error accessing the CLOB value or if the position
+    specified is greater than the length of the CLOB.
     
     @since Modification 5
     **/
     public int setString (long pos, String str, int offset, int len)
     throws SQLException
     {
-        offset--;
-        if ((len < 0) || (offset < 0) || (str == null) || (str.length() < 0))
+        // Validate the parameters
+        if ((len < 0) || (offset <= 0) || (str == null) || pos > locator_.getLength())
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
+
+        offset--;
 
         return setString(pos, str.substring(offset,len));
     }
 
 
 
+//@G5A
+/**
+Sets a position and string pair into the vectors that will be used to update the CLOB
+when ResultSet.updateClob() is called.
+
+@param pos The position in the CLOB object at which to start writing (1-based).
+@param string The string to be written to the CLOB value that this CLOB object represents.
+**/
+    void setVectors(long pos, String string)
+    {
+        synchronized (internalLock_)
+        {
+            if (positionsToStartUpdates_ == null)
+            {
+                positionsToStartUpdates_ = new Vector();
+            }
+            if (stringsToUpdate_ == null)
+            {
+                stringsToUpdate_ = new Vector();
+            }
+            positionsToStartUpdates_.addElement(new Long (pos));
+            stringsToUpdate_.addElement(string);
+        }
+    }
+
+
+
     //@G4A  JDBC 3.0
     /**
-    Truncates the CLOB value that this Clob object represents to be len bytes in length.
+    Truncates the CLOB value that this CLOB object represents to be <i>len</i> bytes in length.
      
     @param len the length, in bytes, to which the CLOB value that this Clob object 
     represents should be truncated.
      
-    @exception SQLException if there is an error accessing the CLOB value.    
+    @exception SQLException If there is an error accessing the CLOB value or if the length
+    specified is greater than the length of the CLOB.    
     
     @since Modification 5
     **/

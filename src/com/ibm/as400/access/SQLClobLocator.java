@@ -26,6 +26,9 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Enumeration;                               // @G5A
+import java.util.Vector;                                    // @G5A
+
 
 
 
@@ -159,6 +162,42 @@ implements SQLLocator                                       // @B3C
       {                                                                       // @B2A
         if (object instanceof Clob)
         {
+                    //@G5A Start new code for updateable locator case
+                    try
+                    {
+                        AS400JDBCClobLocator clob = (AS400JDBCClobLocator) object;
+                        synchronized (clob.getInternalLock())
+                        {
+                            Vector positionsToStartUpdates = clob.getPositionsToStartUpdates();
+                            if (positionsToStartUpdates != null)
+                            {
+                                Vector stringsToUpdate = clob.getStringsToUpdate();
+                                Enumeration stringsToUpdateElements = stringsToUpdate.elements();
+                                Enumeration positionsToStartUpdatesElements = positionsToStartUpdates.elements();
+                                for (int i = 0; positionsToStartUpdatesElements.hasMoreElements(); i++)
+                                {
+                                    long startPosition = ((Long)positionsToStartUpdatesElements.nextElement()).longValue();
+                                    String updateString = (String)stringsToUpdateElements.nextElement();
+                                    locator_.writeData((int)startPosition, updateString.length(), converter_.stringToByteArray(updateString));
+                                    stringsToUpdate.remove(i);
+                                    positionsToStartUpdates.remove(i);
+                                }
+                                // If writeData calls do not throw an exception, update has been successfully made.
+                                positionsToStartUpdates = null;
+                                stringsToUpdate = null;
+                                set = true;
+                            }
+                        }
+                    }
+                    catch (ClassCastException e)
+                    {
+                        //ignore
+                    }
+                    //@G5A End new code
+
+                    //@G5A If the code for updateable lob locators did not run, then run old code.
+                    if (!set)
+                    {
           Clob clob = (Clob) object;
           int length = (int) clob.length ();
           String substring = clob.getSubString (1, length);                   // @D1
@@ -166,6 +205,7 @@ implements SQLLocator                                       // @B3C
           set = true;                                                         // @B2A
         }
       }
+            }
       catch (NoClassDefFoundError e)
       {                                            // @B2C
         // Ignore.  It just means we are running under JDK 1.1.                 // @B2C

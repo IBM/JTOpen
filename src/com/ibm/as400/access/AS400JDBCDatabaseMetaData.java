@@ -875,14 +875,8 @@ implements DatabaseMetaData
 
         connection_.checkOpen ();
 
-        boolean isJDBC3 = false;                  //@F2A
-        try
-        {                                         //@F2A
-            Class.forName("java.sql.Savepoint");  //@F2A
-            isJDBC3 = true;                       //@F2A
-        }                                         //@F2A
-        catch (ClassNotFoundException e) {        //@F2A
-        }                                         //@F2A
+        
+        boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
         SQLData[] sqlData = null;                 //@F2C
@@ -3409,15 +3403,7 @@ implements DatabaseMetaData
                 // Put the data format into a row format object
                 JDRowCache serverRowCache = new JDSimpleRowCache (new JDServerRowCache (row, connection_, id_,
                                                                                         1, resultData, true));
-
-                boolean isJDBC3 = false;                  //@F2A
-                try
-                {                                         //@F2A
-                    Class.forName("java.sql.Savepoint");  //@F2A
-                    isJDBC3 = true;                       //@F2A
-                }                                         //@F2A
-                catch (ClassNotFoundException e) {        //@F2A
-                }                                         //@F2A
+                boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
                 JDFieldMap[] maps = null;    //@F2C
                 String[] fieldNames = null;  //@F2C
@@ -3886,15 +3872,7 @@ implements DatabaseMetaData
         // Set up the result set in the format required by JDBC
         //-----------------------------------------------------
 
-        boolean isJDBC3 = false;                  //@F2A
-        try
-        {                                         //@F2A
-            Class.forName("java.sql.Savepoint");  //@F2A
-            isJDBC3 = true;                       //@F2A
-        }                                         //@F2A
-        catch (ClassNotFoundException e) {        //@F2A
-        }                                         //@F2A
-
+        boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
         SQLData[] sqlData = null;                 //@F2C
@@ -4533,14 +4511,7 @@ implements DatabaseMetaData
     {
         connection_.checkOpen ();
 
-        boolean isJDBC3 = false;                  //@F2A
-        try
-        {                                         //@F2A
-            Class.forName("java.sql.Savepoint");  //@F2A
-            isJDBC3 = true;                       //@F2A
-        }                                         //@F2A
-        catch (ClassNotFoundException e) {        //@F2A
-        }                                         //@F2A
+        boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
         SQLData[] sqlData = null;                 //@F2C
@@ -4681,7 +4652,10 @@ implements DatabaseMetaData
             if (where.length () > 0)
             {
                 select.append (" WHERE ");
-                select.append (where);
+                //@J4c JDK 1.4 added a StringBuffer.append(StringBuffer) method.  Do a toString()
+                //     here just in case we compile against 1.4 but run against 1.3.  In that
+                //     case we would get 'method not found'
+                select.append (where.toString());  
             }
 
             select.append (" ORDER BY USER_DEFINED_TYPE_SCHEMA, USER_DEFINED_TYPE_NAME");       // @B2C
@@ -6288,6 +6262,10 @@ implements DatabaseMetaData
     public boolean supportsSavepoints ()
     throws SQLException
     {
+        // Note we check only the AS/400 level.  We don't need to
+        // check JDBC/JDK level because if running prior to JDBC 3.0
+        // the app cannot call this method (it does not exist
+        // in the interface).
         if (connection_.getVRM() >= JDUtilities.vrm520)
             return true;
         else

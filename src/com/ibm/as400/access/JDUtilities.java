@@ -33,11 +33,26 @@ class JDUtilities
 
     private static final byte escape        = (byte)0x1B;           // @D0A
 
-    static int vrm520 = AS400.generateVRM(5, 2, 0);                 // @J2a @J3a
-    static int vrm510 = AS400.generateVRM(5, 1, 0);                 //      @J31a
+    // @j4 the following two constants are now final                             
+    static final int vrm520 = AS400.generateVRM(5, 2, 0);           // @J2a @J3a   
+    static final int vrm510 = AS400.generateVRM(5, 1, 0);           //      @J31a
 
+    static int JDBCLevel_ = 10;                                     // @J4a         
+     
+    // @J4a
+    static
+    {
+       try 
+       { 
+          Class.forName("java.sql.Blob"); 
+          JDBCLevel_ = 20;
 
-
+          Class.forName("java.sql.Savepoint"); 
+          JDBCLevel_ = 30;
+       }                                         
+       catch (Throwable e) { }   
+    }                          
+                             
 
 
 // @D0A
@@ -78,7 +93,6 @@ Decompresses data from one byte array to another.
                 destination[j++] = source[i++];
         }
     }
-
 
 
 /**
