@@ -125,6 +125,7 @@
 <LI><a HREF="#HDRKEY184"    NAME="ToC_184">IPP Job Originating User Name</A></LI>
 <LI><a HREF="#HDRKEY185"    NAME="ToC_185">IPP Job Originating User Name NL</A></LI>
 <LI><a HREF="#HDRKEY186"    NAME="ToC_186">IPP IPP Printer Name</A></LI>
+<LI><a HREF="#HDRKEY0x014E" NAME="ToC_0x014E">Job CCSID</A></LI>
 <LI><a HREF="#HDRKEY57"     NAME="ToC_58">Job Name</A></LI>
 <LI><a HREF="#HDRKEY58"     NAME="ToC_59">Job Number</A></LI>
 <LI><a HREF="#HDRKEY59"     NAME="ToC_60">Job Separators</A></LI>
@@ -1018,18 +1019,12 @@ as -2, and the value *COR is encoded as -3. </DD>
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_32" NAME="HDRKEY32">Delete File After Sending</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DELETESPLF </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Delete the spooled file after sending? Valid values are *NO and *YES.
 </DD>
 </DL>
@@ -1037,18 +1032,12 @@ as -2, and the value *COR is encoded as -3. </DD>
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_33" NAME="HDRKEY33">Destination Option</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DESTOPTION </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Destination option. A text string that allows the user to pass options
 to the receiving system. </DD>
 </DL>
@@ -1056,108 +1045,72 @@ to the receiving system. </DD>
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_34" NAME="HDRKEY34">Destination Type</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DESTINATION </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Destination type. Valid values are *OTHER, *AS400, *PSF2. </DD>
 </DL>
 
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_35" NAME="HDRKEY35">Device Class</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DEVCLASS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The device class. </DD>
 </DL>
 
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_36" NAME="HDRKEY36">Device Model</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DEVMODEL </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The model number of the device. </DD>
 </DL>
 
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_36.5" NAME="HDRKEY36.5">Device Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DEVSTATUS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The status of the printer device.  Valid values are 0 (varied off), 10 (vary off pending), 20 (vary on pending), 30 (varied on), 40 (connect pending), 60 (active), 66 (active writer), 70 (held), 75 (powered off), 80 (recovery pending), 90 (recovery canceled),  100 (failed), 106 (failed writer), 110 (being serviced), 111 (damaged), 112 (locked), 113 (unknown). </DD>
 </DL>
 
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_37" NAME="HDRKEY37">Device Type</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DEVTYPE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The device type. </DD>
 </DL>
 
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_38" NAME="HDRKEY38">Display any File</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DISPLAYANY </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Whether users who have authority to read this output queue can display
 the output data of any output file on this queue or only the data in their
 own files. Valid values are *YES, *NO, *OWNER. </DD>
@@ -1228,18 +1181,12 @@ as -1, and the value *DEVD is encoded as -2. </DD>
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_40.5" NAME="HDRKEY40.5">End Pending Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_ENDPNDSTS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Whether an End Writer (ENDWTR) command has been issued for this writer.  Possible
 values are *NO - no ENDWTR command was issued, *IMMED - the writer ends as soon as its
 output buffers are empty, *CTRLD - the writer ends after the current copy of the spooled
@@ -1249,18 +1196,12 @@ file has printed, *PAGEEND - the writer ends at the end of the page. </DD>
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_40" NAME="HDRKEY40">Ending Page</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_ENDPAGE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The page number at which to end printing the spooled file. Valid values
 are 0 or the ending page number. The value *END is encoded as 0. </DD>
 </DL>
@@ -1268,18 +1209,12 @@ are 0 or the ending page number. The value *END is encoded as 0. </DD>
 <P>
 <HR><p></P>
 <H2><a HREF="#ToC_168" NAME="HDRKEY168">Envelope Source</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_ENVLP_SOURCE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The size of the envelope in the envelope source.  If this field
 is not specified or the value is not valid, the special value of *MFRTYPMDL
 is used.  Valid values are *NONE - there is no envelope source, 
@@ -1334,20 +1269,13 @@ separators. The value *FILE is encoded as -1. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_42" NAME="HDRKEY42">Fold Records</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FOLDREC </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Whether records that exceed the printer forms width are folded (wrapped)
 to the next line. Valid values are *YES, *NO. </DD>
 </DL>
@@ -1411,60 +1339,39 @@ try to use when printing the spooled file.  Valid values are
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_44" NAME="HDRKEY44">Form Feed</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FORMFEED </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The manner in which forms feed to the printer. Valid values are *CONT,
 *CUT, *AUTOCUT, *DEVD. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_45" NAME="HDRKEY45">Form Type</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FORMTYPE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The type of form to be loaded in the printer to print this spooled
 file. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_46" NAME="HDRKEY46">Form Type Message Option</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FORMTYPEMSG </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Message option for sending a message to the writer's message queue
 when the current form type is finished. Valid values are *MSG, *NOMSG,
 *INFOMSG, *INQMSG. </DD>
@@ -1472,20 +1379,13 @@ when the current form type is finished. Valid values are *MSG, *NOMSG,
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_47" NAME="HDRKEY47">Front Margin Offset Across</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FTMGN_ACR </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Float </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>For the front side of a piece of paper, it specifies, how far in from
 the left side of the page printing starts. The special value *DEVD is encoded
 as -2.0. </DD>
@@ -1493,20 +1393,13 @@ as -2.0. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_48" NAME="HDRKEY48">Front Margin Offset Down</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FTMGN_DWN </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Float </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>For the front side of a piece of paper, it specifies, how far down
 from the top of the page printing starts. The special value *DEVD is encoded
 as -2. </DD>
@@ -1538,20 +1431,13 @@ as -2. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_51" NAME="HDRKEY51">Front Overlay Offset Across</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_FTOVL_ACR </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Float </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The offset across from the point of origin where the overlay is printed.
 </DD>
 </DL>
@@ -1610,20 +1496,13 @@ printed.  Valid values are 4214, 4234, 522X, or IPDS.</DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_54" NAME="HDRKEY54">Justification</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_JUSTIFY </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The percentage that the output is right justified. Valid values are
 0, 50, 100. </DD>
 </DL>
@@ -1732,135 +1611,98 @@ are *WTR, *FIRST, *ALL. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_181" NAME="HDRKEY181">IPP Job ID</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_IPP_JOB_ID </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>IPP Job ID relative to the IPP printer that created the job. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_182" NAME="HDRKEY182">IPP Job Name</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
-<DD>ATTR_IPP_ATR_CHARSET </DD>
-
+<DD>ATTR_IPP_JOB_NAME</DD>
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>User friendly name of job. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_183" NAME="HDRKEY183">IPP Job Name NL</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
-<DD>ATTR_IPP_JOB_NAME_NL </DD>
-
+<DD>ATTR_IPP_JOB_NAME_NL</DD>
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Natural language of job name. </DD>
 </DL>
 
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_184" NAME="HDRKEY184">IPP Job Originating User Name</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_IPP_JOB_ORIGUSER </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Identifies the end user that submitted this IPP job. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_185" NAME="HDRKEY185">IPP Job Originating User Name NL</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_IPP_JOB_ORIGUSER_NL </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Identifies the natural language of job-originating user name. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_186" NAME="HDRKEY186">IPP Printer Name</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_IPP_PRINTER_NAME </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Identifies the IPP printer that created this job. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
-<H2><a HREF="#ToC_58" NAME="HDRKEY57">Job Name</A></H2>
-
+<H2><a HREF="#ToC_0x014E" NAME="HDRKEY0x014E">Job CCSID</A></H2>
 <DL>
 <DT><strong>ID</strong></DT>
-
-<DD>ATTR_JOBNAME </DD>
-
+<DD>ATTR_JOBCCSID </DD>
 <DT><strong>Type</strong></DT>
-
-<DD>String </DD>
-
+<DD>Integer</DD>
 <DT><strong>Description</strong></DT>
+<DD>The CCSID of the job that created the spooled file. </DD>
+</DL>
 
+<P>
+<HR><p></P>
+<H2><a HREF="#ToC_58" NAME="HDRKEY57">Job Name</A></H2>
+<DL>
+<DT><strong>ID</strong></DT>
+<DD>ATTR_JOBNAME </DD>
+<DT><strong>Type</strong></DT>
+<DD>String </DD>
+<DT><strong>Description</strong></DT>
 <DD>The name of the job that created the spooled file. </DD>
 </DL>
 
@@ -2480,98 +2322,63 @@ to 9 (lowest). Valid values are 0-9, where 0 represents *JOB. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_87" NAME="HDRKEY83">Output Queue Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_OUTQSTS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The status of the output queue. Valid values are RELEASED, HELD. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_87.5" NAME="HDRKEY87.5">Overall Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_OVERALLSTS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The overall status of the "logical printer".  "Logical printer" refers to printer device, output queue and writer job.  Valid values are 1 (unavailable),  2 (powered off or not yet available), 3 (stopped), 4 (message waiting), 5 (held), 6 (stop pending), 7 (hold pending), 8 (waiting for printer), 9 (waiting to start), 10 (printing), 11 (waiting for output queue), 12 (connect pending), 13 (powered off), 14 (unusable), 15 (being serviced), 999 (unknown). </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_88" NAME="HDRKEY84">Overflow Line Number</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_OVERFLOW </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The last line to be printed before the data that is being printed overflows
 to the next page. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_171" NAME="HDRKEY171">Page At A Time</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_PAGE_AT_A_TIME </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Specifies whether the spooled file is to be opened in page-at-a-time mode.
 Valid values are *YES and *NO.</DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_175" NAME="HDRKEY175">Page Count Estimated</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_PAGES_EST </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Specifies whether the page count is estimated rather than actual.  Valid
 values are *YES and *NO.</DD>
 </DL>
@@ -2701,20 +2508,13 @@ a pel size of 320). Additional values may become meaningful as the server define
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_91" NAME="HDRKEY86">Point Size</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_POINTSIZE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Float </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The point size in which this spooled file's text is printed. The special
 value *NONE is encoded as 0. </DD>
 </DL>
@@ -2734,40 +2534,26 @@ are *ABSOLUTE, *CONTENT. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_93" NAME="HDRKEY88">Print on Both Sides</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_DUPLEX </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>How the information prints. Valid values are *FORMDF, *NO, *YES, *TUMBLE.
 </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_94" NAME="HDRKEY89">Print Quality</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_PRTQUALITY </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The print quality that is used when printing this spooled file. Valid
 values are *STD, *DRAFT, *NLQ, *FASTDRAFT. </DD>
 </DL>
@@ -2818,39 +2604,25 @@ and on separator pages. Valid special values include *BLANK and *JOB. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_97.5" NAME="HDRKEY97.5">Printer Assigned</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_PRTASSIGNED </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Indicates if the printer is assigned. Valid values are 1 (assigned to a specific printer), 2 (assigned to multiple printers), 3 (not assigned).  </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_98" NAME="HDRKEY93">Printer Device Type</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_PRTDEVTYPE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The printer data stream type. Valid values are *SCS, *IPDS, *USERASCII,
 *AFPDS, *LINE. </DD>
 </DL>
@@ -3416,39 +3188,25 @@ to the writer. Valid values are *IMMED, *FILEEND, *JOBEND. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_121.5" NAME="HDRKEY121.5">Started By User</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_STARTEDBY </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The name of the user who started the writer. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_122" NAME="HDRKEY112">Starting Page</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_STARTPAGE </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The page number at which to start printing the spooled file. Valid
 values are -1, 0, 1, or the page number. The value *ENDPAGE is encoded
 as -1. For the value 0, printing starts on page 1. For the value 1, the
@@ -3530,59 +3288,38 @@ The time is encoded in a character string with the following format,
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_125" NAME="HDRKEY115">Total Pages</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_PAGES </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>Integer </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The number of pages that are contained in a spooled file. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_126" NAME="HDRKEY116">Transform SCS to ASCII</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_SCS2ASCII </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Whether the print data is to be transformed from SCS to ASCII. Valid
 values are *YES, *NO. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_127" NAME="HDRKEY117">Unit of Measure</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_UNITOFMEAS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The unit of measure to use for specifying distances. Valid values are
 *CM, *INCH. </DD>
 </DL>
@@ -3720,39 +3457,25 @@ Driver Program</A></H2>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_139" NAME="HDRKEY121">User ID Address</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_TOADDRESS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Address of user to whom the spooled file is sent. </DD>
 </DL>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_IFSA" NAME="HDRKEYIFS_A">User Transform Program</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_USER_TRANSFORM_PROG </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The Integrated File System path of the user defined transform program that
     transforms spool file data  before it is processed by the driver program.
     The format of the Integrated File System path is "/QSYS.LIB/library.LIB/program.PGM" where
@@ -3765,20 +3488,13 @@ Driver Program</A></H2>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_173" NAME="HDRKEY173">Fidelity</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_VIEWING_FIDELITY </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>The processing to take place when viewing a page of  
 spooled file data (in page-at-a-time mode).
 Valid values are *ABSOLUTE and *CONTENT(default).  To process all non-raster data (commands) prior 
@@ -3829,20 +3545,13 @@ are *NORDYF, *FILEEND. Attribute Automatically end writer must be set to
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_128.2" NAME="HDRKEY128.2">Waiting for Data Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_WTNGDATASTS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Whether the writer has written all the data currently in the spooled file
 and is waiting for more data.  Possible values are *NO - the writer is not
 waiting for more data, *YES - the writer has written all the data currently in
@@ -3852,20 +3561,13 @@ writer is producing an open spooled file with SCHEDULE(*IMMED) specified. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_128.4" NAME="HDRKEY128.4">Waiting for Device Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_WTNGDEVSTS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Whether the writer is waiting to get the device from a job that is printing
 directly to the printer.  Values are *NO - the writer is not waiting for the
 device, *YES - the writer is waiting for the device. </DD>
@@ -3954,20 +3656,13 @@ method attribute. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_IFS8" NAME="HDRKEYIFS_8">Workstation Customizing Object</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_WORKSTATION_CUST_OBJECT </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD> The Integrated File System path of the workstation customizing object.  The format of the Integrated File System path
 is "/QSYS.LIB/library.LIB/custobj.WSCST" where <I>library</I> is the library that
 contains the customization object and <I>custobj</I> is the name of the workstation
@@ -4053,20 +3748,13 @@ file name is also specified when the writer starts. </DD>
 
 <P>
 <HR><p></P>
-
 <H2><a HREF="#ToC_126.5" NAME="HDRKEY126.5">Writing Status</A></H2>
-
 <DL>
 <DT><strong>ID</strong></DT>
-
 <DD>ATTR_WRTNGSTS </DD>
-
 <DT><strong>Type</strong></DT>
-
 <DD>String </DD>
-
 <DT><strong>Description</strong></DT>
-
 <DD>Indicates whether the print writer is in writing status.  Values are
 *YES - the writer is in writing status, *NO - the writer is not in writing
 status, *FILE - the writer is writing the file separators. </DD>
