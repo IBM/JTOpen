@@ -38,11 +38,11 @@ public class RowDataException extends Exception
    *
    *  @param exception The exception.
    **/
-   RowDataException(Exception exception) 
-   { 
-      super(exception.getMessage()); 
-      exception_ = exception;
-   }
+    public RowDataException(Exception exception)            // @B1C
+    {
+        super(exception.getMessage());                       
+        exception_ = exception;
+    }
 
    /**
    *  Returns the original exception.

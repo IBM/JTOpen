@@ -49,8 +49,9 @@ public abstract class RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   Vector rows_;           // The row data.
-   Vector rowProperties_;        // The row data properties, where each column in the row contains a Vector of properties.
+    // @B3C
+    protected Vector rows_;          // The row data.                 
+    Vector rowProperties_;           // The row data properties, where each column in the row contains a Vector of properties.
 
    transient int maxLoad_;          // The maximum resource list items to load at 1 time (equals the max table size).
    transient int position_;         // The current position in the list.
