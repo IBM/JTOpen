@@ -94,8 +94,7 @@ implements IFSFileImpl
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "exists0")
-                        .getReturnValueInt();
+      return connection_.callMethodReturnsInt (pxId_, "exists0");
     }
     catch (InvocationTargetException e) {
       throw rethrow2 (e);
@@ -107,7 +106,7 @@ implements IFSFileImpl
     throws IOException, AS400SecurityException
   {
     try {
-      return connection_.callMethod (pxId_, "getCCSID").getReturnValueInt();
+      return connection_.callMethodReturnsInt (pxId_, "getCCSID");
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -125,6 +124,7 @@ implements IFSFileImpl
     }
   }
 
+  
   // @B7a
   public int getOwnerId()
     throws IOException, AS400SecurityException
