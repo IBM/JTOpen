@@ -228,55 +228,55 @@ public class ConvTableReader extends InputStreamReader
                     int c = 0;
                     if (mode_ == DB_MODE)
                     {
-                        b_cache_[numRead++] = ConvTableMixedMap.shiftOut_;  // Begin with a shift-out since we left off in DB_MODE last time.
+                        // Begin with a shift-out since we left off in DB_MODE last time.
+                        b_cache_[numRead++] = ConvTableMixedMap.shiftOut_;
                         if (isCachedByte_)  // Note that we don't ever cache a shift byte or a single-byte char - we only cache half of a double-byte char.
                         {
                             b_cache_[numRead++] = cachedByte_;
                             isCachedByte_ = false;
                         }
-                        else
-                        {
-                            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error in mixed-byte cache algorithm.");
-                            // We should ALWAYS have a cached byte if we are starting in DB_MODE.
-                            throw new InternalErrorException(InternalErrorException.UNKNOWN);
-                        }
                     }
                     // Don't read too much, we only want to read enough that will fit in our character cache after conversion.
-                    int curRead = is_.read(b_cache_, numRead, cache_.length-1);
+                    int curRead = is_.read(b_cache_, numRead, cache_.length - 1);
                     if (curRead == -1 && numRead == 0)
                     {
                         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
                         return false;  // End-of-stream.
                     }
                     if (curRead > -1) numRead += curRead;
+
                     // Find out which mode we are in when we stopped reading.
-                    for (int i=0; i<numRead; ++i)
+                    boolean needToCache = false;
+                    for (int i = 0; i < numRead; ++i)
                     {
-                        if (mode_ == SB_MODE && b_cache_[i] == ConvTableMixedMap.shiftOut_)
+                        if (mode_ == SB_MODE)
                         {
-                            mode_ = DB_MODE;
+                            if (b_cache_[i] == ConvTableMixedMap.shiftOut_) mode_ = DB_MODE;
                         }
-                        else if (mode_ == DB_MODE && b_cache_[i] == ConvTableMixedMap.shiftIn_)
+                        else
                         {
-                            mode_ = SB_MODE;
+                            // In DB_MODE.
+                            if (b_cache_[i] == ConvTableMixedMap.shiftIn_)
+                            {
+                                mode_ = SB_MODE;
+                                needToCache = false;
+                            }
+                            else
+                            {
+                                needToCache = !needToCache;
+                            }
                         }
                     }
                     if (mode_ == DB_MODE)
                     {
-                        // Need to finish with a shift-in.
-                        b_cache_[numRead++] = ConvTableMixedMap.shiftIn_;
-                        if (curRead == -1) c = -1;
-                        else c = is_.read();
-                        if (c != ConvTableMixedMap.shiftIn_)
+                        if (needToCache)
                         {
-                            // If this is the end-of-stream (-1), then the stream did not contain a correctly-formatted sequence of mixed-byte characters.  It should've ended with a shift-in.
-                            cachedByte_ = (byte)c;
+                            cachedByte_ = b_cache_[--numRead];
                             isCachedByte_ = true;
                         }
-                        else
-                        {
-                            mode_ = SB_MODE;
-                        }
+
+                        // Need to finish with a shift-in.
+                        b_cache_[numRead++] = ConvTableMixedMap.shiftIn_;
                     }
                 }
                 else if (tableType_ == UTF8_TABLE)
