@@ -697,8 +697,10 @@ public class AS400JDBCResultSet implements ResultSet
         {
             checkOpen ();
             try
-            {
-                return new java.net.URL(getString(columnIndex));
+            {   String string = getString(columnIndex);
+                if(string == null)
+                    return null;
+                return new java.net.URL(string);
             }
             catch(MalformedURLException e)
             {
@@ -2437,7 +2439,8 @@ public class AS400JDBCResultSet implements ResultSet
             // Treat this differently from the other get's.  If the data is not a       // @C1A
             // BINARY, VARBINARY, or BLOB, and we have access to the bytes, then return // @C1A @D4C
             // the bytes directly.                                                      // @C1A
-            if((!(data.getSQLType() == SQLData.BINARY)) 
+            if((data != null)
+               && (!(data.getSQLType() == SQLData.BINARY)) 
                && (!(data.getSQLType() == SQLData.VARBINARY))
                && (!(data.getSQLType() == SQLData.BLOB))                                   // @D4A
                && (!(data.getSQLType() == SQLData.BLOB_LOCATOR))                           // @D4A
@@ -2445,7 +2448,6 @@ public class AS400JDBCResultSet implements ResultSet
                && (!(data.getSQLType() == SQLData.LONG_VARCHAR_FOR_BIT_DATA))              // @M0A
                && (!(data.getSQLType() == SQLData.VARCHAR_FOR_BIT_DATA))                   // @M0A
                && (!(data.getSQLType() == SQLData.ROWID))                                  // @M0A
-               && (data != null)
                && (row_ instanceof JDServerRow))                                       // @C1A
                 value = ((JDServerRow)row_).getRawBytes(columnIndex);                   // @C1A
                                                                                         // @C1A
