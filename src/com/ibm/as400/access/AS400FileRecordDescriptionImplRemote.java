@@ -159,7 +159,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'B': // Binary field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
 //      if (digits < 6)
         if(digits < 5) // @A2C
         {
@@ -297,7 +297,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'F': // Float field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         //@A1A: Retrieve byte length to determine if field is single or double
         // precision
@@ -605,7 +605,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'P': // Packed decimal field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         fd = new PackedDecimalFieldDescription(new AS400PackedDecimal(digits, decimalPositions),
                                                fieldName);
@@ -632,7 +632,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'S': // Zoned decimal field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         fd = new ZonedDecimalFieldDescription(new AS400ZonedDecimal(digits, decimalPositions),
                                               fieldName);
@@ -1307,7 +1307,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'B': // Binary field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
 //      if (digits < 6)
         if(digits < 5) // @A2C
         {
@@ -1465,7 +1465,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'F': // Float field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         //@A1A: Retrieve byte length to determine if field is single or double
         // precision
@@ -1843,7 +1843,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'P': // Packed decimal field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         sourceFile.println("    addFieldDescription(new PackedDecimalFieldDescription(new AS400PackedDecimal(" +
                            String.valueOf(digits) + ", " + String.valueOf(decimalPositions) + "), \"" +
@@ -1879,7 +1879,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'S': // Zoned decimal field
-        digits = ((BigDecimal)record.getField("WHFLDO")).intValue();
+        digits = ((BigDecimal)record.getField("WHFLDD")).intValue();
         decimalPositions = ((BigDecimal)record.getField("WHFLDP")).intValue();
         sourceFile.println("    addFieldDescription(new ZonedDecimalFieldDescription(new AS400ZonedDecimal(" +
                            String.valueOf(digits) + ", " + String.valueOf(decimalPositions) + "), \"" +
@@ -2202,7 +2202,7 @@ class QWHDRFFDFormat extends RecordFormat
     // Field length in bytes
     addFieldDescription(new ZonedDecimalFieldDescription(z50, "WHFLDB"));
     // Number of digits
-    addFieldDescription(new ZonedDecimalFieldDescription(z20, "WHFLDO"));
+    addFieldDescription(new ZonedDecimalFieldDescription(z20, "WHFLDD"));
     // Number of decimal positions
     addFieldDescription(new ZonedDecimalFieldDescription(z20, "WHFLDP"));
     // Field text description
