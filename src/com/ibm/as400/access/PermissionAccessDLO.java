@@ -41,15 +41,15 @@ class PermissionAccessDLO extends PermissionAccess
      * Adds the authorized user or user permission.
      * @param objName The object the authorized user will be added to.
      * @param permission The permission of the new authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void addUser(String objName,UserPermission permission)
@@ -74,6 +74,45 @@ class PermissionAccessDLO extends PermissionAccess
 
     }
 
+
+    // @B3a - New Method.
+    /**
+     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    protected final String expandQuotes(String objName)
+    {
+      return expandQuotes0(objName);
+    }
+
+
+    // @B3a - New Method.
+    /**
+     * If the name contains single-quotes, doubles up the single-quotes.
+     * Regardless, encloses the entire name in single-quotes.
+     * This prepares the name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    static String expandQuotes0(String objName)
+    {  // @B4c
+      StringBuffer buf = new StringBuffer(objName);
+      // First, if the name contains single-quotes, double-up the quotes.
+      if (objName.indexOf('\'') != -1) {
+        for (int i=objName.length()-1; i>=0; i--) {
+          if (buf.charAt(i) == '\'') { buf.insert(i,'\''); }
+        }
+      }
+      // Finally, enclose the entire name in single-quotes.
+      buf.insert(0,'\'');
+      buf.append('\'');
+
+      return buf.toString();
+    }
+
     /**
      * Returns the command to add a authorized user.
      * @param objName The object the authorized user will be added to.
@@ -95,7 +134,7 @@ class PermissionAccessDLO extends PermissionAccess
         else
             folder = "*NONE";
         String command="ADDDLOAUT"
-               +" DLO('"+name+"')"
+               +" DLO("+expandQuotes0(name)+")"                    // @B3c @B4c
                +" FLR('"+folder+"')"
                +" USRAUT(("+userProfile+" "+authorityLevel+"))";
         CommandCall cmd = new CommandCall(sys, command); //@A3C
@@ -124,7 +163,7 @@ class PermissionAccessDLO extends PermissionAccess
         else
             folder = "*NONE";
         String command="CHGDLOAUT"
-                +" DLO('"+name+"')"
+                +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
                 +" FLR('"+folder+"')"
                 +" USRAUT(("+userProfile+" "+authorityLevel+"))";
         CommandCall cmd = new CommandCall(sys, command); //@A3C
@@ -150,7 +189,7 @@ class PermissionAccessDLO extends PermissionAccess
         else
             folder = "*NONE";
         String command="RMVDLOAUT"
-                       +" DLO('"+name+"')"
+                       +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
                        +" FLR('"+folder+"')"
                        +" USER(("+userName+"))";
         CommandCall cmd = new CommandCall(sys, command); //@A3C
@@ -207,15 +246,15 @@ class PermissionAccessDLO extends PermissionAccess
      * Removes the authorized user.
      * @param objName The object the authorized user will be removed from.
      * @param userName The profile name of the authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void removeUser(String objName,String userName)
@@ -243,15 +282,15 @@ class PermissionAccessDLO extends PermissionAccess
     /**
      * Sets the authorized user's permissions.
      * @return The UserPermission object.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
     **/
     public synchronized void setAuthority(String objName,UserPermission permission)
             throws AS400Exception,
@@ -280,15 +319,15 @@ class PermissionAccessDLO extends PermissionAccess
      * @param objName The object that the authorized list will be set to.
      * @param autList The authorization list that will be set.
      * @param oldValue The old authorization list will be replaced.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setAuthorizationList(String objName,String autList,String oldValue)
@@ -316,13 +355,13 @@ class PermissionAccessDLO extends PermissionAccess
         if (autList.toUpperCase().equals("*NONE"))
         {
             cmd = "RMVDLOAUT"
-                  +" DLO('"+name+"')"
+                  +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
                   +" FLR('"+folder+"')"
                   +" AUTL("+oldValue+")";
         } else
         {
             cmd = "CHGDLOAUT"
-                  +" DLO('"+name+"')"
+                  +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
                   +" FLR('"+folder+"')"
                   +" AUTL("+autList+")";
         }
@@ -341,15 +380,15 @@ class PermissionAccessDLO extends PermissionAccess
      * @param objName The object the authorized list will be set to.
      * @param fromAutl true if the permission is from the authorization list;
      * false otherwise.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setFromAuthorizationList(String objName,boolean fromAutl)
@@ -374,7 +413,7 @@ class PermissionAccessDLO extends PermissionAccess
             folder = "*NONE";
         CommandCall fromAUTL=new CommandCall(as400_);
         String cmd = "CHGDLOAUT"
-                     +" DLO('"+name+"')"
+                     +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
                      +" FLR('"+folder+"')"
                      +" USRAUT((*PUBLIC *AUTL))";
         fromAUTL.setCommand(cmd);
@@ -398,15 +437,15 @@ class PermissionAccessDLO extends PermissionAccess
      *  <LI> *PRIVATE - The object contains information that should be accessed only by the owner.
      *  <LI> *CONFIDENTIAL - The object contains information that should be handled according to company procedures.
      * </UL>
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
     **/
     public synchronized void setSensitivity(String objName,int sensitivityLevel)
             throws AS400Exception,
@@ -449,7 +488,7 @@ class PermissionAccessDLO extends PermissionAccess
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         String cmd = "CHGDLOAUT"
-                     +" DLO('"+name+"')"
+                     +" DLO("+expandQuotes0(name)+")"                   // @B3c @B4c
                      +" FLR('"+folder+"')"
                      +" SENSITIV("+sensitivity+")";
         setSensitiv.setCommand(cmd);

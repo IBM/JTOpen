@@ -41,15 +41,15 @@ class PermissionAccessRoot extends PermissionAccess
      * Adds the authorized user or user permission.
      * @param objName The object the authorized user will be added to.
      * @param permission The permission of the new authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void addUser(String objName,UserPermission permission)
@@ -72,6 +72,50 @@ class PermissionAccessRoot extends PermissionAccess
         }
         return;
 
+    }
+
+
+    // @B3a - New method.
+    /**
+     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    protected final String expandQuotes(String objName)
+    {
+      return expandQuotes0(objName);
+    }
+
+    // @B3a - New method.
+    /**
+     * If the name contains single- or double-quotes, doubles up the quotes and encloses the entire name in double-quotes.
+     * Regardless, encloses the entire name in single-quotes.
+     * This prepares the name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    static String expandQuotes0(String objName)
+    {  // @B4c
+      StringBuffer buf = new StringBuffer(objName);
+      // See if the name contains any single- or double-quotes.
+      if (objName.indexOf('\'') != -1 ||
+          objName.indexOf('\"') != -1) {
+        // Double-up all single- and double-quotes.
+        for (int i=objName.length()-1; i>=0; i--) {
+          if (buf.charAt(i) == '\'') { buf.insert(i,'\''); }
+          else if (buf.charAt(i) == '\"') { buf.insert(i,'\"'); }
+        }
+        // Now enclose the entire name in double-quotes.
+        buf.insert(0,'\"');
+        buf.append('\"');
+      }
+      // Finally, enclose the entire name in single-quotes.
+      buf.insert(0,'\'');
+      buf.append('\'');
+
+      return buf.toString();
     }
 
     /**
@@ -108,7 +152,7 @@ class PermissionAccessRoot extends PermissionAccess
         }
 
         String command = "CHGAUT"
-                         +" OBJ('"+objName+"')"
+                         +" OBJ("+expandQuotes0(objName)+")"     // @B3c @B4c
                          +" USER("+userProfile+")"
                          +" DTAAUT("+dataAuthority+")"
                          +" OBJAUT("+objAuthority+")";
@@ -129,7 +173,7 @@ class PermissionAccessRoot extends PermissionAccess
         String dataAuthority="*NONE";
         String objAuthority="*NONE";
         String command = "CHGAUT"
-                         +" OBJ('"+objName+"')"
+                         +" OBJ("+expandQuotes0(objName)+")"          // @B3c @B4c
                          +" USER("+userName+")"
                          +" DTAAUT("+dataAuthority+")"
                          +" OBJAUT("+objAuthority+")";
@@ -179,15 +223,15 @@ class PermissionAccessRoot extends PermissionAccess
      * Removes the authorized user.
      * @param objName The object the authorized user will be removed from.
      * @param userName The profile name of the authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void removeUser(String objName,String userName)
@@ -214,15 +258,15 @@ class PermissionAccessRoot extends PermissionAccess
     /**
      * Returns authorized users' permissions.
      * @return a vector of authorized users' permission.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setAuthority(String objName,UserPermission permission)
@@ -251,15 +295,15 @@ class PermissionAccessRoot extends PermissionAccess
      * @param objName The object that the authorized list will be set to.
      * @param autList The authorization list that will be set.
      * @param oldValue The old authorization list will be replaced.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setAuthorizationList(String objName,String autList,String oldValue)
@@ -275,7 +319,7 @@ class PermissionAccessRoot extends PermissionAccess
     {
         CommandCall setAUTL=new CommandCall(as400_);
         String cmd="CHGAUT"
-                   +" OBJ('"+objName+"')"
+                   +" OBJ("+expandQuotes0(objName)+")"          // @B3c @B4c
                    +" AUTL("+autList+")";
         setAUTL.setCommand(cmd);
         setAUTL.setThreadSafe(true);  //@A2A
@@ -292,15 +336,15 @@ class PermissionAccessRoot extends PermissionAccess
      * @param objName The object the authorized list will be set to.
      * @param fromAutl true if the permission is from the authorization list;
      * false otherwise.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setFromAuthorizationList(String objName,boolean fromAutl)
@@ -318,13 +362,13 @@ class PermissionAccessRoot extends PermissionAccess
         String cmd;
         if (fromAutl)
             cmd = "CHGAUT"
-                  +" OBJ('"+objName+"')"
+                  +" OBJ("+expandQuotes0(objName)+")"                   // @B3c @B4c
                   +" USER(*PUBLIC)"
                   +" DTAAUT(*AUTL)"
                   +" OBJAUT(*NONE)";
         else
             cmd = "CHGAUT"
-                  +" OBJ('"+objName+"')"
+                  +" OBJ("+expandQuotes0(objName)+")"                   // @B3c @B4c
                   +" USER(*PUBLIC)"
                   +" DTAAUT(*EXCLUDE)"
                   +" OBJAUT(*NONE)";
@@ -342,15 +386,15 @@ class PermissionAccessRoot extends PermissionAccess
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.
      * @param sensitivityLevel The Sensitivity level that will be set.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setSensitivity(String objName,int sensitivityLevel)

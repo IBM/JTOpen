@@ -18,18 +18,18 @@ package com.ibm.as400.access;
 object contained in the root directory structure.  
 <P>An object on the root directory structure can set the <B>data authority</B> or the <B>object
 authority</B>.  The <B>data authority</B> can be set to one of the following values:  *none, *RWX, 
-*RW, *RX, *WX, *R, *W, *X, *Exclude, or *Auth.  Use <i>getDataAuthority()</i> to display
+*RW, *RX, *WX, *R, *W, *X, *EXCLUDE, or *AUTL.  Use <i>getDataAuthority()</i> to display
 the current values and the <i>setDataAuthority()</i> to set the data authority to one of
 the valid values.  Use <i>commit()</i> from the Permission class to send the changes
-to the AS/400.
+to the server.
 
 <P>The <B>object authority</B> can be set to one or more of the following values: 
 alter, existence, management, or reference. Use the appropriate
 set methods (<i>setAlter()</i>, <i>setExistence()</i>, <i>setManagement()</i>,
 or <i>setReference()</i>) to turn the value on or off. After all the values 
 are set, use the <i>commit()</i> method from the Permissions class to send the changes 
-to the AS/400. 
-<P>For more information, refer the AS/400 Advance Series Security BasicManual (SC41-5301-00).
+to the server. 
+<P>For more information, refer the iSeries Advance Series Security Basic Manual (SC41-5301-00).
 **/
 public class RootPermission extends UserPermission
 {
@@ -51,15 +51,8 @@ public class RootPermission extends UserPermission
         return;
     }
     
-    
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
-    
+    // Deleted getCopyright().
+
     /**
      * Returns the data authority of the user.
      * @return The data authority of the user. The possible values are:

@@ -177,8 +177,8 @@ public class UserPermission
 
    
     /**
-     * Returns if the content is already committed in the AS/400.
-     * @return if the content is already committed in the AS/400.
+     * Returns if the content is already committed in the server.
+     * @return if the content is already committed in the server.
      * <UL>
      *     <LI>-1  COMMIT_NONE means no change and any operation to the object.
      *        <LI> 0 COMMIT_ADD means this user permission which was added 
@@ -195,13 +195,7 @@ public class UserPermission
         return committed_;
     }
 
-    /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
+    // Deleted getCopyright().
     
     /**
      * Returns the value indicating if the user profile is a group profile. 
@@ -307,7 +301,8 @@ public class UserPermission
             {
                 authorities_[i] = false;
             }
-            dataAuthority_="*EXCLUDE";
+            //@A2D dataAuthority_="*EXCLUDE";
+            dataAuthority_="*AUTL";                  // @A2C
             setCommitted(COMMIT_FROM_AUTL);
         } else
         {

@@ -53,15 +53,15 @@ abstract class PermissionAccess
      * Adds the authorized user or the UserPermission.
      * @param objName The object the authorized user will be added to.
      * @param permission The permission of the new authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public abstract void addUser(String objName,UserPermission permission)
@@ -75,9 +75,19 @@ abstract class PermissionAccess
                    PropertyVetoException,
                    UnknownHostException;
                    
+
+    // @B3a - New Method.
     /**
-     * Returns the AS/400 system
-     * @return The AS/400 system object. 
+     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    protected abstract String expandQuotes(String objName);
+                   
+    /**
+     * Returns the server
+     * @return The server object. 
      * @see #setSystem
      *
     **/
@@ -89,15 +99,15 @@ abstract class PermissionAccess
     /**
      * Returns authorized users' permissions.
      * @return A vector of authorized users' permission.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
-     * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
+     * @exception IOException If an error occurs while communicating with the server.
+     * @exception ObjectDoesNotExistException If the server object does not exist.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public Vector getAuthority(String objName)
@@ -375,15 +385,15 @@ abstract class PermissionAccess
      * Removes the authorized user.
      * @param objName The object the authorized user will be removed from.
      * @param userName The profile name of the authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     abstract public void removeUser(String objName,String userName)
@@ -401,15 +411,15 @@ abstract class PermissionAccess
      * Sets authorized information.
      * @param objName The object the authorized information will be set to.
      * @param permission The permission will be set.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     abstract public void setAuthority(String objName,UserPermission permission)
@@ -428,15 +438,15 @@ abstract class PermissionAccess
      * @param objName The object the authorized list will be set to.
      * @param autList The authorization list will be set.
      * @param oldValue The old authorization list will be replaced.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     abstract public void setAuthorizationList(String objName,String autList,String oldValue)
@@ -455,15 +465,15 @@ abstract class PermissionAccess
      * @param objName The object the authorized list will be set to.
      * @param fromAutl true if the permission is from the authorization list;
      * false otherwise.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     abstract public void setFromAuthorizationList(String objName,boolean fromAutl)
@@ -484,15 +494,15 @@ abstract class PermissionAccess
      * @param owner The owner of the object.
      * @param revokeOldAuthority Specifies whether the authorities for the current
      * owner are revoked when ownership is transferred to the new owner. 
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void setOwner(String objName, String owner, boolean revokeOldAuthority)
@@ -512,7 +522,7 @@ abstract class PermissionAccess
       if (revokeOldAuthority) revokeOldAut = "*YES";
       else                    revokeOldAut = "*NO";
       String cmdString = "CHGOWN " +
-        "OBJ('"+objName+"') " +
+        "OBJ("+expandQuotes(objName)+") " +                 // @B3c @B4c
         "NEWOWN("+owner+") " +
         "RVKOLDAUT("+revokeOldAut+")";
       cmd.setCommand(cmdString);
@@ -528,15 +538,15 @@ abstract class PermissionAccess
      * Sets the sensitivity level of the object.
      * @param objName The object the sensitivity level will be set to.
      * @param sensitivityLevel The sensitivity level will be set.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     abstract public void setSensitivity(String objName,int sensitivityLevel)
@@ -553,7 +563,7 @@ abstract class PermissionAccess
     /**
      * Sets the system where object authority information resides.
      *
-     * @param   system The AS/400 system object.
+     * @param   system The server object.
      * @see     #getSystem
     **/
     public void setSystem(AS400 system)

@@ -41,15 +41,15 @@ class PermissionAccessQSYS extends PermissionAccess
      * Adds the authorized user or user permission.
      * @param objName The object the authorized user will be added to.
      * @param permission The permission of the new authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void addUser(String objName,UserPermission permission)
@@ -72,6 +72,44 @@ class PermissionAccessQSYS extends PermissionAccess
         }
         return;
 
+    }
+
+
+    // @B3a - New method.
+    /**
+     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    protected final String expandQuotes(String objName)
+    {
+      // @B4d return objName;  // Note: Quotes are not allowed in QSYS object names.
+      return expandQuotes0(objName);      // @B4a
+    }
+
+    // @B4a - New method.
+    /**
+     * If the name contains double-quotes, wraps the name in three sets of single-quotes.
+     * For example, we would end up with '''The"Name'''.
+     * Otherwise, simply wraps the name in single-quotes.
+     * This prepares the name for parsing by the OS/400 Command Analyzer.
+     * @param objName The name of an object.
+     * @return A version of the name that is parsable by the Command Analyzer. 
+     *
+    **/
+    static String expandQuotes0(String objName)
+    {
+      StringBuffer buf = new StringBuffer(objName);
+      // First, enclose the entire name in single-quotes.
+      buf.insert(0,'\'');
+      buf.append('\'');
+      if (objName.indexOf('\"') != -1) {
+        // Additionally enclose the entire name in two more sets of single-quotes.
+        buf.insert(0,"''");
+        buf.append("''");
+      }
+      return buf.toString();
     }
 
     /**
@@ -242,7 +280,7 @@ class PermissionAccessQSYS extends PermissionAccess
             object += objectPathName.getObjectName()+".FILE";
 
             command="CHGAUT"
-                    +" OBJ('"+object+"')"
+                    +" OBJ("+expandQuotes0(object)+")"       // @B4c
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
@@ -250,7 +288,7 @@ class PermissionAccessQSYS extends PermissionAccess
         } else
         {
             command="CHGAUT"
-                    +" OBJ('"+objName+"')"
+                    +" OBJ("+expandQuotes0(objName)+")"      // @B4c
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
@@ -312,15 +350,15 @@ class PermissionAccessQSYS extends PermissionAccess
      * Removes the authorized user.
      * @param objName The object the authorized user will be removed from.
      * @param userName The profile name of the authorized user.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public void removeUser(String objName,String userName)
@@ -347,15 +385,15 @@ class PermissionAccessQSYS extends PermissionAccess
     /**
      * Returns the authorized users' permissions.
      * @return A vector of authorized users' permission.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
     **/
     public synchronized void setAuthority(String objName,UserPermission permission)
          throws AS400Exception,
@@ -389,15 +427,15 @@ class PermissionAccessQSYS extends PermissionAccess
      * @param objName The object that the authorization list will be set to.
      * @param autList The authorization list that will be set.
      * @param oldValue The old authorization list will be replaced.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setAuthorizationList(String objName,String autList,String oldValue)
@@ -452,15 +490,15 @@ class PermissionAccessQSYS extends PermissionAccess
      * @param objName The object the authorized list will be set to.
      * @param fromAutl true if the permission is from the authorization list;
      * false otherwise.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setFromAuthorizationList(String objName,boolean fromAutl)
@@ -512,15 +550,15 @@ class PermissionAccessQSYS extends PermissionAccess
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.
      * @param sensitivityLevel The sensitivity level that will be set.
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception InterruptedException If this thread is interrupted.
-     * @exception IOException If an error occurs while communicationg with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception PropertyVetoException If the change is vetoed.
-     * @exception ServerStartupException If the AS/400 server cannot be started.
-     * @exception UnknownHostException If the AS/400 system cannot be located.
+     * @exception ServerStartupException If the server cannot be started.
+     * @exception UnknownHostException If the server cannot be located.
      *
     **/
     public synchronized void setSensitivity(String objName,int sensitivityLevel)
