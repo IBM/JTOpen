@@ -63,8 +63,8 @@ implements CallableStatement
     private boolean             returnValueParameterRegistered_;        // @E2A
     private boolean             wasNull_;
 
-    private Hashtable   parameterNames_ = null;     //@G4A
-    private int         maxToLog_ = 10000;        // Log value of parameter markers up to this length // @G7A
+    private String[]            parameterNames_;
+    private int                 maxToLog_ = 10000;        // Log value of parameter markers up to this length // @G7A
 
     /**
     Constructs an AS400JDBCCallableStatement object.
@@ -160,70 +160,78 @@ implements CallableStatement
         if(isClosed())
             JDError.throwSQLException(this, JDError.EXC_FUNCTION_SEQUENCE);
 
-        if(parameterName.indexOf("\"") < 0)                      // @G6a
-        {
-            // @G6a
-            parameterName = parameterName.toUpperCase();           // @G6a
-        }                                                         // @G6a
-        else                                                      // @G6a
-        {
-            // @G6a
-            parameterName = parameterName.replace('\"', ' ');      // @G6a
-            parameterName = parameterName.trim();                  // @G6a
-        }                                                         // @G6a
+        boolean caseSensitive = false;
+        int count = 0;
+        int returnParm = 0;
 
+        // determine if our search should be case insensitive or not
+        if(parameterName.indexOf("\"") >= 0)
+        {
+            parameterName = parameterName.replace('"', ' ').trim();
+            caseSensitive = true;
+        }
 
         // If we have a cache created, try to find the column name in it.
         if(parameterNames_ != null)
         {
             // Look up the mapping in our cache.
-            Integer parameterId = (Integer)parameterNames_.get(parameterName);  // @G6c (no longer uppercase parameterName here
+            while(count < parameterNames_.length)
+            {
+                if(caseSensitive && parameterNames_[count] != null && parameterNames_[count].equals(parameterName))
+                {
+                    returnParm = count+1;
+                    break;
+                }
+                else if(!caseSensitive && parameterNames_[count] != null && parameterNames_[count].equalsIgnoreCase(parameterName))
+                {
+                    returnParm = count+1;
+                    break;
+                }
 
-            // If it is there, return the parm number; otherwise throw 
-            // an exception (COLUMN NOT FOUND). 
-            if(parameterId != null)
-                return(parameterId.intValue());
-            else
-                JDError.throwSQLException(this, JDError.EXC_COLUMN_NOT_FOUND);
+                ++count;
+            }
         }
-
-        // Else, create a new hash table to hold all the column name/number mappings.
-        parameterNames_ = new Hashtable(parameterCount_);
-
-        // Cache all the parm names and numbers.
-        int count = 0;
-        int returnParm = 0;
-
-        Statement s = connection_.createStatement();
-        ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME from QSYS2.SYSPROCS WHERE ROUTINE_SCHEMA = '" + sqlStatement_.getSchema() + 
-                                      "' AND ROUTINE_NAME = '" + sqlStatement_.getProcedure() + 
-                                      "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
-
-        // If there are no rows, throw an internal driver exception
-        if(!rs.next())
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL);
-
-        String specificName = rs.getString(1);
-
-        rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2.SYSPARMS WHERE " +
-                            " SPECIFIC_NAME = '" + specificName + "' AND SPECIFIC_SCHEMA = '" + sqlStatement_.getSchema() + "'");
-
-        while(rs.next())
+        else
         {
-            count++;
+            // Else, create a new hash table to hold all the column name/number mappings.
+            parameterNames_ = new String[parameterCount_];
 
-            String colName = rs.getString(1);           // @G6 the server will uppercase the name if not in quotes
-            int colInd = rs.getInt(2);
-            parameterNames_.put(colName, new Integer(colInd)); 
+            // Cache all the parm names and numbers.
 
-            if(colName.equals(parameterName))          //@G6c no longer equals ignore case
-                returnParm = colInd;
+            Statement s = connection_.createStatement();
+            ResultSet rs = s.executeQuery("SELECT SPECIFIC_NAME from QSYS2.SYSPROCS WHERE ROUTINE_SCHEMA = '" + sqlStatement_.getSchema() + 
+                                          "' AND ROUTINE_NAME = '" + sqlStatement_.getProcedure() + 
+                                          "' AND IN_PARMS + OUT_PARMS + INOUT_PARMS = " + parameterCount_);
+
+            // If there are no rows, throw an internal driver exception
+            if(!rs.next())
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+
+            String specificName = rs.getString(1);
+
+            rs = s.executeQuery("SELECT PARAMETER_NAME, ORDINAL_POSITION FROM QSYS2.SYSPARMS WHERE " +
+                                " SPECIFIC_NAME = '" + specificName + "' AND SPECIFIC_SCHEMA = '" + sqlStatement_.getSchema() + "'");
+
+            while(rs.next())
+            {
+                count++;
+    
+                String colName = rs.getString(1);
+                int colInd = rs.getInt(2);
+                parameterNames_[colInd-1] = colName; 
+    
+                if(caseSensitive && colName.equals(parameterName))
+                    returnParm = colInd;
+                else if(!caseSensitive && colName.equalsIgnoreCase(parameterName))
+                    returnParm = colInd;
+            }
+    
+            // If the number of parm names didn't equal the number of parameters, throw
+            // an exception (INTERNAL).
+            if(count != parameterCount_)
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL);
+    
         }
-
-        // If the number of parm names didn't equal the number of parameters, throw
-        // an exception (INTERNAL).
-        if(count != parameterCount_)
-            JDError.throwSQLException(this, JDError.EXC_INTERNAL);
 
         // Throw an exception if the column name is not found (COLUMN NOT FOUND). 
         if(returnParm == 0)
@@ -2095,10 +2103,6 @@ implements CallableStatement
     for SQL NULL.
     
     @param  parameterIndex  The parameter index (1-based).
-    @param  sqlType1        The first SQL type code that must be registered,
-                            or NO_VALIDATION_ for no validation.
-    @param  sqlType2        The second SQL type code that must be registered,
-                            or NO_VALIDATION_ for no validation.
     @return                 The parameter value or null if the value is SQL NULL.
     
     @exception  SQLException    If the statement is not open,
