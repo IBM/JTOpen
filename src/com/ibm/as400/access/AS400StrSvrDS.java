@@ -35,7 +35,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
         setTemplateLen(2);
         setReqRepID(0x7002);
 
-        data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_AUTHENTICATION_TOKEN) ? (byte)0x06 : (byte)0x02;
+        data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) ? (byte)0x06 : (byte)0x02;
         data_[21] = 0x01;  // Send reply true.
 
         // Set password or authentication token.
