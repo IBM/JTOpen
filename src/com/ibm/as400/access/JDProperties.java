@@ -1001,7 +1001,7 @@ class JDProperties implements Serializable
         dpi_[i].choices[6]  = MINIMUM_DIVIDE_SCALE_6;
         dpi_[i].choices[7]  = MINIMUM_DIVIDE_SCALE_7;
         dpi_[i].choices[8]  = MINIMUM_DIVIDE_SCALE_8;
-        dpi_[i].choices[8]  = MINIMUM_DIVIDE_SCALE_9;
+        dpi_[i].choices[9]  = MINIMUM_DIVIDE_SCALE_9;       //@K2C changed choices[8] to choices[9]
         defaults_[i]        = MINIMUM_DIVIDE_SCALE_0;
 
         i = MAXIMUM_PRECISION;
