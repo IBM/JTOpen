@@ -121,8 +121,21 @@ public class BinaryConverter
     Convert the specified float into server format in the specified byte array.
     @param  floatValue  The value to be converted to server format.
     @return  The array with the data type in server format.
+    @deprecated  Use floatToByteArray(float) instead.
    **/
   public static byte[] floatToByteArray(int floatValue)
+  {
+    byte[] serverValue = new byte[4];
+    floatToByteArray(floatValue, serverValue, 0);
+    return serverValue;
+  }
+
+  /**
+    Convert the specified float into server format in the specified byte array.
+    @param  floatValue  The value to be converted to server format.
+    @return  The array with the data type in server format.
+   **/
+  public static byte[] floatToByteArray(float floatValue)
   {
     byte[] serverValue = new byte[4];
     floatToByteArray(floatValue, serverValue, 0);
