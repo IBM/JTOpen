@@ -132,7 +132,7 @@ public abstract class RowData implements Serializable
    public void afterLast()
    {
       // Validate the list is not empty.
-      validateRowList("Attempting to set the position in the list");
+//@B4D        validateRowList("Attempting to set the position in the list");
 
       position_ = length();                               //$B1C
    }
@@ -144,7 +144,7 @@ public abstract class RowData implements Serializable
    public void beforeFirst()
    {
       // Validate the list is not empty.
-      validateRowList("Attempting to set the position in the list");
+//@B4D        validateRowList("Attempting to set the position in the list");
 
       position_ = -1;
    }

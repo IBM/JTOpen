@@ -103,37 +103,40 @@ public class SQLResultSetRowData extends RowData
    *  positive integer which is less than the number of rows.
    *  @return true if the requested position exists; false otherwise.
    **/
-   public boolean absolute(int rowIndex)
+/*@B4D   public boolean absolute(int rowIndex)
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       return super.absolute(rowIndex);
    }
+*/ //@B4D
 
    /**
    *  Sets the position after the last row in the list.  This is a valid position after
    *  the end of the list.
    **/
-   public void afterLast()
+/*@B4D   public void afterLast()
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       super.afterLast();
    }
+*/ //@B4D
 
    /**
    *  Sets the position before the first row in the list.  This is a valid position
    *  before the beginning of the list.
    **/
-   public void beforeFirst()
+/*@B4D   public void beforeFirst()
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       super.beforeFirst();
    }
+*/ //@B4D
 
    /**
    *  Closes the SQL result set.
@@ -163,22 +166,24 @@ public class SQLResultSetRowData extends RowData
    *  Sets the position to the first row in the list.
    *  @return true if the requested position exists; false otherwise.
    **/
-   public boolean first()
+/*@B4D   public boolean first()
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       return super.first();
    }
+*/ //@B4D
 
    /**
    *  Returns the current row position.
    *  @return The row position (0-based).
    **/
-   public int getCurrentPosition()
+/*@B4D   public int getCurrentPosition()
    {
       return super.getCurrentPosition();
    }
+*/ //@B4D
 
 
    /**
@@ -189,7 +194,7 @@ public class SQLResultSetRowData extends RowData
    public RowMetaData getMetaData() throws RowDataException
    {
       // Validate the result set.
-      validateResultSet("Attempting to get the metadata");
+//@B4D      validateResultSet("Attempting to get the metadata");
 
       try
       {
@@ -210,38 +215,41 @@ public class SQLResultSetRowData extends RowData
    *  @return The column object.
    *  @exception RowDataException If a row data error occurs.
    **/
-   public Object getObject(int columnIndex) throws RowDataException
+/*@B4D   public Object getObject(int columnIndex) throws RowDataException
    {
       // Validate the result set.
       validateResultSet("Attempting to get the column object");
 
       return super.getObject(columnIndex);
    }
+*/ //@B4D
 
    /**
    *  Returns the current row's property list for the specified <i>columnIndex</i>.
    *  @param columnIndex The column index (0-based).
    *  @return The property list for the column data object.
    **/
-   public Vector getObjectProperties(int columnIndex)
+/*@B4D   public Vector getObjectProperties(int columnIndex)
    {
       // Validate the result set.
       validateResultSet("Attempting to get the column object's properties");
 
       return super.getObjectProperties(columnIndex);
    }
+*/ //@B4D
 
    /**
    *  Returns the current row's property list.
    *  @return The property lists for each data object in the row.
    **/
-   public Vector[] getRowProperties()
+/*@B4D   public Vector[] getRowProperties()
    {
       // Validate the result set.
       validateResultSet("Attempting to get the row's property list");
 
       return super.getRowProperties();
    }
+*/ //@B4D
 
    /**
    *  Returns the SQL result set.
@@ -259,71 +267,77 @@ public class SQLResultSetRowData extends RowData
    *  This is a valid position after the end of the list.
    *  @return true if the position is after the last row; false otherwise.
    **/
-   public boolean isAfterLast()
+/*@B4D   public boolean isAfterLast()
    {
       // Validate the result set.
       validateResultSet("Attempting to check the list position");
 
       return super.isAfterLast();
    }
+*/ //@B4D
 
    /**
    *  Indicates whether the current position is before the first row in the list.
    *  This is a valid position before the beginning of the list.
    *  @return true if the position is before the first row; false otherwise.
    **/
-   public boolean isBeforeFirst()
+/*@B4D   public boolean isBeforeFirst()
    {
       // Validate the result set.
       validateResultSet(CHK_POSITION);
 
       return super.isBeforeFirst();
    }
+*/ //@B4D
 
    /**
    *  Indicates whether the current position is the first row in the list.
    *  @return true if the position is the first row; false otherwise.
    **/
-   public boolean isFirst()
+/*@B4D   public boolean isFirst()
    {
       // Validate the result set.
       validateResultSet(CHK_POSITION);
 
       return super.isFirst();
    }
+*/ //@B4D
 
    /**
    *  Indicates whether the current position is the last row in the list.
    *  @return true if the position is the last row; false otherwise.
    **/
-   public boolean isLast()
+/*@B4D   public boolean isLast()
    {
       // Validate the result set.
       validateResultSet(CHK_POSITION);
 
       return super.isLast();
    }
+*/ //@B4D
 
    /**
    *  Sets the position to the last row in the list.
    *  @return true if the requested position exists; false otherwise.
    **/
-   public boolean last()
+/*@B4D   public boolean last()
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       return super.last();
    }
+*/ //@B4D
 
    /**
    *  Returns the length of the result list.
    *  @return The length.
    **/
-   public int length()
+/*@B4D   public int length()
    {
       return super.length();
    }
+*/ //@B4D
 
    /**
    *  Sets the position to the next row in the list.
@@ -333,26 +347,28 @@ public class SQLResultSetRowData extends RowData
    *  result in a position after the last row.
    *  @return true if the requested position exists in the list; false if there are no more rows.
    **/
-   public boolean next()
+/*@B4D   public boolean next()
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       return super.next();
    }
+*/ //@B4D
 
    /**
    *  Sets the position to the previous row in the list.
    *  Moving beyond the first row in the list will result in a position before the first row.
    *  @return true if the requested position exists in the list; false otherwise.
    **/
-   public boolean previous()
+/*@B4D   public boolean previous()
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       return super.previous();
    }
+*/ //@B4D
 
    /**
    *  Deserializes the object and initializes the transient data.
@@ -371,26 +387,28 @@ public class SQLResultSetRowData extends RowData
    *  @param numberOfRows The number of rows to move, either positive or negative.
    *  @return true if the requested position exists; false otherwise.
    **/
-   public boolean relative(int numberOfRows)
+/*@B4D   public boolean relative(int numberOfRows)
    {
       // Validate the result set.
       validateResultSet(SET_POSITION);
 
       return super.relative(numberOfRows);
    }
+*/ //@B4D
 
    /**
    *  Sets the column object's <i>properties</i> at the specified <i>columnIndex</i>.
    *  @param properties The properties.
    *  @param columnIndex The column index (0-based).
    **/
-   public void setObjectProperties(Vector properties, int columnIndex)
+/*@B4D   public void setObjectProperties(Vector properties, int columnIndex)
    {
       // Validate the result set.
       validateResultSet("Attempting to set the column object's properties");
 
       super.setObjectProperties(properties, columnIndex);
    }
+*/ //@B4D
 
    /**
    *  Sets the SQL result set.  The remaining rows are read from
@@ -417,11 +435,11 @@ public class SQLResultSetRowData extends RowData
       resultSet_ = resultSet;
 
       // Remove all existing rows and rows properties.
-      if (!rows_.isEmpty())
-      {
+//@B4D      if (!rows_.isEmpty())
+//@B4D      {
          rows_ = new Vector();
          rowProperties_ = new Vector();
-      }
+//@B4D      }
 
       try
       {
@@ -429,13 +447,13 @@ public class SQLResultSetRowData extends RowData
          numColumns_ = resultSet.getMetaData().getColumnCount();
 
          Object[] row;
-      boolean isRowAdded = false;       // Indicates if a row has been added to the list.
+//@B4D      boolean isRowAdded = false;       // Indicates if a row has been added to the list.
 
          // Process the result set.
          while (resultSet.next())
          {
-            if (!isRowAdded)
-            isRowAdded = true;
+//@B4D            if (!isRowAdded)
+//@B4D            isRowAdded = true;
 
             row = new Object[numColumns_];
             for (int column=0; column < numColumns_; column++)
@@ -446,11 +464,11 @@ public class SQLResultSetRowData extends RowData
             rowProperties_.addElement(new Vector[numColumns_]);
          }
          // Verify that a row was added to the list.
-         if (!isRowAdded)
-      {
-            Trace.log(Trace.ERROR, "Parameter 'resultSet' is either empty or the cursor state is invalid.");
-            throw new ExtendedIllegalArgumentException("resultSet", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-         }
+//@B4D         if (!isRowAdded)
+//@B4D      {
+//@B4D            Trace.log(Trace.ERROR, "Parameter 'resultSet' is either empty or the cursor state is invalid.");
+//@B4D            throw new ExtendedIllegalArgumentException("resultSet", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+//@B4D         }
          changes_.firePropertyChange("resultSet", old, resultSet);
          // Set the starting position in the list.
          beforeFirst();
@@ -467,7 +485,7 @@ public class SQLResultSetRowData extends RowData
    *  Validates that the result set row data is set.
    *  @param attemptedAction The reason for failure.
    **/
-   private void validateResultSet(String attemptedAction)
+/*@B4D   private void validateResultSet(String attemptedAction)
    {
       if (rows_.isEmpty())
       {
@@ -475,4 +493,5 @@ public class SQLResultSetRowData extends RowData
          throw new ExtendedIllegalStateException("resultSet", ExtendedIllegalStateException.PROPERTY_NOT_SET);
       }
    }
+*/ //@B4D
 }
