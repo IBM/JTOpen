@@ -98,13 +98,14 @@ when it was not previously set by the constructor.
             // it in a new byte array.  Note that only the indicators and data are              // @D0A
             // compressed.                                                                      // @D0A
             if (dataCompressed_) {                                                              // @D0A
+		length_ = length_ + offset;							         //@E0A
                 byte[] decompressedBytes = new byte[length_];                                   // @D0A
-                System.arraycopy(rawBytes, offset_, decompressedBytes, 0, 20);                  // @D0A
+                System.arraycopy(rawBytes, 0, decompressedBytes, 0, offset_ + 20);              // @D0A	 //@E0C
                 JDUtilities.decompress(rawBytes, offset_ + 20, actualLength_ - 26,              // @D0A
-                                       decompressedBytes, 20);                                  // @D0A
+                                       decompressedBytes, offset_ + 20);                        // @D0A	 //@E0C
                                                                                                 
                 rawBytes_           = decompressedBytes;                                        // @D0A
-                indicatorOffset_    = 20;                                                       // @D0A
+                indicatorOffset_    = offset_ + 20;                                             // @D0A	 //@E0C
             }                                                                                   // @D0A
             else {                                                                              // @D0A
                 rawBytes_           = rawBytes;
