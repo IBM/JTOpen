@@ -44,6 +44,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   // Static variable used to ensure that each AS400File object has a unique
   // declared file name.
   static long nextDCLName_ = 1;
+  static final Object nextDCLNameLock_ = new Object();
 
   // S38BUF data for force end of data calls.  Contain S38BUF LL, CP and value.
   // @F1 - also use this for locking
@@ -1944,7 +1945,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   public void setDCLName()
   {
     // Convert nextDCLName_ to a Long and then to a string
-    String nextDCLNameAsString = Long.toString(nextDCLName_++);
+    long nextDCLName;
+    synchronized (nextDCLNameLock_) {
+      nextDCLName = nextDCLName_++;  // need to synchronize the incrementation
+    }
+    String nextDCLNameAsString = Long.toString(nextDCLName);
 
     // Copy EBCDIC version of nextDCLName to dclNAme_ and blank pad dclName_
     // to 8 bytes
