@@ -339,7 +339,7 @@ public class ConvTableReader extends InputStreamReader
         else if(tableType_ == JV_TABLE)
         {
           // Let Java handle it...
-          int numRead = is_.read(b_cache_, 0, b_cache_.length);
+          int numRead = is_.read(b_cache_, 0, 1024); //@B1C
           if(numRead == -1)
           {
             if(Trace.isTraceOn() && Trace.isTraceConversionOn())
