@@ -131,9 +131,20 @@ implements Clob
     throws SQLException
     {
         // Avoid dragging in JDError
-        throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
-                               EXC_FUNCTION_NOT_SUPPORTED, -99999);
+        //@K1D throw new SQLException (
+        //@K1D                       AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+        //@K1D                       EXC_FUNCTION_NOT_SUPPORTED, -99999);
+        try              //@K1A
+        {
+            JDOutputStreamProxy newStream = new JDOutputStreamProxy ();
+            return (JDOutputStreamProxy) connection_.callFactoryMethod (pxId_, "setAsciiStream", 
+                                                                        new Class[] { Long.TYPE},
+                                                                        new Object[] { new Long(pos)},
+                                                                        newStream);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
     }
 
 
@@ -142,9 +153,20 @@ implements Clob
     throws SQLException
     {
         // Avoid dragging in JDError
-        throw new SQLException (
-                               AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
-                               EXC_FUNCTION_NOT_SUPPORTED, -99999);
+        //@K1D throw new SQLException (
+        //@K1D                       AS400JDBCDriver.getResource("JD" + EXC_FUNCTION_NOT_SUPPORTED),
+        //@K1D                       EXC_FUNCTION_NOT_SUPPORTED, -99999);
+        try              //@K1A
+        {
+            JDWriterProxy newWriter = new JDWriterProxy ();
+            return (JDWriterProxy) connection_.callFactoryMethod (pxId_, "setCharacterStream", 
+                                                                        new Class[] { Long.TYPE},
+                                                                        new Object[] { new Long(pos)},
+                                                                        newWriter);
+        }
+        catch (InvocationTargetException e) {
+            throw JDConnectionProxy.rethrow1 (e);
+        }
     }
 
 
