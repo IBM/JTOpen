@@ -87,7 +87,7 @@
 // Location: http://java.sun.com/products/j2mewtoolkit/download.html (Windows)
 //           http://developer.java.sun.com/developer/releases/j2mewtoolkit/ (Linux/Solaris)
 // Description: J2ME Wireless Toolkit 1.0.4_01 MIDP APIs needed for the com.ibm.as400.micro package.
-//              (The midpapi.zip file can be found in C:\J2MEWTK\lib after the install.)
+//              (The midpapi.zip file can be found in C:\WTK104\lib after the install.)
 //
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -98,7 +98,7 @@
 //           http://developer.java.sun.com/developer/releases/j2mewtoolkit/ (Linux/Solaris)
 // Description: J2ME Wireless Toolkit preverification tool required to build the
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
-//              (The preverify.exe file can be found in C:\J2MEWTK\bin after the install.)
+//              (The preverify.exe file can be found in C:\WTK104\bin after the install.)
 //
 // Filename: cvs or cvs.exe
 // Location: http://www.wincvs.org
