@@ -270,7 +270,7 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "VARCHAR";
+        return "VARCHAR() FOR BIT DATA";    //@KKB changed from VARCHAR
     }
 
     public int getMaximumPrecision()

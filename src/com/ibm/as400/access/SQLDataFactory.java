@@ -555,6 +555,7 @@ class SQLDataFactory
                            int length,
                            int precision,
                            int scale,
+                           int ccsid,               //@KKB
                            SQLConversionSettings settings,
                            int vrm,                  // @M0C - added vrm parm
                            JDProperties properties)  // @M0C - added JDProperties parm
@@ -574,21 +575,47 @@ class SQLDataFactory
         else if(nativeType.equals("BLOB"))
             return new SQLBlob(length, settings);          // @D1C @G1C Remove length-4
 
+        else if(nativeType.equals("BINARY LARGE OBJECT"))  //@KKB
+            return new SQLBlob(length, settings);           //@KKB
+
         else if(nativeType.equals("CHAR"))
-            return new SQLChar(length, settings);
+        {
+            if(ccsid == 65535 && !properties.getBoolean(JDProperties.TRANSLATE_BINARY))                                      //@KKB
+                return new SQLCharForBitData(length, settings);     //@KKB
+            else                                                    //@KKB
+                return new SQLChar(length, settings);
+        }
 
         else if(nativeType.equals("CHARACTE"))
-            return new SQLChar(length, settings);
+        {
+            if(ccsid == 65535 && !properties.getBoolean(JDProperties.TRANSLATE_BINARY))                                      //@KKB
+                return new SQLCharForBitData(length, settings);     //@KKB
+            else                                                    //@KKB
+                return new SQLChar(length, settings);
+        }
 
         else if(nativeType.equals("CHARACTER"))
-            return new SQLChar(length, settings);
+        {
+            if(ccsid == 65535 && !properties.getBoolean(JDProperties.TRANSLATE_BINARY))                                      //@KKB
+                return new SQLCharForBitData(length, settings);     //@KKB
+            else                                                    //@KKB
+                return new SQLChar(length, settings);
+        }
 
         else if(nativeType.equals("CHARACTER VARYING"))
-            return new SQLVarchar(length, settings);     // @E1C
+        {
+            if(ccsid == 65535 && !properties.getBoolean(JDProperties.TRANSLATE_BINARY))                                      //@KKB
+                return new SQLVarcharForBitData(length, settings);      //@KKB
+            else                                                        //@KKB
+                return new SQLVarchar(length, settings);     // @E1C
+        }
 
         else if(nativeType.equals("CLOB"))
             return new SQLClob(length, settings);           // @D1C @E1C @G1C Remove length-4
         //return new SQLClob(length, false, settings);           // @D1C @E1C @G1C Remove length-4
+
+        else if(nativeType.equals("CHARACTER LARGE OBJECT"))    //@KKB
+            return new SQLClob(length, settings);               //@KKB
 
         else if(nativeType.equals("DATALINK"))
             return new SQLDatalink(length, settings);
@@ -596,6 +623,9 @@ class SQLDataFactory
         else if(nativeType.equals("DBCLOB"))           // @G2A
             return new SQLDBClob(length, settings); // @G2A
         //return new SQLClob(length, true, settings); // @G2A
+
+        else if(nativeType.equals("DOUBLE-BYTE CHARACTER LARGE OBJECT"))    //@KKB
+            return new SQLDBClob(length, settings);                         //@KKB
 
         else if(nativeType.equals("DATE"))
             return new SQLDate(settings);
@@ -688,13 +718,21 @@ class SQLDataFactory
         }
 
         else if(nativeType.equals("VARCHAR"))
-            return new SQLVarchar(length, settings);     // @E1C
+        {
+            if(ccsid == 65535 && !properties.getBoolean(JDProperties.TRANSLATE_BINARY))                                      //@KKB
+                return new SQLVarcharForBitData(length, settings);      //@KKB
+            else                                                        //@KKB
+                return new SQLVarchar(length, settings);     // @E1C
+        }
 
         else if(nativeType.equals("VARG"))
             return new SQLVargraphic(length, settings);      // @E1C
 
         else if(nativeType.equals("VARGRAPH"))
             return new SQLVargraphic(length, settings);      // @E1C
+
+        else if(nativeType.equals("VARGRAPHIC"))
+            return new SQLVargraphic(length, settings); //@KKB
 
         else
         {

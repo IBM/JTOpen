@@ -264,7 +264,7 @@ implements SQLData
     public String getLocalName()
     {
         // Use "CHAR" not "BINARY".  See ODBC SQLGetTypeInfo().
-        return "CHAR";
+        return "CHAR() FOR BIT DATA";   //@KKB changed from CHAR
     }
 
     public int getMaximumPrecision()

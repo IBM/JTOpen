@@ -28,9 +28,10 @@ implements JDFieldMap
     private int typeIndex_;
     private JDProperties properties_; // @M0A - added JDProperties so we can get the decimal scale & precision
     private int vrm_;                 // @M0A - added vrm so we can pass it to the newData method 
+    private int ccsidIndex_;          //@KKB  added ccsid
 
     JDTypeInfoFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
-                       int scaleIndex, int vrm, JDProperties properties) // @M0C - added vrm and properties
+                       int scaleIndex, int ccsidIndex, int vrm, JDProperties properties) // @M0C - added vrm and properties //@KKB
     {
         typeIndex_          = typeIndex;
         lengthIndex_        = lengthIndex;
@@ -38,6 +39,7 @@ implements JDFieldMap
         scaleIndex_         = scaleIndex;
         properties_         = properties; // @M0A
         vrm_                = vrm;        // @M0A
+        ccsidIndex_         = ccsidIndex;   //@KKB
     }
 
     public Object getValue(JDRow row)
@@ -47,7 +49,10 @@ implements JDFieldMap
         int length = row.getSQLData(lengthIndex_).getInt();
         int precision = row.getSQLData(precisionIndex_).getInt();
         int scale = row.getSQLData(scaleIndex_).getInt();
-        return SQLDataFactory.newData(typeName, length, precision, scale, null, vrm_, properties_); // @M0C - added vrm and properties
+        int ccsid = 0;                                          //@KKB
+        if(ccsidIndex_ != 0)                                    //@KKB
+           ccsid = row.getSQLData(ccsidIndex_).getInt();        //@KKB
+        return SQLDataFactory.newData(typeName, length, precision, scale, ccsid, null, vrm_, properties_); // @M0C - added vrm and properties   //@KKB
     }
 
     /**

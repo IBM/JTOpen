@@ -44,7 +44,7 @@ implements JDFieldMap
     {
         String sourceType = super.getValue (row).toString ();
         if(sourceType != null)
-            return SQLDataFactory.newData(sourceType, 2, 1, 1, settings_, vrm_, properties_).getObject ().getClass ().getName (); // @A1C  // @M0C - pass more parms
+            return SQLDataFactory.newData(sourceType, 2, 1, 1, 0, settings_, vrm_, properties_).getObject ().getClass ().getName (); // @A1C  // @M0C - pass more parms //@KKB pass 0 for ccsid
         else
             return "";
     }

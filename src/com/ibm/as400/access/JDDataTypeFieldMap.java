@@ -27,9 +27,9 @@ implements JDFieldMap
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     JDDataTypeFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
-                       int scaleIndex, int vrm, JDProperties properties)    // @M0C - added vrm and properties
+                       int scaleIndex, int ccsidIndex, int vrm, JDProperties properties)    // @M0C - added vrm and properties  //@KKB added ccsid
     {
-        super(typeIndex, lengthIndex, precisionIndex, scaleIndex, vrm, properties);    // @M0C
+        super(typeIndex, lengthIndex, precisionIndex, scaleIndex, ccsidIndex, vrm, properties);    // @M0C //@KKB
     }
 
     /**

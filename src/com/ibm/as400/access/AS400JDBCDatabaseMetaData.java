@@ -481,7 +481,7 @@ implements DatabaseMetaData
                         JDFieldMap[] maps = new JDFieldMap[8];
                         maps[0] = new JDHardcodedFieldMap(new Short ((short) scope)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
-                        maps[2] = new JDDataTypeFieldMap (2, 4, 3, 5, connection_.getVRM(), connection_.getProperties());   // @M0C // data type - converted to short
+                        maps[2] = new JDDataTypeFieldMap (2, 4, 3, 5, 0, connection_.getVRM(), connection_.getProperties());   // @M0C // data type - converted to short   //@KKB pass 0 for ccsid since cannot get ccsid from host server
                         maps[3] = new JDSimpleFieldMap (2);  // type name
                         maps[4] = new JDSimpleFieldMap (4); // column size (length)
                         maps[5] = new JDHardcodedFieldMap(new Integer (0)); // buffer length
@@ -1107,7 +1107,7 @@ implements DatabaseMetaData
 
                     // Set the Field Information to Return Bitmap
                     // Return everything but the reserved fields
-                    request.setFieldReturnInfoBitmap(0xEFF20000);   // @E3C
+                    request.setFieldReturnInfoBitmap(0xEFF60000);   // @E3C   //@KKB changed from EFF20000 inorder to request CCSID
 
 
                     // Set the Field Information Order By Indicator parameter
@@ -1155,11 +1155,11 @@ implements DatabaseMetaData
                     maps[1] = new JDSimpleFieldMap (1); // library
                     maps[2] = new JDSimpleFieldMap (3); // table
                     maps[3] = new JDSimpleFieldMap (4); // column
-                    maps[4] = new JDDataTypeFieldMap (6, 7, 10, 11, connection_.getVRM(), connection_.getProperties());    // @M0C  // Data type
-                    maps[5] = new JDLocalNameFieldMap (6, 7, 10, 11, connection_.getVRM(), connection_.getProperties());   // @M0C  // Type name
-                    maps[6] = new JDPrecisionFieldMap (6, 7, 10, 11, connection_.getVRM(), connection_.getProperties());   // @M0C  // column size (length)
+                    maps[4] = new JDDataTypeFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());    // @M0C  // Data type    //@KKB include ccsid
+                    maps[5] = new JDLocalNameFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());   // @M0C  // Type name    //@KKB include ccsid
+                    maps[6] = new JDPrecisionFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());   // @M0C  // column size (length) //@KKB include ccsid
                     maps[7] = new JDHardcodedFieldMap(new Integer(0)); // Buffer - not used
-                    maps[8] = new JDScaleFieldMap (6, 7, 10, 11, connection_.getVRM(), connection_.getProperties());       // @M0C  // decimal digits (scale)
+                    maps[8] = new JDScaleFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());       // @M0C  // decimal digits (scale)  //@KKB include ccsid
                     maps[9] = new JDSimpleFieldMap (9); // radix
                     maps[10] = new JDNullableIntegerFieldMap(8); // is null capable?
 
@@ -1177,12 +1177,12 @@ implements DatabaseMetaData
                     // Per JDBC api - not used - hardcode to 0
                     maps[14] = new JDHardcodedFieldMap (new Integer (0)); // SQL datetime
 
-                    maps[15] = new JDCharOctetLengthFieldMap(6, 7, 10, 11, connection_.getVRM(), connection_.getProperties()); // octet // @M0C
+                    maps[15] = new JDCharOctetLengthFieldMap(6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties()); // octet // @M0C   //@KKB include ccsid
 
                     // If the server functional level is 7 or greater, then ordinal        @E3A
                     // position is supported.  Otherwise, just hardcode to -1.             @E3A
                     if (connection_.getServerFunctionalLevel() >= 7)                    // @E3A
-                        maps[16] = new JDSimpleFieldMap(12);                            // @E3A
+                        maps[16] = new JDSimpleFieldMap(13);                            // @E3A //@KKB changed from 12 since requesting ccsid
                     else                                                                // @E3A
                         maps[16] = new JDHardcodedFieldMap(new Integer(-1));            
 
@@ -3133,7 +3133,7 @@ implements DatabaseMetaData
                 maps[3] = new JDHandleNullFieldMap (3, ""); // parameter name (col name)
                 maps[4] = new JDParameterModeFieldMap(4); // Parameter mode (col type)
 
-                maps[5] = new JDDataTypeFieldMap(5, 7, 6, 8, connection_.getVRM(), connection_.getProperties()); // @M0C // data type - converts from string to short
+                maps[5] = new JDDataTypeFieldMap(5, 7, 6, 8, 0, connection_.getVRM(), connection_.getProperties()); // @M0C // data type - converts from string to short //@KKB  pass 0 for ccsid
                 maps[6] = new JDSimpleFieldMap (5); // type name
 
                 maps[7] = new JDHandleNullFieldMap (6, new Integer (0));  // precision
@@ -4823,7 +4823,7 @@ implements DatabaseMetaData
                         new JDHardcodedFieldMap (connection_.getCatalog ()),                 // type catalog
                         new JDSimpleFieldMap (1),                                            // type schema
                         new JDSimpleFieldMap (2),                                            // type name
-                        new JDClassNameFieldMap (3, settings_, connection_.getVRM(), connection_.getProperties()), // class name   // @B3C  // @M0C
+                        new JDClassNameFieldMap (3, settings_, connection_.getVRM(), connection_.getProperties()), // class name   // @B3C  // @M0C  
                         new JDHardcodedFieldMap (new Integer (Types.DISTINCT)),              // data type
                         new JDHandleNullFieldMap (4, ""),                                    // remarks      // @B3C
                         new JDSimpleFieldMap (5)                                             // base type    // @G4A  
@@ -5054,7 +5054,7 @@ implements DatabaseMetaData
                         JDFieldMap[] maps = new JDFieldMap[8];
                         maps[0] = new JDHardcodedFieldMap (new Short ((short) 0)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
-                        maps[2] = new JDDataTypeFieldMap (2, 3, 3, 5, connection_.getVRM(), connection_.getProperties()); // @M0C  // data type - converted to short
+                        maps[2] = new JDDataTypeFieldMap (2, 3, 3, 5, 0, connection_.getVRM(), connection_.getProperties()); // @M0C  // data type - converted to short   //@KKB added 0 for ccsid since not given to us by host server
                         maps[3] = new JDSimpleFieldMap (2);  // type name
                         maps[4] = new JDSimpleFieldMap (3); // column size (precision)
                         maps[5] = new JDSimpleFieldMap(4); // buffer length
