@@ -92,7 +92,7 @@ class JDTransactionManager
   private boolean             localAutoCommit_    = true;  // @C4A
   private boolean             localTransaction_   = true;  // @C4A
   // @C5D private boolean             newAutoCommitSupport_ = false;                             // @C5A
-  private int                 serverCommitMode_;          // Commit mode on the server.
+  private int                 serverCommitMode_;          // Commit mode on the server. Always base off of JDBC transaction isolation level (currentCommitMode_)
 
 
 
@@ -532,6 +532,7 @@ Set the auto-commit mode.
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
               request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
               request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
+              serverCommitMode_ = currentCommitMode_;
               reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
@@ -674,7 +675,7 @@ java.sql.Connection.TRANSACTION_* values.
         DBReplyRequestedDS reply = null;                                                //@KBA
           try                                                                                 //@KBA
           {                                                                                   //@KBA
-              if(serverCommitMode_ != getIsolationLevel())         //@K64 changed currentCommitMode to getIsolationLevel()                           //@KBA
+              if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
               {                                                                               //@KBA
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
@@ -696,7 +697,7 @@ java.sql.Connection.TRANSACTION_* values.
               if (request != null) request.inUse_ = false;                                    //@KBA
               if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
-          serverCommitMode_ = getIsolationLevel();     //@K64 changed currentCommitMode to getIsolationLevel()                                       //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
+          serverCommitMode_ = currentCommitMode_;                                             //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
   }
 
