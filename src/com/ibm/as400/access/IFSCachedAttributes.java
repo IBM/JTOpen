@@ -39,14 +39,14 @@ class IFSCachedAttributes implements Serializable
   String name_;
   int objectType_;
   String path_;
-  int size_;  
+  long size_;                   // @A1c
 
 /**
 Construct listCachedAttributes object from a list of attributes.
 **/
   IFSCachedAttributes(long accessDate, long creationDate, int fixedAttributes, 
-                      long modificationDate, int objectType, int size, 
-                      String name, String path, boolean isDirectory, boolean isFile)
+                      long modificationDate, int objectType, long size, 
+                      String name, String path, boolean isDirectory, boolean isFile) // @A1c
   {
     accessDate_ = accessDate;
     creationDate_ = creationDate;
@@ -135,7 +135,7 @@ Return path.
 /**
 Return size.
 **/
-  int getSize()
+  long getSize()     // @A1c
   {
       return size_;
   }

@@ -324,9 +324,11 @@ Get the "owner user ID" for the IFS file on the AS/400.
 Determine the file size (in bytes).
 @return the file size
 **/
-  int getSize()
+  long getSize()                             // @B8c
   {
-    return get32bit( FILE_SIZE_OFFSET);
+    // We need to suppress sign-extension if the leftmost bit is on.
+    int size = get32bit( FILE_SIZE_OFFSET);     // @B8c
+    return ((long)size) & 0xffffffffL;          // @B8c
   }
 
 /**

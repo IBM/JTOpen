@@ -229,7 +229,7 @@ implements IFSRandomAccessFileImpl
       throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
-    return (long) reply.getSize();
+    return reply.getSize();                                      // @A3c
   }
 
 
@@ -349,8 +349,7 @@ implements IFSRandomAccessFileImpl
     {
       // Get the file information.
       IFSOpenRep rep = (IFSOpenRep) ds;
-      fd_.setFileHandle(rep.getFileHandle());
-      fd_.setOpen(true);
+      fd_.setOpen(true, rep.getFileHandle());
       fd_.setOpenAllowed(false);
     }
     else if (ds instanceof IFSReturnCodeRep)
@@ -739,6 +738,21 @@ implements IFSRandomAccessFileImpl
   public void setForceToStorage(boolean forceToStorage)
   {
       forceToStorage_ = forceToStorage;
+  }
+
+  // @A2a
+  /**
+   Sets the length of the file represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
+   @param length The new length, in bytes.
+
+   @exception IOException If an error occurs while communicating with the server.
+   **/
+  public void setLength(int length)
+    throws IOException
+  {
+    // Assume the argument has been validated by the public class.
+
+    fd_.setLength(length);
   }
 
 

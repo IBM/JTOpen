@@ -79,9 +79,11 @@ Get the file handle.
 Get the file size.
 @return the number of bytes in the file
 **/
-  int getFileSize()
+  long getFileSize()                        // @A1c
   {
-    return get32bit( FILE_SIZE_OFFSET);
+    // We need to suppress sign-extension if the leftmost bit is on.
+    int size = get32bit( FILE_SIZE_OFFSET);     // @A1c
+    return ((long)size) & 0xffffffffL;          // @A1c
   }
 
 /**

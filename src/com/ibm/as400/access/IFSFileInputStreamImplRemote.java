@@ -72,9 +72,9 @@ implements IFSFileInputStreamImpl
     open();
 
     // Determine the file size.
-    int fileSize = getFileSize();
+    long fileSize = getFileSize();                   // @B8c
 
-    return (fileSize - fd_.getFileOffset());
+    return ((int)(fileSize - fd_.getFileOffset()));  // @B8c
   }
 
   /**
@@ -127,10 +127,10 @@ implements IFSFileInputStreamImpl
    Returns the file length (in bytes).
    @return The file length.
    **/
-  private final int getFileSize()
+  private final long getFileSize()                          // @B8c
     throws IOException
   {
-    int size = 0;
+    long size = 0;                                             // @B8c
 
     // Process attribute replies.
     IFSListAttrsRep reply = null;
@@ -308,8 +308,7 @@ implements IFSFileInputStreamImpl
     {
       // Get the file information.
       IFSOpenRep rep = (IFSOpenRep) ds;
-      fd_.setFileHandle(rep.getFileHandle());
-      fd_.setOpen(true);
+      fd_.setOpen(true, rep.getFileHandle());
       fd_.setOpenAllowed(false);
     }
     else if (ds instanceof IFSReturnCodeRep)

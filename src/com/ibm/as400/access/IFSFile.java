@@ -28,7 +28,7 @@ import java.util.Vector;
 
 /**
   * The IFSFile class represents
-  * an object in the AS/400 integrated file system.
+  * an object in the integrated file system on the server.
   * As in java.io.File, IFSFile is designed to work
   * with the object as a whole.  For example, use IFSFile
   * to delete or rename a file, to access the
@@ -394,10 +394,10 @@ public class IFSFile
    @return true if the object exists and is readable; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
   public boolean canRead()
     throws IOException
@@ -432,10 +432,10 @@ public class IFSFile
    @return true if the object exists and is writeable; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public boolean canWrite()
@@ -529,10 +529,10 @@ public class IFSFile
    the object does not exist or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long created()                                         //D3a
@@ -565,12 +565,12 @@ public class IFSFile
    @return true if the file is created, false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
-   // @D1 - New method because of changes to java.io.File in Java 2.
+   // @D1 - new method because of changes to java.io.File in Java 2.
 
   public boolean createNewFile()
     throws IOException
@@ -634,10 +634,10 @@ public class IFSFile
    Returns false if the file system object did not exist prior to the delete() or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public boolean delete()
@@ -677,10 +677,10 @@ public class IFSFile
    passed to the filter object has cached file attribute information. 
    
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
   public Enumeration enumerateFiles(IFSFileFilter filter, String pattern)
     throws IOException
@@ -717,10 +717,10 @@ public class IFSFile
    not match any files, or the directory is not accessible, then an empty Enumeration is returned. 
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
   public Enumeration enumerateFiles(String pattern)
     throws IOException
@@ -757,10 +757,10 @@ public class IFSFile
    passed to the filter object has cached file attribute information. 
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
   public Enumeration enumerateFiles(IFSFileFilter filter)
     throws IOException
@@ -790,10 +790,10 @@ public class IFSFile
    not match any files,  or the directory not accessible, then an empty Enumeration is returned.  
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
   public Enumeration enumerateFiles()
     throws IOException
@@ -864,10 +864,10 @@ public class IFSFile
    @return true if the object exists; false if the object does not exist or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public boolean exists()
@@ -913,10 +913,11 @@ public class IFSFile
 
   //@A9a
   /**
-   Returns the file's CCSID.  All files in the AS/400's integrated file system
+   Returns the file's CCSID.  All files in the server's integrated file system
    are tagged with a CCSID.  This method returns the value of that tag.
    If the file is non-existent or is a directory, returns -1.
    @return The file's CCSID.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int getCCSID()
     throws IOException
@@ -954,10 +955,10 @@ public class IFSFile
    @return The number of bytes of storage available.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long getFreeSpace()
@@ -1015,6 +1016,7 @@ public class IFSFile
 
     return name;
   }
+
 
   // @B7a
   /**
@@ -1099,14 +1101,14 @@ public class IFSFile
    * Returns the permission of the object.
    * @return The permission of the object.
    * @see #setPermission
-   * @exception AS400Exception If the AS/400 system returns an error message.
+   * @exception AS400Exception If the server returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicationg with the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
-   * @exception UnknownHostException If the AS/400 system cannot be located.
+   * @exception IOException If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException If the object does not exist on the server.
+   * @exception UnknownHostException If the server cannot be located.
    *
   **/
   public Permission getPermission()
@@ -1135,7 +1137,7 @@ public class IFSFile
    Returns a zero-length string if the object has no subtype,.
    @return The subtype of the object.
 
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception AS400SecurityException If a security or authority error occurs.
    **/
   public String getSubtype()
@@ -1241,10 +1243,10 @@ public class IFSFile
    @return true if the integrated file system object exists and is a directory; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
   **/
   public boolean isDirectory()
@@ -1294,10 +1296,10 @@ public class IFSFile
    @return true if the specified file exists and is a "normal" file; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public boolean isFile()
@@ -1325,17 +1327,17 @@ public class IFSFile
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
   public boolean isHidden()
     throws IOException, AS400SecurityException
   {
     // If the attributes are cached from an earlier listFiles() operation
-    // use the cached attributes instead of getting a new set from the AS/400.
+    // use the cached attributes instead of getting a new set from the server.
     if (cachedAttributes_ != null)
        return (cachedAttributes_.getFixedAttributes() &
                                  IFSCachedAttributes.FA_HIDDEN) != 0;
@@ -1358,10 +1360,10 @@ public class IFSFile
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
   **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -1369,7 +1371,7 @@ public class IFSFile
     throws IOException, AS400SecurityException
   {
     // If the attributes are cached from an earlier listFiles() operation
-    // use the cached attributes instead of getting a new set from the AS/400.
+    // use the cached attributes instead of getting a new set from the server.
     if (cachedAttributes_ != null)
        return (cachedAttributes_.getFixedAttributes() &
                                  IFSCachedAttributes.FA_READONLY) != 0;
@@ -1406,17 +1408,17 @@ public class IFSFile
   /**
    Determines the time that the integrated file system object represented by this
    object was last accessed. With the use of the listFiles() function, attribute
-   information is cached and will not be automatically refreshed from the AS/400.
-   This means the reported last accessed time can become inconsistent with the AS/400.
+   information is cached and will not be automatically refreshed from the server.
+   This means the reported last accessed time can become inconsistent with the server.
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last accessed, or 0L if
    the object does not exist or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long lastAccessed()                                    //D3a
@@ -1459,17 +1461,17 @@ public class IFSFile
   /**
    Determines the time that the integrated file system object represented by this
    object was last modified. With the use of the listFiles() function, attribute
-   information is cached and will not be automatically refreshed from the AS/400.
-   This means the reported last modified time can become inconsistent with the AS/400.
+   information is cached and will not be automatically refreshed from the server.
+   This means the reported last modified time can become inconsistent with the server.
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last modified, or 0L if it does not exist
     or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long lastModified()
@@ -1508,16 +1510,16 @@ public class IFSFile
   /**
    Determines the length of the integrated file system object represented by this
    object.  With the use of the listFiles() function, attribute
-   information is cached and will not be automatically refreshed from the AS/400.
-   This means the reported length can become inconsistent with the AS/400.
+   information is cached and will not be automatically refreshed from the server.
+   This means the reported length can become inconsistent with the server.
    @return The length, in bytes, of the integrated file system object, or
    0L if it does not exist  or is not accessible.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long length()
@@ -1544,10 +1546,10 @@ public class IFSFile
    an empty directory, an empty string array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public String[] list()
@@ -1570,10 +1572,10 @@ public class IFSFile
    their file attribute information will not be valid.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public String[] list(IFSFileFilter filter)
@@ -1688,10 +1690,10 @@ public class IFSFile
    increases the chances that their file attribute information will not be valid.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public String[] list(IFSFileFilter filter,
@@ -1727,10 +1729,10 @@ public class IFSFile
    match any files, an empty string array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public String[] list(String pattern)
@@ -1743,8 +1745,8 @@ public class IFSFile
   /**
    Lists the integrated file system objects in the directory represented by this
    object.  With the use of this function, attribute information is cached and
-   will not be automatically refreshed from the AS/400.  This means attribute
-   information can become inconsistent with the AS/400.
+   will not be automatically refreshed from the server.  This means attribute
+   information can become inconsistent with the server.
 
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
@@ -1752,10 +1754,10 @@ public class IFSFile
    object represents an empty directory, an empty object array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public IFSFile[] listFiles()
@@ -1769,8 +1771,8 @@ public class IFSFile
   /**
    Lists the integrated file system objects in the directory represented by this
    object.  With the use of this function, attribute information is cached and
-   will not be automatically refreshed from the AS/400.  This means attribute
-   information can become inconsistent with the AS/400.
+   will not be automatically refreshed from the server.  This means attribute
+   information can become inconsistent with the server.
 
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
@@ -1778,10 +1780,10 @@ public class IFSFile
    object represents an empty directory, an empty object array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public IFSFile[] listFiles(IFSFileFilter filter)
@@ -1794,8 +1796,8 @@ public class IFSFile
   /**
    Lists the integrated file system objects in the directory represented by this
    object that satisfy <i>filter</i>.  With the use of this function, attribute
-   information is cached and will not be automatically refreshed from the AS/400.
-   This means attribute information can become inconsistent with the AS/400.
+   information is cached and will not be automatically refreshed from the server.
+   This means attribute information can become inconsistent with the server.
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match.
    Acceptable characters are wildcards (*) and question marks (?).
@@ -1857,8 +1859,8 @@ public class IFSFile
   /**
    Lists the integrated file system objects in the directory represented by this
    object that satisfy <i>filter</i>.  With the use of this function, attribute
-   information is cached and will not be automatically refreshed from the AS/400.
-   This means attribute information can become inconsistent with the AS/400.
+   information is cached and will not be automatically refreshed from the server.
+   This means attribute information can become inconsistent with the server.
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match. Acceptable
    characters are wildcards (*) and
@@ -1873,10 +1875,10 @@ public class IFSFile
    chances that their file attribute information will not be valid.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public IFSFile[] listFiles(IFSFileFilter filter, String pattern)
@@ -1904,9 +1906,9 @@ public class IFSFile
    Lists the integrated file system objects in the directory represented by this
    object that match <i>pattern</i>. With the use of this function, attribute
    information is cached and
-   will not be automatically refreshed from the AS/400.  This means attribute
+   will not be automatically refreshed from the server.  This means attribute
    information can
-   become inconsistent with the AS/400.
+   become inconsistent with the server.
    @param pattern The pattern that all filenames must match. Acceptable characters
    are wildcards (*) and
    question marks (?).
@@ -1917,10 +1919,10 @@ public class IFSFile
    an empty object array is returned.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public IFSFile[] listFiles(String pattern)
@@ -1948,10 +1950,10 @@ public class IFSFile
    @return true if the directory was created; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public boolean mkdir()
@@ -1988,10 +1990,10 @@ public class IFSFile
    @return true if the directory (or directories) were created; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
     **/
   public boolean mkdirs()
@@ -2111,11 +2113,11 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    @exception PropertyVetoException If the change is vetoed.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public boolean renameTo(IFSFile file)
@@ -2161,10 +2163,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
      // @D1 - new method because of changes to java.io.File in Java 2.
   boolean setFixedAttributes(int attributes)
@@ -2203,10 +2205,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2226,10 +2228,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2254,18 +2256,8 @@ public class IFSFile
       cachedAttributes_ = null;
 
       // Fire the file modified event.
-      if (fileListeners_.size() != 0)
-      {
-        FileEvent event = new FileEvent(this, FileEvent.FILE_MODIFIED);
-        synchronized(fileListeners_)
-        {
-          Enumeration e = fileListeners_.elements();
-          while (e.hasMoreElements())
-          {
-            FileListener listener = (FileListener)e.nextElement();
-            listener.fileModified(event);
-          }
-        }
+      if (fileListeners_.size() != 0) {
+        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
       }
     }
     return success;
@@ -2276,21 +2268,22 @@ public class IFSFile
    represented by this object to <i>time</i>.
    @param time The desired last modification time (measured in milliseconds
    since January 1, 1970 00:00:00 GMT), or 0 to leave the last modification
-   time unchanged.
+   time unchanged, or -1 to set the last modification time to the current system time.
+
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public boolean setLastModified(long time)
     throws IOException, PropertyVetoException
   {
     // Validate arguments.
-    if (time < 0)
+    if (time < -1)  // @B8c
     {
       throw new ExtendedIllegalArgumentException("time + (" +
                                                  Long.toString(time) + ")",
@@ -2319,21 +2312,63 @@ public class IFSFile
       changes_.firePropertyChange("lastModified", null, new Long(time));
 
       // Fire the file modified event.
-      if (fileListeners_.size() != 0)
-      {
-        FileEvent event = new FileEvent(this, FileEvent.FILE_MODIFIED);
-        synchronized(fileListeners_)
-        {
-          Enumeration e = fileListeners_.elements();
-          while (e.hasMoreElements())
-          {
-            FileListener listener = (FileListener)e.nextElement();
-            listener.fileModified(event);
-          }
-        }
+      if (fileListeners_.size() != 0) {
+        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
       }
+
       // Clear any cached attributes.
       cachedAttributes_ = null;         //@A7a
+    }
+
+    return success;
+  }
+
+  // @B8a
+  /**
+   Sets the length of the integrated file system object represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
+   @param length The new length, in bytes.
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
+   **/
+  public boolean setLength(int length)
+    throws IOException
+  {
+    // Validate arguments.
+    if (length < 0)
+    {
+      throw new ExtendedIllegalArgumentException("length + (" +
+                                                 Integer.toString(length) + ")",
+                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    // Note: The file server will not allow us to set the length of a file to a value larger than (2Gig minus 1), or 2147483647 (0x7FFFFFFF) bytes, which happens to be the maximum positive value which an 'int' will hold.  Therefore we do not provide a setLength(long) method.
+
+    if (impl_ == null)
+    try
+    {
+      chooseImpl();
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+
+    boolean success = impl_.setLength(length);
+
+    if (success)
+    {
+      // Fire the file modified event.
+      if (fileListeners_.size() != 0) {
+        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
+      }
+
+      // Clear any cached attributes.
+      cachedAttributes_ = null;
     }
 
     return success;
@@ -2392,15 +2427,15 @@ public class IFSFile
    * Sets the permission of the object.
    * @param permission The permission that will be set to the object.
    * @see #getPermission
-   * @exception AS400Exception If the AS/400 system returns an error message.
+   * @exception AS400Exception If the server returns an error message.
    * @exception AS400SecurityException If a security or authority error occurs.
    * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
    * @exception InterruptedException If this thread is interrupted.
-   * @exception IOException If an error occurs while communicationg with the AS/400.
-   * @exception ObjectDoesNotExistException If the AS/400 object does not exist.
+   * @exception IOException If an error occurs while communicating with the server.
+   * @exception ObjectDoesNotExistException If the object does not exist on the server.
    * @exception PropertyVetoException If the change is vetoed.
-   * @exception UnknownHostException If the AS/400 system cannot be located.
+   * @exception UnknownHostException If the server cannot be located.
 
    *
   **/
@@ -2460,10 +2495,10 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.File in Java 2.
 
@@ -2484,13 +2519,13 @@ public class IFSFile
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
 
-  // @D1a new method because of changes in java.io.File
+  // @D1a new method because of changes to java.io.File in Java 2.
   public boolean setReadOnly(boolean attribute)
     throws IOException
   {
@@ -2512,19 +2547,10 @@ public class IFSFile
       cachedAttributes_ = null;
 
       // Fire the file modified event.
-      if (fileListeners_.size() != 0)
-      {
-        FileEvent event = new FileEvent(this, FileEvent.FILE_MODIFIED);
-        synchronized(fileListeners_)
-        {
-          Enumeration e = fileListeners_.elements();
-          while (e.hasMoreElements())
-          {
-            FileListener listener = (FileListener)e.nextElement();
-            listener.fileModified(event);
-          }
-        }
+      if (fileListeners_.size() != 0) {
+        IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
       }
+
     }
     return success;
   }
@@ -2534,7 +2560,7 @@ public class IFSFile
   /**
    Sets the system.
    The system cannot be changed once a connection is made to the server.
-   @param system The AS/400 system object.
+   @param system The server object.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public void setSystem(AS400 system)

@@ -299,13 +299,12 @@ implements IFSFileOutputStreamImpl
     {
       // Get the file information.
       IFSOpenRep rep = (IFSOpenRep) ds;
-      fd_.setFileHandle(rep.getFileHandle());
-      fd_.setOpen(true);
+      fd_.setOpen(true, rep.getFileHandle());
       fd_.setOpenAllowed(false);
       if (append_)
       {
         // We must append to the file.
-        fd_.setFileOffset(rep.getFileSize());
+        fd_.setFileOffset((int)rep.getFileSize());                // @B7c
       }
     }
     else if (ds instanceof IFSReturnCodeRep)
@@ -457,7 +456,7 @@ implements IFSFileOutputStreamImpl
         // Get the file information.
         IFSListAttrsRep rep = (IFSListAttrsRep) ds;
 
-        fd_.setFileOffset(rep.getSize());
+        fd_.setFileOffset((int)rep.getSize());                // @B7c
       }
       else if (ds instanceof IFSReturnCodeRep)
       {
