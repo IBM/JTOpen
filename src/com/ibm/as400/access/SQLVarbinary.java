@@ -260,12 +260,12 @@ implements SQLData
 
     public String getLiteralPrefix()
     {
-        return "X\'";
+        return "VARBINARY(X\'";     //@5WXVJX changed from x'
     }
 
     public String getLiteralSuffix()
     {
-        return "\'";
+        return "\')";       //@5WXVJX changed from '
     }
 
     public String getLocalName()
