@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * The SpooledFile class represents an AS/400 spooled file.
@@ -264,6 +265,88 @@ implements java.io.Serializable
         // @A4A  The connectService(AS400.PRINT) is done in setImpl()
         // @A4A  in the Printobject class.
         super.setImpl();  
+    }
+    
+        
+    
+    // @C1A - added method
+    /**
+     * Creates a copy of the spooled file this (SpooledFile) object represents.  The
+     * new spooled file is created on the same output queue and on the same system 
+     * as the original spooled file. A reference to the new spooled file is returned.
+     *
+     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         AS/400 system is not at the correct level.
+     **/
+    public SpooledFile copy()
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException,
+             RequestNotSupportedException
+    {
+        String name = getStringAttribute(ATTR_OUTPUT_QUEUE);
+        OutputQueue outq = new OutputQueue(getSystem(), name);
+        SpooledFile sf = copy(outq);
+        return sf;
+    }
+
+
+
+    // @C1A - added method
+    /**
+     * Creates a copy of the spooled file this object represents.  The
+     * new spooled file is created on the specified output queue.
+     * A reference to the new spooled file is returned.
+     *
+     * @param outputQueue The output queue location to create the new version of the
+     *       original spooled file.  The spooled file will be created to the first
+     *       position on this output queue.  The output queue and this spooled
+     *       file must reside on the same system.
+     *
+     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                         AS/400 system is not at the correct level.
+     **/
+    public SpooledFile copy(OutputQueue outputQueue)
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException,
+             RequestNotSupportedException
+    {
+        // choose implementations
+        if (impl_ == null) {
+            chooseImpl();
+        }
+        if (outputQueue.getImpl() == null) {     
+            outputQueue.chooseImpl();        
+        }                        
+        
+        NPCPIDSplF spID = 
+        ((SpooledFileImpl) impl_).copy((OutputQueueImpl)outputQueue.getImpl()); 
+    	
+        try {
+            spID.setConverter((new Converter(getSystem().getCcsid(), getSystem())).impl);
+        }
+        catch (UnsupportedEncodingException e) {
+            if (Trace.isTraceErrorOn()) {
+                Trace.log(Trace.ERROR, "Error initializing converter for spooled file.");
+            }
+        }
+        SpooledFile sf = new SpooledFile(getSystem(), spID, null);
+        return sf;
     }
 
 

@@ -74,6 +74,7 @@ class NPDataStream extends ClientAccessDataStream
     static final int TELL = 0x0018;
     static final int SELECT_PAGE = 0x0019;          /* @A1A */
     static final int OPEN_MODIFIED_SPLF = 0x001A;   /* @A2A */
+    static final int COPY = 0x001B;                 /* @C1A */
 
     // Network Print Server return codes
     static final int RET_OK              = 0x0000;

@@ -256,5 +256,28 @@ implements SpooledFileImpl, ProxyImpl
             throw ProxyClientConnection.rethrow6a(e);
         }
     }
+    
+    
+    
+    // @C1A - added method
+    public NPCPIDSplF copy(OutputQueueImpl outputQueue)
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException,
+             RequestNotSupportedException
+    {
+        try {
+            NPCPIDSplF cpID = (NPCPIDSplF) connection_.callMethod(pxId_, "copy",
+                                   new Class[] { OutputQueueImpl.class },
+                                   new Object[] { outputQueue }).getReturnValue();
+            return cpID;         
+        }
+        catch (InvocationTargetException e) {
+            throw ProxyClientConnection.rethrow6a(e);
+        }
+    }    
+    
 }
 

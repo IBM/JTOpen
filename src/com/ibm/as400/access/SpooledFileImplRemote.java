@@ -270,6 +270,80 @@ implements SpooledFileImpl
 
 
 
+    // @C6A - (added method)  
+    /**
+     * Creates a copy of the spooled file this object represents.  The
+     * new spooled file is created on the specified output queue.
+     * A reference to the new spooled file is returned.
+     *
+     * @param outputQueue The output queue location to create the new version of the
+     *       original spooled file.  The spooled file will be created to the first
+     *       position on this output queue.  The output queue and this spooled
+     *       file must reside on the same system.
+     *
+     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception RequestNotSupportedException If the requested function is not supported because the
+     *                                          AS/400 system is not at the correct level.
+     **/
+    public NPCPIDSplF copy(OutputQueueImpl outputQueue) 
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException,
+             RequestNotSupportedException
+    {
+       
+    	NPDataStream sendDS   = new NPDataStream(NPConstants.SPOOLED_FILE);       
+    	NPDataStream returnDS = new NPDataStream(NPConstants.SPOOLED_FILE);    
+        NPSystem npSystem     = NPSystem.getSystem(getSystem());
+
+    	NPCPAttribute cpCPFMessage = new NPCPAttribute();
+    	NPCPIDOutQ tgtOutQID = (NPCPIDOutQ)((OutputQueueImplRemote)outputQueue).getIDCodePoint(); 
+
+        sendDS.setAction(NPDataStream.COPY);
+        sendDS.addCodePoint(getIDCodePoint());
+        sendDS.addCodePoint(tgtOutQID);
+        
+        NPCPIDSplF splfID = new NPCPIDSplF();
+        returnDS.addCodePoint(splfID);
+        returnDS.addCodePoint(cpCPFMessage);
+
+        int rc = npSystem.makeRequest(sendDS, returnDS);
+        if (rc == 0) {
+            return splfID;
+        }
+        else {
+            NPConversation conversation = npSystem.getConversation();
+            String curLevel = conversation.getAttribute(PrintObject.ATTR_NPSLEVEL);
+            npSystem.returnConversation(conversation);
+
+            switch(rc) {
+                    // we get back RET_INV_REQ_ACT on pre-V5R3 systems if we try
+                    // to copy a spooled file, so throw a requestNotSupportedException
+                    // here.
+                case NPDataStream.RET_INV_REQ_ACT:
+                    throw new RequestNotSupportedException(curLevel,
+                                                           RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+    
+                    // any other error is either an unexpected error or an error
+                    // completing request
+                default:
+                    Trace.log(Trace.ERROR, "SpooledFileImplRemote::copy - An exception was thrown attempting to " + 
+                                   "copy the spooled file. RC = " + rc);
+     
+                    break;
+            }
+            return null;
+        }   
+    }
+
+
+
     /**
       * Deletes the spooled file on the AS/400.
       *

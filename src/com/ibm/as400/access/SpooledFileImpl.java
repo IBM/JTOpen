@@ -123,7 +123,6 @@ interface SpooledFileImpl extends PrintObjectImpl
              InterruptedException;
 
 
-
     public abstract void setAttributes(PrintParameterList attributes)
       throws AS400Exception,
              AS400SecurityException,
@@ -131,4 +130,14 @@ interface SpooledFileImpl extends PrintObjectImpl
              IOException,
              InterruptedException,
              RequestNotSupportedException;
+    
+    // C1A 
+    public abstract NPCPIDSplF copy(OutputQueueImpl outputQueue)
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             IOException,
+             InterruptedException,
+             RequestNotSupportedException;     
+             
 }
