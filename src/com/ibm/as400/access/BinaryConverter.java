@@ -456,6 +456,24 @@ public class BinaryConverter
   **/
   public static final byte[] stringToBytes(String s)
   {
+      int stringLength = s.length();                                                        //@KBA  check for empty string
+      if(stringLength > 0)                                                                  //@KBA
+      {                                                                                     //@KBA
+          if(s.charAt(0) == '0' && (s.charAt(1) == 'x' || s.charAt(1) == 'X'))              //@KBA
+              s = s.substring(2);                                                           //@KBA
+          else if((s.charAt(0) == 'x' || s.charAt(0) == 'X') && s.charAt(1) == '\'')        //@KBA
+          {                                                                                 //@KBA
+              if(s.charAt(stringLength - 1) == '\'')                                        //@KBA
+                  s = s.substring(2, stringLength-1);                                       //@KBA
+              else                                                                          //@KBA
+                  throw new NumberFormatException();                                        //@KBA
+          }                                                                                 //@KBA
+      }                                                                                     //@KBA
+
+    //check if an odd number of characters                                                  //@KBA
+    if(s.length()%2 == 1)                                                                   //@KBA
+        s = "0" + s;                                                                        //@KBA
+
     char[] c = s.toCharArray();
     return stringToBytes(c, 0, c.length);
   }
@@ -480,19 +498,19 @@ public class BinaryConverter
     if (hex.length == 0) return 0;
 
     // account for char[] of odd length
-    if (hex.length % 2 == 1)
-    {
-      char[] temp = hex;
-      hex = new char[temp.length+1];
-      System.arraycopy(temp, 0, hex, 0, temp.length-1);
-      hex[hex.length-2] = '0';
-      hex[hex.length-1] = temp[temp.length-1];
-    }
-    if (hex[offset] == '0' && (hex.length > offset+1 && (hex[offset+1] == 'X' || hex[offset+1] == 'x')))
-    {
-      offset += 2;
-      length -= 2;
-    }
+    //@KBD if (hex.length % 2 == 1)             //@KBD put checks in stringToBytes(String s)
+    //@KBD {
+    //@KBD   char[] temp = hex;
+    //@KBD   hex = new char[temp.length+1];
+    //@KBD   System.arraycopy(temp, 0, hex, 0, temp.length-1);
+    //@KBD   hex[hex.length-2] = '0';
+    //@KBD   hex[hex.length-1] = temp[temp.length-1];
+    //@KBD }
+    //@KBD if (hex[offset] == '0' && (hex.length > offset+1 && (hex[offset+1] == 'X' || hex[offset+1] == 'x')))
+    //@KBD {
+    //@KBD   offset += 2;
+    //@KBD   length -= 2;
+    //@KBD }
     for (int i=0; i<b.length; ++i)
     {
       final int j = i*2;
