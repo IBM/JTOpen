@@ -478,7 +478,7 @@ Returns a resource from the resource bundle.
       String serverName = dataSourceUrl.getServerName();
       String userName   = jdProperties.getString (JDProperties.USER);
       String password   = jdProperties.getString (JDProperties.PASSWORD);
-      boolean prompt    = jdProperties.getBoolean (JDProperties.PROMPT);
+      String prompt     = jdProperties.getString (JDProperties.PROMPT);   // @B8C
       boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
 
       // Create the AS400 object, so we can create a Connection via loadImpl2.
@@ -503,13 +503,16 @@ Returns a resource from the resource bundle.
           as400 = new AS400 (serverName, userName, password);
       }
 
-      // Determine when the signon GUI can be presented..
-      try {
-        as400.setGuiAvailable (prompt);
-      }
-      catch (java.beans.PropertyVetoException e) {
-        // This will never happen, as there are no listeners.
-      }
+		// Determine when the signon GUI can be presented..
+		try
+		{       
+            if (!prompt.equals(JDProperties.NOT_SPECIFIED))                           // @B8A
+                as400.setGuiAvailable(jdProperties.getBoolean(JDProperties.PROMPT));  // @B8C
+		}
+		catch (java.beans.PropertyVetoException e)
+		{
+			// This will never happen, as there are no listeners.
+		}
 
       if (proxyServerWasSpecifiedInUrl)
       {

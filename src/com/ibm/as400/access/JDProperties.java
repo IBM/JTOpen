@@ -248,6 +248,8 @@ class JDProperties implements Serializable {
    static final String              TRACE_SET_OFF                = "FALSE";          // @E7
    static final String              TRACE_NOT_SPECIFIED          = "NOT SPECIFIED";  // @E7
 
+   static final String              NOT_SPECIFIED               = "";               // @E8A
+
     // Static data.
 	private static DriverPropertyInfo[] dpi_;
 	private static String[]             defaults_;
@@ -525,7 +527,7 @@ Static initializer.
 		dpi_[i].choices		= new String[2];
 		dpi_[i].choices[0]  = TRUE_;
 		dpi_[i].choices[1]  = FALSE_;
-        defaults_[i]        = TRUE_;
+        defaults_[i]        = NOT_SPECIFIED;    // @E8C
 
 		// Proxy server.    //@A3A
 		i = PROXY_SERVER;
