@@ -1,0 +1,245 @@
+<HTML>
+<HEAD>
+<TITLE>JTOpen README</TITLE>
+</HEAD>
+<BODY>
+<H2>AS/400 Toolbox for Java - JTOpen Version</H2>
+<PRE>
+Copyright (C) 1997-2000 International Business Machines Corporation and
+others. All rights reserved.
+
+File: README
+Date: March 10, 2000
+
+The term "JTOpen" refers to the open source software product
+"AS/400 Toolbox for Java" plus any additional enhancements provided by the
+open source community. JTOpen, which is governed by the IBM Public License,
+as well as its Java source code, is contained in the open source repository
+located off of <A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400">http://oss.software.ibm.com/developerworks/opensource/jt400</A>.
+
+The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed
+Program Product "AS/400 Toolbox for Java" which is supported by IBM and
+can be obtained from the AS/400 Toolbox for Java web site located at
+<A HREF="http://www.ibm.com/as400/toolbox">http://www.ibm.com/as400/toolbox</A>.
+
+
+<HR><H3>Contents</H3>
+
+<A HREF="#what">What is the Toolbox?</A>
+
+<A HREF="#why">Why Open Source?</A>
+
+<A HREF="#diff">Differences between JTOpen and the Toolbox LPP</A>
+
+<A HREF="#down">Download and installation of JTOpen</A>
+  <A HREF="#req">Requirements</A>
+  <A HREF="#files">Files</A>
+  <A HREF="#use">Building and Using JTOpen</A>
+  <A HREF="#toolbox">Using the Toolbox LPP</A>
+
+<A HREF="#info">Support information</A>
+
+
+<HR><A NAME="what"><H3>What is the Toolbox?</H3></A>
+
+The AS/400 Toolbox for Java is a set of Java classes that allow you to
+access AS/400 data through a Java program. With these classes, you can
+write client/server applications, applets, and servlets that work with
+data on your AS/400. You can also run Java applications that use the AS/400
+Toolbox for Java on the AS/400's Java virtual machine.
+
+The Toolbox is available as an installable licensed program for the AS/400
+as of V4R2. Here is a breakdown of Toolbox releases versus operating
+system versions:
+
+Toolbox  Shipped with                    Installs on     Connects to
+release  OS/400 version  LPP release     OS/400 version  OS/400 version
+-------  --------------  --------------  --------------  --------------
+Mod 0    V4R2            5763JC1 V3R2M0  V3R2 and up     V3R2 and up
+Mod 1    V4R3            5763JC1 V3R2M1  V3R2 and up     V3R2 and up
+Mod 2    V4R4            5769JC1 V4R2M0  V4R2 and up     V4R2 and up
+Mod 3    TBD             TBD             TBD             TBD
+JTOpen   Not shipped     NA              NA              V4R2 and up
+
+Newer versions of the Toolbox are backwards-compatible with earlier
+versions. Upgrading to a newer version is usually recommended, with the one
+main exception being that, starting in Mod 2, the Toolbox does not connect
+back to a pre-V4R2 AS/400.
+
+
+<HR><A NAME="why"><H3>Why Open Source?</H3></A>
+
+We are pursuing making the Toolbox code open source for the
+following reasons:
+
+1. To obtain new functions and features from the Toolbox user community.
+
+2. To respond with customer and business partners requirements as rapidly
+   as possible.
+
+3. To improve the ability for our customers to build and debug their own
+   applications when using the Toolbox functions.
+
+4. To continue the drive to keep AS/400 a leader with Java technology for
+   application development.
+
+
+<HR><A NAME="diff"><H3>Differences between JTOpen and the Toolbox LPP</H3></A>
+
+1. The initial release of the source code for JTOpen uses the Mod 3
+   Toolbox codebase. That is, the Java code in the open source repository
+   is the same code that is used to build the Mod 3 Toolbox LPP.
+
+2. When bugs are reported, fixes will be committed to JTOpen as soon as
+   they are realized. When applicable, these same fixes will be committed
+   to the Toolbox LPP and made available in a future PTF or service pack.
+
+3. Any new functionality that is committed to JTOpen will not be
+   automatically added into the Toolbox LPP. However, new function that
+   exists in future releases of the Toolbox LPP may also get submitted
+   to the JTOpen repository, at IBM's discretion. The end result is
+   JTOpen will become a superset of the Toolbox LPP.
+
+   Note: All changes to JTOpen are made under the control and at the
+   discretion of the JTOpen Core Team. All changes to the Toolbox LPP
+   are made under the control and at the discretion of IBM.
+
+4. Initially, the JTOpen only contains most of the classes from the
+   com.ibm.as400.access package. As time permits, more code and packages
+   from the Mod 3 Toolbox will be released into this repository.
+
+5. In general, the Toolbox LPP is supported directly by IBM. JTOpen
+   is supported by the JTOpen user community, of which IBM participates
+   and contributes.
+
+6. Pursuant to the IBM Public License, programmers are free to alter the
+   JTOpen source code and to distribute it with their own applications.
+
+
+<HR><A NAME="down"><H3>Download and installation of JTOpen</H3></A>
+
+<A NAME="req"><H4><U>Requirements</U></H4></A>
+Briefly, the requirements for using the JTOpen code are as follows:
+
+1. A Sun-compliant Java Virtual Machine (JVM) with a 1.1.x or higher JDK/JRE.
+
+2. Almost all JTOpen functions require a TCP/IP connection to an AS/400.
+
+   a. The AS/400 must be V4R2 or higher.
+
+   b. The AS/400 must have the Option 12 Host Servers installed and
+      running. JTOpen uses the host servers to communicate with the
+      AS/400 from a client.
+
+   c. If the Java application using JTOpen is being run directly on an
+      AS/400, then certain JTOpen functions will use native API and/or
+      socket calls for performance. This is only the case if the Java
+      application is being run under the same user profile that is provided
+      to the JTOpen connection object; otherwise, the host servers are used.
+
+3. For GUI programming, either Java 2 or Swing 1.1 or higher is required.
+
+<A NAME="files"><H4><U>Files</U></H4></A>
+JTOpen is comprised of the following files:
+
+Jar file          Contents
+--------          --------
+<A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400/jtStubs.jar">jtStubs.jar</A>       Contains the classes needed to compile the JTOpen source.
+<A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400/src.zip">src.zip</A>           This is a zip file of all the source files in the
+                  repository. It is not a Java jar file.
+jtOpen.jar        This is the open source version of the LPP jt400.jar. It
+                  contains the open source access package instead of the LPP
+                  access package. As more Toolbox code is submitted as open
+                  source, it replaces the LPP code in this jar file.
+
+The first two files are available through the IBM developerWorks web site
+located at <A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400">http://oss.software.ibm.com/developerworks/opensource/jt400</A>. But
+due to export regulations, the jtOpen.jar file can only be downloaded from
+the official Toolbox web site located at <A HREF="http://www.ibm.com/as400/toolbox">http://www.ibm.com/as400/toolbox</A>.
+
+<A NAME="use"><H4><U>Building and Using JTOpen</U></H4></A>
+Instructions for using JTOpen:
+1. Download jtOpen.jar.
+2. Add it to your CLASSPATH.
+3. Run your application.
+
+Instructions for building all or part of the JTOpen source code:
+1. Download jtOpen.jar.
+2. Download any source files you want to change. The src.zip file includes
+   all of the source in the repository for convenience.
+3. Download jtStubs.jar. This is needed ONLY at compile time.
+4. Set up your CLASSPATH to include everything in the correct order:
+   a. Your source files should be in your CLASSPATH first. Note that you
+      cannot point to src.zip - you must unzip it, since it contains only
+      source files.
+   b. Next, add jtOpen.jar.
+   c. Finally, add jtStubs.jar.
+   d. It should look something like this:
+      CLASSPATH=C:\jt400\MyApp;C:\jt400\jtOpen.jar;C:\jt400\jtStubs.jar;...
+5. Compile your source.
+6. Remove jtStubs.jar from your CLASSPATH. If you don't, certain pieces of
+   code may not function correctly, namely JDBC and applets. It should now
+   look like this:
+     CLASSPATH=C:\jt400\MySource;C:\jt400\jtOpen.jar;...
+7. Run your application.
+
+<A NAME="toolbox"><H4><U>Using the Toolbox LPP</U></H4></A>
+For those interested in the Toolbox LPP version of this software:
+
+The Mod 3 Toolbox LPP ships the following files, which are available
+for download off of the official Toolbox web site at
+<A HREF="http://www.ibm.com/as400/toolbox">http://www.ibm.com/as400/toolbox</A>.
+
+Jar file           Contents
+--------           --------
+jt400.jar          Contains the access, vaccess, and security packages.
+jt400Access.jar    Contains just the access package.
+jt400Proxy.jar     Contains proxy classes for the access package. Useful for
+                   applets or environments where a small jar file is needed.
+jt400Servlet.jar   Contains the HTML and servlet packages.
+utilities package  Contains various helper applications for the Toolbox,
+                   such as JarMaker and AS400ToolboxInstaller.
+data400.jar        Contains the PCML runtime package as provided by
+                   Operations Navigator.
+jui400.jar         Contains the PDML runtime packages as provided by
+                   the Graphical Toolbox.
+uitools.jar        Contains the GUI Builder packages as provided by the
+                   Graphical Toolbox.
+util400.jar        Contains various utilities.
+x4j400.jar         This is the IBM XML Parser for Java.
+
+Instructions for using the Toolbox LPP:
+1. Download the Toolbox and extract the jar file(s) you wish to use. This
+   will be jt400.jar in most cases.
+2. Add it to your CLASSPATH.
+3. Run your application.
+
+
+<HR><A NAME="info"><H3>Support information</H3></A>
+
+Documentation for JTOpen can be found on the Toolbox
+web site at <A HREF="http://www.ibm.com/as400/toolbox">http://www.ibm.com/as400/toolbox</A>.
+
+The Toolbox/JTOpen external web forum will be available soon off of
+<A HREF="http://as400service.ibm.com">http://as400service.ibm.com</A> under the "Forums & Discussion",
+"AS/400 Tech Forums" category.
+
+The Toolbox/JTOpen mailing list is <A HREF="mailto:jt400-news@oss.software.ibm.com">jt400-news@oss.software.ibm.com</A>.
+Here are instructions on <A HREF="subscribe.html">how to subscribe</A> to the list.
+
+For bug reports, please use the Jitterbug forum located at
+<A HREF="http://oss.software.ibm.com/developerworks/opensource/jt400/bugs">http://oss.software.ibm.com/developerworks/opensource/jt400/bugs</A>.
+Other enhancements or fixes can be sent to Chris Smith (<A HREF="mailto:csmith4@us.ibm.com">csmith4@us.ibm.com</A>).
+
+Questions or comments regarding JTOpen can be sent to any of the JTOpen
+Core Team members:
+
+  Name                  E-mail                  Function
+  --------------------  ----------------------  -----------------------------
+  Chris Smith           <A HREF="mailto:csmith4@us.ibm.com">csmith4@us.ibm.com</A>      Primary JTOpen developer
+  Bill Wiktor           <A HREF="mailto:wiktor@us.ibm.com">wiktor@us.ibm.com</A>       Logistics and legal aspects
+  Cheryl Pflughoeft     <A HREF="mailto:cjpflug@us.ibm.com">cjpflug@us.ibm.com</A>      Publicity and customer care
+
+</PRE>
+</BODY>
+</HTML>
