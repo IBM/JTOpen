@@ -224,6 +224,7 @@ implements PreparedStatement
             }
 
             if (batch_ == null) batch_ = new Vector(); //@P0A
+            JDTrace.logInformation(this, "addBatch()");
             batch_.addElement (parameters);
         }
     }
