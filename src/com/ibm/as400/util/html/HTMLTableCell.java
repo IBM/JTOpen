@@ -874,7 +874,7 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
 
         //@CRS Integer oldWidth = new Integer(width_);
         //@CRS Integer newWidth = new Integer(width);
-        int oldWidth = width; //@CRS
+        int oldWidth = width_; //@CRS        //@K1C
 
         if (vetos_ != null) vetos_.fireVetoableChange("width", new Integer(oldWidth), new Integer(width)); //@CRS
 
