@@ -954,7 +954,8 @@ implements PrintObjectListImpl
     {
         // while the size of the list is less than the item number requested,
         // -AND- the list is not done, -OR- we are firing events, we wait.
-        while( ((cpidList_.size() < itemNumber) && (!completed_)) || firingEvent_ ) // @A5C
+        // @B2A - Added (cpidList_ != null)
+        while ((cpidList_ != null) && (((cpidList_.size() < itemNumber) && (!completed_)) || firingEvent_ )) // @A5C 
         {
             try
             {
