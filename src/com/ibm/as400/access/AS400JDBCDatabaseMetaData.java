@@ -6310,8 +6310,8 @@ implements DatabaseMetaData
     <table border=1>
     <tr><th><br></th><th>CONCUR_READ_ONLY</th><th>CONCUR_UPDATABLE</th></tr>
     <tr><td>TYPE_FORWARD_ONLY</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td>TYPE_SCROLL_INSENSITIVE</td><td>No</td><td>No</td></tr>
-    <tr><td>TYPE_SCROLL_SENSITIVE</td><td>No</td><td>Yes</td></tr>
+    <tr><td>TYPE_SCROLL_INSENSITIVE</td><td>Yes</td><td>No</td></tr>
+    <tr><td>TYPE_SCROLL_SENSITIVE</td><td>Yes</td><td>Yes</td></tr>
     </table>
     <br>
     
@@ -6350,11 +6350,13 @@ implements DatabaseMetaData
             && (resultSetConcurrency != ResultSet.CONCUR_UPDATABLE))
             JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
 
-        // Cases that we don't support.
-        if (((resultSetConcurrency == ResultSet.CONCUR_READ_ONLY)
-             && (resultSetType == ResultSet.TYPE_SCROLL_SENSITIVE))
-            || ((resultSetConcurrency == ResultSet.CONCUR_UPDATABLE)
-                && (resultSetType == ResultSet.TYPE_SCROLL_INSENSITIVE)))
+        // Cases that we don't support.                                                         
+        //@K2D if (((resultSetConcurrency == ResultSet.CONCUR_READ_ONLY)
+        //@K2D     && (resultSetType == ResultSet.TYPE_SCROLL_SENSITIVE))
+        //@K2D    || ((resultSetConcurrency == ResultSet.CONCUR_UPDATABLE)
+        //@K2D        && (resultSetType == ResultSet.TYPE_SCROLL_INSENSITIVE)))
+        if((resultSetConcurrency == ResultSet.CONCUR_UPDATABLE)                        //@K2A
+           && (resultSetType == ResultSet.TYPE_SCROLL_INSENSITIVE))                     //@K2A
             return false;
 
         // We support all other cases.
@@ -6422,10 +6424,9 @@ implements DatabaseMetaData
                                   <li>ResultSet.TYPE_SCROLL_INSENSITIVE
                                   <li>ResultSet.TYPE_SCROLL_SENSITIVE
                                 </ul>
-    @return                     true for ResultSet.TYPE_FORWARD_ONLY and
-                                ResultSet.TYPE_SCROLL_SENSITIVE.
-                                ResultSet.TYPE_SCROLL_INSENSITIVE is not
-                                currently supported.
+    @return                     true for ResultSet.TYPE_FORWARD_ONLY 
+                                ResultSet.TYPE_SCROLL_SENSITIVE. and 
+                                ResultSet.TYPE_SCROLL_INSENSITIVE.
     
     @exception  SQLException    If the result set type is not valid.
     **/
