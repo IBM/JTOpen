@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.awt.Image;
+import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -63,6 +64,16 @@ public class SecureAS400BeanInfo extends AS400BeanInfo
             Trace.log(Trace.ERROR, "Unexpected IntrospectionException:", e);
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
+    }
+
+    /**
+     Returns the bean descriptor.
+     @return  The bean descriptor.
+     **/
+    public BeanDescriptor getBeanDescriptor()
+    {
+        return new BeanDescriptor(BEAN_CLASS);
+        // Note: The parent's method grabs parent's BEAN_CLASS (AS400.class).
     }
 
     /**

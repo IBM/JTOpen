@@ -33,7 +33,7 @@ public class AS400JDBCXADataSourceBeanInfo extends SimpleBeanInfo
 
 
    // Class this bean info represents.
-   private final static Class beanClass = AS400JDBCXADataSourceBeanInfo.class;
+   private final static Class beanClass = AS400JDBCXADataSource.class;        // @A1c
 
    /**
    *  Returns additional bean information from the AS400JDBCXADataSourceBeanInfo superclass.
