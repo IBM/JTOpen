@@ -106,13 +106,25 @@
 <!-- Set variable used to test if the command has one or more parameters.  -->  
 <xsl:variable name="HasParameters" select="//Parm"/>
 
-<!-- Set variable used to test if the command has an Examples section.     -->  
-<xsl:variable name="HasExamples" select="$CommandHelp!='__NO_HELP' and 
+<!-- Set variable used to test if the command has an Examples section 
+     that follows the <div><a><h3> order of elements (i.e. old style).     -->  
+<xsl:variable name="HasExamplesOld" select="$CommandHelp!='__NO_HELP' and 
       $CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]"/>
 
-<!-- Set variable used to test if the command has an Error Messages section.     -->  
-<xsl:variable name="HasErrorMessages" select="$CommandHelp!='__NO_HELP' and 
+<!-- Set variable used to test if the command has an Examples section 
+     that follows the <div><h3><a> order of elements (i.e. new style).     -->  
+<xsl:variable name="HasExamplesNew" select="$CommandHelp!='__NO_HELP' and 
+      $CommandHelpDocument//div[h3[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]]"/>
+
+<!-- Set variable used to test if the command has an Error Messages section. 
+     that follows the <div><a><h3> order of elements (i.e. old style).     -->  
+<xsl:variable name="HasErrorMessagesOld" select="$CommandHelp!='__NO_HELP' and 
       $CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]"/>
+
+<!-- Set variable used to test if the command has an Error Messages section. 
+     that follows the <div><h3><a> order of elements (i.e. new style).     -->  
+<xsl:variable name="HasErrorMessagesNew" select="$CommandHelp!='__NO_HELP' and 
+      $CommandHelpDocument//div[h3[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]]"/>
 
 
 <!-- 
@@ -269,7 +281,7 @@
    <a><xsl:attribute name="href">#<xsl:value-of select="@CmdName"/>.PARAMETERS.TABLE</xsl:attribute><xsl:value-of select="$_PARAMETERS"/></a>
    <br /><xsl:text>&#xa;</xsl:text>
    <xsl:choose>
-    <xsl:when test="$HasExamples">
+    <xsl:when test="$HasExamplesOld or $HasExamplesNew">
       <a><xsl:attribute name="href">#<xsl:value-of select="$CommandHelpID"/>.COMMAND.EXAMPLES</xsl:attribute><xsl:value-of select="$_EXAMPLES"/></a>
     </xsl:when>
     <xsl:otherwise>
@@ -278,7 +290,7 @@
    </xsl:choose> 
    <br /><xsl:text>&#xa;</xsl:text>
    <xsl:choose>
-    <xsl:when test="$HasErrorMessages">
+    <xsl:when test="$HasErrorMessagesOld or $HasErrorMessagesNew">
       <a><xsl:attribute name="href">#<xsl:value-of select="$CommandHelpID"/>.ERROR.MESSAGES</xsl:attribute><xsl:value-of select="$_ERRORS"/></a>
     </xsl:when>
     <xsl:otherwise>
@@ -390,9 +402,13 @@
   <xsl:text>&#xa;</xsl:text>
   <hr width="100%" size="2" /><xsl:text>&#xa;</xsl:text>
   <xsl:choose>
-      <xsl:when test="$HasExamples">
+      <xsl:when test="$HasExamplesOld">
         <xsl:copy-of select=
            "$CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]"/>
+      </xsl:when>
+      <xsl:when test="$HasExamplesNew">
+        <xsl:copy-of select=
+           "$CommandHelpDocument//div[h3[a/@name=concat($CommandHelpID,'.COMMAND.EXAMPLES')]]"/>
       </xsl:when>
       <xsl:otherwise>
         <div><xsl:text>&#xa;</xsl:text>
@@ -415,9 +431,13 @@
   <xsl:text>&#xa;</xsl:text>
   <hr width="100%" size="2" /><xsl:text>&#xa;</xsl:text>
   <xsl:choose>
-      <xsl:when test="$HasErrorMessages">
+      <xsl:when test="$HasErrorMessagesOld">
         <xsl:copy-of select=
            "$CommandHelpDocument//div[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]"/>
+      </xsl:when>
+      <xsl:when test="$HasErrorMessagesNew">
+        <xsl:copy-of select=
+           "$CommandHelpDocument//div[h3[a/@name=concat($CommandHelpID,'.ERROR.MESSAGES')]]"/>
       </xsl:when>
       <xsl:otherwise>
         <div><xsl:text>&#xa;</xsl:text>                                                         
