@@ -208,7 +208,7 @@ implements SQLData
 
     public int getRadix()
     {
-        return 10;
+        return 2;               //@K1C Changed from 10
     }
 
     public int getScale()
