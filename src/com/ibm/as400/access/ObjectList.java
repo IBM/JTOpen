@@ -923,6 +923,7 @@ public class ObjectList implements Serializable
       recordLength = BinaryConverter.byteArrayToInt(listInfo, 12);
     }
 
+    ListUtilities.checkListStatus(listInfo[30]);  // check the list status indicator
     byte[] data = parms2[0].getOutputData();
 
     ObjectDescription[] objects = new ObjectDescription[recordsReturned];
@@ -1230,12 +1231,7 @@ public class ObjectList implements Serializable
 
     // List information returned
     byte[] listInformation = parms[2].getOutputData();
-    byte listStatusIndicator = listInformation[30];
-    if (listStatusIndicator != (byte)0xF2) // '2' means the list has been completely built
-    {
-      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to build object list on server ("+listStatusIndicator+")");
-      throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
-    }
+    ListUtilities.checkListStatus(listInformation[30]);  // check the list status indicator
     handle_ = new byte[4];
     System.arraycopy(listInformation, 8, handle_, 0, 4);
 
@@ -1257,6 +1253,7 @@ public class ObjectList implements Serializable
       throw new AS400Exception(pc2.getMessageList());
     }
     byte[] listInfo2 = parms2[3].getOutputData();
+    ListUtilities.checkListStatus(listInfo2[30]);  // check the list status indicator
     length_ = BinaryConverter.byteArrayToInt(listInfo2, 0);
 
     if (Trace.traceOn_)

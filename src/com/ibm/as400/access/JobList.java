@@ -1127,6 +1127,7 @@ more calls to the server. The block size used internally by the Enumeration is s
     }
 
     
+    ListUtilities.checkListStatus(listInfo[30]);  // check the list status indicator
     byte[] data = parms2[0].getOutputData();
 
     Job[] jobs = new Job[recordsReturned];
@@ -1674,6 +1675,7 @@ if it has not already been called.
 
     // List information returned
     byte[] listInformation = parms[5].getOutputData();
+    ListUtilities.checkListStatus(listInformation[30]);  // check the list status indicator
     handle_ = new byte[4];
     System.arraycopy(listInformation, 8, handle_, 0, 4);
 
@@ -1695,6 +1697,7 @@ if it has not already been called.
       throw new AS400Exception(pc2.getMessageList());
     }
     byte[] listInfo2 = parms2[3].getOutputData();
+    ListUtilities.checkListStatus(listInfo2[30]);  // check the list status indicator
     length_ = bin4_.toInt(listInfo2, 0);
     
     if (Trace.traceOn_)

@@ -544,6 +544,7 @@ need replies.
       recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
     }
 
+    ListUtilities.checkListStatus(listInfo[30]);  // check the list status indicator
     byte[] data = parms2[0].getOutputData();
 
     QueuedMessage[] messages = new QueuedMessage[recordsReturned];
@@ -939,6 +940,7 @@ need replies.
 
     // List information returned
     byte[] listInformation = parms[2].getOutputData();
+    ListUtilities.checkListStatus(listInformation[30]);  // check the list status indicator
     handle_ = new byte[4];
     System.arraycopy(listInformation, 8, handle_, 0, 4);
 
@@ -960,6 +962,7 @@ need replies.
       throw new AS400Exception(pc2.getMessageList());
     }
     byte[] listInfo2 = parms2[3].getOutputData();
+    ListUtilities.checkListStatus(listInfo2[30]);  // check the list status indicator
     length_ = BinaryConverter.byteArrayToInt(listInfo2, 0);
 
     if (Trace.traceOn_)
