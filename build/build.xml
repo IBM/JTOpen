@@ -646,6 +646,7 @@ Available Ant targets for the JTOpen build script include:
       <zipfileset dir="${source-contrib}"/>
       <zipfileset dir="${source-micro}"/>
       <zipfileset dir="${include}" excludes="**/*.zip,**/*.jar"/>
+      <zipfileset dir="${build}/build" excludes="**/mypasswd"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
     </zip>
