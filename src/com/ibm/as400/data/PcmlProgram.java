@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PcmlProgram.java
 //                                                                             
@@ -529,7 +529,7 @@ class PcmlProgram extends PcmlDocNode
         m_pgmCCSID = as400.getCcsid();                              // @C2A
 
         //
-        // Convert all input parameters from Java objects to AS/400 data
+        // Convert all input parameters from Java objects to i5/OS data
         //
         childNbr = 0;
         children = getChildren();
@@ -544,7 +544,7 @@ class PcmlProgram extends PcmlDocNode
             outputSize = 0;
 
             //
-            // Create a byte array for the parameter and convert the Java objects to AS/400 data
+            // Create a byte array for the parameter and convert the Java objects to i5/OS data
             //
             bSupportedAtVRM = false;                                // @A2A
             bytes = null;                                           // @A2A
@@ -760,7 +760,7 @@ class PcmlProgram extends PcmlDocNode
             children = getChildren();
         }
 
-        // Process children to parse AS/400 data
+        // Process children to parse i5/OS data
         while (children.hasMoreElements())
         {
             child = (PcmlDocNode) children.nextElement();

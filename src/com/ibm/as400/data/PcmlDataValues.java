@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PcmlDataValues.java
 //                                                                             
@@ -40,8 +40,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     private Object m_value;        // Java native value: (String, Short, Integer, Long, Float, Double, BigDecimal. byte[])
     private long   m_valueTs;      // Correllation id of Java native value from PcmlDocument.getCorrellationID()
-    private byte[] m_bytes;        // AS/400 bytes (ebcdic/big-endian)
-    private long   m_bytesTs;      // Correllation id of AS/400 bytes from PcmlDocument.getCorrellationID()
+    private byte[] m_bytes;        // i5/OS bytes (ebcdic/big-endian)
+    private long   m_bytesTs;      // Correllation id of i5/OS bytes from PcmlDocument.getCorrellationID()
     
     private int    m_bidiStringType;    // Type of string that is contained in the value @C6A
 
@@ -68,7 +68,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     {                                                               // @C1A
         synchronized (this)                                         // @C1A
         {                                                           // @C1A
-            // For input values, serialize only the AS/400 byte value 
+            // For input values, serialize only the i5/OS byte value 
             // if it is current than the Java value
             if ( m_owner.getUsage() == PcmlDocNode.INPUT )          // @C1A
             {                                                       // @C1A
@@ -82,7 +82,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             }                                                       // @C1A
 
             // For ouput values, serialize only the Java value 
-            // if it is current than the AS/400 byte value
+            // if it is current than the i5/OS byte value
             if ( m_owner.getUsage() == PcmlDocNode.OUTPUT )         // @C1A
             {
                 // If the byte value is more recent than the Java value
@@ -198,7 +198,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         m_valueTs = PcmlDocument.getCorrellationID();           // @C7C
     }
 
-    // Set AS/400 bytes
+    // Set i5/OS bytes
     public void setBytes(byte[] ba) 
     {
         m_bytes = ba;
@@ -223,7 +223,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
     }
 
-    // Convert AS/400 bytes to Java native value
+    // Convert i5/OS bytes to Java native value
     private Object bytesToValue() throws PcmlException 
     {
         // If the byte value is more recent than the Java value
@@ -458,7 +458,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         }
     }
 
-    // Convert Java object AS/400 bytes
+    // Convert Java object i5/OS bytes
     // Returns the number of bytes converted
     public int toBytes(byte[] bytes, int offset) throws PcmlException 
     {
@@ -515,7 +515,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         return bytesConverted;                                      // @B2A
     } // public int toBytes(byte[] bytes, int offset)
 
-    // Convert AS/400 bytes to Java Object
+    // Convert i5/OS bytes to Java Object
     // Returns the Java Object
     public Object toObject(byte[] bytes) throws PcmlException
     {

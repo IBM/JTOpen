@@ -918,14 +918,14 @@ class PcmlData extends PcmlDocNode
         if (m_IsRfml) return true;                                  // @D0A
         int hostVrm = getAs400VRM();      // VRM of the iSeries system  @A1A
 
-        // If the minvrm= for this element is greater than the AS400 VRM
+        // If the minvrm= for this element is greater than the server VRM
         // do not process this element. The item is not available at this release.
         if (getMinvrm() > hostVrm)                                  // @A1A
         {                                                           // @A1A
             return false;                                           // @A1A
         }                                                           // @A1A
 
-        // If the maxvrm= for this element is less than the AS400 VRM
+        // If the maxvrm= for this element is less than the server VRM
         // do not process this element. The item is not available at this release.
         if (getMaxvrm() < hostVrm)                                  // @A1A
         {                                                           // @A1A

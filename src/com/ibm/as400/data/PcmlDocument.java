@@ -264,7 +264,7 @@ class PcmlDocument extends PcmlDocRoot
         m_as400Vrm = -1;
 
         // Release any CCSID sensitive data converters
-        // The CCSID of this AS400 may be different from previous system
+        // The CCSID of this system may be different from previous system
         m_Text_1 = null;                                            // @C1A
         m_Text_10 = null;                                           // @C1A
     }

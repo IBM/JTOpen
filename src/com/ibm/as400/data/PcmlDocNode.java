@@ -136,13 +136,13 @@ abstract class PcmlDocNode extends PcmlNode
         }
     }
 
-    // Get the AS400 system object for this document
+    // Get the system object for this document
     AS400 getAs400()
     {
         return getDoc().getAs400();
     }
 
-    // Get the AS400 VRM for this document
+    // Get the system VRM for this document
     int getAs400VRM() throws PcmlException
     {
         return getDoc().getAs400VRM();

@@ -487,13 +487,13 @@ class RfmlRecordFormat extends PcmlDocNode
 
       int offsetIntoBuffer = 0;
 
-      // Convert all fields from Java objects to AS/400 data.
+      // Convert all fields from Java objects to i5/OS data.
       Enumeration children = getChildren();  // children of this node.
       while (children.hasMoreElements())
       {
         PcmlDocNode child = (PcmlDocNode) children.nextElement();
 
-        // Create a FieldDescription for the node and convert the Java objects to AS/400 data.
+        // Create a FieldDescription for the node and convert the Java objects to i5/OS data.
         if (child.getNodeType() == PcmlNodeType.DATA) {
           int bytesConsumed = ((RfmlData) child).parseBytes(bytes, offsetIntoBuffer, offsetStack, noDimensions);
           offsetIntoBuffer += bytesConsumed;
