@@ -89,6 +89,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_TIME_SEPARATOR", "timeSeparator" },
       { "PROP_NAME_TRACE", "trace" },
       { "PROP_NAME_TRACE_SERVER", "serverTrace" },                  // @J1a
+      { "PROP_NAME_TRACE_TOOLBOX", "toolboxTrace" },                // @K1A
       { "PROP_NAME_TRANSACTION_ISOLATION", "transactionIsolation" },
       { "PROP_NAME_TRANSLATE_BINARY", "translateBinary" },
       { "PROP_NAME_USER", "user" },
@@ -158,6 +159,7 @@ public class JDMRI extends ListResourceBundle
       { "TIME_SEPARATOR_DESC", "Specifies the time separator used in time literals within SQL statements." },
       { "TRACE_DESC", "Specifies whether trace messages should be logged." },
       { "TRACE_SERVER_DESC", "Specifies whether the job on the server should be traced." },     //@J1a
+      { "TRACE_TOOLBOX_DESC", "Specifies what category of a toolbox trace to log." },           //@K1A
       { "TRANSACTION_ISOLATION_DESC", "Specifies the default transaction isolation." },
       { "TRANSLATE_BINARY_DESC", "Specifies whether binary data is translated." },
       { "USER_DESC", "Specifies the user name for connecting to the server." },

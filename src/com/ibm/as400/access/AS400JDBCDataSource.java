@@ -3332,6 +3332,70 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, property + ": " + parseOption);
     }
 
+    //K2A
+    /**
+    *  Returns the toolbox trace category.
+    *  @return The toolbox trace category.
+    *  <p>Valid values include:
+    *  <ul>
+    *    <li> "none" - The default value.
+    *    <li> "datastream"
+    *    <li> "diagnostic"
+    *    <li> "error"
+    *    <li> "information"
+    *    <li> "warning"
+    *    <li> "conversion"
+    *    <li> "proxy"
+    *    <li> "pcml"
+    *    <li> "jdbc"
+    *    <li> "all"
+    *    <li> "thread"
+    *  </ul>
+    **/
+    public String getToolboxTraceCategory()
+    {
+        return properties_.getString(JDProperties.TRACE_TOOLBOX);
+    }
+
+    // @K2A
+    /**
+    * Sets the toolbox trace category, which indicates 
+    * what trace points and diagnostic messages should be logged.
+    * @param traceCategory The category option.
+    * <p>Valid values include:
+    * <ul>
+    *    <li> "none" 
+    *    <li> "datastream"
+    *    <li> "diagnostic"
+    *    <li> "error"
+    *    <li> "information"
+    *    <li> "warning"
+    *    <li> "conversion"
+    *    <li> "proxy"
+    *    <li> "pcml"
+    *    <li> "jdbc"
+    *    <li> "all"
+    *    <li> "thread"    
+    * </ul>
+    * The default value is "none".
+    **/
+    public void setToolboxTraceCategory(String traceCategory)
+    {
+        String property = "toolboxTrace";
+
+        String oldOption = getToolboxTraceCategory();
+        String newOption = traceCategory;
+
+        validateProperty(property, newOption, JDProperties.TRACE_TOOLBOX);
+
+        properties_.setString(JDProperties.TRACE_TOOLBOX, newOption);
+
+        changes_.firePropertyChange(property, oldOption, newOption);
+
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, property + ": " + traceCategory);
+    }
+
     /**
     *  Validates the property value.
     *  @param property The property name.

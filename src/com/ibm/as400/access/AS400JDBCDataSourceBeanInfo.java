@@ -356,6 +356,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             traceServer.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@J1a
             traceServer.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@J1a
 
+            PropertyDescriptor traceToolbox = new PropertyDescriptor("toolboxTrace", beanClass, "getToolboxTraceCategory", "setToolboxTraceCategory");  //@K2A
+            traceToolbox.setBound(true);                                                                                                  //@K2A
+            traceToolbox.setConstrained(false);                                                                                           //@K2A
+            traceToolbox.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_TOOLBOX"));                                          //@K2A
+            traceToolbox.setShortDescription(AS400JDBCDriver.getResource("TRACE_TOOLBOX_DESC"));                                          //@K2A
+
             PropertyDescriptor transactionIsolation = new PropertyDescriptor("transactionIsolation", beanClass, "getTransactionIsolation", "setTransactionIsolation");
             transactionIsolation.setBound(true);
             transactionIsolation.setConstrained(false);

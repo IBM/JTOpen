@@ -126,12 +126,13 @@ class JDProperties implements Serializable
     static final int              MAXIMUM_PRECISION       = 53;
     static final int              MAXIMUM_SCALE           = 54;
     static final int              TRANSLATE_HEX           = 55;   // @M0A - support hex constant parser option
+    static final int              TRACE_TOOLBOX           = 56;   // @K1A - support to allow a toolbox trace
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 56;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 57;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C
 
 
 
@@ -190,6 +191,7 @@ class JDProperties implements Serializable
     private static final String TIME_SEPARATOR_         = "time separator";
     private static final String TRACE_                  = "trace";
     private static final String TRACE_SERVER_           = "server trace";           // @j1a
+    private static final String TRACE_TOOLBOX_          = "toolbox trace";          // @K1A
     private static final String TRANSACTION_ISOLATION_  = "transaction isolation";
     private static final String TRANSLATE_BINARY_       = "translate binary";
     private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
@@ -358,6 +360,18 @@ class JDProperties implements Serializable
     static final String              TRANSLATE_HEX_BINARY        = "binary";         // @M0A - support hex constant parser option
     static final String              TRANSLATE_HEX_CHARACTER     = "character";
 
+    static final String              TRACE_TOOLBOX_DATASTREAM    = "datastream";     // @K1A
+    static final String              TRACE_TOOLBOX_DIAGNOSTIC    = "diagnostic";     // @K1A
+    static final String              TRACE_TOOLBOX_ERROR         = "error";          // @K1A
+    static final String              TRACE_TOOLBOX_INFORMATION   = "information";    // @K1A
+    static final String              TRACE_TOOLBOX_WARNING       = "warning";        // @K1A
+    static final String              TRACE_TOOLBOX_CONVERSION    = "conversion";     // @K1A
+    static final String              TRACE_TOOLBOX_PROXY         = "proxy";          // @K1A
+    static final String              TRACE_TOOLBOX_PCML          = "pcml";           // @K1A
+    static final String              TRACE_TOOLBOX_JDBC          = "jdbc";           // @K1A
+    static final String              TRACE_TOOLBOX_ALL           = "all";            // @K1A
+    static final String              TRACE_TOOLBOX_THREAD        = "thread";         // @K1A
+    static final String              TRACE_TOOLBOX_NONE          = NONE_;            // @K1A
 
 
     // Static data.
@@ -909,6 +923,27 @@ class JDProperties implements Serializable
         dpi_[i].choices     = new String[0];
         defaults_[i]        = "0x00";
 
+        // @K1A
+        // Trace Toolbox  
+        i = TRACE_TOOLBOX;
+        dpi_[i] = new DriverPropertyInfo (TRACE_TOOLBOX_, "");
+        dpi_[i].description = "TRACE_TOOLBOX_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[12];
+        dpi_[i].choices[0]  = TRACE_TOOLBOX_NONE;
+        dpi_[i].choices[1]  = TRACE_TOOLBOX_DATASTREAM;
+        dpi_[i].choices[2]  = TRACE_TOOLBOX_DIAGNOSTIC;
+        dpi_[i].choices[3]  = TRACE_TOOLBOX_ERROR;
+        dpi_[i].choices[4]  = TRACE_TOOLBOX_INFORMATION;
+        dpi_[i].choices[5]  = TRACE_TOOLBOX_WARNING;
+        dpi_[i].choices[6]  = TRACE_TOOLBOX_CONVERSION;
+        dpi_[i].choices[7]  = TRACE_TOOLBOX_PROXY;
+        dpi_[i].choices[8]  = TRACE_TOOLBOX_PCML;
+        dpi_[i].choices[9]  = TRACE_TOOLBOX_JDBC;
+        dpi_[i].choices[10] = TRACE_TOOLBOX_ALL;
+        dpi_[i].choices[11] = TRACE_TOOLBOX_THREAD;
+        defaults_[i]        = TRACE_TOOLBOX_NONE;
+
         // Transaction isolation.
         i = TRANSACTION_ISOLATION;
         dpi_[i] = new DriverPropertyInfo (TRANSACTION_ISOLATION_, "");
@@ -1309,6 +1344,44 @@ class JDProperties implements Serializable
         else
             return TRACE_SET_OFF;
         //@E7D return Boolean.valueOf (getProperty (urlProperties, info, TRACE_)).booleanValue();
+    }
+
+    //@K1A
+    /**
+    Indicates if a toolbox trace category is set.  
+    
+    @param    urlProperties    The URL properties.
+    @param    info             The info properties.
+    @return   The category the toolbox trace was set to when constructed.
+    **/
+    static String isToolboxTraceSet (Properties urlProperties, Properties info)
+    {
+        if(getProperty (urlProperties, info, TRACE_TOOLBOX_) == null)
+            return TRACE_TOOLBOX_NONE;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_DATASTREAM))
+            return TRACE_TOOLBOX_DATASTREAM;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_DIAGNOSTIC))
+            return TRACE_TOOLBOX_DIAGNOSTIC;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_ERROR))
+            return TRACE_TOOLBOX_ERROR;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_INFORMATION))
+            return TRACE_TOOLBOX_INFORMATION;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_WARNING))
+            return TRACE_TOOLBOX_WARNING;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_CONVERSION))
+            return TRACE_TOOLBOX_CONVERSION;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_PROXY))
+            return TRACE_TOOLBOX_PROXY;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_PCML))
+            return TRACE_TOOLBOX_PCML;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_JDBC))
+            return TRACE_TOOLBOX_JDBC;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_ALL))
+            return TRACE_TOOLBOX_ALL;
+        else if(getProperty (urlProperties, info, TRACE_TOOLBOX_).equalsIgnoreCase(TRACE_TOOLBOX_THREAD))
+            return TRACE_TOOLBOX_THREAD;
+        else 
+            return TRACE_TOOLBOX_NONE;
     }
 
 
