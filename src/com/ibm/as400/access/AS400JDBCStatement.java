@@ -338,10 +338,10 @@ result set.
         }
 
         // Delete the RPB.
-   		DBSQLRPBDS request3 = new DBSQLRPBDS (
-    	    DBSQLRPBDS.FUNCTIONID_DELETE_RPB, id_,
-    	    DBBaseRequestDS.ORS_BITMAP_RETURN_DATA, 0);
-	    connection_.send (request3, id_);
+            DBSQLRPBDS request3 = new DBSQLRPBDS (
+                DBSQLRPBDS.FUNCTIONID_DELETE_RPB, id_,
+                0, 0);                                          // @E8C
+        connection_.send (request3, id_);
 
    		// Delete the ORS.
    		//
