@@ -59,6 +59,83 @@ class SQLDataFactory
         // Parse the sign.
         boolean sign = (scientificNotation.charAt(0) != '-');            
 
+        String mantissa = scientificNotation.substring(sign ? 0 : 1, e);            //@K1A
+
+        //Check to see if the number contains a decimal point.  If not, add a decimal point and a 0 to
+        //the end of the number.
+	int index = mantissa.indexOf('.');                                          //@K1A
+	if(index == -1)                                                             //@K1A
+	{                                                                           //@K1A
+		mantissa = mantissa + ".0";                                         //@K1A
+		index = mantissa.indexOf('.');                                      //@K1A
+	}                                                                           //@K1A
+
+	StringBuffer buffer = new StringBuffer();                                   //@K1A
+
+        //Check if the exponent is positive.  If it is, move the decimal to the right
+	if( exponent >= 0 )                                                         //@K1A
+	{                                                                           //@k1A
+            //Determine the new position the decimal should be in
+            int newLocation = index + exponent;                                     //@K1A
+            //Copy the numbers before the current decimal   
+            buffer.append(mantissa.substring(0, index));                            //@K1A
+            //Copy the numbers after the decimal
+  	    buffer.append(mantissa.substring(index + 1));                           //@K1A
+	    mantissa = buffer.toString();                                           //@K1A
+            //Determine the length of the string, if the length is less than the new position for the decimal
+            //must add 0's to the end of the number
+	    int length = mantissa.length();                                         //@K1A
+	    for (; length<newLocation; length++)                                    //@K1A
+                buffer.append("0");                                                 //@K1A
+            //If length is greater than the new decimal location
+            if(length > newLocation)                                                //@K1A
+            {
+                //Copy the digits before the decimal
+                String temp = buffer.toString().substring(0, newLocation);          //@K1A
+                //put in the decimal
+                temp = temp + ".";                                                  //@K1A
+                //Copy the rest of the digits to the number
+                temp = temp + buffer.toString().substring(newLocation);             //@K1A
+                buffer = new StringBuffer(temp);
+            }
+            else                                                                    //@K1A
+                buffer.append(".0");                                                //@K1A
+	}                                                                           //@K1A
+        else   //negative exponent                                                  //@K1A
+        {                                                                           //@K1A
+            //IF the decimal point will be at the beginning
+            if( (-exponent - index) > 0)                                            //@K1A
+            {                                                                       //@K1A
+                buffer.append("0.");                                                //@K1A
+                //Pad the number with 0's in front if we have to move the decimal to left more times
+                //than we currently have digits
+                for(int i = 0; i< (-exponent - index) ; i++)                        //@K1A
+                    buffer.append("0");                                             //@K1A
+                //copy the digits before the current decimal
+                buffer.append(mantissa.substring(0, index));                        //@K1A
+                //copy the digits after the current decimal
+                buffer.append(mantissa.substring(index+1));                         //@K1A
+            }                                                                       //@K1A
+            else        //A number will be at the beginning                         //@K1A
+            {                                                                       //@K1A
+                //Copy the number without the current decimal point
+                String temp = mantissa.substring(0, index);                         //@K1A
+                temp = temp + mantissa.substring(index+1);                          //@K1A
+
+                //Copy the number from the beginning to the location of the new decimal point
+                buffer.append(temp.substring(0, index + exponent));                 //@K1A
+                //Add the decimal point
+                buffer.append('.');                                                 //@K1A
+                //Copy the rest of the number                           
+                buffer.append(temp.substring(index + exponent));                    //@K1A
+            }                                                                       //@K1A
+        }                                                                           //@K1A
+
+        //Add the sign to the number and return
+	String number = (sign ? "" : "-") + buffer.toString();                      //@K1A
+	return number;                                                              //@K1A
+
+        /**                                                                             //@K1D
         // Parse the mantissa and pad with either trailing
         // or leading 0's based on the sign and magnitude
         // of the exponent.
@@ -116,6 +193,7 @@ class SQLDataFactory
 
         // Add the sign and return.
         return(sign ? "" : "-") + result;
+        **/
     }
 
     /**
