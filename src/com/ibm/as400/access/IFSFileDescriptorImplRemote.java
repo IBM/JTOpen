@@ -328,6 +328,7 @@ implements IFSFileDescriptorImpl
             requestedDatastreamLevel_ = 0;
           if (rep == null)
           {
+              IFSDataStream ds = null;
               try
               {
                 int[] preferredCcsids;        // @A2A
@@ -350,12 +351,13 @@ implements IFSFileDescriptorImpl
                 // Use GMT date/time, don't use posix style return codes,
                 // use PC pattern matching semantics,
                 // maximum data transfer size of 0xffffffff.
-                rep = (IFSExchangeAttrRep)server_.sendExchangeAttrRequest( //@B3A
+                ds = (IFSExchangeAttrRep)server_.sendExchangeAttrRequest( //@B3A
                          new IFSExchangeAttrReq(true, false,
                                                 IFSExchangeAttrReq.PC_PATTERN_MATCH,
                                                 0xffffffff,
                                                 requestedDatastreamLevel_,
                                                 preferredCcsids)); // @A2C
+                rep = (IFSExchangeAttrRep)ds;
               }
               catch(ConnectionDroppedException e)
               {
@@ -375,6 +377,16 @@ implements IFSFileDescriptorImpl
                   server_ = null;
                   Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
                   throw e;
+              }
+              catch(ClassCastException e)
+              {
+                if (ds != null && (ds instanceof IFSReturnCodeRep))
+                {
+                  int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+                  Trace.log(Trace.ERROR, "Unexpected IFSReturnCodeRep, return code ", rc);
+                  throw new ExtendedIOException(rc);
+                }
+                else throw e;
               }
           }
 
@@ -400,10 +412,17 @@ implements IFSFileDescriptorImpl
               // Should never happen.
               system_.disconnectServer(server_);
               server_ = null;
-              Trace.log(Trace.ERROR, "Unknown reply data stream ", rep.data_);
-              throw new
-                InternalErrorException(Integer.toHexString(rep.getReqRepID()),
-                                       InternalErrorException.DATA_STREAM_UNKNOWN);
+              if (rep != null) {
+                Trace.log(Trace.ERROR, "Unknown reply data stream ", rep.data_);
+                throw new
+                  InternalErrorException(Integer.toHexString(rep.getReqRepID()),
+                                         InternalErrorException.DATA_STREAM_UNKNOWN);
+              }
+              else {
+                Trace.log(Trace.ERROR, "Null reply data stream");
+                throw new
+                  InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+              }
           }
       }
   }
