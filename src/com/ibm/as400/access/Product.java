@@ -20,14 +20,14 @@ import java.util.Date;
 
  
 /**
- * Represents an OS/400 licensed product. The (@link #isInstalled isInstalled()}
+ * Represents an OS/400 licensed product. The {@link #isInstalled isInstalled()}
  * method should be called to verify the
  * product is installed on the system. If it is not, other information returned by getters in this
  * class may not be valid.
 **/
 public class Product
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   // Also use this to synchronize access to the user space
   private static final String userSpace_ = "JT4PTF    QTEMP     ";
