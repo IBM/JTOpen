@@ -271,7 +271,7 @@ implements DatabaseMetaData
         Statement statement = connection_.createStatement();
         return statement.executeQuery("SELECT VARCHAR('1', 128) AS TYPE_CAT, " +
                                       "VARCHAR('2', 128)  AS TYPE_SCHEM, " +
-                                      "VARCHAR('3', 128), AS TYPE_NAME, " +
+                                      "VARCHAR('3', 128)  AS TYPE_NAME, " +
                                       "VARCHAR('4', 128)  AS ATTR_NAME, " +
                                       "SMALLINT(5)        AS DATA_TYPE, " + 
                                       "VARCHAR('6', 128)  AS ATTR_TYPE_NAME, " + 
@@ -3642,9 +3642,9 @@ implements DatabaseMetaData
         // We return an empty result set because this is not supported by our driver
         Statement statement = connection_.createStatement();
         return statement.executeQuery("SELECT VARCHAR('1', 128) AS TYPE_CAT, " +
-                                      "VARCHAR('2', 128)  AS TYPE_SCHEM, " +
-                                      "VARCHAR('3', 128), AS TYPE_NAME, " +
-                                      "VARCHAR('4', 128), AS SUPERTYPE_NAME, " +
+                                      "VARCHAR('2', 128) AS TYPE_SCHEM, " +
+                                      "VARCHAR('3', 128) AS TYPE_NAME, " +
+                                      "VARCHAR('4', 128) AS SUPERTYPE_NAME " +
                                       "FROM QSYS2" + getCatalogSeparator() + 
                                       "SYSTYPES WHERE 1 = 2 FOR FETCH ONLY ");
     }
@@ -3677,11 +3677,11 @@ implements DatabaseMetaData
         // We return an empty result set because this is not supported by our driver
         Statement statement = connection_.createStatement();
         return statement.executeQuery("SELECT VARCHAR('1', 128) AS TYPE_CAT, " +
-                                      "VARCHAR('2', 128)  AS TYPE_SCHEM, " +
-                                      "VARCHAR('3', 128), AS TYPE_NAME, " +
-                                      "VARCHAR('4', 128), AS SUPERTYPE_CAT, " + 
-                                      "VARCHAR('5', 128), AS SUPERTYPE_SCHEM, " +
-                                      "VARCHAR('6', 128), AS SUPERTYPE_NAME, " +
+                                      "VARCHAR('2', 128) AS TYPE_SCHEM, " +
+                                      "VARCHAR('3', 128) AS TYPE_NAME, " +
+                                      "VARCHAR('4', 128) AS SUPERTYPE_CAT, " + 
+                                      "VARCHAR('5', 128) AS SUPERTYPE_SCHEM, " +
+                                      "VARCHAR('6', 128) AS SUPERTYPE_NAME " +
                                       "FROM QSYS2" + getCatalogSeparator() + 
                                       "SYSTYPES WHERE 1 = 2 FOR FETCH ONLY ");
     }
