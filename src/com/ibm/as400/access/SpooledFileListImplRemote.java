@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SpooledFileListImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The SpooledFileList class is used to build a list of AS/400 spooled file objects of type
+ * The SpooledFileList class is used to build a list of OS/400 spooled file objects of type
  * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date and 
  * time or user data.   @B2C
  *
@@ -23,9 +23,7 @@ package com.ibm.as400.access;
 
 class SpooledFileListImplRemote extends PrintObjectListImplRemote
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private String x = Copyright.copyright;     // @A1C - Copyright change
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     // static private binary data for default attribute to
     // retrieve on a spooled file when listing spooled files
@@ -44,6 +42,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x50,             // big endian(BE), number of attrs
         0x00, 0x02,             // BE - size in bytes of each ID
         0x00, 0x0B,             // ATTR_ALIGN
+        0x01, 0x1A,             // ATTR_AFP_RESOURCE  @B3
         0x00, 0x11,             // ATTR_BKMGN_ACR
         0x00, 0x12,             // ATTR_BKMGN_DWN
         0x00, 0x13,             // ATTR_BKOVRLLIB
@@ -118,6 +117,8 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x6E,             // ATTR_TIME
         0x00, (byte)0xFE,       // ATTR_TIME_END @B2A
         0x00, 0x6F,             // ATTR_PAGES
+        0x00, (byte)0xF5,       // ATTR_PAGDFNLIB  @B3A
+        0x00, (byte)0xF6,       // ATTR_PAGDFN     @B3A
         0x00, 0x72,             // ATTR_UNITOFMEAS
         0x00, 0x73,             // ATTR_USERCMT
         0x00, 0x74,             // ATTR_USERDATA

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterFileImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,9 +16,9 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The PrinterFile class represents an AS/400 printer file.
+ * The PrinterFile class represents an iSeries system printer file.
  * An instance of this class can be used to manipulate an individual
- * AS/400 printer file.
+ * iSeries system printer file.
  *
  * See <a href="PrinterFileAttrs.html">Printer File Attributes</a> for
  * valid attributes.
@@ -28,9 +28,8 @@ import java.io.IOException;
 class PrinterFileImplRemote extends PrintObjectImplRemote
 implements PrinterFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    private String x = Copyright.copyright;     // @A1C - Copyright change
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
 
@@ -94,7 +93,9 @@ implements PrinterFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);   // output queue library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);      // output queue
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERFLOW);    // overflow line number
-            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_DEFINITION); // page definition  @C1A
+         //   attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGE_DEFINITION);  page definition  @C1A@C2D
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFNLIB);   // page definition library @C2A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFN);      // page definition @C2A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGRTT);      // degree of page rotation
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELEN);     // page length in Units of Mea
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGEWIDTH);   // width of page in Units of M
@@ -155,10 +156,10 @@ implements PrinterFileImpl
      * @param attributes A print parameter list that contains the
      *  attributes to be changed.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
      public void setAttributes(PrintParameterList attributes)
