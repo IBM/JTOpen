@@ -146,6 +146,26 @@ public class ConvTableReader extends InputStreamReader
   }
 
 
+  //@G0A
+  /**
+   * Creates a ConvTableReader that uses the specified CCSID, bi-directional string type, and internal cache size.
+   * @param in The InputStream from which to read characters.
+   * @param ccsid The CCSID.
+   * @param bidiStringType The {@link com.ibm.as400.access.BidiStringType bi-directional string type}.
+   * @param cacheSize The number of characters to store in the internal buffer. The default is 1024. This number
+   * must be greater than zero.
+   * @exception UnsupportedEncodingException If the specified CCSID or its corresponding character encoding is not supported.
+  **/
+  public ConvTableReader(InputStream in, int ccsid, int bidiStringType, int cacheSize) throws UnsupportedEncodingException
+  {
+    this(in, ccsid, bidiStringType);
+    if (cacheSize < 1) throw new ExtendedIllegalArgumentException("cacheSize", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+    cache_ = new char[cacheSize]; // the character cache
+    b_cache_ = new byte[((cacheSize*5)+3)/2]; // ((1024*5)+3)/2 == worst case mixed-byte array size +1 for extra shift byte, just in case.
+  }
+
+
   /**
    * Closes this ConvTableReader and its underlying input stream. Calling close() multiple times will not throw an exception.
    * @exception IOException If an I/O exception occurs.

@@ -44,7 +44,6 @@ public class ConvTableWriter extends OutputStreamWriter
   // The table type, based on the instance of the ConvTable.
   boolean isMixedByte_ = false;
 
-
   char[] cache_ = new char[1024]; // the character cache
   boolean isCachedByte_ = false; // used for double-byte tables
   byte cachedByte_ = 0; // used for double-byte tables
@@ -129,6 +128,24 @@ public class ConvTableWriter extends OutputStreamWriter
     ccsid_ = ccsid;
     type_ = bidiStringType;
     initializeTable();
+  }
+
+  //@G0A
+  /**
+   * Creates a ConvTableWriter that uses the specified CCSID, bi-directional string type, and internal cache size.
+   * @param out The OutputStream to which to write characters.
+   * @param ccsid The CCSID.
+   * @param bidiStringType The {@link com.ibm.as400.access.BidiStringType bi-directional string type}.
+   * @param cacheSize The number of characters to store in the internal buffer. The default is 1024. This number
+   * must be greater than zero.
+   * @exception UnsupportedEncodingException If the specified CCSID or its corresponding character encoding is not supported.
+  **/
+  public ConvTableWriter(OutputStream out, int ccsid, int bidiStringType, int cacheSize) throws UnsupportedEncodingException
+  {
+    this(out, ccsid, bidiStringType);
+    if (cacheSize < 1) throw new ExtendedIllegalArgumentException("cacheSize", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    
+    cache_ = new char[cacheSize];
   }
 
 
