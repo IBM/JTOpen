@@ -282,7 +282,7 @@ class NPConversation extends Object
             // to send back its NLV_ID
             //
             sendAttrs.setAttrValue(PrintObject.ATTR_NLV_ID,
-                               ExecutionEnvironment.getNlv(system_.getLocale()));  // @F1C
+                               system_.getNLV());  // @F1C
             attrsToRetrieve.addAttrID(PrintObject.ATTR_NLV_ID);
 
             req.setAction(NPDataStream.CHANGE_ATTRIBUTES);

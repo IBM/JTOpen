@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Locale;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
@@ -53,7 +52,7 @@ interface AS400Impl
     // Set the service ports to their default values.
     void setServicePortsToDefault(String systemName);
     // Set significant instance variables into implementation object.
-    void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB);
+    void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB);
     // Sign-on to system.
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException;
 }

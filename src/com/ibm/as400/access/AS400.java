@@ -201,6 +201,8 @@ public class AS400 implements Serializable
     private boolean threadUsed_ = true;
     // Locale object to use for determining NLV.
     private Locale locale_ = Locale.getDefault();
+    // The NLV set or determined from the locale.
+    private String nlv_ = ExecutionEnvironment.getNlv(Locale.getDefault());
     // Set of socket options to use when creating our connections to the server.
     private SocketProperties socketProperties_ = new SocketProperties();
 
@@ -478,6 +480,7 @@ public class AS400 implements Serializable
         mustUseSockets_ = system.mustUseSockets_;
         threadUsed_ = system.threadUsed_;
         locale_ = system.locale_;
+        nlv_ = system.nlv_;
         socketProperties_ = system.socketProperties_;
 
         ccsid_ = system.ccsid_;
@@ -747,7 +750,7 @@ public class AS400 implements Serializable
         }
         if (!propertiesFrozen_)
         {
-            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, locale_, socketProperties_, ddmRDB_);
+            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_);
             propertiesFrozen_ = true;
         }
     }
@@ -1157,16 +1160,6 @@ public class AS400 implements Serializable
         return impl_;
     }
 
-    /**
-     Returns the Locale used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
-     @return  The Locale object.
-     **/
-    public Locale getLocale()
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting locale: " + locale_);
-        return locale_;
-    }
-
     // Returns the job CCSID.
     int getJobCcsid() throws AS400SecurityException, IOException
     {
@@ -1238,6 +1231,16 @@ public class AS400 implements Serializable
     }
 
     /**
+     Returns the Locale used to set the National Language Version (NLV) on the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     @return  The Locale object.
+     **/
+    public Locale getLocale()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting locale: " + locale_);
+        return locale_;
+    }
+
+    /**
      Returns the modification level of the server.
      <p>A connection is required to the server to retrieve this information.  If a connection has not been established, one is created to retrieve the server information.
      @return  The modification level of the server.  For example, version 5, release 1, modification level 0 returns 0.
@@ -1255,6 +1258,16 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Modification level:", modification);
 
         return modification;
+    }
+
+    /**
+     Returns the National Language Version (NLV) that will be sent to the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     @return  The NLV.
+     **/
+    public String getNLV()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV: " + nlv_);
+        return nlv_;
     }
 
     /**
@@ -1626,7 +1639,7 @@ public class AS400 implements Serializable
      **/
     public String getSystemName()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system name: " + systemName_ + " is local:", systemNameLocal_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system name: " + systemName_ + ", is local:", systemNameLocal_);
         return (systemNameLocal_) ? "localhost" : systemName_;
     }
 
@@ -2841,6 +2854,7 @@ public class AS400 implements Serializable
         if (propertyChangeListeners_ == null)
         {
             locale_ = locale;
+            nlv_ = ExecutionEnvironment.getNlv(locale_);
         }
         else
         {
@@ -2848,8 +2862,36 @@ public class AS400 implements Serializable
             Locale newValue = locale;
 
             locale_ = locale;
+            nlv_ = ExecutionEnvironment.getNlv(locale_);
             propertyChangeListeners_.firePropertyChange("locale", oldValue, newValue);
         }
+    }
+
+    /**
+     Sets the Locale and the National Language Version (NLV) to send to the server.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     @param  locale  The Locale object.
+     @param  nlv  The NLV.
+     **/
+    public void setLocale(Locale locale, String nlv)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting locale: " + locale + ", nlv: " + nlv_);
+        if (locale == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'locale' is null.");
+            throw new NullPointerException("locale");
+        }
+        if (nlv == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'nlv' is null.");
+            throw new NullPointerException("nlv");
+        }
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set locale after connection has been made.");
+            throw new ExtendedIllegalStateException("locale", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+        locale_ = locale;
+        nlv_ = nlv;
     }
 
     /**
@@ -3536,6 +3578,7 @@ public class AS400 implements Serializable
         validationSystem.mustUseSockets_ = true;
         // threadUsed_ is not needed.
         // locale_ in not needed.
+        // nlv_ in not needed.
         validationSystem.socketProperties_ = socketProperties_;
         // ccsid_ is not needed.
         // connectionListeners_ is not needed.

@@ -16,7 +16,6 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Locale;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
@@ -217,11 +216,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Set the significant instance variables for the AS400ImplRemote object.
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB)
     {
         try
         {
-            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Locale.class, SocketProperties.class, String.class }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), locale, socketProperties, ddmRDB });
+            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, String.class, SocketProperties.class, String.class }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), nlv, socketProperties, ddmRDB });
         }
         catch (InvocationTargetException e)
         {

@@ -146,7 +146,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             {
                 try
                 {
-                    baseReply = server_.sendExchangeAttrRequest(new RCExchangeAttributesRequestDataStream(ExecutionEnvironment.getNlv(system_.getLocale())));
+                    baseReply = server_.sendExchangeAttrRequest(new RCExchangeAttributesRequestDataStream(system_.getNLV()));
                 }
                 catch (IOException e)
                 {

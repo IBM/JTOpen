@@ -26,7 +26,6 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.GregorianCalendar;
-import java.util.Locale;
 import java.util.Vector;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
@@ -73,8 +72,8 @@ class AS400ImplRemote implements AS400Impl
     private int ccsid_ = 0;
     // If the user has told us to override common sense and use the CCSID they want.
     private boolean userOverrideCcsid_ = false;
-    // Locale object to use for determining NLV.
-    private Locale locale_;
+    // The NLV.
+    private String nlv_;
     // Set of socket options to use when creating our connections to the server.
     private SocketProperties socketProperties_ = null;
 
@@ -1113,11 +1112,11 @@ class AS400ImplRemote implements AS400Impl
         return server;
     }
 
-    // Get the Locale object for determining the NLV to send to server.
-    Locale getLocale()
+    // The NLV to send to server.
+    String getNLV()
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting locale implementation: " + locale_);
-        return locale_;
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation: " + nlv_);
+        return nlv_;
     }
 
     // Get the encrypted password with the seeds folded in.
@@ -1638,7 +1637,7 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Set the state variables for this implementation object.
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB)
     {
         if (Trace.traceOn_)
         {
@@ -1647,7 +1646,7 @@ class AS400ImplRemote implements AS400Impl
             Trace.log(Trace.DIAGNOSTIC, "  Native optimizations allowed:", canUseNativeOptimization);
             Trace.log(Trace.DIAGNOSTIC, "  Use threaded communications:", threadUsed);
             Trace.log(Trace.DIAGNOSTIC, "  User specified CCSID:", ccsid);
-            Trace.log(Trace.DIAGNOSTIC, "  Locale: " + locale);
+            Trace.log(Trace.DIAGNOSTIC, "  NLV: " + nlv);
             Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
             Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: "+ ddmRDB);
         }
@@ -1659,7 +1658,7 @@ class AS400ImplRemote implements AS400Impl
             userOverrideCcsid_ = true;
             ccsid_ = ccsid;
         }
-        locale_ = locale;
+        nlv_ = nlv;
         socketProperties_ = socketProperties;
         ddmRDB_ = ddmRDB;
     }
