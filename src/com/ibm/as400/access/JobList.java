@@ -1328,7 +1328,7 @@ public class JobList implements Serializable
             BinaryConverter.intToByteArray(currentJobQueue_, jobSelectionInformation, 56);
             for (int i = 0; i < currentJobQueue_; ++i)
             {
-                for (int ii = 0; ii < 20; ++i) jobSelectionInformation[ii + offset] = 0x40;
+                for (int ii = 0; ii < 20; ++ii) jobSelectionInformation[ii + offset] = 0x40;
                 conv.stringToByteArray(jobQueues_[i], jobSelectionInformation, offset, 20);
                 offset += 20;
             }
@@ -1353,7 +1353,7 @@ public class JobList implements Serializable
             BinaryConverter.intToByteArray(currentInitialUser_, jobSelectionInformation, 64);
             for (int i = 0; i < currentInitialUser_; ++i)
             {
-                for (int ii = 0; ii < 10; ++i) jobSelectionInformation[ii + offset] = 0x40;
+                for (int ii = 0; ii < 10; ++ii) jobSelectionInformation[ii + offset] = 0x40;
                 conv.stringToByteArray(initialUsers_[i], jobSelectionInformation, offset, 10);
                 offset += 10;
             }
@@ -1378,7 +1378,7 @@ public class JobList implements Serializable
             BinaryConverter.intToByteArray(currentServerType_, jobSelectionInformation, 72);
             for (int i = 0; i < currentServerType_; ++i)
             {
-                for (int ii = 0; ii < 30; ++i) jobSelectionInformation[ii + offset] = 0x40;
+                for (int ii = 0; ii < 30; ++ii) jobSelectionInformation[ii + offset] = 0x40;
                 conv.stringToByteArray(serverTypes_[i], jobSelectionInformation, offset, 30);
                 offset += 30;
             }
