@@ -16,9 +16,9 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The PrinterFile class represents an iSeries system printer file.
+ * The PrinterFile class represents a server printer file.
  * An instance of this class can be used to manipulate an individual
- * iSeries system printer file.
+ * printer file.
  *
  * See <a href="PrinterFileAttrs.html">Printer File Attributes</a> for
  * valid attributes.
@@ -191,7 +191,7 @@ implements PrinterFileImpl
 
             npSystem.makeRequest(sendDS, returnDS);
 
-            // we changed the printer file attributes on the host,
+            // we changed the printer file attributes on the server,
             // merge those changed attributes into our current attributes
             // here.
             if (attrs == null) {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: Printer.java
 //                                                                             
@@ -17,9 +17,9 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 /**
- * The  Printer class represents an AS/400 printer.
+ * The  Printer class represents a server printer.
  * An instance of this class can be used to manipulate an individual
- * AS/400 printer.
+ * printer.
  *
  * See <a href="doc-files/PrinterAttrs.html">Printer Attributes</a> for
  * valid attributes.
@@ -29,14 +29,9 @@ import java.io.IOException;
 public class Printer extends PrintObject
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
-
 
     private static boolean      fAttrIDsToRtvBuilt_ = false;
     private static final String NAME = "name";
@@ -46,13 +41,13 @@ implements java.io.Serializable
     // an ID code point
     Printer(AS400 system, NPCPIDPrinter id, NPCPAttribute attrs)
     {
-        super(system, id, attrs, NPConstants.PRINTER_DEVICE); // @B1C
+        super(system, id, attrs, NPConstants.PRINTER_DEVICE);
     }
 
 
 
     /**
-     * Constructs a Printer object. The AS/400 system and the
+     * Constructs a Printer object. The system and the
      * name of the printer must be set later. This constructor
      * is provided for visual application builders that support
      * JavaBeans. It is not intended for use by application
@@ -63,7 +58,7 @@ implements java.io.Serializable
      **/
     public Printer()
     {
-        super(null, null, NPConstants.PRINTER_DEVICE); // @B1C
+        super(null, null, NPConstants.PRINTER_DEVICE);
 
         // Because of this constructor we will need to check the
         // system and printer name before trying to use them.
@@ -75,7 +70,7 @@ implements java.io.Serializable
      * Constructs a Printer object. It uses the specified system name and
      * the printer name that identifies it on that system.
      *
-     * @param system The AS/400 on which this printer device exists.
+     * @param system The server on which this printer device exists.
      * @param printerName The name of the printer.  It cannot be greater
      *                    than 10 characters or less than 1 character
      *                    in length.
@@ -84,7 +79,7 @@ implements java.io.Serializable
     public Printer(AS400 system,
                    String printerName)
     {
-        super(system, new NPCPIDPrinter(printerName), null, NPConstants.PRINTER_DEVICE); // @B1C
+        super(system, new NPCPIDPrinter(printerName), null, NPConstants.PRINTER_DEVICE);
 
         // base class constructor checks for a null system.
         checkPrinterName(printerName);
@@ -115,7 +110,7 @@ implements java.io.Serializable
      * Chooses the implementation
      **/
     void chooseImpl()
-    throws IOException, AS400SecurityException                              // @B1A
+    throws IOException, AS400SecurityException
     {
         AS400 system = getSystem();
         if (system == null) {

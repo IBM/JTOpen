@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterFileList.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The  PrinterFileList class is used to build a list of AS/400 printer file objects of type PrinterFile.
+ * The  PrinterFileList class is used to build a list of objects of type PrinterFile.
  * The list can be filtered by library and printer file name.
  *
  *@see PrinterFile
@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 public class PrinterFileList extends PrintObjectList
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -33,7 +33,7 @@ implements java.io.Serializable
     private static final String PRINTER_FILE_FILTER = "printerFileFilter";
 
     /**
-     * Constructs a PrinterFileList object. The AS/400 system must
+     * Constructs a PrinterFileList object. The system must
      * be set later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
      * by application programmers.
@@ -42,7 +42,7 @@ implements java.io.Serializable
      **/
     public PrinterFileList()
     {
-        super(NPConstants.PRINTER_FILE, new NPCPSelPrtF()); // @B1C
+        super(NPConstants.PRINTER_FILE, new NPCPSelPrtF());
         // Because of this constructor we will need to check the
         // system before trying to use it.
     }
@@ -52,17 +52,16 @@ implements java.io.Serializable
     /**
      * Constructs a PrinterFileList object. It uses the system name specified.
      *
-     * @param system The AS/400 on which the printer files exists.
+     * @param system The server on which the printer files exists.
      *
      **/
     public PrinterFileList(AS400 system)
     {
-	    super(NPConstants.PRINTER_FILE, new NPCPSelPrtF(), system); // @B1C
+	    super(NPConstants.PRINTER_FILE, new NPCPSelPrtF(), system);
     }
 
 
 
-    // @A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
@@ -97,7 +96,6 @@ implements java.io.Serializable
 
   
 
-    // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new PrinterFile(system_, (NPCPIDPrinterFile)cpid, cpattr);
@@ -149,8 +147,8 @@ implements java.io.Serializable
         selectionCP.setPrinterFile(printerFileFilter);
         
         // Propagate change to ImplRemote if necessary... 
-        if (impl_ != null)   // @A1A
-            impl_.setFilter("printerFile", printerFileFilter);  // @A1A
+        if (impl_ != null)
+            impl_.setFilter("printerFile", printerFileFilter);
           
         // Notify any property change listeners.
         changes.firePropertyChange( PRINTER_FILE_FILTER,

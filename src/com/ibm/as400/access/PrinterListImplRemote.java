@@ -22,7 +22,7 @@ package com.ibm.as400.access;
 
 class PrinterListImplRemote extends PrintObjectListImplRemote
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // static private binary data for default attribute to
     // retrieve on a printer when listing printer devices
@@ -75,7 +75,7 @@ class PrinterListImplRemote extends PrintObjectListImplRemote
         NPDataStream ds;
         NPCodePoint  cp; 
         
-        ds = new NPDataStream(NPConstants.PRINTER_DEVICE); // @B1C
+        ds = new NPDataStream(NPConstants.PRINTER_DEVICE);
         cp = new NPCPIDPrinter();
         ds.addCodePoint(cp);
         cp = new NPCPAttribute();
@@ -105,7 +105,7 @@ class PrinterListImplRemote extends PrintObjectListImplRemote
      *
      * @return The newly created Printer object.
      **/
-    /* @A5D
+    /*
     PrintObject newNPObject(AS400 system, NPDataStream reply)
     {
         Printer npObj = null;
@@ -120,7 +120,6 @@ class PrinterListImplRemote extends PrintObjectListImplRemote
 
 
 
-    // @A5A
     NPCPID newNPCPID(NPDataStream reply)
     {
         return (NPCPIDPrinter)reply.getCodePoint(NPCodePoint.PRINTER_DEVICE_ID);  // never should return null

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterList.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The PrinterList class is used to build a list of AS/400 printer objects of type Printer.
+ * The PrinterList class is used to build a list of objects of type Printer.
  * The list can be filtered by printer name.
  *
  *@see Printer
@@ -25,16 +25,14 @@ import java.beans.PropertyVetoException;
 public class PrinterList extends PrintObjectList
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     
     static final long serialVersionUID = 4L;
-
 
     private static final String PRINTER_FILTER = "printerFilter";
 
     /**
-     * Constructs a PrinterList object. The AS/400 system must be
+     * Constructs a PrinterList object. The system must be
      * set later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
      * by application programmers.
@@ -43,7 +41,7 @@ implements java.io.Serializable
      **/
     public PrinterList()
     {
-	    super(NPConstants.PRINTER_DEVICE, new NPCPSelPrtD());   // @B1C
+	    super(NPConstants.PRINTER_DEVICE, new NPCPSelPrtD());
 
         // Because of this constructor we will need to check the
         // system before trying to use it.
@@ -54,7 +52,7 @@ implements java.io.Serializable
     /**
      * Constructs a PrinterList object. It uses the system name specified.
      *
-     * @param system The AS/400 on which the printer devices exist.
+     * @param system The server on which the printer devices exist.
      *
      **/
     public PrinterList(AS400 system)
@@ -64,7 +62,6 @@ implements java.io.Serializable
 
     
     
-    // @A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
@@ -97,7 +94,6 @@ implements java.io.Serializable
 
 
 
-    // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new Printer(system_, (NPCPIDPrinter)cpid, cpattr);
@@ -146,8 +142,8 @@ implements java.io.Serializable
         selectionCP.setPrinter(printerFilter);
         
         // Propagate change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("printer", printerFilter);   // @A1A
+        if (impl_ != null)
+            impl_.setFilter("printer", printerFilter);
 
         // Notify any property change listeners.
         changes.firePropertyChange( PRINTER_FILTER, oldPrinterFilter, printerFilter );

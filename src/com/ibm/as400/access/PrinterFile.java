@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PrinterFile.java
 //                                                                             
@@ -17,9 +17,9 @@ import java.io.IOException;
 import java.beans.PropertyVetoException;
 
 /**
- * The PrinterFile class represents an AS/400 printer file.
+ * The PrinterFile class represents a server printer file.
  * An instance of this class can be used to manipulate an individual
- * AS/400 printer file.
+ * printer file.
  *
  * See <a href="doc-files/PrinterFileAttrs.html">Printer File Attributes</a> for
  * valid attributes.
@@ -29,11 +29,9 @@ import java.beans.PropertyVetoException;
 public class PrinterFile extends PrintObject
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     
     static final long serialVersionUID = 4L;
-
 
     private static final String PATH = "path";
 
@@ -41,13 +39,13 @@ implements java.io.Serializable
     // an ID code point
     PrinterFile(AS400 system, NPCPIDPrinterFile id, NPCPAttribute attrs)
     {
-       super(system, id, attrs, NPConstants.PRINTER_FILE);  // @B1C
+       super(system, id, attrs, NPConstants.PRINTER_FILE);
     }
 
 
 
     /**
-     * Constructs a PrinterFile object. The AS/400 system and the
+     * Constructs a PrinterFile object. The system and the
      * integrated file system name of the printer file must be set
      * later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
@@ -58,7 +56,7 @@ implements java.io.Serializable
      **/
     public PrinterFile()
     {
-        super(null, null, NPConstants.PRINTER_FILE); // @B1C
+        super(null, null, NPConstants.PRINTER_FILE);
 
         // Because of this constructor we will need to check the
         // run time state of PrinterFile objects.
@@ -70,14 +68,14 @@ implements java.io.Serializable
      * Constructs a PrinterFile object. It uses the specified system name and
      * printer file that identify it on the system.
      *
-     * @param system The AS/400 on which this printer file exists.
+     * @param system The server on which this printer file exists.
      * @param printerFileName The integrated file system name of the printer file. The format of
      * the printer file string must be in the format of \QSYS.LIB\libname.LIB\printerfilename.FILE.
      **/
     public PrinterFile(AS400 system,
 		       String printerFileName)
     {
-        super(system, buildIDCodePoint(printerFileName), null, NPConstants.PRINTER_FILE); // @B1C
+        super(system, buildIDCodePoint(printerFileName), null, NPConstants.PRINTER_FILE);
 
         // Base class constructor checks for a null system.
         // QSYSObjectPathName() checks for a null printerFileName.
@@ -117,7 +115,7 @@ implements java.io.Serializable
      * Chooses the appropriate implementation.
      **/
     void chooseImpl()
-    throws IOException, AS400SecurityException                              // @B1A
+    throws IOException, AS400SecurityException
     {
         // We need to get the system to connect to...
         AS400 system = getSystem();
@@ -181,10 +179,10 @@ implements java.io.Serializable
      * @param attributes A print parameter list that contains the
      *  attributes to be changed.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
     public void setAttributes(PrintParameterList attributes)
@@ -201,11 +199,11 @@ implements java.io.Serializable
 
         checkRunTimeState();
 
-        if (impl_ == null)                                      // @A1A
-            chooseImpl();                                       // @A1A
-        ((PrinterFileImpl) impl_).setAttributes(attributes);    // @A1A
-        // propagate any changes to attrs                       // @A1A
-        attrs = impl_.getAttrValue();                           // @A1A
+        if (impl_ == null)                                      
+            chooseImpl();                                       
+        ((PrinterFileImpl) impl_).setAttributes(attributes);    
+        // propagate any changes to attrs                       
+        attrs = impl_.getAttrValue();                           
     }
 
 
@@ -228,10 +226,10 @@ implements java.io.Serializable
             throw new NullPointerException( PATH );
         }
 
-        // check for connection...                                                  // @A1A
-        if (impl_ != null) {                                                        // @A1A
-            Trace.log(Trace.ERROR, "Cannot set property 'path' after connect.");    // @A1A
-            throw new ExtendedIllegalStateException(PATH, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED ); // @A1A
+        // check for connection...                                                  
+        if (impl_ != null) {                                                        
+            Trace.log(Trace.ERROR, "Cannot set property 'path' after connect.");    
+            throw new ExtendedIllegalStateException(PATH, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED );
         }
 
         String oldPath = getPath();

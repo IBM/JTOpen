@@ -26,9 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 class PrinterImplProxy extends PrintObjectImplProxy
 implements ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-   
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     PrinterImplProxy()
     {

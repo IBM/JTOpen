@@ -26,7 +26,7 @@ BeanInfo for PrinterList class.
 **/
 public class PrinterListBeanInfo extends PrintObjectListBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Additional properties defined for PrinterList
     private static PropertyDescriptor[] prtDListProperties_;

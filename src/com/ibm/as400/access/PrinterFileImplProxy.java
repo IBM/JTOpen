@@ -27,15 +27,12 @@ import java.lang.reflect.InvocationTargetException;
 class PrinterFileImplProxy extends PrintObjectImplProxy
 implements PrinterFileImpl, ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     PrinterFileImplProxy()
     {
         super("PrinterFile");
     }
-
 
 
     public void setAttributes(PrintParameterList attributes)
