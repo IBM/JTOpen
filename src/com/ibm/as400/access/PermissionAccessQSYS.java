@@ -285,6 +285,14 @@ class PermissionAccessQSYS extends PermissionAccess
                 object += objectPathName.getLibraryName()+".LIB/";
             object += objectPathName.getObjectName()+".FILE";
 
+            try
+            {
+              object = CharConverter.convertIFSQSYSPathnameToJobPathname(object, sys.getCcsid());
+            }
+            catch(Exception e)
+            {
+              Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+            }
             command="CHGAUT"
                     +" OBJ("+expandQuotes0(object)+")"       // @B4c
                     +" USER("+userName+")"
@@ -584,6 +592,31 @@ class PermissionAccessQSYS extends PermissionAccess
         return;
     }
 
+    /**
+     * This is so we correctly convert variant QSYS characters.
+    **/
+    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
+    throws AS400Exception,
+           AS400SecurityException,
+           ConnectionDroppedException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           IOException,
+           ServerStartupException,
+           UnknownHostException,
+           PropertyVetoException
+    {
+      try
+      {
+        objName = CharConverter.convertIFSQSYSPathnameToJobPathname(objName, as400_.getCcsid());
+      }
+      catch(Exception e)
+      {
+        Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
+      }
+      super.setOwner(objName, owner, revokeOldAuthority);
+    }
+      
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.
