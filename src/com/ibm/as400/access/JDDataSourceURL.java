@@ -149,12 +149,12 @@ that are difficult to debug.
 	    if (length > 10)
 	        return null;
 
-     	// Check that every character is alphanumeric.
-	    for (int i = 0; i < length; ++i)
-	        if ((! Character.isDigit (schema_.charAt (i)))
-	            && (! Character.isUpperCase (schema_.charAt (i)))
-	            && (! Character.isLowerCase (schema_.charAt (i))))
-	            return null;
+     	//@C1D Check that every character is alphanumeric.
+	   //@C1D for (int i = 0; i < length; ++i)
+	   //@C1D     if ((! Character.isDigit (schema_.charAt (i)))
+	   //@C1D         && (! Character.isUpperCase (schema_.charAt (i)))
+	   //@C1D         && (! Character.isLowerCase (schema_.charAt (i))))
+	   //@C1D         return null;
 
 		return schema_;
 	}
