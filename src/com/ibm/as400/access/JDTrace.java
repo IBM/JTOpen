@@ -89,6 +89,30 @@ Indicates if tracing is turned on?
 
 
 
+// @j1a new method
+/**
+Logs information about tracing.
+
+@param  object          The object
+@param  information     The information.
+**/
+    static void logDataEvenIfTracingIsOff(Object object,
+                                          String information)
+    {
+       // We will force tracing on for this information.  If we turned
+       // tracing just to log this debug info we will turn it back off
+       // at the end of the routine
+       boolean turnTraceOff = ! isTraceOn();
+       setTraceOn(true);
+       logInformation(object, information);
+       if (turnTraceOff)
+          setTraceOn(false);
+    }
+
+
+
+
+
 /**
 Logs an information trace message.
 

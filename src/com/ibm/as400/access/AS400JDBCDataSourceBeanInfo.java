@@ -325,6 +325,12 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        trace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE"));
        trace.setShortDescription(AS400JDBCDriver.getResource("TRACE_DESC"));
 
+       PropertyDescriptor traceServer = new PropertyDescriptor("serverTrace", beanClass, "getServerTraceCategories", "setServerTraceCategories");  //@J1a
+       traceServer.setBound(true);                                                                                                   //@J1a
+       traceServer.setConstrained(false);                                                                                            //@J1a
+       traceServer.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE_SERVER"));                                            //@J1a
+       traceServer.setShortDescription(AS400JDBCDriver.getResource("TRACE_SERVER_DESC"));                                            //@J1a
+
        PropertyDescriptor transactionIsolation = new PropertyDescriptor("transactionIsolation", beanClass, "getTransactionIsolation", "setTransactionIsolation");
        transactionIsolation.setBound(true);
        transactionIsolation.setConstrained(false);
@@ -346,7 +352,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        properties_ = new PropertyDescriptor[] { access, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C 
           decimalSeparator, description, driver, errors, extendedDynamic, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,                                //@W1c
           packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, secondaryUrl, secure, serverName, sort,
-          sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, transactionIsolation, translateBinary, user };
+          sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user };                                                            //@j1c
      }
      catch (Exception e)
      {

@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Reader;
-import java.sql.SQLException;
+import java.sql.*;                                            // @J1c
 
 
 
@@ -36,13 +36,6 @@ class JDUtilities
 
 
 
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
     
 
 
@@ -143,6 +136,44 @@ Reads a reader and returns its data as a String.
 
         return buffer.toString ();
     }
+
+
+
+
+
+//@j1 new method
+/**
+Runs a CL command via the database server.  It uses the QCMDEXC
+stored procedure to run the command
+
+@param  connection  Connection to the server
+@param  command     The CL command to run
+
+@exception SQLException If the command failed.
+**/
+   static void runCommand(Connection connection, String command)
+                          throws SQLException
+   {
+      Statement statement = connection.createStatement();
+
+      // We run commands via the QCMDEXC stored procedure.  That procedure
+      // requires the length of the command be included with the command 
+      // specified in precision 15, scale 5 format.  That is,
+      // "CALL QSYS.QCMDEXC('command-to-run', 000000nnnn.00000)"
+      String commandLength = "0000000000" + command.length();
+             commandLength = commandLength.substring(commandLength.length() - 10) +
+                               ".00000";
+
+      String SQLCommand = "CALL QSYS.QCMDEXC('" + command  +
+                                 "', " + commandLength + ")";
+
+      statement.executeUpdate(SQLCommand);
+      statement.close();
+   }
+
+
+
+
 
 
 /**

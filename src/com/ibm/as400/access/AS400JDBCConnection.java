@@ -177,6 +177,10 @@ implements Connection
     private ConverterImplRemote         unicodeConverter_;              // @E3A
     private int                         vrm_;                           // @D0A
 
+    // declare the user-supplied value for server trace.  The constants for
+    // the definition of each bit in the bit map are defined in Trace.java
+    private int                         traceServer_ = 0;               // @j1a
+
 
 
 /**
@@ -1356,6 +1360,94 @@ void pseudoClose() throws SQLException                      // @E1
        if (! statement.isClosed())                                                  // @DAC
            statement.close();                                                       // @DAC
    }
+
+      // @j1a clean up any server debug that is going on.
+   if (traceServer_ > 0)
+   {
+      // Get the job identifier because we need the id (it is part of some
+      // of our trace files).  I know I could have saved it from
+      // the start-trace code but tracing is not performance critical so
+      // why make the object bigger by storing trace stuff as member data.
+      String serverJobIdentifier = getServerJobIdentifier();
+
+      // Same for this flag.  Don't want to grow the object by saving
+      // this as member data.
+      boolean preV5R1 = true;
+      try
+      {
+         preV5R1 = getSystem().getVRM() <= AS400.generateVRM(4, 5, 0);
+      }
+      catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed, could not get server VRM"); }
+
+      // End trace-job
+      if ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0)
+      {
+         try
+         {
+            if (preV5R1)
+               JDUtilities.runCommand(this, "QSYS/TRCJOB SET(*OFF) OUTPUT(*PRINT)");
+            else
+            {
+               JDUtilities.runCommand(this, "QSYS/ENDTRC SSNID(QJT" +
+                        serverJobIdentifier.substring(20) +
+                       ") DTAOPT(*LIB) DTALIB(QUSRSYS) RPLDTA(*YES) PRTTRC(*YES)" );
+
+               JDUtilities.runCommand(this, "QSYS/DLTTRC DTAMBR(QJT" +
+                        serverJobIdentifier.substring(20) +
+                       ") DTALIB(QUSRSYS)" );
+            }
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed"); }
+      }
+
+      // End debug-job
+      if ((traceServer_ & ServerTrace.JDBC_DEBUG_SERVER_JOB) > 0)
+      {
+         try
+         {
+            JDUtilities.runCommand(this, "QSYS/ENDDBG");
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed, could not end debug on server job "); }
+      }
+
+      // End the database monitor
+      if ((traceServer_ & ServerTrace.JDBC_START_DATABASE_MONITOR) > 0)
+      {
+         try
+         {
+            JDUtilities.runCommand(this, "QSYS/ENDDBMON");
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed, could not end database monitor"); }
+      }
+
+      // Dump out SQL information
+      if (((traceServer_ & ServerTrace.JDBC_SAVE_SQL_INFORMATION) > 0) && !preV5R1)
+      {
+         try
+         {
+            JDUtilities.runCommand(this, "QSYS/PRTSQLINF *JOB");
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed, could not print SQL information"); }
+      }
+
+      // Dump the joblog
+      if ((traceServer_ & ServerTrace.JDBC_SAVE_SERVER_JOBLOG) > 0)
+      {
+         try
+         {
+            JDUtilities.runCommand(this, "QSYS/DSPJOBLOG JOB(*) OUTPUT(*PRINT)");
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to end server job tracing failed, could not save job log"); }
+      }
+
+      // If the user set our flag to turn on client tracing then turn it back off.
+      // This may turn off tracing even though the user wanted it on for some other
+      // reason but there is no way for this code to know why tracing was turned on.
+      // It does know this interface is one reason it is on so we will assume it
+      // is the only reason and will turn it off here.
+      if ((traceServer_ & ServerTrace.JDBC_TRACE_CLIENT) > 0)
+         JDTrace.setTraceOn(false);
+   }
 }
 
 
@@ -1454,6 +1546,7 @@ expect a reply.
           throws SQLException
      {
         checkCancel();                                                                      // @E8A
+        checkOpen();      // @W1a
 
          try {
             // Since we are just calling send() (instead of sendAndReceive()),              // @EAA
@@ -1581,6 +1674,7 @@ be concatenated at the beginning of the next request.
           throws SQLException
      {
         checkCancel();                                                                      // @E8A
+        checkOpen();      // @W1a
 
         try {
             // Since we are just calling send() (instead of sendAndReceive()),              // @EAA
@@ -1676,6 +1770,7 @@ corresponding reply from the server.
           throws SQLException
      {
         checkCancel();                                                                      // @E8A
+        checkOpen();      // @W1a
 
           DBReplyRequestedDS reply = null;
 
@@ -1859,6 +1954,14 @@ Sets whether the connection is being used for DRDA.
       readOnly_ = (properties_.equals (JDProperties.ACCESS,
                                        JDProperties.ACCESS_READ_ONLY));
 
+
+      // Determine the amount of server tracing that should be started.  Trace
+      // can be started by either a JDBC property or the ServerTrace class.  Our value
+      // will be the combination of the two (instead of one overriding the other).
+      traceServer_ = properties_.getInt(JDProperties.TRACE_SERVER) +
+                            ServerTrace.getJDBCServerTraceCategories();  // @j1a
+
+
       //@A3D
       // Initialize the conversation.
       //open ();
@@ -1916,6 +2019,84 @@ Sets whether the connection is being used for DRDA.
           JDTrace.logInformation (this, "SQL package = "
                                   + packageManager_.getLibraryName() + "/"
                                   + packageManager_.getName ());
+      }
+
+
+      // @j1a Trace the server job if the user asked us to.  Tracing
+      // can be turned on via a URL property, the Trace class, the DataSource
+      // object, or a system property.
+      if (traceServer_ > 0)
+      {
+         // Get the server job id.  We will both dump this to the trace
+         // and use it to uniquely label some of the files.
+         String serverJobIdentifier = getServerJobIdentifier();
+         String serverJobId = serverJobIdentifier.substring(20).trim() + "/" +
+                              serverJobIdentifier.substring(10, 19).trim() + "/" +
+                              serverJobIdentifier.substring( 0, 10).trim();
+
+         // Dump the server job id
+         JDTrace.logDataEvenIfTracingIsOff(this, Copyright.version);
+         JDTrace.logDataEvenIfTracingIsOff(this, serverJobId);
+         JDTrace.logDataEvenIfTracingIsOff(this, "Server functional level:  " + getServerFunctionalLevel());          // @E7A
+
+
+         // Determine server level.  Some commands are slightly different
+         // to v5r1 machines.
+         boolean preV5R1 = true;
+         try
+         {
+            preV5R1 = getSystem().getVRM() <= AS400.generateVRM(4, 5, 0);
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not get server VRM"); }
+
+         // Start client tracing if the flag is on and trace isn't already running
+         if (((traceServer_ & ServerTrace.JDBC_TRACE_CLIENT) > 0) && (! JDTrace.isTraceOn()))
+            JDTrace.setTraceOn(true);
+
+         // No matter what type of tracing is turned on, alter the server
+         // job so more stuff is saved in the job log.
+         try
+         {
+            JDUtilities.runCommand(this, "QSYS/CHGJOB LOG(4 00 *SECLVL) LOGCLPGM(*YES)");
+         }
+         catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not change log level"); }
+
+         // Optionally start debug on the database server job
+         if ((traceServer_ & ServerTrace.JDBC_DEBUG_SERVER_JOB) > 0)
+         {
+            try
+            {
+               JDUtilities.runCommand(this, "QSYS/STRDBG UPDPROD(*YES)");
+            }
+            catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not start debug on server job "); }
+         }
+
+         // Optionally start the database monitor
+         if ((traceServer_ & ServerTrace.JDBC_START_DATABASE_MONITOR) > 0)
+         {
+            try
+            {
+               JDUtilities.runCommand(this, "QSYS/STRDBMON OUTFILE(QUSRSYS/QJT"  +
+                                            serverJobIdentifier.substring(20) +
+                                            ") JOB(*) TYPE(*DETAIL)" );
+            }
+            catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not start database monitor"); }
+         }
+
+         // Optionally start trace on the database server job
+         if ((traceServer_ & ServerTrace.JDBC_TRACE_SERVER_JOB) > 0)
+         {
+            try
+            {
+               if (preV5R1)
+                  JDUtilities.runCommand(this, "QSYS/TRCJOB MAXSTG(16000)");
+               else
+                  JDUtilities.runCommand(this, "QSYS/STRTRC SSNID(QJT" +
+                                               serverJobIdentifier.substring(20) +
+                                               ") JOB(*) MAXSTG(128000)");
+            }
+            catch (Exception e) { JDTrace.logDataEvenIfTracingIsOff(this, "Attempt to start server job tracing failed, could not trace server job"); }
+         }
       }
     }
 

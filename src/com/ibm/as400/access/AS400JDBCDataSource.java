@@ -35,7 +35,7 @@ import javax.naming.Referenceable;				// JNDI
 import javax.naming.StringRefAddr;				// JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for AS/400 database connections.
+*  The AS400JDBCDataSource class represents a factory for AS/400 or iSeries database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a 
 *  connection to the database.
@@ -111,6 +111,56 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 	// Handles loading the appropriate resource bundle
 	private static ResourceBundleLoader loader_;		//@A9A
+
+
+  /**
+    Start tracing the JDBC client.  This is the same as setting
+    property "trace=true";  Note the constant is not public.
+    It is defined only to be compatible with ODBC
+    The numeric value of this constant is 1.
+   **/
+  static final int TRACE_CLIENT = 1;                // @j1a
+
+  /**
+    Start the database monitor on the JDBC server job.
+    This constant is used when setting the level of tracing for the JDBC server job.
+    The numeric value of this constant is 2.
+   **/
+  public static final int SERVER_TRACE_START_DATABASE_MONITOR = 2;           // @j1a
+
+  /**
+    Start debug on the JDBC server job.
+    This constant is used when setting the level of tracing for the JDBC server job.
+    The numeric value of this constant is 4.
+   **/
+  public static final int SERVER_TRACE_DEBUG_SERVER_JOB = 4;           // @j1a
+
+  /**
+    Save the joblog when the JDBC server job ends.
+    This constant is used when setting the level of tracing for the JDBC server job.
+    The numeric value of this constant is 8.
+   **/
+  public static final int SERVER_TRACE_SAVE_SERVER_JOBLOG = 8;           // @j1a
+
+  /**
+    Start job trace on the JDBC server job.
+    This constant is used when setting the level of tracing for the JDBC server job.
+    The numeric value of this constant is 16.
+   **/
+  public static final int SERVER_TRACE_TRACE_SERVER_JOB = 16;           // @j1a
+
+  /**
+    Save SQL information.
+    This constant is used when setting the level of tracing for the JDBC server job.
+    The numeric value of this constant is 32.  This option is valid
+    when connecting to V5R1 and newer versions of OS/400.
+   **/
+  public static final int SERVER_TRACE_SAVE_SQL_INFORMATION = 32;           // @j1a
+
+
+
+
+
 
 	/**
 	*  Constructs a default AS40JDBCDataSource object.
@@ -627,6 +677,47 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 	{
 		return as400_.getSystemName();
 	}
+
+
+  // @j1 new method
+  /**
+  *  Returns the level of tracing started on the JDBC server job.
+  *  If tracing is enabled, tracing is started when
+  *  the client connects to the server and ends when the connection
+  *  is disconnected.  Tracing must be started before connecting to
+  *  the server since the client enables server tracing only at connect time.
+  *  Trace data is collected in spooled files on the server.  Multiple
+  *  levels of server tracing can be turned on in combination by adding
+  *  the constants and passing that sum on the set method.  For example,
+  *  <pre>
+  *  dataSource.setServerTraceCategories(AS400JDBCDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
+  *  </pre>
+  *  @return The server tracing level.
+  *  <p>The value is a combination of the following:
+  *  <ul>
+  *  <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
+  *                               The numeric value of this constant is 2.
+  *  <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
+  *                         The numeric value of this constant is 4.
+  *  <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
+  *                           The numeric value of this constant is 8.
+  *  <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
+  *                         The numeric value of this constant is 16.
+  *  <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
+  *                             The numeric value of this constant is 32.
+  *  </ul>
+  *
+  *  <P>
+  *  Tracing the JDBC server job will use significant amounts of server resources.
+  *  Additional processor resource is used to collect the data, and additional
+  *  storage is used to save the data.  Turn on server tracing only to debug
+  *  a problem as directed by IBM service.
+  *
+  **/
+  public int getServerTraceCategories()
+  {
+    return properties_.getInt(JDProperties.TRACE_SERVER);
+  }
 
 	/**
 	*  Returns how the AS/400 server sorts records before sending them to the client.
@@ -1975,6 +2066,62 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 		logProperty ("server name", as400_.getSystemName());
 	}
+
+
+  // @j1 new method
+  /**
+  *  Enables tracing of the JDBC server job.
+  *  If tracing is enabled, tracing is started when
+  *  the client connects to the server, and ends when the connection
+  *  is disconnected.  Tracing must be started before connecting to
+  *  the server since the client enables server tracing only at connect time.
+  *
+  *  <P>
+  *  Trace data is collected in spooled files on the server.  Multiple
+  *  levels of server tracing can be turned on in combination by adding
+  *  the constants and passing that sum on the set method.  For example,
+  *  <pre>
+  *  dataSource.setServerTraceCategories(AS400JDBCDataSource.SERVER_TRACE_START_DATABASE_MONITOR + AS400JDBCDataSource.SERVER_TRACE_SAVE_SERVER_JOBLOG);
+  *  </pre>
+  *  @param traceCategories level of tracing to start.
+  *  <p>Valid values include:
+  *  <ul>
+  *  <li>SERVER_TRACE_START_DATABASE_MONITOR - Start the database monitor on the JDBC server job.
+  *                               The numeric value of this constant is 2.
+  *  <LI>SERVER_TRACE_DEBUG_SERVER_JOB - Start debug on the JDBC server job.
+  *                         The numeric value of this constant is 4.
+  *  <LI>SERVER_TRACE_SAVE_SERVER_JOBLOG - Save the joblog when the JDBC server job ends.
+  *                           The numeric value of this constant is 8.
+  *  <LI>SERVER_TRACE_TRACE_SERVER_JOB - Start job trace on the JDBC server job.
+  *                         The numeric value of this constant is 16.
+  *  <LI>SERVER_TRACE_SAVE_SQL_INFORMATION - Save SQL information.
+  *                             The numeric value of this constant is 32.
+  *  </ul>
+  *  <P>
+  *  Tracing the JDBC server job will use significant amounts of server resources.
+  *  Additional processor resource is used to collect the data, and additional
+  *  storage is used to save the data.  Turn on server tracing only to debug
+  *  a problem as directed by IBM service.
+  *
+  *
+  **/
+  public void setServerTraceCategories(int traceCategories)
+  {
+    String property = "serverTrace";
+
+    Integer oldValue = new Integer(getServerTraceCategories());
+    Integer newValue = new Integer(traceCategories);
+
+    properties_.setString(JDProperties.TRACE_SERVER, newValue.toString());
+
+    changes_.firePropertyChange(property, oldValue, newValue);
+
+    if (JDTrace.isTraceOn()) //@A8C
+      JDTrace.logInformation (this, property + ": " + traceCategories);
+  }
+
+
+
 
 	// @A2A
 	/**

@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.*;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for the IBM Toolbox for Java.
 **/
 
 public class JDMRI extends ListResourceBundle
@@ -93,7 +93,8 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_THREAD_USED", "threadUsed" },
       { "PROP_NAME_TIME_FORMAT", "timeFormat" },
       { "PROP_NAME_TIME_SEPARATOR", "timeSeparator" },
-      { "PROP_NAME_TRACE", "Trace" },
+      { "PROP_NAME_TRACE", "trace" },
+      { "PROP_NAME_TRACE_SERVER", "serverTrace" },                  // @J1a
       { "PROP_NAME_TRANSACTION_ISOLATION", "transactionIsolation" },
       { "PROP_NAME_TRANSLATE_BINARY", "translateBinary" },
       { "PROP_NAME_USER", "user" },
@@ -147,6 +148,7 @@ public class JDMRI extends ListResourceBundle
       { "TIME_FORMAT_DESC", "Specifies the time format used in time literals within SQL statements." },
       { "TIME_SEPARATOR_DESC", "Specifies the time separator used in time literals within SQL statements." },
       { "TRACE_DESC", "Specifies whether trace messages should be logged." },
+      { "TRACE_SERVER_DESC", "Specifies whether the job on the server should be traced." },     //@J1a
       { "TRANSACTION_ISOLATION_DESC", "Specifies the default transaction isolation." },
       { "TRANSLATE_BINARY_DESC", "Specifies whether binary data is translated." },
       { "USER_DESC", "Specifies the user name for connecting to the server." },

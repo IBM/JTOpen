@@ -115,12 +115,13 @@ class JDProperties implements Serializable {
     static final int            KEY_RING_NAME           = 43;   // @F1A
     static final int            KEY_RING_PASSWORD       = 44;   // @F1A
     static final int            FULL_OPEN               = 45;   // @W1a
+    static final int            TRACE_SERVER            = 46;   // @j1a
 
                                                                 // @W2 always add to the end of the array!
 
-     private static final int    NUMBER_OF_ATTRIBUTES_ = 46;   // @A0C @C1C @A3A @D0C @E0C
+     private static final int    NUMBER_OF_ATTRIBUTES_ = 47;    // @A0C @C1C @A3A @D0C @E0C
                                                                 // @E1C @D1  @E2C @E3C @E9C @F1C
-                                                                 // @W1c
+                                                                // @W1c @j1
 
 
 
@@ -170,6 +171,7 @@ class JDProperties implements Serializable {
     private static final String TIME_FORMAT_            = "time format";
     private static final String TIME_SEPARATOR_         = "time separator";
     private static final String TRACE_                  = "trace";
+    private static final String TRACE_SERVER_           = "server trace";        // @j1a
     private static final String TRANSACTION_ISOLATION_  = "transaction isolation";
     private static final String TRANSLATE_BINARY_       = "translate binary";
     private static final String USER_                   = "user";
@@ -805,6 +807,15 @@ Static initializer.
           dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
 
+          // @j1a
+          // Trace Server
+          i = TRACE_SERVER;
+          dpi_[i] = new DriverPropertyInfo (TRACE_SERVER_, "");
+          dpi_[i].description = "TRACE_SERVER_DESC";
+          dpi_[i].required    = false;
+          dpi_[i].choices     = new String[0];
+          defaults_[i]        = "0x00";
+
           // Transaction isolation.
           i = TRANSACTION_ISOLATION;
           dpi_[i] = new DriverPropertyInfo (TRANSACTION_ISOLATION_, "");
@@ -1152,7 +1163,7 @@ which is why it is static.
    //   2) Old data into a new object -- fix up the array.  In this case the
    //      array (values_) created during re-serialization is too small.  Take
    //      the fullOpen case.  If a v4r5 object is serialized then the values_
-   //      array contains only 44 elements.  When that array is put in a post-v4r5 object
+   //      array contains only 44 elements.  When that array is put in a v5r1 object
    //      the object has the ability to give out fullOpen (element 45).  This
    //      results in a indexOutOfBounds exception since we try to pull the 45th
    //      element out of an array of size 44.  To fix this condition a new array
@@ -1160,7 +1171,7 @@ which is why it is static.
    //      last element(s) will be filled in with defaults.
    //   3) Data into an older object -- don't do anything.  In this case the array
    //      will be too big but that won't hurt anything.  Take again the full open
-   //      case.  Suppose a post-v4r5 object (45 elements) is serialized then de-serialized
+   //      case.  Suppose a v5r1 object (45 elements) is serialized then de-serialized
    //      into a v4r5 object.  Now values_ has one too many elements.  That doesn't
    //      hurt anything since the code cannot get to the last element.
    //
