@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConnectionDroppedException.java
 //                                                                             
@@ -17,7 +17,7 @@ import java.io.IOException;
 
 
 /**
-  The ConnectionDroppedException class represents an exception that indicates that the AS/400 connection was dropped unexpectedly.
+  The ConnectionDroppedException class represents an exception that indicates that the AS/400 or iSeries connection was dropped unexpectedly.
 **/
 public class ConnectionDroppedException extends IOException implements ReturnCodeException
 {

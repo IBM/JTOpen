@@ -105,7 +105,7 @@ attributes. The tables organize the properties into the following categories:</P
 	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java program requests from the database.</li>
 	<li>ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.</li>
 	</ul>
-	<p>This property is ignored when connecting to systems running V5R1 and earlier versions of OS/400.</p>
+	<p>This property is ignored when connecting to systems running to OS/400 V5R1 and earlier.</p>
     </TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">
@@ -120,7 +120,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="t2"> 
       <p>Specifies the database to use for the connection, including one stored 
         in an independent auxiliary storage pool</a>. This 
-        property applies only when connecting to a V5R2 or later version of OS/400. 
+        property applies only when connecting to OS/400 V5R2 or i5/OS. 
         When you specify a database name, the name must exist in the relational 
         database directory on the server. The following criteria determine which 
         database is accessed:</p>
@@ -735,7 +735,7 @@ attributes. The tables organize the properties into the following categories:</P
       always returns "true" because because the driver does not have enough information 
       from the server to make a judgment. Turning on this property (true) forces 
       the driver to get the correct data from the server.</P>
-	  <P>You can use extended metadata only when connecting to a server running OS/400 V5R2 or later.</P></TD>
+	  <P>You can use extended metadata only when connecting to a server running OS/400 V5R2 or i5/OS.</P></TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4">&quot;true&quot;<br>&quot;false&quot;</TD>
     <TD HEADERS="t5">&quot;false&quot;</TD>
@@ -813,7 +813,7 @@ attributes. The tables organize the properties into the following categories:</P
       returned by DatabaseMetaData methods.</TD>
     <TD HEADERS="t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="t4"> &quot;sql&quot; (SQL object comment)<BR>
-      &quot;system&quot; (OS/400 object description)</TD>
+      &quot;system&quot; (i5/OS object description)</TD>
     <TD HEADERS="t5">&quot;system&quot;</TD>
   </TR>
   <TR VALIGN="TOP"> 

@@ -25,7 +25,7 @@ import java.sql.SQLException;
 //
 // Implementation note:
 //
-// LOBs in OS/400 were 15MB max until a V5R2 PTF, when they became
+// LOBs were 15MB max until an OS/400 V5R2 PTF, when they became
 // 2GB max. This is OK, since the size can still be stored in a Java int
 // without worrying about the sign.
 //

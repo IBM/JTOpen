@@ -1798,7 +1798,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public void setBoolean (int parameterIndex, boolean parameterValue)
@@ -1830,7 +1830,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
     // does not support that.
     //
     public void setByte (int parameterIndex, byte parameterValue)
@@ -2186,7 +2186,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
     // does not support that until V4R5.
     //
     public void setLong (int parameterIndex, long parameterValue)

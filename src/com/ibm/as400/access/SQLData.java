@@ -212,7 +212,7 @@ extends Cloneable
     public abstract int getMinimumScale();
 
     /**
-    Returns the native AS/400 identifier for the type.
+    Returns the native AS/400 or iSeries identifier for the type.
     @return     the native type.
     **/
     public abstract int getNativeType();

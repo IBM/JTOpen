@@ -32,7 +32,7 @@ or rollback on connections pooled by this object.  In addition,
 auto commit is initialized to false and cannot be set to true.
 
 <p>
-This support is only available when connecting to servers running OS/400 V5R1 or later.
+This support is only available when connecting to servers running OS/400 V5R1 or later, or i5/OS.
 
 <p>The following example creates an AS400JDBCXAConnection object 
 that can be used to manage XA transactions.

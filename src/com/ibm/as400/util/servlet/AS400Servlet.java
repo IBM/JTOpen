@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Servlet.java
 //                                                                             
@@ -33,7 +33,7 @@ import com.ibm.as400.access.ExtendedIllegalArgumentException;
   *  The AS400Servlet class is an abstract class that represents an HTML Servlet.
   *  <p>
   *  A connection pool can be used to share connections and manage the number of 
-  *  connections a servlet user can have to the AS/400. When using connection 
+  *  connections a servlet user can have to the AS/400 or iSeries. When using connection 
   *  pooling and a system is requested, a fully functional AS400 object is returned 
   *  to the calling application. It is then up to the application to return the AS400 
   *  object to the pool. It is not recommended that an application use this object to 
@@ -163,7 +163,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an AS400 object. It uses the specified <i>system</i>.
      *  
-     *  @param  systemName  The name of the AS/400.  
+     *  @param  systemName  The name of the AS/400 or iSeries.  
      *
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
@@ -200,10 +200,10 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an AS400 object. It connects to the specified <i>service</i>.
      *  
-     *  @param  service  The name of the AS/400 service.  
+     *  @param  service  The name of the AS/400 or iSeries service.  
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the AS/400.
+     *  @exception IOException If an error occurs while communicating with the AS/400 or iSeries.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The AS400 systen object.
@@ -248,11 +248,11 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Returns an AS400 object. It connects to the specified <i>system</i> and <i>service</i>.
      *  
-     *  @param system   The name of the AS400.
-     *  @param service  The name of the AS/400 service.
+     *  @param system   The name of the AS/400 or iSeries.
+     *  @param service  The name of the AS/400 or iSeries service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the AS/400.
+     *  @exception IOException If an error occurs while communicating with the AS/400 or iSeries.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The AS400 systen object.
@@ -296,7 +296,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, and <i>password</i>.  
      *
-     *  @param  systemName  The name of the AS/400.  
+     *  @param  systemName  The name of the AS/400 or iSeries.  
      *  @param  userId  The user ID to use to connect to the system.  
      *  @param  password  The password to use to connect to the system.  
      *
@@ -329,13 +329,13 @@ public abstract class AS400Servlet extends AuthenticationServlet
     /**
      *  Constructs an AS400 object. It uses the specified <i>system</i>, <i>user ID</i>, <i>password</i>, and <i>service</i>.  
      * 
-     *  @param  systemName  The name of the AS/400.  
+     *  @param  systemName  The name of the AS/400 or iSeries.  
      *  @param  userId  The user ID to use to connect to the system.
      *  @param  password  The password to use to connect to the system.  
-     *  @param  service  The name of the AS/400 service.
+     *  @param  service  The name of the AS/400 or iSeries service.
      *
      *  @exception AS400SecurityException If a security or authority error occurs.
-     *  @exception IOException If an error occurs while communicating with the AS/400.
+     *  @exception IOException If an error occurs while communicating with the AS/400 or iSeries.
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The AS400 systen object.

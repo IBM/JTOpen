@@ -256,7 +256,7 @@ class ConnectionPoolProperties implements Serializable
 
 
   /**
-   *  Sets whether the AS/400 Toolbox for Java uses threads in communication with the host servers
+   *  Sets whether the IBM Toolbox for Java uses threads in communication with the host servers
    *  and whether the pool uses threads for running maintenance.   
    *  The default value is true.   
    *  @param useThreads true to use threads; false otherwise.

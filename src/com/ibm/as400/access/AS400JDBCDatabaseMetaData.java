@@ -535,13 +535,13 @@ implements DatabaseMetaData
         boolean[][] nulls = {{false}};
         boolean[][] dataMappingErrors = {{false}};
 
-        // If running to a system running OS/400 v5r2 or later the list can contain more than just the system
+        // If running to a system running OS/400 v5r2 or i5/OS the list can contain more than just the system
         // name (when IASPs are on the system).  Try to retrieve that list.  Note 
         // if getting the list fails we will still return a result set containing
         // one item -- the name of the server.  We just built that result set 
         // (the previous six lines of code) and that is what we will return.  That
         // result set will be consistent with the result set returned when connecting
-        // to v5r1 or earlier versions of OS/400.  If getting the list works we will
+        // to OS/400 v5r1 or earlier versions.  If getting the list works we will
         // build and return a new result set containing data retrieved from the server. 
         if (connection_.getVRM() >= JDUtilities.vrm520)                                  // @F1a
         {                                                                                // @F1a
@@ -3399,7 +3399,7 @@ implements DatabaseMetaData
                                                                          DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
 
 
-                // Return list of all libraries on the AS400
+                // Return list of all libraries on the server
                 request.setLibraryName("%", connection_.converter_);
                 request.setLibraryNameSearchPatternIndicator(0xF1);
 
@@ -5939,8 +5939,8 @@ implements DatabaseMetaData
     using the method Statement.getGeneratedKeys().
     
     @return     True if the user is connecting to a server running OS/400 V5R2      
-    or later, otherwise false.  Auto-generated keys are supported
-    only if connecting to a V5R2 or later version of OS/400.
+    or i5/OS, otherwise false.  Auto-generated keys are supported
+    only if connecting to a server running OS/400 V5R2 or i5/OS.
         
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6381,8 +6381,8 @@ implements DatabaseMetaData
     types are ResultSet.HOLD_CURSORS_OVER_COMMIT and ResultSet.CLOSE_CURSORS_AT_COMMIT.
         
     @return     True if the user is connecting to a server running OS/400     
-    V5R2 or later, otherwise false.  Both types of result set 
-    holidability are supported if connecting to a V5R2 or later version of OS/400.
+    V5R2 or i5/OS, otherwise false.  Both types of result set 
+    holidability are supported if connecting to OS/400 V5R2 or i5/OS.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6403,8 +6403,8 @@ implements DatabaseMetaData
     Indicates if savepoints are supported.
         
     @return     True if the user is connecting to a server running 
-    OS/400 V5R2 or later, otherwise false.  Savepoints are supported
-    only if connecting to a V5R2 or later version of OS/400.
+    OS/400 V5R2 or i5/OS, otherwise false.  Savepoints are supported
+    only if connecting to OS/400 V5R2 or i5/OS.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5

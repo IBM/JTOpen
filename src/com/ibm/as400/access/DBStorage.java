@@ -41,9 +41,9 @@ Constructs a DBStorage object.
 //@P0D  DBStorage (int id)
 //@P0D  {
     // Initialize to 63 KB.  This used to be 64K 
-    // The AS/400 JVM adds 24 bytes of
+    // The AS/400 or iSeries JVM adds 24 bytes of
     // overhead to each object so a 64K byte array really
-    // takes 64K + 24 bytes.  The AS/400 JVM has a boundry
+    // takes 64K + 24 bytes.  The AS/400 or iSeries JVM has a boundry
     // at 64K.  Objects 64K or smaller go into the 64K 
     // segment pool.  Objects 64K + 1 byte or larger go into the
     // 1 meg pool.  We used to allocate a 64K byte array

@@ -519,7 +519,7 @@ Set the auto-commit mode.
       // @C5D }                                                                               // @C5A
       // @C5D else                                                                            // @C5A
 
-      if(connection_.newAutoCommitSupport_ == 0)                                          //@KBA OS/400 V5R2 or earlier so do what we always have
+      if(connection_.newAutoCommitSupport_ == 0)                                          //@KBA OS/400 V5R2 or earlier do what we always have
           setCommitMode (currentCommitMode_);
       else                                                                                //@KBA use new auto commit support
       {                                                                                   //@KBA

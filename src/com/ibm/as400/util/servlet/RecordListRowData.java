@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RecordListRowData.java
 //                                                                             
@@ -30,8 +30,8 @@ import java.util.Vector;
 *  <UL>
 *    <LI>An entry in a data queue.</LI>
 *    <LI>The parameter data provided to or returned by a program call.</LI>
-*    <LI>A record to be written to or read from an AS/400 file.</LI>
-*    <LI>Any data returned from the AS/400 that needs to be converted between AS/400
+*    <LI>A record to be written to or read from an AS/400 or iSeries file.</LI>
+*    <LI>Any data returned from the AS/400 or iSeries that needs to be converted between AS/400 or iSeries
 *    format and Java format.</LI>
 *  </UL>
 *

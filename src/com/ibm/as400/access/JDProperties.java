@@ -865,7 +865,7 @@ class JDProperties implements Serializable
         // it to "   " (3 spaces), but that causes an host server error.               @E4A
         // It would probably be better to choose a default based on the client         @E4A
         // locale, but that may prove to be a high-maintenance mapping,                @E4A
-        // as locales are added to Java and languages are added to the AS/400.         @E4A
+        // as locales are added to Java and languages are added to the server.         @E4A
         i = SORT_LANGUAGE;
         dpi_[i] = new DriverPropertyInfo (SORT_LANGUAGE_, "");
         dpi_[i].description = "SORT_LANGUAGE_DESC";
@@ -1495,7 +1495,7 @@ class JDProperties implements Serializable
     //
     // @param in The input stream from which to deserialize the object.
     // @exception ClassNotFoundException If the class being deserialized is not found.
-    // @exception IOException If an error occurs while communicating with the AS/400.
+    // @exception IOException If an error occurs while communicating with the server.
     //
     private void readObject(java.io.ObjectInputStream in)
     throws ClassNotFoundException,

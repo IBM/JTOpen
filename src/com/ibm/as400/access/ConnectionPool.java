@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 /**
-*  The ConnectionPool class represents a pool of connections to the AS/400.
+*  The ConnectionPool class represents a pool of connections to the server.
 *
 *  <P>ConnectionPool objects generate the following events:
 *  <ul>
@@ -404,8 +404,8 @@ public abstract class ConnectionPool implements Serializable
   }
 
   /**
-  *  Sets whether the AS/400 Toolbox for Java uses threads in communication with the host servers
-  *  and for running maintenance. Letting the AS/400 Toolbox for Java use threads will be beneficial
+  *  Sets whether the IBM Toolbox for Java uses threads in communication with the host servers
+  *  and for running maintenance. Letting the IBM Toolbox for Java use threads will be beneficial
   *  to performance, but turning threads off may be necessary if your application needs to be compliant
   *  with the Enterprise Java Beans specification. The thread used property cannot be changed once
   *  the pool is in use.  This property affects AS400ConnectionPool and not AS400JDBCConnectionPool

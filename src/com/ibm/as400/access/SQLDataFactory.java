@@ -268,7 +268,7 @@ class SQLDataFactory
     Return a SQLData object corresponding to a
     a SQL type code defined in java.sql.Types.
     In the case where a SQL type code specifies a
-    type that is not supported in DB2 for OS/400, then
+    type that is not supported in DB2 for i5/OS, then
     it will map to the next closest type.
     
     @param  sqlType     SQL type code defined in java.sql.Types.
@@ -276,7 +276,7 @@ class SQLDataFactory
     @param  precision   Precision of data.
     @param  scale       Scale of data.
     @param  settings    The conversion settings.
-    @param  vrm         The OS/400 Version, Release, and Modification.
+    @param  vrm         The OS/400 or i5/OS Version, Release, and Modification.
     @return             A SQLData object.
     
     @exception  SQLException    If no valid type can be
@@ -388,11 +388,11 @@ class SQLDataFactory
 
     /**
     Return a SQLData object corresponding to the
-    specific OS/400 native type identifier.
+    specific i5/OS native type identifier.
     
     @param  connection      The connection.
     @param  id              The id.                                   
-    @param  nativeType      An OS/400 native type identifier.
+    @param  nativeType      An i5/OS native type identifier.
     @param  length          Length of data (in bytes).
     @param  precision       Precision of data.
     @param  scale           Scale of data.
@@ -533,9 +533,9 @@ class SQLDataFactory
 
     /**
     Return a SQLData object corresponding to the
-    specific OS/400 native type string.
+    specific i5/OS native type string.
     
-    @param  nativeType  An OS/400 native type.
+    @param  nativeType  An i5/OS native type.
     @param  length      Length of data (in bytes).
     @param  precision   Precision of data.
     @param  scale       Scale of data.

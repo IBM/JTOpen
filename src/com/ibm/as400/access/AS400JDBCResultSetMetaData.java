@@ -359,7 +359,7 @@ implements ResultSetMetaData
     {
         checkIndex(columnIndex);
 
-        // In DB2 for OS/400, all text types
+        // In DB2 for i5/OS, all text types
         // are case sensitive.
         return row_.getSQLType(columnIndex).isText();
     }

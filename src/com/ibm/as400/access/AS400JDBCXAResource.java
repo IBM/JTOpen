@@ -26,7 +26,7 @@ import java.sql.SQLException;
 The AS400JDBCXAResource class represents a resource manager
 for use in XA transaction management.
 
-<p>This support is only available when connecting to servers running OS/400 V5R1 or later.
+<p>This support is only available when connecting to servers running OS/400 V5R1 or later, or i5/OS.
 
 <p>The following example creates an AS400JDBCXAResource object
 that can be used to work with the XA resource manager.

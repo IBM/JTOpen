@@ -122,7 +122,7 @@ public class AS400JDBCDataSourcePaneGUI extends java.util.ListResourceBundle {
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RC", "Allow select and call statements only (read/call)"},
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RO", "Allow select statements only (read only)"},
       {"AJDSP_OTHER.AJDSP_ACCESSTYPE_RW", "Allow all SQL statements (read/write)"},
-      {"AJDSP_OTHER.AJDSP_OS400DESC_RADIOBUTTON", "OS/400 object description  "},
+      {"AJDSP_OTHER.AJDSP_OS400DESC_RADIOBUTTON", "i5/OS object description  "},
       {"AJDSP_OTHER.AJDSP_REMARKSSOURCE_LABEL", "Remarks source:"},
       {"AJDSP_OTHER.AJDSP_SQLDESC_RADIOBUTTON", "SQL object comment  "},
       {"AJDSP_OTHER.EditorBounds", "230,32,968,662"},

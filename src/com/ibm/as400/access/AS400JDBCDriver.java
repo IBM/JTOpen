@@ -818,7 +818,7 @@ implements java.sql.Driver
 			{
 				nativeDriver = (Driver)Class.forName("com.ibm.db2.jdbc.app.DB2Driver").newInstance();
 				if (JDTrace.isTraceOn())																							// @C2A
-					JDTrace.logInformation(this, "Native OS/400 Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
+					JDTrace.logInformation(this, "Native IBM Developer Kit for Java JDBC driver implementation was loaded");		// @C2A
 			}
 			catch (Throwable e)
 			{
@@ -860,7 +860,7 @@ implements java.sql.Driver
 						JDTrace.logInformation(this, "Connection is local");				// @C2A
 					String nativeURL = dataSourceUrl.getNativeURL();                       
 					if (JDTrace.isTraceOn())
-						JDTrace.logInformation(this, "Using native OS/400 Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
+						JDTrace.logInformation(this, "Using native IBM Developer Kit for Java JDBC driver implementation (" + nativeURL + ")");
 					return nativeDriver.connect(nativeURL, info);
 				}																			// @C2A
 			}

@@ -23,7 +23,7 @@ import java.util.Vector;
 /**
 <p>This class represents an escape clause in a SQL statement.
 It is used to translate SQL statements with JDBC escape
-syntax to DB2 for OS/400 format.
+syntax to DB2 for i5/OS format.
 **/
 class JDEscapeClause
 {

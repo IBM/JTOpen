@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.Locale;      //@B2A
 
 /** 
-  *  ConnectionList is a list of AS400 connections specific to an AS400 and userID.  The 
+  *  ConnectionList is a list of connections specific to an AS400 or iSeries and userID.  The 
   *  connection list is used to create new connections and get connections from the pool.
   *  The connection list can remove connections that have exceeded inactivity time and 
   *  replace connections that have exceeded the maximum use count or maximum lifetime.
@@ -85,7 +85,7 @@ final class ConnectionList
 
   //@A5C  Changed method to private.
   /**
-   *  Return a connection, which can connect to an AS400 service.
+   *  Return a connection, which can connect to a service.
    *
    *  @param service The service to connect.
    *  @param connect If true connect the specified service.
@@ -292,9 +292,9 @@ final class ConnectionList
 
 
   /**
-   *  Gets a connection to an AS400 service from the pool.
+   *  Gets a connection to a service from the pool.
    *
-   *  @param service The AS400 service.
+   *  @param service The service.
    *  @param secure  If true a secure AS400 object was requested.
    *  @param poolListeners The pool listeners to which events will be fired.
    *  @param socketProperties The socket properties to use if a new AS400 object is created.

@@ -285,7 +285,7 @@ error table.
 **/
   public static SQLWarning getSQLWarning (String sqlState)
   {
-    // The DB2 for OS/400 SQL CLI manual says that
+    // The DB2 for i5/OS SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the warning.
     //                                                                        
@@ -374,7 +374,7 @@ error table.
   public static void throwSQLException (Object thrower, String sqlState)
   throws SQLException
   {
-    // The DB2 for OS/400 SQL CLI manual says that
+    // The DB2 for i5/OS SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //      
@@ -458,7 +458,7 @@ trace for debugging purposes.
       buffer.append(')');
     }
 
-    // The DB2 for OS/400 SQL CLI manual says that
+    // The DB2 for i5/OS SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //
@@ -514,7 +514,7 @@ trace for debugging purposes.
       buffer.append(e.getClass());                                // @E3A
     buffer.append(')');                                             // @E7A
 
-    // The DB2 for OS/400 SQL CLI manual says that
+    // The DB2 for i5/OS SQL CLI manual says that
     // we should set the native error code to -99999
     // when the driver generates the error.
     //

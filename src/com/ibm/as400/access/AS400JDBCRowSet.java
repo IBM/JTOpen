@@ -893,7 +893,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native OS/400 format.  This is not supported for
+    *  native i5/OS format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnIndex     The column index (1-based).
@@ -919,7 +919,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
     *
     *  <p>This can also be used to get values from columns
     *  with other types.  The values are returned in their
-    *  native OS/400 format.  This is not supported for
+    *  native i5/OS format.  This is not supported for
     *  result sets returned by a DatabaseMetaData object.
     *
     *  @param  columnName  The column name.

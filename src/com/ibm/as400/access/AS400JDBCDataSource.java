@@ -36,7 +36,7 @@ import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for OS/400 database connections.
+*  The AS400JDBCDataSource class represents a factory for i5/OS database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
@@ -54,7 +54,7 @@ import javax.naming.StringRefAddr;                // JNDI
 *  <P>The following example registers an AS400JDBCDataSource object with JNDI and then
 *  uses the object returned from JNDI to obtain a database connection.
 *  <pre><blockquote>
-*  // Create a data source to the OS/400 database.
+*  // Create a data source to the i5/OS database.
 *  AS400JDBCDataSource dataSource = new AS400JDBCDataSource();
 *  dataSource.setServerName("myAS400");
 *
@@ -111,8 +111,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @J2d private String databaseName_ = "";                // Database name. @A6C
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
-    private JDProperties properties_;                         // OS/400 connection properties.
-    private SocketProperties sockProps_;                      // OS/400 socket properties @F1A
+    private JDProperties properties_;                         // i5/OS connection properties.
+    private SocketProperties sockProps_;                      // i5/OS socket properties @F1A
     transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
     transient private EventLog log_;       //@C7c
 
@@ -409,7 +409,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the level of database access for the OS/400 connection.
+    *  Returns the level of database access for the connection.
     *  @return The access level.  Valid values include: "all" (all SQL statements allowed),
     *  "read call" (SELECT and CALL statements allowed), and "read only" (SELECT statements only).
     *  The default value is "all".
@@ -600,7 +600,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  The default is "asensitive".
     *
     *  This property is ignored when connecting to systems
-    *  running V5R1 and earlier versions of OS/400.   
+    *  running OS/400 V5R1 and earlier.   
     **/
     public String getCursorSensitivity()
     {
@@ -630,7 +630,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 date format used in date literals within SQL statements.
+    *  Returns the server date format used in date literals within SQL statements.
     *  @return The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -652,7 +652,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 date separator used in date literals within SQL statements.
+    *  Returns the server date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @return The date separator.
@@ -673,7 +673,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 decimal separator used in numeric literals within SQL statements.
+    *  Returns the server decimal separator used in numeric literals within SQL statements.
     *  @return The decimal separator.
     *  <p>Valid values include:
     *  <ul>
@@ -703,7 +703,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an OS/400 Java Virtual
+    * environment is not an OS/400 or i5/OS Java Virtual
     * Machine.
     *  <p>Valid values include:
     *  <ul>
@@ -729,7 +729,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 libraries to add to the server job's library list.
+    *  Returns the server libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -744,7 +744,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 maximum LOB (large object) size in bytes that
+    *  Returns the server maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
     *  communication to the server.  Larger LOB thresholds will reduce
@@ -763,7 +763,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Returns the timeout value in seconds.
     *  Note: This value is not used or supported.
-    *  The timeout value is determined by OS/400.
+    *  The timeout value is determined by the server.
     *  @return the maximum time in seconds that this data source can wait while attempting to connect to a database. 
     **/
     public int getLoginTimeout()
@@ -782,7 +782,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 naming convention used when referring to tables.
+    *  Returns the server naming convention used when referring to tables.
     *  @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
     *  and "system" (e.g. schema/table).  The default value is "sql".
     **/
@@ -907,7 +907,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Returns the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @return The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or i5/OS object description).
     *  The default value is "system".
     **/
     public String getRemarks()
@@ -975,7 +975,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns how OS/400 sorts records before sending them to the 
+    *  Returns how the server sorts records before sending them to the 
     *  client.
     *  @return The sort value.
     *  <p>Valid values include:
@@ -1013,7 +1013,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns how OS/400 treats case while sorting records.
+    *  Returns how the server treats case while sorting records.
     *  @return The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
     *  same character) and "unique" (upper- and lower-case characters are sorted as
@@ -1025,7 +1025,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 time format used in time literals with SQL statements.
+    *  Returns the server time format used in time literals with SQL statements.
     *  @return The time format.
     *  <p>Valid values include:
     *  <ul>
@@ -1044,7 +1044,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the OS/400 time separator used in time literals within SQL 
+    *  Returns the server time separator used in time literals within SQL 
     *  statements.
     *  @return The time separator.
     *  <p>Valid values include:
@@ -1526,7 +1526,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the level of database access for the OS/400 connection.
+    *  Sets the level of database access for the connection.
     *  @param access The access level.
     *  <p>Valid values include:
     *  <ul>
@@ -1787,7 +1787,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  The default is "asensitive".
     *
     *  This property is ignored when connecting to systems
-    *  running V5R1 and earlier versions of OS/400. 
+    *  running OS/400 V5R1 and earlier. 
     **/
     public void setCursorSensitivity(String cursorSensitivity)
     {
@@ -1830,9 +1830,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Sets the database name.  
     *  This property is ignored when connecting to systems
-    *  running V5R1 and earlier versions of OS/400.  
+    *  running OS/400 V5R1 and earlier.  
     *  If a database name is specified it must exist in the relational 
-    *  database directory on the server.  Use OS/400 command WRKRDBDIRE 
+    *  database directory on the server.  Use CL command WRKRDBDIRE 
     *  to view the directory.
     *  The following criteria are used to determine
     *  which database is accessed:  
@@ -1930,7 +1930,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 date format used in date literals within SQL statements.
+    *  Sets the server date format used in date literals within SQL statements.
     *  @param dateFormat The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -1965,7 +1965,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 date separator used in date literals within SQL statements.
+    *  Sets the server date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @param dateSeparator The date separator.
@@ -1998,7 +1998,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 decimal separator used in numeric literals within SQL 
+    *  Sets the server decimal separator used in numeric literals within SQL 
     *  statements.
     *  @param decimalSeparator The decimal separator.
     *  <p>Valid values include:
@@ -2047,7 +2047,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets how OS/400 sorts records before sending them to the client.
+    *  Sets how the server sorts records before sending them to the client.
     *  @param sort The sort value.
     *  <p>Valid values include:
     *  <ul>
@@ -2131,9 +2131,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Sets whether the driver should request extended metadata from the
     *  server.  This property is ignored when connecting to systems
-    *  running V5R1 and earlier versions of OS/400. 
+    *  running OS/400 V5R1 and earlier. 
     *  If this property is set to true and connecting to a system running
-    *  V5R2 or later version of OS/400, the accuracy of the information 
+    *  OS/400 V5R2 or i5/OS, the accuracy of the information 
     *  that is returned from ResultSetMetaData methods getColumnLabel(int),
     *  isReadOnly(int), isSearchable(int), and isWriteable(int) will be increased.
     *  In addition, the ResultSetMetaData method getSchemaName(int) will be supported with this 
@@ -2267,7 +2267,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 libraries to add to the server job's library list.
+    *  Sets the server libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -2293,7 +2293,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 maximum LOB (large object) size in bytes that
+    *  Sets the server maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
     *  communication to the server.  Larger LOB thresholds will reduce
@@ -2373,7 +2373,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 naming convention used when referring to tables.
+    *  Sets the server naming convention used when referring to tables.
     *  @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
     *  and "system" (e.g. schema/table).  The default value is "sql".
     **/
@@ -2735,7 +2735,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
     *  @param remarks The text source.
-    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 object description).
+    *  Valid values include: "sql" (SQL object comment) and "system" (OS/400 or i5/OS object description).
     *  The default value is "system".
     **/
     public void setRemarks(String remarks)
@@ -2900,7 +2900,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an OS/400 Java Virtual
+    * environment is not an OS/400 or i5/OS Java Virtual
     * Machine.
     * param driver The driver value.
     *  <p>Valid values include:
@@ -3048,7 +3048,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 time format used in time literals with SQL statements.
+    *  Sets the server time format used in time literals with SQL statements.
     *  @param timeFormat The time format.
     *  <p>Valid values include:
     *  <ul>
@@ -3078,7 +3078,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the OS/400 time separator used in time literals within SQL statements.
+    *  Sets the server time separator used in time literals within SQL statements.
     *  This property has no effect unless the time format property is set to "hms".
     *  @param timeSeparator The time separator.
     *  <p>Valid values include:
@@ -3142,7 +3142,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Sets the OS/400 server's transaction isolation.
+    *  Sets the server's transaction isolation.
     *  @param transactionIsolation The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>

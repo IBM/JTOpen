@@ -31,7 +31,7 @@ When a transaction is rolled back to a savepoint, all changes made
 after the savepoint was created are undone. 
 <P>
 Savepoints can be either named or unnamed. 
-The OS/400 server does not support nnnamed savepoints 
+The server does not support unnamed savepoints 
 so internally the Toolbox JDBC driver will create 
 a name to send to the server.  The
 format is T_JDBCINTERNAL_n where 'n' is a counter that is
@@ -42,12 +42,12 @@ Considerations:
 <LI>Named savepoints must be unique.  A savepoint name cannot be reused until the savepoint is released, committed, or rolled back.
 <LI>Savepoints are valid only if autocommit is off.  An exception is thrown is autocommit is enabled.
 <LI>Savepoints are not valid across XA connections.  An exception is thrown if the connection is an XA connection.
-<LI>Savepoints require the release after OS/400 V5R1 or later.  An exception is thrown if connecting to a V5R1 or earlier version of OS/400.
+<LI>Savepoints require OS/400 V5R2 or i5/OS.  An exception is thrown if connecting to OS/400 V5R1 or earlier.
 <LI>If the connection option is set to keep cursors open after a traditional rollback, cursors also remain open after a rollback to a savepoint.
 </UL>
 
 <P>
-The release after OS/400 V5R1 or later is required to use savepoints.  Savepoint support
+OS/400 V5R2 or i5/OS is required to use savepoints.  Savepoint support
 is new in modification 5 of the Toolbox JDBC driver.
 
 
