@@ -318,6 +318,9 @@ abstract class NPCPAttributeValue extends NPCodePoint
                  if (attr != null)
                 {
                    lib  = ((NPAttrString)attr).get();
+                   if ( 0 == lib.compareTo("")){
+                     lib = "          ";
+                   }
                 }
              // }    /*  end Else            @B5A@B6D */
            }
