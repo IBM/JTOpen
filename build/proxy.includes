@@ -132,6 +132,7 @@ com/ibm/as400/access/BinaryConverter.class
 com/ibm/as400/access/BidiFlag.class
 com/ibm/as400/access/BidiFlagSet.class
 com/ibm/as400/access/BidiStringType.class
+com/ibm/as400/access/BidiConversionProperties.class
 com/ibm/as400/access/Converter.class
 com/ibm/as400/access/ConverterImpl.class
 com/ibm/as400/access/ConverterImplProxy.class
