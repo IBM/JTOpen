@@ -21,75 +21,71 @@ class ConvTableInputStream extends InputStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    static private String Copyright()
-    {
-	return Copyright.copyright;
-    }
-    // The buffer into which incoming data is placed.
-    private byte buffer[] = null;
-    private int offset = 0;
-    private int end = 0;
+  // The buffer into which incoming data is placed.
+  private byte buffer[] = null;
+  private int offset = 0;
+  private int end = 0;
 
-    ConvTableInputStream()
-    {
-    }
+  ConvTableInputStream()
+  {
+  }
 
-    // hold this buffer
-    void add(byte[] buffer, int offset, int length)
-    {
-	this.buffer = buffer;
-	this.offset = offset;
-	this.end = offset+length;
-    }
+  // hold this buffer
+  void setContents(byte[] buffer, int offset, int length)
+  {
+    this.buffer = buffer;
+    this.offset = offset;
+    this.end = offset+length;
+  }
 
-    // read one byte
-    public int read()
+  // read one byte
+  public int read()
+  {
+    if (this.buffer == null)
     {
-	if (this.buffer == null)
-	{
-	    return -1;
-	}
-	int ret = buffer[this.offset++] & 0xFF;
-	if (this.offset == this.end)
-	{
-	    // now empty
-	    this.buffer = null;
-	}
-	return ret;
+      return -1;
     }
+    int ret = buffer[this.offset++] & 0xFF;
+    if (this.offset == this.end)
+    {
+      // now empty
+      this.buffer = null;
+    }
+    return ret;
+  }
 
-    // read array of bytes
-    public int read(byte buffer[], int offset, int length)
+  // read array of bytes
+  public int read(byte buffer[], int offset, int length)
+  {
+    if (this.buffer == null)
     {
-	if (this.buffer == null)
-	{
-	    return -1;
-	}
-	int bytesAvail = this.end - this.offset;
-	if (length < bytesAvail)
-	{
-	    System.arraycopy(this.buffer, this.offset, buffer, offset, length);
-	    this.offset += length;
-	    return length;
-	}
-	else
-	{
-	    System.arraycopy(this.buffer, this.offset, buffer, offset, bytesAvail);
-	    this.buffer = null;
-	    return bytesAvail;
-	}
+      return -1;
     }
+    int bytesAvail = this.end - this.offset;
+    if (length < bytesAvail)
+    {
+      System.arraycopy(this.buffer, this.offset, buffer, offset, length);
+      this.offset += length;
+      return length;
+    }
+    else
+    {
+      System.arraycopy(this.buffer, this.offset, buffer, offset, bytesAvail);
+      this.buffer = null;
+      return bytesAvail;
+    }
+  }
 
-    // number of bytes available
-    public int available()
+  // number of bytes available
+  public int available()
+  {
+    if (this.buffer == null)
     {
-	if (this.buffer == null)
-	{
-	    return 0;
-	}
-	else
-	{
-	    return this.end - this.offset;
-	}
+      return 0;
     }
+    else
+    {
+      return this.end - this.offset;
+    }
+  }
 }

@@ -13,122 +13,45 @@
 
 package com.ibm.as400.access;
 
-// table for CCSID 423
-class ConvTable423 extends ConvTable
+class ConvTable423 extends ConvTableSingleMap
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    static private String Copyright()
-    {
-	return Copyright.copyright;
-    }
+  private static final String toUnicode_ = 
+    "\u0000\u0001\u0002\u0003\u009C\t\u0086\u007F\u0097\u008D\u008E\u000B\f\r\u000E\u000F" +
+    "\u0010\u0011\u0012\u0013\u009D\u0085\b\u0087\u0018\u0019\u0092\u008F\u001C\u001D\u001E\u001F" +
+    "\u0080\u0081\u0082\u0083\u0084\n\u0017\u001B\u0088\u0089\u008A\u008B\u008C\u0005\u0006\u0007" +
+    "\u0090\u0091\u0016\u0093\u0094\u0095\u0096\u0004\u0098\u0099\u009A\u009B\u0014\u0015\u009E\u001A" +
+    "\u0020\u0391\u0392\u0393\u0394\u0395\u0396\u0397\u0398\u0399\u005B\u002E\u003C\u0028\u002B\u0021" +
+    "\u0026\u039A\u039B\u039C\u039D\u039E\u039F\u03A0\u03A1\u03A3\u005D\u0024\u002A\u0029\u003B\u005E" +
+    "\u002D\u002F\u03A4\u03A5\u03A6\u03A7\u03A8\u03A9\u001A\u001A\u007C\u002C\u0025\u005F\u003E\u003F" +
+    "\u001A\u0386\u0388\u0389\u00A0\u038A\u038C\u038E\u038F\u0060\u003A\u00A3\u00A7\'\u003D\"" +
+    "\u00C4\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u03B1\u03B2\u03B3\u03B4\u03B5\u03B6" +
+    "\u00D6\u006A\u006B\u006C\u006D\u006E\u006F\u0070\u0071\u0072\u03B7\u03B8\u03B9\u03BA\u03BB\u03BC" +
+    "\u00DC\u00A8\u0073\u0074\u0075\u0076\u0077\u0078\u0079\u007A\u03BD\u03BE\u03BF\u03C0\u03C1\u03C3" +
+    "\u001A\u03AC\u03AD\u03AE\u03CA\u03AF\u03CC\u03CD\u03CB\u03CE\u03C2\u03C4\u03C5\u03C6\u03C7\u03C8" +
+    "\u00B8\u0041\u0042\u0043\u0044\u0045\u0046\u0047\u0048\u0049\u00AD\u03C9\u00E2\u00E0\u00E4\u00EA" +
+    "\u00B4\u004A\u004B\u004C\u004D\u004E\u004F\u0050\u0051\u0052\u00B1\u00E9\u00E8\u00EB\u00EE\u00EF" +
+    "\u00B0\u001A\u0053\u0054\u0055\u0056\u0057\u0058\u0059\u005A\u00BD\u00F6\u00F4\u00FB\u00F9\u00FC" +
+    "\u0030\u0031\u0032\u0033\u0034\u0035\u0036\u0037\u0038\u0039\u00FF\u00E7\u00C7\u001A\u001A\u009F";
 
-    private final static int ccsid = 423;
-    private final static char[] table =
-    {
-/*00*/	'\u0000', '\u0001', '\u0002', '\u0003', '\u009c', '\u0009', '\u0086', '\u007f',
-/*08*/	'\u0097', '\u008d', '\u008e', '\u000b', '\u000c', '\r',     '\u000e', '\u000f',
-/*10*/	'\u0010', '\u0011', '\u0012', '\u0013', '\u009d', '\u0085', '\u0008', '\u0087',
-/*18*/	'\u0018', '\u0019', '\u0092', '\u008f', '\u001c', '\u001d', '\u001e', '\u001f',
-/*20*/	'\u0080', '\u0081', '\u0082', '\u0083', '\u0084', '\n',     '\u0017', '\u001b',
-/*28*/	'\u0088', '\u0089', '\u008a', '\u008b', '\u008c', '\u0005', '\u0006', '\u0007',
-/*30*/	'\u0090', '\u0091', '\u0016', '\u0093', '\u0094', '\u0095', '\u0096', '\u0004',
-/*38*/	'\u0098', '\u0099', '\u009a', '\u009b', '\u0014', '\u0015', '\u009e', '\u001a',
-/*40*/	'\u0020', '\u0391', '\u0392', '\u0393', '\u0394', '\u0395', '\u0396', '\u0397',
-/*48*/	'\u0398', '\u0399', '\u005b', '\u002e', '\u003c', '\u0028', '\u002b', '\u0021',
-/*50*/	'\u0026', '\u039a', '\u039b', '\u039c', '\u039d', '\u039e', '\u039f', '\u03a0',
-/*58*/	'\u03a1', '\u03a3', '\u005d', '\u0024', '\u002a', '\u0029', '\u003b', '\u005e',
-/*60*/	'\u002d', '\u002f', '\u03a4', '\u03a5', '\u03a6', '\u03a7', '\u03a8', '\u03a9',
-/*68*/	'\u001a', '\u001a', '\u007c', '\u002c', '\u0025', '\u005f', '\u003e', '\u003f',
-/*70*/	'\u001a', '\u0386', '\u0388', '\u0389', '\u00a0', '\u038a', '\u038c', '\u038e',
-/*78*/	'\u038f', '\u0060', '\u003a', '\u00a3', '\u00a7', '\'',     '\u003d', '\u0022',
-/*80*/	'\u00c4', '\u0061', '\u0062', '\u0063', '\u0064', '\u0065', '\u0066', '\u0067',
-/*88*/	'\u0068', '\u0069', '\u03b1', '\u03b2', '\u03b3', '\u03b4', '\u03b5', '\u03b6',
-/*90*/	'\u00d6', '\u006a', '\u006b', '\u006c', '\u006d', '\u006e', '\u006f', '\u0070',
-/*98*/	'\u0071', '\u0072', '\u03b7', '\u03b8', '\u03b9', '\u03ba', '\u03bb', '\u03bc',
-/*A0*/	'\u00dc', '\u00a8', '\u0073', '\u0074', '\u0075', '\u0076', '\u0077', '\u0078',
-/*A8*/	'\u0079', '\u007a', '\u03bd', '\u03be', '\u03bf', '\u03c0', '\u03c1', '\u03c3',
-/*B0*/	'\u001a', '\u03ac', '\u03ad', '\u03ae', '\u03ca', '\u03af', '\u03cc', '\u03cd',
-/*B8*/	'\u03cb', '\u03ce', '\u03c2', '\u03c4', '\u03c5', '\u03c6', '\u03c7', '\u03c8',
-/*C0*/	'\u00b8', '\u0041', '\u0042', '\u0043', '\u0044', '\u0045', '\u0046', '\u0047',
-/*C8*/	'\u0048', '\u0049', '\u00ad', '\u03c9', '\u00e2', '\u00e0', '\u00e4', '\u00ea',
-/*D0*/	'\u00b4', '\u004a', '\u004b', '\u004c', '\u004d', '\u004e', '\u004f', '\u0050',
-/*D8*/	'\u0051', '\u0052', '\u00b1', '\u00e9', '\u00e8', '\u00eb', '\u00ee', '\u00ef',
-/*E0*/	'\u00b0', '\u001a', '\u0053', '\u0054', '\u0055', '\u0056', '\u0057', '\u0058',
-/*E8*/	'\u0059', '\u005a', '\u00bd', '\u00f6', '\u00f4', '\u00fb', '\u00f9', '\u00fc',
-/*F0*/	'\u0030', '\u0031', '\u0032', '\u0033', '\u0034', '\u0035', '\u0036', '\u0037',
-/*F8*/	'\u0038', '\u0039', '\u00ff', '\u00e7', '\u00c7', '\u001a', '\u001a', '\u009f'
-    };
 
-    ConvTable423()
-    {
-	super();
-	if (ConvTable.convDebug) Trace.log(Trace.CONVERSION, "Constructing Conversion Table for CCSID: 423");
-    }
+  private static final String fromUnicode_ = 
+    "\u0001\u0203\u372D\u2E2F\u1605\u250B\u0C0D\u0E0F\u1011\u1213\u3C3D\u3226\u1819\u3F27\u1C1D\u1E1F" +
+    "\u404F\u7F3F\u5B6C\u507D\u4D5D\u5C4E\u6B60\u4B61\uF0F1\uF2F3\uF4F5\uF6F7\uF8F9\u7A5E\u4C7E\u6E6F" +
+    "\u3FC1\uC2C3\uC4C5\uC6C7\uC8C9\uD1D2\uD3D4\uD5D6\uD7D8\uD9E2\uE3E4\uE5E6\uE7E8\uE94A\u3F5A\u5F6D" +
+    "\u7981\u8283\u8485\u8687\u8889\u9192\u9394\u9596\u9798\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u6A3F\u3F07" +
+    "\u2021\u2223\u2415\u0617\u2829\u2A2B\u2C09\u0A1B\u3031\u1A33\u3435\u3608\u3839\u3A3B\u0414\u3EFF" +
+    "\u743F\u3F7B\u3F3F\u3F7C\uA13F\u3F3F\u3FCA\u3F3F\uE0DA\u3F3F\uD03F\u3F3F\uC03F\u3F3F\u3FEA\u3F3F" +
+    "\u3F3F\u3F3F\u803F\u3FFC\uFFFF\u0007\u3F3F\u903F\u3F3F\u3F3F\uA03F\u3F3F\uCD3F\uCC3F\uCE3F\u3FFB" +
+    "\uDCDB\uCFDD\u3F3F\uDEDF\u3F3F\u3F3F\uEC3F\uEB3F\u3FEE\u3FED\uEF3F\u3FFA\uFFFF\u0143\u3F3F\u713F" +
+    "\u7273\u753F\u763F\u7778\u3F41\u4243\u4445\u4647\u4849\u5152\u5354\u5556\u5758\u3F59\u6263\u6465" +
+    "\u6667\u3F3F\uB1B2\uB3B5\u3F8A\u8B8C\u8D8E\u8F9A\u9B9C\u9D9E\u9FAA\uABAC\uADAE\uBAAF\uBBBC\uBDBE" +
+    "\uBFCB\uB4B8\uB6B7\uB93F\uFFFF\u7E18\u3F3F";
 
-    /**
-     * Returns the ccsid of this conversion object.
-     * @return the ccsid.
-     **/
-    int getCcsid()
-    {
-	return ccsid;
-    }
 
-    /**
-     * Returns the encoding of this conversion object.
-     * @return the encoding.
-     **/
-    String getEncoding()
-    {
-	return String.valueOf(ccsid);
-    }
-
-    String byteArrayToString(byte[] source, int offset, int length)
-    {
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Converting byte to char for CCSID: 423", source, offset, length);
-	}
-	char[] dest = new char[length];
-
-	for (int i=0; i<length; ++i)
-	{
-	    dest[i] = table[source[i+offset] & 0xFF];
-	}
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Byte to char output: ", ConvTable.dumpCharArray(dest));
-	}
-	return new String(dest);
-    }
-
-    byte[] stringToByteArray(String source)
-    {
-	char[] src = source.toCharArray();
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Converting char to byte for CCSID: 423", ConvTable.dumpCharArray(src));
-	}
-	byte[] dest = new byte[src.length];
-
-	for (int i=0; i<src.length; ++i)
-	{
-	    int ii = 0;
-	    for (; ii <= 0xFF; ++ii)
-	    {
-		if (src[i] == table[ii])
-		{
-		    dest[i] = (byte)ii;
-		    break;
-		}
-	    }
-	    if (ii == 0x100) dest[i] = 0x6F;
-	}
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Char to byte output: ", dest);
-	}
-	return dest;
-    }
+  ConvTable423()
+  {
+    super(423, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+  }
 }

@@ -13,17 +13,4 @@
 
 package com.ibm.as400.access;
 
-import java.io.UnsupportedEncodingException;
-
-// Abstract base class of redundant mixed-byte conversion tables.
-// Enables dynamic loading in ConvTable.
-abstract class ConvTableRedundantDB extends ConvTable
-{
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    static private String Copyright()
-    {
-	return Copyright.copyright;
-    }
-    abstract void setCcsidAndSystem(int sbCcsid, AS400ImplRemote system) throws UnsupportedEncodingException;
-}
+// This file has been deleted.  

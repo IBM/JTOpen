@@ -20,20 +20,15 @@ import java.net.UnknownHostException;
 abstract class NLSImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private static String getCopyright()
-    {
-	return Copyright.copyright;
-    }
-
-    AS400ImplRemote system;
+    
+    AS400ImplRemote system_;
+    
     void setSystem(AS400ImplRemote system)
     {
-	this.system = system;
+      system_ = system;
     }
 
-    abstract void connect()throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException;
+    abstract void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException;
     abstract void disconnect();
     abstract int getCcsid() throws IOException;
-    abstract char[] getTable(int fromCCSID, int toCCSID) throws ConnectionDroppedException, IOException, InterruptedException;
 }

@@ -206,58 +206,58 @@ implements IFSFileInputStreamImpl
       AS400Server server = fd_.getServer();
       synchronized (server)
       {
-	  IFSExchangeAttrRep rep =
-	    (IFSExchangeAttrRep)server.getExchangeAttrReply();
-	  if (rep == null)
-	  {
-	      try
-	      {
-	           // Use GMT date/time, don't use posix style return codes,
-	           // use PC pattern matching semantics, maximum data transfer size
-	           // of 0xffffffff, preferred CCSID of 0xf200.
-		  rep = (IFSExchangeAttrRep)server.sendExchangeAttrRequest(new IFSExchangeAttrReq(true, false,
+     IFSExchangeAttrRep rep =
+       (IFSExchangeAttrRep)server.getExchangeAttrReply();
+     if (rep == null)
+     {
+         try
+         {
+              // Use GMT date/time, don't use posix style return codes,
+              // use PC pattern matching semantics, maximum data transfer size
+              // of 0xffffffff, preferred CCSID of 0xf200.
+        rep = (IFSExchangeAttrRep)server.sendExchangeAttrRequest(new IFSExchangeAttrReq(true, false,
                                  IFSExchangeAttrReq.PC_PATTERN_MATCH,
                                  0xffffffff, 0xf200));
-	      }
-	      catch(ConnectionDroppedException e)
-	      {
-		  connectionDropped(e);
-	      }
-	      catch(InterruptedException e)
-	      {
-		  fd_.getSystem().disconnectServer(fd_.getServer());
-		  fd_.setServer(null);
-		  Trace.log(Trace.ERROR, "Interrupted", e);
-		  throw new InterruptedIOException(e.getMessage());
-	      }
-	      catch(IOException e)
-	      {
-		  fd_.getSystem().disconnectServer(fd_.getServer());
-		  fd_.setServer(null);
-		  Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
-		  throw (IOException)e.fillInStackTrace();
-	      }
-	  }
+         }
+         catch(ConnectionDroppedException e)
+         {
+        connectionDropped(e);
+         }
+         catch(InterruptedException e)
+         {
+        fd_.getSystem().disconnectServer(fd_.getServer());
+        fd_.setServer(null);
+        Trace.log(Trace.ERROR, "Interrupted", e);
+        throw new InterruptedIOException(e.getMessage());
+         }
+         catch(IOException e)
+         {
+        fd_.getSystem().disconnectServer(fd_.getServer());
+        fd_.setServer(null);
+        Trace.log(Trace.ERROR, "I/O error during attribute exchange.");
+        throw (IOException)e.fillInStackTrace();
+         }
+     }
 
           // Process the exchange attributes reply.
-	  if (rep instanceof IFSExchangeAttrRep)
-	  {
-	      int preferredCCSID = rep.getPreferredCCSID();
-	      fd_.setPreferredCCSID(preferredCCSID);
-	      fd_.setConverter(ConverterImplRemote.getConverter(preferredCCSID,
-								fd_.getSystem()));
-	  }
-	  else
-	  {
-	      // Should never happen.
-	      fd_.getSystem().disconnectServer(fd_.getServer());
-	      fd_.setServer(null);
-	      Trace.log(Trace.ERROR, "Unknown reply during attribute exchange ",
-			rep.data_);
-	      throw new
-		InternalErrorException(Integer.toHexString(rep.getReqRepID()),
-				       InternalErrorException.DATA_STREAM_UNKNOWN);
-	  }
+     if (rep instanceof IFSExchangeAttrRep)
+     {
+         int preferredCCSID = rep.getPreferredCCSID();
+         fd_.setPreferredCCSID(preferredCCSID);
+         fd_.setConverter(ConverterImplRemote.getConverter(preferredCCSID,
+                        fd_.getSystem()));
+     }
+     else
+     {
+         // Should never happen.
+         fd_.getSystem().disconnectServer(fd_.getServer());
+         fd_.setServer(null);
+         Trace.log(Trace.ERROR, "Unknown reply during attribute exchange ",
+         rep.data_);
+         throw new
+      InternalErrorException(Integer.toHexString(rep.getReqRepID()),
+                   InternalErrorException.DATA_STREAM_UNKNOWN);
+     }
       }
   }
 
@@ -861,7 +861,7 @@ implements IFSFileInputStreamImpl
       int ccsid = codePage;
 
       // Convert the CCSID to the encoding string.  
-      String encoding = CcsidEncodingMap.ccsidToEncoding(ccsid == 0xf200 ?
+      String encoding = ConversionMaps.ccsidToEncoding(ccsid == 0xf200 ?  //@B0C
                                                          0x34b0 : ccsid);
 
       // If there is no encoding for this CCSID, throw an

@@ -13,89 +13,59 @@
 
 package com.ibm.as400.access;
 
-// table for CCSID 13488
-class ConvTable13488 extends ConvTable
+class ConvTable13488 extends ConvTable // instead of ConvTableDoubleMap
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    static private String Copyright()
+  
+  ConvTable13488()
+  {
+    super(13488);
+  }
+  
+  
+  /**
+   * Perform an AS/400 CCSID to Unicode conversion.
+  **/
+  String byteArrayToString(byte[] buf, int offset, int length, int type)    //$E0C
+  {
+    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E1A
     {
-	return Copyright.copyright;
+      Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length); //@E1A
     }
-
-    private final static int ccsid = 13488;
-
-    ConvTable13488()
+    char[] dest = new char[length/2];
+    for (int i=0; i<length/2; ++i)
     {
-	super();
-	if (ConvTable.convDebug) Trace.log(Trace.CONVERSION, "Constructing Conversion Table for CCSID: 13488");
+      dest[i] = (char)(((0x00FF & buf[(i*2)+offset]) << 8) + (0x00FF & buf[(i*2)+1+offset])); //@E1C
     }
-
-    /**
-     * Returns the ccsid of this conversion object.
-     * @return the ccsid.
-     **/
-    int getCcsid()
+    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E1A
     {
-	return ccsid;
+      Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest)); //@E1A
     }
-
-    /**
-     * Returns the encoding of this conversion object.
-     * @return the encoding.
-     **/
-    String getEncoding()
+    return String.copyValueOf(dest);
+  }
+    
+  
+  /**
+   * Perform a Unicode to AS/400 CCSID conversion.
+  **/
+  byte[] stringToByteArray(String source, int type)       //$E0C
+  {
+    char[] src = source.toCharArray();
+    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E1A
     {
-	return String.valueOf(ccsid);
+      Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src)); //@E1A
     }
-
-    String byteArrayToString(byte[] source, int offset, int length)
+    byte[] dest = new byte[src.length*2];
+    for (int i=0; i<src.length; ++i)
     {
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Converting byte to char for CCSID: 13488", source, offset, length);
-	}
-
-	char[] dest = new char[length/2];
-	int destpos = 0;
-
-	for (int srcpos = offset; srcpos < offset+length; srcpos+=2)
-	{
-	    // pass value through
-	    dest[destpos++] = (char)(((source[srcpos]   & 0xFF) << 8) +
-				      (source[srcpos+1] & 0xFF));
-	}
-
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Byte to char output: ", ConvTable.dumpCharArray(dest));
-	}
-
-	return new String(dest);
+      dest[i*2] = (byte)(src[i] >>> 8);
+      dest[i*2+1] = (byte)(0x00FF & src[i]);
     }
-
-    byte[] stringToByteArray(String source)
+    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E1A
     {
-	char[] src = source.toCharArray();
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Converting char to byte for CCSID: 13488", ConvTable.dumpCharArray(src));
-	}
-
-	byte[] dest = new byte[src.length*2];
-	int destpos = 0;
-
-	for (int srcpos = 0; srcpos < src.length; ++srcpos)
-	{
-	    // pass char through
-	    dest[destpos++] = (byte)(src[srcpos] >>> 8);
-	    dest[destpos++] = (byte)src[srcpos];
-	}
-
-	if (ConvTable.convDebug)
-	{
-	    Trace.log(Trace.CONVERSION, "Char to byte output: ", dest);
-	}
-	return dest;
+      Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest); //@E1A
     }
+    return dest;
+  }
 }

@@ -18,10 +18,14 @@ import java.io.UnsupportedEncodingException;
 
 interface ConverterImpl
 {
+    static final int LTR = 0;   //$E0A   Used to denote left-to-right text type.
+
     abstract void setEncoding(String encoding) throws UnsupportedEncodingException;
     abstract void setCcsid(int ccsid, AS400Impl systemImpl) throws UnsupportedEncodingException;
     abstract String getEncoding();
     abstract int getCcsid();
-    abstract String byteArrayToString(byte[] source, int offset, int length);
-    abstract byte[] stringToByteArray(String source);
+    abstract String byteArrayToString(byte[] source, int offset, int length);   
+    abstract String byteArrayToString(byte[] source, int offset, int length, int type);   //$E0A
+    abstract byte[] stringToByteArray(String source);                           
+    abstract byte[] stringToByteArray(String source, int type);                           //$E0A
 }

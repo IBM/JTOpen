@@ -20,117 +20,90 @@ import java.net.UnknownHostException;
 class NLSImplRemote extends NLSImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  
+  static
+  {
+    AS400Server.addReplyStream(new NLSExchangeAttrReply(), AS400.CENTRAL);
+  }
 
-    private static String getCopyright()
+  private AS400Server server_;
+  private int ccsid_;
+
+
+  // connect to the central server of the AS/400.
+  void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
+  {
+    // Connect to server
+    if (server_ == null)
     {
-	return Copyright.copyright;
-    }
+      server_ = system_.getConnection(AS400.CENTRAL, false);
 
-    static
+      // Exchange attributes with server job.  (This must be first
+      // exchange with server job to complete initialization.)
+      // First check to see if server has already been initialized
+      // by another user.
+      synchronized (server_)
+      {
+        DataStream baseReply = server_.getExchangeAttrReply();
+        if (baseReply == null)
+        {
+          try
+          {
+            baseReply = server_.sendExchangeAttrRequest(new NLSExchangeAttrRequest());
+          }
+          catch (IOException e)
+          {
+            Trace.log(Trace.ERROR, "IOException After Exchange Attribute Request");
+            disconnect();
+            throw (IOException)e.fillInStackTrace();
+          }
+          if (baseReply instanceof NLSExchangeAttrReply)
+          {
+            // means request completed OK
+            NLSExchangeAttrReply NLSReply = (NLSExchangeAttrReply)baseReply;
+            if (NLSReply.primaryRC_ != 0)
+            {
+              Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);
+              Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.secondaryRC_ );
+              disconnect();
+              throw new IOException();
+            }
+            else
+            {
+              ccsid_ = NLSReply.getCcsid();
+            }
+          }
+          else // unknown data stream
+          {
+            Trace.log(Trace.ERROR, "Unknown instance returned from Exchange Attribute Reply");
+            throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+          }
+        }
+      }
+    }
+  }
+
+
+  // Disconnect from the central server.
+  void disconnect()
+  {
+    if (server_ != null)
     {
-	AS400Server.addReplyStream(new NLSExchangeAttrReply(), AS400.CENTRAL);
-	AS400Server.addReplyStream(new NLSGetTableReply(), AS400.CENTRAL);
+      try
+      {
+        system_.disconnectServer(server_);
+        server_ = null;
+      }
+      catch (Exception e)
+      {
+      }
     }
+  }
 
-    private AS400Server server;
-    private int ccsid;
 
-    // connect to the central server of the AS/400.
-    void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
-    {
-	// Connect to server
-	if (this.server == null)
-	{
-	    this.server = system.getConnection(AS400.CENTRAL, false);
-
-	    // Exchange attributes with server job.  (This must be first
-	    // exchange with server job to complete initialization.)
-	    // First check to see if server has already been initialized
-	    // by another user.
-	    synchronized (server)
-	    {
-		DataStream baseReply = this.server.getExchangeAttrReply();
-		if (baseReply == null)
-		{
-		    try
-		    {
-			baseReply = this.server.sendExchangeAttrRequest(new NLSExchangeAttrRequest());
-		    }
-		    catch(IOException e)
-		    {
-			Trace.log(Trace.ERROR, "IOException After Exchange Attribute Request");
-			disconnect();
-			throw (IOException)e.fillInStackTrace();
-		    }
-		    if (baseReply instanceof NLSExchangeAttrReply)
-		    {
-		        // means request completed OK
-			NLSExchangeAttrReply NLSReply = (NLSExchangeAttrReply)baseReply;
-			if (NLSReply.primaryRC_ != 0)
-			{
-			    Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);
-			    Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.secondaryRC_ );
-			    disconnect();
-			    throw new IOException();
-			}
-			else
-			{
-			    this.ccsid = NLSReply.getCcsid();
-			}
-		    }
-		    else // unknown data stream
-		    {
-			Trace.log(Trace.ERROR, "Unknown instance returned from Exchange Attribute Reply");
-			throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
-		    }
-		}
-	    }
-	}
-    }
-
-    // Disconnect from the central server.
-    void disconnect()
-    {
-	if (this.server != null)
-	{
-	    try
-	    {
-		this.system.disconnectServer(this.server);
-		this.server = null;
-	    }
-	    catch (Exception e)
-	    {
-	    }
-	}
-    }
-
-    int getCcsid() throws IOException
-    {
-	return this.ccsid;
-    }
-
-    // Download table
-    char[] getTable(int fromCCSID, int toCCSID) throws ConnectionDroppedException, IOException, InterruptedException
-    {
-	NLSGetTableRequest reqDs = new NLSGetTableRequest();
-	reqDs.setCCSIDs(fromCCSID, toCCSID);
-	DataStream repDs = this.server.sendAndReceive(reqDs);
-	if (repDs instanceof NLSGetTableReply)
-	{
-	    NLSGetTableReply NLSReply = (NLSGetTableReply)repDs;
-	    if (NLSReply.primaryRC_ != 0)
-	    {
-		Trace.log(Trace.WARNING, "Exchange attribute failed, primary return code =", NLSReply.primaryRC_);
-		Trace.log(Trace.ERROR, "Exchange attribute failed, secondary return code =", NLSReply.secondaryRC_ );
-		throw new IOException();
-	    }
-	    return NLSReply.table_;
-	}
-	else // unknown data stream
-	{
-	    disconnect();
-	    Trace.log(Trace.ERROR, "Unknown instance returned from Exchange Attribute Reply");
-	    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
-	}
-    }
+  int getCcsid() throws IOException
+  {
+    return ccsid_;
+  }
 }
+
