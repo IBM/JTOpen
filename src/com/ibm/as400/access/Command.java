@@ -1265,7 +1265,7 @@ public class Command implements Serializable
     parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(8)); // destination, AKA length of receiver variable
     parms[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "DEST0100")); // destination format name
     parms[3] = new ProgramParameter(8); // receiver variable
-    parms[4] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "CMDD0200")); // receiver format name
+    parms[4] = new ProgramParameter(CharConverter.stringToByteArray(37, system_, "CMDD0100")); // receiver format name
     parms[5] = errorCode_;
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QCDRCMDD.PGM", parms);
@@ -1274,18 +1274,18 @@ public class Command implements Serializable
     if (!pc.run())
     {
       AS400Message[] msgs = pc.getMessageList();
-      if (msgs.length == 1 && msgs[0].getID().equalsIgnoreCase("CPF3C21")) // Don't support CMDD0200 yet
-      {
-        try { parms[4].setInputData(CharConverter.stringToByteArray(37, system_, "CMDD0100")); } catch(PropertyVetoException pve) {}
-        if (!pc.run())
-        {
-      throw new AS400Exception(pc.getMessageList());
-    }
-      }
-      else
-      {
+//      if (msgs.length == 1 && msgs[0].getID().equalsIgnoreCase("CPF3C21")) // Don't support CMDD0200 yet
+//      {
+//        try { parms[4].setInputData(CharConverter.stringToByteArray(37, system_, "CMDD0100")); } catch(PropertyVetoException pve) {}
+//        if (!pc.run())
+//        {
+//          throw new AS400Exception(pc.getMessageList());
+//        }
+//      }
+//      else
+//      {
         throw new AS400Exception(msgs);
-      }
+//      }
     }
 
     byte[] outputData = parms[3].getOutputData();
