@@ -1017,7 +1017,14 @@ This is the same as calling getJobs(-1, getLength()).
         }
         else
         {
-          jobs[i].setAsInt(keyFieldsReturned_[j], BinaryConverter.byteArrayToInt(data, offset+keyOffset));
+          if (keyLengthsReturned_[j] > 4)
+          {
+            jobs[i].setAsLong(keyFieldsReturned_[j], BinaryConverter.byteArrayToLong(data, offset+keyOffset));
+          }
+          else
+          {
+            jobs[i].setAsInt(keyFieldsReturned_[j], BinaryConverter.byteArrayToInt(data, offset+keyOffset));
+          }
         }
       }
       offset += total + 60;
