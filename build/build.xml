@@ -133,7 +133,7 @@
 // Location: http://java.sun.com/products/jta/index.html
 // Description: Java Transaction APIs needed for the com.ibm.as400.access package.
 //
-// Filename: xalan.jar
+// Filename: xml-apis.jar
 // Location: http://xml.apache.org/xalan-j/index.html
 // Description: XSL Transformer needed for the com.ibm.as400.util package.
 //
@@ -142,8 +142,9 @@
 // Requisite executables
 // 
 // Filename: preverify or preverify.exe
-// Location: http://java.sun.com/products/j2mewtoolkit/101download.html
-// Description: J2ME Wireless Toolkit class file preverification tool required to build the
+// Location: http://java.sun.com/products/j2mewtoolkit/download.html (Windows)
+//           http://developer.java.sun.com/developer/releases/j2mewtoolkit/ (Linux/Solaris)
+// Description: J2ME Wireless Toolkit preverification tool required to build the
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
 //
 // Filename: cvs or cvs.exe
@@ -231,7 +232,7 @@
     <pathelement location="${include}/jtStubs.jar"/>
     <pathelement location="${include}/jnet.jar"/>
     <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
-    <pathelement location="${include}/xalan.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
+    <pathelement location="${include}/xml-apis.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
   </path>
 
   <path id="jtopen.includes-xerces-4.0">
@@ -245,7 +246,7 @@
     <pathelement location="${include}/jtStubs.jar"/>
     <pathelement location="${include}/jnet.jar"/>
     <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
-    <pathelement location="${include}/xalan.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
+    <pathelement location="${include}/xml-apis.jar"/> <!-- Need this to compile CommandHelpRetriever utility. -->
   </path>
 
   <patternset id="exclude.native.optimizations">
@@ -448,7 +449,7 @@
                      ${include}/jtStubs.jar,
                      ${include}/jnet.jar,
                      ${include}/midpapi.zip, or
-                     ${include}/xalan.jar.
+                     ${include}/xml-apis.jar.
      </echo>
   </target>
 
@@ -465,7 +466,7 @@
                      ${include}/jtStubs.jar,
                      ${include}/jnet.jar,
                      ${include}/midpapi.zip, or
-                     ${include}/xalan.jar.
+                     ${include}/xml-apis.jar.
      </echo>
   </target>
 
@@ -553,7 +554,7 @@
         <available file="${include}/jtStubs.jar" type="file"/>
         <available file="${include}/jnet.jar" type="file"/>
         <available file="${include}/midpapi.zip" type="file"/>
-        <available file="${include}/xalan.jar" type="file"/>
+        <available file="${include}/xml-apis.jar" type="file"/>
       </and>
     </condition>
     
@@ -708,8 +709,8 @@
       </fileset>
       <fileset dir="${source}">
         <patternset>
-          <include name="com/ibm/as400/util/html/**.gif"/>
-          <include name="com/ibm/as400/util/servlet/**.gif"/>
+          <include name="com/ibm/as400/util/html/*.gif"/>
+          <include name="com/ibm/as400/util/servlet/*.gif"/>
         </patternset>
       </fileset>
       <fileset dir="${build}" includes="license.html"/>
