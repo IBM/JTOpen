@@ -30,6 +30,9 @@ class JDSQLTokenizer implements Enumeration
   **/
   public static final String DEFAULT_DELIMITERS = " \t\n\r\f";
 
+  // Performance improvement when using default delimiters.
+  private static final char[] INTERNAL_DELIMITERS = DEFAULT_DELIMITERS.toCharArray();
+
   /**
   Constant indicating the token is a delimiter.
   **/
@@ -89,7 +92,8 @@ class JDSQLTokenizer implements Enumeration
   **/
   public JDSQLTokenizer(String statement, String delimiters, boolean returnDelimiters, boolean returnComments)
   {
-    tokens_ = scanForTokens(statement, delimiters.toCharArray(), returnComments, returnDelimiters);
+    final char[] delims = (delimiters == DEFAULT_DELIMITERS ? INTERNAL_DELIMITERS : delimiters.toCharArray());
+    tokens_ = scanForTokens(statement, delims, returnComments, returnDelimiters);
     numberOfParameters_ = 0;
     for (int i=0; i<tokens_.length; ++i)
     {
@@ -144,7 +148,7 @@ class JDSQLTokenizer implements Enumeration
   @param  position                The index in the buffer to test.
   @return                         true if the character at position is a delimiter.
   **/
-  private static boolean isDelimiter(char c, char[] delimiters)
+  private static final boolean isDelimiter(final char c, final char[] delimiters)
   {
     for (int i=0; i<delimiters.length; ++i)
     {
@@ -199,27 +203,28 @@ class JDSQLTokenizer implements Enumeration
   **/
   private static final JDSQLToken[] scanForTokens(final String sql, final char[] delimiters, final boolean returnComments, final boolean returnDelimiters)
   {
-    final Vector tokens = new Vector();
+    final JDSQLTokenList tokens = new JDSQLTokenList();
     final char[] buffer = sql.toCharArray();
     int offset = 0;
-    while (offset < buffer.length)
+    final int bufferLen = buffer.length;
+    while (offset < bufferLen)
     {
       // if we enter one of the if/else ifs below we are entering or leaving a comment or quoted literal
       // each block increments the pos pointer and continues to the top of the loop in order to avoid
       // possibility that one of the delimeters is at the position of pos and should not be returned
       final int p = offset+1;
       JDSQLToken token = null;
-      if (p < buffer.length && buffer[offset] == '/' && buffer[p] == '*')
+      if (p < bufferLen && buffer[offset] == '/' && buffer[p] == '*')
       {
         // Scan for end of comment block. We check for nested comment blocks, because this is
         // what the server expects.
         int start = offset;
         offset = p+1;
         int commentDepth = 1;
-        while (offset < buffer.length && commentDepth > 0)
+        while (offset < bufferLen && commentDepth > 0)
         {
           final int p2 = offset+1;
-          if (p2 < buffer.length)
+          if (p2 < bufferLen)
           {
             if (buffer[offset] == '/' && buffer[p2] == '*')
             {
@@ -234,22 +239,22 @@ class JDSQLTokenizer implements Enumeration
           }
           ++offset;
         }
-        token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_COMMENT);
+        if (returnComments) token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_COMMENT);
       }
-      else if (p < buffer.length && buffer[offset] == '-' && buffer[p] == '-')
+      else if (p < bufferLen && buffer[offset] == '-' && buffer[p] == '-')
       {
         // Scan for newline that ends the single-line comment.
         int start = offset;
         offset = p+1;
-        while (offset < buffer.length && buffer[offset++] != '\n');
-        token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_COMMENT);
+        while (offset < bufferLen && buffer[offset++] != '\n');
+        if (returnComments) token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_COMMENT);
       }
       else if (buffer[offset] == '\'')
       {
         // entering single quote
         int start = offset;
         ++offset;
-        while (offset < buffer.length && buffer[offset++] != '\'');
+        while (offset < bufferLen && buffer[offset++] != '\'');
         token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_LITERAL);
       }
       else if (buffer[offset] == '"')
@@ -257,13 +262,13 @@ class JDSQLTokenizer implements Enumeration
         // entering double quote
         int start = offset;
         ++offset;
-        while (offset < buffer.length && buffer[offset++] != '\"');
+        while (offset < bufferLen && buffer[offset++] != '\"');
         token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_LITERAL);
       }
       else if (isDelimiter(buffer[offset], delimiters))
       {
         // character at pos is a delimiter
-        token = new JDSQLToken(buffer, offset, 1, TOKEN_TYPE_DELIMITER);
+        if (returnDelimiters) token = new JDSQLToken(buffer, offset, 1, TOKEN_TYPE_DELIMITER);
         ++offset;
       }
       else
@@ -271,14 +276,14 @@ class JDSQLTokenizer implements Enumeration
         // character is not any of the above
         // scan up to the next delimiter
         int numberOfParms = 0;
-        int start = offset;
-        while (offset < buffer.length &&
+        final int start = offset;
+        while (offset < bufferLen &&
                !isDelimiter(buffer[offset], delimiters) &&
                buffer[offset] != '\'' &&
                buffer[offset] != '\"')
         {
           final int p2 = offset+1;
-          if (p2 < buffer.length &&
+          if (p2 < bufferLen &&
               ((buffer[offset] == '/' && buffer[p2] == '*') ||
                (buffer[offset] == '-' && buffer[p2] == '-')))
           {
@@ -293,21 +298,10 @@ class JDSQLTokenizer implements Enumeration
         token = new JDSQLToken(buffer, start, offset-start, TOKEN_TYPE_SQL, numberOfParms);
       }
 
-      switch (token.type_)
-      {
-        case TOKEN_TYPE_COMMENT:
-          if (returnComments) tokens.addElement(token);
-          break;
-        case TOKEN_TYPE_DELIMITER:
-          if (returnDelimiters) tokens.addElement(token);
-          break;
-        default:
-          tokens.addElement(token);
-          break;
-      }
+      if (token != null) tokens.addToken(token);
     }
-    JDSQLToken[] jdTokens = new JDSQLToken[tokens.size()];
-    tokens.copyInto(jdTokens);
+    final JDSQLToken[] jdTokens = new JDSQLToken[tokens.count_];
+    System.arraycopy(tokens.tokens_, 0, jdTokens, 0, tokens.count_);
     return jdTokens;
   }
 
