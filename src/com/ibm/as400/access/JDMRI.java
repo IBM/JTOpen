@@ -167,11 +167,11 @@ public class JDMRI extends ListResourceBundle
       { "SO_LINGER_DESC", "Specifies the socket linger value to use when connecting to the server." },
       { "SO_TIMEOUT_DESC", "Specifies the socket timeout value to use when connecting to the server." },
       { "TCP_NO_DELAY_DESC", "Specifies the socket TCP no delay value to use when connecting to the server." },
-      { "PACKAGE_CCSID_DESC", "Specifies the character encoding to use for the SQL package and sending statements to the server." },  // @M0A
+      { "PACKAGE_CCSID_DESC", "Specifies the character encoding to use for the SQL package and any statements sent to the server." }, // @M0A
       { "MINIMUM_DIVIDE_SCALE_DESC", "Specifies the minimum scale value for the result of decimal division." },                       // @M0A
       { "MAXIMUM_PRECISION_DESC", "Specifies the maximum decimal precision the database should use." },                               // @M0A
       { "MAXIMUM_SCALE_DESC", "Specifies the maximum scale the database should use." },                                               // @M0A
-      { "TRANSLATE_HEX_DESC", "Specifies how hexidecimal constants are interpreted." },                                               // @M0A
+      { "TRANSLATE_HEX_DESC", "Specifies how hexadecimal constants are interpreted." },                                               // @M0A
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

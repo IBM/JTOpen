@@ -42,7 +42,7 @@ implements SQLData
     private AS400PackedDecimal      typeConverter_;
     private BigDecimal              value_;
     private JDProperties            properties_;   // @M0A - added JDProperties so we can get the scale & precision
-    private int                     vrm_;
+    private int                     vrm_;          // @M0A
 
     SQLDecimal(int precision,
                int scale,

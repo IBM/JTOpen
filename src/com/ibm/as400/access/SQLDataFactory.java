@@ -30,14 +30,6 @@ class SQLDataFactory
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    /**
-    Copyright.
-    **/
-    static private String getCopyright()
-    {
-        return Copyright.copyright;
-    }
-
     // @C2A
     /**
     Converts a String representation of a number in scientific 
@@ -367,19 +359,19 @@ class SQLDataFactory
 
             case 448:                           // Varchar.
                 if((ccsid == 65535) && (translateBinary == false))   //@E4C
-                    return new SQLVarcharForBitData(length - 2, false, settings);  // @M0C - changed to SQLVarcharForBitData
+                    return new SQLVarcharForBitData(length - 2, false, settings);  // @M0C - changed from SQLVarbinary
                 else
                     return new SQLVarchar(length - 2, false, false, settings);
 
             case 456:                           // Varchar long.
                 if((ccsid == 65535) && (translateBinary == false))    //@E4C
-                    return new SQLVarcharForBitData(length - 2, true, settings);  // @M0C - changed to SQLVarcharForBitData
+                    return new SQLVarcharForBitData(length - 2, true, settings);  // @M0C - changed from SQLVarbinary
                 else
                     return new SQLVarchar(length - 2, false, true, settings);
 
             case 452:                           // Char.
                 if((ccsid == 65535) && (translateBinary == false))    //@E4C
-                    return new SQLCharForBitData(length, settings);  // @M0C - changed to SQLCharForBitData
+                    return new SQLCharForBitData(length, settings);  // @M0C - changed from SQLBinary
                 else
                     return new SQLChar(length, false, settings);
 

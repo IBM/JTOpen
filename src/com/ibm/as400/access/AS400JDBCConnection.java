@@ -3192,8 +3192,8 @@ implements Connection
                     int minimumDivideScale = properties_.getInt(JDProperties.MINIMUM_DIVIDE_SCALE);
                     
                     // validate the maximum scale parameter because it can be any value from 0 to 63
-                    if(maximumScale < 0 || maximumScale > 63)
-                        maximumScale = 31;
+                    //if(maximumScale < 0 || maximumScale > 63)
+                    //    maximumScale = 31;
 
                     request.setDecimalPrecisionIndicators(maximumPrecision, maximumScale, minimumDivideScale);
 

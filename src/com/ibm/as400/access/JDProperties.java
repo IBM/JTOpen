@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ attributes for the driver.
 //
 class JDProperties implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
 
@@ -351,7 +351,9 @@ class JDProperties implements Serializable
     static final String              MAXIMUM_PRECISION_31        = "31";
     static final String              MAXIMUM_PRECISION_63        = "63";
 
+    static final String              MAXIMUM_SCALE_0             = "0";
     static final String              MAXIMUM_SCALE_31            = "31";
+    static final String              MAXIMUM_SCALE_63            = "63";
 
     static final String              TRANSLATE_HEX_BINARY        = "binary";         // @M0A - support hex constant parser option
     static final String              TRANSLATE_HEX_CHARACTER     = "character";
@@ -979,7 +981,8 @@ class JDProperties implements Serializable
         dpi_[i] = new DriverPropertyInfo(MAXIMUM_SCALE_, "");
         dpi_[i].description = "MAXIMUM_SCALE_DESC";
         dpi_[i].required    = false;
-        dpi_[i].choices     = new String[0];
+        dpi_[i].choices     = new String[64];
+        for(int j=0; j<64; ++j) dpi_[i].choices[j] = Integer.toString(j);
         defaults_[i]        = MAXIMUM_SCALE_31;
 
         // @M0A - support hex constant parser option

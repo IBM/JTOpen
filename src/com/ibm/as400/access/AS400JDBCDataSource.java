@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ import javax.naming.StringRefAddr;                // JNDI
 **/
 public class AS400JDBCDataSource implements DataSource, Referenceable, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -3264,9 +3264,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         Integer newValue = new Integer(scale);
 
         // validate the new value
-        if(scale < 0 || scale > MAX_SCALE)
-            throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-
+        validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_SCALE);
+        
         properties_.setString(JDProperties.MAXIMUM_SCALE, newValue.toString());
 
         changes_.firePropertyChange(property, oldValue, newValue);
