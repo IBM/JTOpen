@@ -105,7 +105,7 @@ public final class IdentityKeyPair {
    Determines if this keypair is expired.
    A keypair is expired if the difference between the current time and the publish time exceeds the keypair's lifespan setting.
    **/
-  final boolean isExpired()
+  public boolean isExpired()
   {
     return ((System.currentTimeMillis() - publishTime_) > lifeSpan_);
   }
