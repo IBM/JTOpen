@@ -20,7 +20,7 @@ import javax.naming.Reference;         // JNDI
 import javax.naming.spi.ObjectFactory; // JNDI
 
 /**
-*  The AS400JDBCObjectFactory is used by a JNDI service provider to reconstruct an object 
+*  The AS400JDBCObjectFactory is used by a JNDI service provider to reconstruct an object
 *  when it is retrieved from JNDI.
 *
 *  The following classes implement the javax.naming.Referenceable interface.
@@ -49,16 +49,21 @@ public class AS400JDBCObjectFactory implements ObjectFactory
 
       if (reference.getClassName().equals("com.ibm.as400.access.AS400JDBCDataSource"))
       {
-         AS400JDBCDataSource dataSource = new AS400JDBCDataSource();      
-         dataSource.setProperties(reference);
+         AS400JDBCDataSource dataSource = new AS400JDBCDataSource(reference);  // @F0M
+         // @F0D dataSource.setProperties(reference);
          return dataSource;
       }
       else if (reference.getClassName().equals("com.ibm.as400.access.AS400JDBCConnectionPoolDataSource"))
       {
-         AS400JDBCConnectionPoolDataSource dataSource = new AS400JDBCConnectionPoolDataSource();      
-         dataSource.setProperties(reference);
+         AS400JDBCConnectionPoolDataSource dataSource = new AS400JDBCConnectionPoolDataSource(reference);  // @F0M
+         // @F0D dataSource.setProperties(reference);
          return dataSource;
       }
+      else if (reference.getClassName().equals("com.ibm.as400.access.AS400JDBCXADataSource"))       // @F0A
+      {                                                                                             // @F0A
+         AS400JDBCXADataSource dataSource = new AS400JDBCXADataSource(reference);                   // @F0A
+         return dataSource;                                                                         // @F0A
+      }                                                                                             // @F0A
       else
       {
          if (JDTrace.isTraceOn())                                              // @B1C

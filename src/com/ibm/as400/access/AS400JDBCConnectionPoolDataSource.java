@@ -65,7 +65,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified <i>serverName</i>.
-    *  @param serverName The name of the AS/400 or iSeries server.
+    *  @param serverName The name of the iSeries server.
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName)
     {
@@ -75,7 +75,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information.
-    *  @param serverName The AS/400 or iSeries system name.
+    *  @param serverName The iSeries system name.
     *  @param user The user id.
     *  @param password The password.
     **/
@@ -89,7 +89,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information
     *  to use for SSL communications with the server.
-    *  @param serverName The AS/400 or iSeries system name.
+    *  @param serverName The iSeries system name.
     *  @param user The user id.
     *  @param password The password.
     *  @param keyRingName The key ring class name to be used for SSL communications with the server.
@@ -100,6 +100,15 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     {
         super(serverName, user, password, keyRingName, keyRingPassword);
         //@B2D initializeTransient();    //@A2A
+    }
+
+    // @F0A - added the following constructor to avoid some object construction
+    /**
+    *  Constructs an AS400JDBCConnectionPoolDataSource from the specified Reference
+    *  @param reference to retrieve DataSource properties from
+    **/
+    AS400JDBCConnectionPoolDataSource(Reference reference) {
+        super(reference);
     }
 
 
@@ -181,8 +190,8 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     {
         PooledConnection pc = new AS400JDBCPooledConnection(getConnection());
 
-            log("PooledConnection created");
-            return pc;
+        log("PooledConnection created");
+        return pc;
 
         //@B2D  //Get a connection from the connection pool.
         //@B2D  PooledConnection pc = null;  //@A2A
@@ -213,7 +222,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     {
         PooledConnection pc = new AS400JDBCPooledConnection(getConnection(user,password));
 
-            log("PooledConnection created");
+        log("PooledConnection created");
         return pc;
 
         //@B2D PooledConnection pc = null;  //@A2A

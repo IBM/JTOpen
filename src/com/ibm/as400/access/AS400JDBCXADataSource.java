@@ -66,7 +66,7 @@ Constructs a default AS400JDBCXADataSource object.
 /**
 Constructs an AS400JDBCXADataSource with the specified <i>serverName</i>.
 
-@param serverName The name of the AS/400 or iSeries server.
+@param serverName The name of the iSeries server.
 **/
    public AS400JDBCXADataSource(String serverName)
    {
@@ -78,7 +78,7 @@ Constructs an AS400JDBCXADataSource with the specified <i>serverName</i>.
 /**
 Constructs an AS400JDBCXADataSource with the specified signon information.
    
-@param serverName The name of the AS/400 or iSeries server.
+@param serverName The name of the iSeries server.
 @param user The user id.
 @param password The password.
 **/
@@ -93,7 +93,7 @@ Constructs an AS400JDBCXADataSource with the specified signon information.
 Constructs an AS400JDBCXADataSource with the specified signon information 
 to use for SSL communications with the server.
    
-@param serverName The name of the AS/400 or iSeries server.
+@param serverName The name of the iSeries server.
 @param user The user id.
 @param password The password.
 @param keyRingName The key ring class name to be used for SSL communications with the server.
@@ -106,8 +106,18 @@ to use for SSL communications with the server.
    }
 
 
+// @F0A - added the following constructor to avoid some object construction
 /**
-Returns an XA connection to the AS/400 or iSeries.
+*  Constructs an AS400JDBCXADataSource from the specified Reference
+*  @param reference to retrieve DataSource properties from
+**/
+    AS400JDBCXADataSource(Reference reference) {
+        super(reference);
+    }
+
+
+/**
+Returns an XA connection to OS/400.
    
 @return An XA connection.
 @exception SQLException If a database error occurs.
@@ -122,7 +132,7 @@ Returns an XA connection to the AS/400 or iSeries.
 
 
 /**
-Returns an XA connection to the AS/400 or iSeries.
+Returns an XA connection to OS/400.
 
 @param user The userid for the connection.
 @param password The password for the connection.

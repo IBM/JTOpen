@@ -36,7 +36,7 @@ import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
 
 /**
-*  The AS400JDBCDataSource class represents a factory for AS/400 or iSeries database connections.
+*  The AS400JDBCDataSource class represents a factory for OS/400 database connections.
 *
 *  <P>The following is an example that creates an AS400JDBCDataSource object and creates a
 *  connection to the database.
@@ -47,14 +47,14 @@ import javax.naming.StringRefAddr;                // JNDI
 *  datasource.setUser("myUser");
 *  datasource.setPassword("MYPWD");
 
-*  // Create a database connection to the AS/400 or iSeries.
+*  // Create a database connection to the server.
 *  Connection connection = datasource.getConnection();
 *  </blockquote></pre>
 *
 *  <P>The following example registers an AS400JDBCDataSource object with JNDI and then
 *  uses the object returned from JNDI to obtain a database connection.
 *  <pre><blockquote>
-*  // Create a data source to the AS/400 or iSeries database.
+*  // Create a data source to the OS/400 database.
 *  AS400JDBCDataSource dataSource = new AS400JDBCDataSource();
 *  dataSource.setServerName("myAS400");
 *
@@ -89,6 +89,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     private static final String DESCRIPTION = "description";
     private static final String SERVER_NAME = "serverName";
     private static final String USER = "userName";
+    private static final String KEY_RING_NAME = "keyring";       // @F0A
+    private static final String PASSWORD = "pw";                 // @F0A
+    private static final String KEY_RING_PASSWORD = "keyringpw"; // @F0A
+    private static final String SECURE = "secure";               // @F0A
+    private static final String SAVE_PASSWORD = "savepw";        // @F0A
     private static final String TRUE_ = "true";
     private static final String FALSE_ = "false";
     private static final String TOOLBOX_DRIVER = "jdbc:as400:";
@@ -99,7 +104,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @J2d private String databaseName_ = "";                // Database name. @A6C
     private String dataSourceName_ = "";                      // Data source name. @A6C
     private String description_ = "";                         // Data source description. @A6C
-    private JDProperties properties_;                         // AS/400 or iSeries connection properties.
+    private JDProperties properties_;                         // OS/400 connection properties.
     transient private PrintWriter writer_;                    // The EventLog print writer.  @C7c
     transient private EventLog log_;       //@C7c
 
@@ -112,7 +117,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // Handles loading the appropriate resource bundle
     private static ResourceBundleLoader loader_;      //@A9A
 
-                                                   
+
     // In mod 5 support was added to optionally serialize the password with the
     // rest of the properties.  By deafult this is off.  setSavePasswordWhenSerialized(true)
     // must be called to save the password.  By calling this the application takes
@@ -168,12 +173,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     public static final int SERVER_TRACE_SAVE_SQL_INFORMATION = 32;           // @j1a
 
 
-
-
-
-
     /**
-    *  Constructs a default AS40JDBCDataSource object.
+    *  Constructs a default AS400JDBCDataSource object.
     **/
     public AS400JDBCDataSource()
     {
@@ -183,7 +184,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Constructs an AS400JDBCDataSource object to the specified <i>serverName</i>.
-    *  @param serverName The name of the AS/400 or iSeries server.
+    *  @param serverName The name of the server.
     **/
     public AS400JDBCDataSource(String serverName)
     {
@@ -194,7 +195,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information.
-    *  @param serverName The name of the AS/400 or iSeries server.
+    *  @param serverName The name of the server.
     *  @param user The user id.
     *  @param password The user password.
     **/
@@ -211,7 +212,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information
     *  to use for SSL communications with the server.
-    *  @param serverName The name of the AS/400 or iSeries server.
+    *  @param serverName The name of the server.
     *  @param user The user id.
     *  @param password The user password.
        *  @param keyRingName The key ring class name to be used for SSL communications with the server.
@@ -222,7 +223,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     {
         this();
 
-        isSecure_ = true;
+        setSecure(true);  // @F0M
+
         try
         {
             as400_ = new SecureAS400(as400_);
@@ -236,11 +238,104 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         // @J3 There is no get/set keyring name / password methods so they really aren't bean
         // properties, but in v5r1 the keyring name is saved as if it is a property.  Since
         // the code saved the name we will also save the password. 
-        serialKeyRingPWBytes_ = xpwConfuse(keyRingName);     //@J3a
-                        
+        serialKeyRingPWBytes_ = xpwConfuse(keyRingPassword);     //@J3a  // @F0M  (changed from keyRingName to keyRingPassword)
+
         setServerName(serverName);
         setUser(user);
         setPassword(password);
+    }
+
+    // @F0A - Added the following constructor to avoid creating some extra objects
+    /**
+    * Constructs an AS400JDBCDataSource object from the specified Reference object
+    * @param reference to retrieve the DataSource properties from
+    **/
+    AS400JDBCDataSource(Reference reference) {
+        /*
+        *  Implementation note:  This method is called from AS400JDBCObjectFactory.getObjectInstance
+        */
+
+        // check to make sure our reference is not null
+        if (reference == null)
+            throw new NullPointerException("reference");
+
+        // set up property change support
+        changes_ = new PropertyChangeSupport(this);
+
+        // set up the as400 object
+        if (((String)reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_)) {
+            isSecure_ = true;
+            as400_ = new SecureAS400();
+
+            // since the as400 object is secure, get the key ring info
+            serialKeyRingName_ = (String)reference.get(KEY_RING_NAME).getContent();
+            if (reference.get(KEY_RING_PASSWORD) != null)
+                serialKeyRingPWBytes_ = ((String)reference.get(KEY_RING_PASSWORD).getContent()).toCharArray();
+            else
+                serialKeyRingPWBytes_ = null;
+
+            try {
+                if (serialKeyRingPWBytes_ != null && serialKeyRingPWBytes_.length > 0)
+                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, xpwDeconfuse(serialKeyRingPWBytes_));
+                else
+                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_);
+            } catch (PropertyVetoException pve) { /* Will never happen */ }
+
+        } else {
+            isSecure_ = false;
+            as400_ = new AS400();
+        }
+
+        // must initialize the JDProperties so the property change checks dont get a NullPointerException
+        properties_ = new JDProperties(null, null);
+
+        Properties properties = new Properties();
+
+        Enumeration list = reference.getAll();
+        while (list.hasMoreElements())
+        {
+            StringRefAddr refAddr = (StringRefAddr)list.nextElement();
+            String property = refAddr.getType();
+            String value = (String)reference.get(property).getContent();
+
+            // constant identifiers were used to store in JNDI
+            // all of these were handled already so do not put them in the properties
+            if (property.equals(DATABASE_NAME))                         
+                setDatabaseName(value);
+            else if (property.equals(DATASOURCE_NAME))
+                setDataSourceName(value);
+            else if (property.equals(DESCRIPTION))
+                setDescription(value);
+            else if (property.equals(SERVER_NAME))
+                setServerName(value);
+            else if (property.equals(USER))
+                setUser(value);
+            else if (property.equals(PASSWORD)) {
+                // get the password back from the serialized char[]
+                serialPWBytes_ = value.toCharArray();
+                // decode the password and set it on the as400
+                as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+            }
+            else if (property.equals(SAVE_PASSWORD)) {
+                // set the savePasswordWhenSerialized_ flag
+                savePasswordWhenSerialized_ = value.equals(TRUE_) ? true : false;
+            } else if (property.equals(SECURE) || property.equals(KEY_RING_NAME) || property.equals(KEY_RING_PASSWORD)) {
+                // do nothing for these keys, they have already been handled
+            }
+            else
+            {
+                properties.put(property, value);
+            }
+        }
+        properties_ = new JDProperties(properties, null);
+
+        // get the prompt property and set it back in the as400 object
+        String prmpt = properties_.getString(JDProperties.PROMPT);
+        if (prmpt != null && prmpt.equalsIgnoreCase(FALSE_))
+            setPrompt(false);
+        else if (prmpt != null && prmpt.equalsIgnoreCase(TRUE_))
+            setPrompt(true);
+
     }
 
     /**
@@ -260,7 +355,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the level of database access for the AS/400 or iSeries connection.
+    *  Returns the level of database access for the OS/400 connection.
     *  @return The access level.  Valid values include: "all" (all SQL statements allowed),
     *  "read call" (SELECT and CALL statements allowed), and "read only" (SELECT statements only).
     *  The default value is "all".
@@ -311,7 +406,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Returns the criteria for retrieving data from the AS/400 or iSeries server in
+    *  Returns the criteria for retrieving data from the server in
     *  blocks of records.  Specifying a non-zero value for this property
     *  will reduce the frequency of communication to the server, and
     *  therefore increase performance.
@@ -329,7 +424,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the block size in kilobytes to retrieve from the AS/400 or iSeries server and
+    *  Returns the block size in kilobytes to retrieve from the server and
     *  cache on the client.  This property has no effect unless the block criteria
     *  property is non-zero.  Larger block sizes reduce the frequency of
     *  communication to the server, and therefore may increase performance.
@@ -366,8 +461,8 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         else                               //@B4A
             return getConnection(new AS400(as400_));
     }
-     
-     
+
+
     // @J3 Nothing to change here.  The password is serialized only when passed on the c'tor 
     //     or via the settors.  That is, "bean properties" are affected only when using the 
     //     c'tor specifying system, uid, and pwd, or the settors are used.  The bean properties
@@ -423,11 +518,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     private Connection getConnection(AS400 as400) throws SQLException
     {
-        
+
         AS400JDBCConnection connection = null;
-        
+
         connection = new AS400JDBCConnection();    
-           
+
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
 
@@ -481,7 +576,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries date format used in date literals within SQL statements.
+    *  Returns the OS/400 date format used in date literals within SQL statements.
     *  @return The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -503,7 +598,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries date separator used in date literals within SQL statements.
+    *  Returns the OS/400 date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @return The date separator.
@@ -524,7 +619,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries decimal separator used in numeric literals within SQL statements.
+    *  Returns the OS/400 decimal separator used in numeric literals within SQL statements.
     *  @return The decimal separator.
     *  <p>Valid values include:
     *  <ul>
@@ -554,7 +649,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an AS/400 or iSeries Java Virtual
+    * environment is not an OS/400 Java Virtual
     * Machine.
     *  <p>Valid values include:
     *  <ul>
@@ -570,7 +665,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Returns the amount of detail for error messages originating from
-    *  the AS/400 or iSeries server.
+    *  the server.
     *  @return The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -580,7 +675,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries libraries to add to the server job's library list.
+    *  Returns the OS/400 libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -595,7 +690,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries maximum LOB (large object) size in bytes that
+    *  Returns the OS/400 maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
     *  communication to the server.  Larger LOB thresholds will reduce
@@ -614,7 +709,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     /**
     *  Returns the timeout value in seconds.
     *  Note: This value is not used or supported.
-    *  The timeout value is determined by the AS/400 or iSeries.
+    *  The timeout value is determined by OS/400.
     *  @return Always returns 0.
     **/
     public int getLoginTimeout()
@@ -633,7 +728,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries naming convention used when referring to tables.
+    *  Returns the OS/400 naming convention used when referring to tables.
     *  @return The naming convention.  Valid values include: "sql" (e.g. schema.table)
     *  and "system" (e.g. schema/table).  The default value is "sql".
     **/
@@ -732,6 +827,16 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             ref.add(new StringRefAddr(DESCRIPTION, getDescription()));
         ref.add(new StringRefAddr(SERVER_NAME, getServerName()));
         ref.add(new StringRefAddr(USER, getUser()));
+        ref.add(new StringRefAddr(KEY_RING_NAME, serialKeyRingName_));                             // @F0A
+        if (savePasswordWhenSerialized_) {                                                         // @F0A
+            ref.add(new StringRefAddr(PASSWORD, new String(serialPWBytes_)));                      // @F0A
+            if (serialKeyRingPWBytes_ != null)                                                     // @F0A
+                ref.add(new StringRefAddr(KEY_RING_PASSWORD, new String(serialKeyRingPWBytes_)));  // @F0A
+            else                                                                                   // @F0A
+                ref.add(new StringRefAddr(KEY_RING_PASSWORD, null));                               // @F0A
+        }                                                                                          // @F0A
+        ref.add(new StringRefAddr(SECURE, (isSecure_ ? TRUE_ : FALSE_)));                          // @F0A
+        ref.add(new StringRefAddr(SAVE_PASSWORD, (savePasswordWhenSerialized_ ? TRUE_ : FALSE_))); // @F0A
 
         return ref;
     }
@@ -808,7 +913,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns how the AS/400 or iSeries server sorts records before sending them to the 
+    *  Returns how OS/400 sorts records before sending them to the 
     *  client.
     *  @return The sort value.
     *  <p>Valid values include:
@@ -836,7 +941,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the library and file name of a sort sequence table stored on the AS/400 or iSeries
+    *  Returns the library and file name of a sort sequence table stored on the
     *  server.
     *  @return The qualified sort table name.
     **/
@@ -846,7 +951,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns how the AS/400 or iSeries server treats case while sorting records.
+    *  Returns how OS/400 treats case while sorting records.
     *  @return The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
     *  same character) and "unique" (upper- and lower-case characters are sorted as
@@ -858,7 +963,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries time format used in time literals with SQL statements.
+    *  Returns the OS/400 time format used in time literals with SQL statements.
     *  @return The time format.
     *  <p>Valid values include:
     *  <ul>
@@ -877,7 +982,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Returns the AS/400 or iSeries time separator used in time literals within SQL 
+    *  Returns the OS/400 time separator used in time literals within SQL 
     *  statements.
     *  @return The time separator.
     *  <p>Valid values include:
@@ -897,7 +1002,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Returns the AS/400 or iSeries server's transaction isolation.
+    *  Returns the server's transaction isolation.
     *  @return The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>
@@ -943,14 +1048,14 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         if (serialUserName_ != null)
         {                                                               // @J3a
             setUser(serialUserName_);
-              
+
             if ((serialPWBytes_ != null) &&                             // @J3a
                 (serialPWBytes_.length > 0))                            // @J3a
             {                                                           // @J3a
-               as400_.setPassword(xpwDeconfuse(serialPWBytes_));        // @J3a
+                as400_.setPassword(xpwDeconfuse(serialPWBytes_));        // @J3a
             }                                                           // @J3a
-        }                                                                         
-        
+        }
+
         try
         {
             if (serialKeyRingName_ != null && isSecure_)                  //@B4A
@@ -958,18 +1063,18 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
                 if ((serialKeyRingPWBytes_ != null) &&                    //@J3a      
                     (serialKeyRingPWBytes_.length > 0))                   //@J3a      
                 {                                                         //@J3a
-                   String keyRingPassword = xpwDeconfuse(serialKeyRingPWBytes_);  // @J3a
-                   ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, keyRingPassword); //@J3A
+                    String keyRingPassword = xpwDeconfuse(serialKeyRingPWBytes_);  // @J3a
+                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, keyRingPassword); //@J3A
                 }                                                            //@J3a
                 else
                 {                                                         //@J3a                                                            //@J3a
-                   ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_); //@B4A
+                    ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_); //@B4A
                 }                                                            //@J3a
             }                                                                //@J3a
         }
         catch (PropertyVetoException pve)
         { /* Will never happen */
-        }        
+        }
 
         // @J4 Make sure the prompt flag is correctly de-serialized.  The problem was
         //     the flag would get serialized with the rest of the properties 
@@ -981,9 +1086,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         //     method is called properties_ is null.
         try
         {                                                           //@J4A                                                             //@J4A
-           if (properties_ != null)                                   //@J4A
-              if (!isPrompt())                                        //@J4A
-                 as400_.setGuiAvailable(false);                       //@J4A
+            if (properties_ != null)                                   //@J4A
+                if (!isPrompt())                                        //@J4A
+                    as400_.setGuiAvailable(false);                       //@J4A
         }                                                             //@J4A
         catch (PropertyVetoException pve)                             //@J4A
         { /* Will never happen */                                     //@J4A
@@ -1157,7 +1262,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Indicates whether the user is prompted if a user name or password is
-    *  needed to connect to the AS/400 or iSeries server.  If a connection can not be made
+    *  needed to connect to the server.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail throwing an exception.
     *  @return true if the user is prompted for signon information; false otherwise.
@@ -1294,7 +1399,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the level of database access for the AS/400 or iSeries connection.
+    *  Sets the level of database access for the OS/400 connection.
     *  @param access The access level.
     *  <p>Valid values include:
     *  <ul>
@@ -1410,7 +1515,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the criteria for retrieving data from the AS/400 or iSeries server in
+    *  Sets the criteria for retrieving data from the server in
     *  blocks of records.  Specifying a non-zero value for this property
     *  will reduce the frequency of communication to the server, and
     *  therefore increase performance.
@@ -1438,7 +1543,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the block size in kilobytes to retrieve from the AS/400 or iSeries server and
+    *  Sets the block size in kilobytes to retrieve from the server and
     *  cache on the client.  This property has no effect unless the block criteria
     *  property is non-zero.  Larger block sizes reduce the frequency of
     *  communication to the server, and therefore may increase performance.
@@ -1631,7 +1736,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries date format used in date literals within SQL statements.
+    *  Sets the OS/400 date format used in date literals within SQL statements.
     *  @param dateFormat The date format.
     *  <p>Valid values include:
     *  <ul>
@@ -1666,7 +1771,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries date separator used in date literals within SQL statements.
+    *  Sets the OS/400 date separator used in date literals within SQL statements.
     *  This property has no effect unless the "data format" property is set to:
     *  "julian", "mdy", "dmy", or "ymd".
     *  @param dateSeparator The date separator.
@@ -1699,7 +1804,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries decimal separator used in numeric literals within SQL 
+    *  Sets the OS/400 decimal separator used in numeric literals within SQL 
     *  statements.
     *  @param decimalSeparator The decimal separator.
     *  <p>Valid values include:
@@ -1748,7 +1853,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets how the AS/400 or iSeries server sorts records before sending them to the client.
+    *  Sets how OS/400 sorts records before sending them to the client.
     *  @param sort The sort value.
     *  <p>Valid values include:
     *  <ul>
@@ -1778,7 +1883,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Sets the amount of detail to be returned in the message for errors
-    *  occurring on the AS/400 or iSeries server.
+    *  occurring on the server.
     *  @param errors The error message level.
     *  Valid values include: "basic" and "full".  The default value is "basic".
     **/
@@ -1921,7 +2026,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries libraries to add to the server job's library list.
+    *  Sets the OS/400 libraries to add to the server job's library list.
     *  The libraries are delimited by commas or spaces, and
     *  "*LIBL" may be used as a place holder for the server job's
     *  current library list.  The library list is used for resolving
@@ -1947,7 +2052,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries maximum LOB (large object) size in bytes that
+    *  Sets the OS/400 maximum LOB (large object) size in bytes that
     *  can be retrieved as part of a result set.  LOBs that are larger
     *  than this threshold will be retrieved in pieces using extra
     *  communication to the server.  Larger LOB thresholds will reduce
@@ -1986,7 +2091,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public void setLoginTimeout(int timeout) throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
     }
 
     /**
@@ -2015,7 +2120,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries naming convention used when referring to tables.
+    *  Sets the OS/400 naming convention used when referring to tables.
     *  @param naming The naming convention.  Valid values include: "sql" (e.g. schema.table)
     *  and "system" (e.g. schema/table).  The default value is "sql".
     **/
@@ -2214,9 +2319,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     public void setPassword(String password)
     {
         as400_.setPassword(password);
-                           
         serialPWBytes_ = xpwConfuse(password);                  //@J3a
-
         log(loader_.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
 
@@ -2244,7 +2347,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     /**
     *  Sets whether the user should be prompted if a user name or password is
-    *  needed to connect to the AS/400 or iSeries server.  If a connection can not be made
+    *  needed to connect to the server.  If a connection can not be made
     *  without prompting the user, and this property is set to false, then an
     *  attempt to connect will fail.
     *  @param prompt true if the user is prompted for signon information; false otherwise.
@@ -2274,44 +2377,87 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             JDTrace.logInformation (this, "prompt: " + prompt);     //@A8C
     }
 
-    /**
-    *  Sets the JDBC properties.
-    *  @param Properties The JDBC properties list.
-    **/
-    void setProperties(Reference reference)
-    {
-        /*
-        *  Implementation note:  This method is called from AS400JDBCObjectFactory.getObjectInstance
-        */
-        if (reference == null)
-            throw new NullPointerException("reference");
-
-        Properties properties = new Properties();
-
-        Enumeration list = reference.getAll();
-        while (list.hasMoreElements())
-        {
-            StringRefAddr refAddr = (StringRefAddr)list.nextElement();
-            String property = refAddr.getType();
-            String value = (String)reference.get(property).getContent();
-
-            if (property.equals(DATABASE_NAME))                         // constant identifiers were used to store in JNDI.
-                setDatabaseName(value);
-            else if (property.equals(DATASOURCE_NAME))
-                setDataSourceName(value);
-            else if (property.equals(DESCRIPTION))
-                setDescription(value);
-            else if (property.equals(SERVER_NAME))
-                setServerName(value);
-            else if (property.equals(USER))
-                setUser(value);
-            else
-            {
-                properties.put(property, value);
-            }
-        }
-        properties_ = new JDProperties(properties, null);
-    }
+    // @F0D - Removed unused method
+    ///**
+    //*  Sets the JDBC properties.
+    //*  @param Properties The JDBC properties list.
+    //**/
+    //void setProperties(Reference reference)
+    //{
+    //    /*
+    //    *  Implementation note:  This method is called from AS400JDBCObjectFactory.getObjectInstance
+    //    */
+    //    if (reference == null)
+    //        throw new NullPointerException("reference");
+    // 
+    //    Properties properties = new Properties();
+    //
+    //    Enumeration list = reference.getAll();
+    //    while (list.hasMoreElements())
+    //    {
+    //        StringRefAddr refAddr = (StringRefAddr)list.nextElement();
+    //        String property = refAddr.getType();
+    //        String value = (String)reference.get(property).getContent();
+    //
+    //        if (property.equals(DATABASE_NAME))                         // constant identifiers were used to store in JNDI.
+    //            setDatabaseName(value);
+    //        else if (property.equals(DATASOURCE_NAME))
+    //            setDataSourceName(value);
+    //        else if (property.equals(DESCRIPTION))
+    //            setDescription(value);
+    //        else if (property.equals(SERVER_NAME))
+    //            setServerName(value);
+    //        else if (property.equals(USER))
+    //            setUser(value);
+    //        else if (property.equals(PASSWORD)) {
+    //            // get the password back from the serialized char[]
+    //            serialPWBytes_ = value.toCharArray();
+    //            // decode the password and set it on the as400
+    //            as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+    //        }
+    //        else if (property.equals(KEY_RING_NAME)) {
+    //            // set the key ring name
+    //            serialKeyRingName_ = value;
+    //        }
+    //        else if (property.equals(KEY_RING_PASSWORD)) {
+    //            // get the key ring password back from the serialized char[]
+    //            if (value != null)
+    //                serialKeyRingPWBytes_ = value.toCharArray();
+    //        }
+    //        else if (property.equals(SECURE)) {
+    //            // set the isSecure_ flag
+    //            isSecure_ = value.equals(TRUE_) ? true : false;
+    //        }
+    //        else if (property.equals(SAVE_PASSWORD)) {
+    //            // set the savePasswordWhenSerialized_ flag
+    //            savePasswordWhenSerialized_ = value.equals(TRUE_) ? true : false;
+    //        }
+    //        else
+    //        {
+    //            properties.put(property, value);
+    //        }
+    //    }
+    //    properties_ = new JDProperties(properties, null);
+    //
+    //    // get the prompt property and set it back in the as400 object
+    //    String prmpt = properties_.getString(JDProperties.PROMPT);
+    //    if (prmpt != null && prmpt.equalsIgnoreCase(FALSE_))
+    //        setPrompt(false);
+    //    else if (prmpt != null && prmpt.equalsIgnoreCase(TRUE_))
+    //        setPrompt(true);
+    //
+    //    // if the server is secure create a SecureAS400 object
+    //    if (isSecure_) {
+    //        try
+    //        {
+    //            as400_ = new SecureAS400(as400_);
+    //            ((SecureAS400)as400_).setKeyRingName(serialKeyRingName_, xpwDeconfuse(serialKeyRingPWBytes_));
+    //        }
+    //        catch (PropertyVetoException pe)
+    //        { /* will never happen */
+    //        }
+    //    }
+    //}
 
     /**
     *  Sets the name of the proxy server.
@@ -2359,7 +2505,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the secondary URL to be used for a connection on the middle-tier's
     *  DriverManager in a multiple tier environment, if it is different than
     *  already specified.  This property allows you to use this driver to connect
-    *  to databases other than the AS/400 or iSeries. Use a backslash as an escape character
+    *  to databases other than an iSeries server. Use a backslash as an escape character
     *  before backslashes and semicolons in the URL.
     *  @param url The secondary URL.
     **/
@@ -2394,8 +2540,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         if (!secure && isSecure_)                //@C2A
         {                                        //@C2A
             throw new ExtendedIllegalStateException("secure", 
-                ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);  //@C2A
+                                                    ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);  //@C2A
         }                                        //@C2A
+
+        // keep away the secure flag  // @F0A
+        isSecure_ = secure;           // @F0A
 
         if (secure)
             properties_.setString(JDProperties.SECURE, TRUE_);
@@ -2409,7 +2558,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries server name.
+    *  Sets the iSeries server name.
     *  @param serverName The server name.
     **/
     public void setServerName(String serverName)
@@ -2419,6 +2568,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             throw new NullPointerException(property);
 
         String old = getServerName();
+        
+        // keep away the name to serialize    // @F0A
+        serialServerName_ = serverName;       // @F0A
 
         try
         {
@@ -2495,7 +2647,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     * This property has no
     * effect if the "secondary URL" property is set.
     * This property cannot be set to "native" if the
-    * environment is not an AS/400 or iSeries Java Virtual
+    * environment is not an OS/400 Java Virtual
     * Machine.
     * param driver The driver value.
     *  <p>Valid values include:
@@ -2540,18 +2692,18 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  The default value is false
     **/
     public void setSavePasswordWhenSerialized(boolean savePassword)
-    {                                                                         
+    {                                             
         String property = "savePasswordWhenSerialized";            //@C5A
 
         boolean oldValue = isSavePasswordWhenSerialized();         //@C5A
         boolean newValue = savePassword;                           //@C5A
 
-        savePasswordWhenSerialized_ = savePassword;
+        savePasswordWhenSerialized_ = savePassword;                        
 
         changes_.firePropertyChange(property, oldValue, newValue); //@C5A
 
-        if (JDTrace.isTraceOn()) 
-            JDTrace.logInformation (this, "save password: " + savePassword);  
+        if (JDTrace.isTraceOn())
+            JDTrace.logInformation (this, "save password: " + savePassword);
     }
 
 
@@ -2576,7 +2728,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the library and file name of a sort sequence table stored on the AS/400 or iSeries
+    *  Sets the library and file name of a sort sequence table stored on the
     *  server.
     *  This property has no effect unless the sort property is set to "table".
     *  The default is an empty String ("").
@@ -2597,7 +2749,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets how the AS/400 or iSeries server treats case while sorting records.  This property 
+    *  Sets how the server treats case while sorting records.  This property 
     *  has no effect unless the sort property is set to "language".
     *  @param sortWeight The sort weight.
     *  Valid values include: "shared" (upper- and lower-case characters are sorted as the
@@ -2643,7 +2795,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries time format used in time literals with SQL statements.
+    *  Sets the OS/400 time format used in time literals with SQL statements.
     *  @param timeFormat The time format.
     *  <p>Valid values include:
     *  <ul>
@@ -2673,7 +2825,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     }
 
     /**
-    *  Sets the AS/400 or iSeries time separator used in time literals within SQL statements.
+    *  Sets the OS/400 time separator used in time literals within SQL statements.
     *  This property has no effect unless the time format property is set to "hms".
     *  @parm timeSeparator The time separator.
     *  <p>Valid values include:
@@ -2737,7 +2889,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     /**
-    *  Sets the AS/400 or iSeries server's transaction isolation.
+    *  Sets the OS/400 server's transaction isolation.
     *  @param String transactionIsolation The transaction isolation level.
     *  <p>Valid values include:
     *  <ul>
@@ -2801,6 +2953,9 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         String old = getUser();
 
+        // save away the user to serialize    // @F0A
+        serialUserName_ = user;               // @F0A
+
         try
         {
             as400_.setUserId(user);
@@ -2848,18 +3003,18 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     private void writeObject(ObjectOutputStream out) throws IOException
     {
-        String server = getServerName();
-        if (!server.equals(""))
-            serialServerName_ = server;
+        // @F0D String server = getServerName();
+        // @F0D if (!server.equals(""))
+        // @F0D     serialServerName_ = server;
 
-        String user = getUser();
-        if (!user.equals(""))
-            serialUserName_ = user;
-            
+        // @F0D String user = getUser();
+        // @F0D if (!user.equals(""))
+        // @F0D     serialUserName_ = user;
+
         if (!savePasswordWhenSerialized_)                        //@J3a
         {                                                        //@J3a
-           serialPWBytes_ = null;                                //@J3a
-           serialKeyRingPWBytes_ = null;                         //@J3a
+            serialPWBytes_ = null;                                //@J3a
+            serialKeyRingPWBytes_ = null;                         //@J3a
         }                                                        //@J3a
 
         // Serialize the object.
@@ -2902,7 +3057,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         return returnBytes;
     }
-                                     
+
     // @J3 new method.
     // Get clear password bytes back.
     private static String xpwDeconfuse(char[] info)
@@ -2935,7 +3090,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return buf;
     }
 
-    
+
     // @J3 new method.       
     private static char[] xdecode(char[] adder, char[] mask, char[] bytes)
     {
@@ -2951,7 +3106,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         }
         return buf;
     }    
-       
+
 
 
 }
