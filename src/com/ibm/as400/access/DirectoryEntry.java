@@ -362,14 +362,17 @@ public class DirectoryEntry
   /**
    * Returns the value of the mail service level field and product ID. This
    * value is blank when the mail service name is one of the special values:
-   * *USRIDX, *SYSMS, or *DOMINO.
+   * *USRIDX, *SYSMS, or *DOMINO; or the mail service level field does not
+   * exist in the directory entry; or the mail service level field in the
+   * directory entry is blank.
    * @return The mail service level.
    * @see #getMailServiceName
   **/
   public String getMailServiceLevel()
   {
     String mail = values_[32];
-    return mail.substring(14,mail.length()).trim();
+    if (mail.length() < 22) return "";
+    return mail.substring(21,mail.length()).trim();
   }
 
 
