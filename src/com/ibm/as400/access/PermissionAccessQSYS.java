@@ -592,10 +592,13 @@ class PermissionAccessQSYS extends PermissionAccess
         return;
     }
 
+
+// For some reason, CHGOWN doesn't need the path name converted, but the other CL
+// commands do. So we don't need to override this.
     /**
      * This is so we correctly convert variant QSYS characters.
     **/
-    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
+/*    public void setOwner(String objName, String owner, boolean revokeOldAuthority)
     throws AS400Exception,
            AS400SecurityException,
            ConnectionDroppedException,
@@ -616,7 +619,7 @@ class PermissionAccessQSYS extends PermissionAccess
       }
       super.setOwner(objName, owner, revokeOldAuthority);
     }
-      
+*/      
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.
