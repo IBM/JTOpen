@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ import java.util.Enumeration;
  * AS400 as400 = new AS400();
  * Permission permission = new Permission(as400,"/QSYS.LIB/QJAVA.LIB");
  * permission.addAuthorizedUser("user1");
- * QSYSPermission userPermission = permission.getUserPermission("user1");
+ * QSYSPermission userPermission = (QSYSPermission)permission.getUserPermission("user1");
  * userPermission.setObjectAuthority("*CHANGE");
  * permission.commit();
  * </pre></blockquote></p>
@@ -61,7 +61,7 @@ public class Permission
        implements Cloneable ,
                   Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
