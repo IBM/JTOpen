@@ -193,24 +193,7 @@ final class ToolboxSignonHandler extends SignonHandlerAdapter
   }
 
 
-  /**
-   Displays a message indicating that the specified system is unknown,
-   and redisplays the sign-on dialog.
-   @param event The sign-on event.
-   @param exc The exception.
-   @return true if user clicks OK, false if user clicks Cancel.
-   **/
-  public boolean systemNameUnknown(SignonEvent event, UnknownHostException exc)
-  {
-    if (DEBUG) System.out.println("ToolboxSignonHandler.systemNameUnknown()");
-
-    AS400 system = (AS400)event.getSource();
-    if (!system.isGuiAvailable()) return noGuiAvailable();
-
-    displayMessage(ResourceBundleLoader.getText("EXC_SYSTEM_UNKNOWN"),
-                   ResourceBundleLoader.getText("DLG_SIGNON_TITLE"));
-    return handleSignon(system, true, true);
-  }
+  // Design Note: In order to preserve historical default behavior, this class does not implement the systemNameUnknown() method.  If an unknown system name is specified, an UnknownHostException will be thrown.
 
 
   /**
