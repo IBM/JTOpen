@@ -427,7 +427,9 @@ on by another method.
 **/
   static void setTraceOn(boolean traceOn)
   {
-    Trace.setTraceJDBCOn(false);
+    Trace.setTraceJDBCOn(traceOn);
+    if(traceOn)
+        Trace.setTraceOn(traceOn);
   }
 }
 
