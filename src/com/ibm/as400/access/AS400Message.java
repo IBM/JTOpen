@@ -389,7 +389,8 @@ public class AS400Message implements Serializable
     // @D5c -- this method used to do all the work.  That code is now in
     // the load method that takes the formatting type.
     /**
-     Loads additional message information from AS/400.
+     Loads additional message information from the server.
+     If this message does not have an associated message file, this method does nothing.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the AS/400.
@@ -403,7 +404,8 @@ public class AS400Message implements Serializable
 
     // @D5a -- new method that is built from the original load() method.
     /**
-     Loads additional message information from AS/400.
+     Loads additional message information from the server.
+     If this message does not have an associated message file, this method does nothing.
      @param  helpTextFormatting Formatting performed on the help text.  Valid
              values for this parameter are defined in the MessageFile
              class.  They are no formatting, return formatting characters,
@@ -422,6 +424,15 @@ public class AS400Message implements Serializable
             if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Repeat message load not necessary.");
             return;
         }
+
+        //@G1A
+        if (libraryName_ == null || fileName_ == null ||
+            libraryName_.trim().length() == 0 || fileName_.trim().length() == 0)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No message file associated with this message: "+toString());
+          return;
+        }
+
         // Create message file object and get message from it.
         MessageFile file = new MessageFile(system_, QSYSObjectPathName.toPath(libraryName_, fileName_, "MSGF"));
 
