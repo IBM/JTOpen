@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileImplProxy.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ class IFSFileImplProxy
 extends AbstractProxyImpl
 implements IFSFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
   IFSFileImplProxy ()
@@ -124,7 +124,7 @@ implements IFSFileImpl
     }
   }
 
-  
+
   // @B7a
   public long getOwnerUID()
     throws IOException, AS400SecurityException      // @C0c
@@ -258,6 +258,24 @@ implements IFSFileImpl
       return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
                               new Class[] { String.class, Integer.TYPE, String.class },     // @D4C
                               new Object[] { directoryPath, new Integer(maxGetCount), restartName })    // @D4C
+        .getReturnValue();
+    }
+    catch (InvocationTargetException e) {
+      throw rethrow2 (e);
+    }
+  }
+
+  // @C3A
+  // List the file/directory details in the specified directory.
+  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+                                                    int maxGetCount,
+                                                    byte[] restartID)
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
+                              new Class[] { String.class, Integer.TYPE, byte[].class },
+                              new Object[] { directoryPath, new Integer(maxGetCount), restartID })
         .getReturnValue();
     }
     catch (InvocationTargetException e) {

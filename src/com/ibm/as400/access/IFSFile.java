@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFile.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,15 +35,17 @@ import java.util.Vector;
   * file's attributes (is the object a file or a directory,
   * when was the file last changed, is the file hidden, etc.),
   * or to list the contents of a directory.
-  * Use IFSFileInputStream or IFSRandomAccessFile to read
-  * data from the file, and IFSFileOutputStream or IFSRandomAccessFile
+  * Use {@link IFSFileInputStream IFSFileInputStream} or
+  * {@link IFSRandomAccessFile IFSRandomAccessFile} to read
+  * data from the file, and {@link IFSFileOutputStream IFSFileOutputStream} or
+  * {@link IFSRandomAccessFile IFSRandomAccessFile}
   * to write data to the file.
-  * Note that invalid symbolic links will return false to both
-  * isFile() and isDirectory().
+  * Note that both {@link #isFile() isFile} and {@link #isDirectory() isDirectory}
+  * will return false for invalid symbolic links.
   *
   * <p>
   * IFSFile objects are capable of generating file events that call the
-  * following FileListener methods: fileDeleted and fileModified.
+  * following FileListener methods: fileDeleted() and fileModified().
   * <p>
   * The following example demonstrates the use of IFSFile:
   * <UL>
@@ -84,7 +86,7 @@ import java.util.Vector;
 public class IFSFile
   implements java.io.Serializable, Comparable            // @B9c
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -294,8 +296,9 @@ public class IFSFile
    Constructs an IFSFile object.
    It creates an IFSFile instance that represents the integrated file system object
    on <i>system</i> that has a path name of <i>directory</i>, that is followed by the
-   separator character and <i>name</i>.  isDirectory and isFile will both be false
-   for invalid symbolic links
+   separator character and <i>name</i>.
+   {@link #isDirectory() isDirectory} and {@link #isFile() isFile} will both return false
+   for invalid symbolic links.
    @param system The AS400 that contains the file.
    @param attributes The attributes of the file.
    **/
@@ -1184,6 +1187,23 @@ public class IFSFile
   }
 
 
+// @C3a
+  // Returns the Restart ID associated with the file, or null if no attributes have been cached.
+  byte[] getRestartID()
+  {
+    if (cachedAttributes_ != null)
+    {
+      return cachedAttributes_.getRestartID();
+    }
+    else
+    {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR,
+                                    "IFSFile.getRestartID() was called when cachedAttributes_==null.");
+      return null;
+    }
+  }
+
+
 // @B5a
   /**
    Returns the subtype of the integrated file system object represented by this object.  Some possible values that might be returned include:<br>
@@ -1292,7 +1312,8 @@ public class IFSFile
   /**
    Determines if the integrated file system object represented by this object is a
    directory.<br>
-   Invalid symbolic links will return false to both isDirectory() and isFile().
+   Both isDirectory() and {@link #isFile() isFile} will return false
+   for invalid symbolic links.
 
    @return true if the integrated file system object exists and is a directory; false otherwise.
 
@@ -1345,7 +1366,8 @@ public class IFSFile
    Determines if the integrated file system object represented by this object is a
    "normal" file.<br>
    A file is "normal" if it is not a directory or a container of other objects. <br>
-   Invalid symbolic links will return false to both isFile() and isDirectory().
+   Both {@link #isDirectory() isDirectory} and isFile() will return false
+   for invalid symbolic links.
 
    @return true if the specified file exists and is a "normal" file; false otherwise.
 
@@ -1461,9 +1483,9 @@ public class IFSFile
 
   /**
    Determines the time that the integrated file system object represented by this
-   object was last accessed. With the use of the listFiles() function, attribute
+   object was last accessed. With the use of the {@link #listFiles() listFiles} methods, attribute
    information is cached and will not be automatically refreshed from the server.
-   This means the reported last accessed time can become inconsistent with the server.
+   This means the reported last accessed time may become inconsistent with the server.
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last accessed, or 0L if
    the object does not exist or is not accessible.
@@ -1514,9 +1536,9 @@ public class IFSFile
 
   /**
    Determines the time that the integrated file system object represented by this
-   object was last modified. With the use of the listFiles() function, attribute
+   object was last modified. With the use of the {@link #listFiles() listFiles} methods, attribute
    information is cached and will not be automatically refreshed from the server.
-   This means the reported last modified time can become inconsistent with the server.
+   This means the reported last modified time may become inconsistent with the server.
    @return The time (measured in milliseconds since 01/01/1970 00:00:00 GMT)
    that the integrated file system object was last modified, or 0L if it does not exist
     or is not accessible.
@@ -1563,9 +1585,9 @@ public class IFSFile
 
   /**
    Determines the length of the integrated file system object represented by this
-   object.  With the use of the listFiles() function, attribute
+   object.  With the use of the {@link #listFiles() listFiles} methods, attribute
    information is cached and will not be automatically refreshed from the server.
-   This means the reported length can become inconsistent with the server.
+   This means the reported length may become inconsistent with the server.
    @return The length, in bytes, of the integrated file system object, or
    0L if it does not exist  or is not accessible.
 
@@ -1599,6 +1621,7 @@ public class IFSFile
    does not represent a directory, or the directory is not accessible, null is returned.  If this object represents
    an empty directory, an empty string array is returned.
 
+   @see #listFiles()
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
@@ -1625,6 +1648,7 @@ public class IFSFile
    these IFSFile objects after the list operation increases the chances that
    their file attribute information will not be valid.
 
+   @see #listFiles(IFSFileFilter)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
@@ -1743,6 +1767,7 @@ public class IFSFile
    Maintaining references to these IFSFile objects after the list operation
    increases the chances that their file attribute information will not be valid.
 
+   @see #listFiles(IFSFileFilter,String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
@@ -1782,6 +1807,7 @@ public class IFSFile
    this object represents an empty directory, or the pattern does not
    match any files, an empty string array is returned.
 
+   @see #listFiles(String)
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
@@ -1797,10 +1823,13 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this
-   object.  With the use of this function, attribute information is cached and
-   will not be automatically refreshed from the server.  This means attribute
-   information can become inconsistent with the server.
+   Lists the integrated file system objects in the directory represented by this object. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list() list} method, but attribute information may become inconsistent with the server.  
+
+   This method returns a list of libraries on the server when the IFSFile object represents the root of the QSYS file system.  For example, the following returns a list of libraries on the server.
+   <pre>
+   IFSFile file = new IFSFile(system, "/QSYS.LIB");
+   IFSFile[] libraries = file.listFiles();
+   </pre>
 
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
@@ -1823,11 +1852,15 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this
-   object.  With the use of this function, attribute information is cached and
-   will not be automatically refreshed from the server.  This means attribute
-   information can become inconsistent with the server.
+   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter) list} method, but attribute information may become inconsistent with the server.  
 
+   This method returns a list of libraries on the server when the IFSFile object represents the root of the QSYS file system.  For example, the following returns a list of libraries on the server.
+   <pre>
+   IFSFile file = new IFSFile(system, "/QSYS.LIB");
+   IFSFile[] libraries = file.listFiles(filter);
+   </pre>
+
+   @param filter A file object filter.
    @return An array of objects in the directory. This list does not
    include the current directory or the parent directory.  If this
    object does not represent a directory,  or the directory is not accessible, null is returned.  If this
@@ -1847,18 +1880,42 @@ public class IFSFile
   }
 
   //@A7A Added function to return an array of files in a directory.
+  //@C3c Moved logic to new private method.
   /**
    Lists the integrated file system objects in the directory represented by this
-   object that satisfy <i>filter</i>.  With the use of this function, attribute
+   object that satisfy <i>filter</i>.  With the use of this method, attribute
    information is cached and will not be automatically refreshed from the server.
-   This means attribute information can become inconsistent with the server.
+   This means attribute information may become inconsistent with the server.
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match.
+   @param maxGetCount The maximum number of directory entries to retrieve.
+           -1 indicates that all entries that match the search criteria should be retrieved.
+   @param restartName The file name from which to start the search.
+           If null, the search is started at the beginning of the list.
    Acceptable characters are wildcards (*) and question marks (?).
    **/
   IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, String restartName)   // @D4C
     throws IOException, AS400SecurityException
-  { // Ensure that we are connected to the server.
+  {
+    return listFiles0(filter, pattern, maxGetCount, restartName, null);
+  }
+
+  //@C3a Relocated logic from original listFiles0 method.
+  /**
+   Lists the integrated file system objects in the directory represented by this
+   object that satisfy <i>filter</i>.  With the use of this method, attribute
+   information is cached and will not be automatically refreshed from the server.
+   This means attribute information may become inconsistent with the server.
+   @param filter A file object filter.
+   @param pattern The pattern that all filenames must match.
+   Acceptable characters are wildcards (*) and question marks (?).
+   **/
+  private IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, String restartName, byte[] restartID)   // @D4C
+    throws IOException, AS400SecurityException
+  {
+    // Do not specify both restartName and restartID.  Specify one or the other.
+
+    // Ensure that we are connected to the server.
     if (impl_ == null)
        chooseImpl();
 
@@ -1874,7 +1931,13 @@ public class IFSFile
       // Add a separator character.
       directory = directory + separatorChar;
     }
-    IFSCachedAttributes[] fileAttributeList = impl_.listDirectoryDetails(directory + pattern, maxGetCount, restartName); //@D2C @D4C
+    IFSCachedAttributes[] fileAttributeList; //@C3C
+    if (restartName != null) {
+      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, maxGetCount, restartName); //@D2C @D4C
+    }
+    else {
+      fileAttributeList = impl_.listDirectoryDetails(directory + pattern, maxGetCount, restartID); //@C3a
+    }
 
     // Add the name for each reply that matches the filter to the array
     // of files.
@@ -1909,12 +1972,31 @@ public class IFSFile
     }
   }
 
+  //@C3a
+  IFSFile[] listFiles0(IFSFileFilter filter, String pattern, int maxGetCount, byte[] restartID)
+    throws IOException, AS400SecurityException
+  {
+    return listFiles0(filter, pattern, maxGetCount, null, restartID);
+  }
+
+  //@C3a
+  IFSFile[] listFiles0(IFSFileFilter filter, String pattern)
+    throws IOException, AS400SecurityException
+  {
+    return listFiles0(filter, pattern, -1, null, null);
+  }
+
+
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this
-   object that satisfy <i>filter</i>.  With the use of this function, attribute
-   information is cached and will not be automatically refreshed from the server.
-   This means attribute information can become inconsistent with the server.
+   Lists the integrated file system objects in the directory represented by this object that satisfy <i>filter</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(IFSFileFilter,String) list} method, but attribute information may become inconsistent with the server.  
+
+   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
+   <pre>
+   IFSFile file = new IFSFile(system, "/QSYS.LIB");
+   IFSFile[] libraries = file.listFiles(filter, "*");
+   </pre>
+
    @param filter A file object filter.
    @param pattern The pattern that all filenames must match. Acceptable
    characters are wildcards (*) and
@@ -1944,7 +2026,7 @@ public class IFSFile
 
     try
     {
-      return listFiles0(filter, pattern, -1, null);                             // @D4C
+      return listFiles0(filter, pattern, -1, (String)null);                             // @D4C @C3C
     }
     catch (AS400SecurityException e)
     {
@@ -1957,12 +2039,14 @@ public class IFSFile
 
   //@A7A Added function to return an array of files in a directory.
   /**
-   Lists the integrated file system objects in the directory represented by this
-   object that match <i>pattern</i>. With the use of this function, attribute
-   information is cached and
-   will not be automatically refreshed from the server.  This means attribute
-   information can
-   become inconsistent with the server.
+   Lists the integrated file system objects in the directory represented by this object that match <i>pattern</i>. With the use of this method, attribute information is cached and will not be automatically refreshed from the server. This means that retrieving attribute information for files returned in the list is much faster than using the {@link #list(String) list} method, but attribute information may become inconsistent with the server.  
+
+   When the pattern indicates return all objects, and the IFSFile object represents the root of the QSYS file system, this method returns a list of libraries on the server.  For example, the following returns a list of libraries on the server.
+   <pre>
+   IFSFile file = new IFSFile(system, "/QSYS.LIB");
+   IFSFile[] libraries = file.listFiles("*");
+   </pre>
+
    @param pattern The pattern that all filenames must match. Acceptable characters
    are wildcards (*) and
    question marks (?).

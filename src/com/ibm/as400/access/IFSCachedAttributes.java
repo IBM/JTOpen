@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSCachedAttributes.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ Store cached attributes.
 **/
 class IFSCachedAttributes implements Serializable 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -40,13 +40,14 @@ class IFSCachedAttributes implements Serializable
   int objectType_;
   String path_;
   long size_;                   // @A1c
+  byte[] restartID_;            // @C3a
 
 /**
 Construct listCachedAttributes object from a list of attributes.
 **/
   IFSCachedAttributes(long accessDate, long creationDate, int fixedAttributes, 
                       long modificationDate, int objectType, long size, 
-                      String name, String path, boolean isDirectory, boolean isFile) // @A1c
+                      String name, String path, boolean isDirectory, boolean isFile, byte[] restartID) // @A1c @C3c
   {
     accessDate_ = accessDate;
     creationDate_ = creationDate;
@@ -58,6 +59,7 @@ Construct listCachedAttributes object from a list of attributes.
     objectType_ = objectType;
     path_ = path;
     size_ = size;
+    restartID_ = restartID;  // @C3a
   }
 
 /**
@@ -130,6 +132,15 @@ Return path.
   String getPath()
   {
       return path_;
+  }
+
+// @C3a
+/**
+Return restart ID.
+**/
+  byte[] getRestartID()
+  {
+      return restartID_;
   }
 
 /**

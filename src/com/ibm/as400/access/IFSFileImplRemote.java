@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ import java.util.Vector;
 class IFSFileImplRemote
 implements IFSFileImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
   transient private IFSListAttrsRep attributes_; // cached attributes
@@ -146,8 +146,7 @@ implements IFSFileImpl
     }
     catch (Exception e)
     {
-      if (Trace.isTraceOn() && Trace.isTraceWarningOn())
-        Trace.log(Trace.WARNING,
+      if (Trace.traceOn_) Trace.log(Trace.WARNING,
                  "Unable to determine if file or directory.\n" + e.toString());
     }
 
@@ -176,8 +175,7 @@ implements IFSFileImpl
       rc = ((IFSReturnCodeRep) ds).getReturnCode();
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
       }
     }
     else
@@ -331,7 +329,7 @@ implements IFSFileImpl
     IFSListAttrsRep reply = null;
 
     // Attempt to list the attributes of the specified file.
-    Vector replys = listAttributes(file, -1, null);                                         // @D4C
+    Vector replys = listAttributes(file, -1, null, true);                                         // @D4C @C3c
 
     // If this is a directory then there must be exactly one reply.
     if (replys != null && replys.size() == 1)
@@ -470,19 +468,22 @@ implements IFSFileImpl
     byte[] extendedAttrName = fd_.converter_.stringToByteArray(".TYPE");
     IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                               IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
-                              null, extendedAttrName);
+                              null, false, extendedAttrName, false);  // @C3c
     Vector replys = listAttributes0(req);
 
     // Verify that we got at least one reply.
-    if (replys == null)
-      Trace.log(Trace.ERROR, "Received null from listAttributes().");
-    else if (replys.size() == 0)
-      Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
+    if (replys == null) {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received null from listAttributes().");
+    }
+    else if (replys.size() == 0) {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
+    }
     else
     {
-      if (replys.size() > 1)
-        Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
+      if (replys.size() > 1) {
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
                   replys.size() + ")");
+      }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
       byte[] subtypeAsBytes = reply.getExtendedAttributeValue();
       if (subtypeAsBytes != null)
@@ -744,15 +745,15 @@ implements IFSFileImpl
 
     if (fd_.getSystemVRM() < 0x00050200)  // system is pre-V5R2   @C1c
     {
-    // Attempt to list the attributes of the specified file.
-    // Note: Do not use cached attributes, since they may be out of date.
-    IFSListAttrsRep attrs = getAttributeSetFromServer(fd_.path_);
+      // Attempt to list the attributes of the specified file.
+      // Note: Do not use cached attributes, since they may be out of date.
+      IFSListAttrsRep attrs = getAttributeSetFromServer(fd_.path_);
 
-    if (attrs != null)
-    {
-      attributes_ = attrs;
-      size = attrs.getSize();
-    }
+      if (attrs != null)
+      {
+        attributes_ = attrs;
+        size = attrs.getSize();
+      }
     }
     else  // the system is V5R2 or later                         @C1a - added this entire 'else' block
     {
@@ -762,7 +763,7 @@ implements IFSFileImpl
       // Send the List Attributes request.  Indicate that we want the "8-byte file size".
       IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
                                                 IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
-                                                null, null, true);
+                                                null, true, null, true);  // @C3c
       Vector replys = listAttributes0(req);
 
       if (replys == null) {
@@ -771,15 +772,14 @@ implements IFSFileImpl
       }
       else if (replys.size() == 0) {
         // Assume this simply indicates that the file does not exist.
-        if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+        if (Trace.traceOn_) {
           Trace.log(Trace.WARNING, "Received zero replies from listAttributes().");
         }
       }
       else
       {
         if ( replys.size() > 1 &&
-             Trace.isTraceOn() &&
-             Trace.isTraceWarningOn() )
+             Trace.traceOn_ )
         {
             Trace.log(Trace.WARNING, "Received multiple replies from listAttributes() (" +
                       replys.size() + ")");
@@ -807,7 +807,7 @@ implements IFSFileImpl
 
 
   // Fetch list attributes reply(s) for the specified path.
-  private Vector listAttributes(String path, int maxGetCount, String restartName)           // @D4C
+  private Vector listAttributes(String path, int maxGetCount, byte[] restartNameOrID, boolean isRestartName)           // @D4C @C3c
     throws IOException, AS400SecurityException
   {
     // Assume connect() has already been done.
@@ -820,13 +820,15 @@ implements IFSFileImpl
     if (maxGetCount < 0)                                                                            // @D4A
         req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_);                             // @D4C
     else {                                                                                          // @D4A
-        byte[] restartNameAsBytes = null;                                                           // @D4A
-        if (restartName != null)                                                                    // @D4A
-            restartNameAsBytes = fd_.converter_.stringToByteArray(restartName);                     // @D4A
+//@C3d  byte[] restartNameAsBytes = null;                                                           // @D4A
+//@C3d  if (restartName != null)                                                                    // @D4A
+//@C3d      restartNameAsBytes = fd_.converter_.stringToByteArray(restartName);                     // @D4A
+
         req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,                              // @D4A
                                   IFSListAttrsReq.NO_AUTHORITY_REQUIRED, maxGetCount,               // @D4A
-                                  restartNameAsBytes,                                              // @D4A
-                                  null);  // @B5a
+                                  restartNameOrID,                                       // @D4A @C3c
+                                  isRestartName, // @C3a
+                                  null, false);  // @B5a @C3c
     }
     return listAttributes0(req);
   }
@@ -983,7 +985,7 @@ implements IFSFileImpl
     else if (ds instanceof IFSReturnCodeRep)
     {
       int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
       if (rc == 4) {       // We get a 4 if it's a directory.
         return null;       // @B7c
       }
@@ -1007,13 +1009,16 @@ implements IFSFileImpl
     Vector replys = listAttributes(fileHandle);
 
     // Verify that we got exactly one reply.
-    if (replys == null)
-      Trace.log(Trace.ERROR, "Received null from listAttributes().");
-    else if (replys.size() == 0)
-      Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
-    else if (replys.size() > 1)
-      Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
+    if (replys == null) {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received null from listAttributes().");
+    }
+    else if (replys.size() == 0) {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
+    }
+    else if (replys.size() > 1) {
+      if (Trace.traceOn_) Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
                 replys.size() + ")");
+    }
     else
     {
       reply = (IFSListAttrsRep) replys.elementAt(0);
@@ -1034,7 +1039,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    Vector replys = listAttributes(directoryPath, -1, null);                        // @D4C
+    Vector replys = listAttributes(directoryPath, -1, null, true);                        // @D4C @C3c
 
     String[] names = null;
 
@@ -1084,11 +1089,13 @@ implements IFSFileImpl
 
 
   // @B1A Added this function to support caching attributes.
+  // @C3C Morphed this method by adding a parameter and making it private.
   // List the files/directories details in the specified directory.
   // Returns null if specified file or directory does not exist.
-  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+  private IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
                                                     int maxGetCount,            // @D4A
-                                                    String restartName)         // @D4A
+                                                    byte[] restartNameOrID,     // @C3C
+                                                    boolean isRestartName)      // @C3A
      throws IOException, AS400SecurityException
   {
     // Ensure that we are connected to the server.
@@ -1097,7 +1104,7 @@ implements IFSFileImpl
 
     try
     {
-      Vector replys = listAttributes(directoryPath, maxGetCount, restartName);  // @D4C
+      Vector replys = listAttributes(directoryPath, maxGetCount, restartNameOrID, isRestartName);  // @D4C @C3C
 
       // Add each file or directory in the specified directory,
       // to the array of files.
@@ -1123,7 +1130,7 @@ implements IFSFileImpl
              boolean isFile = determineIsFile(reply);
              IFSCachedAttributes attributes = new IFSCachedAttributes(reply.getAccessDate(),
                  reply.getCreationDate(), reply.getFixedAttributes(), reply.getModificationDate(),
-                 reply.getObjectType(), reply.getSize(), name, fd_.path_, isDirectory, isFile); //@B3A
+                 reply.getObjectType(), reply.getSize(), name, fd_.path_, isDirectory, isFile, reply.getRestartID()); //@B3A @C3C
              fileAttributes[j++] = attributes;
            }
         }
@@ -1146,6 +1153,31 @@ implements IFSFileImpl
       fileAttributes = null;
     }
     return fileAttributes;
+  }
+
+
+  // @B1A Added this function to support caching attributes.
+  // @C3c Moved logic from this method into new private method.
+  // List the files/directories details in the specified directory.
+  // Returns null if specified file or directory does not exist.
+  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+                                                    int maxGetCount,            // @D4A
+                                                    String restartName)         // @D4A
+     throws IOException, AS400SecurityException
+  {
+    byte[] restartNameBytes = fd_.converter_.stringToByteArray(restartName);                     // @C3M
+    return listDirectoryDetails(directoryPath, maxGetCount, restartNameBytes, true);
+  }
+
+  // @C3a
+  // List the files/directories details in the specified directory.
+  // Returns null if specified file or directory does not exist.
+  public IFSCachedAttributes[] listDirectoryDetails(String directoryPath,
+                                                    int maxGetCount,
+                                                    byte[] restartID)
+     throws IOException, AS400SecurityException
+  {
+    return listDirectoryDetails(directoryPath, maxGetCount, restartID, false);
   }
 
 
@@ -1314,7 +1346,7 @@ implements IFSFileImpl
       if (returnCode == IFSReturnCodeRep.SUCCESS)
         success = true;
       else
-        Trace.log(Trace.ERROR, "Error renaming file: " +
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error renaming file: " +
                     "IFSReturnCodeRep return code = ", returnCode);
     }
     else
@@ -1403,7 +1435,7 @@ implements IFSFileImpl
       if (rc == IFSReturnCodeRep.SUCCESS)
         success = true;
       else
-        Trace.log(Trace.ERROR, "Error setting file attributes: " +
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting file attributes: " +
                   "IFSReturnCodeRep return code = ", rc);
     }
     else
@@ -1468,11 +1500,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-      {
-        Trace.log(Trace.ERROR, "Failed to get attribute set", e);
-      }
-
+      Trace.log(Trace.ERROR, "Failed to get attribute set", e);
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
@@ -1526,7 +1554,7 @@ implements IFSFileImpl
              if (rc == IFSReturnCodeRep.SUCCESS)
                success = true;
              else
-               Trace.log(Trace.ERROR, "Error setting hidden attribute: " +
+               if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting hidden attribute: " +
                          "IFSReturnCodeRep return code = ", rc);
           }
           else
@@ -1618,7 +1646,7 @@ implements IFSFileImpl
         if (rc == IFSReturnCodeRep.SUCCESS)
           success = true;
         else
-          Trace.log(Trace.ERROR, "Error setting last-modified date: " +
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting last-modified date: " +
                     "IFSReturnCodeRep return code = ", rc);
       }
       else
@@ -1636,7 +1664,7 @@ implements IFSFileImpl
       int rc = fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN, true);  // leave the file open
       if (rc != IFSReturnCodeRep.SUCCESS)
       {
-        Trace.log(Trace.ERROR, "Failed to open file: " +
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to open file: " +
                   "IFSReturnCodeRep return code = ", rc);
         return false;
       }
@@ -1663,7 +1691,7 @@ implements IFSFileImpl
         }
         else
         {
-          Trace.log(Trace.ERROR, "Failed to read first byte of file.");
+          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read first byte of file.");
           success = false;
         }
       }
@@ -1785,11 +1813,7 @@ implements IFSFileImpl
     }
     catch (AS400SecurityException e)
     {
-      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-      {
-        Trace.log(Trace.ERROR, "Failed to get attribute set", e);
-      }
-
+      Trace.log(Trace.ERROR, "Failed to get attribute set", e);
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
@@ -1843,7 +1867,7 @@ implements IFSFileImpl
              if (rc == IFSReturnCodeRep.SUCCESS)
                success = true;
              else
-               Trace.log(Trace.ERROR, "Error setting read-only attribute: " +
+               if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error setting read-only attribute: " +
                          "IFSReturnCodeRep return code = ", rc);
           }
           else

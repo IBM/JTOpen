@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSJavaFile.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ import java.net.MalformedURLException;
  * <p>
  * <li>
  * If you need to take full advantage of the iSeries integrated file
- * system, IFSFile is more useful.  IFSFile is written to
+ * system, {@link IFSFile IFSFile} is more useful.  IFSFile is written to
  * handle more of the specific iSeries integrated file system details.
  * <p>
  * <li>
@@ -63,7 +63,8 @@ import java.net.MalformedURLException;
  * Notes:
  * <ol>
  * <li>IFSJavaFile is designed to be used with
- *     IFSFileInputStream and IFSFileOutputStream.
+ *     {@link IFSFileInputStream IFSFileInputStream} and
+ *     {@link IFSFileOutputStream IFSFileOutputStream}.
  *     It does not support java.io.FileInputStream
  *     and java.io.FileOutputStream.
  * <li>IFSJavaFile cannot override createTempFile because
@@ -135,7 +136,7 @@ import java.net.MalformedURLException;
 **/
 public class IFSJavaFile extends java.io.File implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -225,8 +226,8 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Creates a new IFSJavaFile instance from a parent abstract pathname and a child pathname string.
  * <p>
- * The directory argument cannot be <code>null</code>.  The constructed
- * <code>IFSJavaFile</code> instance uses the following settings taken from
+ * The directory argument cannot be null.  The constructed
+ * IFSJavaFile instance uses the following settings taken from
  * <i>directory</i>:
  * <ul compact>
  * <li>system
@@ -400,7 +401,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *
  * <p>Note:<br>The comparison is case sensitive.
  *
- * @param   file The <code>IFSJavaFile</code> to be compared.
+ * @param   file The IFSJavaFile to be compared.
  *
  * @return  <code>0</code> if this IFSJavaFile path equals <code>file</code>'s path;
  *          a value less than <code>0</code> if this IFSJavaFile path is less than the <code>file</code>'s
@@ -535,7 +536,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Compares this IFSJavaFile against the specified object.
  * Returns <code>true</code> if and only if the argument is
- * not <code>null</code> and is a <code>IFSJavaFile</code>
+ * not null and is an IFSJavaFile
  * object whose path name is equal to the path name of
  * this IFSJavaFile,
  * and system names of the objects are equal.
@@ -694,7 +695,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  String fileName = file.getName();
  * </pre>
  *
- * @return The name (without any directory components) of this <code>IFSJavaFile</code>.
+ * @return The name (without any directory components) of this IFSJavaFile.
 **/
   public String getName()
   {
@@ -717,7 +718,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  String parentPath = file.getParent();
  * </pre>
  *
- * @return The parent directory if one exists; <code>null</code> otherwise.
+ * @return The parent directory if one exists; null otherwise.
 **/
   public String getParent()
   {
@@ -738,7 +739,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * If the system property is set, it is also copied to the returned object.
  *
  * @return an IFSJavaFile object representing the
- * parent directory if one exists; <code>null</code> otherwise.
+ * parent directory if one exists; null otherwise.
  *
  * @see  #getParent()
 **/
@@ -957,6 +958,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * a directory, null is returned.
  * If this IFSJavaFile is an empty directory,
  * an empty string array is returned.
+ * @see #listFiles()
 **/
   public String[] list()
   {
@@ -1008,6 +1010,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  AcceptClass ac = new AcceptClass();
  *  file.list (ac);
  *</pre>
+ * @see #listFiles(FilenameFilter)
 **/
   public String[] list(FilenameFilter filter)
   {
@@ -1084,6 +1087,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  file.list (ac);
  *
  *</pre>
+ * @see #listFiles(IFSFileFilter)
 **/
   public String[] list(IFSFileFilter filter)
   {
@@ -1121,6 +1125,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          to the file name filter object have cached file attribute information.
  *          Maintaining references to these IFSFile objects after the list operation
  *          increases the chances that their file attribute information will not be valid.
+ * @see #listFiles(IFSFileFilter,String)
 **/
   public String[] list(IFSFileFilter filter, String pattern)
   {
@@ -1157,6 +1162,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          is not a directory, null is returned.  If this IFSJavaFile
  *          is an empty directory, or the pattern does not match any
  *          files, an empty string array is returned.
+ * @see #listFiles(String)
 **/
   public String[] list(String pattern)
   {
@@ -1184,7 +1190,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information can
+ * will not be refreshed from the iSeries server.  This means attribute information may
  * become inconsistent with the iSeries server.
  * @return An array of objects in the directory.
  * This list does not include the current directory
@@ -1192,6 +1198,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * a directory, null is returned.
  * If this IFSJavaFile is an empty directory,
  * an empty object array is returned.
+ * @see #list()
 **/
   public File[] listFiles()
   {
@@ -1202,7 +1209,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information can
+ * will not be refreshed from the iSeries server.  This means attribute information may
  * become inconsistent with the iSeries server.
  *
  * @param   filter The file name filter.
@@ -1234,13 +1241,14 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  AcceptClass ac = new AcceptClass();
  *  file.listFiles (ac);
  *</pre>
+ * @see #list(FilenameFilter)
 **/
   public File[] listFiles(FilenameFilter filter)
   {
     IFSFile[] files = null;
     try
     {
-      files = ifsFile_.listFiles0(null, "*", -1, null);             // @D2C
+      files = ifsFile_.listFiles0(null, "*");             // @D2C @C3C
     }
     catch (AS400SecurityException e)
     {
@@ -1286,7 +1294,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information can
+ * will not be refreshed from the iSeries server.  This means attribute information may
  * become inconsistent with the iSeries server.
  *
  * @param   filter The file filter.
@@ -1324,7 +1332,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     IFSFile[] files = null;
     try
     {
-      files = ifsFile_.listFiles0(null, "*", -1, null);
+      files = ifsFile_.listFiles0(null, "*");   // @C3C
     }
     catch (AS400SecurityException e)
     {
@@ -1364,7 +1372,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in the IFSJavaFile directory that satisfy <i>file name filter</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information can
+ * will not be refreshed from the iSeries server.  This means attribute information may
  * become inconsistent with the iSeries server.
  * @param   filter The file name filter.
  *
@@ -1397,6 +1405,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  file.listFiles (ac);
  *
  *</pre>
+ * @see #list(IFSFileFilter)
 **/
   public File[] listFiles(IFSFileFilter filter)
   {
@@ -1407,7 +1416,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that satisfy <i>filter</i> and
  * <i>pattern</i>.  With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information can
+ * will not be refreshed from the iSeries server.  This means attribute information may
  * become inconsistent with the iSeries server.
  *
  * <p>Note:<br>If the file does not match <i>pattern</i>, it will not be processed by <i>filter</i>.
@@ -1425,6 +1434,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          to the file name filter object has cached file attribute information.
  *          Maintaining references to these IFSFile objects after the list operation
  *          increases the chances that their file attribute information will not be valid.
+ * @see #list(IFSFileFilter,String)
 **/
   public File[] listFiles(IFSFileFilter filter, String pattern)
   {
@@ -1433,7 +1443,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
     try
     {
-      IFSFile files[] = ifsFile_.listFiles0(filter,pattern,-1,null);            // @D2C
+      IFSFile files[] = ifsFile_.listFiles0(filter,pattern);            // @D2C @C3C
       IFSJavaFile newFiles[] = new IFSJavaFile[files.length];
       for (int i = 0; i < files.length; i++)
       {
@@ -1457,7 +1467,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 /**
  * Lists the files in this IFSJavaFile directory that match <i>pattern</i>.
  * With the use of this function, attribute information is cached and
- * will not be refreshed from the iSeries server.  This means attribute information can
+ * will not be refreshed from the iSeries server.  This means attribute information may
  * become inconsistent with the iSeries server.
  *
  * @param   pattern The pattern that all filenames must match.
@@ -1471,6 +1481,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *          is not a directory, null is returned.  If this IFSJavaFile
  *          is an empty directory, or the pattern does not match any
  *          files, an empty string array is returned.
+ * @see #list(String)
 **/
   public File[] listFiles(String pattern)
   {

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSListAttrsReq.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ List file attributes request.
 **/
 class IFSListAttrsReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 /**
 Construct a list attributes request.
@@ -56,7 +56,9 @@ Construct a list file attributes request.
                  bit 1: on = client must have write authority,
                  bit 2: on = client must have execute authority
 @param maximumGetCount The maximum get count, or -1 to return all entries.
-@param restartName The restart name, or null to return all entries.
+@param restartNameOrID The restart name or ID, or null to return all entries.
+@param isRestartName  true: interpret restartNameOrID as a restart Name,
+                      false: interpret restartNameOrID as a restart ID.
 @param extendedAttrName The extended attribute name, or null to return
                         no extended attributes.
 @param longFileSize true: return file size as 8-byte value (as optional field),
@@ -66,12 +68,13 @@ Construct a list file attributes request.
                   int    fileNameCCSID,
                   int    authority,
                   int    maximumGetCount,                                      // @D2A
-                  byte[] restartName,                                          // @D2A
+                  byte[] restartNameOrID,                                      // @D2A @C3C
+                  boolean isRestartName,                                       // @C3a
                   byte[] extendedAttrName,                                     // @A1a
                   boolean longFileSize)                                        // @C1a
   {
     super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + name.length
-         + ((restartName != null) ? (LLCP_LENGTH + restartName.length) : 0)    // @D2A
+         + ((restartNameOrID != null) ? (LLCP_LENGTH + restartNameOrID.length) : 0)    // @D2A @C3C
          + ((extendedAttrName != null) ? (18 + extendedAttrName.length) : 0)); // @A1A
                        // Note: 18 is length of fixed "header" of name-only EA structure.
     setLength(data_.length);
@@ -105,11 +108,14 @@ Construct a list file attributes request.
     int offset = FILE_NAME_OFFSET + name.length; // Offset for next field.        @A1a
 
     // Set the "restart name", if specified.      @D2A
-    if (restartName != null)
+    if (restartNameOrID != null)                        // @C3c
     {                                                   // @D2A
-        set32bit(restartName.length + LLCP_LENGTH, offset); // LL                            // @D2A
-        set16bit(0x0007, offset + 4);                       // CP                            // @D2A
-        System.arraycopy(restartName, 0, data_, offset + LLCP_LENGTH, restartName.length);         // @D2A
+        int codePoint;                                                    // @C3a
+        if (isRestartName) codePoint = 0x0007;  // it's a Restart Name    // @C3a
+        else               codePoint = 0x000E;  // it's a Restart ID      // @C3a
+        set32bit(restartNameOrID.length + LLCP_LENGTH, offset); // LL                 // @D2A @C3c
+        set16bit(codePoint, offset + 4);                        // CP                 // @D2A @C3c
+        System.arraycopy(restartNameOrID, 0, data_, offset + LLCP_LENGTH, restartNameOrID.length);         // @D2A @C3c
         // It would would be more efficient to use the ordinal values                    // @D2A
         // (which work outside of QSYS and QDLS).  I chose to keep it                    // @D2A
         // simple for now, but we should make it more sophisticated later.               // @D2A
@@ -120,7 +126,7 @@ Construct a list file attributes request.
         // that processing should start at.
         // QDLS and QSYS allow Restart Name, but /root (EPFS) does not."
 
-        offset += LLCP_LENGTH + restartName.length;  // next field     @A1a
+        offset += LLCP_LENGTH + restartNameOrID.length;  // next field     @A1a @C3c
     }                                                                                    // @D2A
 
     // Set the "extended attribute name", if specified.             @A1a
@@ -139,28 +145,29 @@ Construct a list file attributes request.
 
   }
 
-  // @D2A
-/**
-Construct a list file attributes request.
-@param name the file name
-@param fileNameCCSID file name CCSID
-@param authority bit 0: on = client must have read authority,
-                 bit 1: on = client must have write authority,
-                 bit 2: on = client must have execute authority
-@param maximumGetCount The maximum get count, or -1 to return all entries.
-@param restartName The restart name, or null to return all entries.
-@param extendedAttrName The extended attribute name, or null to return
-                        no extended attributes.
-**/
-  IFSListAttrsReq(byte[] name,
-                  int    fileNameCCSID,
-                  int    authority,
-                  int    maximumGetCount,                                      // @D2A
-                  byte[] restartName,                                          // @D2A
-                  byte[] extendedAttrName)                                     // @A1a
-  {
-    this(name, fileNameCCSID, authority, maximumGetCount, restartName, extendedAttrName, false); // @C1c
-  }
+//@C3d
+// @D2A
+// /**
+//Construct a list file attributes request.
+//@param name the file name
+//@param fileNameCCSID file name CCSID
+//@param authority bit 0: on = client must have read authority,
+//                 bit 1: on = client must have write authority,
+//                 bit 2: on = client must have execute authority
+//@param maximumGetCount The maximum get count, or -1 to return all entries.
+//@param restartName The restart name, or null to return all entries.
+//@param extendedAttrName The extended attribute name, or null to return
+//                        no extended attributes.
+//**/
+//  IFSListAttrsReq(byte[] name,
+//                  int    fileNameCCSID,
+//                  int    authority,
+//                  int    maximumGetCount,                                      // @D2A
+//                  byte[] restartName,                                          // @D2A
+//                  byte[] extendedAttrName)                                     // @A1a
+//  {
+//    this(name, fileNameCCSID, authority, maximumGetCount, restartName, extendedAttrName, false); // @C1c
+//  }
 
 /**
 Construct a list file attributes request.
@@ -174,7 +181,7 @@ Construct a list file attributes request.
                   int    fileNameCCSID,
                   int    authority)
   {
-      this(name, fileNameCCSID, authority, -1, null, null);    // @D2C @A1c
+      this(name, fileNameCCSID, authority, -1, null, true, null, false);    // @D2C @A1c @C3c
   }
 
 /**

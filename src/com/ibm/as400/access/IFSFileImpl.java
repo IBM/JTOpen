@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileImpl.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,6 +47,11 @@ interface IFSFileImpl
   IFSCachedAttributes[] listDirectoryDetails(String directoryPath, 
                                              int maximumGetCount,       // @D4A
                                              String restartName)        // @D4A
+    throws IOException, AS400SecurityException;
+  //@C3a
+  IFSCachedAttributes[] listDirectoryDetails(String directoryPath, 
+                                             int maximumGetCount,
+                                             byte[] restartID)
     throws IOException, AS400SecurityException;
   int mkdir0(String directory) throws IOException, AS400SecurityException;
   int mkdirs0() throws IOException, AS400SecurityException;

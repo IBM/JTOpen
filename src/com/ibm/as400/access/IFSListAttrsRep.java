@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSListAttrsRep.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ List file attributes reply.
 **/
 class IFSListAttrsRep extends IFSDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   static final int FILE = 1;
   static final int DIRECTORY = 2;
@@ -176,15 +176,14 @@ Get the CCSID value for the IFS file on the AS/400.
           case 0xF4F4:
             offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
             break;
-          ///case 2:     // @B9d
+//@B9d    case 2:
           default:       // @B9c
             offset_into_OA = CCSID_OFFSET_INTO_OA2b;
             break;
-          ///@B9d  
-          ///default:
-          ///  Trace.log(Trace.ERROR, "Unexpected server datastream level: " +
-          ///            fd_.serverDatastreamLevel_);
-          ///  throw new InternalErrorException(InternalErrorException.UNKNOWN);
+//@B9d    default:
+//@B9d      Trace.log(Trace.ERROR, "Unexpected server datastream level: " +
+//@B9d                fd_.serverDatastreamLevel_);
+//@B9d      throw new InternalErrorException(InternalErrorException.UNKNOWN);
         }
         break;
       default:
@@ -322,6 +321,19 @@ Get the owner's "user ID" number for the IFS file on the AS/400.
     int fieldOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
                  LLCP_LENGTH + OWNER_OFFSET_INTO_OA2;
     return (long)get32bit(fieldOffset) & 0x0FFFFFFFFL;  // @C0c
+  }
+
+// @C3a
+/**
+Get the restart identifier.
+@return the restart identifier
+**/
+  byte[] getRestartID()
+  {
+    byte[] restartID = new byte[4];
+    System.arraycopy(data_, RESTART_ID_OFFSET, restartID, 0, restartID.length);
+
+    return restartID;
   }
 
 /**
