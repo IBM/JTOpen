@@ -116,6 +116,45 @@ public final class NLS
 
 
   /**
+   * Returns a best-guess National Language Version (NLV) string given a Java locale string.
+   * If there is no known mapping for the given Locale or one of its parents (e.g. "en" is a parent of "en_US"),
+   * then "" is returned.
+   * @param The locale string, e.g. "de_CH".
+   * @return The NLV string (e.g. "2924") that maps the given locale, or "" if one is not known.
+  **/
+  public static String localeToNLV(String localeString)
+  {
+    if (localeString == null) return "";
+    String ls = localeString.trim();
+    while (ls != null && ls.length() > 0)
+    {
+      String nlvString = (String)ConversionMaps.localeNlvMap_.get(ls);
+      if (nlvString != null)
+      {
+        return nlvString;
+      }
+      ls = ls.substring(0, ls.lastIndexOf('_'));
+    }
+    return "";
+  }
+
+
+  /**
+   * Returns a best-guess National Language Version (NLV) string given a Java Locale object.
+   * If there is no known mapping for the given Locale or one of its parents (e.g. "en" is a parent of "en_US"),
+   * then "" is returned.
+   * @param The Locale object.
+   * @return The NLV string (e.g. "2924") that maps the given locale, or "" if one is not known.
+  **/
+  public static String localeToNLV(Locale locale)
+  {
+    if (locale == null) return "";
+    String ls = locale.toString();
+    return localeToNLV(ls);
+  }
+
+
+  /**
    * Retrieves the descriptive text for the specified country or region identifier.
    * The list is cached, so that a subsequent call to this method will
    * return immediately if the specified country or region identifier is in the list.
