@@ -3611,7 +3611,7 @@ public class AS400JDBCResultSet implements ResultSet
         // Get the data and check for SQL NULL.   @A1C
         wasNull_ = row_.isNull (columnIndex);
         wasDataMappingError_ = row_.isDataMappingError(columnIndex);
-        if(wasNull_)
+        if(wasNull_ || wasDataMappingError_)
             return null;
         else
             return row_.getSQLData (columnIndex);
