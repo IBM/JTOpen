@@ -17,7 +17,8 @@
 <!DOCTYPE xsl:stylesheet [
 <!-- entities for use in the generated output  -->
 <!ENTITY amp    "&amp;">
-<!ENTITY nbsp   "&#160;">
+<!ENTITY lt   "<">
+<!ENTITY gt   ">">
 ]>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -143,7 +144,7 @@
 </xsl:if>
 <xsl:text/>.<xsl:text>&#xa;</xsl:text>
 <xsl:text/>.************************************************************************
-.*  <xsl:value-of select="$_HELP_FOR_COMMAND"/>&nbsp;<xsl:value-of select="Cmd/@CmdName"/>
+.*  <xsl:value-of select="$_HELP_FOR_COMMAND"/><xsl:text> </xsl:text><xsl:value-of select="Cmd/@CmdName"/>
 .************************************************************************<xsl:text/>
 <!-- Process the <Cmd> element found in the input command XML file.  
      The <Cmd> element processing will, in turn, process any <Parm> 
@@ -157,7 +158,7 @@
 <xsl:when test="Cmd/@PromptMsgID!=''">
 <xsl:text/>&amp;msg(<xsl:value-of select="Cmd/@PromptMsgID"/>). - <xsl:value-of select="$_HELP"/><xsl:text/>
 :p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/><xsl:text/>
-&amp;msg(<xsl:value-of select="Cmd/@PromptMsgID"/>). (<xsl:value-of select="Cmd/@CmdName"/>)<xsl:text/>
+<xsl:text/>&amp;msg(<xsl:value-of select="Cmd/@PromptMsgID"/>). (<xsl:value-of select="Cmd/@CmdName"/>)<xsl:text/>
 <xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/>
 .* <xsl:value-of select="$_DESCRIBE_COMMAND"/>
 </xsl:when>
@@ -165,7 +166,7 @@
 <xsl:when test="Cmd/@Prompt!=''">
 <xsl:text/><xsl:value-of select="Cmd/@Prompt"/> - <xsl:value-of select="$_HELP"/><xsl:text/>
 :p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/><xsl:text/>
-<xsl:value-of select="Cmd/@Prompt"/> (<xsl:value-of select="Cmd/@CmdName"/>)<xsl:text/>
+<xsl:text/><xsl:value-of select="Cmd/@Prompt"/> (<xsl:value-of select="Cmd/@CmdName"/>)<xsl:text/>
 <xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/> <xsl:text/>
 .* <xsl:value-of select="$_DESCRIBE_COMMAND"/>
 </xsl:when>
@@ -173,7 +174,7 @@
 <xsl:otherwise>
 <xsl:text/><xsl:value-of select="Cmd/@CmdName"/> - <xsl:value-of select="$_HELP"/><xsl:text/>
 :p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/><xsl:text/>
-<xsl:value-of select="Cmd/@CmdName"/><xsl:text/>
+<xsl:text/><xsl:value-of select="Cmd/@CmdName"/><xsl:text/>
 <xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/> 
 .* <xsl:value-of select="$_DESCRIBE_COMMAND"/> 
 </xsl:otherwise>
@@ -198,7 +199,7 @@
 <xsl:value-of select="$_RESTRICTION_THREADSAFE"/>
 .* <xsl:value-of select="$_LIST_THREADSAFE_RESTRICTIONS"/><xsl:text/>
 :li.
-... 
+&lt;...&gt; 
 .* <xsl:value-of select="$_DESCRIBE_OTHER_RESTRICTION"/><xsl:text/>
 .* <xsl:value-of select="$_RESTRICTION_COMMENT"/><xsl:text/>
 :eul.<xsl:text/>
@@ -307,7 +308,7 @@
   
     <xsl:text>&#xa;</xsl:text>
     <xsl:text/>.*******************************************<xsl:text>&#xa;</xsl:text>
-    <xsl:text/>.*   <xsl:value-of select="$_HELP_FOR_PARAMETER"/>&nbsp;<xsl:value-of select="@Kwd"/><xsl:text>&#xa;</xsl:text>
+    <xsl:text/>.*   <xsl:value-of select="$_HELP_FOR_PARAMETER"/><xsl:text> </xsl:text><xsl:value-of select="@Kwd"/><xsl:text>&#xa;</xsl:text>
     <xsl:text/>.*******************************************<xsl:text>&#xa;</xsl:text>
     <xsl:text/>:help name='<xsl:value-of select="$CommandName"/>/<xsl:value-of select="@Kwd"/>'.<xsl:text/>
     <xsl:text>&#xa;</xsl:text>
@@ -377,7 +378,7 @@
             <xsl:text/>:pt.:pk def.<xsl:value-of select="@Dft"/>:epk.<xsl:text/>
             <xsl:text>&#xa;</xsl:text>
             <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
-            <xsl:text/>... <xsl:text>&#xa;</xsl:text>
+            <xsl:text/>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
             <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PARAMETER_DEFAULT"/><xsl:text/>  
           </xsl:otherwise>
         </xsl:choose>
@@ -397,7 +398,7 @@
       <xsl:when test="@RangeMinVal!=''">
         <xsl:text>&#xa;</xsl:text>:pt.:pv.<xsl:value-of select="@RangeMinVal"/>-<xsl:value-of select="@RangeMaxVal"/><xsl:text/>:epv.<xsl:text/>
         <xsl:text>&#xa;</xsl:text>:pd.<xsl:text>&#xa;</xsl:text>
-        <xsl:text/>... <xsl:text>&#xa;</xsl:text>
+        <xsl:text/>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
         <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PARAMETER_VALUE_WITH_RANGE"/><xsl:text/>
       </xsl:when>
       <xsl:when test="@Type!='' and @Type!='ELEM' and @Type!='QUAL'">
@@ -441,7 +442,7 @@
     </xsl:if>
     
     <!-- Identify the element number and put the prompt text in a heading      -->
-    <xsl:text/>:p.:hp2.<xsl:value-of select="$_ELEMENT"/>&nbsp;<xsl:number count="Elem"/>: <xsl:text/>
+    <xsl:text/>:p.:hp2.<xsl:value-of select="$_ELEMENT"/><xsl:text> </xsl:text><xsl:number count="Elem"/>: <xsl:text/>
     <xsl:choose>
       <xsl:when test="@PromptMsgID!=''">
         <xsl:text/>&amp;msg(<xsl:value-of select="@PromptMsgID"/>).
@@ -489,7 +490,7 @@
             <xsl:text/>:pt.:pk def.<xsl:value-of select="@Dft"/>:epk.<xsl:text/>
             <xsl:text>&#xa;</xsl:text>
             <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
-            <xsl:text/>... <xsl:text>&#xa;</xsl:text>
+            <xsl:text/>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
             <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PARAMETER_DEFAULT"/><xsl:text/>  
           </xsl:otherwise>
         </xsl:choose>
@@ -509,7 +510,7 @@
       <xsl:when test="@RangeMinVal!=''">
         <xsl:text>&#xa;</xsl:text>:pt.:pv.<xsl:value-of select="@RangeMinVal"/>-<xsl:value-of select="@RangeMaxVal"/><xsl:text/>:epv.<xsl:text/>
         <xsl:text>&#xa;</xsl:text>:pd.<xsl:text>&#xa;</xsl:text>
-        <xsl:text/>... <xsl:text>&#xa;</xsl:text>
+        <xsl:text/>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
         <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PARAMETER_VALUE_WITH_RANGE"/><xsl:text/>
       </xsl:when>
       <xsl:when test="@Type!='' and @Type!='ELEM' and @Type!='QUAL'">
@@ -557,7 +558,7 @@
     </xsl:if>
     
     <!-- Identify the qualifier number and put the prompt text in a heading      -->
-    <xsl:text/>:p.:hp2.<xsl:value-of select="$_QUALIFIER"/>&nbsp;<xsl:number count="Qual"/>: <xsl:text/>
+    <xsl:text/>:p.:hp2.<xsl:value-of select="$_QUALIFIER"/><xsl:text> </xsl:text><xsl:number count="Qual"/>: <xsl:text/>
     <xsl:choose>
       <xsl:when test="position()=1">
         <xsl:choose>
@@ -596,7 +597,7 @@
            <xsl:text/>:pt.:pk def.<xsl:value-of select="@Dft"/>:epk.<xsl:text/>
            <xsl:text>&#xa;</xsl:text>
            <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
-           <xsl:text/>... <xsl:text>&#xa;</xsl:text>
+           <xsl:text/>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
            <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PARAMETER_DEFAULT"/><xsl:text/>  
          </xsl:otherwise>
       </xsl:choose>
@@ -616,7 +617,7 @@
       <xsl:when test="@RangeMinVal!=''">
         <xsl:text>&#xa;</xsl:text>:pt.:pv.<xsl:value-of select="@RangeMinVal"/>-<xsl:value-of select="@RangeMaxVal"/><xsl:text/>:epv.<xsl:text/>
         <xsl:text>&#xa;</xsl:text>:pd.<xsl:text>&#xa;</xsl:text>
-        <xsl:text/>... <xsl:text>&#xa;</xsl:text>
+        <xsl:text/>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
         <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PARAMETER_VALUE_WITH_RANGE"/><xsl:text/>
       </xsl:when>
       <xsl:when test="@Type!=''">
@@ -826,7 +827,7 @@
   </xsl:choose>
   <xsl:text>&#xa;</xsl:text>
   <xsl:text/>:pd.<xsl:text/>
-  <xsl:text>&#xa;</xsl:text>... <xsl:text>&#xa;</xsl:text>
+  <xsl:text>&#xa;</xsl:text>&lt;...&gt; <xsl:text>&#xa;</xsl:text>
   <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_PREDEFINED_PARAMETER_VALUE"/><xsl:text/> 
 </xsl:template>
 
