@@ -365,7 +365,7 @@ retrieved from the system via an implicit call to loadUserInformation().
     }
 
 
-/**
+    /**
      * Returns the system distribution directory entry for the user profile, if one exists.
      * The directory entry is retrieved from the system every time this method is called,
      * so its value is unaffected by any call to loadUserInformation().
@@ -380,7 +380,7 @@ retrieved from the system via an implicit call to loadUserInformation().
            ObjectDoesNotExistException
     {
       DirectoryEntryList list = new DirectoryEntryList(system_);
-      list.addSelection(DirectoryEntryList.USER_PROFILE, user_);
+      list.addSelection(DirectoryEntryList.USER_PROFILE, name_.toUpperCase());
       DirectoryEntry[] entries = list.getEntries();
       if (entries.length == 0) return null;
       return entries[0];
@@ -1385,10 +1385,9 @@ was set into this User object by the constructor or a call to setUser().
 <li>*IOSYSCFG - Input/output system configuration.
 </ul>
    * @return true if this user has the authority or belongs to a group that has
-   * the authority; false otherwise.
-   * @exception ResourceException If an error occurs.
+   * the authority; false if it does not have authority or an error occurs.
   **/
-  public boolean hasSpecialAuthority(String authority) throws ResourceException
+  public boolean hasSpecialAuthority(String authority)
   {
     if (authority == null) throw new NullPointerException("authority");
     
