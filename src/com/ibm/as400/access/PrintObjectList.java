@@ -65,6 +65,23 @@ implements java.io.Serializable
     
     boolean useCache_ = true; //@CRS
     //@CRS
+    /**
+     * Sets whether or not to internally maintain a cache of objects returned by this list.
+     * By default, caching is on, so that the Enumeration returned by getObjects() is populated.
+     * Under normal circumstances, code should not need to call this method.
+     * <P>
+     * However, if code wishes to open the list asynchronously and use a PrintObjectListListener to receive
+     * listObjectAdded() events, the objects in the list are returned on those events.  So, in some
+     * cases, there is no need for this PrintObjectList to maintain a reference to all of the objects
+     * returned, since they can be processed individually by the listener.
+     * Calling this method with a value of true will save memory in these cases, but the getObjectList()
+     * method will return an empty Enumeration, so this method only becomes useful if code has
+     * registered a PrintObjectListListener with this PrintObjectList.
+     * @see #addPrintObjectListListener
+     * @see #getObjects
+     * @see com.ibm.as400.access.PrintObjectListEvent#getObject
+     * @see com.ibm.as400.access.PrintObjectListListener#listObjectAdded
+    **/
     public void setCache(boolean f)
     {
       if (impl_ == null) chooseImpl();
