@@ -38,7 +38,7 @@ public class CharConverter implements Serializable
   static boolean faultTolerantConversion_ = false;                  // @B1A
 
   /**
-    Gets a CharConverter object from the pool using a "best guess" based on the default Locale.
+    Constructs a CharConverter object using a "best guess" based on the default Locale.
    */
   public CharConverter()
   {
@@ -46,7 +46,7 @@ public class CharConverter implements Serializable
   }
 
   /**
-    Gets a CharConverter object from the pool using the specified character encoding.
+    Constructs a CharConverter object using the specified character encoding.
     @param  encoding  the name of a character encoding.
     @exception  UnsupportedEncodingException  If the <i>encoding</i> is not supported.
    */
@@ -56,7 +56,7 @@ public class CharConverter implements Serializable
   }
 
   /**
-    Gets a CharConverter object from the pool using the specified ccsid.
+    Constructs a CharConverter object using the specified ccsid.
     @param  ccsid  the CCSID of the AS/400 text.
     @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
    */
@@ -66,7 +66,7 @@ public class CharConverter implements Serializable
   }
 
   /**
-    Gets a CharConverter object from the pool using the specified ccsid and system.
+    Constructs a CharConverter object using the specified ccsid and system.
     @param  ccsid  the CCSID of the AS/400 text.
     @param  system  the 400 to go to for table
     @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
@@ -420,6 +420,22 @@ public class CharConverter implements Serializable
   public static byte[] stringToByteArray(int ccsid, AS400 system, String source) throws UnsupportedEncodingException
   {
     Converter table = new Converter(ccsid, system);
+    return table.stringToByteArray(source);
+  }
+
+  /**
+    Converts the specified String into bytes.
+    If the Toolbox does not possess a table for the given CCSID, nor does the JVM,
+    an UnsupportedEncodingException is thrown.
+
+    @param  ccsid   the CCSID of the AS/400 text.
+    @param  source  the String to convert.
+    @return         the destination byte array.
+    @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
+   **/
+  public static byte[] stringToByteArray(int ccsid, String source) throws UnsupportedEncodingException
+  {
+    Converter table = new Converter(ccsid);
     return table.stringToByteArray(source);
   }
 }
