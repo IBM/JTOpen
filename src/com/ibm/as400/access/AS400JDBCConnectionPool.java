@@ -260,8 +260,9 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       if (dataSource_ == null) 
          throw new ExtendedIllegalStateException("dataSource", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-      AS400JDBCPooledConnection pooledConnection = (AS400JDBCPooledConnection) dataSource_.getPooledConnection();
+      AS400JDBCPooledConnection pooledConnection = new AS400JDBCPooledConnection(dataSource_.getConnection());	//@A3C
       pooledConnection.addConnectionEventListener(eventListener_);
+      dataSource_.log("PooledConnection created");     //@A3A
 
       return pooledConnection;
    }
@@ -430,6 +431,38 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
    {
       return dataSource_;
    }
+
+   //@A3A
+   /**
+   *  Returns a connection from the pool.
+   *  Updates the pool cache.
+   *  @return The connection.
+   *  @exception ConnectionPoolException If a database error occurs getting the connection.
+   **/
+   AS400JDBCPooledConnection getPooledConnection() throws ConnectionPoolException
+   {
+      AS400JDBCPooledConnection pooledConnection = null;
+      if (availablePool_.isEmpty())
+         fill(1);                         // Add a new connection.
+      
+      synchronized (availablePool_)
+      {
+         pooledConnection = (AS400JDBCPooledConnection)availablePool_.firstElement();
+
+         // Remove the pooled connection from the available list.
+         availablePool_.removeElement(pooledConnection);		
+      }
+      synchronized (activePool_)
+      {
+         activePool_.addElement(pooledConnection);      
+      }
+      
+      // Notify the listeners that a connection was released.
+      ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_RELEASED);  
+      poolListeners_.fireConnectionReleasedEvent(event);
+      return pooledConnection;
+   }
+
 
    /**
    *  Initializes the transient data.

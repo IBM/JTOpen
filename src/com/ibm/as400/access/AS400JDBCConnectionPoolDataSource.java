@@ -46,6 +46,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 
 
     static final long serialVersionUID = 4L;
+    private transient AS400JDBCConnectionPool connectionPool_;	//@A2A
 
 
    /**
@@ -54,6 +55,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
    public AS400JDBCConnectionPoolDataSource()
    {
       super();
+      initializeTransient();	  //@A2A
    }
 
    /**
@@ -63,6 +65,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
    public AS400JDBCConnectionPoolDataSource(String serverName)
    {
       super(serverName);
+      initializeTransient();	  //@A2A
    }
 
    /**
@@ -74,6 +77,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
    public AS400JDBCConnectionPoolDataSource(String serverName, String user, String password)
    {
       super(serverName, user, password);
+      initializeTransient();	  //@A2A
    }
 
    //@A1A
@@ -90,6 +94,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
 					    String keyRingName, String keyRingPassword)
    {
       super(serverName, user, password, keyRingName, keyRingPassword);
+      initializeTransient();	  //@A2A
    }
 
    /**
@@ -99,10 +104,20 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
    **/
    public PooledConnection getPooledConnection() throws SQLException
    {
-      PooledConnection pc = new AS400JDBCPooledConnection(getConnection());
+     //Get a connection from the connection pool.
+     PooledConnection pc = null;  //@A2A
+     try			//@A2A
+     {  															
+       pc = connectionPool_.getPooledConnection();	//@A2C
 
-      log("PooledConnection created");
-      return pc;
+       log("PooledConnection created");
+       return pc;
+     }
+     catch (ConnectionPoolException cpe)				//@A2A
+     {						//@A2A
+       JDError.throwSQLException (JDError.EXC_INTERNAL, cpe);	//@A2A
+     }
+     return pc; //@A2M
    }
 
    /**
@@ -114,10 +129,32 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
    **/
    public PooledConnection getPooledConnection(String user, String password) throws SQLException
    {
-      PooledConnection pc = new AS400JDBCPooledConnection(getConnection(user,password));
+     PooledConnection pc = null;  //@A2A
+     try  //@A2A
+     {   
+       // Set user and password if user has not been set in the datasource yet.
+       if (getUser().equals(""))									//@A2A
+       {														//@A2A
+         setUser(user);					//@A2A						
+         setPassword(password);								//@A2A
+       }							//@A2A
+       // If the user specified is not equal to the user of the datasource, 
+       // throw an ExtendedIllegalStateException. 
+       user = user.toUpperCase();											//@A2A
+       if (!(getUser().equals(user)))											//@A2A
+       {														//@A2A
+         Trace.log(Trace.ERROR, "User in data source already set.");						//@A2A
+         throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);    //@A2A   
+       }														//@A2A
+       pc = connectionPool_.getPooledConnection();	//@A2C
 
-      log("PooledConnection created");
-      return pc;
+       log("PooledConnection created");
+     }
+     catch (ConnectionPoolException cpe)				//@A2A
+     {								//@A2A
+       JDError.throwSQLException (JDError.EXC_INTERNAL, cpe);	//@A2A
+     } 
+     return pc; //@A2M      					        
    }
    
    /**
@@ -142,12 +179,23 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
       return ref;
    }
 
+	//@A2A
+	/**
+	 *  Initializes the transient data for object de-serialization.
+	 **/
+	private void initializeTransient()
+	{
+		connectionPool_ = new AS400JDBCConnectionPool(this);
+	}
+
+
    /**
    *  Deserializes and initializes transient data.
    **/
    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
    {
       in.defaultReadObject();
+      initializeTransient();  //@A2A
    }
 
 }
