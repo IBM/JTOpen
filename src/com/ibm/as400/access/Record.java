@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+ ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
@@ -29,7 +29,7 @@ import java.beans.PropertyVetoException;
 import java.util.Vector;
 
 /**
- *The Record.java class represents the data described by a RecordFormat object.
+ *The Record class represents the data described by a RecordFormat object.
  *It can represent:
  *<ul>
  *<li>An entry in a data queue.
@@ -570,7 +570,7 @@ public class Record implements Serializable
         else
         { // Field requires conversion based on ccsid
           //@B5D Converter c = new Converter(((AS400Text)dType).getCcsid()); //@B5C
-          Converter c = ((AS400Text)dType).getConverter(); //@B5A
+          ConverterImpl c = ((AS400Text)dType).getConverter(); //@B5A @F0C
           fields_[index] = c.byteArrayToString(as400Data_, offset, variableFieldLength);
         }
       }
@@ -894,7 +894,7 @@ public class Record implements Serializable
         AS400DataType dt = fieldDescriptions_[i].dataType_;
         if (dt instanceof AS400Text)
         {
-          ((AS400Text)dt).setConverter(system);
+          ((AS400Text)dt).setConverter(((AS400Text)dt).getConverter()); //@F0C
         }
       }
     }
@@ -1179,12 +1179,9 @@ public class Record implements Serializable
           else
           { // character field - setDataType to indicate correct length
             AS400Text dtText = (AS400Text)dType; //@B6A
-            AS400 dtSys = dtText.getConverter().system; //@B6A
-            if (dtSys == null) //@B6A
-              newDataType = new AS400Text(length, dtText.getCcsid()); //@B6A - this is here for compatibility, so it will match the user's AS400Text object.
-            else //@B6A
-              newDataType = new AS400Text(length, dtText.getCcsid(), dtSys); //@B6A
             //@B6D newDataType = new AS400Text(length, ((AS400Text)dType).getCcsid());
+            newDataType = new AS400Text(length, dtText.getCcsid()); //@F0C
+            ((AS400Text)newDataType).setConverter(dtText.getConverter()); //@F0C
           }
           if (!varLen)  //@A1A: If field is variable length need to preserve
           {             //      maximum field length
@@ -1211,7 +1208,7 @@ public class Record implements Serializable
             else
             { // Field requires conversion based on ccsid
               //@B5D Converter c = new Converter(((AS400Text)dType).getCcsid()); //@B5C
-              Converter c = ((AS400Text)dType).getConverter(); //@B5A
+              ConverterImpl c = ((AS400Text)dType).getConverter(); //@B5A @F0C
               fields_[i] = c.byteArrayToString(contents, offset, variableFieldLength);
             }
             recordLength_ += dType.getByteLength();

@@ -39,7 +39,7 @@ public class AS400Text implements AS400DataType
   private int ccsid_ = 65535;
   transient private String encoding_ = null; //@D2A
   private AS400 system_;
-  transient Converter table_;
+  //@F0D transient Converter table_;
   transient ConverterImpl tableImpl_;
   private static final String defaultValue = "";
   private byte[] padding_ = null; //@E3A
@@ -241,10 +241,10 @@ public class AS400Text implements AS400DataType
     need to create a new Converter if they already have an
     AS400Text object.
   **/
-  Converter getConverter()
+  ConverterImpl getConverter() //@F0C
   {
-    if(table_ == null) setTable(); //@D2A
-    return table_;
+    setTable(); //@D2A @F0C
+    return tableImpl_; //@F0C
   }
 
 
@@ -309,9 +309,9 @@ public class AS400Text implements AS400DataType
   // private method to initialize the Converter table and its impl
   private void setTable()
   {
-    if(table_ == null && tableImpl_ == null)
+    if (tableImpl_ == null) //@F0C
     {
-      if(Trace.isTraceOn() && Trace.isTraceConversionOn()) //@D2A
+      if (Trace.traceOn_) //@D2A
       {
         Trace.log(Trace.CONVERSION, "AS400Text object initializing with "+encoding_+", "+ccsid_+", "+system_); //@D2A
       }
@@ -321,9 +321,9 @@ public class AS400Text implements AS400DataType
         try                                         //@D2M
         {
           //@D2M
-          table_ = new Converter(encoding_); //@B5C //@D2M I realize this is deprecated, but we have no choice if the user specified an encoding.
-          ccsid_ = table_.getCcsid();               //@D2M
-          tableImpl_ = table_.impl; //@D0A          //@D2M
+          Converter table = new Converter(encoding_); //@B5C //@D2M I realize this is deprecated, but we have no choice if the user specified an encoding. @F0C
+          ccsid_ = table.getCcsid();               //@D2M
+          tableImpl_ = table.impl; //@D0A          //@D2M
         }                                           //@D2M
         catch(UnsupportedEncodingException e)      //@D2M
         {
@@ -338,16 +338,17 @@ public class AS400Text implements AS400DataType
         {
           if(system_ == null)
           {
+            Converter table; //@F0C
             if(ccsid_ == 65535)
             {
-              table_ = new Converter(); // I realize this is deprecated, but the user never specified a ccsid or a system object.
-              ccsid_ = table_.getCcsid();
+              table = new Converter(); // I realize this is deprecated, but the user never specified a ccsid or a system object. @F0C
+              ccsid_ = table.getCcsid();
             }
             else
             {
-              table_ = new Converter(ccsid_); // I realize this is deprecated, but the user never specified a system object.
+              table = new Converter(ccsid_); // I realize this is deprecated, but the user never specified a system object.
             }
-            tableImpl_ = table_.impl;
+            tableImpl_ = table.impl;
           }
           else
           {
@@ -355,19 +356,19 @@ public class AS400Text implements AS400DataType
             {
               ccsid_ = system_.getCcsid();
             }
-            table_ = new Converter(ccsid_, system_);
-            tableImpl_ = table_.impl;
+            Converter table = new Converter(ccsid_, system_); //@F0C
+            tableImpl_ = table.impl;
           }
-          encoding_ = (tableImpl_ == null ? table_.getEncoding() : tableImpl_.getEncoding()); //@D2A
+          encoding_ = tableImpl_.getEncoding(); //@D2A @F0C
         }
         catch(UnsupportedEncodingException e)
         {
           throw new ExtendedIllegalArgumentException("ccsid (" + String.valueOf(ccsid_) + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
       } //@D2A
-      if(Trace.isTraceOn() && Trace.isTraceConversionOn()) //@D2A
+      if (Trace.traceOn_) //@D2A
       {
-        Trace.log(Trace.CONVERSION, "AS400Text object initialized to "+encoding_+", "+ccsid_+", "+system_); //@D2A
+        Trace.log(Trace.CONVERSION, "AS400Text object initialized to "+encoding_+", "+ccsid_+", "+system_+", "+tableImpl_); //@D2A
       }
     }
   }
@@ -435,20 +436,7 @@ public class AS400Text implements AS400DataType
 
     byte[] eValue = null;
     setTable(); // Make sure the table is set
-    if(tableImpl_ != null)
-    {
-//@E3D         if (type != 0)                                                        //$E0A
-//@E3D            eValue = tableImpl_.stringToByteArray((String)javaValue, type);    //$E0C
-//@E3D         else                                                                  //$E0A
       eValue = tableImpl_.stringToByteArray((String)javaValue, type);    //$E0C
-    }
-    else
-    {
-//@E3D         if (type != 0)                                                  //$E0A
-//@E3D            eValue = table_.stringToByteArray((String)javaValue, type);  //$E0C  // allow this line to throw ClassCastException
-//@E3D         else                                                            //$E0A
-      eValue = table_.stringToByteArray((String)javaValue, type);  //$E0C  // allow this line to throw ClassCastException
-    }
 
     // Check that converted data fits within data type
     if(eValue.length > length_)
@@ -456,156 +444,6 @@ public class AS400Text implements AS400DataType
       throw new ExtendedIllegalArgumentException("javaValue (" + javaValue.toString() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     System.arraycopy(eValue, 0, as400Value, offset, eValue.length);  // Let this line throw ArrayIndexException
-
-/*@E3D
-      // pad with spaces
-      int i = eValue.length;
-      if (i < length_)
-      {
-        switch (ccsid_)
-        {
-                // Unicode space 0x0020
-                case 13488:
-      case 17584: //@E1A
-                case 61952:
-                {
-                    for (; i < length_-1; i+=2)
-                    {
-                        as400Value[offset+i] = 0x00;
-                        as400Value[offset+i+1] = 0x20;
-                    }
-                    break;
-                }
-
-                // Ascii space 0x20
-                case 437:
-      case 720: //@E1A
-                case 737:
-                case 775:
-                case 813:
-                case 819:
-                case 850:
-                case 852:
-                case 855:
-                case 856:
-                case 857:
-                case 860:
-                case 861:
-                case 862:
-                case 863:
-                case 864:
-                case 865:
-                case 866:
-                case 868:
-                case 869:
-                case 874:
-      case 878: //@E1A
-                case 912:
-                case 913:
-                case 914:
-                case 915:
-                case 916:
-                case 920:
-                case 921:
-                case 922:
-                case 942:
-                case 943:
-                case 948:
-                case 949:
-                case 950:
-                case 954:
-                case 964:
-                case 970:
-                case 1006:
-                case 1046:
-                case 1089:
-                case 1098:
-                case 1124:
-                case 1250:
-                case 1251:
-                case 1252:
-                case 1253:
-                case 1254:
-                case 1255:
-                case 1256:
-                case 1257:
-                case 1258:
-                case 1275:
-                case 1280:
-                case 1281:
-                case 1282:
-                case 1283:
-                case 1350:
-                case 1381:
-                case 1383:
-      case 5479: //@E1A
-      case 9146: //@E1A
-                case 33722:
-                {
-                    for (; i < length_; ++i)
-                    {
-                        as400Value[offset+i] = 0x20;
-                    }
-                    break;
-                }
-
-                // Ebcdic space 0x40
-                // case 37:
-                // case 273:
-                // case 277:
-                // case 278:
-                // case 280:
-                // case 284:
-                // case 285:
-                // case 297:
-                // case 290:
-                // case 300:
-                // case 420:
-                // case 423:
-                // case 424:
-                // case 500:
-                // case 833:
-                // case 834:
-                // case 835:
-                // case 836:
-                // case 837:
-                // case 838:
-                // case 870:
-                // case 871:
-                // case 875:
-                // case 880:
-                // case 918:
-                // case 930:
-                // case 933:
-                // case 935:
-                // case 937:
-                // case 939:
-                // case 1025:
-                // case 1026:
-                // case 1027:
-                // case 1097:
-                // case 1112:
-                // case 1122:
-                // case 1123:
-                // case 1130:
-                // case 1132:
-                // case 1388:
-                // case 4933:
-                // case 5026:
-                // case 5035:
-                // case 28709:
-                default:
-                {
-                    for (; i < length_; ++i)
-                    {
-                        as400Value[offset+i] = 0x40;
-                    }
-                    break;
-                }
-        }
-      }
-*///@E0D
-
 
 //@E0A - pad with spaces
     // Note that this may sort of kludge the byte array in cases where the allocated size isn't
@@ -621,8 +459,6 @@ public class AS400Text implements AS400DataType
       if(padding_ == null)
       {
         // Convert padding string using appropriate ccsid
-        if(tableImpl_ != null)
-        {
           padding_ = tableImpl_.stringToByteArray("\u0020"); // the single-byte space
           // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
           switch(padding_.length)
@@ -644,46 +480,14 @@ public class AS400Text implements AS400DataType
               }
               break;
             default:
-              if(Trace.isTraceOn())
-              {
+            if (Trace.traceOn_)
+            {
                 Trace.log(Trace.WARNING, "AS400Text.toBytes(): Padding character not found for 0x0020 or 0x3000 under ccsid "+tableImpl_.getCcsid(), padding_, 0, padding_.length);
                 Trace.log(Trace.WARNING, "Using 0x40 as default padding character.");
               }
               padding_ = new byte[] { 0x40};
           }
         }
-        else
-        {
-          padding_ = table_.stringToByteArray("\u0020"); // the single-byte space
-          // Either 0020 or 3000 must translate to a valid space character, no matter the codepage.
-          switch(padding_.length)
-          {
-            case 0: // char wasn't in table
-              padding_ = table_.stringToByteArray("\u3000");
-              break;
-            case 1: // char may be a single-byte substitution character
-              if(padding_[0] == 0x3F || padding_[0] == 0x7F || padding_[0] == 0x1A)
-              {
-                padding_ = table_.stringToByteArray("\u3000");
-              }
-              break;
-            case 2: // char may be a double-byte substitution character
-              int s = (0xFFFF & BinaryConverter.byteArrayToShort(padding_, 0));
-              if(s == 0xFEFE || s == 0xFFFD || s == 0x003F || s == 0x007F || s == 0x001A)
-              {
-                padding_ = table_.stringToByteArray("\u3000");
-              }
-              break;
-            default:
-              if(Trace.isTraceOn())
-              {
-                Trace.log(Trace.WARNING, "AS400Text.toBytes(): Padding character not found for 0x0020 or 0x3000 under ccsid "+table_.getCcsid(), padding_, 0, padding_.length);
-                Trace.log(Trace.WARNING, "Using 0x40 as default padding character.");
-              }
-              padding_ = new byte[] { 0x40};
-          }
-        }
-      }
       // Copy padding bytes into destination as many times as necessary
       // Could've used a StringBuffer and a System.arraycopy, but this is faster...
       int max = (offset+length_) < as400Value.length ? (offset+length_) : as400Value.length;
@@ -700,7 +504,7 @@ public class AS400Text implements AS400DataType
     {
       as400Value[i+index] = padding_[i % padding_.length];
     }
-        if(Trace.isTraceOn())
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.CONVERSION, "AS400Text.toBytes(): Converted javaValue ("+javaValue+") to:", as400Value, offset, length_);
     }
@@ -722,12 +526,8 @@ public class AS400Text implements AS400DataType
       throw new NullPointerException("as400Value");
     }
     setTable(); // Make sure the table is set
-    if(tableImpl_ != null)
-    {
       return tableImpl_.byteArrayToString(as400Value, 0, length_); //@D0A  $E0C   $E2C
     }
-    return table_.byteArrayToString(as400Value, 0, length_);
-  }
 
 
   /**
@@ -744,12 +544,8 @@ public class AS400Text implements AS400DataType
       throw new NullPointerException("as400Value");
     }
     setTable(); // Make sure the table is set
-    if(tableImpl_ != null)
-    {
       return tableImpl_.byteArrayToString(as400Value, offset, length_); //@D0A  $E0C  $E2C
     }
-    return table_.byteArrayToString(as400Value, offset, length_);
-  }
 
   /**
     Converts the specified AS/400 data type to a Java object.
@@ -769,10 +565,6 @@ public class AS400Text implements AS400DataType
       throw new NullPointerException("as400Value");
     }
     setTable(); // Make sure the table is set
-    if(tableImpl_ != null)
-    {
       return tableImpl_.byteArrayToString(as400Value, offset, length_, type); //@D0A
     }
-    return table_.byteArrayToString(as400Value, offset, length_, type);
-  }
 }
