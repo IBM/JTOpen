@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,6 @@ package com.ibm.as400.access;
  **/
 public interface Copyright
 {
-    public static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    public static final String version   = "Open Source Software, JTOpen 4.2, codebase 5722-JC1 V5R3M0";
+    public static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+    public static final String version   = "Open Source Software, JTOpen 4.3, codebase 5722-JC1 V5R3M0.1";
 }
