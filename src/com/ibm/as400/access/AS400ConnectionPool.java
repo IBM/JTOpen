@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ConnectionPool.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ import java.beans.PropertyChangeEvent;
  **/
 public class AS400ConnectionPool extends ConnectionPool implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   static final long serialVersionUID = 4L;
@@ -97,7 +97,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   private transient Log log_;
 
   // Handles loading the appropriate resource bundle
-  private static ResourceBundleLoader loader_;
+//@CRS  private static ResourceBundleLoader loader_;
 
   /**
    *  Constructs an AS400ConnectionPool with default ConnectionPoolProperties.
@@ -135,8 +135,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         }
       }
     } 
-    ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.MAINTENANCE_THREAD_RUN);
-    poolListeners_.fireMaintenanceThreadRun(poolEvent);
+    if (poolListeners_ != null)
+    {
+      ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(this, ConnectionPoolEvent.MAINTENANCE_THREAD_RUN);
+      poolListeners_.fireMaintenanceThreadRun(poolEvent);
+    }
   }        
 
 
@@ -145,7 +148,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    **/
   public void close()
   {
-    log(loader_.getText("AS400CP_SHUTDOWN"));
+    log(ResourceBundleLoader.getText("AS400CP_SHUTDOWN"));
     synchronized (as400ConnectionPool_)
     {
       Enumeration keys = as400ConnectionPool_.keys();
@@ -161,9 +164,12 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     if (maintenance_ != null && maintenance_.isRunning())
       maintenance_.setRunning(false);
 
-    ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_POOL_CLOSED);
-    poolListeners_.fireClosedEvent(event);  
-    log(loader_.getText("AS400CP_SHUTDOWNCOMP"));
+    if (poolListeners_ != null)
+    {
+      ConnectionPoolEvent event = new ConnectionPoolEvent(this, ConnectionPoolEvent.CONNECTION_POOL_CLOSED);
+      poolListeners_.fireClosedEvent(event);
+    }
+    log(ResourceBundleLoader.getText("AS400CP_SHUTDOWNCOMP"));
   }
 
 
@@ -210,7 +216,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     try
     {
       ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-      log(loader_.substitute(loader_.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
+      log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
                                systemName, userID} ));
       // create the specified number of connections
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
@@ -235,7 +241,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       }
       if (maintenance_ != null && maintenance_.isRunning())
         cleanupConnections();
-      log(loader_.getText("AS400CP_FILLEXC"));         
+      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));         
       throw new ConnectionPoolException(e);
     }
     catch (IOException ie)                                  //@A2A
@@ -251,7 +257,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       }                                          //@A2A
       if (maintenance_ != null && maintenance_.isRunning())                //@A2A
         cleanupConnections();                               //@A2A
-      log(loader_.getText("AS400CP_FILLEXC"));                       //@A2A
+      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));                       //@A2A
       throw new ConnectionPoolException(ie);                         //@A2A
     }                                           //@A2A
   }
@@ -288,7 +294,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     try
     {
       ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
-      log(loader_.substitute(loader_.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
+      log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
                                systemName, userID} ));
       // create the specified number of connections
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
@@ -315,7 +321,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       }
       if (maintenance_ != null && maintenance_.isRunning())
         cleanupConnections();
-      log(loader_.getText("AS400CP_FILLEXC"));         
+      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));         
       throw new ConnectionPoolException(e);
     }
     catch (IOException ie)                                  //@A2A
@@ -330,7 +336,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       }                                          //@A2A
       if (maintenance_ != null && maintenance_.isRunning())
         cleanupConnections();                               //@A2A
-      log(loader_.getText("AS400CP_FILLEXC"));                       //@A2A
+      log(ResourceBundleLoader.getText("AS400CP_FILLEXC"));                       //@A2A
       throw new ConnectionPoolException(ie);                         //@A2A
     }                                           //@A2A
   }
@@ -432,8 +438,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       AS400 releaseConnection = getConnection(systemName, userID, service, true, false, null, password); //@B3C add null locale //@B4C
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
       return releaseConnection;
     }
     catch (AS400SecurityException e)
@@ -469,8 +478,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       AS400 releaseConnection = getConnection(systemName, userID, service, true, false, locale, password);     //@B4C
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
-      poolListeners_.fireConnectionReleasedEvent(event); 
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
       return releaseConnection;
     }
     catch (AS400SecurityException e)
@@ -540,8 +552,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, null, password);  //@B3C add null locale //@B4C
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
       return releaseConnection; 
     }
     catch (AS400SecurityException e)
@@ -575,8 +590,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       AS400 releaseConnection = getConnection(systemName, userID, 0, false, false, locale, password); //@B4C
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
-      poolListeners_.fireConnectionReleasedEvent(event); 
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
       return releaseConnection; 
     }
     catch (AS400SecurityException e)
@@ -679,33 +697,33 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         {
           if (maintenance_ == null) //@CRS
           {
-            maintenance_ = new PoolMaintenance();
+            maintenance_ = new PoolMaintenance(this);
             maintenance_.start();
             // Give thread a chance to start.
-            if (!maintenance_.isRunning())             //@A1A
-            {
-              try
-              {                                //@A1A																 //@A1A
-                Thread.sleep(10);                      //@A1A
-              }                                //@A1A
-              catch (InterruptedException e)             //@A1A
-              {
-                /*Should not happen*/
-              }                                //@A1A
-            }
+//            if (!maintenance_.isRunning())             //@A1A
+//            {
+//              try
+//              {                                //@A1A																 //@A1A
+//                Thread.sleep(10);                      //@A1A
+//              }                                //@A1A
+//              catch (InterruptedException e)             //@A1A
+//              {
+            /*Should not happen*/
+//              }                                //@A1A
+//            }
             // If thread has still not started, keep giving it chances for 5 minutes.
-            for (int i = 1; !maintenance_.isRunning() && i<6000; i++)      //@A1C 
-            {
-               try
-               {                    //@A1A										 //@A1A
-                 Thread.sleep(50);                    //@A1A
-               }                          //@A1A
-               catch (InterruptedException e)
-               {  /*Should not happen*/
-               }                              //@A1A
-            }                                                        
-            if (!maintenance_.isRunning())                   //@A1A
-              Trace.log(Trace.WARNING, "maintenance thread failed to start");   //@A1A
+//            for (int i = 1; !maintenance_.isRunning() && i<6000; i++)      //@A1C 
+//            {
+//               try
+//               {                    //@A1A										 //@A1A
+//                 Thread.sleep(50);                    //@A1A
+//               }                          //@A1A
+//               catch (InterruptedException e)
+//               {  /*Should not happen*/
+//               }                              //@A1A
+//            }                                                        
+//            if (!maintenance_.isRunning())                   //@A1A
+//              Trace.log(Trace.WARNING, "maintenance thread failed to start");   //@A1A
           }
         }
       }
@@ -725,8 +743,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       {
         // no connection list exists, start a new list
         if (log_ != null)
-          log(loader_.substitute(loader_.getText("AS400CP_CONNLIST"), new String[] {systemName, userID} ));
-        connections = new ConnectionList(systemName, userID, getProperties());
+          log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_CONNLIST"), new String[] {systemName, userID} ));
+        connections = new ConnectionList(systemName, userID, properties_);
         // log_ can be null, meaning events should not be logged
         connections.setLog(log_);
 
@@ -737,7 +755,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
         //@B1D return sys.getAS400Object(); 
       }
-      
+
       //Get a connection from the list
       if (connect)
         return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
@@ -772,8 +790,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       AS400 releaseConnection = getConnection(systemName, userID, 0, false, true, null, password);  //@B3C add null locale //@B4C
       releaseConnection.getVRM();
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
-      poolListeners_.fireConnectionReleasedEvent(event); 
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); 
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
       return releaseConnection; 
     }
     catch (AS400SecurityException e)
@@ -843,8 +864,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);
       AS400 releaseConnection = getConnection(systemName, userID, service, true, true, null, password);  //@B3C add null locale //@B4C
-      ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
-      poolListeners_.fireConnectionReleasedEvent(event); 
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(releaseConnection, ConnectionPoolEvent.CONNECTION_RELEASED); //@A7C
+        poolListeners_.fireConnectionReleasedEvent(event); 
+      }
       return releaseConnection;
     }
     catch (AS400SecurityException e)
@@ -989,8 +1013,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       removedAS400ConnectionPool_.put(key, listToBeRemoved);
       as400ConnectionPool_.remove(key);
     }
-    else
+    else if (Trace.traceOn_)
+    {
       Trace.log(Trace.WARNING, "A list of connections for: " + key + "does not exist");
+    }
   } 
 
   /**
@@ -1003,10 +1029,11 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
   {
     // This method searches the lists of connections for a reference to the AS400
     // object that was returned.  There will be one list per systemName/userId key.
-    if (system == null)
-      throw new NullPointerException("system");
-    if (Trace.isTraceOn()) //@A5A
+    if (system == null) throw new NullPointerException("system");
+    if (Trace.traceOn_)
+    {
       Trace.log(Trace.INFORMATION, "returnConnectionToPool key= " + system.getSystemName() + "/" + system.getUserId()); //@A5A
+    }
     String key = createKey(system.getSystemName(), system.getUserId());
     ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
     PoolItem poolItem = null;
@@ -1014,7 +1041,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     // First look for the list for the systemName/userId key for the AS400 object.
     // If such a list exists, search that list for a reference to the AS400 object returned.
     if (connections != null)
+    {
       poolItem = connections.findElement(system);
+    }
 
     // If such an item is found, set it not in use and send an event that the connection
     // was returned to the pool.
@@ -1022,10 +1051,18 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       poolItem.setInUse(false);
       if (log_ != null)
-        log(loader_.substitute(loader_.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
-      ConnectionPoolEvent event = new ConnectionPoolEvent(poolItem.getAS400Object(), ConnectionPoolEvent.CONNECTION_RETURNED); //@A7C
-      poolListeners_.fireConnectionReturnedEvent(event);
-      Trace.log(Trace.INFORMATION, "returned connection to pool"); 
+      {
+        log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
+      }
+      if (poolListeners_ != null)
+      {
+        ConnectionPoolEvent event = new ConnectionPoolEvent(poolItem.getAS400Object(), ConnectionPoolEvent.CONNECTION_RETURNED); //@A7C
+        poolListeners_.fireConnectionReturnedEvent(event);
+      }
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.INFORMATION, "returned connection to pool");
+      }
     }
 
     // If the item was not found, search all the lists, looking for a reference to that 
@@ -1041,7 +1078,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         poolItem = connList.findElement(system);
         if (poolItem != null)
         {
-          Trace.log(Trace.WARNING, "connection belongs to a different list than expected");
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.WARNING, "connection belongs to a different list than expected");
+          }
           poolItem.getAS400Object().disconnectAllServices();
           connList.removeElement(system);  
           break;
@@ -1066,7 +1106,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
       // Start looking in the list with the systemName/userId combination.
       if (removedConnections != null)
+      {
         poolItem = removedConnections.findElement(system);
+      }
 
       // If the object is found, disconnect it and remove the element from removed pool.
       if (poolItem != null)
@@ -1075,9 +1117,15 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
         removedConnections.removeElement(system); 
         if (log_ != null)
         {
-          log(loader_.substitute(loader_.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
+          log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_RETCONN"), new String[] {system.getSystemName(), system.getUserId()} ));
+        }
+        if (poolListeners_ != null)
+        {
           ConnectionPoolEvent event = new ConnectionPoolEvent(poolItem.getAS400Object(), ConnectionPoolEvent.CONNECTION_RETURNED); //@A7C
           poolListeners_.fireConnectionReturnedEvent(event);
+        }
+        if (Trace.traceOn_)
+        {
           Trace.log(Trace.INFORMATION, "returned connection to removed pool");
         }
       }
@@ -1096,7 +1144,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
           {
             poolItem.getAS400Object().disconnectAllServices();
             connList.removeElement(system);
-            Trace.log(Trace.INFORMATION, "returned connection to removed pool");
+            if (Trace.traceOn_)
+            {
+              Trace.log(Trace.INFORMATION, "returned connection to removed pool");
+            }
             break;
           }
         } 
@@ -1105,8 +1156,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
       // If the object was not found in either pool, it does not belong to the pool
       // and trace a warning message.
-      if (poolItem == null)
+      if (poolItem == null && Trace.traceOn_)
+      {
         Trace.log(Trace.WARNING, "connection does not belong to this pool");
+      }
     }
 
     //If running single-threaded and cleanup interval has elapsed, run cleanup
@@ -1123,51 +1176,54 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    **/
   void runMaintenance(boolean reduced)
   {
-    if (maintenance_ != null && maintenance_.isRunning())
+    if (maintenance_ != null)
     {
       synchronized(maintenance_)
       {
-        if (reduced)
+        if (maintenance_.isRunning())
         {
-          synchronized (as400ConnectionPool_)
+          if (reduced)
           {
-            Enumeration keys = as400ConnectionPool_.keys();
-            while (keys.hasMoreElements())
+            synchronized (as400ConnectionPool_)
             {
-              String key = (String)keys.nextElement();
-              try
+              Enumeration keys = as400ConnectionPool_.keys();
+              while (keys.hasMoreElements())
               {
-                ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(key);
-                connList.shutDownOldest(); 
-              }
-              catch (Exception e)
-              {
-                log(e, key);
+                String key = (String)keys.nextElement();
+                try
+                {
+                  ConnectionList connList = (ConnectionList)as400ConnectionPool_.get(key);
+                  connList.shutDownOldest(); 
+                }
+                catch (Exception e)
+                {
+                  log(e, key);
+                }
               }
             }
           }
-        }
-        //@A6A Start new code
-        synchronized (removedAS400ConnectionPool_)                              
-        {
-          Enumeration removedKeys = removedAS400ConnectionPool_.keys();       
-          while (removedKeys != null && removedKeys.hasMoreElements())
+          //@A6A Start new code
+          synchronized (removedAS400ConnectionPool_)                              
           {
-            //go through each list of systemName/userID
-            String key = (String)removedKeys.nextElement();                                                                                 
-            ConnectionList connList = (ConnectionList)removedAS400ConnectionPool_.get(key); 
-            //disconnect and remove any unused connections from the list
-            if (!connList.removeUnusedElements())
+            Enumeration removedKeys = removedAS400ConnectionPool_.keys();       
+            while (removedKeys != null && removedKeys.hasMoreElements())
             {
-              //if there are no more connections remaining, remove the 
-              //list from the pool
-              removedAS400ConnectionPool_.remove(key);                
-            }
+              //go through each list of systemName/userID
+              String key = (String)removedKeys.nextElement();                                                                                 
+              ConnectionList connList = (ConnectionList)removedAS400ConnectionPool_.get(key); 
+              //disconnect and remove any unused connections from the list
+              if (!connList.removeUnusedElements())
+              {
+                //if there are no more connections remaining, remove the 
+                //list from the pool
+                removedAS400ConnectionPool_.remove(key);                
+              }
 
-          }                                                                   
-        }                                                                       
-        //@A6A End new code
-        maintenance_.notify();
+            }                                                                   
+          }                                                                       
+          //@A6A End new code
+          maintenance_.notify();
+        }
       }
     }
   }

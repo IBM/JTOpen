@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConnectionPoolProperties.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,51 +29,55 @@ import java.io.Serializable;
 **/
 class ConnectionPoolProperties implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    static final long serialVersionUID = 4L;
+  static final long serialVersionUID = 4L;
 
 
-   private long cleanupInterval_ = 300000;				   // 5 minutes maintenance intervals
-   private int maxConnections_ = -1;				         // maximum number of active connections for the datasource.
-   private long maxInactivity_ = 3600000;	               // 60 minutes
-   private long maxLifetime_ = 86400000;	               // 24 hours
-   private int maxUseCount_ = -1;                        // maximum number of times connection can be used.
-   private long maxUseTime_ = -1;					         // maximum usage time, release after this period, -1 for never
-   private boolean useThreads_ = true;                 
+  private long cleanupInterval_ = 300000;           // 5 minutes maintenance intervals
+  private int maxConnections_ = -1;                 // maximum number of active connections for the datasource.
+  private long maxInactivity_ = 3600000;                // 60 minutes
+  private long maxLifetime_ = 86400000;                 // 24 hours
+  private int maxUseCount_ = -1;                        // maximum number of times connection can be used.
+  private long maxUseTime_ = -1;                  // maximum usage time, release after this period, -1 for never
+  private boolean useThreads_ = true;                 
 
-   transient private PropertyChangeSupport changes_;
+  transient private PropertyChangeSupport changes_;
 
 	/**
 	*  Constructs a default ConnectionPoolProperties object.  
    **/
 	public ConnectionPoolProperties()
 	{
-      initializeTransient();
-	}	
+//      initializeTransient();
+  } 
 
-   /**
-   *  Adds a PropertyChangeListener.
-   *  @param listener The PropertyChangeListener.
-   *  @see #removePropertyChangeListener
-   **/
-   public void addPropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
+  /**
+  *  Adds a PropertyChangeListener.
+  *  @param listener The PropertyChangeListener.
+  *  @see #removePropertyChangeListener
+  **/
+  public void addPropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null)
+      throw new NullPointerException("listener");
 
+    synchronized(this)
+    {
+      if (changes_ == null) changes_ = new PropertyChangeSupport(this);
       changes_.addPropertyChangeListener(listener);
-   }
+    }
+  }
 
-   /**
-   *  Indicates whether threads are used in communication with the host servers.
-   *  The default value is true.
-   *  @return true if threads are used; false otherwise.
-   **/
-   public boolean isThreadUsed()
-   {
+  /**
+  *  Indicates whether threads are used in communication with the host servers.
+  *  The default value is true.
+  *  @return true if threads are used; false otherwise.
+  **/
+  public boolean isThreadUsed()
+  {
    	return useThreads_;
-   }
+  }
 
 
 	/**
@@ -85,12 +89,12 @@ class ConnectionPoolProperties implements Serializable
 	{
 		return cleanupInterval_;
 	}
-	
-   /**
-	*  Returns the maximum number of connections.
-   *  The default value is -1 indicating no limit to the number of connections.
-	*  @return Maximum number of connections.
-	**/
+
+  /**
+ *  Returns the maximum number of connections.
+  *  The default value is -1 indicating no limit to the number of connections.
+ *  @return Maximum number of connections.
+ **/
 	public int getMaxConnections()
 	{
 		return maxConnections_;
@@ -117,96 +121,98 @@ class ConnectionPoolProperties implements Serializable
 	{
 		return maxLifetime_;
 	}
-	
-   /**
-	*  Returns the maximum number of times a connection can be used before it is replaced in the pool.
-	*  The default value is -1.  A value of -1 indicates that there is no limit.
-	*  @return Maximum usage count.
-	**/
+
+  /**
+ *  Returns the maximum number of times a connection can be used before it is replaced in the pool.
+ *  The default value is -1.  A value of -1 indicates that there is no limit.
+ *  @return Maximum usage count.
+ **/
 	public int getMaxUseCount()
 	{
 		return maxUseCount_;
 	}
-	
-   /**
-	*  Returns the maximum amount of time a connection can be in use before it is closed and returned to the pool.
-	*  The default value is -1 indicating that there is no limit.
-	*  @return Number of milliseconds.
-	**/
+
+  /**
+ *  Returns the maximum amount of time a connection can be in use before it is closed and returned to the pool.
+ *  The default value is -1 indicating that there is no limit.
+ *  @return Number of milliseconds.
+ **/
 	public long getMaxUseTime()
 	{
 		return maxUseTime_;
 	}
 
-   /**
-   *  Initializes the transient data.
-   **/
-   private void initializeTransient()
-   {
-      changes_ = new PropertyChangeSupport(this);
-   }
+  /**
+  *  Initializes the transient data.
+  **/
+//   private void initializeTransient()
+//   {
+//      changes_ = new PropertyChangeSupport(this);
+//   }
 
-   /**
-   *  Deserializes and initializes transient data.
-   *  @exception IOException If a file I/O error occurs.
-   *  @exception ClassNotFoundException If a file error occurs.
-   **/
-   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
-   {
-      in.defaultReadObject();
+  /**
+  *  Deserializes and initializes transient data.
+  *  @exception IOException If a file I/O error occurs.
+  *  @exception ClassNotFoundException If a file error occurs.
+  **/
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+  {
+    in.defaultReadObject();
 
-      initializeTransient();
-   }
-	
-   /**
-   *  Removes a PropertyChangeListener.
-   *  @param listener The PropertyChangeListener.
-   *  @see #addPropertyChangeListener
-   **/
-   public void removePropertyChangeListener(PropertyChangeListener listener)
-   {
-      if (listener == null) 
-         throw new NullPointerException("listener");
+//      initializeTransient();
+  }
 
-      changes_.removePropertyChangeListener(listener);
-   }
-
-   /**
-	*  Sets the time interval for how often the maintenance daemon is run.
-	*  The default value is 300000 milliseconds or 5 minutes.
-	*  @param cleanupInterval The number of milliseconds.
+  /**
+  *  Removes a PropertyChangeListener.
+  *  @param listener The PropertyChangeListener.
+  *  @see #addPropertyChangeListener
 	**/
+  public void removePropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null)
+      throw new NullPointerException("listener");
+
+    if (changes_ != null) changes_.removePropertyChangeListener(listener);
+  }
+
+  /**
+ *  Sets the time interval for how often the maintenance daemon is run.
+ *  The default value is 300000 milliseconds or 5 minutes.
+ *  @param cleanupInterval The number of milliseconds.
+ **/
 	public void setCleanupInterval(long cleanupInterval)
 	{
-      String property = "cleanupInterval";
+    String property = "cleanupInterval";
 
-      if (cleanupInterval < 0) 
-         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    if (cleanupInterval < 0)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Long oldValue = new Long(getCleanupInterval());
-      Long newValue = new Long(cleanupInterval);
+//      Long oldValue = new Long(getCleanupInterval());
+//      Long newValue = new Long(cleanupInterval);
+    long oldValue = cleanupInterval_;
 
 		cleanupInterval_ = cleanupInterval;
-      changes_.firePropertyChange(property, oldValue, newValue);
-	}
-	
-   /**
-	*  Sets the maximum number of connections.
-	*  The default value is -1 indicating no limit to the number of connections.
-	*  @param maxConnections Maximum number of connections.
-	**/
+    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(cleanupInterval));
+  }
+
+  /**
+ *  Sets the maximum number of connections.
+ *  The default value is -1 indicating no limit to the number of connections.
+ *  @param maxConnections Maximum number of connections.
+ **/
 	public void setMaxConnections(int maxConnections)
 	{
-      String property = "maxConnections";
-      if (maxConnections < -1) 
-         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    String property = "maxConnections";
+    if (maxConnections < -1)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Integer oldValue = new Integer(getMaxConnections());
-      Integer newValue = new Integer(maxConnections);
+//    Integer oldValue = new Integer(getMaxConnections());
+//    Integer newValue = new Integer(maxConnections);
+    int oldValue = maxConnections_;
 
 		maxConnections_ = maxConnections;
-      changes_.firePropertyChange(property, oldValue, newValue);
-	}
+    if (changes_ != null) changes_.firePropertyChange(property, new Integer(oldValue), new Integer(maxConnections));
+  }
 
  	/**
 	*  Sets the maximum amount of inactive time before the connection is closed.
@@ -216,16 +222,17 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxInactivity(long maxInactivity)
 	{
-      String property = "maxInactivity";
-      if (maxInactivity < -1) 
-         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    String property = "maxInactivity";
+    if (maxInactivity < -1)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Long oldValue = new Long(getMaxInactivity());
-      Long newValue = new Long(maxInactivity);
+//    Long oldValue = new Long(getMaxInactivity());
+//    Long newValue = new Long(maxInactivity);
+    long oldValue = maxInactivity_;
 
 		maxInactivity_ = maxInactivity;
-      changes_.firePropertyChange(property, oldValue, newValue);
-	}
+    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxInactivity));
+  }
 
 	/**
 	*  Sets the maximum life for an available connection.
@@ -235,16 +242,17 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxLifetime(long maxLifetime)
 	{
-      String property = "maxLifetime";
-      if (maxLifetime < -1) 
-         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    String property = "maxLifetime";
+    if (maxLifetime < -1)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Long oldValue = new Long(getMaxLifetime());
-      Long newValue = new Long(maxLifetime);
+//    Long oldValue = new Long(getMaxLifetime());
+//    Long newValue = new Long(maxLifetime);
+    long oldValue = maxLifetime_;
 
 		maxLifetime_ = maxLifetime;
-      changes_.firePropertyChange(property, oldValue, newValue);
-	}
+    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxLifetime));
+  }
 
 
   /**
@@ -253,19 +261,20 @@ class ConnectionPoolProperties implements Serializable
    *  The default value is true.   
    *  @param useThreads true to use threads; false otherwise.
    **/
-   public void setThreadUsed(boolean useThreads, boolean isInUse)
-   {
-      String property = "threadUsed";
-      if (isInUse) 
-         throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+  public void setThreadUsed(boolean useThreads, boolean isInUse)
+  {
+    String property = "threadUsed";
+    if (isInUse)
+      throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
 
-      Boolean oldValue = new Boolean(isThreadUsed());
-      Boolean newValue = new Boolean(useThreads);
+//    Boolean oldValue = new Boolean(isThreadUsed());
+//    Boolean newValue = new Boolean(useThreads);
+    boolean oldValue = useThreads_;
 
-      useThreads_ = useThreads;
-      changes_.firePropertyChange(property, oldValue, newValue);
+    useThreads_ = useThreads;
+    if (changes_ != null) changes_.firePropertyChange(property, new Boolean(oldValue), new Boolean(useThreads));
 
-   }
+  }
 
 	/**
 	*  Sets the maximum number of times a connection can be used before it is replaced in the pool.
@@ -274,16 +283,17 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxUseCount(int maxUseCount)
 	{
-      String property = "maxUseCount";
-      if (maxUseCount < -1) 
-         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    String property = "maxUseCount";
+    if (maxUseCount < -1)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Integer oldValue = new Integer(getMaxUseCount());
-      Integer newValue = new Integer(maxUseCount);
+//    Integer oldValue = new Integer(getMaxUseCount());
+//    Integer newValue = new Integer(maxUseCount);
+    int oldValue = maxUseCount_;
 
 		maxUseCount_ = maxUseCount;
-      changes_.firePropertyChange(property, oldValue, newValue);
-   }
+    if (changes_ != null) changes_.firePropertyChange(property, new Integer(oldValue), new Integer(maxUseCount));
+  }
 
 	/**
 	*  Sets the maximum amount of time a connection can be in use before it is closed and returned to the pool.
@@ -292,14 +302,15 @@ class ConnectionPoolProperties implements Serializable
 	**/
 	public void setMaxUseTime(long maxUseTime)
 	{
-      String property = "maxUseTime";
-      if (maxUseTime < -1) 
-         throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    String property = "maxUseTime";
+    if (maxUseTime < -1)
+      throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      Long oldValue = new Long(getMaxUseTime());
-      Long newValue = new Long(maxUseTime);
+//    Long oldValue = new Long(getMaxUseTime());
+//    Long newValue = new Long(maxUseTime);
+    long oldValue = maxUseTime_;
 
 		maxUseTime_ = maxUseTime;
-      changes_.firePropertyChange(property, oldValue, newValue);
-	}
+    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxUseTime));
+  }
 }

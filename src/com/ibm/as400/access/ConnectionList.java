@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConnectionList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,9 +23,9 @@ import java.util.Locale;      //@B2A
   *  The connection list can remove connections that have exceeded inactivity time and 
   *  replace connections that have exceeded the maximum use count or maximum lifetime.
  **/
-class ConnectionList 
+final class ConnectionList 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   private String systemName_;
   private String userID_;
@@ -34,7 +34,7 @@ class ConnectionList
   private Vector connectionList_ = new Vector(); 
 
   // Handles loading the appropriate resource bundle
-  private static ResourceBundleLoader loader_;
+//@CRS  private static ResourceBundleLoader loader_;
 
   /**
    *  Construct a ConnectionList object.  
@@ -67,7 +67,7 @@ class ConnectionList
   void close()
   {
     if (log_ != null)
-      log(loader_.getText("CL_CLEANUP", new String[] {systemName_, userID_} ));
+      log(ResourceBundleLoader.getText("CL_CLEANUP", new String[] {systemName_, userID_} ));
     synchronized (connectionList_) 
     {
       int size = connectionList_.size();  //@A5M
@@ -78,7 +78,7 @@ class ConnectionList
       }
       connectionList_.removeAllElements();   
     }
-    log(loader_.getText("CL_CLEANUPCOMP"));
+    log(ResourceBundleLoader.getText("CL_CLEANUPCOMP"));
   }
 
 
@@ -100,19 +100,19 @@ class ConnectionList
   throws AS400SecurityException, IOException, ConnectionPoolException  //@A1C
   {     
     if (log_ != null)
-      log(loader_.getText("CL_CREATING", new String[] {systemName_, userID_} ));
+      log(ResourceBundleLoader.getText("CL_CREATING", new String[] {systemName_, userID_} ));
 
     if ((properties_.getMaxConnections() > 0) && 
         (getConnectionCount() >= properties_.getMaxConnections()))
     {
-      log(loader_.getText("CL_CLEANUPEXP"));
+      log(ResourceBundleLoader.getText("CL_CLEANUPEXP"));
       // see if anything frees up
       removeAndReplace(poolListeners);  
 
       // if that didn't do the trick, try shutting down unused connections
       if (getConnectionCount() >= properties_.getMaxConnections())
       {
-        log(loader_.getText("CL_CLEANUPOLD"));
+        log(ResourceBundleLoader.getText("CL_CLEANUPOLD"));
         shutDownOldest(); 
         // if not enough connections were freed, throw an exception!
         if (getConnectionCount() >= properties_.getMaxConnections())
@@ -146,10 +146,15 @@ class ConnectionList
     sys.setInUse(true);
     connectionList_.addElement(sys);  
 
-    ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys.getAS400Object(), ConnectionPoolEvent.CONNECTION_CREATED); //@A5C
-    poolListeners.fireConnectionCreatedEvent(poolEvent);  
+    if (poolListeners != null)
+    {
+      ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(sys.getAS400Object(), ConnectionPoolEvent.CONNECTION_CREATED); //@A5C
+      poolListeners.fireConnectionCreatedEvent(poolEvent);  
+    }
     if (log_ != null)
-      log(loader_.getText("CL_CREATED", new String[] {systemName_, userID_} ));
+    {
+      log(ResourceBundleLoader.getText("CL_CREATED", new String[] {systemName_, userID_} ));
+    }
     return sys;
   }
 
@@ -488,11 +493,14 @@ class ConnectionList
         {
           // remove any item that has exceeded inactivity time
           if (log_ != null)
-            log(loader_.getText("CL_REMUNUSED", new String[] {systemName_, userID_} ));
+            log(ResourceBundleLoader.getText("CL_REMUNUSED", new String[] {systemName_, userID_} ));
           p.getAS400Object().disconnectAllServices();
           connectionList_.removeElementAt(i);
-          ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
-          poolListeners.fireConnectionExpiredEvent(poolEvent);  
+          if (poolListeners != null)
+          {
+            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
+            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+          }
         }
         else
         {
@@ -501,7 +509,7 @@ class ConnectionList
           {
             //@B4C remove any item that exceeded maximum use count	
             if (log_ != null)
-              log(loader_.getText("CL_REPUSE", new String[] {systemName_, userID_} ));
+              log(ResourceBundleLoader.getText("CL_REPUSE", new String[] {systemName_, userID_} ));
             p.getAS400Object().disconnectAllServices();
             //@B4D PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400), p.getAS400Object().getLocale());	  //@B2C
             //@B4D reconnectAllServices(p, newItem);
@@ -509,15 +517,18 @@ class ConnectionList
             //@B4D connectionList_.insertElementAt(newItem, i);
             //@B4D AS400 sys = p.getAS400Object();	//@A5A
             //@B4D p = newItem;
-            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
-            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+            if (poolListeners != null)
+            {
+              ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
+              poolListeners.fireConnectionExpiredEvent(poolEvent);  
+            }
           }
           if ((properties_.getMaxLifetime() >= 0) &&
               (p.getLifeSpan() >= properties_.getMaxLifetime()))
           {
             //@B4C remove any item that has lived past expected lifetime
             if (log_ != null)
-              log(loader_.getText("CL_REPLIFE", new String[] {systemName_, userID_} ));
+              log(ResourceBundleLoader.getText("CL_REPLIFE", new String[] {systemName_, userID_} ));
             p.getAS400Object().disconnectAllServices();
             //@B4D PoolItem newItem = new PoolItem(systemName_, userID_, (p.getAS400Object() instanceof SecureAS400), p.getAS400Object().getLocale());	  //@B2C
             //@B4D reconnectAllServices(p, newItem);
@@ -525,8 +536,11 @@ class ConnectionList
             //@B4D connectionList_.insertElementAt(newItem, i);             
             //@B4D AS400 sys = p.getAS400Object();	//@A5A
             //@B4D p = newItem;
-            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
-            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+            if (poolListeners != null)
+            {
+              ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C //@B2C
+              poolListeners.fireConnectionExpiredEvent(poolEvent);  
+            }
           }
           if ((properties_.getMaxUseTime() >= 0) &&
               (p.getInUseTime() >= properties_.getMaxUseTime()))
@@ -534,8 +548,11 @@ class ConnectionList
             // maximum usage time exceeded.  try and disconnect, then remove from list
             p.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(i);
-            ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
-            poolListeners.fireConnectionExpiredEvent(poolEvent);  
+            if (poolListeners != null)
+            {
+              ConnectionPoolEvent poolEvent = new ConnectionPoolEvent(p.getAS400Object(), ConnectionPoolEvent.CONNECTION_EXPIRED); //@A5C
+              poolListeners.fireConnectionExpiredEvent(poolEvent);  
+            }
           }
         }//end else
       }//end for
@@ -615,7 +632,7 @@ class ConnectionList
   void shutDownOldest()
   {
     if (log_ != null)
-      log(loader_.getText("CL_REMOLD", new String[] {systemName_, userID_} ));
+      log(ResourceBundleLoader.getText("CL_REMOLD", new String[] {systemName_, userID_} ));
     int oldest = 0;
     synchronized (connectionList_)
     {
@@ -647,7 +664,7 @@ class ConnectionList
             item.getAS400Object().disconnectAllServices();
             connectionList_.removeElementAt(oldest);   
             if (log_ != null)
-              log(loader_.getText("CL_REMOLDCOMP", new String[] {systemName_, userID_} ));
+              log(ResourceBundleLoader.getText("CL_REMOLDCOMP", new String[] {systemName_, userID_} ));
           }
         }//end if (connectionList_.size() > 0)	
       }//end fill  
