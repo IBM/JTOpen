@@ -30,7 +30,7 @@ interface IFSFileImpl
 
   long getFreeSpace() throws IOException;
   int getCCSID() throws IOException, AS400SecurityException;            //@A2a
-  int getOwnerId()  throws IOException, AS400SecurityException;        //@B7a
+  long getOwnerUID()  throws IOException, AS400SecurityException;       //@B7a @C0c
   String getSubtype() throws IOException, AS400SecurityException;      //@B5a
   int isDirectory0() throws IOException, AS400SecurityException;
   int isFile0() throws IOException, AS400SecurityException;

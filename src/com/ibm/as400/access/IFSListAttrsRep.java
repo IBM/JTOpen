@@ -314,14 +314,14 @@ Determine the object type (file, directory, etc.)
 
 // @B7a
 /**
-Get the "owner user ID" for the IFS file on the AS/400.
-@return the owner user ID for the IFS file on the AS/400
+Get the owner's "user ID" number for the IFS file on the AS/400.
+@return the owner's user ID number for the IFS file on the AS/400
 **/
-  int getOwnerId()
+  long getOwnerUID()  // @C0c
   {
     int fieldOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
                  LLCP_LENGTH + OWNER_OFFSET_INTO_OA2;
-    return get32bit(fieldOffset);
+    return (long)get32bit(fieldOffset) & 0x0FFFFFFFFL;  // @C0c
   }
 
 /**

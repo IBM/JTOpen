@@ -126,11 +126,11 @@ implements IFSFileImpl
 
   
   // @B7a
-  public int getOwnerId()
-    throws IOException, AS400SecurityException
+  public long getOwnerUID()
+    throws IOException, AS400SecurityException      // @C0c
   {
     try {
-      return connection_.callMethodReturnsInt (pxId_, "getOwnerId");
+      return connection_.callMethod (pxId_, "getOwnerUID").getReturnValueLong();   // @C0c
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);

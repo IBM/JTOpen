@@ -1045,13 +1045,40 @@ public class IFSFile
   }
 
 
-  // @B7a
+  // @C0a
   /**
-   Returns the integrated file system file's owner ID number.
+   Returns the "user ID number" of the owner of the integrated file system file.
    If the file is non-existent or is a directory, returns -1.
-   @return The file's owner ID number.
+   @return The file owner's ID number.
    @exception IOException If an error occurs while communicating with the server.
    **/
+  public long getOwnerUID()
+    throws IOException
+  {
+    // Design note: It would be preferable if we could report the user profile name instead of UID number.  However, the File Server doesn't report the user name.  FYI: There is a service program (QSYPAPI/getpwuid()) that reports the user profile name associated with a given uid number, but getpwuid returns its results as a pointer to a struct, which our ServiceProgramCall class can't handle at the moment.
+    long result = -1L;
+    try
+    {
+      if (exists())
+        result = impl_.getOwnerUID();
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+    return result;
+  }
+
+
+  // @B7a
+  /**
+   Returns the "user ID number" of the owner of the integrated file system file.
+   If the file is non-existent or is a directory, returns -1.
+   @return The file owner's ID number.
+   @exception IOException If an error occurs while communicating with the server.
+   @deprecated Use getOwnerUID() instead.
+   **/  // @C0c
   public int getOwnerId()
     throws IOException
   {
@@ -1060,7 +1087,7 @@ public class IFSFile
     try
     {
       if (exists())
-        result = impl_.getOwnerId();
+        result = (int)impl_.getOwnerUID();   // @C0c
     }
     catch (AS400SecurityException e)
     {

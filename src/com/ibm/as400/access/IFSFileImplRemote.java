@@ -431,19 +431,19 @@ implements IFSFileImpl
 
   // @B7a
   /**
-   Returns the file's owner userID.
+   Returns the file's owner's "user ID" number.
    Returns -1 if error.
    **/
-  public int getOwnerId()
-    throws IOException, AS400SecurityException
+  public long getOwnerUID()
+    throws IOException, AS400SecurityException        // @C0c
   {
     IFSListAttrsRep reply = listAttributes1();
     if (reply != null)
     {
       // Note: No need to do a setFD(fd_) on the reply, since offset of "owner" field is consistent across the various OA2* structures.
-      return reply.getOwnerId();
+      return reply.getOwnerUID();
     }
-    else return -1;
+    else return -1L;        // @C0c
   }
 
 
