@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,6 +98,7 @@ public class AS400BidiTransform
         //                 CCSID    String-Type
         /*Arabic.420*/   {   420,   ST4  },
         /*Hebrew.424*/   {   424,   ST4  },
+                         {   425,   ST5  }, // Arabic/Latin EBCDIC defined for OS/390 open edition
 
         /*Hebrew.856*/   {   856,   ST5  },
         /*Hebrew.862*/   {   862,   ST4  },
@@ -228,6 +229,7 @@ public class AS400BidiTransform
         {
           case 420:
           case 424:
+          case 425:
            case 856:
            case 862:
            case 864:
