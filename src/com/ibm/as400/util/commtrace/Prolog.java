@@ -349,13 +349,13 @@ public class Prolog {
 		    Time end = new Time(Long.parseLong((ctsfsptm.toString())));
 		    formatedData.append("    " + end.toString() + "\n");
 	  
-		    String ctsfstrbs = "",
-				   ctsfendbs = "";
-		    if((ctsfstrb.toString()).equals("0")) {
+		    String ctsfstrbs = ctsfstrb.toString(),
+				   ctsfendbs = ctsfendb.toString();
+		    if(ctsfstrbs.equals("0") || ctsfstrbs.equals("100")) {
 				ctsfstrbs=CALC;
 		    }
-		    if((ctsfstrb.toString()).equals("0")) {
-				ctsfstrbs=CALC;
+		    if(ctsfendbs.equals("0")) {
+				ctsfendbs=CALC;
 			}
 
 		    Object [] args2 = {
