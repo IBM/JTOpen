@@ -32,7 +32,7 @@ import java.util.Vector;
   current row of data.  The initial position in the list is set before the
   first row.  The <i>next</i> method moves to the next row in the list.
 
-  <P>The <i>getObject</i> method is used to retrieve the column value for
+  <P>The <i>getString</i> method is used to retrieve the column value for
   the current row indexed by the column number.  Columns are numbered
   starting from 0.
 
