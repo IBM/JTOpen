@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 **/
 public class Command implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   /** 
    * NOTE:   This class uses the QCDRCMDD and QCDRCMDI system APIs to retrieve information about an OS/400 CL command.
@@ -223,6 +223,7 @@ public class Command implements Serializable
   private boolean refreshedXML2_ = false;
   private boolean refreshedHelpIDs_ = false;
   private boolean refreshedHelpText_ = false;  
+  private boolean refreshedParsedXML_ = false;
   private boolean loadedDescription_ = false;
 
   // List of property change event bean listeners.
@@ -779,8 +780,8 @@ public class Command implements Serializable
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
-    if (!refreshedHelpIDs_)
-      refreshHelpIDs();
+    if (!refreshedParsedXML_)
+      refreshParsedXML();
     return xmlProductLibrary_;
   }
 
@@ -793,8 +794,8 @@ public class Command implements Serializable
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
-    if (!refreshedHelpIDs_)
-      refreshHelpIDs();
+    if (!refreshedParsedXML_)
+      refreshParsedXML();
     return xmlPanelGroup_;
   }
 
@@ -820,7 +821,7 @@ public class Command implements Serializable
    * @return The help text.
    * @see #getXMLPanelGroup
   **/
-  public String getXMLHelpText(PanelGroup panelGroup) throws AS400Exception, AS400SecurityException,
+  public synchronized String getXMLHelpText(PanelGroup panelGroup) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
@@ -837,6 +838,7 @@ public class Command implements Serializable
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpText("+pg+").");
     xmlHelpText_ = null;
     String pGroup = (pg == null ? getXMLPanelGroup() : pg.getPath());
     String prdLib = getXMLProductLibrary();
@@ -904,11 +906,11 @@ public class Command implements Serializable
   }
 
 
-  private synchronized void refreshHelpIDs() throws AS400Exception, AS400SecurityException,
+  private synchronized void refreshParsedXML() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
   {
-    helpIDs_ = null;
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshParsedXML().");
     xmlPanelGroup_ = null;
     xmlProductLibrary_ = null;
     String xml = getXML();
@@ -923,71 +925,86 @@ public class Command implements Serializable
     String panelGroup = handler.getPanelGroup();
     String prodLib = handler.getProductLibrary();
     boolean added = false;
-    if (panelGroup != null)
+    if (panelGroup != null) xmlPanelGroup_ = panelGroup.trim();
+    if (prodLib != null) xmlProductLibrary_ = prodLib.trim();
+
+    refreshedParsedXML_ = true;
+  }
+    
+
+  private synchronized void refreshHelpIDs() throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException, SAXException, ParserConfigurationException
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs().");
+    helpIDs_ = null;
+    String xml = getXML();
+    CommandHelpHandler handler = new CommandHelpHandler();
+    SAXParserFactory factory = SAXParserFactory.newInstance();
+    factory.setNamespaceAware(false);
+    SAXParser parser = factory.newSAXParser();
+    parser.parse(new InputSource(new StringReader(xml)), handler);
+    
+    // Add the product library to the library list
+    // otherwise the API used by PanelGroup won't find the help text.
+    // First, check to see if it's there.
+    boolean added = false;
+    Job job = new Job(system_); // Current job
+    String[] userLibraries = job.getUserLibraryList();
+    String[] sysLibraries = job.getSystemLibraryList();
+    String curLibrary = job.getCurrentLibrary();
+    boolean exists = false;
+    if (curLibrary.trim().equalsIgnoreCase(xmlProductLibrary_))
     {
-      xmlPanelGroup_ = panelGroup.trim();
-      if (prodLib != null)
-      {
-        xmlProductLibrary_ = prodLib.trim();
-        // Add the product library to the library list
-        // otherwise the API used by PanelGroup won't find the help text.
-        // First, check to see if it's there.
-        Job job = new Job(system_); // Current job
-        String[] userLibraries = job.getUserLibraryList();
-        String[] sysLibraries = job.getSystemLibraryList();
-        String curLibrary = job.getCurrentLibrary();
-        boolean exists = false;
-        if (curLibrary.trim().equalsIgnoreCase(xmlProductLibrary_))
-        {
-          exists = true;
-        }
-        for (int i=0; i<userLibraries.length && !exists; ++i)
-        {
-          if (userLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
-          {
-            exists = true;
-          }
-        }
-        for (int i=0; i<sysLibraries.length && !exists; ++i)
-        {
-          if (sysLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
-          {
-            exists = true;
-          }
-        }
-        if (!exists)
-        {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs: Adding "+xmlProductLibrary_+" to library list.");
-          // We have to try to add it.
-          String addlible = "ADDLIBLE LIB("+xmlProductLibrary_+")";
-          CommandCall cc = new CommandCall(system_, addlible);
-          added = cc.run();
-        }
-      }
-
-      Vector keywords = handler.getKeywords();
-      String helpID = handler.getHelpID();
-      String[] ids = new String[keywords.size() + 3];
-      ids[0] = helpID;
-      ids[1] = helpID+"/ERROR/MESSAGES";
-      ids[2] = helpID+"/COMMAND/EXAMPLES";
-      for (int i=3; i<ids.length; ++i)
-      {
-        ids[i] = helpID+"/"+keywords.elementAt(i-3);
-      }
-      PanelGroup pg = getHelpPanelGroup();
-      helpIDs_ = pg.getHelpIdentifiers(ids);
-
-      // Remove the product library from the library list if we added it.
-      if (added)
-      {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+xmlProductLibrary_+" from library list.");
-        String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";
-        CommandCall cc = new CommandCall(system_, rmvlible);
-        cc.run();
-      }
-
+      exists = true;
     }
+    for (int i=0; i<userLibraries.length && !exists; ++i)
+    {
+      if (userLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
+      {
+        exists = true;
+      }
+    }
+    for (int i=0; i<sysLibraries.length && !exists; ++i)
+    {
+      if (sysLibraries[i].trim().equalsIgnoreCase(xmlProductLibrary_))
+      {
+        exists = true;
+      }
+    }
+    if (!exists)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Command.refreshHelpIDs: Adding "+xmlProductLibrary_+" to library list.");
+      // We have to try to add it.
+      String addlible = "ADDLIBLE LIB("+xmlProductLibrary_+")";
+      CommandCall cc = new CommandCall(system_, addlible);
+      added = cc.run();
+    }
+
+    Vector keywords = handler.getKeywords();
+    String helpID = handler.getHelpID();
+    String[] ids = new String[keywords.size() + 3];
+    ids[0] = helpID;
+    ids[1] = helpID+"/ERROR/MESSAGES";
+    ids[2] = helpID+"/COMMAND/EXAMPLES";
+    for (int i=3; i<ids.length; ++i)
+    {
+      ids[i] = helpID+"/"+keywords.elementAt(i-3);
+    }
+//    PanelGroup pg = getHelpPanelGroup();
+    String pgName = getXMLPanelGroup();
+    PanelGroup pg = new PanelGroup(system_, pgName);
+    helpIDs_ = pg.getHelpIdentifiers(ids);
+
+    // Remove the product library from the library list if we added it.
+    if (added)
+    {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "CommandHelpRetriever: Removing "+xmlProductLibrary_+" from library list.");
+      String rmvlible = "RMVLIBLE LIB("+xmlProductLibrary_+")";
+      CommandCall cc = new CommandCall(system_, rmvlible);
+      cc.run();
+    }
+
     refreshedHelpIDs_ = true;
   }
 
@@ -1172,6 +1189,7 @@ public class Command implements Serializable
   {
     refreshCommandInfo();
     refreshXML(true); // Refresh just the CMDD0100 format for now, since the 0200 format is new.
+    refreshParsedXML();
     refreshHelpIDs();
   }
 
