@@ -238,7 +238,7 @@ public class Command implements Serializable
   **/
   public Command()
   {
-    initializeTransient();
+//    initializeTransient();
   }
 
 
@@ -262,7 +262,7 @@ public class Command implements Serializable
     system_ = system;
     path_ = path;
 
-    initializeTransient();
+//    initializeTransient();
   }
 
   /**
@@ -1170,7 +1170,7 @@ public class Command implements Serializable
   private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
   {
     in.defaultReadObject();
-    initializeTransient();
+//    initializeTransient();
   }
 
 
@@ -1495,7 +1495,7 @@ public class Command implements Serializable
       refreshedParsedXML_ = false;
       loadedDescription_ = false;
 
-      if (propertyChangeListeners_) propertyChangeListeners_.firePropertyChange("system", old, system);
+      if (propertyChangeListeners_ != null) propertyChangeListeners_.firePropertyChange("system", old, system);
     }
   }
 
