@@ -327,7 +327,7 @@ public class FileListElement implements java.io.Serializable
     private boolean   sort_   = true;                       // @A2A                   
     transient private Collator  collator_ = null;                            // @A2A        @B3C
 
-    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
+    transient private PropertyChangeSupport changes_; //@P2C
 
 
     /**
@@ -501,6 +501,7 @@ public class FileListElement implements java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@P2A
         changes_.addPropertyChangeListener(listener);
     }
 
@@ -616,7 +617,7 @@ public class FileListElement implements java.io.Serializable
 
         // @C1D
 
-        StringBuffer buffer = new StringBuffer();
+        //@P2D StringBuffer buffer = new StringBuffer();
 
         String path = null; //@CRS
         if (parameterPathInfo_ == null) //@CRS
@@ -692,8 +693,8 @@ public class FileListElement implements java.io.Serializable
             {
                 // @C1D
 
-                String[] Table = conv.convert(rowData);
-                buffer.append(Table[0]);
+                return conv.convert(rowData)[0]; //@P2C
+                //@P2D buffer.append(table[0]);
             }
         }
         catch (PropertyVetoException e)
@@ -705,7 +706,7 @@ public class FileListElement implements java.io.Serializable
                 Trace.log(Trace.ERROR, rde);
         }
 
-        return buffer.toString();
+        return ""; //@P2C
     }
 
 
@@ -731,7 +732,7 @@ public class FileListElement implements java.io.Serializable
         }
 
         in.defaultReadObject();
-        changes_ = new PropertyChangeSupport(this);
+        //@P2D changes_ = new PropertyChangeSupport(this);
     }
 
 
@@ -746,7 +747,7 @@ public class FileListElement implements java.io.Serializable
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        changes_.removePropertyChangeListener(listener);
+        if (changes_ != null) changes_.removePropertyChangeListener(listener); //@P2C
     }
 
 
@@ -765,7 +766,7 @@ public class FileListElement implements java.io.Serializable
 
         collator_ = collator;
 
-        changes_.firePropertyChange("collator", old, collator_);
+        if (changes_ != null) changes_.firePropertyChange("collator", old, collator_); //@P2C
     }
 
 
@@ -784,7 +785,7 @@ public class FileListElement implements java.io.Serializable
 
         request_ = request;
 
-        changes_.firePropertyChange("request", old, request_);
+        if (changes_ != null) changes_.firePropertyChange("request", old, request_); //@P2C
     }
 
 
@@ -803,7 +804,7 @@ public class FileListElement implements java.io.Serializable
 
         renderer_ = renderer;
 
-        changes_.firePropertyChange("renderer", old, renderer_);
+        if (changes_ != null) changes_.firePropertyChange("renderer", old, renderer_); //@P2C
     }
 
 
@@ -821,7 +822,7 @@ public class FileListElement implements java.io.Serializable
         // @B1A
         sharePath_ = new StringBuffer(sharePath);                                  // @B1A
         // @B1A
-        changes_.firePropertyChange("sharePath", 
+        if (changes_ != null) changes_.firePropertyChange("sharePath", //@P2C
                                     old==null ? null : old.toString(), sharePath_.toString());       // @B1A
     }
 
@@ -840,7 +841,7 @@ public class FileListElement implements java.io.Serializable
         // @B1A
         shareName_ = new StringBuffer(shareName);            // @B1A
         // @B1A
-        changes_.firePropertyChange("shareName", 
+        if (changes_ != null) changes_.firePropertyChange("shareName", //@P2C
                                     old==null ? null : old.toString(), shareName_.toString());       // @B1A
     }
 
@@ -859,7 +860,7 @@ public class FileListElement implements java.io.Serializable
 
         system_ = system;
 
-        changes_.firePropertyChange("system", old, system_);
+        if (changes_ != null) changes_.firePropertyChange("system", old, system_); //@P2C
     }
 
 
@@ -878,7 +879,7 @@ public class FileListElement implements java.io.Serializable
 
         table_ = table;
 
-        changes_.firePropertyChange("table", old, table_);
+        if (changes_ != null) changes_.firePropertyChange("table", old, table_); //@P2C
     }
 
 
