@@ -136,10 +136,10 @@ Get the CCSID value for the IFS file on the AS/400.
     if (DEBUG) System.out.println("DEBUG IFSListAttrsRep.getCCSID(): " +
                                   "requestedDatastreamLevel_ = " + fd_.requestedDatastreamLevel_ +
                                   ", serverDatastreamLevel_ = " + fd_.serverDatastreamLevel_);
-    // Note: Only if the server is reporting Datastream Level 2 will have a CCSID field.
-    // If other than Level 2, we must make do with the codepage value.
+    // Note: Only if the server is reporting Datastream Level 2 (or later) will the reply have a CCSID field.
+    // If prior to Level 2, we must make do with the codepage value.
 
-    /* @B6a
+    /* @B6a @B9c
 
      Note: To figure out the format of the returned information, we need to
      consider both the requested and reported Datastream Levels:
@@ -155,6 +155,8 @@ Get the CCSID value for the IFS file on the AS/400.
      2                 F4F4            OA2a
 
      2                 2               OA2b
+
+     2                 3               OA2b
 
      Note: Since we only ever request level 0 or 2,
            the server will never report level 1.
@@ -174,13 +176,15 @@ Get the CCSID value for the IFS file on the AS/400.
           case 0xF4F4:
             offset_into_OA = CODE_PAGE_OFFSET_INTO_OA2a;
             break;
-          case 2:
+          ///case 2:     // @B9d
+          default:       // @B9c
             offset_into_OA = CCSID_OFFSET_INTO_OA2b;
             break;
-          default:
-            Trace.log(Trace.ERROR, "Unexpected server datastream level: " +
-                      fd_.serverDatastreamLevel_);
-            throw new InternalErrorException(InternalErrorException.UNKNOWN);
+          ///@B9d  
+          ///default:
+          ///  Trace.log(Trace.ERROR, "Unexpected server datastream level: " +
+          ///            fd_.serverDatastreamLevel_);
+          ///  throw new InternalErrorException(InternalErrorException.UNKNOWN);
         }
         break;
       default:
