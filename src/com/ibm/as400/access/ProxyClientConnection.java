@@ -15,6 +15,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Enumeration;                                   // @A2A
 import java.util.EventListener;
 import java.util.Locale;
 import java.util.Vector;
@@ -54,6 +55,7 @@ extends PxClientConnectionAdapter
 
     private int                     connectAttempts_    = 0;
     private PxEventSupport          eventSupport_;
+    private SecondaryFinalizerThread_ secondaryFinalizerThread_ = null;         // @A2A
     private Vector                  pxList_             = new Vector();
     
     
@@ -210,7 +212,8 @@ be garbage collected on the proxy server.
         if (pxList_.contains(pxId2)) {
             eventSupport_.removeAll(proxyId);
             PxFinalizeReqCV request = new PxFinalizeReqCV (proxyId);
-            send (request);
+            secondaryFinalizerThread_.addRequest(request);      // @A2A
+            // @A2D send (request);
             pxList_.removeElement(pxId2);
         }
     }
@@ -372,6 +375,18 @@ Calls a method on the proxy server.
 
 
 
+// @A2A
+/**
+Closes the connection to the proxy server.
+**/
+    public void close ()
+    {
+        super.close();
+        secondaryFinalizerThread_.stopSafely();
+    }
+
+
+
 /**
 Initiates the connection to the proxy server.
 **/
@@ -433,6 +448,10 @@ Initiates the connection to the proxy server.
         factory.register (new PxReturnRepCV ());
         factory.register (new PxExceptionRepCV ());
         factory.register (new PxEventRepCV (eventSupport_ = new PxEventSupport()));
+
+        // Start the secondary finalizer thread.                               @A2A
+        secondaryFinalizerThread_ = new SecondaryFinalizerThread_();        // @A2A    
+        secondaryFinalizerThread_.start();
     }
 
 
@@ -682,6 +701,59 @@ provides some common exception handling.
     }
 
     
+
+// @A2A
+    private class SecondaryFinalizerThread_ extends StoppableThread
+    {
+
+        private Vector      requests_ = new Vector();
+
+        
+        public SecondaryFinalizerThread_()
+        {
+            super("Proxy client secondary finalizer thread-" + newId());
+
+            // Mark this as a daemon thread so that its running does
+            // not prevent the JVM from going away.
+            setDaemon(true);
+        }
+
+
+
+        public void addRequest(PxReqCV request)
+        {
+            synchronized(requests_) {
+                requests_.addElement(request);
+                requests_.notify();
+            }
+        }
+
+
+
+        public void run()
+        {
+            while (canContinue()) {
+                synchronized(requests_) {
+                    try {
+                        requests_.wait();
+                    }
+                    catch(InterruptedException ignore) {
+                        // Ignore.
+                    }
+
+                    Enumeration enum = requests_.elements();
+                    while(enum.hasMoreElements()) {
+                        PxReqCV request = (PxReqCV)enum.nextElement();
+                        send(request);
+                    }
+                    requests_.removeAllElements();
+                }
+            }
+        }
+
+    }
+
+
 
 }
 
