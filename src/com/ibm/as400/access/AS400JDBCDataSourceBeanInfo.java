@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCDataSourceBeanInfo.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ import java.beans.SimpleBeanInfo;
 **/
 public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
    // Class this bean info represents.
@@ -319,7 +319,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
        timeSeparator.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TIME_SEPARATOR"));
        timeSeparator.setShortDescription(AS400JDBCDriver.getResource("TIME_SEPARATOR_DESC"));
 
-       PropertyDescriptor trace = new PropertyDescriptor("Trace", beanClass, "isTrace", "setTrace");
+       PropertyDescriptor trace = new PropertyDescriptor("trace", beanClass, "isTrace", "setTrace");  // @W2c
        trace.setBound(true);
        trace.setConstrained(false);
        trace.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRACE"));
