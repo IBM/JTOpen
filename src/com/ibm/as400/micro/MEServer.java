@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: AS400.java
+// Filename: MEServer.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -39,7 +39,7 @@ import com.ibm.as400.access.*;
  *
  *  <blockquote>
  *  <pre>
- *  <strong>java com.ibm.as400.access.MEServer</strong> [ options ]
+ *  <strong>java com.ibm.as400.micro.MEServer</strong> [ options ]
  *  </pre>
  *  </blockquote>
  *
@@ -92,23 +92,29 @@ import com.ibm.as400.access.*;
  *  
  *  <p>Start the server from the command line as follows:
  *  <pre>
- *  java com.ibm.as400.access.MEServer
+ *  java com.ibm.as400.micro.MEServer
  *  </pre>
  **/
 public class MEServer implements Runnable
 {
+    // MRI
+    private static final String ME_CONNECTION_ACCEPTED_ = ResourceBundleLoader_m.getText("ME_CONNECTION_ACCEPTED");
+
     // Private data.
     private Socket socket_;
-    private DataInputStream input_;
-    private DataOutputStream output_;
+    //private DataInputStream input_;
+    private MicroDataInputStream input_;
+    //private DataOutputStream output_;
+    private MicroDataOutputStream output_;
     private com.ibm.as400.access.AS400 system_;
     private com.ibm.as400.access.CommandCall cc_;
     private Connection connection_;
 
-    private final AS400JDBCDriver driver_ = new AS400JDBCDriver();
+    // increment datastream level whenever a client/server datastream change is made.
+    private static final int DATASTREAM_LEVEL = 0;  
 
-    private static PrintStream verbose_         = System.out;
-    private static boolean verboseState_              = false;
+    private static PrintStream verbose_ = System.out;
+    private static boolean verboseState_ = false;
 
     // Table of ProgramCallDocument objects.
     private static final Hashtable registeredDocuments_ = new Hashtable(); 
@@ -147,8 +153,10 @@ public class MEServer implements Runnable
     private MEServer(Socket s) throws IOException
     {
         socket_ = s;
-        input_ = new DataInputStream(socket_.getInputStream());
-        output_ = new DataOutputStream(socket_.getOutputStream());
+        //input_ = new DataInputStream(socket_.getInputStream());
+        input_ = new MicroDataInputStream( new BufferedInputStream( socket_.getInputStream() ) );
+        //output_ = new DataOutputStream(socket_.getOutputStream());
+        output_ = new MicroDataOutputStream( new BufferedOutputStream( socket_.getOutputStream() ) );
     }
 
 
@@ -161,6 +169,25 @@ public class MEServer implements Runnable
         cachedJDBCTransactions_.put(key, rs);
 
         return key.intValue();
+    }
+
+
+    // From com.ibm.as400.access.BinaryConverter
+    static char[] byteArrayToCharArray(byte[] byteValue)
+    {
+        if (byteValue == null)
+            return null;
+
+        char[] charValue = new char[byteValue.length / 2];
+        int inPos = 0;
+        int outPos = 0;
+
+        while (inPos < byteValue.length)
+        {
+            charValue[outPos++] = (char)(((byteValue[inPos++] & 0xFF) << 8) + (byteValue[inPos++] & 0xFF));
+        }
+
+        return charValue;
     }
 
 
@@ -182,8 +209,11 @@ public class MEServer implements Runnable
 
         try
         {
-            system_.disconnectAllServices();
-            system_ = null;
+            if (system_ != null)
+            {
+                system_.disconnectAllServices();
+                system_ = null;
+            }
         }
         catch (Exception e)
         {
@@ -195,8 +225,11 @@ public class MEServer implements Runnable
 
         try
         {
-            input_.close();
-            input_ = null;
+            if (input_ != null)
+            {
+                input_.in_.close();
+                input_ = null;
+            }
         }
         catch (Exception e)
         {
@@ -206,8 +239,11 @@ public class MEServer implements Runnable
 
         try
         {
-            output_.close();
-            output_ = null;
+            if (output_ != null)
+            {
+                output_.out_.close();
+                output_ = null;
+            }
         }
         catch (Exception e)
         {
@@ -217,11 +253,14 @@ public class MEServer implements Runnable
 
         try
         {
-            socket_.close();
-            socket_ = null;
+            if (socket_ != null)
+            {
+                socket_.close();
+                socket_ = null;
 
-            if (verboseState_)
-                verbose_.println ( ResourceBundleLoader_m.getText ("ME_CONNECTION_CLOSED", Thread.currentThread().getName() ) );
+                if (verboseState_)
+                    verbose_.println ( ResourceBundleLoader_m.getText ("ME_CONNECTION_CLOSED", Thread.currentThread().getName() ) );
+            }
         }
         catch (Exception e)
         {
@@ -243,26 +282,27 @@ public class MEServer implements Runnable
                 Trace.log (Trace.ERROR, "Error closing SQL Result Set.", e);
         }
     }
-
-
+    
+    
     // Unscramble some bytes.
-    private static char[] decode(char[] adder, char[] mask, char[] bytes)
+    private static byte[] decode(byte[] adder, byte[] mask, byte[] bytes)
     {
         int length = bytes.length;
-        char[] buf = new char[length];
-
+        byte[] buf = new byte[length];
+        
         for (int i = 0; i < length; ++i)
         {
-            buf[i] = (char)(mask[i % 7] ^ bytes[i]);
+            buf[i] = (byte)(mask[i % mask.length] ^ bytes[i]);
         }
 
         for (int i = 0; i < length; ++i)
         {
-            buf[i] = (char)(buf[i] - adder[i % 9]);
+            buf[i] = (byte)(buf[i] - adder[i % adder.length]);
         }
 
         return buf;
     }
+
 
 
     /**
@@ -279,9 +319,6 @@ public class MEServer implements Runnable
     {
         String command = input_.readUTF();
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME CommandCall...");
-
         if (cc_ == null)
             cc_ = new CommandCall(system_);
 
@@ -291,30 +328,21 @@ public class MEServer implements Runnable
         {
             retVal = cc_.run(command);
         }
-        catch (AS400SecurityException ase)
-        {
-            output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
-            output_.flush();
-
-            sendException(ase);
-
-            return;
-        }
-        catch (IOException ioe)
-        {
-            output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
-            output_.flush();
-
-            sendException(ioe);
-
-            return;
-        }
         catch (PropertyVetoException pve)
         {
             if (Trace.isTraceOn())
                 Trace.log(Trace.ERROR, "PropertyVetoException on run(command)", pve);
         }
+        catch (Exception e)
+        {
+            output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
+            output_.flush();
 
+            sendException(e);
+
+            return;
+        }
+        
         int numReplies = 0;
         AS400Message[] messages = cc_.getMessageList();
 
@@ -323,7 +351,7 @@ public class MEServer implements Runnable
             numReplies = messages.length;
 
         if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Number of messages returned from ToolboxME CommandCall: " + numReplies);
+            Trace.log(Trace.PROXY, "Number of messages returned from ToolboxME CommandCall: " + numReplies);
 
         output_.writeInt(numReplies);
 
@@ -355,9 +383,6 @@ public class MEServer implements Runnable
     {
         String queueName = input_.readUTF();
         int dataType = input_.readInt();
-
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME Data Queue Read...");
 
         DataQueue dq = new DataQueue(system_, queueName);
         DataQueueEntry entry = null;
@@ -416,7 +441,7 @@ public class MEServer implements Runnable
             {
                 byte[]  b = entry.getData();
                 output_.writeInt(b.length);
-                output_.write(b, 0, b.length);
+                output_.writeBytes(b);
             } 
         }
 
@@ -439,9 +464,6 @@ public class MEServer implements Runnable
         String queueName = input_.readUTF();
         int dataType = input_.readInt();
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME Data Queue Write...");
-
         DataQueue dq = new DataQueue(system_, queueName);
 
         try
@@ -451,7 +473,7 @@ public class MEServer implements Runnable
                 int len = input_.readInt();
                 byte[] data = new byte[len];
 
-                input_.readFully(data);
+                input_.readBytes(data);
 
                 dq.write(data);
             }
@@ -522,9 +544,6 @@ public class MEServer implements Runnable
      **/
     private void doProgramCall() throws IOException, ErrorCompletingRequestException, InterruptedException 
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME ProgramCall...");
-
         String pcmlName = input_.readUTF();
         String apiName = input_.readUTF();
 
@@ -542,7 +561,7 @@ public class MEServer implements Runnable
             valuesToSet[i] = input_.readUTF();
 
             if (Trace.isTraceOn())
-                Trace.log(Trace.INFORMATION, "ToolboxME PCML Parm[" + i + "] " + tagNamesToSet[i] + ": " + valuesToSet[i]);
+                Trace.log(Trace.PROXY, "ToolboxME PCML Parm[" + i + "] " + tagNamesToSet[i] + ": " + valuesToSet[i]);
         }
 
         // Read in the number of parameters to get or return to caller.
@@ -620,623 +639,6 @@ public class MEServer implements Runnable
             sendException( pe.getException() );
 
             return;
-        }
-    }
-
-
-    /**
-     *  Close the SQL Result Set.
-     **/
-    private void doSQLClose() throws IOException
-    {
-        int transactionID = input_.readInt();
-        Integer key = new Integer(transactionID);
-        ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-
-        if (rs != null)
-        {
-            try
-            {
-                rs.close();
-                output_.writeInt(MEConstants.SQL_RESULT_SET_CLOSED);
-                output_.flush();
-            }
-            catch (SQLException e)
-            {
-                if (Trace.isTraceOn())
-                    Trace.log(Trace.ERROR, e);
-
-                output_.writeInt(MEConstants.SQL_EXCEPTION);
-                output_.writeUTF( e.getMessage() );
-                output_.flush();
-            }
-        }
-    }
-
-
-    /**
-     * Receives the SQL query datastream from the client and executes the statement.
-     *
-     * Datastream request format:
-     *  String - Database URL
-     *  String - SQL query to execute
-     *
-     * Datastream reply format:
-     *  int - query status (e.g. successful)
-     *
-     * And if it is successful:
-     *  int - transaction ID for this statement
-     **/
-    private void doSQLQuery() throws IOException
-    {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME SQL...");
-
-        try
-        {
-            if (connection_ == null)
-            {
-                // Read in the number of connection properties
-                int info = input_.readInt();
-
-                Properties prop = new Properties();
-
-                if (info != MEConstants.NO_CONNECTION_PROPERTIES)
-                {
-                    // Read in each connection property name and value.
-                    for (int i=0; i<info; ++i)
-                    {
-                        prop.put(input_.readUTF(), input_.readUTF());
-                    }
-                }
-
-                connection_ = driver_.connect(system_, prop, null);
-            }
-
-            String query = input_.readUTF();
-
-            // The statement has to be scrollable for the user to be able to call next(), previous(), or absolute( x )
-            // in any order.  Otherwise an invalid cursor state will be received.
-            Statement s = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            ResultSet rs = s.executeQuery(query);
-            int transactionID = cacheTransaction(rs);
-
-            output_.writeInt(MEConstants.SQL_STATEMENT_SUCCEEDED);
-            output_.writeInt(transactionID);
-            output_.flush();
-        }
-        catch (SQLException e)
-        {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, e);
-
-            output_.writeInt(MEConstants.SQL_EXCEPTION);
-            output_.writeUTF( e.getMessage() );
-            output_.flush();
-        }
-    }
-
-
-    /**
-     * Receives the SQL query datastream from the client and executes the statement.
-     * The query will either return a Result Set or the output data for all the output
-     * parameters registered.
-     *
-     * The only output parameters that are NOT supported are:  ARRAY, DISTINCT,
-     * JAVA_OBJECT, REF, STRUCT, and TINYINT.  
-     *
-     * Datastream request format:
-     *  String - Database URL
-     *  String - SQL query to execute
-     *  int - the callable statement parameter type (intput/output)
-     *  int/string - the parameter value.
-     *
-     * Datastream reply format:
-     *  int - query status (e.g. successful)
-     *
-     * And if it is successful:
-     *  int - transaction ID for this statement
-     *  or
-     *  String[] - the array of output parameter data.
-     **/
-    private void doSQLCallable(int action) throws IOException
-    {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME SQL...");
-
-        try
-        {
-            if (connection_ == null)
-            {
-                // Read in the number of connection properties
-                int info = input_.readInt();
-
-                Properties prop = new Properties();
-
-                if (info != MEConstants.NO_CONNECTION_PROPERTIES)
-                {
-                    // Read in each connection property name and value.
-                    for (int i=0; i<info; ++i)
-                    {
-                        prop.put(input_.readUTF(), input_.readUTF());
-                    }
-                }
-
-                connection_ = driver_.connect(system_, prop, null);
-            }
-
-            String query = input_.readUTF();
-
-            // The statement has to be scrollable for the user to be able to call next(), previous(), or absolute( x )
-            // in any order.  Otherwise an invalid cursor state will be received.
-            CallableStatement cs = connection_.prepareCall(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-
-            // Read in the number of callable statement input parameters.
-            int inputSize = input_.readInt();
-            
-            if (Trace.isTraceOn())
-                Trace.log(Trace.INFORMATION, "Number of Input Parameters: " + inputSize);
-
-            if (inputSize != MEConstants.NO_CALLABLE_PARAMETERS)
-            {  
-                for (int i=0; i<inputSize; ++i)
-                {
-                    int index = input_.readInt();
-                    String value = input_.readUTF();
-
-                    if (Trace.isTraceOn())
-                            Trace.log(Trace.INFORMATION, "Input Index: " + index + " Value:" + value);
-
-                    cs.setString(index, value.equals("null") ? null : value);
-                }
-            }
-
-            // Read in the number of callable statement output parameters
-            int outputSize = input_.readInt();
-
-            Vector outputParms = null;
-            
-            if (Trace.isTraceOn())
-                Trace.log(Trace.INFORMATION, "Number of Ouput Parameters: " + outputSize);
-
-            // If there are no callable output parameters.
-            if (outputSize != MEConstants.NO_CALLABLE_PARAMETERS)
-            {
-                outputParms = new Vector(outputSize);
-
-                // Read in each parameter type and value.
-                for (int j=0; j<outputSize; ++j)
-                {
-                    
-                    int index = input_.readInt();
-                    int value = input_.readInt();
-
-                    outputParms.addElement(new OutputParameterData(index, value));
-
-                    if (Trace.isTraceOn())
-                        Trace.log(Trace.INFORMATION, "Output Index: " + index + " Value: " + value);
-                    
-                        // Determine the type of the output data and register the output parameter.
-                        switch (value)
-                        {
-                        //case Types.ARRAY:                                            
-                        //    cs.registerOutParameter(index, Types.ARRAY);
-                        //    break;
-                        case Types.BIGINT:
-                            cs.registerOutParameter(index, Types.BIGINT);
-                            break;
-                        case Types.BINARY:
-                            cs.registerOutParameter(index, Types.BINARY);
-                            break;
-                        case Types.BIT:
-                            cs.registerOutParameter(index, Types.BIT);
-                            break;
-                        case Types.CHAR:
-                            cs.registerOutParameter(index, Types.CHAR);
-                            break;
-                        case Types.DATE:
-                            cs.registerOutParameter(index, Types.DATE);
-                            break;
-                        case Types.DECIMAL:
-                            cs.registerOutParameter(index, Types.DECIMAL);
-                            break;
-                            //case Types.DISTINCT:
-                            //    cs.registerOutParameter(index, Types.DISTINCT);
-                            //    break;
-                        case Types.DOUBLE:
-                            cs.registerOutParameter(index, Types.DOUBLE);
-                            break;
-                        case Types.FLOAT:
-                            cs.registerOutParameter(index, Types.FLOAT);
-                            break;
-                        case Types.INTEGER:
-                            cs.registerOutParameter(index, Types.INTEGER);
-                            break;
-                            //case Types.JAVA_OBJECT:
-                            //    cs.registerOutParameter(index, Types.JAVA_OBJECT);
-                            //    break;
-                        case Types.LONGVARBINARY:
-                            cs.registerOutParameter(index, Types.LONGVARBINARY);
-                            break;
-                        case Types.LONGVARCHAR:
-                            cs.registerOutParameter(index, Types.LONGVARCHAR);
-                            break;
-                        case Types.NULL:
-                            cs.registerOutParameter(index, Types.NULL);
-                            break;
-                        case Types.NUMERIC:
-                            cs.registerOutParameter(index, Types.NUMERIC);
-                            break;
-                        case Types.REAL:
-                            cs.registerOutParameter(index, Types.REAL);
-                            break;
-                            //case Types.REF:
-                            //    cs.registerOutParameter(index, Types.REF);
-                            //    break;
-                        case Types.SMALLINT:
-                            cs.registerOutParameter(index, Types.SMALLINT);
-                            break;
-                            //case Types.STRUCT:
-                            //    cs.registerOutParameter(index, Types.STRUCT);
-                            //    break;
-                        case Types.TIME:
-                            cs.registerOutParameter(index, Types.TIME);
-                            break;
-                        case Types.TIMESTAMP:
-                            cs.registerOutParameter(index, Types.TIMESTAMP);
-                            break;
-                            //case Types.TINYINT:
-                            //    cs.registerOutParameter(index, Types.TINYINT);
-                            //    break;
-                        case Types.VARBINARY:
-                            cs.registerOutParameter(index, Types.VARBINARY);
-                            break;
-                        case Types.VARCHAR:
-                            cs.registerOutParameter(index, Types.VARCHAR);
-                            break;
-                        }
-                }
-            }
-
-
-            ResultSet rs = null;
-            
-            if (action != MEConstants.SQL_CALLABLE_GET_OUTPUT)
-                rs = cs.executeQuery();
-            else
-                cs.execute();   // ??? Check for boolean return value.
-
-            String[] data = null;
-
-            if (action == MEConstants.SQL_CALLABLE_GET_OUTPUT)
-            {
-                data = new String[outputSize];
-
-                // Loop through the hashtable and get the key (parameter index)
-                // and the key value (parameter java.sql.Types)
-                for (int i=0; i<outputSize; ++i)
-                {
-                    int index = ( (OutputParameterData) outputParms.elementAt(i)).index_;
-                    int type = ( (OutputParameterData) outputParms.elementAt(i)).type_;
-                    
-                    // If the request if for output data, then get the String value
-                    // of the output and add it to a String array.
-                    switch (type)
-                    {
-                    //case Types.ARRAY:                                            
-                    //    data[i] = getArray(index);
-                    //    break;
-                    case Types.BIGINT:
-                        data[i] = String.valueOf(cs.getLong(index));
-                        break;
-                    case Types.BINARY:
-                        data[i] = new String(cs.getBytes(index));
-                        break;
-                    case Types.BIT:
-                        data[i] = String.valueOf(cs.getLong(index));
-                        break;
-                    case Types.CHAR:
-                        data[i] = cs.getString(index);
-                        break;
-                    case Types.DATE:
-                        data[i] = cs.getDate(index).toString();
-                        break;
-                    case Types.DECIMAL:
-                        data[i] = cs.getBigDecimal(index).toString();
-                        break;
-                        //case Types.DISTINCT:
-                        //    data[i] = getArray(index);
-                        //    break;
-                    case Types.DOUBLE:
-                        data[i] = String.valueOf(cs.getDouble(index));
-                        break;
-                    case Types.FLOAT:
-                        data[i] = String.valueOf(cs.getFloat(index));
-                        break;
-                    case Types.INTEGER:
-                        data[i] = String.valueOf(cs.getInt(index));
-                        break;
-                        //case Types.JAVA_OBJECT:
-                        //    data[i] = getArray(index);
-                        //    break;
-                    case Types.LONGVARBINARY:
-                        data[i] = new String(cs.getBytes(index));
-                        break;
-                    case Types.LONGVARCHAR:
-                        data[i] = cs.getString(index);
-                        break;
-                    case Types.NULL:
-                        data[i] = new String("null");
-                        break;
-                    case Types.NUMERIC:
-                        data[i] = cs.getBigDecimal(index).toString();
-                        break;
-                    case Types.REAL:
-                        data[i] = String.valueOf(cs.getFloat(index));
-                        break;
-                        //case Types.REF:
-                        //    data[i] = cs.getRef(index).getBaseTypeName();
-                        //    break;
-                    case Types.SMALLINT:
-                        data[i] = String.valueOf(cs.getShort(index));
-                        break;
-                        //case Types.STRUCT:
-                        //    data[i] = getArray(index);
-                        //    break;
-                    case Types.TIME:
-                        data[i] = cs.getTime(index).toString();
-                        break;
-                    case Types.TIMESTAMP:
-                        data[i] = cs.getTimestamp(index).toString();
-                        break;
-                        //case Types.TINYINT:
-                        //    data[i] = getArray(index);
-                        //    break;
-                    case Types.VARBINARY:
-                        data[i] = new String(cs.getBytes(index));
-                        break;
-                    case Types.VARCHAR:
-                        data[i] = cs.getString(index);
-                        break;
-                    }
-                }
-            }
-            
-            output_.writeInt(MEConstants.SQL_STATEMENT_SUCCEEDED);
-            output_.flush();
-
-            // If the client request was to get the parameter output data.
-            if (action == MEConstants.SQL_CALLABLE_GET_OUTPUT)
-            {
-                int size = data.length;
-
-                output_.writeInt(size);
-                output_.flush();
-
-                for (int i=0; i<size; ++i)
-                {
-                    output_.writeUTF(data[i]);
-                }
-            }
-            else
-            {
-                int transactionID = cacheTransaction(rs);
-                output_.writeInt(transactionID);
-            }
-
-            output_.flush();
-        }
-        catch (SQLException e)
-        {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, e);
-
-            output_.writeInt(MEConstants.SQL_EXCEPTION);
-            output_.writeUTF( e.getMessage() );
-            output_.flush();
-        }
-    }
-
-
-    /**
-     * Receives the SQL update datastream from the client and executes the statement.
-     *
-     * Datastream request format:
-     *  String - SQL update to execute
-     *
-     * Datastream reply format:
-     *  int - query status (e.g. successful)
-     *
-     * And if it is successful:
-     *  int - the row count for INSERT, UPDATE, or DELETE, or 0 for SQL statements that return nothing.
-     **/
-    private void doSQLUpdate() throws IOException
-    {
-        try
-        {
-            if (connection_ == null)
-            {
-                // Read in the number of connection properties
-                int info = input_.readInt(); 
-
-                Properties prop = new Properties();
-
-                if (info != MEConstants.NO_CONNECTION_PROPERTIES)
-                {
-                    // Read in each connection property name and value.
-                    for (int i=0; i<info; ++i)
-                    {
-                        prop.put(input_.readUTF(), input_.readUTF());
-                    }
-                }
-
-                connection_ = driver_.connect(system_, prop, null);
-            }
-
-            String update = input_.readUTF();
-
-            if (Trace.isTraceOn())
-                Trace.log(Trace.INFORMATION, "Performing ToolboxME SQL...");
-
-            Statement s = connection_.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            int rowCount = s.executeUpdate(update);
-
-            output_.writeInt(MEConstants.SQL_STATEMENT_SUCCEEDED);
-            output_.writeInt(rowCount);
-            output_.flush();
-        }
-        catch (SQLException e)
-        {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, e);
-
-            output_.writeInt(MEConstants.SQL_EXCEPTION);
-            output_.writeUTF( e.getMessage() );
-            output_.flush();
-        }
-    }
-
-
-    /**
-     *  Retrieve the next record, move to the previous record, or go to 
-     *  an absolute cursor position in the SQL Result Set.
-     **/
-    private void doSQLMove(int sqlCommand) throws IOException
-    {
-        int transactionID = input_.readInt();
-
-        Integer key = new Integer(transactionID);
-        ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-
-        if (rs == null)
-        {
-            output_.writeInt(MEConstants.SQL_POSITION_CURSOR_FAILED);
-            output_.flush();
-        }
-        else
-        {
-            try
-            {
-                boolean b = false;
-
-                if (sqlCommand == MEConstants.SQL_NEXT)
-                    b = rs.next();
-                else if (sqlCommand == MEConstants.SQL_PREVIOUS)
-                    b = rs.previous();
-                else if (sqlCommand == MEConstants.SQL_ABSOLUTE)
-                {
-                    int abs = input_.readInt();
-                    b = rs.absolute(abs);
-                }
-                else if (sqlCommand == MEConstants.SQL_FIRST)
-                {
-                    b = rs.first();
-                }
-
-                if (Trace.isTraceOn())
-                    Trace.log(Trace.INFORMATION, "ToolboxME SQL Cursor Position Successful: " + b);
-
-                output_.writeInt(MEConstants.SQL_POSITION_CURSOR_SUCCESSFUL);
-                output_.writeBoolean(b);
-                output_.flush();
-            }
-            catch (SQLException e)
-            {
-                if (Trace.isTraceOn())
-                    Trace.log(Trace.ERROR, e);
-
-                output_.writeInt(MEConstants.SQL_EXCEPTION);
-                output_.writeUTF( e.getMessage() );
-                output_.flush();
-            }
-        }
-    }
-
-
-    /**
-     *  Retrieve the current row number.
-     **/
-    private void doSQLGetRowNumber() throws IOException
-    {
-        int transactionID = input_.readInt();
-
-        Integer key = new Integer(transactionID);
-        ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-
-        if (rs == null)
-        {
-            output_.writeInt(MEConstants.SQL_REQUEST_FAILED);
-            output_.flush();
-        }
-        else
-        {
-            try
-            {
-                output_.writeInt( rs.getRow() );
-                output_.flush();
-            }
-            catch (SQLException e)
-            {
-                if (Trace.isTraceOn())
-                    Trace.log(Trace.ERROR, e);
-
-                // send a -1, which indicates an exception.
-                output_.writeInt(-1);
-                output_.writeUTF( e.getMessage() );
-                output_.flush();
-            }
-
-        }
-    }
-
-
-    /**
-     *  Retrieve the current row data.
-     **/
-    private void doSQLGetRowData() throws IOException
-    {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Getting ToolboxME SQL Row Data...");
-
-        int transactionID = input_.readInt();
-
-        Integer key = new Integer(transactionID);
-        ResultSet rs = (ResultSet)cachedJDBCTransactions_.get(key);
-
-        if (rs == null)
-        {
-            output_.writeInt(MEConstants.SQL_REQUEST_FAILED);
-            output_.flush();
-        }
-        else
-        {
-            try
-            {
-                output_.writeInt(MEConstants.SQL_REQUEST_SUCCESSFUL);
-                output_.flush();
-
-                int numColumns = rs.getMetaData().getColumnCount();                  
-
-                output_.writeInt(numColumns);
-                output_.flush();
-
-                for (int i=1; i<=numColumns; ++i)
-                {
-                    String s = rs.getString(i);
-
-                    output_.writeUTF(s);
-                    output_.flush();
-                }
-            }
-            catch (SQLException e)
-            {
-                if (Trace.isTraceOn())
-                    Trace.log(Trace.ERROR, e);
-
-                output_.writeInt(MEConstants.SQL_EXCEPTION);
-                output_.writeUTF( e.getMessage() );
-                output_.flush();
-            }
         }
     }
 
@@ -1358,6 +760,9 @@ public class MEServer implements Runnable
                     Thread t = new Thread(server, "ToolboxMEThread-"+(threadIndex_++));
                     t.setDaemon(true);
                     t.start();
+
+                    if (verboseState_)
+                        verbose_.println( ResourceBundleLoader_m.substitute(ME_CONNECTION_ACCEPTED_, new Object[] { "MEServer", s.getInetAddress().toString(), t.getName()} ));
                 }
             }
             else
@@ -1377,6 +782,28 @@ public class MEServer implements Runnable
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, "Error opening ToolboxME server socket.", e);
         }
+    }
+
+
+    // Randomly generate bytes and put them into a new byte array.
+    static byte[] nextBytes(Random r, int numBytes)
+    {
+        byte[] buf = new byte[numBytes];
+        long feeder = r.nextLong();
+        int feederIndex = 0;  // We will step through the bytes of the long, 1 byte at a time.
+
+        for (int i=0; i<buf.length; i++)
+        {
+            if (feederIndex > 7)  // time to grab another long
+            {
+                feeder = r.nextLong();
+                feederIndex = 0;
+            }
+
+            buf[i] = (byte)(0xFF & (feeder >> 8*feederIndex++));
+        }
+
+        return buf;
     }
 
 
@@ -1451,20 +878,21 @@ public class MEServer implements Runnable
     }
 
 
-    // Get clear password bytes back.
-    private static String resolve(char[] info)
+     // Get clear password bytes back.
+    private static String resolve(byte[] info)
     {
-        char[] adder = new char[9];
-        System.arraycopy(info, 0, adder, 0, 9);
+        byte[] adder = new byte[MEConstants.ADDER_LENGTH];
+        System.arraycopy(info, 0, adder, 0, MEConstants.ADDER_LENGTH);
 
-        char[] mask = new char[7];
-        System.arraycopy(info, 9, mask, 0, 7);
+        byte[] mask = new byte[MEConstants.MASK_LENGTH];
+        System.arraycopy(info, MEConstants.ADDER_LENGTH, mask, 0, MEConstants.MASK_LENGTH);
 
-        char[] infoBytes = new char[info.length - 16];
-        System.arraycopy(info, 16, infoBytes, 0, info.length - 16);
+        byte[] infoBytes = new byte[info.length - MEConstants.ADDER_PLUS_MASK_LENGTH];
+        System.arraycopy(info, MEConstants.ADDER_PLUS_MASK_LENGTH, infoBytes, 0, info.length - MEConstants.ADDER_PLUS_MASK_LENGTH);
 
-        return new String( decode(adder, mask, infoBytes) );
+        return new String(byteArrayToCharArray(decode(adder, mask, infoBytes)));
     }
+
 
 
     /**
@@ -1472,19 +900,21 @@ public class MEServer implements Runnable
      **/
     public void run()
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "New MEServer daemon running.");
-
+        boolean jdbc = false;
         try
         {
             boolean disconnected = false;
-            while (!disconnected)
+
+            // If the client disconnects or is performing JdbcMe functions, then
+            // we exit this Thread and continue to listen for connections on the
+            // Server socket.
+            while (!disconnected & !jdbc)
             {
                 // Process next datastream from client.
                 int cmd = input_.readInt();
 
                 if (Trace.isTraceOn())
-                    Trace.log(Trace.DATASTREAM, "ME Datastream Request: " + Integer.toHexString(cmd));
+                    Trace.log(Trace.PROXY, "ME Datastream Request: " + Integer.toHexString(cmd));
 
                 switch (cmd)
                 {
@@ -1503,45 +933,43 @@ public class MEServer implements Runnable
                 case MEConstants.DATA_QUEUE_WRITE:
                     doDataQueueWrite();
                     break;
-                case MEConstants.SQL_QUERY:
-                    doSQLQuery();
-                    break;
-                case MEConstants.SQL_CALLABLE_QUERY:
-                    doSQLCallable(cmd);
-                    break;
-                case MEConstants.SQL_CALLABLE_GET_OUTPUT:
-                    doSQLCallable(cmd);
-                    break;
-                case MEConstants.SQL_ABSOLUTE:
-                    doSQLMove(cmd);
-                    break;
-                case MEConstants.SQL_CLOSE:
-                    doSQLClose();
-                    break;
-                case MEConstants.SQL_FIRST:
-                    doSQLMove(cmd);
-                    break;
-                case MEConstants.SQL_LAST:
-                    doSQLMove(cmd);
-                    break;
-                case MEConstants.SQL_NEXT:
-                    doSQLMove(cmd);
-                    break;
-                case MEConstants.SQL_PREVIOUS:
-                    doSQLMove(cmd);
-                    break;
-                case MEConstants.SQL_ROW_DATA:
-                    doSQLGetRowData();
-                    break;
-                case MEConstants.SQL_ROW_NUMBER:
-                    doSQLGetRowNumber();
-                    break;
-                case MEConstants.SQL_UPDATE:
-                    doSQLUpdate();
+                case MEConstants.CONN_CLOSE:
+                case MEConstants.CONN_COMMIT:
+                case MEConstants.CONN_CREATE_STATEMENT:
+                case MEConstants.CONN_CREATE_STATEMENT2:
+                case MEConstants.CONN_NEW:
+                case MEConstants.CONN_PREPARE_STATEMENT:
+                case MEConstants.CONN_ROLLBACK:
+                case MEConstants.CONN_SET_AUTOCOMMIT:
+                case MEConstants.CONN_SET_TRANSACTION_ISOLATION:
+                case MEConstants.STMT_CLOSE:
+                case MEConstants.STMT_EXECUTE:
+                case MEConstants.STMT_GET_RESULT_SET:
+                case MEConstants.STMT_GET_UPDATE_COUNT:
+                case MEConstants.PREP_EXECUTE:
+                case MEConstants.RS_ABSOLUTE:
+                case MEConstants.RS_AFTER_LAST:
+                case MEConstants.RS_BEFORE_FIRST:
+                case MEConstants.RS_CLOSE:
+                case MEConstants.RS_DELETE_ROW:
+                case MEConstants.RS_FIRST:
+                case MEConstants.RS_INSERT_ROW:
+                case MEConstants.RS_IS_AFTER_LAST:
+                case MEConstants.RS_IS_BEFORE_FIRST:
+                case MEConstants.RS_IS_FIRST:
+                case MEConstants.RS_IS_LAST:
+                case MEConstants.RS_LAST:
+                case MEConstants.RS_NEXT:
+                case MEConstants.RS_PREVIOUS:
+                case MEConstants.RS_RELATIVE:
+                case MEConstants.RS_UPDATE_ROW:
+                    ClientHandler jdbcHandler = new ClientHandler(socket_, input_, output_, cmd);
+                    jdbcHandler.start();
+                    jdbc = true;
                     break;
                 case MEConstants.DISCONNECT:
                     if (Trace.isTraceOn())
-                        Trace.log(Trace.INFORMATION, "ToolboxME disconnect received.");
+                        Trace.log(Trace.PROXY, "ToolboxME disconnect received.");
                     close();
                     disconnected = true;
                     break;
@@ -1561,7 +989,10 @@ public class MEServer implements Runnable
             stop(e.getMessage());
         }
 
-        close();
+        // We don't want to close the socket if we are performing JDBC since we
+        // hand it off to the JdbcMe ClientHandler class.
+        if (!jdbc)
+            close();
     }
 
 
@@ -1578,25 +1009,41 @@ public class MEServer implements Runnable
     **/
     private void signon() throws IOException
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Performing ToolboxME Signon...");
+        int clientDataStreamLevel = input_.readInt();
 
+        if (Trace.isTraceOn())
+            Trace.log(Trace.PROXY, "Micro client datastream level: " + clientDataStreamLevel);
+
+        byte[] proxySeed = new byte[MEConstants.ADDER_LENGTH];
+
+        input_.readBytes(proxySeed);         
+
+        // Tell them what our datastream level is.
+        output_.writeInt(DATASTREAM_LEVEL);
+        
+        // Generate, hold, and send them our seed.
+        byte[] remoteSeed = nextBytes(new Random(), MEConstants.MASK_LENGTH);
+        output_.writeBytes(remoteSeed);
+        output_.flush();
+        
         String serverName = input_.readUTF();
         String userid = input_.readUTF();
-        char[] bytes = input_.readUTF().toCharArray();
 
+        int numBytes = input_.readInt();  // Get length of buffer to allocate.
+        byte[] bytes = new byte[numBytes];
+
+        input_.readBytes(bytes); // Note: This value is both twiddled and encoded.            
+        
+        // Disconnect if we were previously signed on.
+        // We only allow one AS400 object per thread/connection.
         if (system_ != null)
-        {
-            // Disconnect if we were previously signed on.
-            // We only allow one AS400 object per thread/connection.
             system_.disconnectAllServices();
-        }
 
         boolean retVal = false;
 
         try
         {
-            system_ = new AS400(serverName, userid, resolve(bytes));
+            system_ = new com.ibm.as400.access.AS400(serverName, userid, resolve(decode(proxySeed, remoteSeed, bytes)));
 
             // Wireless devices don't have NLS support in the KVM yet.
             // So we only want to display english messages.
@@ -1604,14 +1051,14 @@ public class MEServer implements Runnable
 
             retVal = system_.validateSignon();
         }
-        catch (Exception ase)
+        catch (Exception e)
         {
             system_ = null;
 
             output_.writeInt(MEConstants.EXCEPTION_OCCURRED);
             output_.flush();
 
-            sendException(ase);
+            sendException(e);
 
             return;
         }
@@ -1670,7 +1117,7 @@ public class MEServer implements Runnable
     private void sendException(Exception e) throws IOException
     {
         if ( Trace.isTraceOn() )
-            Trace.log(Trace.ERROR, e);
+            Trace.log(Trace.ERROR, "ME Exception Occurred: \n", e);
 
         // Determine what the exception was and then map it
         // the the MEException return code and send it back
@@ -1678,6 +1125,9 @@ public class MEServer implements Runnable
         if (e instanceof AS400SecurityException)
         {
             int rc = ((AS400SecurityException)e).getReturnCode();
+
+            if (Trace.isTraceOn())
+                Trace.log(Trace.DIAGNOSTIC, "Exception return code: " + rc);
 
             switch (rc)
             {
@@ -1727,9 +1177,19 @@ public class MEServer implements Runnable
             output_.writeInt(MEException.PARAMETER_VALUE_NOT_VALID);
             output_.writeUTF( e.getMessage() );
         }
+        else if (e instanceof ExtendedIllegalStateException)
+        {
+            output_.writeInt(MEException.PROPERTY_NOT_SET);
+            output_.writeUTF( e.getMessage() );
+        }
         else if (e instanceof ConnectionDroppedException)
         {
-            if ( ( (ConnectionDroppedException) e).getReturnCode() == ConnectionDroppedException.CONNECTION_DROPPED)
+            int rc = ((ConnectionDroppedException) e).getReturnCode();
+
+            if (Trace.isTraceOn())
+                Trace.log(Trace.DIAGNOSTIC, "Exception return code: " + rc);
+
+            if (rc == ConnectionDroppedException.CONNECTION_DROPPED)
             {
                 output_.writeInt(MEException.CONNECTION_DROPPED);
                 output_.writeUTF( e.getMessage() );
@@ -1747,7 +1207,12 @@ public class MEServer implements Runnable
         }
         else if (e instanceof ServerStartupException)
         {
-            if ( ( (ServerStartupException) e).getReturnCode() == ServerStartupException.SERVER_NOT_STARTED)
+            int rc = ((ServerStartupException) e).getReturnCode();
+
+            if (Trace.isTraceOn())
+                Trace.log(Trace.DIAGNOSTIC, "Exception return code: " + rc);
+
+            if ( rc == ServerStartupException.SERVER_NOT_STARTED)
             {
                 output_.writeInt(MEException.SERVER_NOT_STARTED);
                 output_.writeUTF( e.getMessage() );

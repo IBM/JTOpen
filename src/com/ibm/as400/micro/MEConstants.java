@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: AS400.java
+// Filename: MEConstants.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -21,212 +21,93 @@ package com.ibm.as400.micro;
 interface MEConstants
 {
     // THE COMPONENT REQUEST DATASTREAM TYPES.
-
-    /**
-     *  Constant indicating the Command service.
-     **/
     static final int SERVICE_COMMAND = 2;
-
-    /**
-     *  Constant indicating the Dataqueue service.
-     **/
     static final int SERVICE_DATAQUEUE = 3;
-
-    /**
-     *  Constant indicating the Database service.
-     **/
     static final int SERVICE_DATABASE = 4;
-
-    /**
-     *  Constant indicating all services.
-     **/
     static final int SERVICE_ALL_SERVICES = 99;
-
-
+    
     // The default port number.  This port number was registered
     // with the Internet Assigned Numbers Authority (http://www.iana.org)
     // on 01/29/1999.  For a complete list of registered port numbers,
     // go to http://www.isi.edu/in-notes/iana/assignments/port-numbers.
-    /**
-     *  Constant indicating the MEServer port.
-     **/
     static final int ME_SERVER_PORT = 3470;
 
+    // Client/Server Seed information.
+    static final int ADDER_LENGTH  = 18;  // number of bytes
+    static final int MASK_LENGTH = 14;  // number of bytes
+    static final int ADDER_PLUS_MASK_LENGTH = ADDER_LENGTH + MASK_LENGTH;
     
-    // THE REPLY DATASTREAM TYPTES.
-    
-    /**
-     *  Constant indicating the iSeries signon succeeded.
-     **/
-    static final int SIGNON_SUCCEEDED = 0x1234;
-
-    /**
-     *  Constant indicating the iSeries signon failed.
-     **/
-    static final int SIGNON_FAILED    = 0x1235;
-                                                     
-    /**
-     *  Constant indicating the XML document was not registered with the MEServer.
-     **/
-    static final int XML_DOCUMENT_NOT_REGISTERED = 0x1236;
-
-    /**
-     *  Constant indicating the XML document was registered with the MEServer.
-     **/
-    static final int XML_DOCUMENT_REGISTERED = 0x1237;
-
-    /**
-     *  Constant indicating the Dataqueue action was performed successfully.
-     **/
-    static final int DATA_QUEUE_ACTION_SUCCESSFUL = 0x1238;
-
-    /**
-     *  Constant indicating that an exception occurred.
-     **/
-    static final int EXCEPTION_OCCURRED = 0x1239;
-
-    /**
-     *  Constant indicating that the ToolboxME request is not supported.
-     **/
-    static final int REQUEST_NOT_SUPPORTED = 0x01240;
-    
-
     // THE REQUEST DATASTREAM TYPES.
-    
-    /**
-     *  Constant indicating a signon request.
-     **/
     static final int SIGNON = 0x1122;
-
-    /**
-     *  Constant indicating a CommandCall request.
-     **/
     static final int COMMAND_CALL = 0x1123;
-
-    /**
-     *  Constant indicating a ProgramCall request.
-     **/
     static final int PROGRAM_CALL = 0x1124;
-
-    /**
-     *  Constant indicating a disconnect request.
-     **/
     static final int DISCONNECT = 0x1125;
-    
-    /**
-     *  Constant indicating a data queue read request.
-     **/
     static final int DATA_QUEUE_READ = 0x1126;
-
-    /**
-     *  Constant indicating a data queue write request.
-     **/
     static final int DATA_QUEUE_WRITE = 0x1127;
-
-    /**
-     *  Constant indicating a data queue request performed with byte data.
-     **/
     static final int DATA_QUEUE_BYTES = 0x1128;
-
-    /**
-     *  Constant indicating a data queue request performed with string data.
-     **/
     static final int DATA_QUEUE_STRING = 0x1129;
 
-    /**
-     *  Constant indicating an SQL absolute request.
-     **/
-    static final int SQL_ABSOLUTE = 0x1350;
+    // THE REPLY DATASTREAM TYPTES.
+    static final int SIGNON_SUCCEEDED = 0x1234;
+    static final int SIGNON_FAILED    = 0x1235;
+    static final int XML_DOCUMENT_NOT_REGISTERED = 0x1236;
+    static final int XML_DOCUMENT_REGISTERED = 0x1237;
+    static final int DATA_QUEUE_ACTION_SUCCESSFUL = 0x1238;
+    static final int EXCEPTION_OCCURRED = 0x1239;
+    static final int REQUEST_NOT_SUPPORTED = 0x01240;
+    
+    // JDBCME functions 
+    // Connection functions
+    static final int CONN_NEW = 0x1250;
+    static final int CONN_CLOSE = 0x1251;
+    static final int CONN_CREATE_STATEMENT = 0x1252;
+    static final int CONN_CREATE_STATEMENT2 = 0x1253;
+    static final int CONN_PREPARE_STATEMENT = 0x1254;
 
-    /**
-     *  Constant indicating an SQL query request.
-     **/
-    static final int SQL_QUERY = 0x1351;
+    static final int CONN_SET_AUTOCOMMIT = 0x1255;
+    static final int CONN_SET_TRANSACTION_ISOLATION = 0x1256;
+    static final int CONN_COMMIT = 0x1257;
+    static final int CONN_ROLLBACK = 0x1258;
 
-    /**
-     *  Constant indicating an SQL callable query request.
-     **/
-    static final int SQL_CALLABLE_QUERY = 0x1352;
+    // Statement functions
+    static final int STMT_CLOSE = 0x1261;
+    static final int STMT_EXECUTE = 0x1262;
+    static final int STMT_GET_RESULT_SET = 0x1263;
+    static final int STMT_GET_UPDATE_COUNT = 0x1264;
 
-    /**
-     *  Constant indicating an SQL callable get output data request.
-     **/
-    static final int SQL_CALLABLE_GET_OUTPUT = 0x1353;
+    // PreparedStatement functions
+    static final int PREP_EXECUTE = 0x1271;
 
-    /**
-     *  Constant indicating an SQL close request.
-     **/
-    static final int SQL_CLOSE = 0x1354;
+    // ResultSet functions
+    static final int RS_CLOSE = 0x1281;
+    static final int RS_DELETE_ROW = 0x1282;
+    static final int RS_INSERT_ROW = 0x1283;
+    static final int RS_NEXT = 0x1284;
+    static final int RS_PREVIOUS = 0x1285;
+    static final int RS_UPDATE_ROW = 0x1286;
 
-    /**
-     *  Constant indicating an SQL first request.
-     **/
-    static final int SQL_FIRST = 0x1355;
+    static final int RS_ABSOLUTE = 0x1287;
+    static final int RS_AFTER_LAST = 0x1288;
+    static final int RS_BEFORE_FIRST = 0x1289;
+    static final int RS_FIRST = 0x1290;
+    static final int RS_IS_AFTER_LAST = 0x1291;
+    static final int RS_IS_BEFORE_FIRST = 0x1292;
+    static final int RS_IS_FIRST = 0x1293;
+    static final int RS_IS_LAST = 0x1294;
+    static final int RS_LAST = 0x1295;
+    static final int RS_RELATIVE = 0x1296;
 
-    /**
-     *  Constant indicating an SQL lst request.
-     **/
-    static final int SQL_LAST = 0x1356;
+    // JDBC-ME Service functions
+    static final int JDBCME_DATA_TYPE_FLOW   = 0x1900;
 
-    /**
-     *  Constant indicating an SQL next request.
-     **/
-    static final int SQL_NEXT = 0x1357;
-
-    /**
-     *  Constant indicating an SQL previous request.
-     **/
-    static final int SQL_PREVIOUS = 0x1358;
-
-    /**
-     *  Constant indicating an SQL update request.
-     **/
-    static final int SQL_UPDATE = 0x1359;
-
-    /**
-     *  Constant indicating an SQL row number request.
-     **/
-    static final int SQL_ROW_NUMBER = 0x1360;
-
-    /**
-     *  Constant indicating an SQL row data request.
-     **/
-    static final int SQL_ROW_DATA = 0x1361;
-
-    /**
-     *  Constant indicating the SQL result set has been closed.
-     **/
-    static final int SQL_RESULT_SET_CLOSED = 0x1362;
-
-    /**
-     *  Constant indicating the SQL statement succeeded.
-     **/
-    static final int SQL_STATEMENT_SUCCEEDED = 0x1363;
-
-    /**
-     *  Constant indicating an SQL exception occurred.
-     **/
-    static final int SQL_EXCEPTION = 0x1364;
-
-    /**
-     *  Constant indicating the positioning of the SQL cursor was successful.
-     **/
-    static final int SQL_POSITION_CURSOR_SUCCESSFUL = 0x1365;
-
-    /**
-     *  Constant indicating the positioning of the SQL cursor failed.
-     **/
-    static final int SQL_POSITION_CURSOR_FAILED = 0x1366;
-
-    static final int SQL_REQUEST_FAILED = 0x1367;
-
-    static final int SQL_REQUEST_SUCCESSFUL = 0x1368;
-
-    static final int NO_CONNECTION_PROPERTIES = 0x1369;
-
-    static final int NO_CALLABLE_PARAMETERS = 0x1370;
-
-    static final int SQL_TYPE_INPUT = 0x1371;
-
-    static final int SQL_TYPE_OUTPUT = 0x1372;
+    // Include the data flow constants here.
+   // There are multiple types of data flows that the server can
+   // be setup to provide.  This allows the creation of frontends 
+   // of varying complexity.
+   //
+   // LIMITED is the only one supported today (and the default).
+   // The others will be added as time/needs allow.
+   static final int DATA_FLOW_ALL          = 1;
+   static final int DATA_FLOW_LIMITED      = 2;
+   static final int DATA_FLOW_STRINGS_ONLY = 3;
 }
