@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLClob.java
+// Filename: SQLDBClob.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -27,7 +27,9 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-class SQLClob
+
+
+class SQLDBClob
 implements SQLData
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
@@ -44,8 +46,8 @@ implements SQLData
 
     // Note: maxLength is in bytes not counting 2 for LL.
     //
-    //SQLClob(int maxLength, boolean graphic, SQLConversionSettings settings)
-    SQLClob(int maxLength, SQLConversionSettings settings)
+    //SQLDBClob(int maxLength, boolean graphic, SQLConversionSettings settings)
+    SQLDBClob(int maxLength, SQLConversionSettings settings)
     {
         //graphic_        = graphic;
         length_         = 0;
@@ -62,8 +64,8 @@ implements SQLData
 
     public Object clone()
     {
-        //return new SQLClob(maxLength_, graphic_, settings_);           // @E1C
-        return new SQLClob(maxLength_, settings_);
+        //return new SQLDBClob(maxLength_, graphic_, settings_);           // @E1C
+        return new SQLDBClob(maxLength_, settings_);
     }
 
     //---------------------------------------------------------//
@@ -78,42 +80,39 @@ implements SQLData
         length_ = BinaryConverter.byteArrayToInt(rawBytes, offset);
 
         // Do hand conversion if ccsidConverter is null.
-        // The ccsidConverter should never be null, alway use it to convert
         //if(ccsidConverter != null)
         //{
-            int bidiStringType = settings_.getBidiStringType();  //@E4A
-            // if bidiStringType is not set by user, use ccsid to get value
-            if(bidiStringType == -1)                     //@E4A
-                //@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
-                bidiStringType = ccsidConverter.bidiStringType_; //@P0A
-            // If the field is DBCLOB, length_ contains the number
-            // of characters in the string, while the converter is expecting
-            // the number of bytes. Thus, we need to multiply length_ by 2.
-            //if(graphic_)
-            //    value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_*2, bidiStringType); //@E4A
-            //else
-                value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_, bidiStringType); //@E4A
-        //}
+        int bidiStringType = settings_.getBidiStringType();  //@E4A
+        // if bidiStringType is not set by user, use ccsid to get value
+        if(bidiStringType == -1)                     //@E4A
+            //@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E4A
+            bidiStringType = ccsidConverter.bidiStringType_; //@P0A
+        // If the field is DBCLOB, length_ contains the number
+        // of characters in the string, while the converter is expecting
+        // the number of bytes. Thus, we need to multiply length_ by 2.
+        //if(graphic_)
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_*2, bidiStringType); //@E4A
         //else
-        //{
-            // This is a 13488 Unicode ccsid. Do the hand conversion.
-            // Note that the length_ here for a VARGRAPHIC field is the
-            // number of characters in the string.
+        //    value_ = ccsidConverter.byteArrayToString(rawBytes, offset + 4, length_, bidiStringType); //@E4A
+        //}
+        //else {                                                                  
+        // This is a 13488 Unicode ccsid. Do the hand conversion.
+        // Note that the length_ here for a VARGRAPHIC field is the
+        // number of characters in the string.
         //    char[] result = new char[length_];                                  
         //    int resultIndex = 0;                                                
 
         //    int cond = offset+4+length_*2;                                      
-        //    for(int i=offset+4; i<cond; i+=2)
-        //    {
-                // Get the two bytes that make up this char
+        //    for(int i=offset+4; i<cond; i+=2) {                                
+        // Get the two bytes that make up this char
         //        int byte1 = rawBytes[i] &0xFF;                                  
         //        int byte2 = rawBytes[i+1] &0xFF;                                
 
-                // Construct a char out of the two bytes
+        // Construct a char out of the two bytes
         //        result[resultIndex++] = (char)((byte1 << 8) + byte2);           
         //    }                                                                   
 
-            // Assign the result to value_
+        // Assign the result to value_
         //    value_ = new String(result);                                        
         //}                                                                       
 
@@ -186,9 +185,9 @@ implements SQLData
     public int getDisplaySize()
     {
         //if(graphic_)
-        //    return(maxLength_ / 2);
+        return(maxLength_ / 2);
         //else
-            return maxLength_;
+        //    return maxLength_;
     }
 
     //@F1A JDBC 3.0
@@ -209,7 +208,7 @@ implements SQLData
 
     public String getLocalName()
     {
-        return "CLOB"; 
+        return "DBCLOB"; 
     }
 
     public int getMaximumPrecision()
@@ -229,10 +228,10 @@ implements SQLData
 
     public int getNativeType()
     {
-        //if(graphic_)
-        //    return 412; // @B4C
+        //if(graphic_) 
+        return 412; // @B4C
         //else
-            return 408; // @B4C
+        //    return 408; // @B4C
     }
 
     public int getPrecision()
@@ -258,9 +257,9 @@ implements SQLData
     public String getTypeName()
     {
         //if(graphic_)
-        //    return "DBCLOB";
+        return "DBCLOB";
         //else
-            return "CLOB";
+        //    return "CLOB";
     }
 
     // @E1D    public boolean isGraphic()
@@ -441,8 +440,5 @@ implements SQLData
             return null;
         }
     }
-
-
-
 }
 

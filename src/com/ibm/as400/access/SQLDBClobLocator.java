@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
-// Filename: SQLClobLocator.java
+// Filename: SQLDBClobLocator.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -25,7 +25,7 @@ import java.util.Calendar;
 import java.util.Enumeration;                               // @G5A
 import java.util.Vector;                                    // @G5A
 
-class SQLClobLocator
+class SQLDBClobLocator
 implements SQLLocator                                       // @B3C
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
@@ -33,7 +33,6 @@ implements SQLLocator                                       // @B3C
     // Private data.
     private static final AS400Bin4  typeConverter_ = new AS400Bin4();
 
-    //private boolean                 graphic_;
     private AS400JDBCConnection     connection_;
     private ConvTable               converter_; //@P0C
     private int                     id_;
@@ -43,19 +42,17 @@ implements SQLLocator                                       // @B3C
     private int                     truncated_;
     private int                     columnIndex_;   //@E3A
 
-    SQLClobLocator(AS400JDBCConnection connection,
+    SQLDBClobLocator(AS400JDBCConnection connection,
                    int id,
                    int maxLength, 
-                   //boolean graphic, 
                    SQLConversionSettings settings,
                    ConvTable converter,                                  // @E1A @P0C
                    int columnIndex)                //@E3A
     {
         connection_     = connection;
-        //graphic_        = graphic;
         id_             = id;
         locator_        = new JDLobLocator(connection, id, maxLength);             // @B3C
-        locator_.setGraphic(false); // @E4A
+        locator_.setGraphic(true); // @E4A
         maxLength_      = maxLength;
         settings_       = settings;
         truncated_      = 0;
@@ -82,8 +79,7 @@ implements SQLLocator                                       // @B3C
 
     public Object clone()
     {
-        //return new SQLClobLocator(connection_, id_, maxLength_, graphic_, settings_, converter_, columnIndex_);                // @E1C //@E3C
-        return new SQLClobLocator(connection_, id_, maxLength_, settings_, converter_, columnIndex_);                // @E1C //@E3C
+        return new SQLDBClobLocator(connection_, id_, maxLength_, settings_, converter_, columnIndex_);                // @E1C //@E3C
     }
 
     public void setHandle(int handle)                          // @B3A
@@ -286,9 +282,9 @@ implements SQLLocator                                       // @B3C
     public int getDisplaySize()
     {
         //if(graphic_)
-        //    return(maxLength_ / 2);
+            return(maxLength_ / 2);
         //else
-            return maxLength_;
+        //    return maxLength_;
     }
 
     //@F1A JDBC 3.0
@@ -309,7 +305,7 @@ implements SQLLocator                                       // @B3C
 
     public String getLocalName()
     {
-        return "CLOB"; 
+        return "DBCLOB"; 
     }
 
     public int getMaximumPrecision()
@@ -330,9 +326,9 @@ implements SQLLocator                                       // @B3C
     public int getNativeType()
     {
         //if(graphic_)
-        //    return 968;
+            return 968;
         //else
-            return 964;        
+        //    return 964;        
     }
 
     public int getPrecision()
@@ -358,9 +354,9 @@ implements SQLLocator                                       // @B3C
     public String getTypeName()
     {
         //if(graphic_)
-        //    return "DBCLOB";
+            return "DBCLOB";
         //else
-            return "CLOB";
+        //    return "CLOB";
     }
 
     // @E1D     public boolean isGraphic()

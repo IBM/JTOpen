@@ -4478,7 +4478,8 @@ implements DatabaseMetaData
         if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)
         {       // @B4D B5A @D0C
             typeSamples.addElement(new SQLBlob(15728640, settings_));           // @B4D B5A @D0C
-            typeSamples.addElement(new SQLClob(15728640, false, settings_));    // @B4D B5A @D0C @E1C
+            typeSamples.addElement(new SQLClob(15728640, settings_));           // @B4D B5A @D0C @E1C
+            typeSamples.addElement(new SQLDBClob(15728640, settings_));
             typeSamples.addElement(new SQLDatalink(32739, settings_));          // @B4D B5A @D0C
         }                                                                       // @B4D B5A 
 

@@ -277,7 +277,8 @@ it will map to the next closest type.
             return new SQLChar (maxLength, false, settings);
 
         case Types.CLOB:
-            return new SQLClob (maxLength - 4, false, settings);    // @D1C @E1C
+            return new SQLClob (maxLength - 4, settings);    // @D1C @E1C
+            //return new SQLClob (maxLength - 4, false, settings);    // @D1C @E1C
 
         case Types.DATE:
             return new SQLDate (settings);
@@ -471,10 +472,12 @@ specific OS/400 native type identifier.
             if ((ccsid == 65535) && (translateBinary == false))	  //@E4C
                 return new SQLBlob (length - 4, settings);      // @D1C
             else
-                return new SQLClob (length - 4, false, settings); // @D1C @E1C
+                return new SQLClob (length - 4, settings); // @D1C @E1C
+                //return new SQLClob (length - 4, false, settings); // @D1C @E1C
         
         case 412:                           // Dbclob.
-            return new SQLClob (length - 4, true, settings);    // @D1C
+            return new SQLDBClob(length - 4, settings);    // @D1C
+            //return new SQLClob (length - 4, true, settings);    // @D1C
 
         case 448:                           // Varchar.
             if ((ccsid == 65535) && (translateBinary == false))   //@E4C
@@ -540,10 +543,12 @@ specific OS/400 native type identifier.
             if ((ccsid == 65535) && (translateBinary == false))               //@E4C
                 return new SQLBlobLocator (connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); //@F2C //@J0M added converter
             else
-                return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+                return new SQLClobLocator (connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+                //return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
         
         case 968:                           // Dbclob locator.
-            return new SQLClobLocator (connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+            return new SQLDBClobLocator(connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
+            //return new SQLClobLocator (connection, id, lobMaxSize, true, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
 
         default:
             JDError.throwSQLException (JDError.EXC_INTERNAL, new IllegalArgumentException(Integer.toString(nativeType))); // @E3C
@@ -602,13 +607,15 @@ specific OS/400 native type string.
             return new SQLVarchar (length, false, false, settings);     // @E1C
 
         else if (nativeType.equals ("CLOB"))
-            return new SQLClob (length, false, settings);           // @D1C @E1C @G1C Remove length-4
+            return new SQLClob (length, settings);           // @D1C @E1C @G1C Remove length-4
+            //return new SQLClob (length, false, settings);           // @D1C @E1C @G1C Remove length-4
 
         else if (nativeType.equals ("DATALINK"))
             return new SQLDatalink (length, settings);
 
         else if (nativeType.equals ("DBCLOB"))           // @G2A
-            return new SQLClob (length, true, settings); // @G2A
+            return new SQLDBClob (length, settings); // @G2A
+            //return new SQLClob (length, true, settings); // @G2A
 
         else if (nativeType.equals ("DATE"))
             return new SQLDate (settings);
