@@ -44,14 +44,18 @@ public final class AS400
 {
     private String systemName_;             // System name.
     private String userId_;                     // User ID.
-    
+
     // Password bytes twiddled.
-    private char[] bytes_ = null;
-    
+    private byte[] bytes_;
+
     private String MEServer_;                 // ME server system name.
 
     private boolean signedOn_ = false;           // Sign-on status.
 
+    // increment datastream level whenever a client/server datastream change is made.
+    private static final int DATASTREAM_LEVEL = 0;  
+
+    private static final Random rng_ = new Random();
 
     // Client side ME connection information.
     DataInputStream fromServer_ = null;
@@ -97,6 +101,26 @@ public final class AS400
         }
         else
             MEServer_ = MEServer + ":" + MEConstants.ME_SERVER_PORT;
+    }
+
+
+    // Copied from com.ibm.as400.access.BinaryConverter
+    static byte[] charArrayToByteArray(char[] charValue)
+    {
+        if (charValue == null)
+            return null;
+
+        byte[] byteValue = new byte[charValue.length * 2];
+        int inPos = 0;
+        int outPos = 0;
+
+        while (inPos < charValue.length)
+        {
+            byteValue[outPos++] = (byte)(charValue[inPos] >> 8);
+            byteValue[outPos++] = (byte)charValue[inPos++];
+        }
+
+        return byteValue;
     }
 
 
@@ -149,22 +173,19 @@ public final class AS400
 
 
     // Scramble some bytes.
-    private static char[] encode(char[] adder, char[] mask, char[] bytes)
+    private static byte[] encode(byte[] adder, byte[] mask, byte[] bytes)
     {
-        if (bytes == null)
-            return null;
-
         int length = bytes.length;
-        char[] buf = new char[length];
+        byte[] buf = new byte[length];
 
         for (int i = 0; i < length; ++i)
         {
-            buf[i] = (char)(bytes[i] + adder[i % 9]);
+            buf[i] = (byte)(bytes[i] + adder[i % adder.length]);
         }
 
         for (int i = 0; i < length; ++i)
         {
-            buf[i] = (char)(buf[i] ^ mask[i % 7]);
+            buf[i] = (byte)(buf[i] ^ mask[i % mask.length]);
         }
 
         return buf;
@@ -205,11 +226,29 @@ public final class AS400
                 fromServer_ = new DataInputStream(((InputConnection)client_).openInputStream());
 
                 toServer_.writeInt(MEConstants.SIGNON);
+
+                // Tell the server what our datastream level is.
+                toServer_.writeInt(DATASTREAM_LEVEL);          
+
+                // Exchange random seeds.
+                byte[] proxySeed = nextBytes(rng_, MEConstants.ADDER_LENGTH/*PROXY_SEED_LENGTH_*/);
+                toServer_.write(proxySeed);
+                toServer_.flush();
+
+                int serverDatastreamLevel = fromServer_.readInt();
+                byte[] remoteSeed = new byte[MEConstants.MASK_LENGTH/*REMOTE_SEED_LENGTH_*/];
+                fromServer_.readFully(remoteSeed);
+
+                // Design note: On Palm devices, the only encoding that is guaranteed to be supported is ISO8859_1.
+                // On MIDP, the default encoding is in the system property "microedition.encoding".
+
                 toServer_.writeUTF(systemName_);
                 toServer_.writeUTF(userId_);
-                toServer_.writeUTF( new String(bytes_) );  //password
+
+                byte[] encodedBytes = encode(proxySeed, remoteSeed, bytes_);
+                toServer_.writeInt(encodedBytes.length);
+                toServer_.write(encodedBytes);  //twiddled and encoded password
                 toServer_.flush();
-                
 
                 int retVal = fromServer_.readInt();
 
@@ -223,7 +262,7 @@ public final class AS400
 
                     throw new MEException(msg,rc);
                 }
-                
+
                 signedOn_ = true;
             }
 
@@ -233,42 +272,42 @@ public final class AS400
 
 
     // Twiddle password bytes.
-    private static  char[] store(String info)
+    private static byte[] store(String info)
     {
-        Random rng = new Random();
-        
-        char[] adder = nextBytes(rng, 18);
-        char[] mask = nextBytes(rng, 14);
+        byte[] adder = nextBytes(rng_, MEConstants.ADDER_LENGTH);
+        byte[] mask = nextBytes(rng_, MEConstants.MASK_LENGTH);
 
-        char[] infoBytes = encode(adder, mask, info.toCharArray());
-        char[] returnBytes = new char[info.length() + 16];
+        byte[] infoBytes = encode(adder, mask, charArrayToByteArray(info.toCharArray()));
+        byte[] returnBytes = new byte[MEConstants.ADDER_PLUS_MASK_LENGTH + infoBytes.length];
 
-        System.arraycopy(adder, 0, returnBytes, 0, 9);
-        System.arraycopy(mask, 0, returnBytes, 9, 7);
-        System.arraycopy(infoBytes, 0, returnBytes, 16, info.length());
+        System.arraycopy(adder, 0, returnBytes, 0, MEConstants.ADDER_LENGTH);
+        System.arraycopy(mask, 0, returnBytes, MEConstants.ADDER_LENGTH, MEConstants.MASK_LENGTH);
+        System.arraycopy(infoBytes, 0, returnBytes, MEConstants.ADDER_PLUS_MASK_LENGTH, infoBytes.length);
 
         return returnBytes;
     }
 
 
-    // Randomly generate bytes and put them into a new char array
-    private static  char[] nextBytes(Random r, int numBytes)
+    // Randomly generate bytes and put them into a new byte array.
+    static byte[] nextBytes(Random r, int numBytes)
     {
-        char[] buf = new char[numBytes/2]; // 2 bytes for each char
-        int length = buf.length / 4;             // 4 chars for each long
-        
-        for (int i=0; i<length; ++i)
+        byte[] buf = new byte[numBytes];
+
+        long feeder = r.nextLong();
+
+        int feederIndex = 0;  // We will step through the bytes of the long, 1 byte at a time.
+
+        for (int i=0; i<buf.length; i++)
         {
-            long l =  r.nextLong();
-            int offset = i*4;
-            
-            for (int j=0; j<4 && (j+offset) < buf.length; ++j, ++offset)
+            if (feederIndex > 7)  // time to grab another long
             {
-                buf[j+offset] = (char)(((byte)(0xFF & l) << 8) + ((byte)(0xFF & l >> 8))); 
-                l = l >> 16;
+                feeder = r.nextLong();
+                feederIndex = 0;
             }
+
+            buf[i] = (byte)(0xFF & (feeder >> 8*feederIndex++));
         }
-        
+
         return buf;
     }
 }
