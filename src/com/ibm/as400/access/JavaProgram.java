@@ -13,34 +13,26 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.StringTokenizer;
-import java.text.DateFormat;
-import java.text.ParseException;
 
 /**
 The JavaProgram class represents an OS/400 Java program.   This is supported
 only when connecting to servers running OS/400 V5R1 or later.
 
 In the context of this discussion, a "Java program" is the OS/400 executable object that is created when the CRTJVAPGM (Create Java Program) CL command is run against a class, JAR, or ZIP file.
-
+<br>
 Using the JavaProgram class, you can obtain the following information about an OS/400 Java program:
 <ul>
-<li>Adopted Authority Profile</li>
-<li>File Change Date</li>
-<li>File Owner</li>
-<li>Java Program Creation Date</li>
+<li>Adopted authority profile</li>
+<li>File change cate</li>
+<li>File owner</li>
+<li>Java program creation date</li>
 <li>Release program was created for</li>
-<li>Licensed Internal Code Options</li>
+<li>Licensed Internal Code options</li>
 <li>Number of attached java programs</li>
 <li>Number of classes</li>
 <li>Number of classes with current java programs</li>
@@ -48,11 +40,11 @@ Using the JavaProgram class, you can obtain the following information about an O
 <li>Number of classes with errors</li>
 <li>Optimization level</li>
 <li>Path used</li>
-<li>Performance Collection Enabled Flag</li>
-<li>Performance Collection Type</li>
-<li>Profiling Data Status</li>
-<li>Size of Attached Java Programs</li>
-<li>Use Adopted Authority</li>
+<li>Performance Collection Enabled flag</li>
+<li>Performance Collection type</li>
+<li>Profiling data status</li>
+<li>Size of attached java programs</li>
+<li>Use adopted authority</li>
 </ul>
 <br>
 
@@ -67,7 +59,7 @@ JavaProgram javaProgram = new JavaProgram(system, "/home/mydir/HelloWorld.class"
 // Get the optimization.
 int optimization = javaProgram.getOptimizationLevel();
 <br>
-//Get the file owner
+// Get the file owner.
 String owner = javaProgram.getFileOwner();
 </pre></blockquote>
 **/
@@ -100,6 +92,42 @@ public class JavaProgram implements Serializable
     private String LICoptions_;
 
     /**
+    Constant indicating that the profile to use when the use adopted authority field is set is *USER.
+    **/
+    public static final String ADOPTED_AUTHORITY_PROFILE_USER = "*USER";
+
+    /**
+    Constant indicating that the profile to use when the use adopted authority field is set is *OWNER.
+    **/
+    public static final String ADOPTED_AUTHORITY_PROFILE_OWNER = "*OWNER";
+
+    /**
+    Constant indicating the type of performance collection is *ENTRYEXIT.
+    **/
+    public static final String PERFORMANCE_COLLECTION_TYPE_ENTRYEXIT = "*ENTRYEXIT";
+
+    /**
+    Constant indicating the type of performance collection is *FULL.
+    **/
+    public static final String PERFORMANCE_COLLECTION_TYPE_FULL = "*FULL";
+
+    /**
+    Constant indicating that profile data collection is not enabled for the the Java program(s).
+    **/
+    public static final String PROFILING_DATA_STATUS_NOCOL = "*NOCOL";
+
+    /**
+    Constant indicating that profile data collection is enabled for the attached Java program(s).
+    **/
+    public static final String PROFILING_DATA_STATUS_COL = "*COL";
+
+    /**
+    Constant indicating that profile data has been applied to the attached Java program(s).
+    **/
+    public static final String PROFILING_DATA_STATUS_APY = "*APY";
+    
+
+    /**
     Creates a JavaProgram
     **/
     public JavaProgram()
@@ -110,7 +138,7 @@ public class JavaProgram implements Serializable
     Creates a JavaProgram
     
     @param system       The system.
-    @param path         The path.  This can be any class, jar, or zip file.
+    @param path         The path.  This can specify any class, jar, or zip file.
     **/
     public JavaProgram(AS400 system, String path)
     {
@@ -128,7 +156,7 @@ public class JavaProgram implements Serializable
     }
 
     /**
-    Returns the name of the path.
+    Returns the path to a class, jar, or zip file used to create the Java program.
     @return path
     **/
     public String getPath()
@@ -137,12 +165,12 @@ public class JavaProgram implements Serializable
     }
 
     /**
-    Returns the profile to use when the Use adopted authority field is set.
+    Returns the profile to use when the "Use Adopted Authority" field is set.
 
     @return the profile to use.  Possible values are:
     <ul>
-    <li>*USER
-    <li>*OWNER
+    <li>{@link #ADOPTED_AUTHORITY_PROFILE_USER ADOPTED_AUTHORITY_PROFILE_USER}
+    <li>{@link #ADOPTED_AUTHORITY_PROFILE_OWNER ADOPTED_AUTHORITY_PROFILE_OWNER}
     </ul>
     **/
     public String getAdoptedAuthorityProfile()
@@ -155,15 +183,15 @@ public class JavaProgram implements Serializable
     {
         if (!loaded_) refresh();
         if(adoptedAuthorityProfile_.equals("0"))
-            return "*USER";
+            return ADOPTED_AUTHORITY_PROFILE_USER;
         else
-            return "*OWNER";
+            return ADOPTED_AUTHORITY_PROFILE_OWNER;
     }
 
     /**
     Returns the date and time the file was last modified or changed.
     
-    @return the date and time
+    @return the last-changed date and time
     **/
     public Date getFileChangeDate()
     throws AS400Exception,
@@ -198,7 +226,7 @@ public class JavaProgram implements Serializable
     /**
     Returns the date and time the Java program was created for the file.
 
-    @return the date
+    @return the creation date
     **/
     public Date getJavaProgramCreationDate()
     throws AS400Exception,
@@ -364,8 +392,8 @@ public class JavaProgram implements Serializable
 
     @return the type of performance collection.  Possible values are:
     <ul>
-    <li>*ENTRYEXIT</li>
-    <li>*FULL</li>
+    <li>{@link #PERFORMANCE_COLLECTION_TYPE_ENTRYEXIT PERFORMANCE_COLLECTION_TYPE_ENTRYEXIT}</li>
+    <li>{@link #PERFORMANCE_COLLECTION_TYPE_FULL PERFORMANCE_COLLECTION_TYPE_FULL}</li>
     </ul>
     **/
     public String getPerformanceCollectionType()
@@ -378,9 +406,9 @@ public class JavaProgram implements Serializable
     {
         if(!loaded_) refresh();
         if(performanceCollectionType_.equals("0"))
-            return "*ENTRYEXIT";
+            return PERFORMANCE_COLLECTION_TYPE_ENTRYEXIT;
         else
-            return "*FULL";
+            return PERFORMANCE_COLLECTION_TYPE_FULL;
     }
 
     /**
@@ -422,9 +450,9 @@ public class JavaProgram implements Serializable
 
     @return whether profiling data is enabled or applied.  Possible values are:
     <ul>
-    <li>*NOCOL (profile data collection is not enabled for the Java program(s)</li>
-    <li>*COL (profile data collection is enabled for the attached java program(s)</li>
-    <li>*APY (profile data has been applied to the attached Java program(s)</li>
+    <li>{@link #PROFILING_DATA_STATUS_NOCOL PROFILING_DATA_STATUS_NOCOL}</li>
+    <li>{@link #PROFILING_DATA_STATUS_COL PROFILING_DATA_STATUS_COL}</li>
+    <li>{@link #PROFILING_DATA_STATUS_APY PROFILING_DATA_STATUS_APY}</li>
     </ul>
     **/
     public String getProfilingDataStatus()
@@ -437,11 +465,11 @@ public class JavaProgram implements Serializable
     {
         if(!loaded_) refresh();
         if(profilingDataStatus_.equals("0"))
-            return "*NOCOL";
+            return PROFILING_DATA_STATUS_NOCOL;
         else if(profilingDataStatus_.equals("1"))
-            return "*COL";
+            return PROFILING_DATA_STATUS_COL;
         else
-            return "*APY";
+            return PROFILING_DATA_STATUS_APY;
     }
 
     /**
@@ -474,14 +502,13 @@ public class JavaProgram implements Serializable
            IOException,
            UnsupportedEncodingException
     {
-        String format = "RJPI0100";
         int ccsid = system_.getCcsid();
         ConvTable conv = ConvTable.getTable(ccsid, null);
         int len=4096;
         ProgramParameter[] parms = new ProgramParameter[15];
         parms[0] = new ProgramParameter(len);                                   // receiver variable
         parms[1] = new ProgramParameter(BinaryConverter.intToByteArray(len));   // length of receiver variable
-        parms[2] = new ProgramParameter(conv.stringToByteArray(format));        // format name
+        parms[2] = new ProgramParameter(conv.stringToByteArray("RJPI0100"));        // format name
         parms[3] = new ProgramParameter(0);                                     //Class list receiver variable
         parms[4] = new ProgramParameter(BinaryConverter.intToByteArray(0));     //Length of class list reciever variable
         parms[5] = new ProgramParameter(conv.stringToByteArray("RJPC0100"));    //format of class list reciever variable
@@ -592,10 +619,11 @@ public class JavaProgram implements Serializable
     **/
     public void setSystem(AS400 system)
     {
-        if(system == null)
-            throw new NullPointerException("system");
         if(loaded_)
             throw new ExtendedIllegalStateException("propertiesFrozen", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        if(system == null)
+            throw new NullPointerException("system");
+
         system_ = system;
     }
 
@@ -606,11 +634,11 @@ public class JavaProgram implements Serializable
     **/
     public void setPath(String path)
     {
-        if (path == null)
-            throw new NullPointerException("path");
         if(loaded_)
             throw new ExtendedIllegalStateException("propertiesFrozen", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-
+        if (path == null)
+            throw new NullPointerException("path");
+        
         path_ = path;
     }
 }
