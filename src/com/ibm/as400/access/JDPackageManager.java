@@ -331,18 +331,21 @@ class JDPackageManager
 
     String statementText = sqlStatement.toString ();
     int statementTextLength = statementText.length ();
+
+    //@G1M Moved this if statement.  It should not have been in the for loop.
+    //@F2A If we are running to a v5r1 or higher system, the cached 
+    //@F2A package is now in unicode.
+    if (connection_.getVRM() >= JDUtilities.vrm510)              //@F2A
+    {
+      //@F2A
+      statementTextLength = statementTextLength * 2;           //@F2A
+    }                                                            //@F2A
+
     for (int i = 0; i < cachedStatementCount_; ++i)
     {
 
       try
       {
-                //@F2A If we are running to a v5r1 or higher system, the cached 
-                //@F2A package is now in unicode.
-                if (connection_.getVRM() >= JDUtilities.vrm510)              //@F2A
-                {                                                            //@F2A
-                    statementTextLength = statementTextLength * 2;           //@F2A
-                }                                                            //@F2A
-
         // Compare lengths first, before going to the
         // expense of a full String comparison.
         if (statementTextLength == cachedPackage_.getStatementTextLength (i))
