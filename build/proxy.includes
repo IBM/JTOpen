@@ -86,6 +86,8 @@ com/ibm/as400/access/ExtendedIllegalStateException.class
 com/ibm/as400/access/PasswordDialog.class
 com/ibm/as400/access/ResourceBundleLoader.class
 com/ibm/as400/access/Trace.class
+com/ibm/as400/access/SignonEvent.class
+com/ibm/as400/access/*SignonHandler*.class
 
 #---------------------------------------------------
 # Data areas
