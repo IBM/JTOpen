@@ -162,11 +162,11 @@ implements SQLData
         }
         catch(NumberFormatException e)
         {
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, e);
         }
         catch(StringIndexOutOfBoundsException e)
         {
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, e);
         }
 
         return new Date(calendar.getTime().getTime());
