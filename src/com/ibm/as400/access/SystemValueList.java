@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemValueList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Locale; //@F0A
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.beans.PropertyChangeListener;
@@ -27,7 +28,7 @@ import java.io.ObjectInputStream;
 
 public class SystemValueList implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -531,6 +532,49 @@ public class SystemValueList implements java.io.Serializable
     return groupDescriptions_[group];
   }
 
+  //@F0A
+  /**
+  Returns the description for the specified system value group.
+    @param group The system value group.
+    @param locale The Locale used to load the appropriate language.
+    @return The description of the system value group.
+  **/
+  public static String getGroupDescription(int group, Locale locale)
+  {
+    if (group < 0 || group > GROUP_ALL)
+    {
+      throw new ExtendedIllegalArgumentException("group",
+          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (locale == null) return groupDescriptions_[group];
+    switch(group)
+    {
+      case 0:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC", locale)).trim();
+      case 1:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_DESC", locale)).trim();
+      case 2:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC", locale)).trim();
+      case 3:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC", locale)).trim();
+      case 4:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC", locale)).trim();
+      case 5:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC", locale)).trim();
+      case 6:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC", locale)).trim();
+      case 7:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC", locale)).trim();
+      case 8:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC", locale)).trim();
+      case 9:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC", locale)).trim();
+      default:
+        break;
+    }
+    return groupDescriptions_[group];
+  }
+
 
   /**
   Returns the name of the specified system value group.
@@ -549,9 +593,53 @@ public class SystemValueList implements java.io.Serializable
   }
 
 
+  //@F0A
+  /**
+  Returns the name of the specified system value group.
+    @param group The system value group.
+    @param locale The Locale used to load the appropriate language.
+    @return The name of the system value group.
+  **/
+  public static String getGroupName(int group, Locale locale)
+  {
+    if (group < 0 || group > GROUP_ALL)
+    {
+      throw new ExtendedIllegalArgumentException("group",
+          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (locale == null) return groupNames_[group];
+    switch(group)
+    {
+      case 0:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME", locale)).trim();
+      case 1:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIM_NAME", locale)).trim();
+      case 2:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME", locale)).trim();
+      case 3:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME", locale)).trim();
+      case 4:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME", locale)).trim();
+      case 5:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME", locale)).trim();
+      case 6:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME", locale)).trim();
+      case 7:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME", locale)).trim();
+      case 8:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME", locale)).trim();
+      case 9:
+        return ((String)ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME", locale)).trim();
+      default:
+        break;
+    }
+    return groupNames_[group];
+  }
+
+
   /**
   Returns the system.
-    @return The AS/400.
+    @return The system.
   **/
   public AS400 getSystem()
   {
@@ -574,6 +662,17 @@ public class SystemValueList implements java.io.Serializable
     }
     return obj;
   }
+
+  //@F0A
+  /**
+   * Returns the locale-specific description for a SystemValue.
+  **/
+  static String lookupDescription(SystemValueInfo info, Locale locale)
+  {
+    String name = info.name_.toUpperCase().trim();
+    return ((String)ResourceBundleLoader.getSystemValueText(name+"_DES", locale)).trim();
+  }
+
 
 
   /**
@@ -614,7 +713,7 @@ public class SystemValueList implements java.io.Serializable
 
   /**
   Sets the system.
-    @param system The AS/400.
+    @param system The system.
     @exception PropertyVetoException If the change is vetoed.
   **/
   public void setSystem(AS400 system) throws PropertyVetoException

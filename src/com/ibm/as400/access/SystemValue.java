@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemValue.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,16 +19,17 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 import java.util.Vector;
+import java.util.Locale; //@F0A
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 /**
 The SystemValue class represents a system value or network attribute
-on the AS/400.
+on the AS/400 or iSeries server.
 **/
 public class SystemValue implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -55,14 +56,16 @@ public class SystemValue implements java.io.Serializable
   // deserialization. See readObject().
   transient boolean connected_ = false; // Has a connection been made yet?
 
-  transient Vector listeners_ = new Vector();
-  transient PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
-  transient VetoableChangeSupport vetos_ = new VetoableChangeSupport(this);
+  transient Vector listeners_ = null; //@F0C
+  transient PropertyChangeSupport changes_ = null; //@F0C
+  transient VetoableChangeSupport vetos_ = null; //@F0C
 
 
   private String name_; //@B0A The user-defined group name
   private String description_; //@B0A The user-defined group description
   
+  private String localeDescription_; //@F0A - locale-specific MRI description
+
   /**
   Constructs a SystemValue object.
   It creates a default SystemValue. The <i>system</i> and <i>name</i>
@@ -96,6 +99,7 @@ public class SystemValue implements java.io.Serializable
           ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     info_ = SystemValueList.lookup(name.toUpperCase());
+    localeDescription_ = SystemValueList.lookupDescription(info_, system.getLocale()); //@F0A
     system_ = system;
   }
 
@@ -114,6 +118,7 @@ public class SystemValue implements java.io.Serializable
   {
     system_ = system;
     info_ = info;
+    localeDescription_ = SystemValueList.lookupDescription(info_, system.getLocale()); //@F0A
     value_ = value;
     cached_ = true;
     
@@ -130,6 +135,7 @@ public class SystemValue implements java.io.Serializable
   public void addSystemValueListener(SystemValueListener listener)
   {
     if (listener == null) throw new NullPointerException("listener"); //@B1A
+    if (listeners_ == null) listeners_ = new Vector(); //@F0A
     listeners_.addElement(listener);
   }
 
@@ -142,6 +148,7 @@ public class SystemValue implements java.io.Serializable
   public void addPropertyChangeListener(PropertyChangeListener listener)
   {
     if (listener == null) throw new NullPointerException("listener"); //@B1A
+    if (changes_ == null) changes_ = new PropertyChangeSupport(this); //@F0A
     changes_.addPropertyChangeListener(listener);
   }
 
@@ -154,6 +161,7 @@ public class SystemValue implements java.io.Serializable
   public void addVetoableChangeListener(VetoableChangeListener listener)
   {
     if (listener == null) throw new NullPointerException("listener"); //@B1A
+    if (vetos_ == null) vetos_ = new VetoableChangeSupport(this); //@F0A
     vetos_.addVetoableChangeListener(listener);
   }
 
@@ -212,6 +220,8 @@ public class SystemValue implements java.io.Serializable
   **/
   private void fireChangedEvent(Object oldValue, Object newValue)
   {
+    if (listeners_ != null) //@F0A
+    {
     Vector targets = (Vector)listeners_.clone();
     SystemValueEvent event = new SystemValueEvent(this, oldValue, newValue);
     for (int i=0; i<targets.size(); ++i)
@@ -219,6 +229,7 @@ public class SystemValue implements java.io.Serializable
       SystemValueListener target = (SystemValueListener)targets.elementAt(i);
       target.systemValueChanged(event);
     }
+  }
   }
 
 
@@ -233,7 +244,14 @@ public class SystemValue implements java.io.Serializable
       throw new ExtendedIllegalStateException("name",
           ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
+    if (localeDescription_ == null) //@F0A
+    {
     return info_.description_;
+  }
+    else //@F0A
+    {
+      return localeDescription_; //@F0A
+    }
   }
 
 
@@ -344,7 +362,7 @@ public class SystemValue implements java.io.Serializable
 
   /**
   Returns the system.
-    @return The AS/400.
+    @return The system.
   **/
   public AS400 getSystem()
   {
@@ -433,9 +451,9 @@ public class SystemValue implements java.io.Serializable
       throws IOException, ClassNotFoundException
   {
     in.defaultReadObject();
-    listeners_ = new Vector();
-    changes_ = new PropertyChangeSupport(this);
-    vetos_ = new VetoableChangeSupport(this);
+    //@F0D listeners_ = new Vector();
+    //@F0D changes_ = new PropertyChangeSupport(this);
+    //@F0D vetos_ = new VetoableChangeSupport(this);
     cached_ = false;
     connected_ = false;
   }
@@ -449,7 +467,7 @@ public class SystemValue implements java.io.Serializable
   public void removeSystemValueListener(SystemValueListener listener)
   {
     if (listener == null) throw new NullPointerException("listener"); //@B1A
-    listeners_.removeElement(listener);
+    if (listeners_ != null) listeners_.removeElement(listener); //@F0C
   }
 
 
@@ -461,7 +479,7 @@ public class SystemValue implements java.io.Serializable
   public void removePropertyChangeListener(PropertyChangeListener listener)
   {
     if (listener == null) throw new NullPointerException("listener"); //@B1A
-    changes_.removePropertyChangeListener(listener);
+    if (changes_ != null) changes_.removePropertyChangeListener(listener); //@F0C
   }
 
 
@@ -473,7 +491,7 @@ public class SystemValue implements java.io.Serializable
   public void removeVetoableChangeListener(VetoableChangeListener listener)
   {
     if (listener == null) throw new NullPointerException("listener"); //@B1A
-    vetos_.removeVetoableChangeListener(listener);
+    if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@F0C
   }
 
 
@@ -495,15 +513,23 @@ public class SystemValue implements java.io.Serializable
     }
     String old = (info_ != null ? info_.name_ : null);
     SystemValueInfo temp = SystemValueList.lookup(name.toUpperCase());
-    vetos_.fireVetoableChange("name", old, name);
+    if (vetos_ != null) vetos_.fireVetoableChange("name", old, name); //@F0C
     info_ = temp;
-    changes_.firePropertyChange("name", old, info_.name_);
+    if (system_ != null) //@F0A
+    {
+      localeDescription_ = SystemValueList.lookupDescription(info_, system_.getLocale()); //@F0A
+    }
+    else //@F0A
+    {
+      localeDescription_ = null; //@F0A
+    }
+    if (changes_ != null) changes_.firePropertyChange("name", old, info_.name_); //@F0C
   }
 
 
   /**
   Sets the system.
-    @param system The AS/400.
+    @param system The system.
     @exception PropertyVetoException If the change is vetoed.
   **/
   public void setSystem(AS400 system) throws PropertyVetoException
@@ -518,9 +544,17 @@ public class SystemValue implements java.io.Serializable
           ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
     AS400 old = system_;
-    vetos_.fireVetoableChange("system", old, system);
+    if (vetos_ != null) vetos_.fireVetoableChange("system", old, system); //@F0C
     system_ = system;
-    changes_.firePropertyChange("system", old, system_);
+    if (info_ != null) //@F0A
+    {
+      localeDescription_ = SystemValueList.lookupDescription(info_, system_.getLocale()); //@F0A
+    }
+    else //@F0A
+    {
+      localeDescription_ = null; //@F0A
+    }
+    if (changes_ != null) changes_.firePropertyChange("system", old, system_); //@F0C
   }
 
 
@@ -530,9 +564,9 @@ public class SystemValue implements java.io.Serializable
     @exception AS400SecurityException If a security or authority error occurs.
     @exception ErrorCompletingRequestException If an error occurs before the request is completed.
     @exception InterruptedException If this thread is interrupted.
-    @exception IOException If an error occurs while communicating with the AS/400.
-    @exception RequestNotSupportedException If the release level of the AS/400 does not support the system value.
-    @exception UnknownHostException If the AS/400 system cannot be located.
+    @exception IOException If an error occurs while communicating with the server.
+    @exception RequestNotSupportedException If the release level of the server does not support the system value.
+    @exception UnknownHostException If the system cannot be located.
   **/
   public void setValue(Object value)
       throws AS400SecurityException,
