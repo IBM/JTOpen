@@ -85,7 +85,10 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
       properties_ = new PoolItemProperties();
       eventManager_ = new AS400JDBCConnectionEventSupport();
-   }
+
+        if (JDTrace.isTraceOn())                                                    //@G2A
+            JDTrace.logInformation(this, "A new AS400JDBCPooledConnection was created");    //@G2A
+    }
 
    /**
    *  Adds a ConnectionEventListener.
@@ -111,10 +114,10 @@ public class AS400JDBCPooledConnection implements PooledConnection
 
       properties_.clear();                // Reset the usage timers.
 
-      if (Trace.isTraceOn()) 
-         Trace.log(Trace.INFORMATION, "Pooled Connection closed.");
-   }
-     
+        if (JDTrace.isTraceOn())                                                             //@G2C
+            JDTrace.logInformation(this, "close() was called on this AS400JDBCPooledConnection"); //@G2C
+    }
+
 
    //@G4A JDBC 3.0
    /**
@@ -144,23 +147,28 @@ public class AS400JDBCPooledConnection implements PooledConnection
    **/
    public Connection getConnection() throws SQLException
    {
-      if (Trace.isTraceOn()) 
-         Trace.log(Trace.INFORMATION, "AS400PooledConnection.getConnection()");
+        if (JDTrace.isTraceOn())                                                    //@G2C
+            JDTrace.logInformation(this, "AS400JDBCPooledConnection.getConnection() was called");  //@G2C
 
       if (connection_.isClosed()) 
       {
-         Trace.log(Trace.ERROR, "Pooled Connection is invalid.");
-         throw new ExtendedIllegalStateException("connection", ExtendedIllegalStateException.OBJECT_MUST_BE_OPEN);
-      }
+            if (JDTrace.isTraceOn())                                             // @G2A
+                JDTrace.logInformation (this, "This AS400JDBCPooledConnection is invalid because connection is closed.");  // @G2A
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);  //@G2A
+            //@G2D Trace.log(Trace.ERROR, "Pooled Connection is invalid.");
+            //@G2D throw new ExtendedIllegalStateException("connection", ExtendedIllegalStateException.OBJECT_MUST_BE_OPEN);
+        }
       if (handle_ != null) 
       {
-         if (Trace.isTraceOn()) 
-            Trace.log(Trace.INFORMATION, "AS400PooledConnection.getConnection().  Closing existing connection handle.");
+            if (JDTrace.isTraceOn())                                                                                         //@G2C
+                JDTrace.logInformation(this, "AS400JDBCPooledConnection.getConnection().  Closing existing connection handle which is " + handle_); //@G2C
 
          handle_.invalidate();
       }
 
       handle_ = new AS400JDBCConnectionHandle(this, (AS400JDBCConnection)connection_);
+        if (JDTrace.isTraceOn())                                               //@G2A
+            JDTrace.logInformation(this, "Giving out handle " + handle_);      // @G2A
 
       // Start the connection tracking timers.
       setInUse(true);
@@ -188,20 +196,20 @@ public class AS400JDBCPooledConnection implements PooledConnection
    *  Returns the elapsed time the connection has been in use.
    *  @return The elapsed time.
    **/
-	public long getInUseTime()
-	{            
+    public long getInUseTime()
+    {            
       return properties_.getInUseTime();
-	}
-	
+    }
+
    /**
    *  Returns the elapsed time the pooled connection has been alive.
    *  @return The elapsed time.
    **/
-	public long getLifeSpan()
-	{
-		return properties_.getLifeSpan();
-	}
-	
+    public long getLifeSpan()
+    {
+        return properties_.getLifeSpan();
+    }
+
    /**
    *  Returns the number of times the pooled connection has been used.
    *  @return The number of times used.
@@ -246,8 +254,8 @@ public class AS400JDBCPooledConnection implements PooledConnection
    **/
    void returned()
    {
-      if (Trace.isTraceOn()) 
-         Trace.log(Trace.INFORMATION, "Pooled Connection is being returned.");
+        if (JDTrace.isTraceOn())                                                    //@G2C
+            JDTrace.logInformation(this, "This AS400JDBCPooledConnection is being returned."); //@G2C
 
       setInUse(false);              // Reset the timers.
 
