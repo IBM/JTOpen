@@ -5065,6 +5065,25 @@ implements DatabaseMetaData
     }
 
 
+    //@F3A
+    /**
+    Indicates if updateable LOB methods update a copy of the LOB or if updates
+    are made directly to the LOB.  True is returned if updateable lob methods 
+    update a copy of the LOB, false is returned if updates are made directly
+    to the LOB.
+    
+    @return     Always true.    Updateable lob methods update a copy of the LOB. 
+    ResultSet.updateRow() must be called to update the LOB in the DB2 UDB for iSeries database.
+    
+    @exception  SQLException    This exception is never thrown.
+    @since Modification 5
+    **/
+    public boolean locatorsUpdateCopy ()
+    throws SQLException
+    {
+        return true;
+    }
+
 
 
     // @E4A
