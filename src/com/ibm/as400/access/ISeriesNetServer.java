@@ -1156,8 +1156,7 @@ implements Serializable
     if (DEBUG) {
       System.out.println("DEBUG getAuthenticationMethod(): effectiveValueStr_[AUTHENTICATION_METHOD] == |" + effectiveValueStr_[AUTHENTICATION_METHOD] + "|");
     }
-    switch (effectiveValueStr_[AUTHENTICATION_METHOD].charAt(0))
-    {
+    switch (effectiveValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
       case '0': return ENCRYPTED_PASSWORDS;
       case '1': return KERBEROS_V5_TOKENS;
       default:  return KERBEROS_OR_PASSWORDS;
@@ -1174,8 +1173,7 @@ implements Serializable
   public void setAuthenticationMethod(int value)
   {
     char[] charArray = new char[1];
-    switch (value)
-    {
+    switch (value) {
       case ENCRYPTED_PASSWORDS:    charArray[0] = '0'; break;
       case KERBEROS_V5_TOKENS:     charArray[0] = '1'; break;
       case KERBEROS_OR_PASSWORDS:  charArray[0] = '2'; break;
@@ -1884,11 +1882,10 @@ implements Serializable
     if (getSystemVRM() >= 0x00050200) { // new field added to API in V5R2
       if (userChangedAttribute_[AUTHENTICATION_METHOD])
       {
-        if (pendingValueStr_[AUTHENTICATION_METHOD].charAt(0) == '0') {
-          stream.write(0xF0);
-        }
-        else {
-          stream.write(0xF1);
+        switch (pendingValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
+          case '0': stream.write(0xF0); break;
+          case '1': stream.write(0xF1); break;
+          default:  stream.write(0xF2);
         }
       }
     }
