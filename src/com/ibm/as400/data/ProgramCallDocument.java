@@ -615,7 +615,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
 
     /**
-     Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram() callProgram()}.
+     Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram(String) callProgram()}.
      @return The ProgramCall object; null if callProgram() has not been called.
      **/
     public ProgramCall getProgramCall()
