@@ -113,7 +113,7 @@ class DBReplyServerAttributes
 
 	final public int getServerCCSID ()  throws DBDataStreamException
 	{
-		return BinaryConverter.byteArrayToShort (data_, offset_ + 19);
+		return BinaryConverter.byteArrayToUnsignedShort (data_, offset_ + 19); //@P1C
 	}
 
 
