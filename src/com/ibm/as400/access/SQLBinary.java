@@ -115,7 +115,8 @@ implements SQLData
                 }                                                                   // @C1C
                 else if (object instanceof Clob) {                                  // @C1C
                     Clob clob = (Clob) object;                                      // @C1C
-                    value = clob.getSubString (1, (int) clob.length ()).getBytes(); // @C1C  @D1
+                    //@F1D value = clob.getSubString (1, (int) clob.length ()).getBytes(); // @C1C  @D1
+                    value = stringToBytes(clob.getSubString(1, (int)clob.length())); //@F1A
                 }                                                                   // @C1C
             }                                                                       // @C1C
             catch (NoClassDefFoundError e) {                                        // @C1C

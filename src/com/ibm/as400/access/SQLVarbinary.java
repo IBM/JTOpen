@@ -125,7 +125,8 @@ implements SQLData
                 }                                                                   // @C1C
                 else if (object instanceof Clob) {                                  // @C1C
                     Clob clob = (Clob) object;                                      // @C1C
-                    value = clob.getSubString (1, (int) clob.length ()).getBytes(); // @C1C  @D1
+                    //@F1D value = clob.getSubString (1, (int) clob.length ()).getBytes(); // @C1C  @D1
+                    value = SQLBinary.stringToBytes(clob.getSubString(1, (int)clob.length())); //@F1A
                 }                                                                   // @C1C
             }                                                                       // @C1C
             catch (NoClassDefFoundError e) {                                        // @C1C
@@ -380,7 +381,8 @@ implements SQLData
 	{
 	    // This is written in terms of toBytes(), since it will
 	    // handle truncating to the max field size if needed.
-	    return new StringReader (new String (toBytes ()));
+	    //@F1D return new StringReader (new String (toBytes ()));
+      return new StringReader(SQLBinary.bytesToString(toBytes())); //@F1A
 	}
 
 
@@ -390,7 +392,8 @@ implements SQLData
 	{
   	    // This is written in terms of toString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob (new String (toBytes ()));
+        //@F1D return new AS400JDBCClob (new String (toBytes ()));
+        return new AS400JDBCClob(SQLBinary.bytesToString(toBytes())); //@F1A
 	}
 
 
