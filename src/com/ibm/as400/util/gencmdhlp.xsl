@@ -746,7 +746,8 @@
       <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_USERDEFINED_PARAMETER_VALUE"/><xsl:text/>
       </xsl:when>
       
-      <xsl:when test="@Type='VARNAME'">      <xsl:text>&#xa;</xsl:text>
+      <xsl:when test="@Type='VARNAME'">      
+      <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pt.:pv.<xsl:value-of select="$_VALUE_CL_VARIABLE_NAME"/>:epv.<xsl:text/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
@@ -754,7 +755,8 @@
       <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_USERDEFINED_PARAMETER_VALUE"/><xsl:text/>
       </xsl:when>
       
-      <xsl:when test="@Type='DATE'">      <xsl:text>&#xa;</xsl:text>
+      <xsl:when test="@Type='DATE'">      
+      <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pt.:pv.<xsl:value-of select="$_VALUE_DATE"/>:epv.<xsl:text/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
@@ -762,7 +764,8 @@
       <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_USERDEFINED_PARAMETER_VALUE"/><xsl:text/>
       </xsl:when>
       
-      <xsl:when test="@Type='TIME'">      <xsl:text>&#xa;</xsl:text>
+      <xsl:when test="@Type='TIME'">      
+      <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pt.:pv.<xsl:value-of select="$_VALUE_TIME"/>:epv.<xsl:text/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
@@ -770,7 +773,8 @@
       <xsl:text/>.* <xsl:value-of select="$_DESCRIBE_USERDEFINED_PARAMETER_VALUE"/><xsl:text/>
       </xsl:when>
       
-      <xsl:when test="@Type='HEX'">
+      <xsl:when test="@Type='HEX'"> 
+      <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pt.:pv.<xsl:value-of select="$_VALUE_HEX"/>:epv.<xsl:text/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
@@ -779,6 +783,7 @@
       </xsl:when>
       
       <xsl:when test="@Type='X'">
+      <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pt.:pv.<xsl:value-of select="$_VALUE_NOT_RESTRICTED"/>:epv.<xsl:text/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:text/>:pd.<xsl:text>&#xa;</xsl:text>
