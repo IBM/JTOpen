@@ -404,103 +404,14 @@ implements IFSFileImpl
   public int getCCSID()
     throws IOException, AS400SecurityException
   {
-    int fileCcsid = -1;
-
-    // Ensure that we are connected to the server.
-    fd_.connect();
-
-    // Do an open, and get a file handle.
-    // Note: In order to get an OA2 structure back from the
-    // "List File Attributes" request, we must specify the file
-    // by handle rather than by name.
-
-    // Convert the path name to the AS/400 CCSID.
-    byte[] pathname = fd_.getConverter().stringToByteArray(fd_.path_);
-
-    // Request that the file can be opened.
-    IFSOpenReq req = new IFSOpenReq(pathname, fd_.preferredServerCCSID_,
-                                    fd_.preferredServerCCSID_,
-                                    IFSOpenReq.READ_ACCESS,
-                                    IFSOpenReq.DENY_NONE,
-                                    IFSOpenReq.NO_CONVERSION, 8);
-    ClientAccessDataStream ds = null;
-    try
+    IFSListAttrsRep reply = listAttributes1(); // @B7c
+    if (reply != null)
     {
-      ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify that the open request was successful.
-    int fileHandle = -1;
-    if (ds instanceof IFSOpenRep)
-    {
-      fileHandle = ((IFSOpenRep)ds).getFileHandle();
-    }
-    else if (ds instanceof IFSReturnCodeRep)
-    {
-      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
-      if (rc == 4)         // We get a 4 if it's a directory.
-        return fileCcsid;
-      else
-        throw new ExtendedIOException(rc);
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ",
-                ds.getReqRepID());
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
-
-    // Do a list attributes, specifying the handle, and indicating that we
-    // want an OA2 structure in the reply.
-
-    Vector replys = listAttributes(fileHandle);
-
-    // Verify that we got exactly one reply.
-    if (replys == null)
-      Trace.log(Trace.ERROR, "Received null from listAttributes().");
-    else if (replys.size() == 0)
-      Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
-    else if (replys.size() > 1)
-      Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
-                replys.size() + ")");
-    else
-    {
-      IFSListAttrsRep reply = (IFSListAttrsRep) replys.elementAt(0);
       //reply.setServerDatastreamLevel(fd_.serverDataStreamLevel_);  // @B6d
       reply.setFD(fd_);                  // @B6a
-      fileCcsid = reply.getCCSID();
+      return reply.getCCSID();
     }
-
-    // If we got a file handle, close it.
-    if (fileHandle != -1)
-    {
-      // Close the file.  We don't check the close reply
-      // because a failure at this point isn't of interest.
-      // The caller doesn't need to know that
-      // we opened and closed the file in question.
-      IFSCloseReq closeReq = new IFSCloseReq(fileHandle);
-      try { fd_.server_.sendAndReceive(closeReq); }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
-      }
-    }
-
-    return fileCcsid;
+    else return -1;
   }
 
 
@@ -575,6 +486,24 @@ implements IFSFileImpl
     }
 
     return freeSpace;
+  }
+
+
+  // @B7a
+  /**
+   Returns the file's owner userID.
+   Returns -1 if error.
+   **/
+  public int getOwnerId()
+    throws IOException, AS400SecurityException
+  {
+    IFSListAttrsRep reply = listAttributes1();
+    if (reply != null)
+    {
+      // Note: No need to do a setFD(fd_) on the reply, since offset of "owner" field is consistent across the various OA2* structures.
+      return reply.getOwnerId();
+    }
+    else return -1;
   }
 
 
@@ -1020,6 +949,109 @@ implements IFSFileImpl
     }                                                   // @A1A
 
     return replys;
+  }
+
+
+  // @B7a - This code was formerly located in getCcsid().
+  // Open the file, list the file attributes, and close the file.
+  // May return null, for example if the file is a directory.
+  private IFSListAttrsRep listAttributes1()
+    throws IOException, AS400SecurityException
+  {
+    IFSListAttrsRep reply = null;
+    // Ensure that we are connected to the server.
+    fd_.connect();
+
+    // Do an open, and get a file handle.
+    // Note: In order to get an OA2 structure back from the
+    // "List File Attributes" request, we must specify the file
+    // by handle rather than by name.
+
+    // Convert the path name to the AS/400 CCSID.
+    byte[] pathname = fd_.getConverter().stringToByteArray(fd_.path_);
+
+    // Request that the file can be opened.
+    IFSOpenReq req = new IFSOpenReq(pathname, fd_.preferredServerCCSID_,
+                                    fd_.preferredServerCCSID_,
+                                    IFSOpenReq.READ_ACCESS,
+                                    IFSOpenReq.DENY_NONE,
+                                    IFSOpenReq.NO_CONVERSION, 8);
+    ClientAccessDataStream ds = null;
+    try
+    {
+      ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      fd_.connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted", e);
+      throw new InterruptedIOException(e.getMessage());
+    }
+
+    // Verify that the open request was successful.
+    int fileHandle = -1;
+    if (ds instanceof IFSOpenRep)
+    {
+      fileHandle = ((IFSOpenRep)ds).getFileHandle();
+    }
+    else if (ds instanceof IFSReturnCodeRep)
+    {
+      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
+      if (rc == 4) {       // We get a 4 if it's a directory.
+        return null;       // @B7c
+      }
+      else {
+        throw new ExtendedIOException(rc);
+      }
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream ",
+                ds.getReqRepID());
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+
+    // Do a list attributes, specifying the handle, and indicating that we
+    // want an OA2 structure in the reply.
+
+    Vector replys = listAttributes(fileHandle);
+
+    // Verify that we got exactly one reply.
+    if (replys == null)
+      Trace.log(Trace.ERROR, "Received null from listAttributes().");
+    else if (replys.size() == 0)
+      Trace.log(Trace.ERROR, "Received zero replies from listAttributes().");
+    else if (replys.size() > 1)
+      Trace.log(Trace.ERROR, "Received multiple replies from listAttributes() (" +
+                replys.size() + ")");
+    else
+    {
+      reply = (IFSListAttrsRep) replys.elementAt(0);
+    }
+
+    // If we got a file handle, close it.
+    if (fileHandle != -1)
+    {
+      // Close the file.  We don't check the close reply
+      // because a failure at this point isn't of interest.
+      // The caller doesn't need to know that
+      // we opened and closed the file in question.
+      IFSCloseReq closeReq = new IFSCloseReq(fileHandle);
+      try { fd_.server_.sendAndReceive(closeReq); }
+      catch(InterruptedException e)
+      {
+        Trace.log(Trace.ERROR, "Interrupted", e);
+        throw new InterruptedIOException(e.getMessage());
+      }
+    }
+    return reply;
   }
 
 

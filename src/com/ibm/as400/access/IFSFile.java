@@ -1016,6 +1016,31 @@ public class IFSFile
     return name;
   }
 
+  // @B7a
+  /**
+   Returns the integrated file system file's owner ID number.
+   If the file is non-existent or is a directory, returns -1.
+   @return The file's owner ID number.
+   @exception IOException If an error occurs while communicating with the server.
+   **/
+  public int getOwnerId()
+    throws IOException
+  {
+    // Design note: It would be preferable if we could report the user profile name instead of UID number.  However, the File Server doesn't report the user name.  FYI: There is a service program (QSYPAPI/getpwuid()) that reports the user profile name associated with a given uid number, but getpwuid returns its results as a pointer to a struct, which our ServiceProgramCall class can't handle at the moment.  - 1 Feb 2001
+    int result = -1;
+    try
+    {
+      if (exists())
+        result = impl_.getOwnerId();
+    }
+    catch (AS400SecurityException e)
+    {
+      Trace.log(Trace.ERROR, SECURITY_EXCEPTION, e);
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+    return result;
+  }
+
   /**
    Returns the parent directory of the integrated file system object
    represented by this object. The parent directory is everything in

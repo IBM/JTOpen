@@ -70,6 +70,9 @@ class IFSListAttrsRep extends IFSDataStream
   // The following offset is valid only if the reply contains an OA2b structure.   @A2a
   private static final int CCSID_OFFSET_INTO_OA2b = 134;
 
+  // Offset of the "owner user ID" field in the OA2* structures.    @B7a
+  private static final int OWNER_OFFSET_INTO_OA2  = 64;
+
   private static final int HEADER_LENGTH = 20;
   private static final int LLCP_LENGTH = 6;
 
@@ -303,6 +306,18 @@ Determine the object type (file, directory, etc.)
   int getObjectType()
   {
     return get16bit( OBJECT_TYPE_OFFSET);
+  }
+
+// @B7a
+/**
+Get the "owner user ID" for the IFS file on the AS/400.
+@return the owner user ID for the IFS file on the AS/400
+**/
+  int getOwnerId()
+  {
+    int fieldOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
+                 LLCP_LENGTH + OWNER_OFFSET_INTO_OA2;
+    return get32bit(fieldOffset);
   }
 
 /**

@@ -125,6 +125,18 @@ implements IFSFileImpl
     }
   }
 
+  // @B7a
+  public int getOwnerId()
+    throws IOException, AS400SecurityException
+  {
+    try {
+      return connection_.callMethodReturnsInt (pxId_, "getOwnerId");
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
   // @B5a
   public String getSubtype()
     throws IOException, AS400SecurityException
