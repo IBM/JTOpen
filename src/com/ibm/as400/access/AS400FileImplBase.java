@@ -815,7 +815,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       for (int i=0; i<recordFormat_.getNumberOfFields(); ++i)
       {
         AS400DataType dt = ((FieldDescription)recordFormat_.getFieldDescription(i)).dataType_;
-        if (dt instanceof AS400Text)
+//        if (dt instanceof AS400Text)
+        if (dt.getInstanceType() == AS400DataType.TYPE_TEXT)
         {
           int textCcsid = ((AS400Text)dt).getCcsid();
           if (textCcsid != 65535) // ccsid already set, get a converter based on it

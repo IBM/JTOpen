@@ -220,7 +220,9 @@ public class RecordFormatDocument implements Serializable, Cloneable
       // Note: Classes that implement interface AS400DataType:
       // AS400Array, AS400Bin2, AS400Bin4, AS400Bin8, AS400ByteArray, AS400Float4, AS400Float8, AS400PackedDecimal, AS400Structure, AS400Text, AS400UnsignedBin2, AS400UnsignedBin4, AS400ZonedDecimal.
 
-      if (dataType instanceof AS400Array)
+//      if (dataType instanceof AS400Array)
+      int dtType = dataType.getInstanceType();
+      if (dtType == AS400DataType.TYPE_ARRAY)
       {
         // Set the 'count' attribute.
         count = ((AS400Array)dataType).getNumberOfElements();
@@ -230,13 +232,17 @@ public class RecordFormatDocument implements Serializable, Cloneable
         }
         addAttribute(attrList, "count", Integer.toString(count));
         dataType = ((AS400Array)dataType).getType(); // Get contained type.
-        if (dataType instanceof AS400Array) {
+//        if (dataType instanceof AS400Array) {
+        if (dataType.getInstanceType() == AS400DataType.TYPE_ARRAY)
+        {
           // We don't yet support AS400Array-within-AS400Array.
           throw new XmlException(DAMRI.MULTI_ARRAY_NOT_SUPPORTED);
         }
       }
 
-      if (dataType instanceof AS400Structure) {
+//      if (dataType instanceof AS400Structure) {
+      if (dtType == AS400DataType.TYPE_STRUCTURE)
+      {
         // Note: This type is left for a future enhancement.
         throw new XmlException(DAMRI.DATATYPE_NOT_SUPPORTED, new String[] {"AS400Structure"} );
       }
@@ -253,7 +259,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Set the 'length' attribute.
       // Note: At this point we know we don't have an AS400Structure.  All RFML datatypes except "struct" require the 'length' attribute.
-      if (!(dataType instanceof AS400Bin2 ||
+/*      if (!(dataType instanceof AS400Bin2 ||
             dataType instanceof AS400UnsignedBin2 ||
             dataType instanceof AS400Bin4 ||
             dataType instanceof AS400UnsignedBin4 ||
@@ -261,6 +267,15 @@ public class RecordFormatDocument implements Serializable, Cloneable
             dataType instanceof AS400Float4 ||
             dataType instanceof AS400Float8 || 
             dataType instanceof AS400PackedDecimal) )
+*/
+      if (!(dtType == AS400DataType.TYPE_BIN2 ||
+            dtType == AS400DataType.TYPE_UBIN2 ||
+            dtType == AS400DataType.TYPE_BIN4 ||
+            dtType == AS400DataType.TYPE_UBIN4 ||
+            dtType == AS400DataType.TYPE_BIN8 ||
+            dtType == AS400DataType.TYPE_FLOAT4 ||
+            dtType == AS400DataType.TYPE_FLOAT8 ||
+            dtType == AS400DataType.TYPE_PACKED))
       {
         int fieldLength = fieldDesc.getLength() / count;
         addAttribute(attrList, "length", Integer.toString(fieldLength));
@@ -296,99 +311,90 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Now set the type-specific attributes.
 
-      if (dataType instanceof AS400Bin2)
+      switch (dtType)
       {
-        addAttribute(attrList, "type", "int");
-        addAttribute(attrList, "length", "2");
-      }
-      else if (dataType instanceof AS400Bin4)
-      {
-        addAttribute(attrList, "type", "int");
-        addAttribute(attrList, "length", "4");
-      }
-      else if (dataType instanceof AS400Bin8)
-      {
-        addAttribute(attrList, "type", "int");
-        addAttribute(attrList, "length", "8");
-      }
-      else if (dataType instanceof AS400UnsignedBin2)
-      {
-        addAttribute(attrList, "type", "int");
-        addAttribute(attrList, "length","2");
-        addAttribute(attrList, "precision", "16");
-      }
-      else if (dataType instanceof AS400UnsignedBin4)
-      {
-        addAttribute(attrList, "type", "int");
-        addAttribute(attrList, "length","4");
-        addAttribute(attrList, "precision", "32");
-      }
-      else if (dataType instanceof AS400ByteArray)
-      {
-        addAttribute(attrList, "type", "byte");
-      }
-      else if (dataType instanceof AS400Float4)  // $A3
-      {
-        addAttribute(attrList, "type", "float");
-        addAttribute(attrList, "length", "4");
-        // Note: PCML (and therefore RFML too) doesn't allow a 'precision' attribute for type="float".
-      }
-      else if (dataType instanceof AS400Float8) // $A3
-      {
-        addAttribute(attrList, "type", "float");
-        addAttribute(attrList, "length", "8");
-        // Note: PCML (and therefore RFML too) doesn't allow a 'precision' attribute for type="float".
-      }
-      else if (dataType instanceof AS400PackedDecimal)
-      {
-        addAttribute(attrList, "type", "packed");
-        // $A5 
-        int numDigits = ((AS400PackedDecimal) dataType).getNumberOfDigits();
-        addAttribute(attrList, "length", Integer.toString(numDigits));  // end of $A5 change
+        case AS400DataType.TYPE_BIN2:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length", "2");
+          break;
+        case AS400DataType.TYPE_BIN4:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length", "4");
+          break;
+        case AS400DataType.TYPE_BIN8:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length", "8");
+          break;
+        case AS400DataType.TYPE_UBIN2:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length","2");
+          addAttribute(attrList, "precision", "16");
+          break;
+        case AS400DataType.TYPE_UBIN4:
+          addAttribute(attrList, "type", "int");
+          addAttribute(attrList, "length","4");
+          addAttribute(attrList, "precision", "32");
+          break;
+        case AS400DataType.TYPE_BYTE_ARRAY:
+          addAttribute(attrList, "type", "byte");
+          break;
+        case AS400DataType.TYPE_FLOAT4:
+          addAttribute(attrList, "type", "float");
+          addAttribute(attrList, "length", "4");
+          // Note: PCML (and therefore RFML too) doesn't allow a 'precision' attribute for type="float".
+          break;
+        case AS400DataType.TYPE_FLOAT8:
+          addAttribute(attrList, "type", "float");
+          addAttribute(attrList, "length", "8");
+          // Note: PCML (and therefore RFML too) doesn't allow a 'precision' attribute for type="float".
+          break;
+        case AS400DataType.TYPE_PACKED:
+          addAttribute(attrList, "type", "packed");
+          // $A5 
+          int numDigits = ((AS400PackedDecimal) dataType).getNumberOfDigits();
+          addAttribute(attrList, "length", Integer.toString(numDigits));  // end of $A5 change
 
-// $A2        int precision = ((PackedDecimalFieldDescription)fieldDesc).getDecimalPositions();
-        int precision = ((AS400PackedDecimal) dataType).getNumberOfDecimalPositions(); // $A2
-        addAttribute(attrList, "precision", Integer.toString(precision));
-      }
-      else if (dataType instanceof AS400Text)
-      {
-        addAttribute(attrList, "type", "char");
-        // The attributes 'ccsid' and 'bidistringtype' are unique to type="char".
-        // Note: The FieldDescription classes don't know about bidistringtype.
+  // $A2        int precision = ((PackedDecimalFieldDescription)fieldDesc).getDecimalPositions();
+          int precision = ((AS400PackedDecimal) dataType).getNumberOfDecimalPositions(); // $A2
+          addAttribute(attrList, "precision", Integer.toString(precision));
+          break;
+        case AS400DataType.TYPE_TEXT:
+          addAttribute(attrList, "type", "char");
+          // The attributes 'ccsid' and 'bidistringtype' are unique to type="char".
+          // Note: The FieldDescription classes don't know about bidistringtype.
 
-        // $A4 -- Change way ccsid is retrieved for ArrayFieldDescriptions
-        try
-        {
-          if (fieldDesc instanceof ArrayFieldDescription)
+          // $A4 -- Change way ccsid is retrieved for ArrayFieldDescriptions
+          try
           {
-            int ccsid = ((AS400Text) dataType).getCcsid();
-            if (ccsid > 0) {
-               addAttribute(attrList, "ccsid", Integer.toString(ccsid));
-            }
-          } else
-          {
-             Method method = fieldDesc.getClass().getMethod("getCCSID", null);
-             String ccsids = (String)method.invoke(fieldDesc, null);
-             if (ccsids != null && ccsids.length() != 0) {
-               addAttribute(attrList, "ccsid", ccsids);
+            if (fieldDesc instanceof ArrayFieldDescription)
+            {
+              int ccsid = ((AS400Text) dataType).getCcsid();
+              if (ccsid > 0) {
+                 addAttribute(attrList, "ccsid", Integer.toString(ccsid));
+              }
+            } else
+            {
+               Method method = fieldDesc.getClass().getMethod("getCCSID", null);
+               String ccsids = (String)method.invoke(fieldDesc, null);
+               if (ccsids != null && ccsids.length() != 0) {
+                 addAttribute(attrList, "ccsid", ccsids);
+               }
              }
-           }
-        }
-        catch (Exception e) { // This is OK, since not all FieldDescriptions that have type==AS400Text have ccsid's.
-          Trace.log(Trace.DIAGNOSTIC, e);
-        }
-      }
-      else if (dataType instanceof AS400ZonedDecimal)
-      {
-        addAttribute(attrList, "type", "zoned");
-// $A2        int precision = ((ZonedDecimalFieldDescription)fieldDesc).getDecimalPositions();
-        int precision = ((AS400ZonedDecimal) dataType).getNumberOfDecimalPositions(); // $A2
-        addAttribute(attrList, "precision", Integer.toString(precision));
-      }
-      else  // None of the above.
-      {
-        Trace.log(Trace.ERROR, "Unrecognized data type: " + dataType.getClass().getName());
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+          }
+          catch (Exception e) { // This is OK, since not all FieldDescriptions that have type==AS400Text have ccsid's.
+            Trace.log(Trace.DIAGNOSTIC, e);
+          }
+          break;
+        case AS400DataType.TYPE_ZONED:
+          addAttribute(attrList, "type", "zoned");
+  // $A2        int precision = ((ZonedDecimalFieldDescription)fieldDesc).getDecimalPositions();
+          int precisionZ = ((AS400ZonedDecimal) dataType).getNumberOfDecimalPositions(); // $A2
+          addAttribute(attrList, "precision", Integer.toString(precisionZ));
+          break;
+        default:
+         // None of the above.
+          Trace.log(Trace.ERROR, "Unrecognized data type: " + dataType.getClass().getName());
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
       return attrList;
