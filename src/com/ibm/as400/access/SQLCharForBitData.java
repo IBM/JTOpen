@@ -119,14 +119,11 @@ implements SQLData
                     JDError.throwSQLException(this, JDError.EXC_INTERNAL, ie);
                 }
                 value_ = baos.toByteArray();
-                int objectLength = value_.length;
-                if(value_.length > maxLength_)
+                if(value_.length < length)
                 {
-                    byte[] newValue = new byte[maxLength_];
-                    System.arraycopy(value_, 0, newValue, 0, maxLength_);
-                    value_ = newValue;
+                    // a length longer than the stream was specified
+                    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
-                truncated_ = objectLength - value_.length;
             }
             else
             {
@@ -161,14 +158,11 @@ implements SQLData
                         bytesRead = stream.read(byteBuffer, 0, blockSize);
                     }
                     value_ = baos.toByteArray();
-                    int objectLength = value_.length;
-                    if(value_.length > maxLength_)
+                    if(value_.length < length)
                     {
-                        byte[] newValue = new byte[maxLength_];
-                        System.arraycopy(value_, 0, newValue, 0, maxLength_);
-                        value_ = newValue;
+                        // a length longer than the stream was specified
+                        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                     }
-                    truncated_ = objectLength - value_.length;
                 }
                 catch(IOException ie)
                 {
