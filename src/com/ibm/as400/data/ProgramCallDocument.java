@@ -93,7 +93,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     static final long serialVersionUID = -1836686444079106483L;	    // @C1A
 
-    private static TransformerFactory tFactory = TransformerFactory.newInstance();
+//@CRS We don't want a dependency on the XML classes in case someone wants to use
+//@CRS serialized PCML with their ProgramCallDocument.
+//@CRS    private static TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private AS400 m_as400;
     private PcmlDocument m_pcmlDoc;
@@ -1405,6 +1407,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
            SAXException, IOException, PcmlException	
     	{
             StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
+            TransformerFactory tFactory = TransformerFactory.newInstance(); //@CRS
             Transformer transformer = tFactory.newTransformer(in);
             transformer.transform(new StreamSource(streamSource), new StreamResult(streamResult));
       }
@@ -1422,6 +1425,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
            SAXException, IOException, PcmlException	
     	{
             StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
+            TransformerFactory tFactory = TransformerFactory.newInstance(); //@CRS
             Transformer transformer = tFactory.newTransformer(in);
             transformer.setParameter("xsdFileName", xsdStreamName);
 
