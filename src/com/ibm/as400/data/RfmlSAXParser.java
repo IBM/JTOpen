@@ -330,7 +330,23 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
       }
     }
 
-    return super.resolveEntity(publicId, systemId);
+    try
+    {
+      return super.resolveEntity(publicId, systemId);
+    }
+    catch(SAXException sax)
+    {
+      throw sax;
+    }
+    catch(Exception ioe)
+    {
+      // The IBM JDK's DefaultHandler.resolveEntity() method throws IOException;
+      // the Sun implementation does not. We swallow it here for compatibility
+      // with the IBM JDK. Since the Sun implementation doesn't declare IOException,
+      // we have to swallow a generic exception. To avoid throwing a new SAXException
+      // around an existing one, we use the previous catch block. Good grief!
+      throw new SAXException(ioe);
+    }
   }
 
 
