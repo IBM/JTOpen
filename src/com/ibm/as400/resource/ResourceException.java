@@ -164,13 +164,13 @@ Constructs a ResourceException object.
     {
         super((exception instanceof PcmlException) ? ((PcmlException)exception).getLocalizedMessage() : exception.getMessage());
 
-        if (exception instanceof PcmlException) {
-            exception_ = ((PcmlException)exception).getException();
-            if (exception_ == null)
-                exception_ = exception;
-        }
-        else
-            exception_ = exception;
+//@B0D        if (exception instanceof PcmlException) {
+//@B0D            exception_ = ((PcmlException)exception).getException();
+//@B0D            if (exception_ == null)
+//@B0D                exception_ = exception;
+//@B0D        }
+//@B0D        else
+        exception_ = exception;
 
         if (Trace.isTraceOn())
             Trace.log(Trace.ERROR, "ResourceException was thrown", exception);
@@ -350,24 +350,24 @@ Unwraps the underlying exception and throws it.
                 IOException,
                 ObjectDoesNotExistException
     {
-        if (exception_ instanceof AS400SecurityException)
-            throw (AS400SecurityException)exception_;
-        else if (exception_ instanceof ErrorCompletingRequestException)
-            throw (ErrorCompletingRequestException)exception_;
-        else if (exception_ instanceof InterruptedException)
-            throw (InterruptedException)exception_;
-        else if (exception_ instanceof IOException)
-            throw (IOException)exception_;
-        else if (exception_ instanceof ObjectDoesNotExistException)
-            throw (ObjectDoesNotExistException)exception_;
-        else if (exception_ instanceof ResourceException)
-            ((ResourceException)exception_).unwrap();
-        else if (exception_ instanceof RuntimeException)
-            throw (RuntimeException)exception_;
-        else if (messageList_ != null)
-            throw new AS400Exception(messageList_);
-        else
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        //@B0C - Changed this method.
+
+        Throwable x = exception_;
+        while (x != null && x instanceof PcmlException)
+        {
+          x = ((PcmlException)x).getException();
+        }
+        if (x == null) x = exception_; // Nothing else we can do here.
+
+        if (x instanceof AS400SecurityException) throw (AS400SecurityException)x;
+        if (x instanceof ErrorCompletingRequestException) throw (ErrorCompletingRequestException)x;
+        if (x instanceof InterruptedException) throw (InterruptedException)x;
+        if (x instanceof IOException) throw (IOException)x;
+        if (x instanceof ObjectDoesNotExistException) throw (ObjectDoesNotExistException)x;
+        if (x instanceof ResourceException) ((ResourceException)exception_).unwrap();
+        if (x instanceof RuntimeException) throw (RuntimeException)x;
+        if (messageList_ != null) throw new AS400Exception(messageList_);
+        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
     }
 
 
