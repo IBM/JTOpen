@@ -386,6 +386,72 @@ public class Record implements Serializable
     vetos_.addVetoableChangeListener(listener); //@B5A
   }
 
+  //@G0A
+  /**
+   * Tests this Record object for equality with the given object.
+   * @param obj The Object to compare.
+   * @return true if obj is a Record object and its record length, record number,
+   * record name, dependent fields, field values, and key field values equal this Record's; 
+   * false otherwise. Since there are so many pieces of data that determine whether
+   * or not one Record equals another, the programmer may also want to consider using
+   * Record.toString() and comparing the Strings for equality.
+  **/
+  public boolean equals(Object obj)
+  {
+    try
+    {
+      Record cmp = (Record)obj;
+      if (cmp.recordLength_ == recordLength_ &&
+          cmp.recordNumber_ == recordNumber_ &&
+          cmp.hasDependentFields_ == hasDependentFields_ &&
+          (cmp.name_ == null ? (name_ == null) : cmp.name_.equals(name_)))
+      {
+        int n = getNumberOfFields();
+        int cn = cmp.getNumberOfFields();
+        if (n == cn)
+        {
+          int nk = getNumberOfKeyFields();
+          int cnk = getNumberOfKeyFields();
+          if (nk == cnk)
+          {
+            for (int i=0; i<n; ++i)
+            {
+              Object obj1 = getField(i);
+              Object obj2 = cmp.getField(i);
+              if (obj1 == null)
+              {
+                if (obj2 != null) return false;
+              }
+              else
+              {
+                if (obj2 == null) return false;
+                if (!obj1.equals(obj2)) return false;
+              }
+            }
+          }
+          else
+          {
+            return false;
+          }
+        }
+        else
+        {
+          return false;
+        }
+      }
+      else
+      {
+        return false;
+      }
+    }
+    catch(Throwable t) // ClassCastException
+    {
+      return false;
+    }
+    return true;
+  }
+
+
   /**
    *Fires the RecordDescriptionEvent.FIELD_MODIFIED event.
   **/
@@ -756,6 +822,17 @@ public class Record implements Serializable
   public int getRecordNumber()
   {
     return recordNumber_;
+  }
+
+  //@G0A
+  /**
+   * Returns a hash code value for this Record. This is useful if Record objects
+   * need to be placed into Hashtables.
+   * @return The hash code.
+  **/
+  public int hashCode()
+  {
+    return recordNumber_ == 0 ? recordLength_ : recordNumber_;
   }
 
   /**
