@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandCall.java
 //                                                                             
@@ -27,11 +27,11 @@ import java.net.UnknownHostException;
 import java.util.Vector;
 
 /**
- The CommandCall class represents an AS/400 command object.  This class allows the user to call an AS/400 CL command.  Results of the command are returned in a message list.
+ The CommandCall class represents an iSeries server command object.  This class allows the user to call an iSeries server CL command.  Results of the command are returned in a message list.
  <P>The following example demonstrates the use of CommandCall:
  <br>
  <pre>
-    // Work with commands on system "Hal"
+ *    // Work with commands on server named "Hal."
     AS400 system = new AS400("Hal");
     CommandCall command = new CommandCall(system);
     try
@@ -40,7 +40,7 @@ import java.util.Vector;
         if (command.run("CRTLIB FRED") != true)
         {
             // Note that there was an error
-            System.out.println("Program failed!");
+            System.out.println("Command failed!");
         }
         // Show the messages (returned whether or not there was an error)
         AS400Message[] messagelist = command.getMessageList();
@@ -57,7 +57,7 @@ import java.util.Vector;
     // done with the system
     system.disconnectAllServices();
  </pre>
- <p>NOTE:  When getting the AS400Message list from commands, users no longer have to create a MessageFile to obtain the program help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the AS400Message object returned from getMessageList().  Here is an example:
+ <p>NOTE:  When getting the message list from commands, users no longer have to create a <a href="MessageFile.html">MessageFile</a> to obtain the message help text.  The load() method can be used to retrieve additional message information. Then the getHelp() method can be called directly on the <a href="AS400Message.html">AS400Message</a> object returned from getMessageList().  Here is an example:
  <PRE>
    if (command.run("myCmd") != true)
    {
@@ -89,7 +89,7 @@ public class CommandCall implements Serializable
     static final int BY_SET_METHOD = 2;
     static final int BY_LOOK_UP = 3;
 
-    //The AS/400 system the command is run on.
+    //The server the command is run on.
     private AS400 system_ = null;
     // The command to run.
     private String command_ = "";
@@ -112,7 +112,7 @@ public class CommandCall implements Serializable
     private int threadSafetyDetermined_ = BY_DEFAULT;
 
     /**
-     Constructs a CommandCall object.  The system and the command string must be set later.
+     Constructs a CommandCall object.  The server and the command must be set later.
      **/
     public CommandCall()
     {
@@ -121,8 +121,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Constructs a CommandCall object.  It uses the specified system.  The command string must be set later.
-     @param  system  The AS/400 on which to issue the command.
+     Constructs a CommandCall object.  It uses the specified server.  The command must be set later.
+     @param  system  The server on which to run the command.
      **/
     public CommandCall(AS400 system)
     {
@@ -137,9 +137,9 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Constructs a CommandCall object.  It uses the specified system and command.
-     @param  system  The AS/400 on which to issue the command.
-     @param  command  The command to run on the AS/400.  If the command is not library qualified, the library list will be used to find the command.
+     Constructs a CommandCall object.  It uses the specified server and command.
+     @param  system  The server on which to run the command.
+     @param  command  The command to run on the server.  If the command is not library qualified, the library list will be used to find the command.
      **/
     public CommandCall(AS400 system, String command)
     {
@@ -249,18 +249,19 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns an RJob object which represents the AS/400 job in which the command will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
+     Returns an RJob object which represents the server job in which the command will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
      <br>Typical uses include:
      <br>(1) before run() to identify the job before calling the command;
      <br>(2) after run() to see what job the command ran under (to identify the job log, for example).
+     <p><b>Note:</b> This method is not supported in the Toolbox proxy environment.
      @return  The job in which the command will be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     @exception  UnknownHostException  If the server cannot be located.
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -269,12 +270,13 @@ public class CommandCall implements Serializable
         String jobInfo = impl_.getJobInfo(threadSafety_);
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
         // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
+        // Changed this return so the class loader would not complain when using the Proxy - wiedrich.
         return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
     }
 
     /**
-     Returns the list of AS/400 messages returned from running the command.  It will return an empty list if the command has not been run yet.
-     @return  The array of messages returned by the AS/400 for the command.
+     Returns the list of messages returned from running the command.  It will return an empty list if the command has not been run yet or if there are no messages.
+     @return  The array of messages returned by the command.
      **/
     public AS400Message[] getMessageList()
     {
@@ -283,9 +285,9 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns an AS/400 message returned from running the command.
-     @param  index  The index into the list of messages returned by the AS/400 for the command.  It must be greater than or equal to zero and less than the number of messages in the list.
-     @return  The message at the requested index returned by the AS/400 for the command.
+     Returns a message returned from running the command.
+     @param  index  The index into the list of messages returned by the command.  It must be greater than or equal to zero and less than the number of messages in the list.
+     @return  The message at the requested index returned by the command.
      **/
     public AS400Message getMessageList(int index)
     {
@@ -294,8 +296,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns the AS/400 on which the command is to be run.
-     @return  The AS/400 on which the command is to be run.  If the system has not been set, null is returned.
+     Returns the server on which the command is to be run.
+     @return  The server on which the command is to be run.  If the server has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -304,14 +306,14 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Returns the AS/400 thread on which the command would be run, if it were to be called on-thread.  Returns null if either:
+     Returns the thread on which the command would be run, if it were to be called on-thread.  Returns null if either:
      <ul compact>
-     <li> The client is communicating with the AS/400 server through sockets.
+     <li> The client is communicating with the server through sockets.
      <li> The command has not been marked as thread safe.
      </ul>
-     @return  The AS/400 thread on which the command would be run.
+     @return  The thread on which the command would be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      **/
     public Thread getSystemThread() throws AS400SecurityException, IOException
     {
@@ -339,20 +341,20 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Indicates whether or not the AS/400 command will actually get run on the current thread.
+     Indicates whether or not the command will actually get run on the current thread.
      @return  true if the command will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     @exception  ServerStartupException  If the server cannot be started.
+     @exception  UnknownHostException  If the server cannot be located.
      @see  #isThreadSafe
      **/
     public boolean isStayOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Checking if command will actually get run on the current thread.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if command will actually get run on the current thread.");
         if (command_.length() == 0)
         {
             Trace.log(Trace.ERROR, "Attempt to check thread safety before setting command.");
@@ -365,13 +367,13 @@ public class CommandCall implements Serializable
             threadSafetyDetermined_ = BY_LOOK_UP;
         }
         boolean isStayOnThread = (threadSafety_ && impl_.getClass().getName().endsWith("ImplNative"));
-        Trace.log(Trace.DIAGNOSTIC, "Command will actually get run on the current thread: ", isStayOnThread);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command will actually get run on the current thread: ", isStayOnThread);
         return isStayOnThread;
     }
 
     /**
-     Indicates whether or not the AS/400 command will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.CommandCall.threadSafe</code> property.
-     <br>Note: If the CL command on the AS/400 is not actually threadsafe (as indicated by its "threadsafe indicator" attribute), then the results of attempting to run the command on-thread will depend on the command's "multithreaded job action" attribute, in combination with the setting of system value QMLTTHDACN ("Multithreaded job action").  Possible results are:
+     Indicates whether or not the command will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.CommandCall.threadSafe</code> property.
+     <br>Note: If the CL command on the server is not actually threadsafe (as indicated by its "threadsafe indicator" attribute), then the results of attempting to run the command on-thread will depend on the command's "multithreaded job action" attribute, in combination with the setting of system value QMLTTHDACN ("Multithreaded job action").  Possible results are:
      <ul>
      <li> Run the command. Do not send a message.
      <li> Send an informational message and run the command.
@@ -381,15 +383,15 @@ public class CommandCall implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     @exception  ServerStartupException  If the server cannot be started.
+     @exception  UnknownHostException  If the server cannot be located.
      @see  #isStayOnThread
      **/
     public boolean isThreadSafe() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Checking if command will be assumed thread-safe: " + threadSafety_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if command will be assumed thread-safe: " + threadSafety_);
         return threadSafety_;
     }
 
@@ -424,7 +426,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Removes this ActionCompletedListener.  If the ActionCompletedListener is not on the list, nothing is done.
+     Removes the ActionCompletedListener.  If the ActionCompletedListener is not on the list, nothing is done.
      @param  listener  The ActionCompletedListener.
      @see  #addActionCompletedListener
      **/
@@ -440,7 +442,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Removes this PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
+     Removes the PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
      @param  listener  The PropertyChangeListener.
      @see  #addPropertyChangeListener
      **/
@@ -456,7 +458,7 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Removes this VetoableChangeListener.  If the VetoableChangeListener is not on the list, nothing is done.
+     Removes the VetoableChangeListener.  If the VetoableChangeListener is not on the list, nothing is done.
      @param  listener  The VetoableChangeListener.
      @see  #addVetoableChangeListener
      **/
@@ -472,15 +474,15 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Runs the command on the AS/400.  The command must be set prior to this call.
+     Runs the command on the server.  The command must be set prior to this call.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     @exception  UnknownHostException  If the server cannot be located.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -496,7 +498,7 @@ public class CommandCall implements Serializable
         {
             threadSafety_ = impl_.isCommandThreadSafe(command_);
             threadSafetyDetermined_ = BY_LOOK_UP;
-            Trace.log(Trace.DIAGNOSTIC, "Command thread safety: ", threadSafety_);
+            if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Command thread safety: ", threadSafety_);
         }
         // Run the command.
         boolean success = impl_.runCommand(command_, threadSafety_);
@@ -514,17 +516,17 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Sets the command string and runs it on the AS/400.
-     @param  command  The command to run on the AS/400.  If the command is not library qualified, the library list will be used to find the command.
+     Sets the command and runs it on the server.
+     @param  command  The command to run.  If the command is not library qualified, the library list will be used to find the command.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  PropertyVetoException  If the change is vetoed.
-     @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     @exception  ServerStartupException  If the server cannot be started.
+     @exception  UnknownHostException  If the server cannot be located.
      **/
     public boolean run(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -538,10 +540,10 @@ public class CommandCall implements Serializable
 
     // @D2a new method
     /**
-     Runs the command on the AS/400.  This method takes the command to run as
+     Runs the command on the server.  This method takes the command to run as
      a byte array instead of a String.  The most common use of CommandCall is
      to supply the command to run as a String and let the Toolbox convert the string
-     to AS/400 format (EBCDIC) before sending it to the AS/400 for processing.
+     to OS/400 format (EBCDIC) before sending it to the AS/400 for processing.
      Use this method if the default conversion of the command string 
      to EBCDIC is not correct.  In certain
      cases, especially bi-directional languages, the Toolbox conversion
@@ -550,19 +552,19 @@ public class CommandCall implements Serializable
      <P>
      Unlike the run method that takes a string, this method will not look up
      the thread safety of the command.  If this command is to be run on-thread
-     when running on the AS/400's JVM, setThreadSafe(true) must be called
+     when running on the iSeries's JVM, setThreadSafe(true) must be called
      by the application.
 
-     @param  command  The command to run on the AS/400.
+     @param  command  The command to run on the server.
      @return  true if command is successful; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  PropertyVetoException  If the change is vetoed.
-     @exception  ServerStartupException  If the AS/400 server cannot be started.
-     @exception  UnknownHostException  If the AS/400 system cannot be located.
+     @exception  ServerStartupException  If the server cannot be started.
+     @exception  UnknownHostException  If the server cannot be located.
      **/
     public boolean run(byte[] command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -600,7 +602,7 @@ public class CommandCall implements Serializable
 
     /**
      Sets the command to run.
-     @param  command  The command to run on the AS/400.  If the command is not library qualified, the library list will be used to find the command.
+     @param  command  The command to run on the server.  If the command is not library qualified, the library list will be used to find the command.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setCommand(String command) throws PropertyVetoException
@@ -624,8 +626,8 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Sets the AS/400 to run the command.  The system cannot be changed once a connection is made to the server.
-     @param  system  The AS/400 to run the command.
+     Sets the server to run the command.  The server cannot be changed once a connection is made to the server.
+     @param  system  The server on which to run the command.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -650,15 +652,15 @@ public class CommandCall implements Serializable
     }
 
     /**
-     Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the AS/400.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
-     <br>Note: This method does not modify the actual command object on the AS/400.
+     Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the server.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
+     <br>Note: This method does not modify the actual command object on the server.
      @param  threadSafe  true if the command should be assumed to be thread-safe; false otherwise.
      @see  #isThreadSafe
      @see  #isStayOnThread
      **/
     public void setThreadSafe(boolean threadSafe)
     {
-        Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
         Boolean oldValue = new Boolean(threadSafety_);
         Boolean newValue = new Boolean(threadSafe);
 

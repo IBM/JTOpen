@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramCall.java
 //                                                                             
@@ -110,7 +110,7 @@ public class ProgramCall implements Serializable
     static final int BY_PROPERTY = 1;
     static final int BY_SET_METHOD = 2;
 
-    //The AS/400 system the program is run on.
+    //The server the program is run on.
     AS400 system_ = null;
     //The IFS path name of the program.
     String program_ = "";
@@ -148,8 +148,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Constructs a ProgramCall object.  It uses the specified system.  The program and parameters must be provided later.
-     @param  system  The AS/400 on which to run the program.
+     Constructs a ProgramCall object.  It uses the specified server.  The program and parameters must be provided later.
+     @param  system  The server on which to run the program.
      **/
     public ProgramCall(AS400 system)
     {
@@ -165,8 +165,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Constructs a program call object.  It uses the specified system, program name, and parameter list.
-     @param  system  The AS/400 on which to run the program.
+     Constructs a program call object.  It uses the specified server, program name, and parameter list.
+     @param  system  The server on which to run the program.
      @param  program  The program name as a fully qualified path name in the library file system.  The library and program name must each be 10 characters or less.
      @param  parameterList  A list of up to 35 parameters with which to run the program.
      **/
@@ -269,7 +269,7 @@ public class ProgramCall implements Serializable
         {
             if (system_ == null)
             {
-                Trace.log(Trace.ERROR, "Attempt to run before setting system.");
+                Trace.log( Trace.ERROR, "Attempt to connect to command server before setting system." );
                 throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
             }
 
@@ -292,7 +292,7 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Returns an RJob object which represents the AS/400 job in which the program will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
+     Returns an RJob object which represents the server job in which the program will be run.  The information contained in the RJob object is invalidated by <code>AS400.disconnectService()</code> or <code>AS400.disconnectAllServices()</code>.
      <br>Typical uses include:
      <br>(1) before run() to identify the job before calling the program;
      <br>(2) after run() to see what job the program ran under (to identify the job log, for example).
@@ -300,7 +300,7 @@ public class ProgramCall implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      **/
     public RJob getJob() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -310,12 +310,13 @@ public class ProgramCall implements Serializable
         String jobInfo = impl_.getJobInfo(threadSafety_);
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Constructing RJob for job: " + jobInfo);
         // Contents of the "job information" string:  The name of the user job that the thread is associated with.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
+        // Changed this return so the class loader would not complain when using the Proxy - wiedrich.
         return new RJob(system_, jobInfo.substring(0, 10).trim(), jobInfo.substring(10, 20).trim(), jobInfo.substring(20, 26).trim());
     }
 
     /**
-     Returns the list of AS/400 messages returned from running the program.  It will return an empty list if the program has not been run yet.
-     @return  The array of messages returned by the AS/400 for the program.
+     Returns the list of messages returned from running the program.  It will return an empty list if the program has not been run yet or if there are no messages.
+     @return  The array of messages returned by the program.
      **/
     public AS400Message[] getMessageList()
     {
@@ -344,8 +345,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Returns the AS/400 on which the program is to be run.
-     @return  The AS/400 on which the program is to be run.  If the system has not been set, null is returned.
+     Returns the server on which the program is to be run.
+     @return  The server on which the program is to be run.  If the server has not been set, null is returned.
      **/
     public AS400 getSystem()
     {
@@ -354,14 +355,14 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Returns the AS/400 thread on which the program would be run, if it were to be called on-thread.  Returns null if either:
+     Returns the thread on which the program would be run, if it were to be called on-thread.  Returns null if either:
      <ul compact>
-     <li> The client is communicating with the AS/400 server through sockets.
+     <li> The client is communicating with the server through sockets.
      <li> The program has not been marked as thread safe.
      </ul>
-     @return  The AS/400 thread on which the program would be run.
+     @return  The thread on which the program would be run.
      @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      **/
     public Thread getSystemThread() throws AS400SecurityException, IOException
     {
@@ -389,32 +390,32 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Indicates whether or not the AS/400 program will actually get run on the current thread.
+     Indicates whether or not the program will actually get run on the current thread.
      @return  true if the program will be run on the current thread; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
      @see  #isThreadSafe
      **/
     public boolean isStayOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        Trace.log(Trace.DIAGNOSTIC, "Checking if program will actually get run on the current thread.");
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if program will actually get run on the current thread.");
         chooseImpl();
         boolean isStayOnThread = (threadSafety_ && impl_.getClass().getName().endsWith("ImplNative"));
-        Trace.log(Trace.DIAGNOSTIC, "Program will actually get run on the current thread: ", isStayOnThread);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Program will actually get run on the current thread: ", isStayOnThread);
         return isStayOnThread;
     }
 
     /**
-     Indicates whether or not the AS/400 program will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.ProgramCall.threadSafe</code> property.
+     Indicates whether or not the program will be assumed thread-safe, according to the settings specified by <code>setThreadSafe()</code> or the <code>com.ibm.as400.access.ProgramCall.threadSafe</code> property.
      @return  true if the program will be assumed thread-safe; false otherwise.
      @see  #isStayOnThread
      **/
     public boolean isThreadSafe()
     {
-        Trace.log(Trace.DIAGNOSTIC, "Checking if program will be assumed thread-safe: " + threadSafety_);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if program will be assumed thread-safe: " + threadSafety_);
         return threadSafety_;
     }
 
@@ -497,14 +498,14 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Runs the program on the AS/400.  The program and parameter list need to be set prior to this call.
+     Runs the program on the server.  The program and parameter list need to be set prior to this call.
      @return  true if program ran successfully; false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     @exception  ObjectDoesNotExistException  If the server object does not exist.
      **/
     public boolean run() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
@@ -543,16 +544,16 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Sets the program name and the parameter list and runs the program on the AS/400.
+     Sets the program name and the parameter list and runs the program on the server.
      @param  program  The fully qualified integrated file system path name to the program.  The library and program name must each be 10 characters or less.
      @param  parameterList  The list of parameters with which to run the program.
      @return  true if program ran successfully, false otherwise.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ConnectionDroppedException  If the connection is dropped unexpectedly.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  IOException  If an error occurs while communicating with the AS/400.
+     @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
-     @exception  ObjectDoesNotExistException  If the AS/400 object does not exist.
+     @exception  ObjectDoesNotExistException  If the server object does not exist.
      @exception  PropertyVetoException  If a change is vetoed.
      **/
     public boolean run(String program, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException, PropertyVetoException
@@ -562,7 +563,7 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Sets the list of parameters to pass to the AS/400 program.
+     Sets the list of parameters to pass to the program.
      @param  parameterList  A list of up to 35 parameters with which to run the program.
      @exception  PropertyVetoException  If a change is vetoed.
      **/
@@ -625,8 +626,8 @@ public class ProgramCall implements Serializable
     }
 
     /**
-     Sets the AS/400 to run the program.
-     @param  system  The AS/400 on which to run the program.  The system cannot be changed once a connection is made to the server.
+     Sets the server to run the program.  The server cannot be changed once a connection is made to the server.
+     @param  system  The server on which to run the program.
      @exception  PropertyVetoException  If the change is vetoed.
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
@@ -652,14 +653,14 @@ public class ProgramCall implements Serializable
 
     /**
      Specifies whether or not the program should be assumed thread-safe.  The default is false.
-     <br>Note: This method does not modify the actual program object on the AS/400.
+     <br>Note: This method does not modify the actual program object on the server.
      @param  threadSafe  true if the program should be assumed to be thread-safe; false otherwise.
      @see  #isThreadSafe
      @see  #isStayOnThread
      **/
     public void setThreadSafe(boolean threadSafe)
     {
-        Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
+        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting thread safe: " + threadSafe);
         Boolean oldValue = new Boolean(threadSafety_);
         Boolean newValue = new Boolean(threadSafe);
 
