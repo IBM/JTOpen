@@ -348,6 +348,11 @@ public class FileListElement implements java.io.Serializable
      **/
     public FileListElement()
     {
+        renderer_ = null;
+        system_ = null;
+        request_ = null;
+        shareName_ = null;
+        sharePath_ = null;
     }
 
 
