@@ -564,8 +564,8 @@ public class AS400FTP
    /**
     * Sends a command to the server, returning the reply from the server.
     * <P>
-    * The command is not altered before sending it to the server so it
-    * much be recognized by the server.  Many FTP applications change
+    * The command is not altered before sending it to the server, so it
+    * must be recognized by the server.  Many FTP applications change
     * commands so they are recognized by the server.  For example, the
     * command to get a list of files from the server is NLST, not ls.  Many
     * FTP applications convert ls to NLST before sending the command to
