@@ -254,6 +254,18 @@ attributes. The tables organize the properties into the following categories:</P
     </TD>
     <TD HEADERS="t5">&quot;character&quot;</TD>
   </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;true autocommit&quot;</TD>
+    <TD HEADERS="t2">Specifies whether the connection should use true auto commit support.  
+	True autocommit means that autocommit is on and is running under a isolation level other 
+	than *NONE. By default, the driver handles autocommit by running under the server isolation 
+	level of *NONE. </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;true&quot; (Use true autocommit.)<BR>
+      &quot;false&quot; (Do not use true autocommit.)<BR>
+    </TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
 </TABLE>
 
 <A NAME="format"></A>
