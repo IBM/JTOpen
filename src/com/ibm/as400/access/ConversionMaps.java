@@ -357,7 +357,7 @@ abstract class ConversionMaps
     localeCcsidMap_.put("de_DE_EURO", "1141"); //@A4A
     localeCcsidMap_.put("de_LU_EURO", "1141"); //@A4A
     localeCcsidMap_.put("el", "875");
-    localeCcsidMap_.put("el_GR_EUROR", "4971"); //@C0A
+    localeCcsidMap_.put("el_GR_EURO", "4971"); //@C0A
     localeCcsidMap_.put("en", "37");
     localeCcsidMap_.put("en_BE", "500");
     localeCcsidMap_.put("en_CN", "1388"); //@A1C - was 935
