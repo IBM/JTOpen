@@ -48,7 +48,7 @@ class Read implements Runnable {
 	 * from the given system and read into the local file.
 	 * @param rmtfile   Path of the remote file to download
 	 * @param lclfile   Path of the local file to save to
-	 * @param sys	    The AS400 system to connect to
+	 * @param sys	    The system to connect to
 	 */
 	public Read(CommTrace comm, String rmtfile, String lclfile, AS400 sys) {
 		this.comm= comm;

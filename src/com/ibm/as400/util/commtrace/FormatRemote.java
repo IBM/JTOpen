@@ -76,7 +76,7 @@ class FormatRemote implements Runnable {
 
 			// Set the Java application to be run.
 			jaCall.setJavaApplication("com.ibm.as400.util.commtrace.Format");
-			// Set the classpath environment variable used by the AS/400's
+			// Set the classpath environment variable used by the server's
 			// JVM so it can find the class to run.
 			jaCall.setClassPath(
 				classpath_);
@@ -156,9 +156,9 @@ class FormatRemote implements Runnable {
 					}
 
 					// Start the program.  The call to run() will not return
-					// until the AS/400 Java program completes.  If the Toolbox
+					// until the server Java program completes.  If the Toolbox
 					// cannot start the Java program, false is returned with
-					// a list of AS/400 message objects indicating why the program
+					// a list of AS400Message objects indicating why the program
 					// could not start.
 					if(com_!=null) {
 						((Component) CommTrace.getMainFrame()).setCursor(

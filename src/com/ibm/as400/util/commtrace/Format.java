@@ -226,7 +226,7 @@ public class Format {
 		// created. 
 		CommandLineArguments arguments= new CommandLineArguments(args, v, shortcuts);
 
-		// Get the AS400 system that the user wants to run to. 
+		// Get the system that the user wants to run to. 
 		String system= arguments.getOptionValue("");
 
 		// Get the user ID that the user wants to log in with. 
@@ -628,7 +628,7 @@ public class Format {
 	}
 
 	/**
-	 * Format the trace and write the results to a binary IFS file on the AS400 
+	 * Format the trace and write the results to a binary IFS file on the server 
 	 * we are connected to.
 	 * @return A error code if any.
 	 */
