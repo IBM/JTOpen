@@ -222,6 +222,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
 //      if (dataType instanceof AS400Array)
       int dtType = dataType.getInstanceType();
+
       if (dtType == AS400DataType.TYPE_ARRAY)
       {
         // Set the 'count' attribute.
@@ -231,7 +232,9 @@ public class RecordFormatDocument implements Serializable, Cloneable
           count = 1;
         }
         addAttribute(attrList, "count", Integer.toString(count));
-        dataType = ((AS400Array)dataType).getType(); // Get contained type.
+        // Set the data type to the contained type, so we can then set the attributes appropriately.
+        dataType = ((AS400Array)dataType).getType();
+        dtType = dataType.getInstanceType();
 //        if (dataType instanceof AS400Array) {
         if (dataType.getInstanceType() == AS400DataType.TYPE_ARRAY)
         {
@@ -268,15 +271,18 @@ public class RecordFormatDocument implements Serializable, Cloneable
             dataType instanceof AS400Float8 || 
             dataType instanceof AS400PackedDecimal) )
 */
-      if (!(dtType == AS400DataType.TYPE_BIN2 ||
-            dtType == AS400DataType.TYPE_UBIN2 ||
-            dtType == AS400DataType.TYPE_BIN4 ||
-            dtType == AS400DataType.TYPE_UBIN4 ||
-            dtType == AS400DataType.TYPE_BIN8 ||
-            dtType == AS400DataType.TYPE_FLOAT4 ||
-            dtType == AS400DataType.TYPE_FLOAT8 ||
-            dtType == AS400DataType.TYPE_PACKED))
+      if (dtType == AS400DataType.TYPE_BIN2 ||
+          dtType == AS400DataType.TYPE_UBIN2 ||
+          dtType == AS400DataType.TYPE_BIN4 ||
+          dtType == AS400DataType.TYPE_UBIN4 ||
+          dtType == AS400DataType.TYPE_BIN8 ||
+          dtType == AS400DataType.TYPE_FLOAT4 ||
+          dtType == AS400DataType.TYPE_FLOAT8 ||
+          dtType == AS400DataType.TYPE_PACKED)
       {
+        // The numeric field types have architected lengths.  We will set the length in the switch() statement below.
+      }
+      else {
         int fieldLength = fieldDesc.getLength() / count;
         addAttribute(attrList, "length", Integer.toString(fieldLength));
       }
@@ -393,7 +399,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
           break;
         default:
          // None of the above.
-          Trace.log(Trace.ERROR, "Unrecognized data type: " + dataType.getClass().getName());
+          Trace.log(Trace.ERROR, "Unrecognized data type: dtType=="+dtType);
           throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
 
@@ -750,13 +756,13 @@ public class RecordFormatDocument implements Serializable, Cloneable
         {
             if (Trace.isTraceErrorOn())
                e.printStackTrace(Trace.getPrintWriter());
-            throw new XmlException(e.getClass().getName());
+            throw new XmlException(e);
         }
         catch (ClassNotFoundException e)
         {
             if (Trace.isTraceErrorOn())
                e.printStackTrace(Trace.getPrintWriter());
-            throw new XmlException(e.getClass().getName());
+            throw new XmlException(e);
         }
 
         return pd;
@@ -780,24 +786,24 @@ public class RecordFormatDocument implements Serializable, Cloneable
         catch (ParseException pe)
         {
             pe.reportErrors();
-            throw new XmlException(pe.getClass().getName());
+            throw new XmlException(pe);
         }
         catch (PcmlSpecificationException pse)
         {
             pse.reportErrors();
-            throw new XmlException(pse.getClass().getName()); // TBD: MRI refers to PCML.
+            throw new XmlException(pse); // TBD: MRI refers to PCML.
         }
         catch (IOException ioe)
         {
             if (Trace.isTraceErrorOn())
                ioe.printStackTrace(Trace.getPrintWriter());
-            throw new XmlException(ioe.getClass().getName());
+            throw new XmlException(ioe);
         }
         catch (Exception e) //@E0A
         {
             if (Trace.isTraceErrorOn()) //@E0A
                e.printStackTrace(Trace.getPrintWriter()); //@E0A
-            throw new XmlException(e.getClass().getName()); //@E0A
+            throw new XmlException(e); //@E0A
         }
         return pd;
     }
@@ -865,7 +871,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
         {
             if (Trace.isTraceErrorOn())
                e.printStackTrace(Trace.getPrintWriter());
-            throw new XmlException(e.getClass().getName());
+            throw new XmlException(e);
         }
     }
 

@@ -23,6 +23,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
@@ -44,6 +45,7 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
   private transient RfmlDocument m_rootNode;
   private transient PcmlDocNode  m_currentNode;
   private transient String       m_docName;
+  private transient XMLErrorHandler m_xh;
 
   /**
    Processes the PcmlDocNode tree and adds new PcmlDocNode subtrees
@@ -229,7 +231,9 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
     InputStream inStream = SystemResourceFinder.getRFMLDocument(docName, loader);  // TBD: Buffer the InputStream???  On AIX at least, this always appears to return a java.io.BufferedInputStream.
 
     // Instantiate our error listener
-    XMLErrorHandler xh = new XMLErrorHandler(m_docName, 0);
+    if (m_xh == null) {
+      m_xh = new XMLErrorHandler(m_docName, 0);
+    }
 
     SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
     factory.setValidating(true); //@E0A
@@ -256,7 +260,7 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
     try
     {
       XMLReader reader = parser.getXMLReader(); //@E0A
-      reader.setErrorHandler(xh); //@E0A
+      reader.setErrorHandler(m_xh); //@E0A
       reader.setEntityResolver(this);  //@E0A So that we can find the rfml.dtd for the parser.
       parser.parse(new InputSource(inStream), this); // TBD: This hangs if rfml.dtd can't be found and "continue-after-fatal-error" is set to true. @E0C
     }
@@ -272,7 +276,7 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
     inStream.close();
 
     // Check for errors
-    ParseException exc = xh.getException();
+    ParseException exc = m_xh.getException();
     if (exc != null)
     {
       ///exc.reportErrors();   // Note - This is redundant with a call in loadSourceXxxDocument() in RecordFormatDocument and ProgramCallDocument.
@@ -402,4 +406,25 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
 
   }
 
+  // See Java Bug ID 4806878, http://developer.java.sun.com/developer/bugParade/bugs/4806878.html:
+  // "[The] W3C XML Spec says that validation errors are not fatalerrors. And DefaultHandler implementation doesn't print out any errors for the validation errors. If user is interested in seeing the validation errors, then they need to extend the DefaultHandler [by re-implementing error() and fatalerror().]"
+
+  public void warning(SAXParseException spe)
+  throws SAXException
+  {
+    if (m_xh == null) throw spe;
+    else m_xh.warning(spe);
+  }
+  public void error(SAXParseException spe)
+  throws SAXException
+  {
+    if (m_xh == null) throw spe;
+    else m_xh.error(spe);
+  }
+  public void fatalError(SAXParseException spe)
+  throws SAXException
+  {
+    if (m_xh == null) throw spe;
+    else m_xh.fatalError(spe);
+  }
 }
