@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JarMaker.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -246,7 +246,7 @@ java utilities.JarMaker -source myJar.jar
 
 public class JarMaker
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Constants.
@@ -266,6 +266,8 @@ public class JarMaker
   private static final char FILE_SEPARATOR =
     System.getProperty ("file.separator").charAt (0);
   static final File CURRENT_DIR = new File (System.getProperty ("user.dir"));
+  static final boolean        CHECK_DUPS               = true;           // @A3a
+  static final boolean        NO_CHECK_DUPS            = false;          // @A3a
 
   // Variables.
 
@@ -353,11 +355,42 @@ public class JarMaker
   }
 
 
+  // @A3a
+  /**
+   Adds files for any specified packages to the additional files list.
+
+   @param neededJarEntries The current list of required files
+   and their dependencies.
+   The list should contain only <code>String</code> objects.
+   @param jarMap A map of the source JAR or ZIP file.
+   **/
+  static void addPackageFiles (Vector neededJarEntries, JarMap jarMap, Vector packages)
+    throws IOException
+  {
+    // Load the entry names associated with any required packages.
+    // Note that these files will not be explicitly analyzed.
+    Enumeration pkgs = packages.elements ();
+    while (pkgs.hasMoreElements ())
+    {
+      String packageName = (String)pkgs.nextElement ();
+      String packagePrefix = packageName.replace ('.', '/');
+      Vector entriesInPackage =
+        getEntryNamesForPackage (packagePrefix, jarMap);
+      if (entriesInPackage.size () == 0) {
+        System.err.println ("Error: Specified package not found in source file:");
+        System.err.println ("       " + packageName);
+        throw new ZipException (packageName);
+      }
+      copyVectorToFrom(neededJarEntries, entriesInPackage, CHECK_DUPS);  // @A3c
+    }
+  }
+
+
   /**
    Adds or removes ZIP entry names from the "required files" list,
    prior to initial generation of the dependencies list.
    This method is provided so that subclasses of JarMaker can override it.
-   <br><em>This method is intended for use by the JarMaker class only.</em>
+   <br><em>This method is meant to be called by the JarMaker class only.</em>
 
    @param neededJarEntries An unsorted list of names of ZIP entries.
    @param jarMap A map of the source JAR or ZIP file.
@@ -378,7 +411,7 @@ public class JarMaker
    Adds or removes ZIP entry names from the dependencies list,
    prior to final presentation of the dependencies list.
    This method is provided so that subclasses of JarMaker can override it.
-   <br><em>This method is intended for use by the JarMaker class only.</em>
+   <br><em>This method is meant to be called by the JarMaker class only.</em>
 
    @param neededJarEntries An unsorted list of names of ZIP entries.
    @param jarMap A map of the source JAR or ZIP file.
@@ -391,6 +424,9 @@ public class JarMaker
   Vector adjustDependencies2 (Vector neededJarEntries, JarMap jarMap)
     throws IOException
   {
+    // Load the entry names associated with any required packages.
+    // Note that these files will not be explicitly analyzed.
+    addPackageFiles(neededJarEntries, jarMap, packages_);            // @A3a
     return neededJarEntries;
   }
 
@@ -1249,22 +1285,23 @@ public class JarMaker
     // We don't need to do dependency analysis on the manifest entry.
     unanalyzedEntries.removeElement (MANIFEST_ENTRY_NAME);
 
-    // Preload the entry names associated with any required packages.
-    // Note that these files will not be explicitly analyzed.
-    Enumeration pkgs = packages_.elements ();
-    while (pkgs.hasMoreElements ())
-    {
-      String packageName = (String)pkgs.nextElement ();
-      String packagePrefix = packageName.replace ('.', '/');
-      Vector entriesInPackage =
-        getEntryNamesForPackage (packagePrefix, jarMap);
-      if (entriesInPackage.size () == 0) {
-        System.err.println ("Error: Specified package not found in source file:");
-        System.err.println ("       " + packageName);
-        throw new ZipException (packageName);
-      }
-      copyVectorToFrom(referencedJarEntries, entriesInPackage, true);
-    }
+    // @A3D:
+    // // Preload the entry names associated with any required packages.
+    // // Note that these files will not be explicitly analyzed.
+    //Enumeration pkgs = packages_.elements ();
+    //while (pkgs.hasMoreElements ())
+    //{
+    //  String packageName = (String)pkgs.nextElement ();
+    //  String packagePrefix = packageName.replace ('.', '/');
+    //  Vector entriesInPackage =
+    //    getEntryNamesForPackage (packagePrefix, jarMap);
+    //  if (entriesInPackage.size () == 0) {
+    //    System.err.println ("Error: Specified package not found in source file:");
+    //    System.err.println ("       " + packageName);
+    //    throw new ZipException (packageName);
+    //  }
+    //  copyVectorToFrom(referencedJarEntries, entriesInPackage, true);
+    //}
 
     // Give the subclass an opportunity to modify the list.
     requiredJarEntries_ = adjustDependencies1 (requiredJarEntries_, jarMap);
@@ -1304,12 +1341,12 @@ public class JarMaker
       if (verbose_ || DEBUG) System.out.println ();
     }
 
-    if (referencedJarEntries.size () == 0)
+    if (referencedJarEntries.size () == 0 && packages_.size() == 0)  // @A3c
     { // Assume user wants all the files copied.
       if (DEBUG)
         System.out.println ("Debug: identifyDependencies(): " +
                             "Adding all files to list");
-      copyVectorToFrom(referencedJarEntries, jarMap.getEntryNames(), false);
+      copyVectorToFrom(referencedJarEntries, jarMap.getEntryNames(), NO_CHECK_DUPS);  // @A3c
     }
 
     // Give the subclass an opportunity to modify the list.
@@ -2215,7 +2252,7 @@ public class JarMaker
     // Check for nulls and for correct element type.
     packages = validateList (packages, "packageName",
                              "java.lang.String", verbose_);
-    copyVectorToFrom (packages_, packages, true);
+    copyVectorToFrom (packages_, packages, CHECK_DUPS);  // @A3c
   }
 
 
@@ -2237,7 +2274,7 @@ public class JarMaker
     // Check for nulls and for correct element type.
     entryList = validateList (entryList, "requiredFile",
                               "java.lang.String", verbose_);
-    copyVectorToFrom (requiredJarEntries_, entryList, true);
+    copyVectorToFrom (requiredJarEntries_, entryList, CHECK_DUPS);  // @A3c
   }
 
 
@@ -2562,7 +2599,7 @@ public class JarMaker
                                         baseMetadataPerZipEntry); 
           }
           entriesToWriteNext.addElement (entryName);
-          copyVectorToFrom (directoriesSoFar, dirsToAddForThisEntry, false);
+          copyVectorToFrom (directoriesSoFar, dirsToAddForThisEntry, NO_CHECK_DUPS);  // @A3c
           cumulativeSize += (entrySize + entryMetadataSize +
                              directoriesMetadataSize);
         }

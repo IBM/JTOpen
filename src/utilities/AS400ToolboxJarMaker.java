@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ToolboxJarMaker.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -337,7 +337,7 @@ will not be put in the JAR unless explicitly specified.
 
 public class AS400ToolboxJarMaker extends JarMaker
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Constants.
@@ -356,7 +356,8 @@ public class AS400ToolboxJarMaker extends JarMaker
     "JDBCVisual", "JobVisual",
     "MessageVisual", "PrintVisual", "ProgramCallVisual",
     "RecordLevelAccessVisual", "UserVisual",
-    "ConnectionPool"  // @A2a
+    "ConnectionPool",  // @A2a
+    "NetServer"        // @A3a
     };
   // Note: The following list must be kept in sync with VALID_COMPONENTS.
 
@@ -434,6 +435,8 @@ public class AS400ToolboxJarMaker extends JarMaker
   public static final Integer USER_VISUAL = new Integer (35);
   /** Constant for specifying the <b>Connection Pool</b> component. **/
   public static final Integer CONNECTION_POOL = new Integer (36);  // @A2a
+  /** Constant for specifying the <b>NetServer</b> component. **/
+  public static final Integer NETSERVER = new Integer (37);  // @A3a
 
   private static final Integer NO_SUCH_COMPONENT = new Integer (-1);
 
@@ -488,8 +491,8 @@ public class AS400ToolboxJarMaker extends JarMaker
    @param baseDirectory The base directory for the language files.
    @param neededJarEntries The current list of required files
    and their dependencies.
-   @param jarMap A map of the source JAR or ZIP file.
    The list should contain only <code>String</code> objects.
+   @param jarMap A map of the source JAR or ZIP file.
    **/
   private void addLanguageFiles (File baseDirectory,
                                  Vector neededJarEntries, JarMap jarMap)
@@ -548,7 +551,7 @@ public class AS400ToolboxJarMaker extends JarMaker
     else // User specified no specific languages.
     {
       // Go through the list of referenced MRI files,
-      // and make mark as "needed" the corresponding _en and _en_US
+      // and mark as "needed" the corresponding _en and _en_US
       // entries if they exist.
       Enumeration e1 = neededLanguageEntries.elements ();
       while (e1.hasMoreElements ())
@@ -587,11 +590,63 @@ public class AS400ToolboxJarMaker extends JarMaker
   }
 
 
+  // @A3a
+  /**
+   Adds any needed PCML files to the additional files list.
+   <br>Note: This augments any previously specified PCML files.
+
+   @param neededJarEntries The current list of required files
+   and their dependencies.
+   The list should contain only <code>String</code> objects.
+   @param jarMap A map of the source JAR or ZIP file.
+   **/
+  private static void addPcmlFiles (Vector neededJarEntries, JarMap jarMap)
+  {
+    // Note: If any of the arguments is null, it is due to an
+    // internal programming error.
+    if (neededJarEntries == null)
+      throw new NullPointerException ("neededJarEntries");
+    if (jarMap == null)
+      throw new NullPointerException ("jarMap");
+
+    // Get a list of the PCML files in the source jar.
+    // The list should look something like:
+    //    com/ibm/as400/resource/RJob.pcml,
+    //    com/ibm/as400/resource/RJob.pcml.ser, ...
+    // That is, look for any files with names ending ".pcml" or ".pcml.ser".
+
+    // Make a list of the PCML files in the source jar file.
+    Enumeration e = jarMap.elements ();
+    Vector neededPcmlEntries = new Vector();
+    while (e.hasMoreElements ())
+    {
+      String entryName = (String)e.nextElement ();
+      // See if the filename ends with ".pcml" or ".pcml.ser".
+      if (entryName.endsWith (".pcml") || entryName.endsWith (".pcml.ser"))
+        neededPcmlEntries.addElement (entryName);
+    }
+
+    // Go through the list of PCML files contained in the source jar file,
+    // and mark as "needed" any that have a corresponding class file in the
+    // "needed files" list.
+    Enumeration e1 = neededPcmlEntries.elements ();
+    while (e1.hasMoreElements ())
+    {
+      String pcmlEntryName = (String)e1.nextElement ();
+      // Get the associated class file entry name.
+      String classEntryName = getClassEntryForPcml (pcmlEntryName);
+      if (neededJarEntries.contains (classEntryName) &&
+          !neededJarEntries.contains (pcmlEntryName))
+        neededJarEntries.addElement (pcmlEntryName);
+    }
+  }
+
+
   /**
    Adds or removes ZIP entry names from the "required files" list,
    prior to initial generation of the dependencies list.
    This method is provided so that subclasses of JarMaker can override it.
-   <br><em>This method is intended for use by the JarMaker class only.</em>
+   <br><em>This method is meant to be called by the JarMaker class only.</em>
 
    @param neededJarEntries An unsorted list of names of ZIP entries
    that should be included in the output.
@@ -648,7 +703,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    Adds or removes ZIP entry names from the dependencies list,
    prior to final presentation of the dependencies list.
    This method is provided so that subclasses of JarMaker can override it.
-   <br><em>This method is intended for use by the JarMaker class only.</em>
+   <br><em>This method is meant to be called by the JarMaker class only.</em>
 
    @param neededJarEntries An unsorted list of names of ZIP entries
    that should be included in the output.
@@ -712,7 +767,7 @@ public class AS400ToolboxJarMaker extends JarMaker
               addElement (referencedJarEntries, entryName);
             }
           }
-          copyVectorToFrom (neededJarEntries, referencedJarEntries, true);
+          copyVectorToFrom (neededJarEntries, referencedJarEntries, CHECK_DUPS); // @A3c
         }
       }  // ... no particular ccsids were specified.
 
@@ -798,12 +853,18 @@ public class AS400ToolboxJarMaker extends JarMaker
     }
 
 
+    // Load the entry names associated with any required packages.
+    // Note that these files will not be explicitly analyzed.
+    addPackageFiles(neededJarEntries, jarMap, getPackages());    // @A3a
 
     // Add any needed MRI files to the "additional files" list.
     // Note: Regardless of language selection, don't remove the base MRI files.
     // That way, we always have a last-ditch default for messages (English),
     // no matter what locale the JAR file is used in.
     addLanguageFiles (languageDirectory_, neededJarEntries, jarMap);
+
+    // Add any needed PCML files to the "additional files" list.
+    addPcmlFiles (neededJarEntries, jarMap);                        // @A3a
 
     // If -noproxy option was specified, remove proxy files.
     if (noProxy_)
@@ -889,7 +950,6 @@ public class AS400ToolboxJarMaker extends JarMaker
       {
         deps.addElement (CAIA+"AS400ConnectionPoolBeanInfo.class");
         deps.addElement (CAIA+"ConnectionPoolBeanInfo.class");
-     ///deps.addElement (CAIA+"ConnectionPoolPropertiesBeanInfo.class");
       }
     }
     else if (comp.equals (DATA_AREA))
@@ -1028,7 +1088,6 @@ public class AS400ToolboxJarMaker extends JarMaker
         deps.addElement (CAIA+"AS400JDBCConnectionPoolBeanInfo.class");  // @A2a
         deps.addElement (CAIA+"AS400JDBCConnectionPoolDataSourceBeanInfo.class"); // @A2a
         deps.addElement (CAIA+"ConnectionPoolBeanInfo.class");           // @A2a
-     ///deps.addElement (CAIA+"ConnectionPoolPropertiesBeanInfo.class"); // @A2a
       }
     }
     else if (comp.equals (JOB))
@@ -1044,6 +1103,16 @@ public class AS400ToolboxJarMaker extends JarMaker
       deps.addElement   (CAIA+"MessageQueue.class");
       if (includeBeans)
       {  // No beans for this component.
+      }
+    }
+    else if (comp.equals (NETSERVER))  // @A3a
+    {
+      deps.addElement   (CAIA+"NetServer.class");
+      if (includeBeans)
+      {
+        deps.addElement (CAIA+"NetServerBeanInfo.class");
+        deps.addElement (CAIA+"NetServerFileShareBeanInfo.class");
+        deps.addElement (CAIA+"NetServerPrintShareBeanInfo.class");
       }
     }
     else if (comp.equals (NUMERIC_DATA_TYPES))
@@ -1403,6 +1472,20 @@ public class AS400ToolboxJarMaker extends JarMaker
   public Vector getCCSIDsExcluded () { return ccsidsExcluded_; }
 
 
+  // @A3a
+  /**
+   Returns the name of the class file corresponding to a PCML file.
+
+   @param pcmlEntryName The PCML entry name.
+   @return The name of the class file corresponding to a PCML file.
+   **/
+  private static String getClassEntryForPcml (String pcmlEntryName)
+  {
+    int suffixPos = pcmlEntryName.lastIndexOf(".pcml");
+    return (pcmlEntryName.substring(0,suffixPos) + ".class");
+  }
+
+
   /**
    Returns the component ID for a component.
 
@@ -1746,7 +1829,7 @@ public class AS400ToolboxJarMaker extends JarMaker
       if (addElement (components_, comp)) // if not already in list...
       {
         Vector filesForThisComp = getBaseDependenciesForComponent (comp, includeBeans);
-        copyVectorToFrom (filesForComponents, filesForThisComp, true);
+        copyVectorToFrom (filesForComponents, filesForThisComp, CHECK_DUPS); // @A3c
       }
     }
 
