@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: UserList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ This class internally uses the Open List APIs (e.g. QGYOLAUS).
 **/
 public class UserList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
 
@@ -211,8 +211,8 @@ any constrained property is changed.
 
 
   /**
-   * Closes the message list on the system.
-   * This releases any system resources previously in use by this message list.
+   * Closes the user list on the system.
+   * This releases any system resources previously in use by this user list.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -283,7 +283,7 @@ Returns the group profile whose members are to be returned.
    * @return The number of users, or 0 if no list was retrieved.
    * @see #load
 **/
-    public int getLength()
+    public synchronized int getLength()
     {
     if (system_ == null) throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     try
@@ -358,7 +358,7 @@ Returns the list of users in the user list.
 @see #close
 @see #load
 **/
-    public Enumeration getUsers ()
+    public synchronized Enumeration getUsers()
            throws AS400Exception,
                   AS400SecurityException,
                   ErrorCompletingRequestException,
@@ -407,7 +407,7 @@ Returns the list of users in the user list.
    * @see #close
    * @see #load
 **/
-  public User[] getUsers(int listOffset, int number) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  public synchronized User[] getUsers(int listOffset, int number) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
     if (listOffset < -1)
     {
