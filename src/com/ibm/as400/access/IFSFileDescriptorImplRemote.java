@@ -395,13 +395,17 @@ implements IFSFileDescriptorImpl
               }
               catch(ClassCastException e)
               {
-                if (ds != null && (ds instanceof IFSReturnCodeRep))
+                if (ds instanceof IFSReturnCodeRep)
                 {
                   int rc = ((IFSReturnCodeRep) ds).getReturnCode();
                   Trace.log(Trace.ERROR, "Unexpected IFSReturnCodeRep, return code ", rc);
                   throw new ExtendedIOException(rc);
                 }
-                else throw e;
+                else {
+                  String className = ( ds == null ? "null" : ds.getClass().getName());
+                  Trace.log(Trace.ERROR, "Unexpected reply from Exchange Server Attributes: " + className);
+                  throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                }
               }
           }
 
