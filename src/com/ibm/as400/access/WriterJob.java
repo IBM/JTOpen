@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: WriterJob.java
 //                                                                             
@@ -16,9 +16,9 @@ package com.ibm.as400.access;
 import java.io.IOException;
 
 /**
- * The WriterJob class represents an AS/400 writer job.
+ * The WriterJob class represents a server writer job.
  * An instance of this class can be used to manipulate an individual
- * AS/400 writer.  Use the start method to obtain a instance of this class.
+ * writer.  Use the start method to obtain a instance of this class.
  *
  * See <a HREF="doc-files/WriterJobAttrs.html">Writer Job Attributes</a> for
  * valid attributes.
@@ -27,14 +27,9 @@ import java.io.IOException;
 
 public class WriterJob extends PrintObject
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     
-
-
     static final long serialVersionUID = 4L;
-
-
 
     // We have decided that writer jobs are too transient to
     // be a JavaBean.
@@ -43,7 +38,7 @@ public class WriterJob extends PrintObject
     // an ID code point
     WriterJob(AS400 system, NPCPIDWriter id, NPCPAttribute attrs)
     {
-       super(system, id, attrs, NPConstants.WRITER_JOB); // @B1C
+       super(system, id, attrs, NPConstants.WRITER_JOB);
     }
 
 
@@ -53,7 +48,7 @@ public class WriterJob extends PrintObject
      * Chooses the appropriate implementation.
      **/
     void chooseImpl()
-    throws IOException, AS400SecurityException                              // @B1A
+    throws IOException, AS400SecurityException
     {
         // We need to get the system to connect to...
         AS400 system = getSystem();
@@ -83,13 +78,13 @@ public class WriterJob extends PrintObject
      *  <i>endType</i> may be null.  If <i>endType</i> is not specified, the default is
      * *IMMED.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          AS/400 system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void end(String endType)
       throws AS400Exception,
@@ -99,9 +94,9 @@ public class WriterJob extends PrintObject
              InterruptedException,
              RequestNotSupportedException
     {
-        if (impl_ == null)                              // @A1A
-            chooseImpl();                               // @A1A
-        ((WriterJobImpl) impl_).end(endType);           // @A1A
+        if (impl_ == null)
+            chooseImpl();
+        ((WriterJobImpl) impl_).end(endType);
     } // end end
 
 
@@ -125,14 +120,14 @@ public class WriterJob extends PrintObject
 
 
     /**
-     * Starts a writer on the AS/400.
-     * Use this method to start a new writer job on the given AS/400
+     * Starts a writer on the server.
+     * Use this method to start a new writer job on the given system
      * with the specified parameters.
      * @param system The system on which to start the writer job.
      * @param printer The printer that should be used
      *                to start the writer job.  This printer
-     *                must reside on the same AS/400 system that the
-     *                writer job is being started.
+     *                must reside on the same system that the
+     *                writer job is being started on.
      * @param options Optional.  A print parameter list that contains
      *                          a list of attributes to start the writer job.
      *                          The output queue parameters set in this list override the
@@ -199,15 +194,15 @@ public class WriterJob extends PrintObject
      *
      * @param outputQueue Optional.  The output queue to start the
      *                               writer job.  The output queue must reside on
-     *                               the same AS/400 system that the writer job
-     *                               is being created.
+     *                               the same system that the writer job
+     *                               is being created on.
      *
      * @return A writer job object that was created.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
     public static WriterJob start(AS400 system,
@@ -236,29 +231,29 @@ public class WriterJob extends PrintObject
             throw new NullPointerException("printer");
         }
 
-        if (printer.getImpl() == null) {                    // @A2A
-            printer.chooseImpl();                           // @A2A
-        }                                                   // @A2A
+        if (printer.getImpl() == null) {                    
+            printer.chooseImpl();                           
+        }                                                   
     
-        OutputQueueImpl oqi = null;                         // @A2A
-        if (outputQueue != null) {                          // @A2A
-            if (outputQueue.getImpl() == null) {            // @A2A
-                outputQueue.chooseImpl();                   // @A2A
-            }                                               // @A2A
-            oqi = (OutputQueueImpl) outputQueue.getImpl();  // @A2A
-        }                                                   // @A2A
+        OutputQueueImpl oqi = null;                         
+        if (outputQueue != null) {                          
+            if (outputQueue.getImpl() == null) {            
+                outputQueue.chooseImpl();                   
+            }                                               
+            oqi = (OutputQueueImpl) outputQueue.getImpl();  
+        }                                                   
     
         WriterJobImpl impl = (WriterJobImpl) system.loadImpl2("com.ibm.as400.access.WriterJobImplRemote",
-                                                              "com.ibm.as400.access.WriterJobImplProxy");  // @A1A
+                                                              "com.ibm.as400.access.WriterJobImplProxy");
 
-        // @A2A Changed below line to send in the Impls, and receive the
-        //      NPCPIDWriter instead of a WriterJob
+        // Changed below line to send in the Impls, and receive the
+        // NPCPIDWriter instead of a WriterJob
         NPCPIDWriter cpWriterID = ((WriterJobImpl) impl).start(system.getImpl(),
                                                             (PrintObjectImpl) printer.getImpl(),            
                                                             options,
                                                             oqi);   
        
-        return new WriterJob(system, cpWriterID, null);     // @A2A
+        return new WriterJob(system, cpWriterID, null);
         
     } // end start
 

@@ -62,7 +62,6 @@ class WriterJobListImplRemote extends PrintObjectListImplRemote
     }
 
  
-
     /**
       * Returns the default attributes to list.
       **/
@@ -70,7 +69,6 @@ class WriterJobListImplRemote extends PrintObjectListImplRemote
     {
         return defaultAttrIDsToList_;
     }
-
 
 
     /**
@@ -113,7 +111,6 @@ class WriterJobListImplRemote extends PrintObjectListImplRemote
         NPCPSelWrtJ selectionCP = (NPCPSelWrtJ)getSelectionCP();
         selectionCP.setQueue(queueFilter);
     }
-
 
 
     /**

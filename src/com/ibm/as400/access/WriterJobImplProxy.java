@@ -27,16 +27,12 @@ import java.lang.reflect.InvocationTargetException;
 class WriterJobImplProxy extends PrintObjectImplProxy
 implements WriterJobImpl, ProxyImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    
-    
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     
     WriterJobImplProxy()
     {
         super("WriterJob");
     }
-
 
 
     public void end(String endType)
@@ -59,10 +55,10 @@ implements WriterJobImpl, ProxyImpl
 
 
 
-    public NPCPIDWriter start(AS400Impl system, // @A1C 
-                  PrintObjectImpl printer,          // @A1C
+    public NPCPIDWriter start(AS400Impl system,
+                  PrintObjectImpl printer,
                   PrintParameterList options,  
-                  OutputQueueImpl outputQueue)  // @A1C
+                  OutputQueueImpl outputQueue)
         throws AS400Exception,
                AS400SecurityException,
                ErrorCompletingRequestException,
@@ -70,8 +66,8 @@ implements WriterJobImpl, ProxyImpl
                InterruptedException
     {
         try {
-            // @A1C - changed parms to send Impls in; changed return
-            //        type from WriterJob to NPCPIDWriter
+            // changed parms to send Impls in; changed return
+            // type from WriterJob to NPCPIDWriter
             return (NPCPIDWriter) connection_.callMethod(pxId_, "start",
                     new Class [] { AS400Impl.class, PrintObjectImpl.class, 
                                    PrintParameterList.class, OutputQueueImpl.class },

@@ -17,8 +17,8 @@ import java.io.IOException;
 
 /**
  * The WriterJob class represents a server writer job.
- *  An instance of this class can be used to manipulate an individual
- *  i5/OS writer.  Use the start method to obtain a instance of this class.
+ * An instance of this class can be used to manipulate an individual
+ * writer.  Use the start method to obtain a instance of this class.
  *
  * See <a href="WriterJobAttrs.html">Writer Job Attributes</a> for
  * valid attributes.
@@ -28,7 +28,7 @@ import java.io.IOException;
 class WriterJobImplRemote extends PrintObjectImplRemote
 implements WriterJobImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
@@ -61,13 +61,13 @@ implements WriterJobImpl
      *  <i>endType</i> may be null.  If <i>endType</i> is not specified, the default is
      * *IMMED.
      *
-     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                          system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void end(String endType)
       throws AS400Exception,
@@ -77,8 +77,8 @@ implements WriterJobImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        NPDataStream sendDS = new NPDataStream(NPConstants.WRITER_JOB); // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.WRITER_JOB); // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.WRITER_JOB); 
+        NPDataStream returnDS = new NPDataStream(NPConstants.WRITER_JOB);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
         NPCPAttribute cpCPFMessage = new NPCPAttribute();
@@ -109,16 +109,15 @@ implements WriterJobImpl
         return attrsToRetrieve_;
     }
 
-// @B3A  retrieve only one attribute 
+   // retrieve only one attribute 
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-	if (!fAttrIDsToRtvBuilt_) {
-	    attrsToRetrieve_.addAttrID(attrToRtv);
+        if (!fAttrIDsToRtvBuilt_) {
+            attrsToRetrieve_.addAttrID(attrToRtv);
         }
         return attrsToRetrieve_;
     }
 
-//@B3A
 
     /**
      * Returns the name of the writer.
@@ -140,13 +139,13 @@ implements WriterJobImpl
 
     /**
      * Starts a writer on the server.
-     * Use this method to start a new writer job on the given system
+     * Use this method to start a new writer job on the given server
      * with the specified parameters.
      * @param system The system on which to start the writer job.
      * @param printer The printer that should be used
      *                to start the writer job.  This printer
-     *                must reside on the same system that the
-     *                writer job is being started.
+     *                must reside on the same server that the
+     *                writer job is being started on.
      * @param options Optional.  A print parameter list that contains
      *                          a list of attributes to start the writer job.
      *                          The output queue parameters set in this list override the
@@ -213,21 +212,21 @@ implements WriterJobImpl
      *
      * @param outputQueue Optional.  The output queue to start the
      *                               writer job.  The output queue must reside on
-     *                               the same system that the writer job
-     *                               is being created.
+     *                               the same server that the writer job
+     *                               is being created on.
      *
      * @return A writer job object that was created.
      *
-     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
-    public /* static @A1D */ NPCPIDWriter start(AS400Impl system,  // @A2C
-                  PrintObjectImpl printer,  // @A2C
+    public /* static @A1D */ NPCPIDWriter start(AS400Impl system,
+                  PrintObjectImpl printer,
                   PrintParameterList options, 
-                  OutputQueueImpl outputQueue)  // @A2C
+                  OutputQueueImpl outputQueue)
       throws AS400Exception,
              AS400SecurityException,
              ErrorCompletingRequestException,
@@ -243,18 +242,18 @@ implements WriterJobImpl
         // We receive a writer job ID code point or maybe a CPF error message code point
         //
 
-        NPDataStream sendDS = new NPDataStream(NPConstants.WRITER_JOB); // @B1C
-        NPDataStream returnDS = new NPDataStream(NPConstants.WRITER_JOB); // @B1C
+        NPDataStream sendDS = new NPDataStream(NPConstants.WRITER_JOB);
+        NPDataStream returnDS = new NPDataStream(NPConstants.WRITER_JOB);
         NPCPAttribute cpCPFMessage = new NPCPAttribute();
         NPCPIDWriter cpWriterID = new NPCPIDWriter();
 
-        NPSystem npSystem = NPSystem.getSystem((AS400ImplRemote) system); // @A2C
+        NPSystem npSystem = NPSystem.getSystem((AS400ImplRemote) system);
         sendDS.setAction(NPDataStream.START);
 
-        sendDS.addCodePoint(((PrinterImplRemote) printer).getIDCodePoint());  // @A2C
+        sendDS.addCodePoint(((PrinterImplRemote) printer).getIDCodePoint());
         if (outputQueue != null)
         {
-            sendDS.addCodePoint(((OutputQueueImplRemote) outputQueue).getIDCodePoint());  // @A2C
+            sendDS.addCodePoint(((OutputQueueImplRemote) outputQueue).getIDCodePoint());
         }
         if (options != null)
         {
@@ -275,14 +274,14 @@ implements WriterJobImpl
         }
 
         // everything went OK, create and return the WriterJob object
-        // @A2A - Changed method to return cpWriterID instead of WriterJob
-        //        Create the WriterJob on the proxy(client) side instead.
-        // return new WriterJob(system, cpWriterID, null);  @A2D
-        return cpWriterID;  // @A2A
+        // Changed method to return cpWriterID instead of WriterJob
+        // Create the WriterJob on the proxy(client) side instead.
+        // return new WriterJob(system, cpWriterID, null);
+        return cpWriterID;
 
     } // end start
 
-    // go to the host and get the lastest attributes for this object
+    // go to the server and get the lastest attributes for this object
     // Override this from the PrintObject class because the network
     // print server doesn't allow retrieve attributes on a writer
     // We will implement it by going to the to list 1 writer (this one)
@@ -299,8 +298,8 @@ implements WriterJobImpl
               InterruptedException,
               RequestNotSupportedException
     {
-        NPDataStream req   = new NPDataStream(NPConstants.WRITER_JOB); // @B1C
-        NPDataStream reply = new NPDataStream(NPConstants.WRITER_JOB); // @B1C
+        NPDataStream req   = new NPDataStream(NPConstants.WRITER_JOB);
+        NPDataStream reply = new NPDataStream(NPConstants.WRITER_JOB);
         NPSystem npSystem  = NPSystem.getSystem(getSystem());
 
         // code point we will send up to select just one writer job

@@ -65,6 +65,7 @@ public class WriterJobListBeanInfo extends PrintObjectListBeanInfo
         }
     }
 
+
     /**
     Returns the bean descriptor.
     @return The bean descriptor.
@@ -82,6 +83,7 @@ public class WriterJobListBeanInfo extends PrintObjectListBeanInfo
     // We want "system" as the default property. PrintObjectList
     // sets this so we don't have to override:
     // public int getDefaultPropertyIndex()
+
 
     /**
     Returns the descriptors for all properties.
@@ -118,6 +120,7 @@ public class WriterJobListBeanInfo extends PrintObjectListBeanInfo
 
         return combinedProperties;
     }
+
 
     /**
       * Returns an Image for this bean's icon.

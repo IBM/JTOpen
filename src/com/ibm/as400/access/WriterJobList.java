@@ -26,16 +26,14 @@ public class WriterJobList extends PrintObjectList
 implements java.io.Serializable
 {
     private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     
     static final long serialVersionUID = 4L;
-
 
     private static final String QUEUE_FILTER = "queueFilter";
     private static final String WRITER_FILTER = "writerFilter";   
 
     /**
-     * Constructs a WriterJobList object. The AS/400 system must
+     * Constructs a WriterJobList object. The system must
      * be set later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
      * by application programmers.
@@ -44,28 +42,25 @@ implements java.io.Serializable
      **/
     public WriterJobList()
     {
-        super(NPConstants.WRITER_JOB, new NPCPSelWrtJ());               // @B1C
+        super(NPConstants.WRITER_JOB, new NPCPSelWrtJ());
         // Because of this constructor we will need to check the
         // system before trying to use it.
     }
-
 
 
     /**
      * Constructs a WriterJobList object. It uses the system name provided.
      * The default list filter will list all writer jobs on the specified system.
      *
-     * @param system The AS/400 on which the writer jobs exist.
+     * @param system The system on which the writer jobs exist.
      *
      **/
     public WriterJobList(AS400 system)
     {
-        super(NPConstants.WRITER_JOB, new NPCPSelWrtJ(), system);            // @B1C
+        super(NPConstants.WRITER_JOB, new NPCPSelWrtJ(), system);
     }
  
  
- 
-    // @A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
@@ -80,7 +75,6 @@ implements java.io.Serializable
                                                        "com.ibm.as400.access.WriterJobListImplProxy");
         super.setImpl();                                               
     }
-   
    
 
     /**
@@ -98,7 +92,6 @@ implements java.io.Serializable
     }
 
 
-
     /**
       * Returns the writer filter.
       *
@@ -114,8 +107,6 @@ implements java.io.Serializable
     }
 
 
-
-    // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new WriterJob(system_, (NPCPIDWriter)cpid, cpattr);
@@ -158,13 +149,12 @@ implements java.io.Serializable
         selectionCP.setQueue(queueFilter);
         
         // Propagate change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("writerJobQueue", queueFilter);    // @A1A
+        if (impl_ != null)
+            impl_.setFilter("writerJobQueue", queueFilter);
 
         // Notify any property change listeners.
         changes.firePropertyChange( QUEUE_FILTER, oldQueueFilter, queueFilter );
     }
-
 
 
     /**
@@ -210,8 +200,8 @@ implements java.io.Serializable
         selectionCP.setWriter(writerFilter);
         
         // Propagate change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("writer", writerFilter);  // @A1A
+        if (impl_ != null)
+            impl_.setFilter("writer", writerFilter);
 
         // Notify any property change listeners.
         changes.firePropertyChange( WRITER_FILTER,

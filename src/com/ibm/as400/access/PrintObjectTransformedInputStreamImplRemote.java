@@ -111,7 +111,7 @@ ATTR_MFGTYPE must be specified to indicate the type of data transform.
                 convTarget = tempTarget.replace('P', 'p');
                 /* table of target ASCII CCSIDs can be found in the "i5/OS Workstation 
                    Customization Reference" that can be found on the Information Center for 
-                   iSeries publications.                                                    */        
+                   iSeries publications.                                                    */
                 switch (ccsid) //    @B2A  "Euro Phase 2 = EP2 "
                 {
                 case 37:                       /* US           @B2A */
