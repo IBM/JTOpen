@@ -53,12 +53,16 @@ public class ConvTableReader extends InputStreamReader
   static final int DB_TABLE = 11;
   static final int MB_TABLE = 12;
   static final int JV_TABLE = 13;
+  static final int UTF8_TABLE = 14; 
   int tableType_ = SB_TABLE;
 
   char[] cache_ = new char[1024]; // the character cache
   byte[] b_cache_ = new byte[2562]; // ((1024*5)+3)/2 == worst case mixed-byte array size +1 for extra shift byte, just in case.
   boolean isCachedByte_ = false; // used for double-byte tables
   byte cachedByte_ = 0; // used for double-byte tables
+
+  byte[] leftovers = new byte[3]; // used for portions of utf-8 characters at the cache_ boundary
+  int  leftoverCount = 0;       // how many bytes are in the leftovers
 
   int nextRead_ = 0; // cache needs to be filled when nextRead_ >= nextWrite_
   int nextWrite_ = 0;
@@ -296,6 +300,91 @@ public class ConvTableReader extends InputStreamReader
             }
           }
         }
+        else if (tableType_ == UTF8_TABLE)
+        {
+          // were there leftovers from the previous read? 
+          if (leftoverCount > 0) 
+          {
+              // move the leftovers into the cache prior to reading in any more
+              System.arraycopy(leftovers, 0, b_cache_, 0, leftoverCount);
+              // fill in the rest of the cache bytes read from the stream
+              numRead = is_.read(b_cache_, leftoverCount, cache_.length-leftoverCount);
+
+              // it's possible that the numRead is -1, we still have to pretend to read the number of bytes indicated by leftoverCount
+              numRead = numRead == -1 ? leftoverCount : numRead + leftoverCount;
+          }
+          else
+          {
+              // no leftovers, try to fill the entire cache with bytes from the stream
+              numRead = is_.read(b_cache_, 0, cache_.length);
+          }
+
+          // if no bytes were read, then we have reached the end
+          if (numRead == -1)
+          {
+            if(Trace.traceOn_)
+            {
+              Trace.log(Trace.CONVERSION, "Cache not filled, end of stream reached.");
+            }
+            return false;
+          }
+
+          // if fewer bytes were read than requested, can we assume there are no characaters remaining to be read?
+          if (numRead < cache_.length) 
+          {
+              leftoverCount = 0;
+          }
+          else
+          {
+              // This is where we figure out if a utf-8 character (1-4 bytes) is straddling the cache boundary (|)
+              // The leftoverCount is how many bytes we need to carryover to the next read.
+              // case 1:    0xxxxxxx |
+              // case 2:    110xxxxx 10xxxxxx |
+              // case 3:    1110xxxx 10xxxxxx 10xxxxxx |
+              // case 4:    11110xxx 10xxxxxx 10xxxxxx 10xxxxxx |
+              // leftoverCount = 0
+              //
+              // case 5:    110xxxxx | 
+              // case 6:    1110xxxx | 
+              // case 7:    11110xxx | 
+              // leftoverCount = 1
+              // 
+              // case 8:    1110xxxx 10xxxxxx | 
+              // case 9:    11110xxx 10xxxxxx | 
+              // leftoverCount = 2
+              //
+              // case 10:   11110xxx 10xxxxxx 10xxxxxx |
+              // leftoverCount = 3
+
+              int n = cache_.length-1;
+              if ( (b_cache_[n] & 0x80) == 0 ) 
+              {
+                  leftoverCount = 0;  // case 1
+              }
+              else if ( (b_cache_[n] & 0xC0) == 0xC0 ) 
+              {
+                  leftoverCount = 1; // case 5, 6, and 7
+                  leftovers[0] = b_cache_[n];
+              }
+              else if ( (b_cache_[n-1] & 0xE0) == 0xE0 ) 
+              {
+                  leftoverCount = 2; // case 8, and 9
+                  System.arraycopy(b_cache_, n-1, leftovers, 0, leftoverCount);
+              }
+              else if ( (b_cache_[n-2] & 0xF0) == 0xF0 ) 
+              {
+                  leftoverCount = 3; // case 10
+                  System.arraycopy(b_cache_, n-2, leftovers, 0, leftoverCount);
+              }
+              else
+              {
+                  leftoverCount = 0; // case 2, 3, and 4
+              }
+              // adjust the numRead, so it appears the the leftovers aren't in the cache yet.
+              numRead -= leftoverCount; 
+          }
+
+        } // end "else if (tableType_ == UTF8_TABLE)"
         else
         {
           if (Trace.traceOn_)
@@ -324,6 +413,7 @@ public class ConvTableReader extends InputStreamReader
           Trace.log(Trace.CONVERSION, "Filled cache for reader: "+nextRead_+","+nextWrite_+","+cache_.length, ConvTable.dumpCharArray(cache_, nextWrite_));
         }
       }
+      
       if(nextRead_ >= nextWrite_) // Still didn't read enough, so try again.
       {
         // This should never happen, but the javadoc for InputStream is unclear if the read(byte[],int,int)
@@ -434,6 +524,10 @@ public class ConvTableReader extends InputStreamReader
       else if(table_ instanceof ConvTableJavaMap)
       {
         tableType_ = JV_TABLE;
+      }
+      else if(table_ instanceof ConvTable1208)
+      {
+        tableType_ = UTF8_TABLE;
       }
       else
       {

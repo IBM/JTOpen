@@ -86,6 +86,7 @@ abstract class ConversionMaps
     encodingCcsid_.put("UnicodeLittle", "1202"); // bom is 0xFFFE @C1C
 //    encodingCcsid_.put("UnicodeLittleUnmarked", 13488); //@B0A
     encodingCcsid_.put("UTF8",          "1208");
+    encodingCcsid_.put("UTF-8",         "1208");
     encodingCcsid_.put("UTF-16BE",      "1200"); // @C1A
 
     encodingCcsid_.put("Big5",      "950");
