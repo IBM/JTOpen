@@ -9,11 +9,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Vector;
 import java.text.ParseException;
+import javax.security.auth.Destroyable;
+import javax.security.auth.DestroyFailedException;
 
 /**
  * Represents an identity token.
  **/
-public final class IdentityToken implements Serializable {
+public final class IdentityToken implements Serializable, Destroyable {
 
   // For sanity-checking when parsing a byte array into a new IdentityToken object.
   // The total length (bytes) of all fixed fields for the smallest possible IdentityToken.
@@ -25,6 +27,8 @@ public final class IdentityToken implements Serializable {
   private TokenManifest tokenManifest_;      // latest token manifest
   private byte[] priorManifests_ = null;     // prior token manifests (from delegations)
   private UserToken userToken_;
+
+  private boolean destroyed_ = false;
 
   IdentityToken(SignatureHeader signatureHeader, TokenManifest tokenManifest, byte[] priorManifests, UserToken userToken)
   {
@@ -90,6 +94,8 @@ public final class IdentityToken implements Serializable {
    **/
   public byte[] toBytes()
   {
+    if (destroyed_) throw new IllegalStateException("Object is destroyed"); // TBD: MRI
+
     ByteArrayOutputStream outStream = new ByteArrayOutputStream(1024);
 
     try
@@ -176,11 +182,30 @@ public final class IdentityToken implements Serializable {
 
   public boolean equals(Object otherToken)
   {
+    if (destroyed_) throw new IllegalStateException("Object is destroyed"); // TBD: MRI
+
     // We will consider Tokens to be equal if their (latest) signature headers match.
     try {
       return (signatureHeader_.equals(((IdentityToken)otherToken).getSignatureHeader()));
     }
     catch (Throwable e) { return false; }
+  }
+
+
+  // Method required by Destroyable.
+  public void destroy() throws DestroyFailedException
+  {
+    signatureHeader_ = null;
+    tokenManifest_ = null;
+    priorManifests_ = null;
+    userToken_ = null;
+    destroyed_ = true;
+  }
+
+  // Method required by Destroyable.
+  public boolean isDestroyed()
+  {
+    return destroyed_;
   }
 
 }
