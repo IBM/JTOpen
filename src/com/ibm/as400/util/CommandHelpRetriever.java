@@ -493,8 +493,59 @@ public class CommandHelpRetriever
     if (command == null)
       throw new NullPointerException("command");
 
+    return generate(command, null);
+  }
+
+  /**
+   * Generates IBM-formatted command help documentation for the specified CL command.
+   * Portions of the resulting HTML will contain strings that were translated using
+   * the {@link java.util.Locale Locale} specified on the {@link com.ibm.as400.access.AS400 AS400}
+   * object for the given {@link com.ibm.as400.access.Command Command}.
+   * @param command The command.
+   * @param panelGroup The panel group used to generate the help text, instead of the Command's defined panel group.
+   * @return An HTML string consisting of the help documentation for the command.
+   * @see java.util.Locale
+   * @see com.ibm.as400.access.AS400
+   * @see com.ibm.as400.access.Command
+   * @see com.ibm.as400.access.PanelGroup
+  **/
+  public synchronized String generateHTML(Command command, PanelGroup panelGroup) throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException,
+  SAXException,
+  ParserConfigurationException, 
+  TransformerConfigurationException, TransformerException
+  {
+    if (command == null)
+      throw new NullPointerException("command");
+    if (panelGroup == null)
+      throw new NullPointerException("panelGroup");
+
+    return generate(command, panelGroup);
+  }
+
+  /**
+   * Generates IBM-formatted command help documentation for the specified CL command.
+   * Portions of the resulting HTML will contain strings that were translated using
+   * the {@link java.util.Locale Locale} specified on the {@link com.ibm.as400.access.AS400 AS400}
+   * object for the given {@link com.ibm.as400.access.Command Command}.
+   * @param command The command.
+   * @param panelGroup The panel group used to generate the help text, instead of the Command's defined panel group.
+   * @return An HTML string consisting of the help documentation for the command.
+   * @see java.util.Locale
+   * @see com.ibm.as400.access.AS400
+   * @see com.ibm.as400.access.Command
+   * @see com.ibm.as400.access.PanelGroup
+  **/
+  private synchronized String generate(Command command, PanelGroup panelGroup) throws AS400Exception, AS400SecurityException,
+  ErrorCompletingRequestException, IOException,
+  InterruptedException, ObjectDoesNotExistException,
+  SAXException,
+  ParserConfigurationException, 
+  TransformerConfigurationException, TransformerException
+  {
     if (Trace.isTraceOn())
-      Trace.log(Trace.DIAGNOSTIC, "Generating HTML documentation for "+command+".");
+      Trace.log(Trace.DIAGNOSTIC, "Generating HTML documentation for '"+command+"' and panel group '"+panelGroup+"'.");
 
     String xml = command.getXML();
 
@@ -557,7 +608,7 @@ public class CommandHelpRetriever
     if (Trace.isTraceOn())
       Trace.log(Trace.DIAGNOSTIC, "Using command threadsafety = "+threadSafe+" and where allowed to run = "+whereAllowedToRun+".");
 
-    String helpResults = command.getXMLHelpText();
+    String helpResults = (panelGroup == null ? command.getXMLHelpText() : command.getXMLHelpText(panelGroup));
 
     if (debug_ && helpResults != null)
     {
