@@ -184,7 +184,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     private double margin_right_=0.5;                 //The right margin for the page.
     private boolean useFO_ = false;                   //Specifies if formatting object tags are used.
 
-    transient private Vector tagListeners_ = new Vector();         // The list of tag listeners.
+    transient private Vector tagListeners_;         // The list of tag listeners. @CRS
                                                
     /**
     *  Constructs a default HTMLDocument object.
@@ -418,6 +418,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     **/
     private void fireAdded()
     {
+      if (tagListeners_ == null) return;
         Vector targets = (Vector) tagListeners_.clone();
         ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_ADDED);
         for (int i=0; i<targets.size(); i++)
@@ -432,6 +433,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     **/
     private void fireRemoved()
     {
+      if (tagListeners_ == null) return;
         Vector targets = (Vector) tagListeners_.clone();
         ElementEvent event = new ElementEvent(this, ElementEvent.ELEMENT_REMOVED);
         for (int i=0; i< targets.size(); i++)
@@ -451,7 +453,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     {
         if (listener == null)
             throw new NullPointerException("listener");
-        tagListeners_.removeElement(listener);
+        if (tagListeners_ != null) tagListeners_.removeElement(listener);
     }
 
     /**
@@ -462,7 +464,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     {
         in.defaultReadObject();
 
-        tagListeners_ = new Vector();
+        //@CRS tagListeners_ = new Vector();
     }
     
     /**
@@ -476,6 +478,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
     {
         if (listener == null)
             throw new NullPointerException("listener");
+        if (tagListeners_ == null) tagListeners_ = new Vector(); //@CRS
         tagListeners_.addElement(listener);
     }
 
@@ -493,7 +496,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         height_ = height;
 
-        changes_.firePropertyChange("height", new Double(old), new Double(height) );
+        if (changes_ != null) changes_.firePropertyChange("height", new Double(old), new Double(height) );
     }
 
     /**
@@ -510,7 +513,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         width_ = width;
 
-        changes_.firePropertyChange("width", new Double(old), new Double(width) );
+        if (changes_ != null) changes_.firePropertyChange("width", new Double(old), new Double(width) );
     }
 
     /**
@@ -527,7 +530,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_top_ = top;
 
-        changes_.firePropertyChange("top", new Double(old), new Double(top) );
+        if (changes_ != null) changes_.firePropertyChange("top", new Double(old), new Double(top) );
     }
 
     /**
@@ -544,7 +547,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_bottom_ = bottom;
 
-        changes_.firePropertyChange("bottom", new Double(old), new Double(bottom) );
+        if (changes_ != null) changes_.firePropertyChange("bottom", new Double(old), new Double(bottom) );
     }
 
     /**
@@ -561,7 +564,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_right_ = right;
 
-        changes_.firePropertyChange("right", new Double(old), new Double(right) );
+        if (changes_ != null) changes_.firePropertyChange("right", new Double(old), new Double(right) );
     }
 
     /**
@@ -578,7 +581,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_left_ = left;
 
-        changes_.firePropertyChange("left", new Double(old), new Double(left) );
+        if (changes_ != null) changes_.firePropertyChange("left", new Double(old), new Double(left) );
     }
 
     /**
@@ -667,6 +670,6 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         useFO_ = useFO;
 
-        changes_.firePropertyChange("useFO", old, useFO );
+        if (changes_ != null) changes_.firePropertyChange("useFO", old, useFO );
     }
 }  
