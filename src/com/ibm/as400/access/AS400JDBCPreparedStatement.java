@@ -202,37 +202,35 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
         {
             checkOpen();
             Object[] parameters = new Object[parameterCount_];
-            int[] scales = new int[parameterCount_];
             for(int i = 0; i < parameterCount_; ++i)
             {
-
                 // Statements with output or inout parameters are not allowed in the batch.
                 if(parameterRow_.isOutput(i+1)) JDError.throwSQLException(this, JDError.EXC_PARAMETER_TYPE_INVALID);
 
                 // If an input parameter is not set, we throw an exception.
                 if(!parameterSet_[i]) JDError.throwSQLException(this, JDError.EXC_PARAMETER_COUNT_MISMATCH);
 
-                // Save the parameter in the array.  If it's null, just save a null reference.
-                if(parameterNulls_[i])
+                // Save the parameter in the array.  If it's null, just leave it null.
+                if(!parameterNulls_[i])
                 {
-                    parameters[i] = null;
-                }
-                else
-                {
-                    SQLData sqlData = parameterRow_.getSQLData(i+1);
-                    parameters[i] = sqlData.getObject();
-                    if(containsLocator_ == LOCATOR_UNKNOWN && (sqlData.getSQLType() == SQLData.CLOB_LOCATOR || 
-                                                               sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                                                               sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
+                  SQLData sqlData = parameterRow_.getSQLData(i+1);
+                  parameters[i] = sqlData.getObject();
+                  if(containsLocator_ == LOCATOR_UNKNOWN)
+                  {
+                    int sqlType = sqlData.getSQLType();
+                    if (sqlType == SQLData.CLOB_LOCATOR ||
+                        sqlType == SQLData.BLOB_LOCATOR ||
+                        sqlType == SQLData.DBCLOB_LOCATOR)
                     {
-                        containsLocator_ = LOCATOR_FOUND;
+                      containsLocator_ = LOCATOR_FOUND;
                     }
+                  }
                 }
             }
             if(containsLocator_ == LOCATOR_UNKNOWN) containsLocator_ = LOCATOR_NOT_FOUND;
 
             if(batch_ == null) batch_ = new Vector(); //@P0A
-            JDTrace.logInformation(this, "addBatch()");
+            if (JDTrace.isTraceOn()) JDTrace.logInformation(this, "addBatch()");
             batch_.addElement(parameters);
         }
     }
@@ -2777,7 +2775,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
     {
         synchronized(internalLock_)
         {                                            // @F1A
-            checkOpen ();
+            checkOpen();
 
             // Check if the parameter index refers to the return value parameter.          @F2A
             // This is an OUT parameter, so sets are not allowed.  If its not              @F2A
@@ -2794,7 +2792,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             // Validate the parameter index.
             if((parameterIndex < 1) || (parameterIndex > parameterCount_))
             {
-                JDError.throwSQLException (this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
+                JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID);
             }
 
             // Check that the parameter is an input parameter.
@@ -2806,17 +2804,21 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
             if(parameterValue != null)
             {                                                                   // @B6C
                 // If the data is a locator, then set its handle.                                              @B6A
-                if((sqlData.getSQLType() == SQLData.CLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
-                    sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))
+                int sqlType = sqlData.getSQLType();
+                if((sqlType == SQLData.CLOB_LOCATOR ||
+                    sqlType == SQLData.BLOB_LOCATOR ||
+                    sqlType == SQLData.DBCLOB_LOCATOR))
                 {                                                        // @B6A
                     SQLLocator sqlDataAsLocator = (SQLLocator) sqlData;                                     // @B6A
                     sqlDataAsLocator.setHandle(parameterRow_.getFieldLOBLocatorHandle(parameterIndex));   // @B6A
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "locator handle: " + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
                 }                                                                                           // @B6A
 
-                sqlData.set (parameterValue, calendar, scale);
-                testDataTruncation (parameterIndex, sqlData);       // @B5C @G5move
+                sqlData.set(parameterValue, calendar, scale);
+                if (dataTruncation_ || !sqlData.isText())
+                {
+                  testDataTruncation(parameterIndex, sqlData);       // @B5C @G5move
+                }
             }
             // Parameters can be null; you can call one of the set methods to null out a
             // field of the database.                                                                                            // @B6A

@@ -27,7 +27,7 @@ implements JDRow
 {
     private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-
+    private int[] parameterTypes_;
 
 
     // Private data.
@@ -558,6 +558,13 @@ implements JDRow
     }
 
 
+    //@CRS - performance
+    private synchronized void initParmTypes()
+    {
+      int count = getFieldCount();
+      parameterTypes_ = new int[count];
+      for (int i=0; i<count; ++i) parameterTypes_[i] = -1;
+    }
 
     /**
     Is the field an input value?
@@ -567,22 +574,27 @@ implements JDRow
     
     @exception  SQLException    If an error occurs.
     **/
-    boolean isInput (int index)
-    throws SQLException
+    boolean isInput(int index) throws SQLException
     {
-        int parameterType = -1;
+      if (parameterTypes_ == null)
+      {
+        initParmTypes();
+      }
 
+      int i = index-1;
+      if (parameterTypes_[i] == -1)
+      {
         try
         {
-            parameterType = serverFormat_.getFieldParameterType (index - 1);
+          parameterTypes_[i] = serverFormat_.getFieldParameterType(i) & 0x00FF;
         }
         catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
         }
+      }
 
-        return(((byte) parameterType == (byte) 0xF0)
-               || ((byte) parameterType == (byte) 0xF2));
+      return parameterTypes_[i] == 0xF0 || parameterTypes_[i] == 0xF2;
     }
 
 
@@ -595,22 +607,27 @@ implements JDRow
     
     @exception  SQLException    If an error occurs.
     **/
-    boolean isOutput (int index)
-    throws SQLException
+    boolean isOutput(int index) throws SQLException
     {
-        int parameterType = -1;
+      if (parameterTypes_ == null)
+      {
+        initParmTypes();
+      }
 
+      int i = index-1;
+      if (parameterTypes_[i] == -1)
+      {
         try
         {
-            parameterType = serverFormat_.getFieldParameterType (index - 1);
+          parameterTypes_[i] = serverFormat_.getFieldParameterType(i) & 0x00FF;
         }
         catch(DBDataStreamException e)
         {
             JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, e);
         }
+      }
 
-        return(((byte) parameterType == (byte) 0xF1)
-               || ((byte) parameterType == (byte) 0xF2));
+      return parameterTypes_[i] == 0xF1 || parameterTypes_[i] == 0xF2;
     }
 
 
