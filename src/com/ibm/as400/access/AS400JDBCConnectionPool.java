@@ -111,17 +111,17 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   {
     AS400JDBCPooledConnection poolConnection;
 
-    boolean trace = Trace.isTraceOn();
+        boolean trace = JDTrace.isTraceOn();                                              // @B5C
     if (trace)
     {
-      Trace.log(Trace.INFORMATION, "ConnectionPool cleanup...");
-      Trace.log(Trace.INFORMATION, "   MaxLifeTime: " + getMaxLifetime());
-      Trace.log(Trace.INFORMATION, "   MaxUseTime: " + getMaxUseTime());
-      Trace.log(Trace.INFORMATION, "   MaxInactivity: " + getMaxInactivity());
+            JDTrace.logInformation (this, "ConnectionPool cleanup...");
+            JDTrace.logInformation (this, "   MaxLifeTime: " + getMaxLifetime());         // @B5C
+            JDTrace.logInformation (this, "   MaxUseTime: " + getMaxUseTime());           // @B5C
+            JDTrace.logInformation (this, "   MaxInactivity: " + getMaxInactivity());     // @B5C
 
-      Trace.log(Trace.INFORMATION, "Idle Connections: " + availablePool_.size());
-      Trace.log(Trace.INFORMATION, "Active Connections: " + activePool_.size());
-    }
+            JDTrace.logInformation (this, "Idle Connections: " + availablePool_.size());  // @B5C
+            JDTrace.logInformation (this, "Active Connections: " + activePool_.size());   // @B5C
+        }
 
     synchronized (availablePool_)
     {
@@ -135,13 +135,13 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
             poolConnection = (AS400JDBCPooledConnection)connections[i].next();
 
             if (trace)
-              Trace.log(Trace.INFORMATION, poolConnection.toString());
+                            JDTrace.logInformation (this, poolConnection.toString());     // @B5C
 
             if ((!poolConnection.isInUse() && getMaxLifetime() !=-1 && poolConnection.getLifeSpan() > getMaxLifetime()) ||   //@B1C       // inactive connections only.
                             (!poolConnection.isInUse() && getMaxInactivity() !=-1 && poolConnection.getInactivityTime() > getMaxInactivity()))  //@B1C //@B3C
                             {
               if (trace)
-                Trace.log(Trace.INFORMATION, "Removing expired connection from the pool.");
+                                JDTrace.logInformation (this, "Removing expired connection from the pool.");  // @B5C
 
               closePooledConnection(poolConnection);
               connections[i].remove();
@@ -154,7 +154,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
                      poolConnection.getInUseTime() > getMaxUseTime())       // only valid with active connections.
             {
               if (trace)
-                Trace.log(Trace.INFORMATION, "Returning active connection to the pool.");
+                                JDTrace.logInformation (this, "Returning active connection to the pool.");  // @B5C
 
               poolConnection.returned();
               availablePool_.add(poolConnection);
@@ -185,23 +185,23 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
 
     if (trace)
     {
-      Trace.log(Trace.INFORMATION, "ConnectionPool cleanup finished.");
-      Trace.log(Trace.INFORMATION, "   Idle Connections: " + availablePool_.size());
-      Trace.log(Trace.INFORMATION, "   Active Connections: " + activePool_.size());
+            JDTrace.logInformation (this, "ConnectionPool cleanup finished.");  // @B5C
+            JDTrace.logInformation (this, "   Idle Connections: " + availablePool_.size());  // @B5C
+            JDTrace.logInformation (this, "   Active Connections: " + activePool_.size());  // @B5C
+        }
     }
-  }    
 
   /**
   *  Closes all the unused database connections in the pool.
   **/
   public void close()
   {
-    if (Trace.isTraceOn())
-    {
-      Trace.log(Trace.INFORMATION, "Closing the JDBC connection pool.");
-      Trace.log(Trace.INFORMATION, "Available: " + availablePool_.size());
-      Trace.log(Trace.INFORMATION, "Active: " + activePool_.size());
-    }
+        if (JDTrace.isTraceOn())                                                   // @B5C
+        {
+            JDTrace.logInformation (this, "Closing the JDBC connection pool.");    // @B5C
+            JDTrace.logInformation (this, "Available: " + availablePool_.size());  // @B5C
+            JDTrace.logInformation (this, "Active: " + activePool_.size());        // @B5C
+        }
 
     synchronized (availablePool_)
     {
@@ -248,9 +248,9 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     catch (SQLException e)
     { 
       /* ignore connection is being removed anyway. */
-      Trace.log(Trace.WARNING, e.getMessage());
+            JDTrace.logInformation (this, e.getMessage());  // @B5C
+        }
     }
-  }
 
   /**
   *  Creates a pooledConnection for the pool.
@@ -276,8 +276,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
   **/
   public void fill(int numberOfConnections) throws ConnectionPoolException
   {
-    if (Trace.isTraceOn())
-      Trace.log(Trace.INFORMATION, "Filling the pool with " + numberOfConnections + " connections.");
+        if (JDTrace.isTraceOn())        // @B5C
+            JDTrace.logInformation (this, "Filling the pool with " + numberOfConnections + " connections."); //@B5C
 
     // Validate the numberOfConnections parameter.
     if (numberOfConnections < 1)
@@ -356,7 +356,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
           }                  //@A2A
         }                    //@A2A
         if (!maintenance_.isRunning())             //@A2A
-          Trace.log(Trace.WARNING, "maintenance thread failed to start");    //@A2A
+                    JDTrace.logInformation (this, "maintenance thread failed to start");    //@A2A
       }                     //@A2A
 
       else if (!maintenance_.isRunning())
@@ -531,8 +531,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
 
         if (current > required)
         {
-          if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Reducing number of connections... Current: " + current + "(" + availablePool_.size() + ") " + " Max: " + required);
+                    if (JDTrace.isTraceOn())  // @B5C
+                        JDTrace.logInformation (this, "Reducing number of connections... Current: " + current + "(" + availablePool_.size() + ") " + " Max: " + required);  // @B5C
 
           int removed = 0;
           int reduceBy = current - required;
@@ -578,7 +578,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
 
     if (isInUse())
     {
-      Trace.log(Trace.ERROR, "Connection pool data source is already in use.");
+            JDTrace.logInformation (this, "Connection pool data source is already in use.");  // @B5C
       throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
     AS400JDBCConnectionPoolDataSource old = dataSource_;
@@ -608,7 +608,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
     **/
     public void connectionErrorOccurred(ConnectionEvent event)
     {
-      Trace.log(Trace.ERROR, "PooledConnection is in error...");
+            JDTrace.logInformation (this, "PooledConnection is in error...");  // @B5C
       closePooledConnection( (AS400JDBCPooledConnection)event.getSource() );
     }
 
@@ -631,7 +631,7 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
           (getMaxUseCount() != -1 && connection.getUseCount() == getMaxUseCount()) ||        // Max Use Count.
           (getMaxConnections() != -1 &&activePool_.size() > getMaxConnections()))           // MaxConnections reduced.
       {
-        Trace.log(Trace.INFORMATION, "Connection has expired.  Removed from the pool.");
+                JDTrace.logInformation (this, "Connection has expired.  Removed from the pool.");  // @B5C
         closePooledConnection(connection);
 
         // Notify listeners that the connection expired
@@ -640,8 +640,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       }
       else
       {
-        if (Trace.isTraceOn())
-          Trace.log(Trace.INFORMATION, "Returning active connection to the pool.");
+                if (JDTrace.isTraceOn())  // @B5C
+                    JDTrace.logInformation (this, "Returning active connection to the pool.");  // @B5C
 
                 // Add a check to see if the connection is still good
                 AS400JDBCConnection jdbcConnection = connection.getInternalConnection();  //@B4A
@@ -660,8 +660,8 @@ public class AS400JDBCConnectionPool extends ConnectionPool implements Serializa
       }         
                     else
                     {            //@B4A
-                        if (Trace.isTraceOn())         //@B4A
-                            Trace.log(Trace.INFORMATION, "Removing closed connection from pool.");   //@B4A
+                        if (JDTrace.isTraceOn())         //@B4A @B5C
+                            JDTrace.logInformation (this, "Removing closed connection from pool.");   //@B4A @B5C
                     }
                 }
                 catch (SQLException sqe)

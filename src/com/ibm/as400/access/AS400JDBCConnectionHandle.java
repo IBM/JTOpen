@@ -1322,7 +1322,7 @@ ResultSet.CONCUR_READ_ONLY.
   {
     if (connection_ == null)
     {
-      Trace.log(Trace.ERROR, "The connection is closed.");
+            JDTrace.logInformation (this, "The connection is closed.");  // @A7C
       JDError.throwSQLException (JDError.EXC_CONNECTION_NONE); // @A3C
     }
   }

@@ -1890,7 +1890,7 @@ public class AS400JDBCRowSet extends Object implements RowSet, Serializable     
         }
         catch (SQLException e)
         {
-            Trace.log(Trace.ERROR, "getTransactionIsolation() database error");
+            JDTrace.logInformation (this, "getTransactionIsolation() database error");  // @G5C
             return transactionIsolation_;
         }
     }

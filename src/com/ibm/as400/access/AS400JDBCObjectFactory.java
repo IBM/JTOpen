@@ -61,8 +61,8 @@ public class AS400JDBCObjectFactory implements ObjectFactory
       }
       else
       {
-         if (Trace.isTraceOn()) 
-            Trace.log(Trace.ERROR, "Lookup error.  Class not found.");
+         if (JDTrace.isTraceOn())                                              // @B1C
+            JDTrace.logInformation (this, "Lookup error.  Class not found.");  // @B1C
          return null;
       }
    }

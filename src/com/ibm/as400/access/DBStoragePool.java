@@ -111,7 +111,8 @@ are available, a brand new one will be allocated.
     }
 
     // If all are being used, then allocate a new one.
-    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating new DBStoragePool of size "+max*2); //@P0A
+    if (JDTrace.isTraceOn())                                                     // @B2C
+      JDTrace.logInformation(this, "Creating new DBStoragePool of size "+max*2); // @P0A @B2C
 
     DBStorage[] tempPool = new DBStorage[max*2]; //@P0A
 
@@ -134,6 +135,5 @@ are available, a brand new one will be allocated.
     return storage;
   }
 }
-
 
 
