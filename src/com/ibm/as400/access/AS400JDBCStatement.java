@@ -2766,9 +2766,8 @@ implements Statement
                         request.setQueryTimeout (-1);
                 }
 
-                if (connection_.getVRM() >= JDUtilities.vrm520)               // @J3a
-                {
-                    // @J3a
+                if (! connection_.getMustSpecifyForUpdate())                  // @J3a @J31c
+                {                                                             // @J3a
                     if (resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE)  // @J3a
                         request.setOpenAttributes(0x10 + 0x20 + 0x40 + 0x80); // @J3a
                 }                                                             // @J3a

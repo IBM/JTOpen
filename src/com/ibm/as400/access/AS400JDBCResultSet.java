@@ -265,11 +265,11 @@ implements ResultSet {
         // specified, or the SELECT does not specify FOR UPDATE,
         // then we cannot do updates.  (@J3 In case you have
         // paraenthesis overload, the added check in mod 5
-        // is if we are connected to a v5r1 or earlier system and 
-        // "for update" is not specified)
+        // is if we are connected to a v5r1 (without PTF) or earlier 
+        // system and "for update" is not specified)
         if ((connection_  == null) ||
             (sqlStatement == null) ||
-            (((((AS400JDBCConnection) connection_).getVRM() < JDUtilities.vrm520) &&   // @J3a
+            (((((AS400JDBCConnection) connection_).getMustSpecifyForUpdate()) &&   // @J3a @J31c
               (! sqlStatement.isForUpdate()))))
         {
             selectTable_        = null;
@@ -3665,7 +3665,7 @@ implements ResultSet {
             if (columnsSet == 0)
                 buffer.append ("NULL");
             else
-                buffer.append (values);
+                buffer.append (values.toString());          // added toString() because 1.4 has a method that appends a string buffer
             buffer.append (")");
 
             if (JDTrace.isTraceOn ())
@@ -5278,6 +5278,7 @@ implements ResultSet {
             // set() with throw an exception.
             SQLData sqlData = updateRow_.getSQLType(columnIndex); //@P0C
             int columnIndex0 = columnIndex - 1;
+
             if (columnValue != null)
                 sqlData.set (columnValue, calendar, scale);
             updateNulls_[columnIndex0] = (columnValue == null);

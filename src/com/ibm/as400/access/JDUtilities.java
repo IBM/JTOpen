@@ -34,6 +34,7 @@ class JDUtilities
     private static final byte escape        = (byte)0x1B;           // @D0A
 
     static int vrm520 = AS400.generateVRM(5, 2, 0);                 // @J2a @J3a
+    static int vrm510 = AS400.generateVRM(5, 1, 0);                 //      @J31a
 
 
 
