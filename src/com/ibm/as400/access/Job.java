@@ -6725,7 +6725,7 @@ of work identifier.
   **/
   private static boolean isReadOnly(int attribute)
   {
-    return setterKeys_.get(attribute) == 0;
+    return setterKeys_.get(attribute) == -1;
   }
 
 
