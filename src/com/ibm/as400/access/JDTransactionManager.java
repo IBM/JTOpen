@@ -404,6 +404,12 @@ reverts back to its initial commit mode.
   }
 
 
+  void resetXAServer()
+  throws SQLException
+  {
+        resetServer();
+  }
+
 
 /**
 Rollback the current transaction.  If auto-commit mode is

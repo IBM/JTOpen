@@ -256,6 +256,9 @@ Commits a global transaction.
 
       // Mark the transaction state.
       transactionManager_.markGlobalTransactionBoundary();
+
+      //@KKB resend the transaction isolation since server gets reset somehow
+      transactionManager_.resetXAServer();
     }
     catch (XAException e)
     {
@@ -707,6 +710,10 @@ Rolls back a transaction branch.
 
       // Mark the transaction state.
       transactionManager_.markGlobalTransactionBoundary();
+
+      //@KKB resend the transaction isolation since server gets reset somehow
+      transactionManager_.resetXAServer();
+
     }
     catch (XAException e)
     {
