@@ -381,7 +381,7 @@ public abstract class ConnectionPool implements Serializable
    *  on the user's thread when it uses the connection pool.
    *  This method and <a href="#setThreadUsed(boolean)">setThreadUsed()</a> can be set
    *  in interchangeable order.
-   *  The default value is false.
+   *  The default value is true.
    *  @param cleanup If expired connections are cleaned up by the maintenance daemon.
    **/
   public void setRunMaintenance(boolean cleanup)
