@@ -114,7 +114,8 @@ class JDSQLStatement
     private int             nativeType_                 = TYPE_OTHER;
     private int             numberOfParameters_;
     private String          selectTable_                = null;
-    private StringTokenizer tokenizer_                  = null;
+    // @C3D private StringTokenizer tokenizer_                  = null;
+    private JDSQLTokenizer tokenizer_                   = null; // @C3A
     private String          value_;
     private String          valueForServer_             = null;     // @E1A
 
@@ -208,15 +209,15 @@ class JDSQLStatement
 
         //@F6A Start new code
         // Strip off comments.  Don't strip comment characters in literals.
-        int length = sql.length ();
+        int length = sql.length();
 
-        char[] sqlArray = sql.toCharArray();
-        char[] outArray = new char[length];
-        int out = -1;  // We are always pre-incrementing... so start before the first char here.
+        //char[] sqlArray = sql.toCharArray();
+        //char[] outArray = new char[length];
+        // @C3D int out = -1;  // We are always pre-incrementing... so start before the first char here.
 
         // Perf Note: numberOfParameters_ will default to 0.  Don't set it here.
 
-        //@H1D boolean inComment = false;
+//@G8D        boolean inComment = false;
 
         //@G7 Skip removing comments if it is a CREATE statement smaller than 32KB
         //@G7 (Greater than 32KB would overflow the buffer, so we have to remove
@@ -226,124 +227,122 @@ class JDSQLStatement
         //@C3D{
             //@G7 If this is not a normal CREATE or the length is too big,
             //@G7 we must strip out the comments!
-            for (int i = 0; i < length; ++i) {
-                switch (sqlArray[i]) {
-                case '\'':
-                    outArray[++out] = sqlArray[i];
+            // @C3D for (int i = 0; i < length; ++i) {
+                // @C3D switch (sqlArray[i]) {
+                // @C3D case '\'':
+                    // @C3D outArray[++out] = sqlArray[i];
 
                     // Consume everything while looking for the ending quote character.
-                    while (i < length - 1) {
-                        outArray[++out] = sqlArray[++i];
-                        if (sqlArray[i] == '\'') {
-                            break;
-                        }
-                    }
+                    // @C3D while (i < length - 1) {
+                        // @C3D outArray[++out] = sqlArray[++i];
+                        // @C3D if (sqlArray[i] == '\'') {
+                            // @C3D break;
+                        // @C3D }
+                    // @C3D }
 
-                    break;
-                case '\"':
-                    outArray[++out] = sqlArray[i];
+                    // @C3D break;
+                // @C3D case '\"':
+                    // @C3D outArray[++out] = sqlArray[i];
 
                     // Consume everything while looking for the ending quote character.
-                    while (i < length - 1) {
-                        outArray[++out] = sqlArray[++i];
+                    // @C3D while (i < length - 1) {
+                        // @C3D outArray[++out] = sqlArray[++i];
 
-                        if (sqlArray[i] == '\"') {
-                            break;
-                        }
-                    }
+                        // @C3D if (sqlArray[i] == '\"') {
+                            // @C3D break;
+                        // @C3D }
+                    // @C3D }
 
-                    break;
-                case '-':
-                    if (i < length - 1) {
-                        if (sqlArray[++i] == '-') {
+                    // @C3D break;
+                // @C3D case '-':
+                    // @C3D if (i < length - 1) {
+                        // @C3D if (sqlArray[++i] == '-') {
                             // It's a single line commment (--).  We are going to eat the comment until
                             // a new line character or the end of the string, but first output a space 
                             // to the output buffer.
-                            outArray[++out] = ' ';
-                            while ((i < length - 1) && (sqlArray[++i] != '\n'))
-                                ;                    // do nothing but spin.
+                            // @C3D outArray[++out] = ' ';
+                            // @C3D while ((i < length - 1) && (sqlArray[++i] != '\n'))
+                                // @C3D ;                    // do nothing but spin.
 
                             // If we didn't break the loop because we were at the end of the string...
                             // we broke because of a newline character.  Put it into the output.
-                            if (i < length - 1)
-                                outArray[++out] = '\n';
+                            // @C3D if (i < length - 1)
+                                // @C3D outArray[++out] = '\n';
 
-                        }
-                        else {
+                        // @C3D }
+                        // @C3D else {
                             // This was not a comment.  Output the characters we read.
-                            outArray[++out] = sqlArray[i-1];
-                            outArray[++out] = sqlArray[i];
-                        }
-                    }
-                    else {
+                            // @C3D outArray[++out] = sqlArray[i-1];
+                            // @C3D outArray[++out] = sqlArray[i];
+                        // @C3D }
+                    // @C3D }
+                    // @C3D else {
                         // Last character - must write the '-'
-                        outArray[++out] = sqlArray[i];
-                    }
-                    break;
-                case '/':
+                        // @C3D outArray[++out] = sqlArray[i];
+                    // @C3D }
+                    // @C3D break;
+                // @C3D case '/':
 
                     // If we are not on the last character....
-                    if (i < length - 1) {
+                    // @C3D if (i < length - 1) {
                         // Check to see if we are starting a comment.
-                        if (sqlArray[++i] == '*') {
+                        // @C3D if (sqlArray[++i] == '*') {
                             // It is a multi-line commment - write over the '/*' characters
                             // and set the inComment flag.
-                            outArray[++out] = ' ';
-                            //@H1D inComment = true;
-                            int numComments = 1; //@H1A - keep track of the nesting level
+                            // @C3D outArray[++out] = ' ';
+//@G8D                            inComment = true;
+                            // @C3D int numComments = 1; //@G8A - keep track of the nesting level
 
-                            //@H1C
+                            //@G8C
                             // Need to handle nested comments.
                             // If we see a */, we've closed a comment block.
                             // If we see another /*, we've started a new block.
-                            while (i < length - 1 && numComments > 0) //@H1C
-                            {
-                                char cur = sqlArray[++i]; //@H1A
-                                //@H1D    inComment = false;
-                                    // You still have to eat the character that you looked ahead to.
-                                if (i < length-1)
-                                {
-                                  char next = sqlArray[i+1];
-                                  if (cur == '*' && next == '/')
-                                  {
-                                    --numComments;
-                                    ++i;
-                                  }
-                                  else if (cur == '/' && next == '*')
-                                  {
-                                    ++numComments;
-                                    ++i;
-                                  }
-                                }
-                            }
-                        }
-                        else {
+                            // @C3D while (i < length - 1 && numComments > 0) //@G8C
+                            // @C3D {
+                                // @C3D char cur = sqlArray[++i]; //@G8A
+                                // @C3D if (i < length-1)
+                                // @C3D {
+                                  // @C3D char next = sqlArray[i+1];
+                                  // @C3D if (cur == '*' && next == '/')
+                                  // @C3D {
+                                    // @C3D --numComments;
+                                    // @C3D ++i;
+                                  // @C3D }
+                                  // @C3D else if (cur == '/' && next == '*')
+                                  // @C3D {
+                                    // @C3D ++numComments;
+                                    // @C3D ++i;
+                                  // @C3D }
+                                // @C3D }
+                            // @C3D }
+                        // @C3D }
+                        // @C3D else {
                             // This was not a comment.  Output the characters we read.
-                            outArray[++out] = sqlArray[i-1];
-                            outArray[++out] = sqlArray[i];
-                        }
-                    }
-                    else {
+                            // @C3D outArray[++out] = sqlArray[i-1];
+                            // @C3D outArray[++out] = sqlArray[i];
+                        // @C3D }
+                    // @C3D }
+                    // @C3D else {
                         // Last character - must write the '/'
-                        outArray[++out] = sqlArray[i];
-                    }
-                    break;
-                case '?':
+                        // @C3D outArray[++out] = sqlArray[i];
+                    // @C3D }
+                    // @C3D break;
+                // @C3D case '?':
                     // Write the character.
-                    outArray[++out] = sqlArray[i];
-                    ++numberOfParameters_;
-                    break;
-                default: 
+                    // @C3D outArray[++out] = sqlArray[i];
+                    // @C3D ++numberOfParameters_;
+                    // @C3D break;
+                // @C3D default: 
                     // Write the character.
-                    outArray[++out] = sqlArray[i];
-                    break;
-                }
-            }
+                    // @C3D outArray[++out] = sqlArray[i];
+                    // @C3D break;
+                // @C3D }
+            // @C3D }
 
             // @C3A if the statement is long remove the comments, otherwise keep them
             if (length > 32767) { // @C3A
-                // Now turn it back into a String for processing.
-                sql = new String(outArray, 0, ++out);
+                JDSQLTokenizer commentStripper = new JDSQLTokenizer(sql, JDSQLTokenizer.DEFAULT_DELIMITERS, true, false); // @C3A
+                sql = commentStripper.toString(); // @C3M
             } // @C3A
             //@F6A end new code
         //@C3D} //@G7A
@@ -381,7 +380,8 @@ class JDSQLStatement
             value_ = sql;
         }
 
-
+        tokenizer_ = new JDSQLTokenizer(value_, JDSQLTokenizer.DEFAULT_DELIMITERS, false, false); // @C3A moved this line up from below
+        numberOfParameters_ = tokenizer_.getNumberOfParameters(); // @C3A the tokenizer counts the number of parameter markers now
 
         // Determine the first word.
         // @F2 - We need to skip any leading parentheses and whitespace and combinations thereof.
@@ -391,7 +391,7 @@ class JDSQLStatement
         //      ((SELECT
         //      ( ( SELECT
         String firstWord = ""; //@F2C
-        tokenizer_ = new StringTokenizer(value_);
+        // @C3D tokenizer_ = new StringTokenizer(value_);
         while (firstWord == "" && tokenizer_.hasMoreTokens()) //@F2A
         {
             String word = tokenizer_.nextToken();
@@ -623,31 +623,61 @@ class JDSQLStatement
                         // "a b" and "a    b" are different tables.  The fix is to go back to the
                         // original SQL statement, find the beginning of the collection/table name,
                         // then copy characters until finding the ending quote. 
-                        if (token.indexOf('\"') >= 0)                                              //@G6A
-                        {                                                                          //@G6A
-                            // find out if we already have the whole name by counting the quotes  //@G6A
-                            int cnt = 0;                                                          //@G6A
-                            int ind = -1;                                                         //@G6A
-                            while ((ind = token.indexOf('\"', ind+1)) >= 0) {                     //@G6A
-                                cnt++;                                                            //@G6A
-                            }                                                                     //@G6A
-                            // if there is an even number of quotes we already have an open       //@G6A
-                            // and close so there is no need to look for another close            //@G6A
-                            if (cnt % 2 == 0) {                                                   //@G6A
-                                selectTable_ = token;                                             //@G6A
-                            } else {                                                              //@G6A
-                                // grab the rest of the token to the closing quote                //@G6A
-                                String quotetok = "";                                             //@G6A
-                                if (tokenizer_.hasMoreTokens()) {                                 //@G6A
-                                    quotetok = tokenizer_.nextToken("\"") + "\"";                 //@G6A
-                                    // grab the quote token from the end                          //@G6A
-                                    tokenizer_.nextToken(" \t\n\r\f");                            //@G6A
-                                }                                                                 //@G6A
-                                selectTable_ = token + quotetok;                                  //@G6A
-                            }                                                                     //@G6A
-                        }                                                                          //@G6A
-                        else                                                                       //@G6A
+                        //if (token.indexOf('\"') >= 0)                                              //@G6A
+                        //{                                                                          //@G6A
+                        //    // find out if we already have the whole name by counting the quotes  //@G6A
+                        //    int cnt = 0;                                                          //@G6A
+                        //    int ind = -1;                                                         //@G6A
+                        //    while ((ind = token.indexOf('\"', ind+1)) >= 0) {                     //@G6A
+                        //        cnt++;                                                            //@G6A
+                        //    }                                                                     //@G6A
+                        //    // if there is an even number of quotes we already have an open       //@G6A
+                        //    // and close so there is no need to look for another close            //@G6A
+                        //    if (cnt % 2 == 0) {                                                   //@G6A
+                        //        selectTable_ = token;                                             //@G6A
+                        //    } else {                                                              //@G6A
+                        //        // grab the rest of the token to the closing quote                //@G6A
+                        //        String quotetok = "";                                             //@G6A
+                        //        if (tokenizer_.hasMoreTokens()) {                                 //@G6A
+                        //            quotetok = tokenizer_.nextToken("\"") + "\"";                 //@G6A
+                        //            // grab the quote token from the end                          //@G6A
+                        //            tokenizer_.nextToken(" \t\n\r\f");                            //@G6A
+                        //        }                                                                 //@G6A
+                        //        selectTable_ = token + quotetok;                                  //@G6A
+                        //    }                                                                     //@G6A
+                        //}                                                                          //@G6A
+                        //else                                                                       //@G6A
+
+                        // @C3A put the code to determine the naming separator down here too
+                        String namingSeparator;
+                        if (((AS400JDBCConnection)connection).getProperties().
+                            getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
+                        {
+                            namingSeparator = ".";
+                        }
+                        else
+                            namingSeparator = "/";
+
+                        // @C3A added the following block to handle case sensitive table and collection names
+                        if (token.endsWith(namingSeparator)) {
+                            StringBuffer table = new StringBuffer(token);
+                            if (tokenizer_.hasMoreTokens())
+                                table.append(tokenizer_.nextToken());
+                            selectTable_ = table.toString();
+                        } else if (tokenizer_.hasMoreTokens() && tokenizer_.peekToken().equals(namingSeparator)) {
+                            StringBuffer table = new StringBuffer(token);
+                            table.append(tokenizer_.nextToken());
+                            if (tokenizer_.hasMoreTokens())
+                                table.append(tokenizer_.nextToken());
+                            selectTable_ = table.toString();
+                        } else if (tokenizer_.hasMoreTokens() && tokenizer_.peekToken().startsWith(namingSeparator)) {
+                            StringBuffer table = new StringBuffer(token);
+                            table.append(tokenizer_.nextToken());
+                            selectTable_ = table.toString();
+                        } else {
                             selectTable_ = token;                                                  //@G6M
+                        }
+                        // @C3A end case sensitive table and collection name block
 
                         if (tokenizer_.hasMoreTokens())
                         {

@@ -25,18 +25,26 @@ it separate tokens.  This tokenizer behaves much like StringTokenizer.
 class JDSQLTokenizer extends Object implements Enumeration
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+
+    public static final String DEFAULT_DELIMITERS = " \t\n\r\f";
+
+    private static final int TOKEN_TYPE_DELIMITER = 1;
+    private static final int TOKEN_TYPE_COMMENT = 2;
+    private static final int TOKEN_TYPE_LITERAL = 4;
+    private static final int TOKEN_TYPE_SQL = 8;
+
+    private char[] buffer;
+    private char[] delimiters;
+
+    private SQLToken[] tokens;
+    private int currentTokenIndex;
+
+    private int pos = 0;
     
-    protected char[] buffer;
-    protected char[] delimiters;
+    private boolean returnDelimiters = true;
+    private boolean returnComments = true;
 
-    private int currentTokenPtr;
-    private int currentTokenLen;
-
-    private int commentDepth = 0;
-    private boolean lineComment = false;
-    private boolean blockComment = false;
-    private boolean singleQuote = false;
-    private boolean doubleQuote = false;
+    private int numberOfParameters = 0;
     
     /**
     Constructs a JDSQLTokenizer with the default delimiter
@@ -45,7 +53,7 @@ class JDSQLTokenizer extends Object implements Enumeration
     @param  statement               SQL statement to tokenize.
     **/
     public JDSQLTokenizer(String statement) {
-        this(statement, " \t\n\r\f");
+        this(statement, DEFAULT_DELIMITERS, true, true);
     }
 
     /**
@@ -56,71 +64,118 @@ class JDSQLTokenizer extends Object implements Enumeration
     @param  delimiters              Set of delimiters to use.
     **/
     public JDSQLTokenizer(String statement, String delimiters) {
-        buffer = statement.toCharArray();
-        this.delimiters = delimiters.toCharArray();
-
-        currentTokenPtr = 0;
-        currentTokenLen = 0;
+        this(statement, delimiters, true, true);
     }
 
     /**
-    Returns the next token in the SQL string, ignoring delimiters with
-    SQL style comments, including nested block comments. The delimiters
-    are ALWAYS returned as tokens.
+    Constructs a JDSQLTokenizer with the specified delimiter String
+    and the specified delimiter/comment behavior.
+    
+    @param statement                SQL statement to tokenize.
+    @param delimiters               Set of delimiters to use.
+    @param returnDelimiters         true if we should return delimiters as tokens
+    @param returnComments           true if we should return comments as tokens
+    **/
+    public JDSQLTokenizer(String statement, String delimiters, boolean returnDelimiters, boolean returnComments) {
+        buffer = statement.toCharArray();
+        this.delimiters = delimiters.toCharArray();
+        this.returnDelimiters = returnDelimiters;
+        this.returnComments = returnComments;
 
-    @return                         The next token in the SQL String.
+        tokens = scanForTokens();
+        currentTokenIndex = -1;
+    }
+
+    /**
+    Returns the next token in the SQL string, ignoring delimiters within
+    SQL style comments, including nested block comments. The delimiters
+    and comments may be returned as tokens.
+
+    @return The next token in the SQL String.
     **/
     public String nextToken() {
-        // return null if we have read all the tokens
         if (!hasMoreTokens())
             throw new NoSuchElementException();
 
-        // find the next delimiter and return everything up to it
-        // unless the delimiter IS the next character
-        currentTokenPtr = currentTokenPtr + currentTokenLen;
-        if (isDelimiter(currentTokenPtr))
-            currentTokenLen = 1;
-        else {
-            int ndelim = findNextDelimiter(currentTokenPtr);
-            currentTokenLen = (ndelim == -1 ? buffer.length : ndelim)  - currentTokenPtr;
-        }
+        return tokens[++currentTokenIndex].getToken();
+    }
 
-        return new String(buffer, currentTokenPtr, currentTokenLen);
+    /**
+    Returns the next token in the SQL string without actually moving the
+    tokenizer ahead as nextToken() does.
+    
+    @return The next token in the SQL String.
+    **/
+    public String peekToken() {
+        if (!hasMoreTokens())
+            throw new NoSuchElementException();
+
+        return tokens[currentTokenIndex+1].getToken();
     }
 
     /**
     Returns true if there are more tokens in the SQL String.
 
-    @return                         true if there are more tokens.
+    @return true if there are more tokens.
     **/
     public boolean hasMoreTokens() {
-        if (currentTokenPtr + currentTokenLen >= buffer.length)
-            return false;
-        else
+        if (tokens.length > currentTokenIndex+1)
             return true;
+        else
+            return false;
+    }
+
+    /**
+    Returns the number of tokens in the SQL string.
+    
+    @return Number of tokens in the SQL string.
+    **/
+    public int countTokens() {
+        return tokens.length;
     }
 
     /**
     Returns true if there are more tokens in the SQL String.
-
-    @return                         true if there are more tokens.
+    
+    @return true if there are more tokens to be returned.
     **/
     public boolean hasMoreElements() {
         return hasMoreTokens();
     }
-           
-    /**
-    Returns the next token in the SQL string, ignoring delimiters with
-    SQL style comments, including nested block comments. The delimiters
-    are ALWAYS returned as tokens. This method returns the token as an
-    Object rather than a String.
 
-    @return                         The next token in the SQL String.
+    /**
+    Returns the next token in the SQL string, ignoring delimiters within
+    SQL style comments, including nested block comments.  The delimiters
+    and comments may be returned as tokens.
+    
+    @return The next token in the SQL String.
     **/
-    public Object nextElement()  {
+    public Object nextElement() {
         return nextToken();
     }
-          
+
+    /**
+    Returns a list of the tokens after scanning the String, with no separators.
+    
+    @return The String representation of this tokenizer.
+    **/
+    public String toString() {
+        StringBuffer contents = new StringBuffer();
+        for (int i=0; i<tokens.length; ++i) {
+            contents.append(tokens[i].getToken());
+        }
+        return contents.toString();
+    }
+
+    /**
+    Returns the number of parameter markers found in the SQL tokens of this SQL string.
+    
+    @return The number of parameter markers found.
+    **/
+    public int getNumberOfParameters() {
+        return numberOfParameters;
+    }
+
     /**
     Checks a specified position in the buffer to see if it is one of the delimiter characters.
 
@@ -135,75 +190,184 @@ class JDSQLTokenizer extends Object implements Enumeration
         return false;
     }
 
-    /* finds the next delimiter starting at position */
-    /**
-    Finds the position in the buffer of the next delimiter.  This method first
-    checks that the delimiter is not inside a quoted literal or a SQL style
-    comment before returning its position as a valid delimiter.
-
-    @param  position                Index to start searching the buffer.
-    @return                         Index of the next valid delimiter.
-    **/
-    private int findNextDelimiter(int position) {
-        int pos = position;
+    /* scans the SQL statement for delimiters and stores each tokens info in an SQLToken object */
+    private SQLToken[] scanForTokens() {
+        Vector tokens = new Vector();
+        
+        pos = 0;
         while (pos < buffer.length) {
-
-            // if we enter one of the if/else ifs below we are entering or leaving a comment or quoted literal
-            // each block increments the pos pointer and continues to the top of the loop in order to avoid
-            // possibility that one of the delimeters is at the position of pos and should not be returned
-            if (pos+1 < buffer.length && !singleQuote && !doubleQuote && !lineComment && buffer[pos] == '/' && buffer[pos+1] == '*') {
-                // entering one level of block comment
-                blockComment = true;
-                ++commentDepth;
-                ++pos;
-                continue;
-            } else if (pos+1 < buffer.length && blockComment && buffer[pos] == '*' && buffer[pos+1] == '/') {
-                // leaving one level of block comment
-                --commentDepth;
-                if (commentDepth == 0) {
-                    blockComment = false;
+            while (pos < buffer.length) {
+                // if we enter one of the if/else ifs below we are entering or leaving a comment or quoted literal
+                // each block increments the pos pointer and continues to the top of the loop in order to avoid
+                // possibility that one of the delimeters is at the position of pos and should not be returned
+                if (pos+1 < buffer.length && buffer[pos] == '/' && buffer[pos+1] == '*') {
+                    // entering one level of block comment
+                    SQLToken tok = scanBlockComment();
+                    if (returnComments)
+                        tokens.add(tok);
+                } else if (pos+1 < buffer.length && buffer[pos] == '-' && buffer[pos+1] == '-') {
+                    // entering single line comment
+                    SQLToken tok = scanSLComment();
+                    if (returnComments)
+                        tokens.add(tok);
+                } else if (buffer[pos] == '\'') {
+                    // entering single quote
+                    tokens.add(scanSQLiteral());
+                } else if (buffer[pos] == '"') {
+                    // entering double quote
+                    tokens.add(scanDQLiteral());
+                } else if (isDelimiter(pos)) {
+                    // character at pos is a delimiter
+                    SQLToken tok = scanDelimiter();
+                    if (returnDelimiters)
+                        tokens.add(tok);
+                } else {
+                    // character at pos is not any of the above
+                    tokens.add(scanSQL());
                 }
-                ++pos;
-                continue;
-            } else if (pos+1 < buffer.length && !singleQuote && !doubleQuote && !blockComment && !lineComment && buffer[pos] == '-' && buffer[pos+1] == '-') {
-                // entering single line comment
-                lineComment = true;
-                ++pos;
-                continue;
-            } else if (!singleQuote && !doubleQuote && lineComment && buffer[pos] == '\n') {
-                // leaving single line comment
-                lineComment = false;
-                ++pos;
-                continue;
-            } else if (!singleQuote && !doubleQuote && !blockComment && !lineComment && buffer[pos] == '\'') {
-                // entering single quote
-                singleQuote = true;
-                ++pos;
-                continue;
-            } else if (singleQuote && !blockComment && !lineComment && buffer[pos] == '\'') {
-                // leaving single quote
-                singleQuote = false;
-                ++pos;
-                continue;
-            } else if (!singleQuote && !doubleQuote && !blockComment && !lineComment && buffer[pos] == '"') {
-                // entering double quote
-                doubleQuote = true;
-                ++pos;
-                continue;
-            } else if (doubleQuote && !blockComment && !lineComment && buffer[pos] == '"') {
-                // leaving double quote
-                doubleQuote = false;
-                ++pos;
-                continue;
             }
-
-            if (!singleQuote && !doubleQuote && !blockComment && !lineComment && isDelimiter(pos)) {
-                return pos;
-            }
-
-            ++pos;
         }
-        return -1;
+        return (SQLToken[])tokens.toArray(new SQLToken[]{});
     }
 
+    private SQLToken scanBlockComment() {
+        int start = pos;
+        int length = 0;
+        int type = TOKEN_TYPE_COMMENT;
+
+        int commentDepth = 0;
+
+        // scan to the end of the block comment
+        do {
+            if (pos+1 < buffer.length && buffer[pos] == '/' && buffer[pos+1] == '*') {
+                ++commentDepth;
+            } else if (pos+1 < buffer.length && buffer[pos] == '*' && buffer[pos+1] == '/') {
+                --commentDepth;
+            }
+            ++pos;
+        } while (pos < buffer.length && commentDepth > 0);
+
+        // increment past the trailing / of the block comment
+        ++pos;
+        length = pos - start;
+        
+        return new SQLToken(start, length, type);
+    }
+
+    private SQLToken scanSLComment() {
+        int start = pos;
+        int length = 0;
+        int type = TOKEN_TYPE_COMMENT;
+
+        // scan to the end of the line
+        while (pos < buffer.length && buffer[pos] != '\n') {
+            ++pos;
+        }
+
+        if (pos >= buffer.length) {
+            length = pos - start;
+        } else {
+            ++pos;
+            length = pos - start;            
+        }
+
+        return new SQLToken(start, length, type);
+    }
+
+    private SQLToken scanSQLiteral() {
+        int start = pos;
+        int length = 0;
+        int type = TOKEN_TYPE_LITERAL;
+
+        // scan to the end of the single quote literal
+        do {
+            ++pos;
+        } while (pos < buffer.length && buffer[pos] != '\'' );
+
+        if (pos >= buffer.length) {
+            length = pos - start;
+        } else {
+            ++pos;
+            length = pos - start;
+        }
+
+        return new SQLToken(start, length, type);
+    }
+
+    private SQLToken scanDQLiteral() {
+        int start = pos;
+        int length = 0;
+        int type = TOKEN_TYPE_LITERAL;
+
+        // scan to the end of the double quote literal
+        do {
+            ++pos;
+        } while (pos < buffer.length && buffer[pos] != '"' );
+
+        if (pos >= buffer.length) {
+            length = pos - start;
+        } else {
+            ++pos;
+            length = pos - start;
+        }
+
+        return new SQLToken(start, length, type);
+    }
+
+    private SQLToken scanDelimiter() {
+        int start = pos;
+        int length = 1;
+        int type = TOKEN_TYPE_DELIMITER;
+        
+        // increment the pos past the delimiter
+        ++pos;
+
+        return new SQLToken(start, length, type);
+    }
+
+    private SQLToken scanSQL() {
+        int start = pos;
+        int length = 0;
+        int type = TOKEN_TYPE_SQL;
+
+        // scan up to the next delimiter
+        while (pos < buffer.length && !isDelimiter(pos) && buffer[pos] != '\'' && buffer[pos] != '"') {
+            if (pos+1 < buffer.length &&
+                ((buffer[pos] == '/' && buffer[pos+1] == '*') ||
+                (buffer[pos] == '-' && buffer[pos+1] == '-'))) {
+                // we break out of the loop because this the start of a comment
+                break;
+            } else {
+                if (buffer[pos] == '?')
+                    ++numberOfParameters;
+                ++pos;
+            }            
+        }
+        length = pos - start;
+
+        return new SQLToken(start, length, type);
+    }
+
+    /* SQLToken inner class stores information about
+       the location of tokens inside of the SQL
+       statement for this JDSQLTokenizer object */
+    private class SQLToken {
+        int start;
+        int length;
+        int type;
+
+        public SQLToken(int start, int length, int type) {
+            this.start = start;
+            this.length = length;
+            this.type = type;
+        }
+
+        public String getToken() {
+            return new String(buffer, start, length);
+        }
+
+        public int getType() {
+            return type;
+        }
+    }
 }
