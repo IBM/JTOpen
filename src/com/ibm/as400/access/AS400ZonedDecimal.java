@@ -39,7 +39,7 @@ public class AS400ZonedDecimal implements AS400DataType
     public AS400ZonedDecimal(int numDigits, int numDecimalPositions)
     {
      // check for valid input
-     if (numDigits < 1 || numDigits > 31)
+     if (numDigits < 1 || numDigits > 63) // @M0C - changed the upper limit here from 31 for JDBC support
      {
          throw new ExtendedIllegalArgumentException("numDigits (" + String.valueOf(numDigits) + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
      }
