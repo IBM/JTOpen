@@ -706,7 +706,7 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
     // Translation Tab
     
     dataSource.setTranslateBinary(m_dataBean.isTranslate65535());
-    dataSource.setTranslateHex(m_dataBean.isTranslateHex());                                //@A4A
+    dataSource.setTranslateHex(   m_dataBean.isTranslateHex() ? "binary"  :  "character");                                               //@A4A
     
     // Format Tab
         
@@ -856,16 +856,16 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
 
 private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
 {
-  String scratchString;
-  boolean scratchBoolean;
-      
-  // General Tab  
+    String scratchString;
+    boolean scratchBoolean;
+          
+    // General Tab  
+        
+    m_dataBean.setDataSourceName(dataSource.getDataSourceName()); 
+    m_dataBean.setDescription(dataSource.getDescription());
+    m_dataBean.setAS400Server(dataSource.getServerName());
     
-  m_dataBean.setDataSourceName(dataSource.getDataSourceName()); 
-  m_dataBean.setDescription(dataSource.getDescription());
-  m_dataBean.setAS400Server(dataSource.getServerName());
-    
-  // Server Tab
+    // Server Tab
   
     scratchString = dataSource.getLibraries().trim();                                   //@A1A
     //System.out.println(">>>>>>>>>>> dataSource.getLibraries() returned:  " + scratchString);
@@ -946,7 +946,7 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
   else                                                                                  //@A4A
     m_dataBean.setMaxScale(new ChoiceDescriptor("0", "0"));                             //@A4A
 
-  int nValue = dataSource.getMinimumDivideScale();                                      //@A4A
+  nValue = dataSource.getMinimumDivideScale();                                          //@A4A
   if (nValue == 0)                                                                      //@A4A
     m_dataBean.setMinDivideScale(new ChoiceDescriptor("0", "0"));                       //@A4A
   else                                                                                  //@A4A
