@@ -92,6 +92,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
 
    private transient Hashtable as400ConnectionPool_;
+	// Hashtable of lists of connections that have been marked invalid by the user
+	// by calling removeFromPool().
+	private transient Hashtable removedAS400ConnectionPool_;  //@A6A
    private transient Log log_;
 
    // Handles loading the appropriate resource bundle
