@@ -26,7 +26,7 @@ import java.io.ObjectInputStream;
 
 /**
 The BufferedResourceList class represents a subclass
-of the <a href="ResourceList.html">ResourceList</a>
+of the {@link com.ibm.as400.resource.ResourceList ResourceList}
 class which manages a list of resources and buffers them efficiently.
 This class is intended to be extended and customized by subclasses.
 
@@ -36,7 +36,7 @@ more resources are retrieved at once.  While the page size does not
 affect functionality of the list, it may influence performance.  For
 instance, setting the page size to match the number of rows presented
 in a GUI or servlet may improve overall response time.  Call
-the <a href="#setPageSize(int)">setPageSize()</a> method to set a specific
+the {@link #setPageSize(int) setPageSize()} method to set a specific
 page size.
 **/
 public class BufferedResourceList

@@ -26,17 +26,18 @@ The RUserList class represents a list of AS/400 users.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
-<li><a href="#SELECTION_CRITERIA">SELECTION_CRITERIA</a>
-<li><a href="#GROUP_PROFILE">GROUP_PROFILE</a>
-<li><a href="#USER_PROFILE">USER_PROFILE</a>
+<li>{@link #SELECTION_CRITERIA SELECTION_CRITERIA}
+<li>{@link #GROUP_PROFILE GROUP_PROFILE}
+<li>{@link #USER_PROFILE USER_PROFILE}
 </ul>
+</a>
 
 <p>Use one or more of these selection IDs with
-<a href="ResourceList.html#getSelectionValue(java.lang.Object)">getSelectionValue()</a>
-and <a href="ResourceList.html#setSelectionValue(java.lang.Object, java.lang.Object)">setSelectionValue()</a>
+{@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
+and {@link com.ibm.as400.resource.ResourceList#setSelectionValue setSelectionValue()}
 to access the selection values for an RUserList.
 
-<p>RUserList objects generate <a href="RUser.html">RUser</a> objects.
+<p>RUserList objects generate {@link com.ibm.as400.resource.RUser RUser} objects.
 
 <blockquote><pre>
 // Create an RUserList object to represent a list of users.
@@ -153,16 +154,16 @@ a group identifier specified.
 Selection ID for selection criteria.  This identifies a String selection,
 which represents which users are returned.  Possible values are:
 <ul>
-<li><a href="#ALL">ALL</a> - All user profiles and group profiles are
+<li>{@link #ALL ALL} - All user profiles and group profiles are
     returned.
-<li><a href="#USER">USER</a> - Only user profiles that are not group
+<li>{@link #USER USER} - Only user profiles that are not group
     profiles are returned.  These are user profiles that do not have
     a group identifier specified.
-<li><a href="#GROUP">GROUP</a> - Only user profiles that are group
+<li>{@link #GROUP GROUP} - Only user profiles that are group
     profiles are returned.  These are user profiles that have
     a group identifier specified.
-<li><a href="#MEMBER">MEMBER</a> - User profiles that are members
-    of the group specified for the <a href="#GROUP_PROFILE">GROUP_PROFILE</a>
+<li>{@link #MEMBER MEMBER} - User profiles that are members
+    of the group specified for the {@link #GROUP_PROFILE GROUP_PROFILE}
     selection value are returned.
 </ul>
 **/
@@ -181,18 +182,18 @@ Selection ID for group profile.  This identifies a String selection,
 which represents the group profile whose members are to be returned.
 Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a> - No group profile is specified.
-<li><a href="#NOGROUP">NOGROUP</a> - Users who are not a member of
+<li>{@link #NONE NONE} - No group profile is specified.
+<li>{@link #NOGROUP NOGROUP} - Users who are not a member of
     any group are returned.
 <li>The group profile name - Users who are a member of this group are
     returned.
 </ul>
 
-<p>This must be set to a group profile name or <a href="#NOGROUP">NOGROUP</a>
-if <a href="#SELECTION_CRITERIA">SELECTION_CRITERIA</a> is set to
-<a href="#MEMBER">MEMBER</a>.  This must be set to <a href="#NONE">NONE</a>
-if <a href="#SELECTION_CRITERIA">SELECTION_CRITERIA</a> is not set to
-<a href="#MEMBER">MEMBER</a>.
+<p>This must be set to a group profile name or {@link #NOGROUP NOGROUP}
+if {@link #SELECTION_CRITERIA SELECTION_CRITERIA} is set to
+{@link #MEMBER MEMBER}.  This must be set to {@link #NONE NONE}
+if {@link #SELECTION_CRITERIA SELECTION_CRITERIA} is not set to
+{@link #MEMBER MEMBER}.
 **/
     public static final String GROUP_PROFILE                      = "GROUP_PROFILE";
 
@@ -212,7 +213,7 @@ users to be included in the list.  The user profile can be specified
 only when connecting to servers running OS/400 V5R1 or later.
 Possible values are:
 <ul>
-<li><a href="#ALL">ALL</a> - All users are specified.
+<li>{@link #ALL ALL} - All users are specified.
 <li>The generic user profile name.  A generic name is
     a String which contains one or more characters followed by
     an '*'.

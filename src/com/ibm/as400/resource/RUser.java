@@ -32,101 +32,102 @@ The RUser class represents an OS/400 user profile and directory entry.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
-<li><a href="#ACCOUNTING_CODE">ACCOUNTING_CODE</a>
-<li><a href="#ALLOW_SYNCHRONIZATION">ALLOW_SYNCHRONIZATION</a>
-<li><a href="#ASSISTANCE_LEVEL">ASSISTANCE_LEVEL</a>
-<li><a href="#ATTENTION_KEY_HANDLING_PROGRAM">ATTENTION_KEY_HANDLING_PROGRAM</a>
-<li><a href="#BUILDING">BUILDING</a>
-<li><a href="#CC_MAIL_ADDRESS">CC_MAIL_ADDRESS</a>
-<li><a href="#CC_MAIL_COMMENT">CC_MAIL_COMMENT</a>
-<li><a href="#CHARACTER_CODE_SET_ID">CHARACTER_CODE_SET_ID</a>
-<li><a href="#CHARACTER_IDENTIFIER_CONTROL">CHARACTER_IDENTIFIER_CONTROL</a>
-<li><a href="#COMPANY">COMPANY</a>
-<li><a href="#COUNTRY_ID">COUNTRY_ID</a>
-<li><a href="#CURRENT_LIBRARY_NAME">CURRENT_LIBRARY_NAME</a>
-<li><a href="#DATE_PASSWORD_EXPIRES">DATE_PASSWORD_EXPIRES</a>
-<li><a href="#DAYS_UNTIL_PASSWORD_EXPIRES">DAYS_UNTIL_PASSWORD_EXPIRES</a>
-<li><a href="#DEPARTMENT">DEPARTMENT</a>
-<li><a href="#DIGITAL_CERTIFICATE_INDICATOR">DIGITAL_CERTIFICATE_INDICATOR</a>
-<li><a href="#DISPLAY_SIGN_ON_INFORMATION">DISPLAY_SIGN_ON_INFORMATION</a>
-<li><a href="#FAX_TELEPHONE_NUMBER">FAX_TELEPHONE_NUMBER</a>
-<li><a href="#FIRST_NAME">FIRST_NAME</a>
-<li><a href="#FULL_NAME">FULL_NAME</a>
-<li><a href="#GROUP_AUTHORITY">GROUP_AUTHORITY</a>
-<li><a href="#GROUP_AUTHORITY_TYPE">GROUP_AUTHORITY_TYPE</a>
-<li><a href="#GROUP_ID_NUMBER">GROUP_ID_NUMBER</a>
-<li><a href="#GROUP_MEMBER_INDICATOR">GROUP_MEMBER_INDICATOR</a>
-<li><a href="#GROUP_PROFILE_NAME">GROUP_PROFILE_NAME</a>
-<li><a href="#HIGHEST_SCHEDULING_PRIORITY">HIGHEST_SCHEDULING_PRIORITY</a>
-<li><a href="#HOME_DIRECTORY">HOME_DIRECTORY</a>
-<li><a href="#INDIRECT_USER">INDIRECT_USER</a>
-<li><a href="#INITIAL_MENU">INITIAL_MENU</a>
-<li><a href="#INITIAL_PROGRAM">INITIAL_PROGRAM</a>
-<li><a href="#JOB_DESCRIPTION">JOB_DESCRIPTION</a>
-<li><a href="#JOB_TITLE">JOB_TITLE</a>
-<li><a href="#KEYBOARD_BUFFERING">KEYBOARD_BUFFERING</a>
-<li><a href="#LANGUAGE_ID">LANGUAGE_ID</a>
-<li><a href="#LAST_NAME">LAST_NAME</a>
-<li><a href="#LIMIT_CAPABILITIES">LIMIT_CAPABILITIES</a>
-<li><a href="#LIMIT_DEVICE_SESSIONS">LIMIT_DEVICE_SESSIONS</a>
-<li><a href="#LOCALE_JOB_ATTRIBUTES">LOCALE_JOB_ATTRIBUTES</a>
-<li><a href="#LOCALE_PATH_NAME">LOCALE_PATH_NAME</a>
-<li><a href="#LOCAL_DATA_INDICATOR">LOCAL_DATA_INDICATOR</a>
-<li><a href="#LOCATION">LOCATION</a>
-<li><a href="#MAILING_ADDRESS_LINE_1">MAILING_ADDRESS_LINE_1</a>
-<li><a href="#MAILING_ADDRESS_LINE_2">MAILING_ADDRESS_LINE_2</a>
-<li><a href="#MAILING_ADDRESS_LINE_3">MAILING_ADDRESS_LINE_3</a>
-<li><a href="#MAILING_ADDRESS_LINE_4">MAILING_ADDRESS_LINE_4</a>
-<li><a href="#MAIL_NOTIFICATION">MAIL_NOTIFICATION</a>
-<li><a href="#MANAGER_CODE">MANAGER_CODE</a>
-<li><a href="#MAXIMUM_ALLOWED_STORAGE">MAXIMUM_ALLOWED_STORAGE</a>
-<li><a href="#MESSAGE_NOTIFICATION">MESSAGE_NOTIFICATION</a>
-<li><a href="#MESSAGE_QUEUE_DELIVERY_METHOD">MESSAGE_QUEUE_DELIVERY_METHOD</a>
-<li><a href="#MESSAGE_QUEUE">MESSAGE_QUEUE</a>
-<li><a href="#MESSAGE_QUEUE_SEVERITY">MESSAGE_QUEUE_SEVERITY</a>
-<li><a href="#MIDDLE_NAME">MIDDLE_NAME</a>
-<li><a href="#NETWORK_USER_ID">NETWORK_USER_ID</a>
-<li><a href="#NO_PASSWORD_INDICATOR">NO_PASSWORD_INDICATOR</a>
-<li><a href="#OBJECT_AUDITING_VALUE">OBJECT_AUDITING_VALUE</a>
-<li><a href="#OFFICE">OFFICE</a>
-<li><a href="#OR_NAME">OR_NAME</a>
-<li><a href="#OUTPUT_QUEUE">OUTPUT_QUEUE</a>
-<li><a href="#OWNER">OWNER</a>
-<li><a href="#PASSWORD_CHANGE_DATE">PASSWORD_CHANGE_DATE</a>
-<li><a href="#PASSWORD_EXPIRATION_INTERVAL">PASSWORD_EXPIRATION_INTERVAL</a>
-<li><a href="#PREFERRED_NAME">PREFERRED_NAME</a>
-<li><a href="#PREVIOUS_SIGN_ON">PREVIOUS_SIGN_ON</a>
-<li><a href="#PRINT_COVER_PAGE">PRINT_COVER_PAGE</a>
-<li><a href="#PRINT_DEVICE">PRINT_DEVICE</a>
-<li><a href="#PRIORITY_MAIL_NOTIFICATION">PRIORITY_MAIL_NOTIFICATION</a>
-<li><a href="#SET_PASSWORD_TO_EXPIRE">SET_PASSWORD_TO_EXPIRE</a>
-<li><a href="#SIGN_ON_ATTEMPTS_NOT_VALID">SIGN_ON_ATTEMPTS_NOT_VALID</a>
-<li><a href="#SMTP_DOMAIN">SMTP_DOMAIN</a>
-<li><a href="#SMTP_ROUTE">SMTP_ROUTE</a>
-<li><a href="#SMTP_USER_ID">SMTP_USER_ID</a>
-<li><a href="#SORT_SEQUENCE_TABLE">SORT_SEQUENCE_TABLE</a>
-<li><a href="#SPECIAL_AUTHORITIES">SPECIAL_AUTHORITIES</a>
-<li><a href="#SPECIAL_ENVIRONMENT">SPECIAL_ENVIRONMENT</a>
-<li><a href="#STATUS">STATUS</a>
-<li><a href="#STORAGE_USED">STORAGE_USED</a>
-<li><a href="#SUPPLEMENTAL_GROUPS">SUPPLEMENTAL_GROUPS</a>
-<li><a href="#TELEPHONE_NUMBER_1">TELEPHONE_NUMBER_1</a>
-<li><a href="#TELEPHONE_NUMBER_2">TELEPHONE_NUMBER_2</a>
-<li><a href="#TEXT">TEXT</a>
-<li><a href="#TEXT_DESCRIPTION">TEXT_DESCRIPTION</a>
-<li><a href="#USER_ACTION_AUDIT_LEVEL">USER_ACTION_AUDIT_LEVEL</a>
-<li><a href="#USER_ADDRESS">USER_ADDRESS</a>
-<li><a href="#USER_CLASS">USER_CLASS</a>
-<li><a href="#USER_DESCRIPTION">USER_DESCRIPTION</a>
-<li><a href="#USER_ID">USER_ID</a>
-<li><a href="#USER_ID_NUMBER">USER_ID_NUMBER</a>
-<li><a href="#USER_OPTIONS">USER_OPTIONS</a>
-<li><a href="#USER_PROFILE_NAME">USER_PROFILE_NAME</a>
+<li>{@link #ACCOUNTING_CODE ACCOUNTING_CODE}
+<li>{@link #ALLOW_SYNCHRONIZATION ALLOW_SYNCHRONIZATION}
+<li>{@link #ASSISTANCE_LEVEL ASSISTANCE_LEVEL}
+<li>{@link #ATTENTION_KEY_HANDLING_PROGRAM ATTENTION_KEY_HANDLING_PROGRAM}
+<li>{@link #BUILDING BUILDING}
+<li>{@link #CC_MAIL_ADDRESS CC_MAIL_ADDRESS}
+<li>{@link #CC_MAIL_COMMENT CC_MAIL_COMMENT}
+<li>{@link #CHARACTER_CODE_SET_ID CHARACTER_CODE_SET_ID}
+<li>{@link #CHARACTER_IDENTIFIER_CONTROL CHARACTER_IDENTIFIER_CONTROL}
+<li>{@link #COMPANY COMPANY}
+<li>{@link #COUNTRY_ID COUNTRY_ID}
+<li>{@link #CURRENT_LIBRARY_NAME CURRENT_LIBRARY_NAME}
+<li>{@link #DATE_PASSWORD_EXPIRES DATE_PASSWORD_EXPIRES}
+<li>{@link #DAYS_UNTIL_PASSWORD_EXPIRES DAYS_UNTIL_PASSWORD_EXPIRES}
+<li>{@link #DEPARTMENT DEPARTMENT}
+<li>{@link #DIGITAL_CERTIFICATE_INDICATOR DIGITAL_CERTIFICATE_INDICATOR}
+<li>{@link #DISPLAY_SIGN_ON_INFORMATION DISPLAY_SIGN_ON_INFORMATION}
+<li>{@link #FAX_TELEPHONE_NUMBER FAX_TELEPHONE_NUMBER}
+<li>{@link #FIRST_NAME FIRST_NAME}
+<li>{@link #FULL_NAME FULL_NAME}
+<li>{@link #GROUP_AUTHORITY GROUP_AUTHORITY}
+<li>{@link #GROUP_AUTHORITY_TYPE GROUP_AUTHORITY_TYPE}
+<li>{@link #GROUP_ID_NUMBER GROUP_ID_NUMBER}
+<li>{@link #GROUP_MEMBER_INDICATOR GROUP_MEMBER_INDICATOR}
+<li>{@link #GROUP_PROFILE_NAME GROUP_PROFILE_NAME}
+<li>{@link #HIGHEST_SCHEDULING_PRIORITY HIGHEST_SCHEDULING_PRIORITY}
+<li>{@link #HOME_DIRECTORY HOME_DIRECTORY}
+<li>{@link #INDIRECT_USER INDIRECT_USER}
+<li>{@link #INITIAL_MENU INITIAL_MENU}
+<li>{@link #INITIAL_PROGRAM INITIAL_PROGRAM}
+<li>{@link #JOB_DESCRIPTION JOB_DESCRIPTION}
+<li>{@link #JOB_TITLE JOB_TITLE}
+<li>{@link #KEYBOARD_BUFFERING KEYBOARD_BUFFERING}
+<li>{@link #LANGUAGE_ID LANGUAGE_ID}
+<li>{@link #LAST_NAME LAST_NAME}
+<li>{@link #LIMIT_CAPABILITIES LIMIT_CAPABILITIES}
+<li>{@link #LIMIT_DEVICE_SESSIONS LIMIT_DEVICE_SESSIONS}
+<li>{@link #LOCALE_JOB_ATTRIBUTES LOCALE_JOB_ATTRIBUTES}
+<li>{@link #LOCALE_PATH_NAME LOCALE_PATH_NAME}
+<li>{@link #LOCAL_DATA_INDICATOR LOCAL_DATA_INDICATOR}
+<li>{@link #LOCATION LOCATION}
+<li>{@link #MAILING_ADDRESS_LINE_1 MAILING_ADDRESS_LINE_1}
+<li>{@link #MAILING_ADDRESS_LINE_2 MAILING_ADDRESS_LINE_2}
+<li>{@link #MAILING_ADDRESS_LINE_3 MAILING_ADDRESS_LINE_3}
+<li>{@link #MAILING_ADDRESS_LINE_4 MAILING_ADDRESS_LINE_4}
+<li>{@link #MAIL_NOTIFICATION MAIL_NOTIFICATION}
+<li>{@link #MANAGER_CODE MANAGER_CODE}
+<li>{@link #MAXIMUM_ALLOWED_STORAGE MAXIMUM_ALLOWED_STORAGE}
+<li>{@link #MESSAGE_NOTIFICATION MESSAGE_NOTIFICATION}
+<li>{@link #MESSAGE_QUEUE_DELIVERY_METHOD MESSAGE_QUEUE_DELIVERY_METHOD}
+<li>{@link #MESSAGE_QUEUE MESSAGE_QUEUE}
+<li>{@link #MESSAGE_QUEUE_SEVERITY MESSAGE_QUEUE_SEVERITY}
+<li>{@link #MIDDLE_NAME MIDDLE_NAME}
+<li>{@link #NETWORK_USER_ID NETWORK_USER_ID}
+<li>{@link #NO_PASSWORD_INDICATOR NO_PASSWORD_INDICATOR}
+<li>{@link #OBJECT_AUDITING_VALUE OBJECT_AUDITING_VALUE}
+<li>{@link #OFFICE OFFICE}
+<li>{@link #OR_NAME OR_NAME}
+<li>{@link #OUTPUT_QUEUE OUTPUT_QUEUE}
+<li>{@link #OWNER OWNER}
+<li>{@link #PASSWORD_CHANGE_DATE PASSWORD_CHANGE_DATE}
+<li>{@link #PASSWORD_EXPIRATION_INTERVAL PASSWORD_EXPIRATION_INTERVAL}
+<li>{@link #PREFERRED_NAME PREFERRED_NAME}
+<li>{@link #PREVIOUS_SIGN_ON PREVIOUS_SIGN_ON}
+<li>{@link #PRINT_COVER_PAGE PRINT_COVER_PAGE}
+<li>{@link #PRINT_DEVICE PRINT_DEVICE}
+<li>{@link #PRIORITY_MAIL_NOTIFICATION PRIORITY_MAIL_NOTIFICATION}
+<li>{@link #SET_PASSWORD_TO_EXPIRE SET_PASSWORD_TO_EXPIRE}
+<li>{@link #SIGN_ON_ATTEMPTS_NOT_VALID SIGN_ON_ATTEMPTS_NOT_VALID}
+<li>{@link #SMTP_DOMAIN SMTP_DOMAIN}
+<li>{@link #SMTP_ROUTE SMTP_ROUTE}
+<li>{@link #SMTP_USER_ID SMTP_USER_ID}
+<li>{@link #SORT_SEQUENCE_TABLE SORT_SEQUENCE_TABLE}
+<li>{@link #SPECIAL_AUTHORITIES SPECIAL_AUTHORITIES}
+<li>{@link #SPECIAL_ENVIRONMENT SPECIAL_ENVIRONMENT}
+<li>{@link #STATUS STATUS}
+<li>{@link #STORAGE_USED STORAGE_USED}
+<li>{@link #SUPPLEMENTAL_GROUPS SUPPLEMENTAL_GROUPS}
+<li>{@link #TELEPHONE_NUMBER_1 TELEPHONE_NUMBER_1}
+<li>{@link #TELEPHONE_NUMBER_2 TELEPHONE_NUMBER_2}
+<li>{@link #TEXT TEXT}
+<li>{@link #TEXT_DESCRIPTION TEXT_DESCRIPTION}
+<li>{@link #USER_ACTION_AUDIT_LEVEL USER_ACTION_AUDIT_LEVEL}
+<li>{@link #USER_ADDRESS USER_ADDRESS}
+<li>{@link #USER_CLASS USER_CLASS}
+<li>{@link #USER_DESCRIPTION USER_DESCRIPTION}
+<li>{@link #USER_ID USER_ID}
+<li>{@link #USER_ID_NUMBER USER_ID_NUMBER}
+<li>{@link #USER_OPTIONS USER_OPTIONS}
+<li>{@link #USER_PROFILE_NAME USER_PROFILE_NAME}
 </ul>
+</a>
 
 <p>Use any of these attribute IDs with
-<a href="ChangeableResource.html#getAttributeValue(java.lang.Object)">getAttributeValue()</a>
-and <a href="ChangeableResource.html#setAttributeValue(java.lang.Object, java.lang.Object)">setAttributeValue()</a>
+{@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}
+and {@link com.ibm.as400.resource.ChangeableResource#setAttributeValue setAttributeValue()}
 to access the attribute values for an RUser.
 
 <blockquote><pre>
@@ -271,13 +272,13 @@ Attribute ID for assistance level.  This identifies a String
 attribute, which represents the user interface that the user will use.
 Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QASTLVL determines which user interface the user is using.
-<li><a href="#ASSISTANCE_LEVEL_BASIC">ASSISTANCE_LEVEL_BASIC</a>
+<li>{@link #ASSISTANCE_LEVEL_BASIC ASSISTANCE_LEVEL_BASIC}
     - The Operational Assistant user interface.
-<li><a href="#ASSISTANCE_LEVEL_INTERMEDIATE">ASSISTANCE_LEVEL_INTERMEDIATE</a>
+<li>{@link #ASSISTANCE_LEVEL_INTERMEDIATE ASSISTANCE_LEVEL_INTERMEDIATE}
     - The system user interface.
-<li><a href="#ASSISTANCE_LEVEL_ADVANCED">ASSISTANCE_LEVEL_ADVANCED</a>
+<li>{@link #ASSISTANCE_LEVEL_ADVANCED ASSISTANCE_LEVEL_ADVANCED}
     - The expert system user interface.
 </ul>
 **/
@@ -322,11 +323,11 @@ String attribute, which represents the fully qualified integrated file system
 path name of the attention key handling program for
 this user.  Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QATNPGM determines the user's attention key handling program.
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - No attention key handling program is used.
-<li><a href="#ATTENTION_KEY_HANDLING_PROGRAM_ASSIST">ATTENTION_KEY_HANDLING_PROGRAM_ASSIST</a>
+<li>{@link #ATTENTION_KEY_HANDLING_PROGRAM_ASSIST ATTENTION_KEY_HANDLING_PROGRAM_ASSIST}
     - The Operational Assistant attention key handling program.
 <li>The attention key handling program name.
 </ul>
@@ -428,13 +429,13 @@ Attribute ID for character identifier control.  This identifies a String
 attribute, which represents the character identifier control for the user.  Possible
 values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QCHRIDCTL will be used to determine the character
     identifier control for this user.
-<li><a href="#CHARACTER_IDENTIFIER_CONTROL_DEVICE_DESCRIPTION">CHARACTER_IDENTIFIER_CONTROL_DEVICE_DESCRIPTION</a>
+<li>{@link #CHARACTER_IDENTIFIER_CONTROL_DEVICE_DESCRIPTION CHARACTER_IDENTIFIER_CONTROL_DEVICE_DESCRIPTION}
     - Performs the same function as on the CHRID command parameter for display
     files, printer files, and panel groups.
-<li><a href="#CHARACTER_IDENTIFIER_CONTROL_JOB_CCSID">CHARACTER_IDENTIFIER_CONTROL_JOB_CCSID</a>
+<li>{@link #CHARACTER_IDENTIFIER_CONTROL_JOB_CCSID CHARACTER_IDENTIFIER_CONTROL_JOB_CCSID}
     - Performs the same function as on the CHRID command parameter for display
     files, printer files, and panel groups.
 </ul>
@@ -488,7 +489,7 @@ Attribute ID for country ID.  This identifies a String
 attribute, which represents the country ID used by the system for this user.
 Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QCNTRYID will be used to determine the country ID.
 <li>The country ID.
 </ul>
@@ -509,7 +510,7 @@ Attribute ID for current library.  This identifies a String
 attribute, which represents the name of the user's current library.
 Possible values are:
 <ul>
-<li><a href="#CURRENT_LIBRARY_NAME_DEFAULT">CURRENT_LIBRARY_NAME_DEFAULT</a>
+<li>{@link #CURRENT_LIBRARY_NAME_DEFAULT CURRENT_LIBRARY_NAME_DEFAULT}
     - The user does not have a current library.
 <li>The library name.
 </ul>
@@ -536,7 +537,7 @@ Possible values are:
 Attribute ID for date password expires.  This identifies a read-only Date
 attribute, which represents the date the user's password expires.  If the
 password is not set to expire, or is already expired, then this will
-be <a href="#NO_DATE">NO_DATE</a>.
+be {@link #NO_DATE NO_DATE}.
 **/
     public static final String DATE_PASSWORD_EXPIRES                 = "DATE_PASSWORD_EXPIRES";
 
@@ -601,12 +602,12 @@ Attribute ID for display sign-on information.  This identifies a String
 attribute, which represents whether the sign-on information display is shown when
 the user signs on.  Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QDSPSGNINF determines if the sign-on information display
     is shown when the user signs on.
-<li><a href="#YES">YES</a>
+<li>{@link #YES YES}
     - The sign-on information display is shown when the user signs on.
-<li><a href="#NO">NO</a>
+<li>{@link #NO NO}
     - The sign-on information display is not shown when the user signs on.
 </ul>
 **/
@@ -666,19 +667,19 @@ attribute, which represents the full name in the user's directory entry.
 Attribute ID for group authority.  This identifies a String
 attribute, which represents the authority the user's group profile
 has to objects the user creates.  This can only be set to
-<a href="#NONE">NONE</a> if the user does not belong to a group.
+{@link #NONE NONE} if the user does not belong to a group.
 Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - The group profile has no authority to the objects the user creates,
     or the user does not have a group profile.
-<li><a href="#GROUP_AUTHORITY_ALL">GROUP_AUTHORITY_ALL</a>
+<li>{@link #GROUP_AUTHORITY_ALL GROUP_AUTHORITY_ALL}
     - The group profile has all authority to the objects the user creates.
-<li><a href="#GROUP_AUTHORITY_CHANGE">GROUP_AUTHORITY_CHANGE</a>
+<li>{@link #GROUP_AUTHORITY_CHANGE GROUP_AUTHORITY_CHANGE}
     - The group profile has change authority to the objects the user creates.
-<li><a href="#GROUP_AUTHORITY_USE">GROUP_AUTHORITY_USE</a>
+<li>{@link #GROUP_AUTHORITY_USE GROUP_AUTHORITY_USE}
     - The group profile has use authority to the objects the user creates.
-<li><a href="#GROUP_AUTHORITY_EXCLUDE">GROUP_AUTHORITY_EXCLUDE</a>
+<li>{@link #GROUP_AUTHORITY_EXCLUDE GROUP_AUTHORITY_EXCLUDE}
     - The group profile has exclude authority to the objects the user creates.
 </ul>
 **/
@@ -731,10 +732,10 @@ Attribute ID for group authority type.  This identifies a String
 attribute, which represents the type of authority the user's group has to
 objects the user creates.  Possible values are:
 <ul>
-<li><a href="#GROUP_AUTHORITY_TYPE_PRIVATE">GROUP_AUTHORITY_TYPE_PRIVATE</a>
+<li>{@link #GROUP_AUTHORITY_TYPE_PRIVATE GROUP_AUTHORITY_TYPE_PRIVATE}
     - The group profile has a private authority to the objects the user creates,
     or the user does not have a group profile.
-<li><a href="#GROUP_AUTHORITY_TYPE_PGP">GROUP_AUTHORITY_TYPE_PGP</a>
+<li>{@link #GROUP_AUTHORITY_TYPE_PGP GROUP_AUTHORITY_TYPE_PGP}
     - The group profile will be the primary group for objects the user creates.
 </ul>
 **/
@@ -829,7 +830,7 @@ Attribute ID for group profile name.  This identifies a String attribute,
 which represents the name of the group profile.
 Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - If the user does not have a group profile.
 <li>The group profile name.
 </ul>
@@ -898,7 +899,7 @@ Attribute ID for initial menu.  This identifies a String attribute,
 which represents the fully qualified integrated file system path name
 of the initial menu for the user.  Possible values are:
 <ul>
-<li><a href="#INITIAL_MENU_SIGNOFF">INITIAL_MENU_SIGNOFF</a>
+<li>{@link #INITIAL_MENU_SIGNOFF INITIAL_MENU_SIGNOFF}
 <li>The initial menu name.
 </ul>
 
@@ -929,7 +930,7 @@ Attribute ID for initial program.  This identifies a String attribute,
 which represents the fully qualified integrated file system path name of
 the initial program for the user.  Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
 <li>The initial program name.
 </ul>
 
@@ -987,14 +988,14 @@ Attribute ID for keyboard buffering.  This identifies a String
 attribute, which represents the keyboard buffering value that is
 used when a job is initialized for this user.  Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QKBDBUF determines the keybpard buffering value for
     this user.
-<li><a href="#YES">YES</a>
+<li>{@link #YES YES}
     - The type-ahead and attention-key buffering options are both on.
-<li><a href="#NO">NO</a>
+<li>{@link #NO NO}
     - The type-ahead and attention-key buffering options are not on.
-<li><a href="#KEYBOARD_BUFFERING_TYPE_AHEAD">KEYBOARD_BUFFERING_TYPE_AHEAD</a>
+<li>{@link #KEYBOARD_BUFFERING_TYPE_AHEAD KEYBOARD_BUFFERING_TYPE_AHEAD}
     - The type-ahead option is on, but the attention-key buffering options is not.
 </ul>
 **/
@@ -1021,7 +1022,7 @@ Attribute ID for language ID.  This identifies a String
 attribute, which represents the language ID used by the system for this user.
 Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QLANGID will be used to determine the language ID.
 <li>The language ID.
 </ul>
@@ -1056,13 +1057,13 @@ Attribute ID for limit capabilities.  This identifies a String
 attribute, which indicates whether the user has limited capabilites.
 Possible values are:
 <ul>
-<li><a href="#LIMIT_CAPABILITIES_PARTIAL">LIMIT_CAPABILITIES_PARTIAL</a>
+<li>{@link #LIMIT_CAPABILITIES_PARTIAL LIMIT_CAPABILITIES_PARTIAL}
     - The user cannot change the initial program or current library.
-<li><a href="#YES">YES</a>
+<li>{@link #YES YES}
     - The user cannot change the initial menu, initial program,
     or current library.  The user cannot run commands from the
     command line.
-<li><a href="#NO">NO</a>
+<li>{@link #NO NO}
     - The user is not limited.
 </ul>
 **/
@@ -1090,12 +1091,12 @@ Attribute ID for limit device sessions.  This identifies a String
 attribute, which indicates whether the user is limited to one device
 session.  Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QLMTDEVSSN determines if the user is limited to one
     device session.
-<li><a href="#YES">YES</a>
+<li>{@link #YES YES}
     - The user is limited to one session.
-<li><a href="#NO">NO</a>
+<li>{@link #NO NO}
     - The user is not limited to one device session.
 </ul>
 **/
@@ -1116,30 +1117,30 @@ attribute, which represents a list of attributes which are set from the locale p
 name at the time a job is started for this user.  Possible values for the elements
 of this array are:
 <ul>
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - No job attributes are used from the locale path name at the time a job is
     started for this user profile.  If this is specified, then no other values
     can be specified.
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The job attributes assigned from the locale path name are determined by
     the system value QSETJOBATR at the time a job is started for this user profile.
     If this is specified, then no other values can be specified.
-<li><a href="#LOCALE_JOB_ATTRIBUTES_CCSID">LOCALE_JOB_ATTRIBUTES_CCSID</a>
+<li>{@link #LOCALE_JOB_ATTRIBUTES_CCSID LOCALE_JOB_ATTRIBUTES_CCSID}
     - The coded character set identifier is set from the locale path name
     at the time a job is started for this user profile.
-<li><a href="#LOCALE_JOB_ATTRIBUTES_DATE_FORMAT">LOCALE_JOB_ATTRIBUTES_DATE_FORMAT</a>
+<li>{@link #LOCALE_JOB_ATTRIBUTES_DATE_FORMAT LOCALE_JOB_ATTRIBUTES_DATE_FORMAT}
     - The date format is set from the locale path name
     at the time a job is started for this user profile.
-<li><a href="#LOCALE_JOB_ATTRIBUTES_DATE_SEPARATOR">LOCALE_JOB_ATTRIBUTES_DATE_SEPARATOR</a>
+<li>{@link #LOCALE_JOB_ATTRIBUTES_DATE_SEPARATOR LOCALE_JOB_ATTRIBUTES_DATE_SEPARATOR}
     - The date separator is set from the locale path name
     at the time a job is started for this user profile.
-<li><a href="#LOCALE_JOB_ATTRIBUTES_SORT_SEQUENCE">LOCALE_JOB_ATTRIBUTES_SORT_SEQUENCE</a>
+<li>{@link #LOCALE_JOB_ATTRIBUTES_SORT_SEQUENCE LOCALE_JOB_ATTRIBUTES_SORT_SEQUENCE}
     - The sort sequence is set from the locale path name
     at the time a job is started for this user profile.
-<li><a href="#LOCALE_JOB_ATTRIBUTES_TIME_SEPARATOR">LOCALE_JOB_ATTRIBUTES_TIME_SEPARATOR</a>
+<li>{@link #LOCALE_JOB_ATTRIBUTES_TIME_SEPARATOR LOCALE_JOB_ATTRIBUTES_TIME_SEPARATOR}
     - The time separator is set from the locale path name
     at the time a job is started for this user profile.
-<li><a href="#LOCALE_JOB_ATTRIBUTES_DECIMAL_FORMAT">LOCALE_JOB_ATTRIBUTES_DECIMAL_FORMAT</a>
+<li>{@link #LOCALE_JOB_ATTRIBUTES_DECIMAL_FORMAT LOCALE_JOB_ATTRIBUTES_DECIMAL_FORMAT}
     - The decimal format is set from the locale path name
     at the time a job is started for this user profile.
 </ul>
@@ -1218,13 +1219,13 @@ attribute, which represents the locale path name that is assigned to the
 user profile when a job is started.
 Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The QLOCALE system value is used to determine the locale path name.
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - No locale path name is assigned.
-<li><a href="#LOCALE_PATH_NAME_C">LOCALE_PATH_NAME_C</a>
+<li>{@link #LOCALE_PATH_NAME_C LOCALE_PATH_NAME_C}
     - The C locale path name is assigned.
-<li><a href="#LOCALE_PATH_NAME_POSIX">LOCALE_PATH_NAME_POSIX</a>
+<li>{@link #LOCALE_PATH_NAME_POSIX LOCALE_PATH_NAME_POSIX}
     - The POSIX locale path name is assigned.
 </ul>
 **/
@@ -1257,10 +1258,10 @@ Possible values are:
 Attribute ID for local data indicator.  This identifies a read-only String
 attribute, which indicates where this user was created.  Possible values are:
 <ul>
-<li><a href="#LOCAL_DATA_INDICATOR_LOCAL">LOCAL_DATA_INDICATOR_LOCAL</a>
+<li>{@link #LOCAL_DATA_INDICATOR_LOCAL LOCAL_DATA_INDICATOR_LOCAL}
     - If the user was created on this system or a remote user
     was created on this system.
-<li><a href="#LOCAL_DATA_INDICATOR_SHADOWED">LOCAL_DATA_INDICATOR_SHADOWED</a>
+<li>{@link #LOCAL_DATA_INDICATOR_SHADOWED LOCAL_DATA_INDICATOR_SHADOWED}
     - If the user was shadowed from another system.
 </ul>
 **/
@@ -1365,14 +1366,14 @@ attribute, which indicates whether the user is notified of the
 arrival of mail. This is part of the user's directory entry.
 Possible values are:
 <ul>
-<li><a href="#MAIL_NOTIFICATION_SPECIFIC">MAIL_NOTIFICATION_SPECIFIC</a>
+<li>{@link #MAIL_NOTIFICATION_SPECIFIC MAIL_NOTIFICATION_SPECIFIC}
     - The user is notified of the arrival of specific types of mail.
-    Use the <a href="#PRIORITY_MAIL_NOTIFICATION">PRIORITY_MAIL_NOTIFICATION</a>
-    and <a href="#MESSAGE_NOTIFICATION">MESSAGE_NOTIFICATION</a> attributes
+    Use the {@link #PRIORITY_MAIL_NOTIFICATION PRIORITY_MAIL_NOTIFICATION}
+    and {@link #MESSAGE_NOTIFICATION MESSAGE_NOTIFICATION} attributes
     for specific information.
-<li><a href="#MAIL_NOTIFICATION_ALL">MAIL_NOTIFICATION_ALL</a>
+<li>{@link #MAIL_NOTIFICATION_ALL MAIL_NOTIFICATION_ALL}
     - The user is notified of the arrival of all types of mail.
-<li><a href="#MAIL_NOTIFICATION_NONE">MAIL_NOTIFICATION_NONE</a>
+<li>{@link #MAIL_NOTIFICATION_NONE MAIL_NOTIFICATION_NONE}
     - The user is not notified of the arrival of mail.
 </ul>
 **/
@@ -1501,15 +1502,15 @@ Attribute ID for message queue delivery method.  This identifies a String
 attribute, which represents how the messages are delivered to the message queue
 used by the user.  Possible values are:
 <ul>
-<li><a href="#MESSAGE_QUEUE_DELIVERY_METHOD_BREAK">MESSAGE_QUEUE_DELIVERY_METHOD_BREAK</a>
+<li>{@link #MESSAGE_QUEUE_DELIVERY_METHOD_BREAK MESSAGE_QUEUE_DELIVERY_METHOD_BREAK}
     - The job to which the message queue is assigned is interrupted when a message
     arrives on the message queue.
-<li><a href="#MESSAGE_QUEUE_DELIVERY_METHOD_DEFAULT">MESSAGE_QUEUE_DELIVERY_METHOD_DEFAULT</a>
+<li>{@link #MESSAGE_QUEUE_DELIVERY_METHOD_DEFAULT MESSAGE_QUEUE_DELIVERY_METHOD_DEFAULT}
     - Messages requiring replies are answered with their default reply.
-<li><a href="#MESSAGE_QUEUE_DELIVERY_METHOD_HOLD">MESSAGE_QUEUE_DELIVERY_METHOD_HOLD</a>
+<li>{@link #MESSAGE_QUEUE_DELIVERY_METHOD_HOLD MESSAGE_QUEUE_DELIVERY_METHOD_HOLD}
     - The messages are held in the message queue until they are requested by the
     user or program.
-<li><a href="#MESSAGE_QUEUE_DELIVERY_METHOD_NOTIFY">MESSAGE_QUEUE_DELIVERY_METHOD_NOTIFY</a>
+<li>{@link #MESSAGE_QUEUE_DELIVERY_METHOD_NOTIFY MESSAGE_QUEUE_DELIVERY_METHOD_NOTIFY}
     - The job to which the message queue is assigned is notified when a message arrives
     on the message queue.
 </ul>
@@ -1639,12 +1640,12 @@ attribute, which indicates whether there is no password.
 Attribute ID for object auditing value.  This identifies a String
 attribute, which represents the user's object auditing value.  Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - No additional object auditing is done for the user.
-<li><a href="#OBJECT_AUDITING_VALUE_CHANGE">OBJECT_AUDITING_VALUE_CHANGE</a>
+<li>{@link #OBJECT_AUDITING_VALUE_CHANGE OBJECT_AUDITING_VALUE_CHANGE}
     - Object changes are audited for the user if the object's auditing
     value is *USRPRF.
-<li><a href="#OBJECT_AUDITING_VALUE_ALL">OBJECT_AUDITING_VALUE_ALL</a>
+<li>{@link #OBJECT_AUDITING_VALUE_ALL OBJECT_AUDITING_VALUE_ALL}
     - Object read and change operations are audited for the user
     if the object's auditing value is *USRPRF.
 </ul>
@@ -1711,9 +1712,9 @@ Attribute ID for output queue.  This identifies a String attribute,
 which represents the fully qualified integrated file system path name
 of the output queue that is used by this user. Possible values are:
 <ul>
-<li><a href="#OUTPUT_QUEUE_WORK_STATION">OUTPUT_QUEUE_WORK_STATION</a>
+<li>{@link #OUTPUT_QUEUE_WORK_STATION OUTPUT_QUEUE_WORK_STATION}
     - The output queue assigned to the user's work station is used.
-<li><a href="#OUTPUT_QUEUE_DEVICE">OUTPUT_QUEUE_DEVICE</a>
+<li>{@link #OUTPUT_QUEUE_DEVICE OUTPUT_QUEUE_DEVICE}
     - An output queue with the same name as the device specified
     in the printer device parameter is used.
 <li>The output queue name.
@@ -1753,10 +1754,10 @@ of the output queue that is used by this user. Possible values are:
 Attribute ID for owner.  This identifies a String attribute,
 which indicates who is to own objects created by this user. Possible values are:
 <ul>
-<li><a href="#OWNER_USER_PROFILE">OWNER_USER_PROFILE</a>
+<li>{@link #OWNER_USER_PROFILE OWNER_USER_PROFILE}
     - The user owns any objects the user creates.  If the user does not
     have a group profile, the field contains this value.
-<li><a href="#OWNER_GROUP_PROFILE">OWNER_GROUP_PROFILE</a>
+<li>{@link #OWNER_GROUP_PROFILE OWNER_GROUP_PROFILE}
     - The user's group profile owns any objects the user creates.
 </ul>
 **/
@@ -1860,7 +1861,7 @@ attribute, which represents the preferred name in the user's directory entry.
 /**
 Attribute ID for previous sign-on.  This identifies a read-only Date attribute,
 which represents the date and time the user last signed on.  If the
-user has never signed on, then this will be <a href="#NO_DATE">NO_DATE</a>.
+user has never signed on, then this will be {@link #NO_DATE NO_DATE}.
 The Date value is converted using the default Java locale.
 **/
     public static final String PREVIOUS_SIGN_ON = "PREVIOUS_SIGN_ON";
@@ -1893,9 +1894,9 @@ in the user's directory entry.
 Attribute ID for print device.  This identifies a String attribute,
 which represents the printer used to print for this user. Possible values are:
 <ul>
-<li><a href="#PRINT_DEVICE_WORK_STATION">PRINT_DEVICE_WORK_STATION</a>
+<li>{@link #PRINT_DEVICE_WORK_STATION PRINT_DEVICE_WORK_STATION}
     - The printer assigned to the user's work station is used.
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The default system printer specified in the system value QPRTDEV
     is used.
 <li>The print device.
@@ -2015,14 +2016,14 @@ which represents the fully qualified integrated file system path name of
 the sort sequence table used for string comparisons.
 Possible values are:
 <ul>
-<li><a href="#SORT_SEQUENCE_TABLE_HEX">SORT_SEQUENCE_TABLE_HEX</a>
+<li>{@link #SORT_SEQUENCE_TABLE_HEX SORT_SEQUENCE_TABLE_HEX}
     - The hexadecimal values of the characters are used to determine the
     sort sequence.
-<li><a href="#SORT_SEQUENCE_TABLE_UNIQUE">SORT_SEQUENCE_TABLE_UNIQUE</a>
+<li>{@link #SORT_SEQUENCE_TABLE_UNIQUE SORT_SEQUENCE_TABLE_UNIQUE}
     - A unique-weight sort table associated with the language specified.
-<li><a href="#SORT_SEQUENCE_TABLE_SHARED">SORT_SEQUENCE_TABLE_SHARED</a>
+<li>{@link #SORT_SEQUENCE_TABLE_SHARED SORT_SEQUENCE_TABLE_SHARED}
     - A shared-weight sort table associated with the language specified.
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QSRTSEQ.
 <li>The sort sequence table name.
 </ul>
@@ -2072,21 +2073,21 @@ Attribute ID for special authorities.  This identifies a String array
 attribute, which represents a list of special authorities that the user has.
 Possible values for the elements of this array are:
 <ul>
-<li><a href="#SPECIAL_AUTHORITIES_ALL_OBJECT">SPECIAL_AUTHORITIES_ALL_OBJECT</a>
+<li>{@link #SPECIAL_AUTHORITIES_ALL_OBJECT SPECIAL_AUTHORITIES_ALL_OBJECT}
     - All object.
-<li><a href="#SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR">SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR</a>
+<li>{@link #SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR}
     - Security administrator.
-<li><a href="#SPECIAL_AUTHORITIES_JOB_CONTROL">SPECIAL_AUTHORITIES_JOB_CONTROL</a>
+<li>{@link #SPECIAL_AUTHORITIES_JOB_CONTROL SPECIAL_AUTHORITIES_JOB_CONTROL}
     - Job control.
-<li><a href="#SPECIAL_AUTHORITIES_SPOOL_CONTROL">SPECIAL_AUTHORITIES_SPOOL_CONTROL</a>
+<li>{@link #SPECIAL_AUTHORITIES_SPOOL_CONTROL SPECIAL_AUTHORITIES_SPOOL_CONTROL}
     - Spool control.
-<li><a href="#SPECIAL_AUTHORITIES_SAVE_SYSTEM">SPECIAL_AUTHORITIES_SAVE_SYSTEM</a>
+<li>{@link #SPECIAL_AUTHORITIES_SAVE_SYSTEM SPECIAL_AUTHORITIES_SAVE_SYSTEM}
     - Save system.
-<li><a href="#SPECIAL_AUTHORITIES_SERVICE">SPECIAL_AUTHORITIES_SERVICE</a>
+<li>{@link #SPECIAL_AUTHORITIES_SERVICE SPECIAL_AUTHORITIES_SERVICE}
     - Service.
-<li><a href="#SPECIAL_AUTHORITIES_AUDIT">SPECIAL_AUTHORITIES_AUDIT</a>
+<li>{@link #SPECIAL_AUTHORITIES_AUDIT SPECIAL_AUTHORITIES_AUDIT}
     - Audit.
-<li><a href="#SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION">SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION</a>
+<li>{@link #SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION}
     - Input/output system configuration.
 </ul>
 **/
@@ -2172,12 +2173,12 @@ Attribute ID for special environment.  This identifies a String attribute,
 which represents the special environment the user operates in after signing on.
 Possible values are:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a>
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE}
     - The system value QSPCENV is used to determine the user's special
     environment.
-<li><a href="#NONE">NONE</a>
+<li>{@link #NONE NONE}
     - The user operates in the OS/400 environment.
-<li><a href="#SPECIAL_ENVIRONMENT_SYSTEM_36">SPECIAL_ENVIRONMENT_SYSTEM_36</a>
+<li>{@link #SPECIAL_ENVIRONMENT_SYSTEM_36 SPECIAL_ENVIRONMENT_SYSTEM_36}
     - The user operates in the System/36 environment.
 </ul>
 **/
@@ -2206,9 +2207,9 @@ Attribute ID for status.  This identifies a String attribute,
 which represents the status of the user profile.
 Possible values are:
 <ul>
-<li><a href="#STATUS_ENABLED">STATUS_ENABLED</a>
+<li>{@link #STATUS_ENABLED STATUS_ENABLED}
     - The user profile is enabled.
-<li><a href="#STATUS_NOT_ENABLED">STATUS_NOT_ENABLED</a>
+<li>{@link #STATUS_NOT_ENABLED STATUS_NOT_ENABLED}
     - The user profile is not enabled.
 </ul>
 **/
@@ -2336,31 +2337,31 @@ Attribute ID for user action audit level.  This identifies a String array
 attribute, which represents a list of action audit levels for the user.
 Possible values for the elements of this array are:
 <ul>
-<li><a href="#USER_ACTION_AUDIT_LEVEL_COMMAND">USER_ACTION_AUDIT_LEVEL_COMMAND</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_COMMAND USER_ACTION_AUDIT_LEVEL_COMMAND}
     - The user has the *CMD audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_CREATE">USER_ACTION_AUDIT_LEVEL_CREATE</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_CREATE USER_ACTION_AUDIT_LEVEL_CREATE}
     - The user has the *CREATE audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_DELETE">USER_ACTION_AUDIT_LEVEL_DELETE</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_DELETE USER_ACTION_AUDIT_LEVEL_DELETE}
     - The user has the *DELETE audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_JOB_DATA">USER_ACTION_AUDIT_LEVEL_JOB_DATA</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_JOB_DATA USER_ACTION_AUDIT_LEVEL_JOB_DATA}
     - The user has the *JOBDTA audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_OBJECT_MANAGEMENT">USER_ACTION_AUDIT_LEVEL_OBJECT_MANAGEMENT</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_OBJECT_MANAGEMENT USER_ACTION_AUDIT_LEVEL_OBJECT_MANAGEMENT}
     - The user has the *OBJMGT audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_OFFICE_SERVICES">USER_ACTION_AUDIT_LEVEL_OFFICE_SERVICES</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_OFFICE_SERVICES USER_ACTION_AUDIT_LEVEL_OFFICE_SERVICES}
     - The user has the *OFCSRV audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_OPTICAL">USER_ACTION_AUDIT_LEVEL_OPTICAL</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_OPTICAL USER_ACTION_AUDIT_LEVEL_OPTICAL}
     - The user has the *OPTICAL audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_PROGRAM_ADOPTION">USER_ACTION_AUDIT_LEVEL_PROGRAM_ADOPTION</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_PROGRAM_ADOPTION USER_ACTION_AUDIT_LEVEL_PROGRAM_ADOPTION}
     - The user has the *PGMADP audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_SAVE_RESTORE">USER_ACTION_AUDIT_LEVEL_SAVE_RESTORE</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_SAVE_RESTORE USER_ACTION_AUDIT_LEVEL_SAVE_RESTORE}
     - The user has the *SAVRST audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_SECURITY">USER_ACTION_AUDIT_LEVEL_SECURITY</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_SECURITY USER_ACTION_AUDIT_LEVEL_SECURITY}
     - The user has the *SECURITY audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_SERVICE">USER_ACTION_AUDIT_LEVEL_SERVICE</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_SERVICE USER_ACTION_AUDIT_LEVEL_SERVICE}
     - The user has the *SERVICE audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_SPOOLED_FILE_DATA">USER_ACTION_AUDIT_LEVEL_SPOOLED_FILE_DATA</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_SPOOLED_FILE_DATA USER_ACTION_AUDIT_LEVEL_SPOOLED_FILE_DATA}
     - The user has the *SPLFDTA audit value specified in the user profile.
-<li><a href="#USER_ACTION_AUDIT_LEVEL_SYSTEM_MANAGEMENT">USER_ACTION_AUDIT_LEVEL_SYSTEM_MANAGEMENT</a>
+<li>{@link #USER_ACTION_AUDIT_LEVEL_SYSTEM_MANAGEMENT USER_ACTION_AUDIT_LEVEL_SYSTEM_MANAGEMENT}
     - The user has the *SYSMGT audit value specified in the user profile.
 </ul>
 **/
@@ -2502,15 +2503,15 @@ in the user's directory entry.
 Attribute ID for user class name.  This identifies a String attribute,
 which represents the user class name.   Possible values are:
 <ul>
-<li><a href="#USER_CLASS_SECURITY_OFFICER">USER_CLASS_SECURITY_OFFICER</a>
+<li>{@link #USER_CLASS_SECURITY_OFFICER USER_CLASS_SECURITY_OFFICER}
     - The user has a class of security officer.
-<li><a href="#USER_CLASS_SECURITY_ADMINISTRATOR">USER_CLASS_SECURITY_ADMINISTRATOR</a>
+<li>{@link #USER_CLASS_SECURITY_ADMINISTRATOR USER_CLASS_SECURITY_ADMINISTRATOR}
     - The user has a class of security administrator.
-<li><a href="#USER_CLASS_PROGRAMMER">USER_CLASS_PROGRAMMER</a>
+<li>{@link #USER_CLASS_PROGRAMMER USER_CLASS_PROGRAMMER}
     - The user has a class of programmer.
-<li><a href="#USER_CLASS_SYSTEM_OPERATOR">USER_CLASS_SYSTEM_OPERATOR</a>
+<li>{@link #USER_CLASS_SYSTEM_OPERATOR USER_CLASS_SYSTEM_OPERATOR}
     - The user has a class of system operator.
-<li><a href="#USER_CLASS_USER">USER_CLASS_USER</a>
+<li>{@link #USER_CLASS_USER USER_CLASS_USER}
     - The user has a class of end user.
 </ul>
 **/
@@ -2617,20 +2618,20 @@ Attribute ID for user options.  This identifies a String array
 attribute, which represents a list of options for users to customize their
 environment.  Possible values for the elements of this array are:
 <ul>
-<li><a href="#USER_OPTIONS_KEYWORDS">USER_OPTIONS_KEYWORDS</a>
+<li>{@link #USER_OPTIONS_KEYWORDS USER_OPTIONS_KEYWORDS}
     - Keywords are shown when a CL command is displayed.
-<li><a href="#USER_OPTIONS_EXPERT">USER_OPTIONS_EXPERT</a>
+<li>{@link #USER_OPTIONS_EXPERT USER_OPTIONS_EXPERT}
     - More detailed information is shown when the user is defining or changing
     the system using edit or display object authority.
-<li><a href="#USER_OPTIONS_FULL_SCREEN_HELP">USER_OPTIONS_FULL_SCREEN_HELP</a>
+<li>{@link #USER_OPTIONS_FULL_SCREEN_HELP USER_OPTIONS_FULL_SCREEN_HELP}
     - UIM online help is to be displayed on a full screen or a window.
-<li><a href="#USER_OPTIONS_STATUS_MESSAGE">USER_OPTIONS_STATUS_MESSAGE</a>
+<li>{@link #USER_OPTIONS_STATUS_MESSAGE USER_OPTIONS_STATUS_MESSAGE}
     - Status messages sent to the user are shown.
-<li><a href="#USER_OPTIONS_NO_STATUS_MESSAGE">USER_OPTIONS_NO_STATUS_MESSAGE</a>
+<li>{@link #USER_OPTIONS_NO_STATUS_MESSAGE USER_OPTIONS_NO_STATUS_MESSAGE}
     - Status messages sent to the user are not shown.
-<li><a href="#USER_OPTIONS_ROLL_KEY">USER_OPTIONS_ROLL_KEY</a>
+<li>{@link #USER_OPTIONS_ROLL_KEY USER_OPTIONS_ROLL_KEY}
     - The opposite action from the system default for roll keys is taken.
-<li><a href="#USER_OPTIONS_PRINT_COMPLETE_MESSAGE">USER_OPTIONS_PRINT_COMPLETE_MESSAGE</a>
+<li>{@link #USER_OPTIONS_PRINT_COMPLETE_MESSAGE USER_OPTIONS_PRINT_COMPLETE_MESSAGE}
     - A message is sent to the user when a spooled file is printed.
 </ul>
 **/
@@ -3095,21 +3096,21 @@ Returns the user profile name.
    * @param authority The authority to check. It must be one of the special authority
    * constants:
 <ul>
-<li><a href="#SPECIAL_AUTHORITIES_ALL_OBJECT">SPECIAL_AUTHORITIES_ALL_OBJECT</a>
+<li>{@link #SPECIAL_AUTHORITIES_ALL_OBJECT SPECIAL_AUTHORITIES_ALL_OBJECT}
     - All object.
-<li><a href="#SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR">SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR</a>
+<li>{@link #SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR}
     - Security administrator.
-<li><a href="#SPECIAL_AUTHORITIES_JOB_CONTROL">SPECIAL_AUTHORITIES_JOB_CONTROL</a>
+<li>{@link #SPECIAL_AUTHORITIES_JOB_CONTROL SPECIAL_AUTHORITIES_JOB_CONTROL}
     - Job control.
-<li><a href="#SPECIAL_AUTHORITIES_SPOOL_CONTROL">SPECIAL_AUTHORITIES_SPOOL_CONTROL</a>
+<li>{@link #SPECIAL_AUTHORITIES_SPOOL_CONTROL SPECIAL_AUTHORITIES_SPOOL_CONTROL}
     - Spool control.
-<li><a href="#SPECIAL_AUTHORITIES_SAVE_SYSTEM">SPECIAL_AUTHORITIES_SAVE_SYSTEM</a>
+<li>{@link #SPECIAL_AUTHORITIES_SAVE_SYSTEM SPECIAL_AUTHORITIES_SAVE_SYSTEM}
     - Save system.
-<li><a href="#SPECIAL_AUTHORITIES_SERVICE">SPECIAL_AUTHORITIES_SERVICE</a>
+<li>{@link #SPECIAL_AUTHORITIES_SERVICE SPECIAL_AUTHORITIES_SERVICE}
     - Service.
-<li><a href="#SPECIAL_AUTHORITIES_AUDIT">SPECIAL_AUTHORITIES_AUDIT</a>
+<li>{@link #SPECIAL_AUTHORITIES_AUDIT SPECIAL_AUTHORITIES_AUDIT}
     - Audit.
-<li><a href="#SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION">SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION</a>
+<li>{@link #SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION}
     - Input/output system configuration.
 </ul>
    * @return true if this user has the authority or belongs to a group that has

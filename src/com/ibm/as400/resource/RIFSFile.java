@@ -29,36 +29,37 @@ The RIFSFile class represents a file or directory in the integrated
 file system on the iSeries or AS/400 server.  This class provides function similar to
 {@link com.ibm.as400.access.IFSFile IFSFile } and
 {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile }
-except that it is a subclass of <a href="Resource.html">
-Resource</a>.  As a result, it can be used directly in conjunction with components
+except that it is a subclass of {@link com.ibm.as400.resource.Resource Resource}.
+As a result, it can be used directly in conjunction with components
 written for Resource objects.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
+<li>{@link #ABSOLUTE_PATH ABSOLUTE_PATH}
+<li>{@link #CANONICAL_PATH CANONICAL_PATH}
+<li>{@link #CAN_READ CAN_READ}
+<li>{@link #CAN_WRITE CAN_WRITE}
+<li>{@link #CCSID CCSID}
+<li>{@link #CREATED CREATED}
+<li>{@link #EXISTS EXISTS}
+<li>{@link #IS_ABSOLUTE IS_ABSOLUTE}
+<li>{@link #IS_DIRECTORY IS_DIRECTORY}
+<li>{@link #IS_FILE IS_FILE}
+<li>{@link #IS_HIDDEN IS_HIDDEN}
+<li>{@link #IS_READ_ONLY IS_READ_ONLY}
+<li>{@link #LAST_ACCESSED LAST_ACCESSED}
+<li>{@link #LAST_MODIFIED LAST_MODIFIED}
+<li>{@link #LENGTH LENGTH}
+<li>{@link #NAME NAME}
+<li>{@link #PARENT PARENT}
+<li>{@link #PATH PATH}
+<li>{@link #TYPE TYPE}
 </ul>
-<li><a href="#ABSOLUTE_PATH">ABSOLUTE_PATH</a>
-<li><a href="#CANONICAL_PATH">CANONICAL_PATH</a>
-<li><a href="#CAN_READ">CAN_READ</a>
-<li><a href="#CAN_WRITE">CAN_WRITE</a>
-<li><a href="#CCSID">CCSID</a>
-<li><a href="#CREATED">CREATED</a>
-<li><a href="#EXISTS">EXISTS</a>
-<li><a href="#IS_ABSOLUTE">IS_ABSOLUTE</a>
-<li><a href="#IS_DIRECTORY">IS_DIRECTORY</a>
-<li><a href="#IS_FILE">IS_FILE</a>
-<li><a href="#IS_HIDDEN">IS_HIDDEN</a>
-<li><a href="#IS_READ_ONLY">IS_READ_ONLY</a>
-<li><a href="#LAST_ACCESSED">LAST_ACCESSED</a>
-<li><a href="#LAST_MODIFIED">LAST_MODIFIED</a>
-<li><a href="#LENGTH">LENGTH</a>
-<li><a href="#NAME">NAME</a>
-<li><a href="#PARENT">PARENT</a>
-<li><a href="#PATH">PATH</a>
-<li><a href="#TYPE">TYPE</a>
+</a>
 
 <p>Use any of these attribute IDs with
-<a href="ChangeableResource.html#getAttributeValue(java.lang.Object)">getAttributeValue()</a>
-and <a href="ChangeableResource.html#setAttributeValue(java.lang.Object, java.lang.Object)">setAttributeValue()</a>
+{@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}
+and {@link com.ibm.as400.resource.ChangeableResource#setAttributeValue setAttributeValue()}
 to access the attribute values for an RIFSFile.
 
 <blockquote><pre>
@@ -359,9 +360,9 @@ Attribute ID for type.  This identifies a read-only String
 attribute, which indicates whether this is a directory or a file.
 Possible values are:
 <ul>
-<li><a href="#TYPE_DIRECTORY">TYPE_DIRECTORY</a> - This is a directory.
-<li><a href="#TYPE_FILE">TYPE_FILE</a> - This is a file.
-<li><a href="#TYPE_UNKNOWN">TYPE_UNKNOWN</a> - The type is unknown.
+<li>{@link #TYPE_DIRECTORY TYPE_DIRECTORY} - This is a directory.
+<li>{@link #TYPE_FILE TYPE_FILE} - This is a file.
+<li>{@link #TYPE_UNKNOWN TYPE_UNKNOWN} - The type is unknown.
 </ul>
 **/
     public static final String TYPE                          = "TYPE";

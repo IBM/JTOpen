@@ -25,7 +25,7 @@ communicated to an AS/400, and the logical value to be manipulated
 or externalized in Java.
 
 <p>This class is intended as a helper class for implementing subclasses
-of <a href="Resource.html">Resource</a>.
+of {@link com.ibm.as400.resource.Resource Resource}.
 
 @see AbstractValueMap
 **/

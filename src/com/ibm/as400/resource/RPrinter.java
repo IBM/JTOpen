@@ -25,61 +25,62 @@ import java.beans.PropertyVetoException;
 /**
 The RPrinter class represents an AS/400 printer.
 
-<a name="attributeIDs"><p>The following attribute IDs are supported:
+<a name="attributeIDs <p>The following attribute IDs are supported:
 <ul>
-<li><a href="#ADVANCED_FUNCTION_PRINTING">ADVANCED_FUNCTION_PRINTING</a>
-<li><a href="#ALIGN_FORMS">ALIGN_FORMS</a>
-<li><a href="#ALLOW_DIRECT_PRINTING">ALLOW_DIRECT_PRINTING</a>
-<li><a href="#AUTOMATICALLY_END_WRITER">AUTOMATICALLY_END_WRITER</a>
-<li><a href="#BETWEEN_COPIES_STATUS">BETWEEN_COPIES_STATUS</a>
-<li><a href="#BETWEEN_FILES_STATUS">BETWEEN_FILES_STATUS</a>
-<li><a href="#CHANGES_TAKE_EFFECT">CHANGES_TAKE_EFFECT</a>
-<li><a href="#COPIES_LEFT_TO_PRODUCE">COPIES_LEFT_TO_PRODUCE</a>
-<li><a href="#DEVICE_NAME">DEVICE_NAME</a>
-<li><a href="#DEVICE_STATUS">DEVICE_STATUS</a>
-<li><a href="#DEVICE_TYPE">DEVICE_TYPE</a>
-<li><a href="#END_PENDING_STATUS">END_PENDING_STATUS</a>
-<li><a href="#FORM_TYPE">FORM_TYPE</a>
-<li><a href="#HELD_STATUS">HELD_STATUS</a>
-<li><a href="#HOLD_PENDING_STATUS">HOLD_PENDING_STATUS</a>
-<li><a href="#JOB_NAME">JOB_NAME</a>
-<li><a href="#JOB_NUMBER">JOB_NUMBER</a>
-<li><a href="#JOB_QUEUE_STATUS">JOB_QUEUE_STATUS</a>
-<li><a href="#MESSAGE_KEY">MESSAGE_KEY</a>
-<li><a href="#MESSAGE_OPTION">MESSAGE_OPTION</a>
-<li><a href="#MESSAGE_QUEUE">MESSAGE_QUEUE</a>
-<li><a href="#NEXT_FILE_SEPARATORS">NEXT_FILE_SEPARATORS</a>
-<li><a href="#NEXT_FORM_TYPE">NEXT_FORM_TYPE</a>
-<li><a href="#NEXT_MESSAGE_OPTION">NEXT_MESSAGE_OPTION</a>
-<li><a href="#NEXT_OUTPUT_QUEUE">NEXT_OUTPUT_QUEUE</a>
-<li><a href="#NEXT_SEPARATOR_DRAWER">NEXT_SEPARATOR_DRAWER</a>
-<li><a href="#NUMBER_OF_SEPARATORS">NUMBER_OF_SEPARATORS</a>
-<li><a href="#OUTPUT_QUEUE">OUTPUT_QUEUE</a>
-<li><a href="#OUTPUT_QUEUE_STATUS">OUTPUT_QUEUE_STATUS</a>
-<li><a href="#OVERALL_STATUS">OVERALL_STATUS</a>
-<li><a href="#PAGE_BEING_WRITTEN">PAGE_BEING_WRITTEN</a>
-<li><a href="#SEPARATOR_DRAWER">SEPARATOR_DRAWER</a>
-<li><a href="#SPOOLED_FILE_NAME">SPOOLED_FILE_NAME</a>
-<li><a href="#SPOOLED_FILE_NUMBER">SPOOLED_FILE_NUMBER</a>
-<li><a href="#STARTED_BY_USER">STARTED_BY_USER</a>
-<li><a href="#TEXT_DESCRIPTION">TEXT_DESCRIPTION</a>
-<li><a href="#TOTAL_COPIES">TOTAL_COPIES</a>
-<li><a href="#TOTAL_PAGES">TOTAL_PAGES</a>
-<li><a href="#USER_NAME">USER_NAME</a>
-<li><a href="#WAITING_FOR_DATA_STATUS">WAITING_FOR_DATA_STATUS</a>
-<li><a href="#WAITING_FOR_DEVICE_STATUS">WAITING_FOR_DEVICE_STATUS</a>
-<li><a href="#WAITING_FOR_MESSAGE_STATUS">WAITING_FOR_MESSAGE_STATUS</a>
-<li><a href="#WRITER_JOB_NAME">WRITER_JOB_NAME</a>
-<li><a href="#WRITER_JOB_NUMBER">WRITER_JOB_NUMBER</a>
-<li><a href="#WRITER_JOB_USER_NAME">WRITER_JOB_USER_NAME</a>
-<li><a href="#WRITER_STARTED">WRITER_STARTED</a>
-<li><a href="#WRITER_STATUS">WRITER_STATUS</a>
-<li><a href="#WRITING_STATUS">WRITING_STATUS</a>
+<li>{@link #ADVANCED_FUNCTION_PRINTING ADVANCED_FUNCTION_PRINTING}
+<li>{@link #ALIGN_FORMS ALIGN_FORMS}
+<li>{@link #ALLOW_DIRECT_PRINTING ALLOW_DIRECT_PRINTING}
+<li>{@link #AUTOMATICALLY_END_WRITER AUTOMATICALLY_END_WRITER}
+<li>{@link #BETWEEN_COPIES_STATUS BETWEEN_COPIES_STATUS}
+<li>{@link #BETWEEN_FILES_STATUS BETWEEN_FILES_STATUS}
+<li>{@link #CHANGES_TAKE_EFFECT CHANGES_TAKE_EFFECT}
+<li>{@link #COPIES_LEFT_TO_PRODUCE COPIES_LEFT_TO_PRODUCE}
+<li>{@link #DEVICE_NAME DEVICE_NAME}
+<li>{@link #DEVICE_STATUS DEVICE_STATUS}
+<li>{@link #DEVICE_TYPE DEVICE_TYPE}
+<li>{@link #END_PENDING_STATUS END_PENDING_STATUS}
+<li>{@link #FORM_TYPE FORM_TYPE}
+<li>{@link #HELD_STATUS HELD_STATUS}
+<li>{@link #HOLD_PENDING_STATUS HOLD_PENDING_STATUS}
+<li>{@link #JOB_NAME JOB_NAME}
+<li>{@link #JOB_NUMBER JOB_NUMBER}
+<li>{@link #JOB_QUEUE_STATUS JOB_QUEUE_STATUS}
+<li>{@link #MESSAGE_KEY MESSAGE_KEY}
+<li>{@link #MESSAGE_OPTION MESSAGE_OPTION}
+<li>{@link #MESSAGE_QUEUE MESSAGE_QUEUE}
+<li>{@link #NEXT_FILE_SEPARATORS NEXT_FILE_SEPARATORS}
+<li>{@link #NEXT_FORM_TYPE NEXT_FORM_TYPE}
+<li>{@link #NEXT_MESSAGE_OPTION NEXT_MESSAGE_OPTION}
+<li>{@link #NEXT_OUTPUT_QUEUE NEXT_OUTPUT_QUEUE}
+<li>{@link #NEXT_SEPARATOR_DRAWER NEXT_SEPARATOR_DRAWER}
+<li>{@link #NUMBER_OF_SEPARATORS NUMBER_OF_SEPARATORS}
+<li>{@link #OUTPUT_QUEUE OUTPUT_QUEUE}
+<li>{@link #OUTPUT_QUEUE_STATUS OUTPUT_QUEUE_STATUS}
+<li>{@link #OVERALL_STATUS OVERALL_STATUS}
+<li>{@link #PAGE_BEING_WRITTEN PAGE_BEING_WRITTEN}
+<li>{@link #SEPARATOR_DRAWER SEPARATOR_DRAWER}
+<li>{@link #SPOOLED_FILE_NAME SPOOLED_FILE_NAME}
+<li>{@link #SPOOLED_FILE_NUMBER SPOOLED_FILE_NUMBER}
+<li>{@link #STARTED_BY_USER STARTED_BY_USER}
+<li>{@link #TEXT_DESCRIPTION TEXT_DESCRIPTION}
+<li>{@link #TOTAL_COPIES TOTAL_COPIES}
+<li>{@link #TOTAL_PAGES TOTAL_PAGES}
+<li>{@link #USER_NAME USER_NAME}
+<li>{@link #WAITING_FOR_DATA_STATUS WAITING_FOR_DATA_STATUS}
+<li>{@link #WAITING_FOR_DEVICE_STATUS WAITING_FOR_DEVICE_STATUS}
+<li>{@link #WAITING_FOR_MESSAGE_STATUS WAITING_FOR_MESSAGE_STATUS}
+<li>{@link #WRITER_JOB_NAME WRITER_JOB_NAME}
+<li>{@link #WRITER_JOB_NUMBER WRITER_JOB_NUMBER}
+<li>{@link #WRITER_JOB_USER_NAME WRITER_JOB_USER_NAME}
+<li>{@link #WRITER_STARTED WRITER_STARTED}
+<li>{@link #WRITER_STATUS WRITER_STATUS}
+<li>{@link #WRITING_STATUS WRITING_STATUS}
 </ul>
+</a>
 
 <p>Use any of these attribute IDs with
-<a href="ChangeableResource.html#getAttributeValue(java.lang.Object)">getAttributeValue()</a>
-and <a href="ChangeableResource.html#setAttributeValue(java.lang.Object, java.lang.Object)">setAttributeValue()</a>
+{@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}
+and {@link com.ibm.as400.resource.ChangeableResource#setAttributeValue setAttributeValue()}
 to access the attribute values for an RPrinter.
 
 <blockquote><pre>
@@ -249,9 +250,9 @@ Attribute ID for align forms.  This identifies a read-only String
 attribute, which represents the time at which the forms alignment
 message will be sent.  Possible values are:
 <ul>
-<li><a href="#ALIGN_FORMS_WRITER">ALIGN_FORMS_WRITER</a>
+<li>{@link #ALIGN_FORMS_WRITER ALIGN_FORMS_WRITER}
     - The writer determines when the message is sent.
-<li><a href="#ALIGN_FORMS_FILE">ALIGN_FORMS_FILE</a>
+<li>{@link #ALIGN_FORMS_FILE ALIGN_FORMS_FILE}
     - Control of the page alignment is specified by each file.
 <li>"" - The writer is ended.
 </ul>
@@ -303,12 +304,12 @@ Attribute ID for automatically end writer.  This identifies a read-only String
 attribute, which represents when to end the writer if it is to end automatically.
 Possible values are:
 <ul>
-<li><a href="#OPERATION_NO_FILES_READY">OPERATION_NO_FILES_READY</a>
+<li>{@link #OPERATION_NO_FILES_READY OPERATION_NO_FILES_READY}
     - When no files are ready to print on the output queue from which
     the writer is selecting files to be printed.
-<li><a href="#OPERATION_FILE_END">OPERATION_FILE_END</a>
+<li>{@link #OPERATION_FILE_END OPERATION_FILE_END}
     - When the current spooled file has been printed.
-<li><a href="#OPERATION_NONE">OPERATION_NONE</a>
+<li>{@link #OPERATION_NONE OPERATION_NONE}
     - The writer will not end, but it will wait for more spooled files.
 <li>"" - The writer is ended.
 </ul>
@@ -359,9 +360,9 @@ attribute, which represents the time at which the pending changes to the
 writer take effect.
 Possible values are:
 <ul>
-<li><a href="#OPERATION_NO_FILES_READY">OPERATION_NO_FILES_READY</a>
+<li>{@link #OPERATION_NO_FILES_READY OPERATION_NO_FILES_READY}
     - When all the current eligible files are printed.
-<li><a href="#OPERATION_FILE_END">OPERATION_FILE_END</a>
+<li>{@link #OPERATION_FILE_END OPERATION_FILE_END}
     - When the current spooled file is done printing.
 <li>"" - No pending changes to the writer.
 </ul>
@@ -439,13 +440,13 @@ attribute, which represents whether an End Writer (ENDWTR) command has
 been issued for this writer.
 Possible values are:
 <ul>
-<li><a href="#PENDING_STATUS_NONE">PENDING_STATUS_NONE</a>
+<li>{@link #PENDING_STATUS_NONE PENDING_STATUS_NONE}
     - No End Writer (ENDWTR) command has been issued.
-<li><a href="#PENDING_STATUS_IMMEDIATE">PENDING_STATUS_IMMEDIATE</a>
+<li>{@link #PENDING_STATUS_IMMEDIATE PENDING_STATUS_IMMEDIATE}
     - The writer ends as soon as its output buffers are empty.
-<li><a href="#PENDING_STATUS_CONTROLLED">PENDING_STATUS_CONTROLLED</a>
+<li>{@link #PENDING_STATUS_CONTROLLED PENDING_STATUS_CONTROLLED}
     - The writer ends after the current copy of the spooled file has been printed.
-<li><a href="#PENDING_STATUS_PAGE_END">PENDING_STATUS_PAGE_END</a>
+<li>{@link #PENDING_STATUS_PAGE_END PENDING_STATUS_PAGE_END}
     - The writer ends at the end of the page.
 <li>"" - The writer is ended.
 </ul>
@@ -470,13 +471,13 @@ attribute, which represents the type of form being used to print
 the spooled file.
 Possible values are:
 <ul>
-<li><a href="#FORM_TYPE_ALL">FORM_TYPE_ALL</a>
+<li>{@link #FORM_TYPE_ALL FORM_TYPE_ALL}
     - The writer is started with the option to print all spooled files
     of any form type.
-<li><a href="#FORM_TYPE_FORMS">FORM_TYPE_FORMS</a>
+<li>{@link #FORM_TYPE_FORMS FORM_TYPE_FORMS}
     - The writer is started with the option to print all spooled files
     with the same form type before using a different form type.
-<li><a href="#FORM_TYPE_STANDARD">FORM_TYPE_STANDARD</a>
+<li>{@link #FORM_TYPE_STANDARD FORM_TYPE_STANDARD}
     - The writer is started with the option to print all spooled files
     with a form type of *STD.
 <li>A form type name - The writer is started with the option
@@ -541,13 +542,13 @@ attribute, which represents whether an Hold Writer (HLDWTR) command has
 been issued for this writer.
 Possible values are:
 <ul>
-<li><a href="#PENDING_STATUS_NONE">PENDING_STATUS_NONE</a>
+<li>{@link #PENDING_STATUS_NONE PENDING_STATUS_NONE}
     - No Hold Writer (HLDWTR) command has been issued.
-<li><a href="#PENDING_STATUS_IMMEDIATE">PENDING_STATUS_IMMEDIATE</a>
+<li>{@link #PENDING_STATUS_IMMEDIATE PENDING_STATUS_IMMEDIATE}
     - The writer is held as soon as its output buffers are empty.
-<li><a href="#PENDING_STATUS_CONTROLLED">PENDING_STATUS_CONTROLLED</a>
+<li>{@link #PENDING_STATUS_CONTROLLED PENDING_STATUS_CONTROLLED}
     - The writer is held after the current copy of the spooled file has been printed.
-<li><a href="#PENDING_STATUS_PAGE_END">PENDING_STATUS_PAGE_END</a>
+<li>{@link #PENDING_STATUS_PAGE_END PENDING_STATUS_PAGE_END}
     - The writer is held at the end of the page.
 <li>"" - The writer is ended.
 </ul>
@@ -629,13 +630,13 @@ attribute, which represents an option for sending a message to the
 message queue when this form is finished.
 Possible values are:
 <ul>
-<li><a href="#MESSAGE_OPTION_MESSAGE">MESSAGE_OPTION_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_MESSAGE MESSAGE_OPTION_MESSAGE}
     - A message is sent to the message queue.
-<li><a href="#MESSAGE_OPTION_NO_MESSAGE">MESSAGE_OPTION_NO_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_NO_MESSAGE MESSAGE_OPTION_NO_MESSAGE}
     - No message is sent to the message queue.
-<li><a href="#MESSAGE_OPTION_INFORMATIONAL_MESSAGE">MESSAGE_OPTION_INFORMATIONAL_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_INFORMATIONAL_MESSAGE MESSAGE_OPTION_INFORMATIONAL_MESSAGE}
     - An informational message is sent to the message queue.
-<li><a href="#MESSAGE_OPTION_INQUIRY_MESSAGE">MESSAGE_OPTION_INQUIRY_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_INQUIRY_MESSAGE MESSAGE_OPTION_INQUIRY_MESSAGE}
     - An inquiry message is sent to the message queue.
 <li>"" - The writer is ended.
 </ul>
@@ -709,9 +710,9 @@ attribute, which represents the next number of separator pages to be printed
 when the change to the writer takes place.
 Possible values are:
 <ul>
-<li><a href="#SEPARATOR_PAGE_FILE">SEPARATOR_PAGE_FILE</a>
+<li>{@link #SEPARATOR_PAGE_FILE SEPARATOR_PAGE_FILE}
     - The number of separator pages is specified by each file.
-<li><a href="#SEPARATOR_PAGE_NONE">SEPARATOR_PAGE_NONE</a>
+<li>{@link #SEPARATOR_PAGE_NONE SEPARATOR_PAGE_NONE}
     - There are no pending changes to the writer.
 <li>The number of separator pages to be printed.
 </ul>
@@ -732,13 +733,13 @@ Attribute ID for next form type.  This identifies a read-only String
 attribute, which represents the next type of form to be printed.
 Possible values are:
 <ul>
-<li><a href="#FORM_TYPE_ALL">FORM_TYPE_ALL</a>
+<li>{@link #FORM_TYPE_ALL FORM_TYPE_ALL}
     - The writer is changed with the option to print all spooled
     files of any form type.
-<li><a href="#FORM_TYPE_FORMS">FORM_TYPE_FORMS</a>
+<li>{@link #FORM_TYPE_FORMS FORM_TYPE_FORMS}
     - The writer is changed with the option to print all spooled files
     with the same form type before using a different form type.
-<li><a href="#FORM_TYPE_STANDARD">FORM_TYPE_STANDARD</a>
+<li>{@link #FORM_TYPE_STANDARD FORM_TYPE_STANDARD}
     - The writer is changed with the option to print all spooled files
     with a form type of *STD.
 <li>A form type name - The writer is changed with the option
@@ -765,13 +766,13 @@ attribute, which represents the option for sending a message to the
 message queue when the next form type is finished.
 Possible values are:
 <ul>
-<li><a href="#MESSAGE_OPTION_MESSAGE">MESSAGE_OPTION_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_MESSAGE MESSAGE_OPTION_MESSAGE}
     - A message is sent to the message queue.
-<li><a href="#MESSAGE_OPTION_NO_MESSAGE">MESSAGE_OPTION_NO_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_NO_MESSAGE MESSAGE_OPTION_NO_MESSAGE}
     - No message is sent to the message queue.
-<li><a href="#MESSAGE_OPTION_INFORMATIONAL_MESSAGE">MESSAGE_OPTION_INFORMATIONAL_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_INFORMATIONAL_MESSAGE MESSAGE_OPTION_INFORMATIONAL_MESSAGE}
     - An informational message is sent to the message queue.
-<li><a href="#MESSAGE_OPTION_INQUIRY_MESSAGE">MESSAGE_OPTION_INQUIRY_MESSAGE</a>
+<li>{@link #MESSAGE_OPTION_INQUIRY_MESSAGE MESSAGE_OPTION_INQUIRY_MESSAGE}
     - An inquiry message is sent to the message queue.
 <li>"" - No change is pending.
 </ul>
@@ -814,13 +815,13 @@ attribute, which represents the drawer from which the job and file separator
 pages are to be taken if there is a change to the writer.
 Possible values are:
 <ul>
-<li><a href="#SEPARATOR_PAGE_FILE">SEPARATOR_PAGE_FILE</a>
+<li>{@link #SEPARATOR_PAGE_FILE SEPARATOR_PAGE_FILE}
     - The separator pages are taken from the same drawer that the file
     is printed from.
-<li><a href="#SEPARATOR_PAGE_DEVICE">SEPARATOR_PAGE_DEVICE</a>
+<li>{@link #SEPARATOR_PAGE_DEVICE SEPARATOR_PAGE_DEVICE}
     - The separator pages are taken from the separator drawer specified
     in the printer device description.
-<li><a href="#SEPARATOR_PAGE_NONE">SEPARATOR_PAGE_NONE</a>
+<li>{@link #SEPARATOR_PAGE_NONE SEPARATOR_PAGE_NONE}
     - There are no pending changes to the writer.
 <li>A drawer number.
 </ul>
@@ -842,7 +843,7 @@ Attribute ID for number of separators.  This identifies a Integer
 attribute, which represents the number of separator pages to be printed.
 Possible values are:
 <ul>
-<li><a href="#SEPARATOR_PAGE_FILE">SEPARATOR_PAGE_FILE</a>
+<li>{@link #SEPARATOR_PAGE_FILE SEPARATOR_PAGE_FILE}
     - The number of separator pages is specified by each file.
 <li>The number of separator pages.
 </ul>
@@ -885,9 +886,9 @@ attribute, which represents the status of the output queue from which spooled
 files are being selected for printing.
 Possible values are:
 <ul>
-<li><a href="#STATUS_HELD">STATUS_HELD</a>
+<li>{@link #STATUS_HELD STATUS_HELD}
     - The output queue is held.
-<li><a href="#STATUS_RELEASED">STATUS_RELEASED</a>
+<li>{@link #STATUS_RELEASED STATUS_RELEASED}
     - The output queue is released.
 <li>"" - The output queue is not set.
 </ul>
@@ -953,10 +954,10 @@ attribute, which represents the drawer from which the job and file separator
 pages are to be taken.
 Possible values are:
 <ul>
-<li><a href="#SEPARATOR_PAGE_FILE">SEPARATOR_PAGE_FILE</a>
+<li>{@link #SEPARATOR_PAGE_FILE SEPARATOR_PAGE_FILE}
     - The separator pages are taken from the same drawer that the file
     is printed from.
-<li><a href="#SEPARATOR_PAGE_DEVICE">SEPARATOR_PAGE_DEVICE</a>
+<li>{@link #SEPARATOR_PAGE_DEVICE SEPARATOR_PAGE_DEVICE}
     - The separator pages are taken from the separator drawer specified
     in the printer device description.
 <li>A drawer number.
@@ -1170,15 +1171,15 @@ Attribute ID for writer status.  This identifies a read-only byte[]
 attribute, which represents the status of the writer for this printer.
 Possible values are:
 <ul>
-<li><a href="#WRITER_STATUS_STARTED">WRITER_STATUS_STARTED</a>
+<li>{@link #WRITER_STATUS_STARTED WRITER_STATUS_STARTED}
     - The writer is started.
-<li><a href="#WRITER_STATUS_ENDED">WRITER_STATUS_ENDED</a>
+<li>{@link #WRITER_STATUS_ENDED WRITER_STATUS_ENDED}
     - The writer is ended.
-<li><a href="#WRITER_STATUS_JOB_QUEUE">WRITER_STATUS_JOB_QUEUE</a>
+<li>{@link #WRITER_STATUS_JOB_QUEUE WRITER_STATUS_JOB_QUEUE}
     - The writer is on a job queue.
-<li><a href="#WRITER_STATUS_HELD">WRITER_STATUS_HELD</a>
+<li>{@link #WRITER_STATUS_HELD WRITER_STATUS_HELD}
     - The writer is held.
-<li><a href="#WRITER_STATUS_MESSAGE_WAITING">WRITER_STATUS_MESSAGE_WAITING</a>
+<li>{@link #WRITER_STATUS_MESSAGE_WAITING WRITER_STATUS_MESSAGE_WAITING}
     - The writer is waiting on a message.
 </ul>
 **/
@@ -1238,11 +1239,11 @@ attribute, which indicates whether the printer writer is in writing
 status.
 Possible values are:
 <ul>
-<li><a href="#WRITING_STATUS_YES">WRITING_STATUS_YES</a>
+<li>{@link #WRITING_STATUS_YES WRITING_STATUS_YES}
     - The writer is in writing status.
-<li><a href="#WRITING_STATUS_NO">WRITING_STATUS_NO</a>
+<li>{@link #WRITING_STATUS_NO WRITING_STATUS_NO}
     - The writer is not in writing status.
-<li><a href="#WRITING_STATUS_SEPARATORS">WRITING_STATUS_SEPARATORS</a>
+<li>{@link #WRITING_STATUS_SEPARATORS WRITING_STATUS_SEPARATORS}
     - The writer is writing the file separators.
 <li>"" - The writer is ended.
 </ul>

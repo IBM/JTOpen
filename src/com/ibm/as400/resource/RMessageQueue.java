@@ -28,30 +28,30 @@ import java.io.UnsupportedEncodingException;
 
 /**
 The RMessageQueue class represents an AS/400 message queue.  If no message
-queue path is set, then the default is <a href="#CURRENT">CURRENT</a>,
+queue path is set, then the default is {@link #CURRENT CURRENT},
 which represents the current user's message queue,
 <blockquote>/QSYS.LIB/QUSRSYS.LIB/<em>userID</em>.MSGQ</blockquote>.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
-<li><a href="#FORMATTING_CHARACTERS">FORMATTING_CHARACTERS</a>
-<li><a href="#LIST_DIRECTION">LIST_DIRECTION</a>
-<li><a href="#REPLACEMENT_DATA">REPLACEMENT_DATA</a>
-<li><a href="#SELECTION_CRITERIA">SELECTION_CRITERIA</a>
-<li><a href="#SEVERITY_CRITERIA">SEVERITY_CRITERIA</a>
-<li><a href="#SORT_CRITERIA">SORT_CRITERIA</a>
-<li><a href="#STARTING_USER_MESSAGE_KEY">STARTING_USER_MESSAGE_KEY</a>
-<li><a href="#STARTING_WORKSTATION_MESSAGE_KEY">STARTING_WORKSTATION_MESSAGE_KEY</a>
+<li>{@link #FORMATTING_CHARACTERS FORMATTING_CHARACTERS}
+<li>{@link #LIST_DIRECTION LIST_DIRECTION}
+<li>{@link #REPLACEMENT_DATA REPLACEMENT_DATA}
+<li>{@link #SELECTION_CRITERIA SELECTION_CRITERIA}
+<li>{@link #SEVERITY_CRITERIA SEVERITY_CRITERIA}
+<li>{@link #SORT_CRITERIA SORT_CRITERIA}
+<li>{@link #STARTING_USER_MESSAGE_KEY STARTING_USER_MESSAGE_KEY}
+<li>{@link #STARTING_WORKSTATION_MESSAGE_KEY STARTING_WORKSTATION_MESSAGE_KEY}
 </ul>
 </a>
 
 <p>Use one or more of these selection IDs with
-<a href="ResourceList.html#getSelectionValue(java.lang.Object)">getSelectionValue()</a>
-and <a href="ResourceList.html#setSelectionValue(java.lang.Object, java.lang.Object)">setSelectionValue()</a>
+{@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
+and {@link com.ibm.as400.resource.ResourceList#setSelectionValue setSelectionValue()}
 to access the selection values for an RMessageQueue.
 
-<p>RMessageQueue objects generate <a href="RQueuedMessage.html">RQueuedMessage</a>
-objects.  RQueuedMessage objects have many <a href="RQueuedMessage.html#attributeIDs">
+<p>RMessageQueue objects generate {@link com.ibm.as400.resource.RQueuedMessage RQueuedMessage}
+objects.  RQueuedMessage objects have many <a href="{@docRoot}/com/ibm/as400/resource/RQueuedMessage.html#attributeIDs">
 attributes</a>.  Only some of these attribute values are set, depending on how an RQueuedMessage
 object is created.  The following is a list of attribute IDs whose values are set on RQueuedMessage
 objects returned in a list of messages:
@@ -75,7 +75,7 @@ objects returned in a list of messages:
 
 <a name="receiveIDs">
 <p>The following is a list of attribute IDs whose values are set on
-objects returned by <a href="#receive(byte[])">receive()</a>:
+objects returned by {@link #receive receive()}:
 <ul>
 <li>{@link com.ibm.as400.resource.RQueuedMessage#ALERT_OPTION ALERT_OPTION }
 <li>{@link com.ibm.as400.resource.RQueuedMessage#DATE_SENT DATE_SENT  }
@@ -310,11 +310,11 @@ Constant indicating that message help text is formatted.
 Selection ID for formatting characters.  This identifies a Integer selection,
 which represents the type of message help text formatting.  Possible values are:
 <ul>
-<li><a href="#NO_FORMATTING">NO_FORMATTING</a>
+<li>{@link #NO_FORMATTING NO_FORMATTING}
     - Message help text is not formatted.
-<li><a href="#RETURN_FORMATTING_CHARACTERS">RETURN_FORMATTING_CHARACTERS</a>
+<li>{@link #RETURN_FORMATTING_CHARACTERS RETURN_FORMATTING_CHARACTERS}
     - Message help text includes formatting characters.
-<li><a href="#SUBSTITUTE_FORMATTING_CHARACTERS">SUBSTITUTE_FORMATTING_CHARACTERS</a>
+<li>{@link #SUBSTITUTE_FORMATTING_CHARACTERS SUBSTITUTE_FORMATTING_CHARACTERS}
     - Message help text is formatted.
 </ul>
 The default is NO_FORMATTING.
@@ -331,15 +331,15 @@ The default is NO_FORMATTING.
 /**
 Selection ID for list direction.  This identifies a String selection,
 which represents the direction to list messages relative to the values
-specified for the <a href="#STARTING_USER_MESSAGE_KEY">STARTING_USER_MESSAGE_KEY</a>
-and <a href="#STARTING_WORKSTATION_MESSAGE_KEY">STARTING_WORKSTATION_MESSAGE_KEY</a>
+specified for the {@link #STARTING_USER_MESSAGE_KEY STARTING_USER_MESSAGE_KEY}
+and {@link #STARTING_WORKSTATION_MESSAGE_KEY STARTING_WORKSTATION_MESSAGE_KEY}
 selections.  Possible values are:
 <ul>
-<li><a href="#NEXT">NEXT</a>
+<li>{@link #NEXT NEXT}
     - Returns messages that are newer than the messages specified for
       the STARTING_USER_MESSAGE_KEY and STARTING_WORKSTATION_MESSAGE_KEY
       selections.
-<li><a href="#PREVIOUS">PREVIOUS</a>
+<li>{@link #PREVIOUS PREVIOUS}
     - Returns messages that are older than the messages specified for
       the STARTING_USER_MESSAGE_KEY and STARTING_WORKSTATION_MESSAGE_KEY
       selections.
@@ -370,13 +370,13 @@ The default is true.
 Selection ID for selection criteria.  This identifies a String selection,
 which represents the type of messages to be listed.  Possible values are:
 <ul>
-<li><a href="#ALL">ALL</a>
+<li>{@link #ALL ALL}
     - All messages are listed.
-<li><a href="#MESSAGES_NEED_REPLY">MESSAGES_NEED_REPLY</a>
+<li>{@link #MESSAGES_NEED_REPLY MESSAGES_NEED_REPLY}
     - Only messages that need a reply are listed.
-<li><a href="#SENDERS_COPY_NEED_REPLY">SENDERS_COPY_NEED_REPLY</a>
+<li>{@link #SENDERS_COPY_NEED_REPLY SENDERS_COPY_NEED_REPLY}
     - Only the sender's copy messages that need a reply are listed.
-<li><a href="#MESSAGES_NO_NEED_REPLY">MESSAGES_NO_NEED_REPLY</a>
+<li>{@link #MESSAGES_NO_NEED_REPLY MESSAGES_NO_NEED_REPLY}
     - Only messages that do not need a reply are listed.
 </ul>
 The default is ALL.
@@ -408,8 +408,8 @@ list.  The value must be in the range 0 to 99.   The default is 0.
 /**
 Selection ID for sort criteria.  This identifies a Boolean selection,
 which indicates whether the list should be sorted by type if the
-<a href="#SELECTION_CRITERIA">SELECTION_CRITERIA</a> selection is
-set to <a href="#ALL">ALL</a>.  The default is false.
+{@link #SELECTION_CRITERIA SELECTION_CRITERIA} selection is
+set to {@link #ALL ALL}.  The default is false.
 **/
     public static final String SORT_CRITERIA                        = "SORT_CRITERIA";
 
@@ -423,19 +423,19 @@ set to <a href="#ALL">ALL</a>.  The default is false.
 Selection ID for starting user message key.  This identifies a byte[] selection,
 which represents the message key used to begin searching for messages
 to list from the corresponding entry in the message queue.  If the message queue
-path name is set to <a href="#CURRENT">CURRENT</a>, then this selection represents
+path name is set to {@link #CURRENT CURRENT}, then this selection represents
 the starting message key for the current user's user message queue.  Possible
 values are:
 <ul>
-<li><a href="#OLDEST">OLDEST</a>
+<li>{@link #OLDEST OLDEST}
     - The first message to be returned is the oldest message in the queue.
-<li><a href="#NEWEST">NEWEST</a>
+<li>{@link #NEWEST NEWEST}
     - The first message to be returned is the newest message in the queue.
 <li>Any valid message key.
 </ul>
 The default is OLDEST.
 
-<p>If a value other than <a href="#OLDEST">OLDEST</a> or <a href="#NEWEST">NEWEST</a>
+<p>If a value other than {@link #OLDEST OLDEST} or {@link #NEWEST NEWEST}
 is specified and a message with that key does not exist, an exception is thrown.
 If the key of a reply message is specified, the message search begins with the
 inquiry or sender's copy message that the reply with associated with, not the reply
@@ -453,19 +453,19 @@ message itself.
 Selection ID for starting workstation message key.  This identifies a byte[] selection,
 which represents the message key used to begin searching for messages
 to list from the corresponding entry in the message queue.    If the message queue
-path name is set to <a href="#CURRENT">CURRENT</a>, then this selection represents
+path name is set to {@link #CURRENT CURRENT}, then this selection represents
 the starting message key for the current user's workstation message queue.  Otherwise,
 this selection has no effect.  Possible values are:
 <ul>
-<li><a href="#OLDEST">OLDEST</a>
+<li>{@link #OLDEST OLDEST}
     - The first message to be returned is the oldest message in the queue.
-<li><a href="#NEWEST">NEWEST</a>
+<li>{@link #NEWEST NEWEST}
     - The first message to be returned is the newest message in the queue.
 <li>Any valid message key.
 </ul>
 The default is OLDEST.
 
-<p>If a value other than <a href="#OLDEST">OLDEST</a> or <a href="#NEWEST">NEWEST</a>
+<p>If a value other than {@link #OLDEST OLDEST} or {@link #NEWEST NEWEST}
 is specified and a message with that key does not exist, an exception is thrown.
 If the key of a reply message is specified, the message search begins with the
 inquiry or sender's copy message that the reply with associated with, not the reply
@@ -626,7 +626,7 @@ Constructs an RMessageQueue object.
 
 @param  system  The system.
 @param  path    The fully qualified integrated file system path name
-                of the message queue, or <a href="#CURRENT">CURRENT</a> to refer to the user's
+                of the message queue, or {@link #CURRENT CURRENT} to refer to the user's
                 default message queue.
 **/
     public RMessageQueue(AS400 system, String path)
@@ -705,11 +705,11 @@ Formats the qualified message name into a PCML document.
 
 /**
 Returns the fully qualified integrated file system path name
-of the message queue, or <a href="#CURRENT">CURRENT</a> to refer to the user's default
+of the message queue, or {@link #CURRENT CURRENT} to refer to the user's default
 message queue.
 
 @return The fully qualified integrated file system path name of the
-        message queue, or <a href="#CURRENT">CURRENT</a> to refer to the user's default
+        message queue, or {@link #CURRENT CURRENT} to refer to the user's default
         message queue.
 **/
     public String getPath()
@@ -1341,11 +1341,11 @@ Sends an inquiry message to the message queue.
 
 /**
 Sets the fully qualified integrated file system path name of the
-message queue.  The default is <a href="#CURRENT">CURRENT</a>. The path cannot be changed
+message queue.  The default is {@link #CURRENT CURRENT}. The path cannot be changed
 if this object has already established a connection to the AS/400.
 
 @param path The fully qualified integrated file system path name of the
-            message queue, or <a href="#CURRENT">CURRENT</a> to refer to the user's default
+            message queue, or {@link #CURRENT CURRENT} to refer to the user's default
             message queue.
 
 @exception PropertyVetoException If the change is vetoed.

@@ -21,8 +21,8 @@ import java.util.NoSuchElementException;
 
 /**
 The ResourceListEnumeration class enumerates the
-<a href="Resource.html">Resource</a> objects in a
-<a href="ResourceList.html">ResourceList</a>.
+{@link com.ibm.as400.resource.Resource Resource} objects in a
+{@link com.ibm.as400.resource.ResourceList ResourceList}.
 This may be a more convenient mechanism to iterate through
 the Resource objects in a ResourceList, and is provided as
 an alternative to using the methods defined in ResourceList.
@@ -135,7 +135,7 @@ Indicates if there are more elements.
 
 
 /**
-Returns the next <a href="Resource.html">Resource</a>
+Returns the next {@link com.ibm.as400.resource.Resource Resource}
 in the list.
 
 @return The next Resource in the list.

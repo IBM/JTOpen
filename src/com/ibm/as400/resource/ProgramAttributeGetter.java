@@ -28,11 +28,10 @@ The ProgramAttributeGetter class gets attribute values by calling an
 AS/400 program.  The program call is specified using Program Call
 Markup Language (PCML).
 
-<p>This class uses a <a href="ProgramMap.html">
-ProgramMap</a> object to define how attribute values are
+<p>This class uses a {@link com.ibm.as400.resource.ProgramMap ProgramMap}
+object to define how attribute values are
 specified in the PCML definition.   This class is intended as a helper
-class for implementing subclasses of <a href="Resource.html">
-Resource</a>.
+class for implementing subclasses of {@link com.ibm.as400.resource.Resource Resource}.
 **/
 public class ProgramAttributeGetter
 implements Serializable

@@ -17,7 +17,7 @@ package com.ibm.as400.resource;
 
 /**
 The ResourceListAdapter class is a default implementation of the
-<a href="ResourceListListener.html">ResourceListListener</a>
+{@link com.ibm.as400.resource.ResourceListListener ResourceListListener}
 interface.
 **/
 public class ResourceListAdapter

@@ -27,11 +27,11 @@ The RJobList class represents a list of AS/400 jobs.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
-<li><a href="#JOB_NAME">JOB_NAME</a>
-<li><a href="#JOB_NUMBER">JOB_NUMBER</a>
-<li><a href="#JOB_TYPE">JOB_TYPE</a>
-<li><a href="#PRIMARY_JOB_STATUSES">PRIMARY_JOB_STATUSES</a>
-<li><a href="#USER_NAME">USER_NAME</a>
+<li>{@link #JOB_NAME JOB_NAME}
+<li>{@link #JOB_NUMBER JOB_NUMBER}
+<li>{@link #JOB_TYPE JOB_TYPE}
+<li>{@link #PRIMARY_JOB_STATUSES PRIMARY_JOB_STATUSES}
+<li>{@link #USER_NAME USER_NAME}
 </ul>
 </a>
 
@@ -152,8 +152,8 @@ Selection ID for job name.  This identifies a String selection,
 which represents a specific job name.  Possible values are:
 <ul>
 <li>"*" - Only the job that this program is running in. 
-<li><a href="#CURRENT">CURRENT</a> - All jobs with the current job's name.    
-<li><a href="#ALL">ALL</a> - All job names.  
+<li>{@link #CURRENT CURRENT} - All jobs with the current job's name.    
+<li>{@link #ALL ALL} - All job names.  
 <li>A job name.
 </ul>
 The default is ALL.
@@ -171,7 +171,7 @@ The default is ALL.
 Selection ID for job number.  This identifies a String selection,
 which represents a specific job number.  Possible values are:
 <ul>
-<li><a href="#ALL">ALL</a> - All job numbers.  
+<li>{@link #ALL ALL} - All job numbers.  
 <li>A job number.
 </ul>
 The default is ALL.
@@ -189,7 +189,7 @@ The default is ALL.
 Selection ID for job type.  This identifies a String selection,
 which represents the type of job to be listed.  Possible values are:
 <ul>
-<li><a href="#ALL">ALL</a> - All job types.  
+<li>{@link #ALL ALL} - All job types.  
 <li>{@link com.ibm.as400.resource.RJob#JOB_TYPE_AUTOSTART RJob.JOB_TYPE_AUTOSTART} - The job is an autostart job.
 <li>{@link com.ibm.as400.resource.RJob#JOB_TYPE_BATCH RJob.JOB_TYPE_BATCH} - The job is a batch job.
 <li>{@link com.ibm.as400.resource.RJob#JOB_TYPE_INTERACTIVE RJob.JOB_TYPE_INTERACTIVE} - The job is an interactive job.
@@ -244,8 +244,8 @@ Possible values for each element of the array are:
 Selection ID for user name.  This identifies a String selection,
 which represents a specific user profile name.  Possible values are:
 <ul>
-<li><a href="#CURRENT">CURRENT</a> - All jobs with the current job's user profile.    
-<li><a href="#ALL">ALL</a> - All jobs regardless of user name.  
+<li>{@link #CURRENT CURRENT} - All jobs with the current job's user profile.    
+<li>{@link #ALL ALL} - All jobs regardless of user name.  
 <li>A user profile name.
 </ul>
 The default is ALL.

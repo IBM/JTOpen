@@ -25,28 +25,28 @@ or job log.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
-<li><a href="#ALERT_OPTION">ALERT_OPTION</a>
-<li><a href="#DATE_SENT">DATE_SENT</a>
-<li><a href="#DEFAULT_REPLY">DEFAULT_REPLY</a>
-<li><a href="#MESSAGE_FILE">MESSAGE_FILE</a>
-<li><a href="#MESSAGE_HELP">MESSAGE_HELP</a>
-<li><a href="#MESSAGE_ID">MESSAGE_ID</a>
-<li><a href="#MESSAGE_KEY">MESSAGE_KEY</a>
-<li><a href="#MESSAGE_QUEUE">MESSAGE_QUEUE</a>
-<li><a href="#MESSAGE_SEVERITY">MESSAGE_SEVERITY</a>
-<li><a href="#MESSAGE_TEXT">MESSAGE_TEXT</a>
-<li><a href="#MESSAGE_TYPE">MESSAGE_TYPE</a>
-<li><a href="#REPLY_STATUS">REPLY_STATUS</a>
-<li><a href="#SENDER_JOB_NAME">SENDER_JOB_NAME</a>
-<li><a href="#SENDER_USER_NAME">SENDER_USER_NAME</a>
-<li><a href="#SENDER_JOB_NUMBER">SENDER_JOB_NUMBER</a>
-<li><a href="#SENDING_PROGRAM_NAME">SENDING_PROGRAM_NAME</a>
-<li><a href="#SUBSTITUTION_DATA">SUBSTITUTION_DATA</a>
+<li>{@link #ALERT_OPTION ALERT_OPTION}
+<li>{@link #DATE_SENT DATE_SENT}
+<li>{@link #DEFAULT_REPLY DEFAULT_REPLY}
+<li>{@link #MESSAGE_FILE MESSAGE_FILE}
+<li>{@link #MESSAGE_HELP MESSAGE_HELP}
+<li>{@link #MESSAGE_ID MESSAGE_ID}
+<li>{@link #MESSAGE_KEY MESSAGE_KEY}
+<li>{@link #MESSAGE_QUEUE MESSAGE_QUEUE}
+<li>{@link #MESSAGE_SEVERITY MESSAGE_SEVERITY}
+<li>{@link #MESSAGE_TEXT MESSAGE_TEXT}
+<li>{@link #MESSAGE_TYPE MESSAGE_TYPE}
+<li>{@link #REPLY_STATUS REPLY_STATUS}
+<li>{@link #SENDER_JOB_NAME SENDER_JOB_NAME}
+<li>{@link #SENDER_USER_NAME SENDER_USER_NAME}
+<li>{@link #SENDER_JOB_NUMBER SENDER_JOB_NUMBER}
+<li>{@link #SENDING_PROGRAM_NAME SENDING_PROGRAM_NAME}
+<li>{@link #SUBSTITUTION_DATA SUBSTITUTION_DATA}
 </ul>
 </a>
 
 <p>Use any of these attribute IDs with
-<a href="Resource.html#getAttributeValue(java.lang.Object)">getAttributeValue()</a>
+{@link com.ibm.as400.resource.Resource#getAttributeValue getAttributeValue()}
 to access the attribute values for an RQueuedMessage.
 
 <blockquote><pre>
@@ -105,12 +105,12 @@ Attribute ID for alert option.  This identifies a read-only String attribute,
 which represents whether and when an SNA alert is created and sent for the
 message.  Possible values are:
 <ul>
-<li><a href="#ALERT_OPTION_DEFER">ALERT_OPTION_DEFER</a> - An alert is sent after
+<li>{@link #ALERT_OPTION_DEFER ALERT_OPTION_DEFER} - An alert is sent after
     local problem analysis.
-<li><a href="#ALERT_OPTION_IMMEDIATE">ALERT_OPTION_IMMEDIATE</a> - An alert is sent immediately
+<li>{@link #ALERT_OPTION_IMMEDIATE ALERT_OPTION_IMMEDIATE} - An alert is sent immediately
     when the message is sent to a message queue that has the allows alerts.
-<li><a href="#ALERT_OPTION_NO">ALERT_OPTION_NO</a> - No alert is sent.
-<li><a href="#ALERT_OPTION_UNATTENDED">ALERT_OPTION_UNATTENDED</a> - An alert is sent immediately
+<li>{@link #ALERT_OPTION_NO ALERT_OPTION_NO} - No alert is sent.
+<li>{@link #ALERT_OPTION_UNATTENDED ALERT_OPTION_UNATTENDED} - An alert is sent immediately
     when the system is running in unattended mode.
 <li>"" - The alert option is not specified.
 </ul>
@@ -118,26 +118,26 @@ message.  Possible values are:
     public static final String ALERT_OPTION                    = "ALERT_OPTION";
 
     /**
-    Constant for <a href="#ALERT_OPTION">ALERT_OPTION</a> attribute value -
+    Constant for {@link #ALERT_OPTION ALERT_OPTION} attribute value -
     An alert is sent after local problem analysis.
     **/
     public static final String ALERT_OPTION_DEFER              = "*DEFER";
 
     /**
-    Constant for <a href="#ALERT_OPTION">ALERT_OPTION</a> attribute value -
+    Constant for {@link #ALERT_OPTION ALERT_OPTION} attribute value -
     An alert is sent immediately when the message is sent to a message queue
     that has the allows alerts.
     **/
     public static final String ALERT_OPTION_IMMEDIATE          = "*IMMED";
 
     /**
-    Constant for <a href="#ALERT_OPTION">ALERT_OPTION</a> attribute value -
+    Constant for {@link #ALERT_OPTION ALERT_OPTION} attribute value -
     No alert is sent.
     **/
     public static final String ALERT_OPTION_NO                 = "*NO";
 
     /**
-    Constant for <a href="#ALERT_OPTION">ALERT_OPTION</a> attribute value -
+    Constant for {@link #ALERT_OPTION ALERT_OPTION} attribute value -
     An alert is sent immediately when the system is running in unattended mode.
     **/
     public static final String ALERT_OPTION_UNATTENDED         = "*UNATTEND";
@@ -297,32 +297,32 @@ which represents the message type.  Converted to an int, the possible values are
 Attribute ID for reply status.  This identifies a read-only String attribute, which
 represents the reply status of the message.   Possible values are:
 <ul>
-<li><a href="#REPLY_STATUS_ACCEPTS_SENT">REPLY_STATUS_ACCEPTS_SENT</a> -
+<li>{@link #REPLY_STATUS_ACCEPTS_SENT REPLY_STATUS_ACCEPTS_SENT} -
     Message accepts a reply, and a reply has been sent.
-<li><a href="#REPLY_STATUS_ACCEPTS_NOT_SENT">REPLY_STATUS_ACCEPTS_NOT_SENT</a> -
+<li>{@link #REPLY_STATUS_ACCEPTS_NOT_SENT REPLY_STATUS_ACCEPTS_NOT_SENT} -
     Message accepts a reply, and a reply has not been sent.  (The message
     is waiting for a reply.)
-<li><a href="#REPLY_STATUS_NOT_ACCEPT">REPLY_STATUS_NOT_ACCEPT</a> -
+<li>{@link #REPLY_STATUS_NOT_ACCEPT REPLY_STATUS_NOT_ACCEPT} -
     Message does not accept a reply.
 </ul>
 **/
     public static final String REPLY_STATUS                     = "REPLY_STATUS";
 
     /**
-    Constant for <a href="#REPLY_STATUS">REPLY_STATUS</a> attribute value -
+    Constant for {@link #REPLY_STATUS REPLY_STATUS} attribute value -
     Message accepts a reply, and a reply has been sent.
     **/
     public static final String REPLY_STATUS_ACCEPTS_SENT        = "A";
 
     /**
-    Constant for <a href="#REPLY_STATUS">REPLY_STATUS</a> attribute value -
+    Constant for {@link #REPLY_STATUS REPLY_STATUS} attribute value -
     Message accepts a reply, and a reply has not been sent.  (The message
     is waiting for a reply.)
     **/
     public static final String REPLY_STATUS_ACCEPTS_NOT_SENT    = "W";
 
     /**
-    Constant for <a href="#REPLY_STATUS">REPLY_STATUS</a> attribute value -
+    Constant for {@link #REPLY_STATUS REPLY_STATUS} attribute value -
     Message does not accept a reply.
     **/
     public static final String REPLY_STATUS_NOT_ACCEPT          = "N";

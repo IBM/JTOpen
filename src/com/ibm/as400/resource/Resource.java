@@ -42,7 +42,7 @@ of Resource will normally document the attribute IDs that it supports.
 <p>One example of a concrete subclass of Resource is 
 {@link com.ibm.as400.resource.RUser RUser}
 which represents an AS/400 user.  RUser supports
-many <a href="RUser.html#attributeIDs">attribute IDs</a>, 
+many <a href="{@docRoot}/com/ibm/as400/resource/RUser.html#attributeIDs">attribute IDs</a>, 
 each of which can be used to get
 attribute values.  Here is an example which retrieves an attribute
 value from an RUser:
@@ -61,7 +61,7 @@ can write generic code to work with any Resource subclass.
 Such code may improve reusability and maintainability and will
 work with future Resource subclasses without modification.
 Every attribute has an associated attribute
-<a href="ResourceMetaData.html">meta data</a>
+{@link com.ibm.as400.resource.ResourceMetaData meta data}
 object which describes various properties of the attribute.  
 The attribute meta data can come in handy when writing generic
 code.  Here is an example of generic code which prints the 

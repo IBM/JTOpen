@@ -40,36 +40,36 @@ The default job is the host server job for remote program calls.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
-<li><a href="#LIST_DIRECTION">LIST_DIRECTION</a>
-<li><a href="#STARTING_MESSAGE_KEY">STARTING_MESSAGE_KEY</a>
+<li>{@link #LIST_DIRECTION LIST_DIRECTION}
+<li>{@link #STARTING_MESSAGE_KEY STARTING_MESSAGE_KEY}
 </ul>
 </a>
 
 <p>Use one or more of these selection IDs with
-<a href="ResourceList.html#getSelectionValue(java.lang.Object)">getSelectionValue()</a>
-and <a href="ResourceList.html#setSelectionValue(java.lang.Object, java.lang.Object)">setSelectionValue()</a>
+{@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
+and {@link com.ibm.as400.resource.ResourceList#setSelectionValue setSelectionValue()}
 to access the selection values for an RJobLog.
 
-<p>RJobLog objects generate <a href="RQueuedMessage.html">RQueuedMessage</a>
-objects.  RQueuedMessage objects have many <a href="RQueuedMessage.html#attributeIDs">
+<p>RJobLog objects generate {@link com.ibm.as400.resource.RQueuedMessage RQueuedMessage}
+objects.  RQueuedMessage objects have many <a href="{@docRoot}/com/ibm/as400/resource/RQueuedMessage.html#attributeIDs">
 attributes</a>.  Only some of theses attribute values are set, depending on how an RQueuedMessage
 object is created.  The following is a list of attribute IDs whose values are set on RQueuedMessage
 objects returned in a list of job log messages:
 <ul>
-<li><a href="RQueuedMessage.html#DATE_SENT">DATE_SENT</a>
-<li><a href="RQueuedMessage.html#DEFAULT_REPLY">DEFAULT_REPLY</a>
-<li><a href="RQueuedMessage.html#MESSAGE_FILE">MESSAGE_FILE</a>
-<li><a href="RQueuedMessage.html#MESSAGE_HELP">MESSAGE_HELP</a>
-<li><a href="RQueuedMessage.html#MESSAGE_ID">MESSAGE_ID</a>
-<li><a href="RQueuedMessage.html#MESSAGE_KEY">MESSAGE_KEY</a>
-<li><a href="RQueuedMessage.html#MESSAGE_SEVERITY">MESSAGE_SEVERITY</a>
-<li><a href="RQueuedMessage.html#MESSAGE_TEXT">MESSAGE_TEXT</a>
-<li><a href="RQueuedMessage.html#MESSAGE_TYPE">MESSAGE_TYPE</a>
-<li><a href="RQueuedMessage.html#REPLY_STATUS">REPLY_STATUS</a>
-<li><a href="RQueuedMessage.html#SENDER_JOB_NAME">SENDER_JOB_NAME</a>
-<li><a href="RQueuedMessage.html#SENDER_JOB_NUMBER">SENDER_JOB_NUMBER</a>
-<li><a href="RQueuedMessage.html#SENDER_USER_NAME">SENDER_USER_NAME</a>
-<li><a href="RQueuedMessage.html#SENDING_PROGRAM_NAME">SENDING_PROGRAM_NAME</a>
+<li>{@link com.ibm.as400.resource.RQueuedMessage#DATE_SENT DATE_SENT}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#DEFAULT_REPLY DEFAULT_REPLY}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_FILE MESSAGE_FILE}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_HELP MESSAGE_HELP}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_ID MESSAGE_ID}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_KEY MESSAGE_KEY}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_SEVERITY MESSAGE_SEVERITY}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_TEXT MESSAGE_TEXT}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#MESSAGE_TYPE MESSAGE_TYPE}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#REPLY_STATUS REPLY_STATUS}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#SENDER_JOB_NAME SENDER_JOB_NAME}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#SENDER_JOB_NUMBER SENDER_JOB_NUMBER}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#SENDER_USER_NAME SENDER_USER_NAME}
+<li>{@link com.ibm.as400.resource.RQueuedMessage#SENDING_PROGRAM_NAME SENDING_PROGRAM_NAME}
 </ul>
 
 <blockquote><pre>
@@ -155,13 +155,13 @@ Constant referring to the previous message in the job log.
 /**
 Selection ID for list direction.  This identifies a String selection,
 which represents the direction to list messages relative to the values
-specified for the <a href="#STARTING_MESSAGE_KEY">STARTING_MESSAGE_KEY</a>
+specified for the {@link #STARTING_MESSAGE_KEY STARTING_MESSAGE_KEY}
 selection.  Possible values are:
 <ul>
-<li><a href="#NEXT">NEXT</a>
+<li>{@link #NEXT NEXT}
     - Returns messages that are newer than the messages specified for
       the STARTING_MESSAGE_KEY selection.
-<li><a href="#PREVIOUS">PREVIOUS</a>
+<li>{@link #PREVIOUS PREVIOUS}
     - Returns messages that are older than the messages specified for
       the STARTING_MESSAGE_KEY selection.
 </ul>
@@ -181,9 +181,9 @@ which represents the message key used to begin searching for messages
 to list from the corresponding entry in the message queue.  Possible
 values are:
 <ul>
-<li><a href="#OLDEST">OLDEST</a>
+<li>{@link #OLDEST OLDEST}
     - The first message to be returned is the oldest message in the queue.
-<li><a href="#NEWEST">NEWEST</a>
+<li>{@link #NEWEST NEWEST}
     - The first message to be returned is the newest message in the queue.
 <li>Any valid message key.
 </ul>

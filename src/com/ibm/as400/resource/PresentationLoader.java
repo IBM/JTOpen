@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 
 /**
 The PresentationLoader class is a convenience class for creating
-<a href="Presentation.html">Presentation</a>
+{@link com.ibm.as400.resource.Presentation Presentation}
 objects using a resource bundle.
 **/
 public class PresentationLoader

@@ -25,10 +25,10 @@ import java.util.Vector;
 /**
 The ResourceMetaDataTable class represents a data structure for
 building and maintaining a list of
-<a href="ResourceMetaData.html">ResourceMetaData</a>
+{@link com.ibm.as400.resource.ResourceMetaData ResourceMetaData}
 objects.  This is intended for use by subclasses of
-<a href="Resource.html">Resource</a> and
-<a href="ResourceList.html">ResourceList</a>
+{@link com.ibm.as400.resource.Resource Resource} and
+{@link com.ibm.as400.resource.ResourceList ResourceList}
 implementations.  This information is externalized as an array of
 ResourceMetaData objects, but this class makes it easier to build
 this array without knowing the number of elements ahead of time.

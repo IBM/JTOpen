@@ -30,7 +30,7 @@ in the AS/400 integrated file system.  This class provides function similar to
 {@link com.ibm.as400.access.IFSFile IFSFile } and
 {@link com.ibm.as400.access.IFSJavaFile IFSJavaFile }
 except that it is a subclass of
-<a href="ResourceList.html">ResourceList</a>.  As a result,
+{@link com.ibm.as400.resource.ResourceList ResourceList}.  As a result,
 it can be used directly in conjunction with components written for ResourceList objects.
 
 <p>If the specified directory does not exist, the list will be empty.
@@ -38,24 +38,24 @@ it can be used directly in conjunction with components written for ResourceList 
 <p>The contents of the list are always loaded sequentially, regardless of the
 order that you request them.  In addition, they are loaded on demand, meaning the
 entire list is not loaded until the last item is requested.  Use the
-<a href="#resourceAt(long)">resourceAt()</a> method to request a particular list item.  If that
+{@link #resourceAt resourceAt()} method to request a particular list item.  If that
 list item is not yet loaded, resourceAt() returns null.  To ensure that a
-particular list item is loaded, call <a href="#waitForResource(long)">waitForResource()</a>.
-To ensure that the entire list is loaded, call <a href="#waitForComplete()">waitForComplete()</a>.
+particular list item is loaded, call {@link #waitForResource waitForResource()}.
+To ensure that the entire list is loaded, call {@link #waitForComplete waitForComplete()}.
 Note that both wait methods will block until the requested resource(s) are loaded.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
-<li><a href="#FILTER">FILTER</a>
-<li><a href="#PATTERN">PATTERN</a>
+<li>{@link #FILTER FILTER}
+<li>{@link #PATTERN PATTERN}
 </ul>
 
 <p>Use one or more of these selection IDs with
-<a href="ResourceList.html#getSelectionValue(java.lang.Object)">getSelectionValue()</a>
-and <a href="ResourceList.html#setSelectionValue(java.lang.Object, java.lang.Object)">setSelectionValue()</a>
+{@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
+and {@link com.ibm.as400.resource.ResourceList#setSelectionValue setSelectionValue()}
 to access the selection values for an RIFSFileList.
 
-<p>RIFSFileList objects generate <a href="RIFSFile.html">RIFSFile</a> objects.
+<p>RIFSFileList objects generate {@link com.ibm.as400.resource.RIFSFile RIFSFile} objects.
 
 <blockquote><pre>
 // Create an RIFSFileList object to represent a list of files.

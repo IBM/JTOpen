@@ -17,9 +17,9 @@ package com.ibm.as400.resource;
 
 /**
 The ArrayResourceList class represents a subclass
-of the <a href="ResourceList.html">ResourceList</a>
+of the {@link com.ibm.as400.resource.ResourceList ResourceList}
 class which manages a list of resources predefined as an array
-of <a href="Resource.html">Resource</a> objects.
+of {@link com.ibm.as400.resource.Resource Resource} objects.
 **/
 public class ArrayResourceList
 extends ResourceList

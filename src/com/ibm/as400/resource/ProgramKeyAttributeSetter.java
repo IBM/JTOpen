@@ -33,11 +33,10 @@ The ProgramKeyAttributeSetter class sets attribute values by calling an
 AS/400 program.  The program call is specified using Program Call
 Markup Language (PCML).  
 
-<p>This class uses a <a href="com.ibm.as400.resource.ProgramKeys.html">
-ProgramKeys</a> object to define how attribute values are
+<p>This class uses a {@link com.ibm.as400.resource.ProgramKeys ProgramKeys}
+object to define how attribute values are
 specified in the PCML definition.    This class is intended as a helper
-class for implementing subclasses of <a href="com.ibm.as400.resource.Resource.html">
-Resource</a>.
+class for implementing subclasses of {@link com.ibm.as400.resource.Resource Resource}.
 **/
 //
 // Implementation notes:

@@ -42,94 +42,95 @@ The default job is the host server job for remote program calls.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
-<li><a href="#ACCOUNTING_CODE">ACCOUNTING_CODE</a>
-<li><a href="#ACTIVE_JOB_STATUS">ACTIVE_JOB_STATUS</a>
-<li><a href="#AUXILIARY_IO_REQUESTS">AUXILIARY_IO_REQUESTS</a>
-<li><a href="#BREAK_MESSAGE_HANDLING">BREAK_MESSAGE_HANDLING</a>
-<li><a href="#CCSID">CCSID</a>
-<li><a href="#COMPLETION_STATUS">COMPLETION_STATUS</a>
-<li><a href="#CONTROLLED_END_REQUESTED">CONTROLLED_END_REQUESTED</a>
-<li><a href="#COUNTRY_ID">COUNTRY_ID</a>
-<li><a href="#CPU_TIME_USED">CPU_TIME_USED</a>
-<li><a href="#CURRENT_LIBRARY">CURRENT_LIBRARY</a>
-<li><a href="#CURRENT_LIBRARY_EXISTENCE">CURRENT_LIBRARY_EXISTENCE</a>
-<li><a href="#CURRENT_SYSTEM_POOL_ID">CURRENT_SYSTEM_POOL_ID</a>
-<li><a href="#CURRENT_USER">CURRENT_USER</a>
-<li><a href="#DATE_ENTERED_SYSTEM">DATE_ENTERED_SYSTEM</a>
-<li><a href="#DATE_FORMAT">DATE_FORMAT</a>
-<li><a href="#DATE_SEPARATOR">DATE_SEPARATOR</a>
-<li><a href="#DATE_STARTED">DATE_STARTED</a>
-<li><a href="#DBCS_CAPABLE">DBCS_CAPABLE</a>
-<li><a href="#DECIMAL_FORMAT">DECIMAL_FORMAT</a>
-<li><a href="#DEFAULT_CCSID">DEFAULT_CCSID</a>
-<li><a href="#DEFAULT_WAIT_TIME">DEFAULT_WAIT_TIME</a>
-<li><a href="#DEVICE_RECOVERY_ACTION">DEVICE_RECOVERY_ACTION</a>
-<li><a href="#ELIGIBLE_FOR_PURGE">ELIGIBLE_FOR_PURGE</a>
-<li><a href="#END_SEVERITY">END_SEVERITY</a>
-<li><a href="#FUNCTION_NAME">FUNCTION_NAME</a>
-<li><a href="#FUNCTION_TYPE">FUNCTION_TYPE</a>
-<li><a href="#INQUIRY_MESSAGE_REPLY">INQUIRY_MESSAGE_REPLY</a>
-<li><a href="#INSTANCE">INSTANCE</a>
-<li><a href="#INTERACTIVE_TRANSACTIONS">INTERACTIVE_TRANSACTIONS</a>
-<li><a href="#INTERNAL_JOB_ID">INTERNAL_JOB_ID</a>
-<li><a href="#JOB_DATE">JOB_DATE</a>
-<li><a href="#JOB_DESCRIPTION">JOB_DESCRIPTION</a>
-<li><a href="#JOB_NAME">JOB_NAME</a>
-<li><a href="#JOB_NUMBER">JOB_NUMBER</a>
-<li><a href="#JOB_QUEUE">JOB_QUEUE</a>
-<li><a href="#JOB_QUEUE_DATE">JOB_QUEUE_DATE</a>
-<li><a href="#JOB_QUEUE_PRIORITY">JOB_QUEUE_PRIORITY</a>
-<li><a href="#JOB_QUEUE_STATUS">JOB_QUEUE_STATUS</a>
-<li><a href="#JOB_STATUS">JOB_STATUS</a>
-<li><a href="#JOB_SUBTYPE">JOB_SUBTYPE</a>
-<li><a href="#JOB_SWITCHES">JOB_SWITCHES</a>
-<li><a href="#JOB_TYPE">JOB_TYPE</a>
-<li><a href="#KEEP_DDM_CONNECTIONS_ACTIVE">KEEP_DDM_CONNECTIONS_ACTIVE</a>
-<li><a href="#LANGUAGE_ID">LANGUAGE_ID</a>
-<li><a href="#LOCATION_NAME">LOCATION_NAME</a>
-<li><a href="#LOG_CL_PROGRAMS">LOG_CL_PROGRAMS</a>
-<li><a href="#LOGGING_LEVEL">LOGGING_LEVEL</a>
-<li><a href="#LOGGING_SEVERITY">LOGGING_SEVERITY</a>
-<li><a href="#LOGGING_TEXT">LOGGING_TEXT</a>
-<li><a href="#MAX_CPU_TIME">MAX_CPU_TIME</a>
-<li><a href="#MAX_TEMP_STORAGE">MAX_TEMP_STORAGE</a>
-<li><a href="#MESSAGE_QUEUE_ACTION">MESSAGE_QUEUE_ACTION</a>
-<li><a href="#MESSAGE_QUEUE_MAX_SIZE">MESSAGE_QUEUE_MAX_SIZE</a>
-<li><a href="#MODE">MODE</a>
-<li><a href="#NETWORK_ID">NETWORK_ID</a>
-<li><a href="#OUTPUT_QUEUE">OUTPUT_QUEUE</a>
-<li><a href="#OUTPUT_QUEUE_PRIORITY">OUTPUT_QUEUE_PRIORITY</a>
-<li><a href="#PRINT_KEY_FORMAT">PRINT_KEY_FORMAT</a>
-<li><a href="#PRINT_TEXT">PRINT_TEXT</a>
-<li><a href="#PRINTER_DEVICE_NAME">PRINTER_DEVICE_NAME</a>
-<li><a href="#PRODUCT_LIBRARIES">PRODUCT_LIBRARIES</a>
-<li><a href="#PRODUCT_RETURN_CODE">PRODUCT_RETURN_CODE</a>
-<li><a href="#PROGRAM_RETURN_CODE">PROGRAM_RETURN_CODE</a>
-<li><a href="#ROUTING_DATA">ROUTING_DATA</a>
-<li><a href="#RUN_PRIORITY">RUN_PRIORITY</a>
-<li><a href="#SCHEDULE_DATE">SCHEDULE_DATE</a>
-<li><a href="#SEQUENCE_NUMBER">SEQUENCE_NUMBER</a>
-<li><a href="#SERVER_TYPE">SERVER_TYPE</a>
-<li><a href="#SIGNED_ON_JOB">SIGNED_ON_JOB</a>
-<li><a href="#SORT_SEQUENCE_TABLE">SORT_SEQUENCE_TABLE</a>
-<li><a href="#SPECIAL_ENVIRONMENT">SPECIAL_ENVIRONMENT</a>
-<li><a href="#STATUS_MESSAGE_HANDLING">STATUS_MESSAGE_HANDLING</a>
-<li><a href="#SUBMITTED_BY_JOB_NAME">SUBMITTED_BY_JOB_NAME</a>
-<li><a href="#SUBMITTED_BY_JOB_NUMBER">SUBMITTED_BY_JOB_NUMBER</a>
-<li><a href="#SUBMITTED_BY_USER">SUBMITTED_BY_USER</a>
-<li><a href="#SUBSYSTEM">SUBSYSTEM</a>
-<li><a href="#SYSTEM_POOL_ID">SYSTEM_POOL_ID</a>
-<li><a href="#SYSTEM_LIBRARY_LIST">SYSTEM_LIBRARY_LIST</a>
-<li><a href="#TEMP_STORAGE_USED">TEMP_STORAGE_USED</a>
-<li><a href="#THREAD_COUNT">THREAD_COUNT</a>
-<li><a href="#TIME_SEPARATOR">TIME_SEPARATOR</a>
-<li><a href="#TIME_SLICE">TIME_SLICE</a>
-<li><a href="#TIME_SLICE_END_POOL">TIME_SLICE_END_POOL</a>
-<li><a href="#TOTAL_RESPONSE_TIME">TOTAL_RESPONSE_TIME</a>
-<li><a href="#USER_LIBRARY_LIST">USER_LIBRARY_LIST</a>
-<li><a href="#USER_NAME">USER_NAME</a>
-<li><a href="#USER_RETURN_CODE">USER_RETURN_CODE</a>
+<li>{@link #ACCOUNTING_CODE ACCOUNTING_CODE}
+<li>{@link #ACTIVE_JOB_STATUS ACTIVE_JOB_STATUS}
+<li>{@link #AUXILIARY_IO_REQUESTS AUXILIARY_IO_REQUESTS}
+<li>{@link #BREAK_MESSAGE_HANDLING BREAK_MESSAGE_HANDLING}
+<li>{@link #CCSID CCSID}
+<li>{@link #COMPLETION_STATUS COMPLETION_STATUS}
+<li>{@link #CONTROLLED_END_REQUESTED CONTROLLED_END_REQUESTED}
+<li>{@link #COUNTRY_ID COUNTRY_ID}
+<li>{@link #CPU_TIME_USED CPU_TIME_USED}
+<li>{@link #CURRENT_LIBRARY CURRENT_LIBRARY}
+<li>{@link #CURRENT_LIBRARY_EXISTENCE CURRENT_LIBRARY_EXISTENCE}
+<li>{@link #CURRENT_SYSTEM_POOL_ID CURRENT_SYSTEM_POOL_ID}
+<li>{@link #CURRENT_USER CURRENT_USER}
+<li>{@link #DATE_ENTERED_SYSTEM DATE_ENTERED_SYSTEM}
+<li>{@link #DATE_FORMAT DATE_FORMAT}
+<li>{@link #DATE_SEPARATOR DATE_SEPARATOR}
+<li>{@link #DATE_STARTED DATE_STARTED}
+<li>{@link #DBCS_CAPABLE DBCS_CAPABLE}
+<li>{@link #DECIMAL_FORMAT DECIMAL_FORMAT}
+<li>{@link #DEFAULT_CCSID DEFAULT_CCSID}
+<li>{@link #DEFAULT_WAIT_TIME DEFAULT_WAIT_TIME}
+<li>{@link #DEVICE_RECOVERY_ACTION DEVICE_RECOVERY_ACTION}
+<li>{@link #ELIGIBLE_FOR_PURGE ELIGIBLE_FOR_PURGE}
+<li>{@link #END_SEVERITY END_SEVERITY}
+<li>{@link #FUNCTION_NAME FUNCTION_NAME}
+<li>{@link #FUNCTION_TYPE FUNCTION_TYPE}
+<li>{@link #INQUIRY_MESSAGE_REPLY INQUIRY_MESSAGE_REPLY}
+<li>{@link #INSTANCE INSTANCE}
+<li>{@link #INTERACTIVE_TRANSACTIONS INTERACTIVE_TRANSACTIONS}
+<li>{@link #INTERNAL_JOB_ID INTERNAL_JOB_ID}
+<li>{@link #JOB_DATE JOB_DATE}
+<li>{@link #JOB_DESCRIPTION JOB_DESCRIPTION}
+<li>{@link #JOB_NAME JOB_NAME}
+<li>{@link #JOB_NUMBER JOB_NUMBER}
+<li>{@link #JOB_QUEUE JOB_QUEUE}
+<li>{@link #JOB_QUEUE_DATE JOB_QUEUE_DATE}
+<li>{@link #JOB_QUEUE_PRIORITY JOB_QUEUE_PRIORITY}
+<li>{@link #JOB_QUEUE_STATUS JOB_QUEUE_STATUS}
+<li>{@link #JOB_STATUS JOB_STATUS}
+<li>{@link #JOB_SUBTYPE JOB_SUBTYPE}
+<li>{@link #JOB_SWITCHES JOB_SWITCHES}
+<li>{@link #JOB_TYPE JOB_TYPE}
+<li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE KEEP_DDM_CONNECTIONS_ACTIVE}
+<li>{@link #LANGUAGE_ID LANGUAGE_ID}
+<li>{@link #LOCATION_NAME LOCATION_NAME}
+<li>{@link #LOG_CL_PROGRAMS LOG_CL_PROGRAMS}
+<li>{@link #LOGGING_LEVEL LOGGING_LEVEL}
+<li>{@link #LOGGING_SEVERITY LOGGING_SEVERITY}
+<li>{@link #LOGGING_TEXT LOGGING_TEXT}
+<li>{@link #MAX_CPU_TIME MAX_CPU_TIME}
+<li>{@link #MAX_TEMP_STORAGE MAX_TEMP_STORAGE}
+<li>{@link #MESSAGE_QUEUE_ACTION MESSAGE_QUEUE_ACTION}
+<li>{@link #MESSAGE_QUEUE_MAX_SIZE MESSAGE_QUEUE_MAX_SIZE}
+<li>{@link #MODE MODE}
+<li>{@link #NETWORK_ID NETWORK_ID}
+<li>{@link #OUTPUT_QUEUE OUTPUT_QUEUE}
+<li>{@link #OUTPUT_QUEUE_PRIORITY OUTPUT_QUEUE_PRIORITY}
+<li>{@link #PRINT_KEY_FORMAT PRINT_KEY_FORMAT}
+<li>{@link #PRINT_TEXT PRINT_TEXT}
+<li>{@link #PRINTER_DEVICE_NAME PRINTER_DEVICE_NAME}
+<li>{@link #PRODUCT_LIBRARIES PRODUCT_LIBRARIES}
+<li>{@link #PRODUCT_RETURN_CODE PRODUCT_RETURN_CODE}
+<li>{@link #PROGRAM_RETURN_CODE PROGRAM_RETURN_CODE}
+<li>{@link #ROUTING_DATA ROUTING_DATA}
+<li>{@link #RUN_PRIORITY RUN_PRIORITY}
+<li>{@link #SCHEDULE_DATE SCHEDULE_DATE}
+<li>{@link #SEQUENCE_NUMBER SEQUENCE_NUMBER}
+<li>{@link #SERVER_TYPE SERVER_TYPE}
+<li>{@link #SIGNED_ON_JOB SIGNED_ON_JOB}
+<li>{@link #SORT_SEQUENCE_TABLE SORT_SEQUENCE_TABLE}
+<li>{@link #SPECIAL_ENVIRONMENT SPECIAL_ENVIRONMENT}
+<li>{@link #STATUS_MESSAGE_HANDLING STATUS_MESSAGE_HANDLING}
+<li>{@link #SUBMITTED_BY_JOB_NAME SUBMITTED_BY_JOB_NAME}
+<li>{@link #SUBMITTED_BY_JOB_NUMBER SUBMITTED_BY_JOB_NUMBER}
+<li>{@link #SUBMITTED_BY_USER SUBMITTED_BY_USER}
+<li>{@link #SUBSYSTEM SUBSYSTEM}
+<li>{@link #SYSTEM_POOL_ID SYSTEM_POOL_ID}
+<li>{@link #SYSTEM_LIBRARY_LIST SYSTEM_LIBRARY_LIST}
+<li>{@link #TEMP_STORAGE_USED TEMP_STORAGE_USED}
+<li>{@link #THREAD_COUNT THREAD_COUNT}
+<li>{@link #TIME_SEPARATOR TIME_SEPARATOR}
+<li>{@link #TIME_SLICE TIME_SLICE}
+<li>{@link #TIME_SLICE_END_POOL TIME_SLICE_END_POOL}
+<li>{@link #TOTAL_RESPONSE_TIME TOTAL_RESPONSE_TIME}
+<li>{@link #USER_LIBRARY_LIST USER_LIBRARY_LIST}
+<li>{@link #USER_NAME USER_NAME}
+<li>{@link #USER_RETURN_CODE USER_RETURN_CODE}
 </ul>
+</a>
 
 <p>Use any of these attribute IDs with
 {@link com.ibm.as400.resource.ChangeableResource#getAttributeValue(java.lang.Object) getAttributeValue()}
@@ -285,12 +286,12 @@ which represents the number of auxiliary I/O requests for the initial thread of 
 Attribute ID for break message handling.  This identifies a String attribute,
 which represents how this job handles break messages.  Possible values are:
 <ul>
-<li><a href="#BREAK_MESSAGE_HANDLING_NORMAL">BREAK_MESSAGE_HANDLING_NORMAL</a>
+<li>{@link #BREAK_MESSAGE_HANDLING_NORMAL BREAK_MESSAGE_HANDLING_NORMAL}
     - The message queue status determines break message handling.
-<li><a href="#BREAK_MESSAGE_HANDLING_HOLD">BREAK_MESSAGE_HANDLING_HOLD</a>
+<li>{@link #BREAK_MESSAGE_HANDLING_HOLD BREAK_MESSAGE_HANDLING_HOLD}
     - The message queue holds break messages until a user or program
       requests them.
-<li><a href="#BREAK_MESSAGE_HANDLING_NOTIFY">BREAK_MESSAGE_HANDLING_NOTIFY</a>
+<li>{@link #BREAK_MESSAGE_HANDLING_NOTIFY BREAK_MESSAGE_HANDLING_NOTIFY}
     - The system notifies the job's message queue when a message
       arrives.
 </ul>
@@ -337,9 +338,9 @@ This identifies an Integer attribute.
 
 <p>The following special values can be used when setting the CCSID:
 <ul>
-<li><a href="#CCSID_SYSTEM_VALUE">CCSID_SYSTEM_VALUE</a> - The CCSID specified
+<li>{@link #CCSID_SYSTEM_VALUE CCSID_SYSTEM_VALUE} - The CCSID specified
     in the system value QCCSID is used.
-<li><a href="#CCSID_INITIAL_USER">CCSID_INITIAL_USER</a> - The CCSID specified
+<li>{@link #CCSID_INITIAL_USER CCSID_INITIAL_USER} - The CCSID specified
     in the user profile under which this thread was initially running is
     used.
 </ul>
@@ -377,11 +378,11 @@ This identifies an Integer attribute.
 Attribute ID for completion status.  This identifies a read-only String attribute,
 which represents the completion status of the job.  Possible values are:
 <ul>
-<li><a href="#COMPLETION_STATUS_NOT_COMPLETED">COMPLETION_STATUS_NOT_COMPLETED</a>
+<li>{@link #COMPLETION_STATUS_NOT_COMPLETED COMPLETION_STATUS_NOT_COMPLETED}
     - The job has not completed.
-<li><a href="#COMPLETION_STATUS_COMPLETED_NORMALLY">COMPLETION_STATUS_COMPLETED_NORMALLY</a>
+<li>{@link #COMPLETION_STATUS_COMPLETED_NORMALLY COMPLETION_STATUS_COMPLETED_NORMALLY}
     - The job completed normally.
-<li><a href="#COMPLETION_STATUS_COMPLETED_ABNORMALLY">COMPLETION_STATUS_COMPLETED_ABNORMALLY</a>
+<li>{@link #COMPLETION_STATUS_COMPLETED_ABNORMALLY COMPLETION_STATUS_COMPLETED_ABNORMALLY}
     - The job completed abnormally.
 </ul>
 **/
@@ -423,12 +424,12 @@ Attribute ID for controlled end requested.  This identifies a read-only String a
 which indicates whether or not the system issued a controlled cancelation.  Possible
 values are:
 <ul>
-<li><a href="#CONTROLLED_END_REQUESTED_CANCELED">CONTROLLED_END_REQUESTED_CANCELED</a>
+<li>{@link #CONTROLLED_END_REQUESTED_CANCELED CONTROLLED_END_REQUESTED_CANCELED}
     - The system, the subsystem in which the job is running,
       or the job itself is canceled.
-<li><a href="#CONTROLLED_END_REQUESTED_NOT_CANCELED">CONTROLLED_END_REQUESTED_NOT_CANCELED</a>
+<li>{@link #CONTROLLED_END_REQUESTED_NOT_CANCELED CONTROLLED_END_REQUESTED_NOT_CANCELED}
     - The system, subsystem, or job is not canceled.
-<li><a href="#CONTROLLED_END_REQUESTED_NOT_RUNNING">CONTROLLED_END_REQUESTED_NOT_RUNNING</a>
+<li>{@link #CONTROLLED_END_REQUESTED_NOT_RUNNING CONTROLLED_END_REQUESTED_NOT_RUNNING}
     - The job is not running.
 </ul>
 **/
@@ -471,9 +472,9 @@ Attribute ID for country ID.  This identifies a String attribute.
 
 <p>The following special values can be used when setting the country ID:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QCNTRYID is used.
-<li><a href="#USER_PROFILE">USER_PROFILE</a> - The
+<li>{@link #USER_PROFILE USER_PROFILE} - The
     country ID specified in the user profile under which this thread
     was initially running is used.
 </ul>
@@ -591,15 +592,15 @@ placed on the system.  The Date value is converted using the default Java locale
 Attribute ID for date format.  This identifies a String attribute, which
 represents the format in which dates are presented.  Possible values are:
 <ul>
-<li><a href="#DATE_FORMAT_YMD">DATE_FORMAT_YMD</a> - Year, month, and day format.
-<li><a href="#DATE_FORMAT_MDY">DATE_FORMAT_MDY</a> - Month, day, and year format.
-<li><a href="#DATE_FORMAT_DMY">DATE_FORMAT_DMY</a> - Day, month, and year format.
-<li><a href="#DATE_FORMAT_JULIAN">DATE_FORMAT_JULIAN</a> - Julian format (year and day).
+<li>{@link #DATE_FORMAT_YMD DATE_FORMAT_YMD} - Year, month, and day format.
+<li>{@link #DATE_FORMAT_MDY DATE_FORMAT_MDY} - Month, day, and year format.
+<li>{@link #DATE_FORMAT_DMY DATE_FORMAT_DMY} - Day, month, and year format.
+<li>{@link #DATE_FORMAT_JULIAN DATE_FORMAT_JULIAN} - Julian format (year and day).
 </ul>
 
 <p>The following special values can be used when setting the date format:
 <ul>
-<li><a href="#DATE_FORMAT_SYSTEM_VALUE">DATE_FORMAT_SYSTEM_VALUE</a> - The
+<li>{@link #DATE_FORMAT_SYSTEM_VALUE DATE_FORMAT_SYSTEM_VALUE} - The
     system value QDATFMT is used.
 </ul>
 **/
@@ -660,7 +661,7 @@ a date.
 
 <p>The following special value can be used when setting the date separator:
 <ul>
-<li><a href="#DATE_SEPARATOR_SYSTEM_VALUE">DATE_SEPARATOR_SYSTEM_VALUE</a> - The
+<li>{@link #DATE_SEPARATOR_SYSTEM_VALUE DATE_SEPARATOR_SYSTEM_VALUE} - The
     system value QDATSEP is used.
 </ul>
 **/
@@ -726,22 +727,22 @@ which indicates whether the job is DBCS capable.
 Attribute ID for decimal format.  This identifies a String attribute, which
 represents the decimal format used for this job. Possible values are:
 <ul>
-<li><a href="#DECIMAL_FORMAT_PERIOD">DECIMAL_FORMAT_PERIOD</a> - Uses a period
+<li>{@link #DECIMAL_FORMAT_PERIOD DECIMAL_FORMAT_PERIOD} - Uses a period
     for a decimal point, a comma for a 3-digit grouping character, and zero-suppresses
     to the left of the decimal point.
-<li><a href="#DECIMAL_FORMAT_COMMA_I">DECIMAL_FORMAT_COMMA_I</a> - Uses a comma for
+<li>{@link #DECIMAL_FORMAT_COMMA_I DECIMAL_FORMAT_COMMA_I} - Uses a comma for
     a decimal point and a period for a 3-digit grouping character.  The zero-suppression
     character is in the second character (rather than the first) to the left of the decimal
     notation.  Balances with zero  values to the left of the comma are written with one
     leading zero.
-<li><a href="#DECIMAL_FORMAT_COMMA_J">DECIMAL_FORMAT_COMMA_J</a> - Uses a comma for a decimal
+<li>{@link #DECIMAL_FORMAT_COMMA_J DECIMAL_FORMAT_COMMA_J} - Uses a comma for a decimal
     point, a period for a 3-digit grouping character, and zero-suppresses to the left of the
     decimal point.
 </ul>
 
 <p>The following special value can be used when setting the decimal separator:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QDECFMT is used.
 </ul>
 **/
@@ -824,28 +825,28 @@ Attribute ID for device recovery action.  This identifies a String attribute,
 which represents the action taken for interactive jobs when an I/O error occurs
 for the job's requesting program device.  Possible values are:
 <ul>
-<li><a href="#DEVICE_RECOVERY_ACTION_MESSAGE">DEVICE_RECOVERY_ACTION_MESSAGE</a> -
+<li>{@link #DEVICE_RECOVERY_ACTION_MESSAGE DEVICE_RECOVERY_ACTION_MESSAGE} -
     Signals the I/O error message to the application and lets the application program
     perform error recovery.
-<li><a href="#DEVICE_RECOVERY_ACTION_DISCONNECT_MESSAGE"</a>DEVICE_RECOVERY_ACTION_DISCONNECT_MESSAGE</a> -
+<li>{@link #DEVICE_RECOVERY_ACTION_DISCONNECT_MESSAGE DEVICE_RECOVERY_ACTION_DISCONNECT_MESSAGE} -
     Disconnects the job when an I/O error occurs.  When the job reconnects, the system
     sends an error message to the application program, indicating the job has reconnected
     and that the workstation device has recovered.
-<li><a href="#DEVICE_RECOVERY_ACTION_DISCONNECT_END_REQUEST">DEVICE_RECOVERY_ACTION_DISCONNECT_END_REQUEST</a> -
+<li>{@link #DEVICE_RECOVERY_ACTION_DISCONNECT_END_REQUEST DEVICE_RECOVERY_ACTION_DISCONNECT_END_REQUEST} -
     Disconnects the job when an I/O error occurs.  When the job reconnects, the system
     sends the End Request (ENDRQS) command to return control to the previous request
     level.
-<li><a href="#DEVICE_RECOVERY_ACTION_END_JOB">DEVICE_RECOVERY_ACTION_END_JOB</a> -
+<li>{@link #DEVICE_RECOVERY_ACTION_END_JOB DEVICE_RECOVERY_ACTION_END_JOB} -
     Ends the job when an I/O error occurs.  A message is sent to the job's log and
     to the history log (QHST) indicating the job ended because of a device error.
-<li><a href="#DEVICE_RECOVERY_ACTION_END_JOB_NO_LIST">DEVICE_RECOVERY_ACTION_END_JOB_NO_LIST</a> -
+<li>{@link #DEVICE_RECOVERY_ACTION_END_JOB_NO_LIST DEVICE_RECOVERY_ACTION_END_JOB_NO_LIST} -
     Ends the job when an I/O error occurs.  There is no job log produced for the job.
     The system sends a message to the QHST log indicating the job ended because of a device error.
 </ul>
 
 <p>The following special values can be used when setting the device recovery action:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QDEVRCYACN is used.
 </ul>
 **/
@@ -961,31 +962,31 @@ Attribute ID for function type.  This identifies a read-only String attribute,
 which represents the high-level function type the initial thread is performing,
 if any.  Possible values are:
 <ul>
-<li><a href="#FUNCTION_TYPE_BLANK">FUNCTION_TYPE_BLANK</a> - The system is not performing a logged function.
-<li><a href="#FUNCTION_TYPE_COMMAND">FUNCTION_TYPE_COMMAND</a> - A command is running interactively, or it is
+<li>{@link #FUNCTION_TYPE_BLANK FUNCTION_TYPE_BLANK} - The system is not performing a logged function.
+<li>{@link #FUNCTION_TYPE_COMMAND FUNCTION_TYPE_COMMAND} - A command is running interactively, or it is
     in a batch input stream, or it was requested from a system menu.
-<li><a href="#FUNCTION_TYPE_DELAY">FUNCTION_TYPE_DELAY</a> - The initial thread of the job is processing
+<li>{@link #FUNCTION_TYPE_DELAY FUNCTION_TYPE_DELAY} - The initial thread of the job is processing
     a Delay Job (DLYJOB) command.
-<li><a href="#FUNCTION_TYPE_GROUP">FUNCTION_TYPE_GROUP</a> - The Transfer Group Job (TFRGRPJOB) command
+<li>{@link #FUNCTION_TYPE_GROUP FUNCTION_TYPE_GROUP} - The Transfer Group Job (TFRGRPJOB) command
     suspended the job.
-<li><a href="#FUNCTION_TYPE_INDEX">FUNCTION_TYPE_INDEX</a> - The initial thread of the job is rebuilding
+<li>{@link #FUNCTION_TYPE_INDEX FUNCTION_TYPE_INDEX} - The initial thread of the job is rebuilding
     an index (access path).
-<li><a href="#FUNCTION_TYPE_IO">FUNCTION_TYPE_IO</a> - The job is a subsystem monitor that is performing
+<li>{@link #FUNCTION_TYPE_IO FUNCTION_TYPE_IO} - The job is a subsystem monitor that is performing
     input/output (I/O) operations to a work station.
-<li><a href="#FUNCTION_TYPE_LOG">FUNCTION_TYPE_LOG</a> - The system logs history information in a database
+<li>{@link #FUNCTION_TYPE_LOG FUNCTION_TYPE_LOG} - The system logs history information in a database
     file.
-<li><a href="#FUNCTION_TYPE_MENU">FUNCTION_TYPE_MENU</a> - The initial thread of the job is currently
+<li>{@link #FUNCTION_TYPE_MENU FUNCTION_TYPE_MENU} - The initial thread of the job is currently
     at a system menu.
-<li><a href="#FUNCTION_TYPE_MRT">FUNCTION_TYPE_MRT</a> - The job is a multiple requester terminal (MRT)
-    job is the <a href="#JOB_TYPE">job type</a> is <a href="#JOB_TYPE_BATCH">JOB_TYPE_BATCH</a>
-    and the <a href="#JOB_SUBTYPE">job subtype</a> is <a href="#JOB_SUBTYPE_MRT">JOB_SUBTYPE_MRT</a>,
+<li>{@link #FUNCTION_TYPE_MRT FUNCTION_TYPE_MRT} - The job is a multiple requester terminal (MRT)
+    job is the {@link #JOB_TYPE job type} is {@link #JOB_TYPE_BATCH JOB_TYPE_BATCH}
+    and the {@link #JOB_SUBTYPE job subtype} is {@link #JOB_SUBTYPE_MRT JOB_SUBTYPE_MRT},
     or it is an interactive job attached to an MRT job if the
-    <a href="#JOB_TYPE">job type</a> is <a href="#JOB_TYPE_INTERACTIVE">JOB_TYPE_INTERACTIVE</a>.
-<li><a href="#FUNCTION_TYPE_PROCEDURE">FUNCTION_TYPE_PROCEDURE</a> - The initial thread of the job is running
+    {@link #JOB_TYPE job type} is {@link #JOB_TYPE_INTERACTIVE JOB_TYPE_INTERACTIVE}.
+<li>{@link #FUNCTION_TYPE_PROCEDURE FUNCTION_TYPE_PROCEDURE} - The initial thread of the job is running
     a procedure.
-<li><a href="#FUNCTION_TYPE_PROGRAM">FUNCTION_TYPE_PROGRAM</a> - The initial thread of the job is running
+<li>{@link #FUNCTION_TYPE_PROGRAM FUNCTION_TYPE_PROGRAM} - The initial thread of the job is running
     a program.
-<li><a href="#FUNCTION_TYPE_SPECIAL">FUNCTION_TYPE_SPECIAL</a> - The function type is special.
+<li>{@link #FUNCTION_TYPE_SPECIAL FUNCTION_TYPE_SPECIAL} - The function type is special.
 </ul>
 **/
     public static final String FUNCTION_TYPE                            = "FUNCTION_TYPE";
@@ -1039,10 +1040,10 @@ if any.  Possible values are:
 
     /**
     Attribute value indicating that the job is a multiple requester terminal (MRT)
-    job is the <a href="#JOB_TYPE">job type</a> is <a href="#JOB_TYPE_BATCH">JOB_TYPE_BATCH</a>
-    and the <a href="#JOB_SUBTYPE">job subtype</a> is <a href="#JOB_SUBTYPE_MRT">JOB_SUBTYPE_MRT</a>,
+    job is the {@link #JOB_TYPE job type} is {@link #JOB_TYPE_BATCH JOB_TYPE_BATCH}
+    and the {@link #JOB_SUBTYPE job subtype} is {@link #JOB_SUBTYPE_MRT JOB_SUBTYPE_MRT},
     or it is an interactive job attached to an MRT job if the
-    <a href="#JOB_TYPE">job type</a> is <a href="#JOB_TYPE_INTERACTIVE">JOB_TYPE_INTERACTIVE</a>.
+    {@link #JOB_TYPE job type} is {@link #JOB_TYPE_INTERACTIVE JOB_TYPE_INTERACTIVE}.
 
     @see #FUNCTION_TYPE
     **/
@@ -1109,15 +1110,15 @@ if any.  Possible values are:
 Attribute ID for inquiry message reply.  This identifies a String attribute, which
 represents how the job answers inquiry messages.  Possible values are:
 <ul>
-<li><a href="#INQUIRY_MESSAGE_REPLY_REQUIRED">INQUIRY_MESSAGE_REPLY_REQUIRED</a> -
+<li>{@link #INQUIRY_MESSAGE_REPLY_REQUIRED INQUIRY_MESSAGE_REPLY_REQUIRED} -
     The job requires an answer for any inquiry
     messages that occur while this job is running.
-<li><a href="#INQUIRY_MESSAGE_REPLY_DEFAULT">INQUIRY_MESSAGE_REPLY_DEFAULT</a> -
+<li>{@link #INQUIRY_MESSAGE_REPLY_DEFAULT INQUIRY_MESSAGE_REPLY_DEFAULT} -
     The system uses the default message reply to
     answer any inquiry messages issued while this job is running.  The default
     reply is either defined in the message description or is the default system
     reply.
-<li><a href="#INQUIRY_MESSAGE_REPLY_SYSTEM_REPLY_LIST">INQUIRY_MESSAGE_REPLY_SYSTEM_REPLY_LIST</a> -
+<li>{@link #INQUIRY_MESSAGE_REPLY_SYSTEM_REPLY_LIST INQUIRY_MESSAGE_REPLY_SYSTEM_REPLY_LIST} -
     The system reply list is
     checked to see if there is an entry for an inquiry message issued while this
     job is running.  If a match occurs, the system uses the reply value for that
@@ -1216,7 +1217,7 @@ which represents the internal job identifier of the job as identified to the sys
 
 /**
 Attribute ID for job date.  This identifies a Date attribute, which represents
-the date to be used for the job.  The value <a href="#NO_DATE">NO_DATE</a>
+the date to be used for the job.  The value {@link #NO_DATE NO_DATE}
 indicates that the job uses the system date.
 The Date value is converted using the default Java locale.
 **/
@@ -1344,10 +1345,10 @@ on the same job queue.  The highest priority is 0 and the lowest is 9.
 Attribute ID for job queue status.  This identifies a read-only String attribute,
 which represents the status of the job on the job queue.  Possible values are:
 <ul>
-<li><a href="#JOB_QUEUE_STATUS_BLANK">JOB_QUEUE_STATUS_BLANK</a> - The job is not on a job queue.
-<li><a href="#JOB_QUEUE_STATUS_SCHEDULED">JOB_QUEUE_STATUS_SCHEDULED</a> - The job will run as scheduled.
-<li><a href="#JOB_QUEUE_STATUS_HELD">JOB_QUEUE_STATUS_HELD</a> - The job is being held on the job queue.
-<li><a href="#JOB_QUEUE_STATUS_RELEASED">JOB_QUEUE_STATUS_RELEASED</a> - The job is ready to be selected.
+<li>{@link #JOB_QUEUE_STATUS_BLANK JOB_QUEUE_STATUS_BLANK} - The job is not on a job queue.
+<li>{@link #JOB_QUEUE_STATUS_SCHEDULED JOB_QUEUE_STATUS_SCHEDULED} - The job will run as scheduled.
+<li>{@link #JOB_QUEUE_STATUS_HELD JOB_QUEUE_STATUS_HELD} - The job is being held on the job queue.
+<li>{@link #JOB_QUEUE_STATUS_RELEASED JOB_QUEUE_STATUS_RELEASED} - The job is ready to be selected.
 </ul>
 **/
     public static final String JOB_QUEUE_STATUS               = "JOB_QUEUE_STATUS";
@@ -1395,9 +1396,9 @@ which represents the status of the job on the job queue.  Possible values are:
 Attribute ID for job status.  This identifies a read-only String attribute,
 which represents the status of the job.  Possible values are:
 <ul>
-<li><a href="#JOB_STATUS_ACTIVE">JOB_STATUS_ACTIVE</a> - The job is active.
-<li><a href="#JOB_STATUS_JOBQ">JOB_STATUS_JOBQ</a> - The job is currently on a job queue.
-<li><a href="#JOB_STATUS_OUTQ">JOB_STATUS_OUTQ</a> - The job has completed running, but still has output
+<li>{@link #JOB_STATUS_ACTIVE JOB_STATUS_ACTIVE} - The job is active.
+<li>{@link #JOB_STATUS_JOBQ JOB_STATUS_JOBQ} - The job is currently on a job queue.
+<li>{@link #JOB_STATUS_OUTQ JOB_STATUS_OUTQ} - The job has completed running, but still has output
     on an output queue.
 </ul>
 **/
@@ -1437,17 +1438,17 @@ which represents the status of the job.  Possible values are:
 Attribute ID for job subtype.  This identifies a read-only String attribute,
 which represents additional information about the job type.  Possible values are:
 <ul>
-<li><a href="#JOB_SUBTYPE_BLANK">JOB_SUBTYPE_BLANK</a> - The job has no special subtype or is not a valid job.
-<li><a href="#JOB_SUBTYPE_IMMEDIATE">JOB_SUBTYPE_IMMEDIATE</a> - The job is an immediate job.
-<li><a href="#JOB_SUBTYPE_PROCEDURE_START_REQUEST">JOB_SUBTYPE_PROCEDURE_START_REQUEST</a> - The job started
+<li>{@link #JOB_SUBTYPE_BLANK JOB_SUBTYPE_BLANK} - The job has no special subtype or is not a valid job.
+<li>{@link #JOB_SUBTYPE_IMMEDIATE JOB_SUBTYPE_IMMEDIATE} - The job is an immediate job.
+<li>{@link #JOB_SUBTYPE_PROCEDURE_START_REQUEST JOB_SUBTYPE_PROCEDURE_START_REQUEST} - The job started
     with a procedure start request.
-<li><a href="#JOB_SUBTYPE_MACHINE_SERVER_JOB">JOB_SUBTYPE_MACHINE_SERVER_JOB</a> - The job is an AS/400
+<li>{@link #JOB_SUBTYPE_MACHINE_SERVER_JOB JOB_SUBTYPE_MACHINE_SERVER_JOB} - The job is an AS/400
     Advanced 36 machine server job.
-<li><a href="#JOB_SUBTYPE_PRESTART">JOB_SUBTYPE_PRESTART</a> - The job is a prestart job.
-<li><a href="#JOB_SUBTYPE_PRINT_DRIVER">JOB_SUBTYPE_PRINT_DRIVER</a> - The job is a print driver job.
-<li><a href="#JOB_SUBTYPE_MRT">JOB_SUBTYPE_MRT</a> - The job is a System/36 multiple requester terminal
+<li>{@link #JOB_SUBTYPE_PRESTART JOB_SUBTYPE_PRESTART} - The job is a prestart job.
+<li>{@link #JOB_SUBTYPE_PRINT_DRIVER JOB_SUBTYPE_PRINT_DRIVER} - The job is a print driver job.
+<li>{@link #JOB_SUBTYPE_MRT JOB_SUBTYPE_MRT} - The job is a System/36 multiple requester terminal
     (MRT) job.
-<li><a href="#JOB_SUBTYPE_ALTERNATE_SPOOL_USER">JOB_SUBTYPE_ALTERNATE_SPOOL_USER</a> - Alternate spool user.
+<li>{@link #JOB_SUBTYPE_ALTERNATE_SPOOL_USER JOB_SUBTYPE_ALTERNATE_SPOOL_USER} - Alternate spool user.
 </ul>
 **/
     public static final String JOB_SUBTYPE                    = "JOB_SUBTYPE";
@@ -1553,15 +1554,15 @@ which represents the current setting of the job switches used by this job.
 Attribute ID for job type.  This identifies a read-only String attribute,
 which represents the job type.  Possible values are:
 <ul>
-<li><a href="#JOB_TYPE_NOT_VALID">JOB_TYPE_NOT_VALID</a> - The job is not a valid job.
-<li><a href="#JOB_TYPE_AUTOSTART">JOB_TYPE_AUTOSTART</a> - The job is an autostart job.
-<li><a href="#JOB_TYPE_BATCH">JOB_TYPE_BATCH</a> - The job is a batch job.
-<li><a href="#JOB_TYPE_INTERACTIVE">JOB_TYPE_INTERACTIVE</a> - The job is an interactive job.
-<li><a href="#JOB_TYPE_SUBSYSTEM_MONITOR">JOB_TYPE_SUBSYSTEM_MONITOR</a> - The job is a subsystem monitor job.
-<li><a href="#JOB_TYPE_SPOOLED_READER">JOB_TYPE_SPOOLED_READER</a> - The job is a spooled reader job.
-<li><a href="#JOB_TYPE_SYSTEM">JOB_TYPE_SYSTEM</a> - The job is a system job.
-<li><a href="#JOB_TYPE_SPOOLED_WRITER">JOB_TYPE_SPOOLED_WRITER</a> - The job is a spooled writer job.
-<li><a href="#JOB_TYPE_SCPF_SYSTEM">JOB_TYPE_SCPF_SYSTEM</a> - The job is the SCPF system job.
+<li>{@link #JOB_TYPE_NOT_VALID JOB_TYPE_NOT_VALID} - The job is not a valid job.
+<li>{@link #JOB_TYPE_AUTOSTART JOB_TYPE_AUTOSTART} - The job is an autostart job.
+<li>{@link #JOB_TYPE_BATCH JOB_TYPE_BATCH} - The job is a batch job.
+<li>{@link #JOB_TYPE_INTERACTIVE JOB_TYPE_INTERACTIVE} - The job is an interactive job.
+<li>{@link #JOB_TYPE_SUBSYSTEM_MONITOR JOB_TYPE_SUBSYSTEM_MONITOR} - The job is a subsystem monitor job.
+<li>{@link #JOB_TYPE_SPOOLED_READER JOB_TYPE_SPOOLED_READER} - The job is a spooled reader job.
+<li>{@link #JOB_TYPE_SYSTEM JOB_TYPE_SYSTEM} - The job is a system job.
+<li>{@link #JOB_TYPE_SPOOLED_WRITER JOB_TYPE_SPOOLED_WRITER} - The job is a spooled writer job.
+<li>{@link #JOB_TYPE_SCPF_SYSTEM JOB_TYPE_SCPF_SYSTEM} - The job is the SCPF system job.
 </ul>
 **/
     public static final String JOB_TYPE                    = "JOB_TYPE";
@@ -1659,9 +1660,9 @@ Attribute ID for keep DDM connections active.  This identifies a String attribut
 which represents whether connections using distributed data management (DDM)
 protocols remain active when they are not being used.  Possible values are:
 <ul>
-<li><a href="#KEEP_DDM_CONNECTIONS_ACTIVE_KEEP">KEEP_DDM_CONNECTIONS_ACTIVE_KEEP</a> -
+<li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE_KEEP KEEP_DDM_CONNECTIONS_ACTIVE_KEEP} -
     The system keeps DDM connections active when there are no users.
-<li><a href="#KEEP_DDM_CONNECTIONS_ACTIVE_DROP">KEEP_DDM_CONNECTIONS_ACTIVE_DROP</a> -
+<li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE_DROP KEEP_DDM_CONNECTIONS_ACTIVE_DROP} -
     The system ends a DDM connection when there are no users.
 </ul>
 **/
@@ -1699,9 +1700,9 @@ job.
 <p>The following special values can be used when setting the
 language ID:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QLANGID is used.
-<li><a href="#USER_PROFILE">USER_PROFILE</a> - The
+<li>{@link #USER_PROFILE USER_PROFILE} - The
     language identifier specified in the user profile in which this thread
     was initially running is used.
 </ul>
@@ -1753,26 +1754,26 @@ which indicates whether messages are logged for CL programs.
 Attribute ID for logging level.  This identifies a String attribute,
 which represents the type of information that is logged.  Possible values are:
 <ul>
-<li><a href="#LOGGING_LEVEL_NONE">LOGGING_LEVEL_NONE</a> - No messages are logged.
-<li><a href="#LOGGING_LEVEL_MESSAGES_BY_SEVERITY">LOGGING_LEVEL_MESSAGES_BY_SEVERITY</a> - All messages sent
+<li>{@link #LOGGING_LEVEL_NONE LOGGING_LEVEL_NONE} - No messages are logged.
+<li>{@link #LOGGING_LEVEL_MESSAGES_BY_SEVERITY LOGGING_LEVEL_MESSAGES_BY_SEVERITY} - All messages sent
     to the job's external message queue with a severity greater than or equal to
-    the <a href="#LOGGING_SEVERITY">message logging severity</a> are logged.
-<li><a href="#LOGGING_LEVEL_REQUESTS_BY_SEVERITY_AND_ASSOCIATED_MESSAGES">LOGGING_LEVEL_REQUESTS_BY_SEVERITY_AND_ASSOCIATED_MESSAGES</a> -
+    the {@link #LOGGING_SEVERITY message logging severity} are logged.
+<li>{@link #LOGGING_LEVEL_REQUESTS_BY_SEVERITY_AND_ASSOCIATED_MESSAGES LOGGING_LEVEL_REQUESTS_BY_SEVERITY_AND_ASSOCIATED_MESSAGES} -
     Requests or commands from CL programs for which the system issues messages with
-    a severity code greater than or equal to the <a href="#LOGGING_SEVERITY">
-    logging severity</a> and all messages
+    a severity code greater than or equal to the {@link #LOGGING_SEVERITY 
+    logging severity} and all messages
     associated with those requests or commands that have a severity code greater
-    than or equal to the <a href="#LOGGING_SEVERITY">logging severity</a>
+    than or equal to the {@link #LOGGING_SEVERITY logging severity}
     are logged.
-<li><a href="#LOGGING_LEVEL_ALL_REQUESTS_AND_ASSOCIATED_MESSAGES">LOGGING_LEVEL_ALL_REQUESTS_AND_ASSOCIATED_MESSAGES</a> -
+<li>{@link #LOGGING_LEVEL_ALL_REQUESTS_AND_ASSOCIATED_MESSAGES LOGGING_LEVEL_ALL_REQUESTS_AND_ASSOCIATED_MESSAGES} -
     All requests or commands from CL programs and all messages
     associated with those requests or commands that have a severity code greater
-    than or equal to the <a href="#LOGGING_SEVERITY">logging severity</a>
+    than or equal to the {@link #LOGGING_SEVERITY logging severity}
     are logged.
-<li><a href="#LOGGING_LEVEL_ALL_REQUESTS_AND_MESSAGES">LOGGING_LEVEL_ALL_REQUESTS_AND_MESSAGES</a> -
+<li>{@link #LOGGING_LEVEL_ALL_REQUESTS_AND_MESSAGES LOGGING_LEVEL_ALL_REQUESTS_AND_MESSAGES} -
     All requests or commands from CL programs and all messages
-    with a severity code greater than or equal to the <a href="#LOGGING_SEVERITY">
-    logging severity</a> are logged.
+    with a severity code greater than or equal to the {@link #LOGGING_SEVERITY 
+    logging severity} are logged.
 </ul>
 **/
     public static final String LOGGING_LEVEL                       = "LOGGING_LEVEL";
@@ -1787,7 +1788,7 @@ which represents the type of information that is logged.  Possible values are:
     /**
     Attribute value indicating that all messages sent
     to the job's external message queue with a severity greater than or equal to
-    the <a href="#LOGGING_SEVERITY">message logging severity</a> are logged.
+    the {@link #LOGGING_SEVERITY message logging severity} are logged.
 
     @see #LOGGING_LEVEL
     **/
@@ -1796,9 +1797,9 @@ which represents the type of information that is logged.  Possible values are:
     /**
     Attribute value indicating that requests or commands from CL programs for which
     the system issues messages with a severity code greater than or equal to the
-    <a href="#LOGGING_SEVERITY">logging severity</a> and all messages associated with
+    {@link #LOGGING_SEVERITY logging severity} and all messages associated with
     those requests or commands that have a severity code greater than or equal to the
-    <a href="#LOGGING_SEVERITY">logging severity</a> are logged.
+    {@link #LOGGING_SEVERITY logging severity} are logged.
 
     @see #LOGGING_LEVEL
     **/
@@ -1807,7 +1808,7 @@ which represents the type of information that is logged.  Possible values are:
     /**
     Attribute value indicating that all requests or commands from CL programs and all messages
     associated with those requests or commands that have a severity code greater
-    than or equal to the <a href="#LOGGING_SEVERITY">logging severity</a>
+    than or equal to the {@link #LOGGING_SEVERITY logging severity}
     are logged.
 
     @see #LOGGING_LEVEL
@@ -1816,8 +1817,8 @@ which represents the type of information that is logged.  Possible values are:
 
     /**
     Attribute value indicating that all requests or commands from CL programs and all messages
-    with a severity code greater than or equal to the <a href="#LOGGING_SEVERITY">
-    logging severity</a> are logged.
+    with a severity code greater than or equal to the {@link #LOGGING_SEVERITY 
+    logging severity} are logged.
 
     @see #LOGGING_LEVEL
     **/
@@ -1856,10 +1857,10 @@ Attribute ID for logging text.  This identifies a String attribute,
 which represents the level of message text that is written in the job log
 or displayed to the user.  Possible values are:
 <ul>
-<li><a href="#LOGGING_TEXT_MESSAGE">LOGGING_TEXT_MESSAGE</a> - Only the message is written to the job log.
-<li><a href="#LOGGING_TEXT_SECLVL">LOGGING_TEXT_SECLVL</a> - Both the message and the message help for the
+<li>{@link #LOGGING_TEXT_MESSAGE LOGGING_TEXT_MESSAGE} - Only the message is written to the job log.
+<li>{@link #LOGGING_TEXT_SECLVL LOGGING_TEXT_SECLVL} - Both the message and the message help for the
     error message are written to the job log.
-<li><a href="#LOGGING_TEXT_NO_LIST">LOGGING_TEXT_NO_LIST</a> - If the job ends normally, there is no job log.
+<li>{@link #LOGGING_TEXT_NO_LIST LOGGING_TEXT_NO_LIST} - If the job ends normally, there is no job log.
     If the job ends abnormally, there is a job log.  The messages appearing in the
     job log contain both the message and the message help.
 </ul>
@@ -1939,11 +1940,11 @@ is controlled through the user profile. A value of -1 indicates that there is no
 Attribute ID for message queue action.  This identifies a String attribute,
 which represents the action to take when the message queue is full.  Possible values are:
 <ul>
-<li><a href="#MESSAGE_QUEUE_ACTION_NO_WRAP">MESSAGE_QUEUE_ACTION_NO_WRAP</a> -
+<li>{@link #MESSAGE_QUEUE_ACTION_NO_WRAP MESSAGE_QUEUE_ACTION_NO_WRAP} -
     Do not wrap. This action causes the job to end.
-<li><a href="#MESSAGE_QUEUE_ACTION_WRAP">MESSAGE_QUEUE_ACTION_WRAP</a> -
+<li>{@link #MESSAGE_QUEUE_ACTION_WRAP MESSAGE_QUEUE_ACTION_WRAP} -
     Wrap to the beginning and start filling again.
-<li><a href="#MESSAGE_QUEUE_ACTION_PRINT_WRAP">MESSAGE_QUEUE_ACTION_PRINT_WRAP</a> -
+<li>{@link #MESSAGE_QUEUE_ACTION_PRINT_WRAP MESSAGE_QUEUE_ACTION_PRINT_WRAP} -
     Wrap the message queue and print the
     messages that are being overlaid because of the wrapping.
 </ul>
@@ -2068,20 +2069,20 @@ Attribute ID for print key format.  This identifies a String attribute,
 which represents whether border and header information is provided when
 the Print key is pressed.  Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a> - The border and header information is not
+<li>{@link #NONE NONE} - The border and header information is not
     included with output from the Print key.
-<li><a href="#PRINT_KEY_FORMAT_BORDER">PRINT_KEY_FORMAT_BORDER</a> - The border information
+<li>{@link #PRINT_KEY_FORMAT_BORDER PRINT_KEY_FORMAT_BORDER} - The border information
     is included with output from the Print key.
-<li><a href="#PRINT_KEY_FORMAT_HEADER">PRINT_KEY_FORMAT_HEADER</a> - The header information
+<li>{@link #PRINT_KEY_FORMAT_HEADER PRINT_KEY_FORMAT_HEADER} - The header information
     is included with output from the Print key.
-<li><a href="#PRINT_KEY_FORMAT_ALL">PRINT_KEY_FORMAT_ALL</a> - The border and header information
+<li>{@link #PRINT_KEY_FORMAT_ALL PRINT_KEY_FORMAT_ALL} - The border and header information
     is included with output from the Print key.
 </ul>
 
 <p>The following special value can be used when setting the
 print key format:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QPRTKEYFMT is used.
 </ul>
 **/
@@ -2133,7 +2134,7 @@ bottom of each page of printed output for the job.
 <p>The following special value can be used when setting the
 print key format:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QPRTTXT is used.
 </ul>
 **/
@@ -2156,12 +2157,12 @@ from this job.
 <p>The following special values can be used when setting the
 printer:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QPRTDEV is used.
-<li><a href="#PRINTER_DEVICE_NAME_WORK_STATION">PRINTER_DEVICE_NAME_WORK_STATION</a> - The
+<li>{@link #PRINTER_DEVICE_NAME_WORK_STATION PRINTER_DEVICE_NAME_WORK_STATION} - The
     default printer device used with this job is the printer device
     assigned to the work station that is associated with the job.
-<li><a href="#USER_PROFILE">USER_PROFILE</a> - The
+<li>{@link #USER_PROFILE USER_PROFILE} - The
     printer device name specified in the user profile in which this thread
     was initially running is used.
 </ul>
@@ -2266,27 +2267,27 @@ The Date value is converted using the default Java locale.
 
 <p>The following special values can be used when setting the schedule date:
 <ul>
-<li><a href="#SCHEDULE_DATE_CURRENT">SCHEDULE_DATE_CURRENT</a> - The
+<li>{@link #SCHEDULE_DATE_CURRENT SCHEDULE_DATE_CURRENT} - The
     submitted job becomes eligible to run at the current date.
-<li><a href="#SCHEDULE_DATE_MONTH_START">SCHEDULE_DATE_MONTH_START</a> - The
+<li>{@link #SCHEDULE_DATE_MONTH_START SCHEDULE_DATE_MONTH_START} - The
     submitted job becomes eligible to run on the first day of
     the month.
-<li><a href="#SCHEDULE_DATE_MONTH_END">SCHEDULE_DATE_MONTH_END</a> - The
+<li>{@link #SCHEDULE_DATE_MONTH_END SCHEDULE_DATE_MONTH_END} - The
     submitted job becomes eligible to run on the last day of
     the month.
-<li><a href="#SCHEDULE_DATE_MONDAY">SCHEDULE_DATE_MONDAY</a> - The
+<li>{@link #SCHEDULE_DATE_MONDAY SCHEDULE_DATE_MONDAY} - The
     submitted job becomes eligible to run on Monday.
-<li><a href="#SCHEDULE_DATE_TUESDAY">SCHEDULE_DATE_TUESDAY</a> - The
+<li>{@link #SCHEDULE_DATE_TUESDAY SCHEDULE_DATE_TUESDAY} - The
     submitted job becomes eligible to run on Tuesday.
-<li><a href="#SCHEDULE_DATE_WEDNESDAY">SCHEDULE_DATE_WEDNESDAY</a> - The
+<li>{@link #SCHEDULE_DATE_WEDNESDAY SCHEDULE_DATE_WEDNESDAY} - The
     submitted job becomes eligible to run on Wednesday.
-<li><a href="#SCHEDULE_DATE_THURSDAY">SCHEDULE_DATE_THURSDAY</a> - The
+<li>{@link #SCHEDULE_DATE_THURSDAY SCHEDULE_DATE_THURSDAY} - The
     submitted job becomes eligible to run on Thursday.
-<li><a href="#SCHEDULE_DATE_FRIDAY">SCHEDULE_DATE_FRIDAY</a> - The
+<li>{@link #SCHEDULE_DATE_FRIDAY SCHEDULE_DATE_FRIDAY} - The
     submitted job becomes eligible to run on Friday.
-<li><a href="#SCHEDULE_DATE_SATURDAY">SCHEDULE_DATE_SATURDAY</a> - The
+<li>{@link #SCHEDULE_DATE_SATURDAY SCHEDULE_DATE_SATURDAY} - The
     submitted job becomes eligible to run on Saturday.
-<li><a href="#SCHEDULE_DATE_SUNDAY">SCHEDULE_DATE_SUNDAY</a> - The
+<li>{@link #SCHEDULE_DATE_SUNDAY SCHEDULE_DATE_SUNDAY} - The
     submitted job becomes eligible to run on Sunday.
 </ul>
 **/
@@ -2500,10 +2501,10 @@ Attribute ID for special environment.  This identifies a read-only String attrib
 which indicates whether the job is running in a particular environment.
 Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a> - The job is not running in any special environment.
-<li><a href="#SPECIAL_ENVIRONMENT_SYSTEM_36">SPECIAL_ENVIRONMENT_SYSTEM_36</a> -
+<li>{@link #NONE NONE} - The job is not running in any special environment.
+<li>{@link #SPECIAL_ENVIRONMENT_SYSTEM_36 SPECIAL_ENVIRONMENT_SYSTEM_36} -
     The job is running in the System/36 environment.
-<li><a href="#SPECIAL_ENVIRONMENT_NOT_ACTIVE">SPECIAL_ENVIRONMENT_NOT_ACTIVE</a> -
+<li>{@link #SPECIAL_ENVIRONMENT_NOT_ACTIVE SPECIAL_ENVIRONMENT_NOT_ACTIVE} -
     The job is not currently active.
 </ul>
 **/
@@ -2538,18 +2539,18 @@ Attribute ID for status message handling.  This identifies a String attribute,
 which indicates whether status messages are displayed for this job.  Possible
 values are:
 <ul>
-<li><a href="#NONE">NONE</a> -
+<li>{@link #NONE NONE} -
     This job does not display status messages.
-<li><a href="#STATUS_MESSAGE_HANDLING_NORMAL">STATUS_MESSAGE_HANDLING_NORMAL</a> -
+<li>{@link #STATUS_MESSAGE_HANDLING_NORMAL STATUS_MESSAGE_HANDLING_NORMAL} -
     This job displays status messages.
 </ul>
 
 <p>The following special values can be used when setting the status message
 handling:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QSTSMSG is used.
-<li><a href="#USER_PROFILE">USER_PROFILE</a> - The
+<li>{@link #USER_PROFILE USER_PROFILE} - The
     status message handling that is specified in the user profile under which this thread
     was initially running is used.
 </ul>
@@ -2695,7 +2696,7 @@ a time.
 
 <p>The following special value can be used when setting the time separator:
 <ul>
-<li><a href="#TIME_SEPARATOR_SYSTEM_VALUE">TIME_SEPARATOR_SYSTEM_VALUE</a> - The
+<li>{@link #TIME_SEPARATOR_SYSTEM_VALUE TIME_SEPARATOR_SYSTEM_VALUE} - The
     system value QTIMSEP is used.
 </ul>
 **/
@@ -2738,17 +2739,17 @@ Attribute ID for time slice end pool.  This identifies a String attribute, which
 indicates whether a thread in an interactive job moves to another main storage
 pool at the end of its time slice.  Possible values are:
 <ul>
-<li><a href="#NONE">NONE</a> -
+<li>{@link #NONE NONE} -
     A thread in the job does not move to another main storage pool when it reaches
     the end of its time slice.
-<li><a href="#TIME_SLICE_END_POOL_BASE">TIME_SLICE_END_POOL_BASE</a> -
+<li>{@link #TIME_SLICE_END_POOL_BASE TIME_SLICE_END_POOL_BASE} -
     A thread in the job moves to the base pool when it reaches
     the end of its time slice.
 </ul>
 
 <p>The following special value can be used when setting the time slice end pool:
 <ul>
-<li><a href="#SYSTEM_VALUE">SYSTEM_VALUE</a> - The
+<li>{@link #SYSTEM_VALUE SYSTEM_VALUE} - The
     system value QTSEPOOL is used.
 </ul>
 **/

@@ -27,26 +27,27 @@ The RSoftwareResource class represents an AS/400 software product.
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
-<li><a href="#LEVEL">LEVEL</a>
-<li><a href="#LOAD_ERROR_INDICATOR">LOAD_ERROR_INDICATOR</a>
-<li><a href="#LOAD_ID">LOAD_ID</a>
-<li><a href="#LOAD_STATE">LOAD_STATE</a>
-<li><a href="#LOAD_TYPE">LOAD_TYPE</a>
-<li><a href="#MINIMUM_BASE_VRM">MINIMUM_BASE_VRM</a>
-<li><a href="#MINIMUM_TARGET_RELEASE">MINIMUM_TARGET_RELEASE</a>
-<li><a href="#PRIMARY_LANGUAGE_LOAD_ID">PRIMARY_LANGUAGE_LOAD_ID</a>
-<li><a href="#PRODUCT_ID">PRODUCT_ID</a>
-<li><a href="#PRODUCT_OPTION">PRODUCT_OPTION</a>
-<li><a href="#REGISTRATION_TYPE">REGISTRATION_TYPE</a>
-<li><a href="#REGISTRATION_VALUE">REGISTRATION_VALUE</a>
-<li><a href="#RELEASE_LEVEL">RELEASE_LEVEL</a>
-<li><a href="#REQUIREMENTS_MET">REQUIREMENTS_MET</a>
-<li><a href="#SUPPORTED_FLAG">SUPPORTED_FLAG</a>
-<li><a href="#SYMBOLIC_LOAD_STATE">SYMBOLIC_LOAD_STATE</a>
+<li>{@link #LEVEL LEVEL}
+<li>{@link #LOAD_ERROR_INDICATOR LOAD_ERROR_INDICATOR}
+<li>{@link #LOAD_ID LOAD_ID}
+<li>{@link #LOAD_STATE LOAD_STATE}
+<li>{@link #LOAD_TYPE LOAD_TYPE}
+<li>{@link #MINIMUM_BASE_VRM MINIMUM_BASE_VRM}
+<li>{@link #MINIMUM_TARGET_RELEASE MINIMUM_TARGET_RELEASE}
+<li>{@link #PRIMARY_LANGUAGE_LOAD_ID PRIMARY_LANGUAGE_LOAD_ID}
+<li>{@link #PRODUCT_ID PRODUCT_ID}
+<li>{@link #PRODUCT_OPTION PRODUCT_OPTION}
+<li>{@link #REGISTRATION_TYPE REGISTRATION_TYPE}
+<li>{@link #REGISTRATION_VALUE REGISTRATION_VALUE}
+<li>{@link #RELEASE_LEVEL RELEASE_LEVEL}
+<li>{@link #REQUIREMENTS_MET REQUIREMENTS_MET}
+<li>{@link #SUPPORTED_FLAG SUPPORTED_FLAG}
+<li>{@link #SYMBOLIC_LOAD_STATE SYMBOLIC_LOAD_STATE}
 </ul>
+</a>
 
 <p>Use any of these attribute IDs with
-<a href="ChangeableResource.html#getAttributeValue(java.lang.Object)">getAttributeValue()</a>
+{@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}
 to access the attribute values for an RSoftwareResource.
 
 <blockquote><pre>
@@ -120,10 +121,10 @@ Code, or "" for all other products.
 Attribute ID for load error indicator.  This identifies a read-only String attribute, 
 which indicates if there is a known error for this load.  Possible values are:
 <ul>
-<li><a href="#LOAD_ERROR_INDICATOR_ERROR">LOAD_ERROR_INDICATOR_ERROR</a>
+<li>{@link #LOAD_ERROR_INDICATOR_ERROR LOAD_ERROR_INDICATOR_ERROR}
     - An error was found the last time that the state of this load was checked
       or updated.
-<li><a href="#LOAD_ERROR_INDICATOR_NONE">LOAD_ERROR_INDICATOR_NONE</a>
+<li>{@link #LOAD_ERROR_INDICATOR_NONE LOAD_ERROR_INDICATOR_NONE}
     - No error was found the last time that the state of this load was checked
       or updated.
 </ul>
@@ -197,8 +198,8 @@ which represents the state of the load.
 Attribute ID for load type.  This identifies a read-only String attribute, 
 which represents the type of the load.  Possible values are:
 <ul>
-<li><a href="#LOAD_TYPE_CODE">LOAD_TYPE_CODE</a> - The load is a code load.
-<li><a href="#LOAD_TYPE_LANGUAGE">LOAD_TYPE_LANGUAGE</a> - The load is a language load.
+<li>{@link #LOAD_TYPE_CODE LOAD_TYPE_CODE} - The load is a code load.
+<li>{@link #LOAD_TYPE_LANGUAGE LOAD_TYPE_LANGUAGE} - The load is a language load.
 </ul>
 **/
     public static final String LOAD_TYPE                      = "LOAD_TYPE";
@@ -230,7 +231,7 @@ Attribute ID for minimum base VRM.  This identifies a read-only String attribute
 which represents the minimum release level that is allowed for the *BASE option
 that will run with the current level of the option for the product.  Possible values are:
 <ul>
-<li><a href="#MINIMUM_BASE_VRM_MATCH">MINIMUM_BASE_VRM_MATCH</a> - The release of the option
+<li>{@link #MINIMUM_BASE_VRM_MATCH MINIMUM_BASE_VRM_MATCH} - The release of the option
     matches that of the base.
 <li>The release value in the form <code>V<em>x</em>R<em>x</em>M<em>x</em></code>.
 </ul>
@@ -305,7 +306,7 @@ which represents the product ID.
 Attribute ID for product option.  This identifies a read-only String attribute, 
 which represents the product option.  Possible values are:
 <ul>
-<li><a href="#PRODUCT_OPTION_BASE">PRODUCT_OPTION_BASE</a> - The 
+<li>{@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE} - The 
     base option.
 <li>A product option.
 </ul>
@@ -397,15 +398,15 @@ Attribute ID for requirements met.  This identifies a read-only String attribute
 which indicates whether then product requirements are met between a base and option
 value.  Possible values are:
 <ul>
-<li><a href="#REQUIREMENTS_MET_UNKNOWN">REQUIREMENTS_MET_UNKNOWN</a> - There is
+<li>{@link #REQUIREMENTS_MET_UNKNOWN REQUIREMENTS_MET_UNKNOWN} - There is
     not enough information available to determine if the release requirements have
-    been met, or if <a href="#LOAD_TYPE">LOAD_TYPE</a> is set to
-    <a href="#LOAD_TYPE_LANGUAGE">LOAD_TYPE_LANGUAGE</a>.
-<li><a href="#REQUIREMENTS_MET_ALL">REQUIREMENTS_MET_ALL</a> - The releases
+    been met, or if {@link #LOAD_TYPE LOAD_TYPE} is set to
+    {@link #LOAD_TYPE_LANGUAGE LOAD_TYPE_LANGUAGE}.
+<li>{@link #REQUIREMENTS_MET_ALL REQUIREMENTS_MET_ALL} - The releases
     of the base and option meet all requirements.  
-<li><a href="#REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_BASE">REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_BASE</a> - 
+<li>{@link #REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_BASE REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_BASE} - 
     The release of the option is too old compared to the base.
-<li><a href="#REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_OPTION">REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_BASE</a> - 
+<li>{@link #REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_OPTION REQUIREMENTS_MET_TOO_OLD_COMPARED_TO_BASE} - 
     The release of the base is too old compared to the option.
 </ul>
 **/
@@ -469,17 +470,17 @@ which indicates whether this load is currently supported.
 Attribute ID for symbolic load state.  This identifies a read-only String attribute, 
 which represents the symbolic state of the load.  Possible values are:
 <ul>
-<li><a href="#SYMBOLIC_LOAD_STATE_DEFINED">SYMBOLIC_LOAD_STATE_DEFINED</a> - The
+<li>{@link #SYMBOLIC_LOAD_STATE_DEFINED SYMBOLIC_LOAD_STATE_DEFINED} - The
     load is defined.  The product load object for this load does not exist.
-<li><a href="#SYMBOLIC_LOAD_STATE_CREATED">SYMBOLIC_LOAD_STATE_CREATED</a> - The
+<li>{@link #SYMBOLIC_LOAD_STATE_CREATED SYMBOLIC_LOAD_STATE_CREATED} - The
     product load object for this load exists.
-<li><a href="#SYMBOLIC_LOAD_STATE_PACKAGED">SYMBOLIC_LOAD_STATE_PACKAGED</a> - The
+<li>{@link #SYMBOLIC_LOAD_STATE_PACKAGED SYMBOLIC_LOAD_STATE_PACKAGED} - The
     product load object for this has been packaged.
-<li><a href="#SYMBOLIC_LOAD_STATE_DAMAGED">SYMBOLIC_LOAD_STATE_DAMAGED</a> - The
+<li>{@link #SYMBOLIC_LOAD_STATE_DAMAGED SYMBOLIC_LOAD_STATE_DAMAGED} - The
     product load object for this has been damaged.
-<li><a href="#SYMBOLIC_LOAD_STATE_LOADED">SYMBOLIC_LOAD_STATE_LOADED</a> - The
+<li>{@link #SYMBOLIC_LOAD_STATE_LOADED SYMBOLIC_LOAD_STATE_LOADED} - The
     product is being loaded or deleted.
-<li><a href="#SYMBOLIC_LOAD_STATE_INSTALLED">SYMBOLIC_LOAD_STATE_INSTALLED</a> - The
+<li>{@link #SYMBOLIC_LOAD_STATE_INSTALLED SYMBOLIC_LOAD_STATE_INSTALLED} - The
     product load object was loaded.
 </ul>
 **/
@@ -594,7 +595,7 @@ Constructs an RSoftwareResource object.
 Constructs an RSoftwareResource object. 
 
 @param system       The system.
-@param productID    The product ID, or <a href="#PRODUCT_ID_OPERATING_SYSTEM">PRODUCT_ID_OPERATING_SYSTEM</a>
+@param productID    The product ID, or {@link #PRODUCT_ID_OPERATING_SYSTEM PRODUCT_ID_OPERATING_SYSTEM}
                     to refer to the operating system.
 **/
     public RSoftwareResource(AS400 system, String productID)
@@ -616,20 +617,20 @@ Constructs an RSoftwareResource object.
 Constructs an RSoftwareResource object.
 
 @param system       The system.
-@param productID    The product ID, or <a href="#PRODUCT_ID_OPERATING_SYSTEM">PRODUCT_ID_OPERATING_SYSTEM</a>
+@param productID    The product ID, or {@link #PRODUCT_ID_OPERATING_SYSTEM PRODUCT_ID_OPERATING_SYSTEM}
                     to refer to the operating system.
 @param releaseLevel The release level.  Possible values are:
                     <ul>
-                    <li><a href="#RELEASE_LEVEL_CURRENT">RELEASE_LEVEL_CURRENT</a> - Use the release level of
+                    <li>{@link #RELEASE_LEVEL_CURRENT RELEASE_LEVEL_CURRENT} - Use the release level of
                         the currently installed operating system.                    
-                    <li><a href="#RELEASE_LEVEL_ONLY">RELEASE_LEVEL_ONLY</a> - Use the only release level
+                    <li>{@link #RELEASE_LEVEL_ONLY RELEASE_LEVEL_ONLY} - Use the only release level
                         for which a product load is found.  
-                    <li><a href="#RELEASE_LEVEL_PREVIOUS">RELEASE_LEVEL_PREVIOUS</a> - Use the previous
+                    <li>{@link #RELEASE_LEVEL_PREVIOUS RELEASE_LEVEL_PREVIOUS} - Use the previous
                         release with modification level 0 of the operating system.
                     <li>A release level, in the form <code>V<em>x</em>R<em>x</em>M<em>x</em></code>.
                     </ul>
 @param productOption The option number for which is being requested, or 
-                    <a href="#PRODUCT_OPTION_BASE">PRODUCT_OPTION_BASE</a> for the base option.
+                    {@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE} for the base option.
 **/
     public RSoftwareResource(AS400 system, String productID, String releaseLevel, String productOption)
     {
@@ -652,21 +653,21 @@ Constructs an RSoftwareResource object.
 Constructs an RSoftwareResource object.
 
 @param system       The system.
-@param productID    The product ID, or <a href="#PRODUCT_ID_OPERATING_SYSTEM">PRODUCT_ID_OPERATING_SYSTEM</a>
+@param productID    The product ID, or {@link #PRODUCT_ID_OPERATING_SYSTEM PRODUCT_ID_OPERATING_SYSTEM}
                     to refer to the operating system.
 @param releaseLevel The release level.  Possible values are:
                     <ul>
-                    <li><a href="#RELEASE_LEVEL_CURRENT">RELEASE_LEVEL_CURRENT</a> - Use the release level of
+                    <li>{@link #RELEASE_LEVEL_CURRENT RELEASE_LEVEL_CURRENT} - Use the release level of
                         the currently installed operating system.                    
-                    <li><a href="#RELEASE_LEVEL_ONLY">RELEASE_LEVEL_ONLY</a> - Use the only release level
+                    <li>{@link #RELEASE_LEVEL_ONLY RELEASE_LEVEL_ONLY} - Use the only release level
                         for which a product load is found.  
-                    <li><a href="#RELEASE_LEVEL_PREVIOUS">RELEASE_LEVEL_PREVIOUS</a> - Use the previous
+                    <li>{@link #RELEASE_LEVEL_PREVIOUS RELEASE_LEVEL_PREVIOUS} - Use the previous
                         release with modification level 0 of the operating system.
                     <li>A release level, in the form <code>V<em>x</em>R<em>x</em>M<em>x</em></code>.
                     </ul>
 @param productOption The option number for which is being requested, or 
-                    <a href="#PRODUCT_OPTION_BASE">PRODUCT_OPTION_BASE</a> for the base option.
-@param loadID       The load ID, or <a href="#LOAD_ID_CODE">LOAD_ID_CODE</a> for the code load.                    
+                    {@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE} for the base option.
+@param loadID       The load ID, or {@link #LOAD_ID_CODE LOAD_ID_CODE} for the code load.                    
 **/
     public RSoftwareResource(AS400 system, String productID, String releaseLevel, String productOption, String loadID)
     {
@@ -902,7 +903,7 @@ to which this object references.
 
 <p>The default value is LOAD_ID_CODE.
 
-@param loadID       The load ID, or <a href="#LOAD_ID_CODE">LOAD_ID_CODE</a> for the code load.                    
+@param loadID       The load ID, or {@link #LOAD_ID_CODE LOAD_ID_CODE} for the code load.                    
 **/
     public void setLoadID(String loadID)
     {
@@ -925,7 +926,7 @@ to which this object references.
 
 <p>The default value is PRODUCT_ID_OPERATING_SYSTEM.
 
-@param productID    The product ID, or <a href="#PRODUCT_ID_OPERATING_SYSTEM">PRODUCT_ID_OPERATING_SYSTEM</a>
+@param productID    The product ID, or {@link #PRODUCT_ID_OPERATING_SYSTEM PRODUCT_ID_OPERATING_SYSTEM}
                     to refer to the operating system.
 **/
     public void setProductID(String productID)
@@ -950,7 +951,7 @@ to which this object references.
 <p>The default value is PRODUCT_OPTION_BASE.
 
 @param productOption The option number for which is being requested, or 
-                    <a href="#PRODUCT_OPTION_BASE">PRODUCT_OPTION_BASE</a> for the base option.
+                    {@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE} for the base option.
 **/
     public void setProductOption(String productOption)
     {
@@ -975,11 +976,11 @@ to which this object references.
 
 @param releaseLevel The release level.  Possible values are:
                     <ul>
-                    <li><a href="#RELEASE_LEVEL_CURRENT">RELEASE_LEVEL_CURRENT</a> - Use the release level of
+                    <li>{@link #RELEASE_LEVEL_CURRENT RELEASE_LEVEL_CURRENT} - Use the release level of
                         the currently installed operating system.                    
-                    <li><a href="#RELEASE_LEVEL_ONLY">RELEASE_LEVEL_ONLY</a> - Use the only release level
+                    <li>{@link #RELEASE_LEVEL_ONLY RELEASE_LEVEL_ONLY} - Use the only release level
                         for which a product load is found.  
-                    <li><a href="#RELEASE_LEVEL_PREVIOUS">RELEASE_LEVEL_PREVIOUS</a> - Use the previous
+                    <li>{@link #RELEASE_LEVEL_PREVIOUS RELEASE_LEVEL_PREVIOUS} - Use the previous
                         release with modification level 0 of the operating system.
                     <li>A release level, in the form <code>V<em>x</em>R<em>x</em>M<em>x</em></code>.
                     </ul>

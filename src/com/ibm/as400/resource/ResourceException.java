@@ -31,8 +31,8 @@ import java.util.ResourceBundle;
 /**
 The ResourceException class represents an exception that
 occurs when using a
-<a href="Resource.html">Resource</a> or
-<a href="ResourceList.html">ResourceList</a>.
+{@link com.ibm.as400.resource.Resource Resource} or
+{@link com.ibm.as400.resource.ResourceList ResourceList}.
 Most of the time, this exception is thrown as the result
 of another exception being caught.  In this case, the underlying
 exception is available here.

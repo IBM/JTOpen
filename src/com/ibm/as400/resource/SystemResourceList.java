@@ -25,7 +25,7 @@ import java.util.Hashtable;
 
 /**
 The SystemResourceList class represents a subclass of
-of the <a href="BufferedResourceList.html">BufferedResourceList</a>
+of the {@link com.ibm.as400.resource.BufferedResourceList BufferedResourceList}
 class which retrieves list items using AS/400 System Open List
 Application Programming Interfaces (APIs).  This class is intended
 to be extended and customized by subclasses.
@@ -424,7 +424,7 @@ the length and whether the list is completed or in error.
 If the list is complete, this method has no effect.
 
 <p>This method does not refresh the contents of the list.  Use
-<a href="#refreshContents()">refreshContents()</a> to refresh
+{@link #refreshContents refreshContents()} to refresh
 the contents of the list.
 
 <p>This will implicitly open the list if needed.

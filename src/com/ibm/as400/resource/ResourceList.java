@@ -39,31 +39,31 @@ is an abstract class which provides generic access to the list's
 contents.
 
 <p>A ResourceList is always either open or closed.  The ResourceList
-must be open in order to access its contents.  Call <a href="#open()">
-open()</a> to explicitly open the ResourceList.  Otherwise, most
+must be open in order to access its contents.  Call {@link #open open()}
+to explicitly open the ResourceList.  Otherwise, most
 access methods will implicitly open the ResourceList if needed.
 When you are finished using the ResourceList, call
-<a href="#close()">close()</a> to ensure that it cleans up system
+{@link #close close()} to ensure that it cleans up system
 resources as needed.
 
 <p>The contents of a ResourceList are 0 or more
 {@link com.ibm.as400.resource.Resource Resource} objects.
-Use <a href="#resourceAt(long)">resourceAt()</a> to access a specific
+Use {@link #resourceAt(long) resourceAt()} to access a specific
 Resource from the list.  All indices are 0-based.
 
 <p>In order to provide immediate access to the ResourceList's
 contents and manage memory efficiently, most ResourceLists are
 loaded incrementally.  This means that neither all of the contents
-nor the exact <a href="#getListLength()">length</a> is available when the ResourceList
+nor the exact {@link #getListLength length} is available when the ResourceList
 is first opened.  Some subclasses may load the contents on demand,
 others may load them asynchronously.  At some point, depending on
 the subclass implementation, the ResourceList will be
-<a href="#isComplete()">complete</a>.  This means that all of its contents
+{@link #isComplete complete}.  This means that all of its contents
 are available and the exact length is known.
 
-<p>Call <a href="#waitForResource(long)">waitForResource()</a> to ensure that a
-particular Resource is made available.  Call <a href="#waitForComplete()">
-waitForComplete()</a> to ensure that all of the contents and the exact length
+<p>Call {@link #waitForResource(long) waitForResource()} to ensure that a
+particular Resource is made available.  Call {@link #waitForComplete waitForComplete()}
+to ensure that all of the contents and the exact length
 are made available.
 
 <p>ResourceLists can be filtered using selection values.  Every selection
@@ -73,10 +73,10 @@ Any given subclass of ResourceList will normally document the selection IDs
 and sort IDs that it supports.
 
 <p>One example of a concrete subclass of ResourceList is
-<a href="RJobList.html">RJobList</a>, which
+{@link com.ibm.as400.resource.RJobList RJobList}, which
 represents a list of AS/400 jobs.  RJobList supports many
-<a href="RJobList.html#selectionIDs">selection
-IDs</a> and <a href="RJobList.html#sortIDs">sort
+<a href="{@docRoot}/com/ibm/as400/resource/RJobList.html#selectionIDs">selection
+IDs</a> and <a href="{@docRoot}/com/ibm/as400/resource/RJobList.html#sortIDs">sort
 IDs</a>, each of which can be used to filter or sort the list.
 Here is an example which prints the contents of an RJobList:
 
@@ -130,11 +130,11 @@ void printContents(ResourceList resourceList, long numberOfItems) throws Resourc
 </pre></blockquote>
 
 <p>Every selection, sort, and resource attribute has an
-associated <a href="ResourceMetaData.html">meta data</a>
+associated {@link com.ibm.as400.resource.ResourceMetaData meta data}
 object which describes various properties such as the
 default value and possible values.   In addition, every ResourceList and
-meta data object has an associated <a href="Presentation.html">
-Presentation</a> object which provides translated information about the ResourceList,
+meta data object has an associated {@link com.ibm.as400.resource.Presentation Presentation}
+object which provides translated information about the ResourceList,
 selection, sort, or attribute.  You can use the Presentation information to
 present this information to end users.  This example prints a ResourceList
 and its sort values using their Presentations:
@@ -1159,7 +1159,7 @@ the length and whether the list is completed or in error.
 If the list is complete, this method has no effect.
 
 <p>This method does not refresh the contents of the list.  Use
-<a href="#refreshContents()">refreshContents()</a> to refresh
+{@link #refreshContents refreshContents()} to refresh
 the contents of the list.
 
 <p>This will implicitly open the list if needed.
@@ -1258,7 +1258,7 @@ Returns the resource specified by the index.
 
 
 /**
-Returns an Enumeration of the <a href="Resource.html">Resource</a>
+Returns an Enumeration of the {@link com.ibm.as400.resource.Resource Resource}
 objects.  This may be a more convenient mechanism to iterate through
 the Resource objects, and is provided as an alternative to using the
 other methods in this class.

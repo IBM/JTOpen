@@ -24,7 +24,7 @@ import java.util.Vector;
 
 /**
 The ChangeableResource represents an AS/400 resource.
-This is an abstract subclass of <a href="Resource.html">Resource</a>
+This is an abstract subclass of {@link com.ibm.as400.resource.Resource Resource}
 which adds the ability to change attribute values of an AS/400 resource.
 Attribute changes are cached internally until they are committed
 or canceled.  This allows you to change many attribute values at
@@ -33,9 +33,9 @@ subclass of ChangeableResource will normally document the attribute IDs
 that it supports.
 
 <p>One example of a concrete subclass of ChangeableResource is
-<a href="RJob.html">RJob</a>, which represents
-an AS/400 job.  RJob supports many <a href="RJob.html#attributeIDs">
-attribute IDs</a>, each of which can be used to access attribute values.
+{@link com.ibm.as400.resource.RJob RJob}, which represents
+an AS/400 job.  RJob supports many <a href="{@docRoot}/com/ibm/as400/resource/RJob.html#attributeIDs">attribute IDs</a>,
+each of which can be used to access attribute values.
 Here is an example which sets two attribute values for an RJob:
 
 <blockquote><pre>
@@ -58,7 +58,7 @@ can write generic code to work with any ChangeableResource
 subclass.  Such code may improve reusability and maintainability
 and will work with future ChangeableResource subclasses without
 modification.  Every attribute has an associated attribute
-<a href="ResourceMetaData.html">meta data</a>
+{@link com.ibm.as400.resource.ResourceMetaData meta data}
 object which describes various properties of the attribute.
 These properties include whether or not the attribute is
 read only and what the default and possible values are.
@@ -292,8 +292,8 @@ Commits all attribute changes.  This method
 fires an attributeChangesCommitted() ResourceEvent.
 
 <p>This method gathers information about which attribute
-changes need to be committed and calls <a href="#commitAttributeChanges(java.lang.Object[], java.lang.Object[])">
-commitAttributeChanges(Object[], Object[])</a>.  Subclasses should override
+changes need to be committed and calls {@link #commitAttributeChanges(java.lang.Object[], java.lang.Object[]) commitAttributeChanges(Object[], Object[])}.
+Subclasses should override
 commitAttributeChanges(Object[], Object[]) to define how attribute
 changes are physically committed.
 

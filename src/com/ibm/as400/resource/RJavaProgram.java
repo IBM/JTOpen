@@ -33,27 +33,28 @@ In the context of this discussion, a "Java program" is the OS/400 executable obj
 
 <a name="attributeIDs"><p>The following attribute IDs are supported:
 <ul>
-<li><a href="#CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS">CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS</a>
-<li><a href="#CLASSES_WITH_CURRENT_JAVA_PROGRAMS">CLASSES_WITH_CURRENT_JAVA_PROGRAMS</a>
-<li><a href="#CLASSES_WITH_ERRORS">CLASSES_WITH_ERRORS</a>
-<li><a href="#ENABLE_PERFORMANCE_COLLECTION">ENABLE_PERFORMANCE_COLLECTION</a>
-<li><a href="#FILE_CHANGE">FILE_CHANGE</a>
-<li><a href="#JAVA_PROGRAMS">JAVA_PROGRAMS</a>
-<li><a href="#JAVA_PROGRAM_CREATION">JAVA_PROGRAM_CREATION</a>
-<li><a href="#JAVA_PROGRAM_SIZE">JAVA_PROGRAM_SIZE</a>
-<li><a href="#LICENSED_INTERNAL_CODE_OPTIONS">LICENSED_INTERNAL_CODE_OPTIONS</a>
-<li><a href="#OPTIMIZATION">OPTIMIZATION</a>
-<li><a href="#OWNER">OWNER</a>
-<li><a href="#PROFILING_DATA">PROFILING_DATA</a>
-<li><a href="#RELEASE_PROGRAM_CREATED_FOR">RELEASE_PROGRAM_CREATED_FOR</a>
-<li><a href="#TOTAL_CLASSES_IN_SOURCE">TOTAL_CLASSES_IN_SOURCE</a>
-<li><a href="#USE_ADOPTED_AUTHORITY">USE_ADOPTED_AUTHORITY</a>
-<li><a href="#USER_PROFILE">USER_PROFILE</a>
+<li>{@link #CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS CLASSES_WITHOUT_CURRENT_JAVA_PROGRAMS}
+<li>{@link #CLASSES_WITH_CURRENT_JAVA_PROGRAMS CLASSES_WITH_CURRENT_JAVA_PROGRAMS}
+<li>{@link #CLASSES_WITH_ERRORS CLASSES_WITH_ERRORS}
+<li>{@link #ENABLE_PERFORMANCE_COLLECTION ENABLE_PERFORMANCE_COLLECTION}
+<li>{@link #FILE_CHANGE FILE_CHANGE}
+<li>{@link #JAVA_PROGRAMS JAVA_PROGRAMS}
+<li>{@link #JAVA_PROGRAM_CREATION JAVA_PROGRAM_CREATION}
+<li>{@link #JAVA_PROGRAM_SIZE JAVA_PROGRAM_SIZE}
+<li>{@link #LICENSED_INTERNAL_CODE_OPTIONS LICENSED_INTERNAL_CODE_OPTIONS}
+<li>{@link #OPTIMIZATION OPTIMIZATION}
+<li>{@link #OWNER OWNER}
+<li>{@link #PROFILING_DATA PROFILING_DATA}
+<li>{@link #RELEASE_PROGRAM_CREATED_FOR RELEASE_PROGRAM_CREATED_FOR}
+<li>{@link #TOTAL_CLASSES_IN_SOURCE TOTAL_CLASSES_IN_SOURCE}
+<li>{@link #USE_ADOPTED_AUTHORITY USE_ADOPTED_AUTHORITY}
+<li>{@link #USER_PROFILE USER_PROFILE}
 </ul>
+</a>
 
 <p>Use any of these attribute IDs with
-<a href="ChangeableResource.html#getAttributeValue(java.lang.Object)">getAttributeValue()</a>
-and <a href="ChangeableResource.html#setAttributeValue(java.lang.Object, java.lang.Object)">setAttributeValue()</a>
+{@link com.ibm.as400.resource.ChangeableResource#getAttributeValue getAttributeValue()}
+and {@link com.ibm.as400.resource.ChangeableResource#setAttributeValue setAttributeValue()}
 to access the attribute values for an RJavaProgram.
 
 <blockquote><pre>
@@ -196,13 +197,13 @@ String attribute, which represents the level of performance data
 collection allowed for this Java program.  Possible
 values are:
 <ul>
-<li><a href="#ENABLE_PERFORMANCE_COLLECTION_NONE">ENABLE_PERFORMANCE_COLLECTION_NONE</a>
+<li>{@link #ENABLE_PERFORMANCE_COLLECTION_NONE ENABLE_PERFORMANCE_COLLECTION_NONE}
     - No performance collection is enabled for this Java program.
-<li><a href="#ENABLE_PERFORMANCE_COLLECTION_ENTRY_EXIT">ENABLE_PERFORMANCE_COLLECTION_ENTRY_EXIT</a>
+<li>{@link #ENABLE_PERFORMANCE_COLLECTION_ENTRY_EXIT ENABLE_PERFORMANCE_COLLECTION_ENTRY_EXIT}
     - This gives the entry/exit information on all the procedures of the Java
       program (including those that are leaf procedures).  This includes the
       PEP routine. This is useful in capturing information on all procedures.
-<li><a href="#ENABLE_PERFORMANCE_COLLECTION_FULL">ENABLE_PERFORMANCE_COLLECTION_FULL</a>
+<li>{@link #ENABLE_PERFORMANCE_COLLECTION_FULL ENABLE_PERFORMANCE_COLLECTION_FULL}
     -  This gives the entry/exit information on all procedures of the Java
        program (including those that are leaf procedures) and precall and postcall
        hooks around calls to other procedures.  This is useful in capturing
@@ -267,16 +268,16 @@ Attribute ID for profiling data.  This identifies a
 String attribute, which indicates if the Java program is 
 collecting profiling data.  Possible values are:
 <ul>
-<li><a href="#PROFILING_DATA_NOCOLLECTION">PROFILING_DATA_NOCOLLECTION</a>
+<li>{@link #PROFILING_DATA_NOCOLLECTION PROFILING_DATA_NOCOLLECTION}
     - No profiling data collection is enabled for this Java program.
-<li><a href="#PROFILING_DATA_COLLECTION">PROFILING_DATA_COLLECTION</a>
+<li>{@link #PROFILING_DATA_COLLECTION PROFILING_DATA_COLLECTION}
     - Profiling data collection is enabled for this Java program.  This
       enablement can only occur if the optimization of the Java program is
       30 or higher.  Also, collection does not occur until the profiling 
       data is applied.
-<li><a href="#PROFILING_DATA_APPLY">PROFILING_DATA_APPLY</a>
+<li>{@link #PROFILING_DATA_APPLY PROFILING_DATA_APPLY}
     - Profiling data collection is applied for this Java program.
-<li><a href="#PROFILING_DATA_CLEAR">PROFILING_DATA_CLEAR</a>
+<li>{@link #PROFILING_DATA_CLEAR PROFILING_DATA_CLEAR}
     - All profiling data that has been collected for this Java program is to 
       be cleared.
 </ul>
@@ -435,24 +436,24 @@ Attribute ID for optimization.  This identifies an Integer attribute,
 which represents the optimization level of the AS/400 Java program.  Possible
 values are:
 <ul>
-<li><a href="#OPTIMIZATION_INTERPRET">OPTIMIZATION_INTERPRET</a>
+<li>{@link #OPTIMIZATION_INTERPRET OPTIMIZATION_INTERPRET}
     -  The Java program is not optimized.  When invoked, the Java program
        interprets the class file byte codes.  Variables can be displayed and
        modified while debugging.
-<li><a href="#OPTIMIZATION_10">OPTIMIZATION_10</a>
+<li>{@link #OPTIMIZATION_10 OPTIMIZATION_10}
     - The Java program contains a compiled version of the class file byte codes
       but has only minimal additional compiler optimization.  Variables can be
       displayed and modified while debugging.
-<li><a href="#OPTIMIZATION_20">OPTIMIZATION_20</a>
+<li>{@link #OPTIMIZATION_20 OPTIMIZATION_20}
     - The Java program contains a compiled version of the class file byte codes
       and has some additional compiler optimization.  Variables can be displayed
       but not modified while debugging.
-<li><a href="#OPTIMIZATION_30">OPTIMIZATION_30</a>
+<li>{@link #OPTIMIZATION_30 OPTIMIZATION_30}
     - The Java program contains a compiled version of the class file byte codes
       and has more compiler optimization than optimization level 20.  During a
       debug session, user variables cannot be changed, but can be displayed.
       The presented values may not be the current values of the variables.
-<li><a href="#OPTIMIZATION_40">OPTIMIZATION_40</a>
+<li>{@link #OPTIMIZATION_40 OPTIMIZATION_40}
     - The Java program contains a compiled version of the class file byte codes
       and has more compiler optimization than optimization level 30.  All call and
       instruction tracing is disabled.
@@ -589,8 +590,8 @@ Attribute ID for use adopted authority.  This identifies a read-only
 String attribute, which indicates if the Java programs use adopted authority
 from previous call levels in the stack.  Possible values are:
 <ul>
-<li><a href="#YES">YES</a>
-<li><a href="#YES">NO</a>
+<li>{@link #YES YES}
+<li>{@link #YES NO}
 </ul>
 **/
     public static final String USE_ADOPTED_AUTHORITY                   = "USE_ADOPTED_AUTHORITY";
@@ -617,11 +618,11 @@ String attribute, which represents who the authority checking
 that was done while this program is running should include.
 Possible values are:
 <ul>
-<li><a href="#USER_PROFILE_USER">USER_PROFILE_USER</a>
+<li>{@link #USER_PROFILE_USER USER_PROFILE_USER}
     - Indicates that the authority checking that was done while
       this program is running should include only the user
       who is running the program.
-<li><a href="#USER_PROFILE_OWNER">USER_PROFILE_OWNER</a>
+<li>{@link #USER_PROFILE_OWNER USER_PROFILE_OWNER}
     - Indicates that the authority checking that was done while
       this program is running should include both the use
       who is running the program and the program owner.

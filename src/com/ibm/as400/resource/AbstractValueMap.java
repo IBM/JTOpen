@@ -25,7 +25,7 @@ This is useful if an implementation only needs to provide a single
 method.
 
 <p>This class is intended as a helper class for implementing subclasses
-of <a href="Resource.html">Resource</a>.
+of {@link com.ibm.as400.resource.Resource Resource}.
 **/
 public abstract class AbstractValueMap
 implements ValueMap, Serializable

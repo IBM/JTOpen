@@ -25,8 +25,8 @@ import java.util.Vector;
 
 /**
 The ResourceMetaData class represents information about a
-<a href="Resource.html">Resource</a>
-or <a href="ResourceList.html">ResourceList</a>.
+{@link com.ibm.as400.resource.Resource Resource}
+or {@link com.ibm.as400.resource.ResourceList ResourceList}.
 **/
 //
 // Design notes:

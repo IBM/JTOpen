@@ -27,16 +27,17 @@ The RPrinterList class represents a list of AS/400 printers.
 
 <a name="selectionIDs"><p>The following selection IDs are supported:
 <ul>
-<li><a href="#PRINTER_NAMES">PRINTER_NAMES</a>
-<li><a href="#OUTPUT_QUEUES">OUTPUT_QUEUES</a>
+<li>{@link #PRINTER_NAMES PRINTER_NAMES}
+<li>{@link #OUTPUT_QUEUES OUTPUT_QUEUES}
 </ul>
+</a>
 
 <p>Use one or more of these selection IDs with
-<a href="ResourceList.html#getSelectionValue(java.lang.Object)">getSelectionValue()</a>
-and <a href="ResourceList.html#setSelectionValue(java.lang.Object, java.lang.Object)">setSelectionValue()</a>
+{@link com.ibm.as400.resource.ResourceList#getSelectionValue getSelectionValue()}
+and {@link com.ibm.as400.resource.ResourceList#setSelectionValue setSelectionValue()}
 to access the selection values for an RPrinterList.
 
-<p>RPrinterList objects generate <a href="RPrinter.html">RPrinter</a> objects.
+<p>RPrinterList objects generate {@link com.ibm.as400.resource.RPrinter RPrinter} objects.
 
 <blockquote><pre>
 // Create an RPrinterList object to represent a list of printers.

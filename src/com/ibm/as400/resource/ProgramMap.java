@@ -27,13 +27,13 @@ import java.util.Vector;
 
 /**
 The ProgramMap class represents a map between logical values such
-as <a href="Resource.html">Resource</a>
+as {@link com.ibm.as400.resource.Resource Resource}
 attribute values and data in a PCML document.  Each logical value is
 referred to by a logical ID in the map.  A logical value may map to
 multiple pieces of data in a PCML document.
 
 <p>This class is intended as a helper class for implementing subclasses
-of <a href="Resource.html">Resource</a>.
+of {@link com.ibm.as400.resource.Resource Resource}.
 **/
 public class ProgramMap
 implements Serializable
