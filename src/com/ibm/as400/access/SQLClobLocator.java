@@ -93,7 +93,7 @@ final class SQLClobLocator implements SQLLocator
         // We used to write the data to the server on the call to set(), but this messed up
         // batch executes, since the host server only reserves temporary space for locator handles one row at a time.
         // See the toObject() method in this class for more details.
-        writeToServer();
+        if(savedObject_ != null) writeToServer();
     }
 
     //---------------------------------------------------------//
