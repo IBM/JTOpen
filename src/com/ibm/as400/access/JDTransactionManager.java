@@ -676,9 +676,12 @@ java.sql.Connection.TRANSACTION_* values.
     {                                                                                         //@KBA
         DBSQLAttributesDS request = null;                                               //@KBA
         DBReplyRequestedDS reply = null;                                                //@KBA
+        int commitMode = currentCommitMode_;
           try                                                                                 //@KBA
           {                                                                                   //@KBA
-              if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
+              if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
+                serverCommitMode_ = COMMIT_MODE_NONE_;
+              if(serverCommitMode_ != commitMode_)                                            //@KBA
               {                                                                               //@KBA
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
@@ -700,11 +703,7 @@ java.sql.Connection.TRANSACTION_* values.
               if (request != null) request.inUse_ = false;                                    //@KBA
               if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
-
-          if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)
-              serverCommitMode_ = COMMIT_MODE_NONE_;
-          else
-              serverCommitMode_ = currentCommitMode_;                                            //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
+          serverCommitMode_ = commitMode;                                            //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
   }
 
