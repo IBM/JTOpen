@@ -133,7 +133,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param name The file name.
    @param mode The access mode <ul><li>"r" read only<li>"w" write only<li>"rw" read/write</ul>
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSRandomAccessFile(AS400  system,
                              String name,
@@ -178,7 +178,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Replace if exists; fail if not</ul>
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSRandomAccessFile(AS400  system,
                              String name,
@@ -225,7 +225,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param existenceOption Indicates if the file should be created, opened or if the request should fail based on the existence of the file. <ul><li>FAIL_OR_CREATE Fail if exists; create if not<li>OPEN_OR_CREATE Open if exists; create if not<li>OPEN_OR_FAIL Open if exists; fail if not<li>REPLACE_OR_CREATE Replace if exists; create if not<li>REPLACE_OR_FAIL Replace if exists; fail if not</ul>
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSRandomAccessFile(AS400   system,
                              IFSFile file,
@@ -327,7 +327,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Closes this random access file stream and releases any system resources
    associated with the stream.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void close()
     throws IOException
@@ -351,7 +351,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Establishes communications with the AS400, and opens the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
   **/
   private void connectAndOpen()
     throws AS400SecurityException, IOException
@@ -372,7 +372,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
   /**
    Ensures that the stream is closed when there are no more references to it.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
     throws IOException
@@ -399,7 +399,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Forces any buffered output bytes to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void flush()
     throws IOException
@@ -423,7 +423,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Returns a file descriptor associated with this stream.
    @return The file descriptor associated with this stream
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final IFSFileDescriptor getFD()
     throws IOException
@@ -436,7 +436,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Returns the current offset in this file.
    @return The offset from the beginning of the file, in bytes, at which the
    next read or write occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public long getFilePointer()
     throws IOException
@@ -508,7 +508,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Returns the file length.
    @return The file length, in bytes.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public long length()
     throws IOException
@@ -526,7 +526,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param length The number of bytes to lock.
    @return A key for undoing this lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #unlock
@@ -561,7 +561,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Opens the specified file.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   private void open()
     throws IOException
@@ -598,7 +598,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Reads the next byte of data from this file.
    @return The next byte of data, or -1 if the end of file is reached.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int read()
     throws IOException
@@ -626,7 +626,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param data The buffer into which data is read.
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int read(byte[] data)
     throws IOException
@@ -647,7 +647,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param length The maximum number of bytes to read.
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int read(byte[] data,
                   int    dataOffset,
@@ -683,7 +683,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    file. A value of 0 represents false. Any other value represents true.
    @return The boolean value read.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final boolean readBoolean()
     throws IOException
@@ -696,7 +696,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Reads a signed 8-bit value from this file.  This method reads a single byte
    from the file.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final byte readByte()
     throws IOException
@@ -714,7 +714,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Reads a Unicode character from this file.  Two bytes are read from the file.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final char readChar()
     throws  IOException
@@ -729,7 +729,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    longBitsToDouble method in class Double.
    @return The next eight bytes of this file, interpreted as a double.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final double readDouble()
     throws IOException
@@ -746,7 +746,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    method in class Float.
    @return The next four bytes of this file, interpreted as a float.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final float readFloat()
     throws IOException
@@ -763,7 +763,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    exception is thrown.
    @param data The buffer into which data is read.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void readFully(byte[] data)
     throws IOException
@@ -784,7 +784,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param dataOffset The start offset in the data buffer.
    @param length The number of bytes to read.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void readFully(byte[] data,
                               int    dataOffset,
@@ -817,7 +817,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @return The next four bytes of this file, interpreted as an integer.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final int readInt()
     throws IOException
@@ -842,7 +842,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @return The next line of text from this file.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final String readLine()
     throws  IOException
@@ -859,7 +859,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @return The next eight bytes of the file, interpreted as a long.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final long readLong()
     throws IOException
@@ -897,7 +897,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @return The next two bytes of this file, interpreted as a short.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final short readShort()
     throws IOException
@@ -917,7 +917,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    this file and returns that byte.
    @return The next byte of this file, interpreted as an unsigned 8-bit number.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final int readUnsignedByte()
     throws IOException
@@ -940,7 +940,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @return The next two bytes of this file, interpreted as an unsigned 16-bit
    number.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final int readUnsignedShort()
     throws IOException
@@ -970,7 +970,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    encoding characters in the UTF-8 format and are converted into characters.
    @return A Unicode string.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final String readUTF()
     throws IOException
@@ -1027,7 +1027,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    or write occurs.
    @param position The absolute position of the file pointer.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void seek(long position)
     throws IOException
@@ -1094,6 +1094,34 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
     forceToStorage_ = forceToStorage;
     if (impl_ != null)
       impl_.setForceToStorage(forceToStorage);
+  }
+
+  // @A2a
+  /**
+   Sets the length of the file represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
+   @param length The new length, in bytes.
+
+   @exception IOException If an error occurs while communicating with the server.
+   **/
+  public void setLength(int length)
+    throws IOException
+  {
+    // Validate arguments.
+    if (length < 0)
+    {
+      throw new ExtendedIllegalArgumentException("length + (" +
+                                                 Integer.toString(length) + ")",
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+
+    if (impl_ == null)  chooseImpl();
+
+    impl_.setLength(length);
+
+    // Fire the events.
+    if (fileListeners_.size() != 0) {
+      IFSFileDescriptor.fireModifiedEvents(this, fileListeners_);
+    }
   }
 
 
@@ -1210,7 +1238,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
   /**
    Sets the system.
    The system cannot be changed once a connection is made to the server.
-   @param system The AS/400 system object.
+   @param system The iSeries system object.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public void setSystem(AS400 system)
@@ -1248,7 +1276,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param bytesToSkip The number of bytes to skip.
    @return The number of bytes skipped.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int skipBytes(int bytesToSkip)
     throws IOException
@@ -1275,7 +1303,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Undoes a lock on this file.
    @param key The key for the lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #lock
@@ -1331,7 +1359,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Writes the specified byte to this file.
    @param b The byte to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(int b)
     throws  IOException
@@ -1346,7 +1374,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    to this file output stream.
    @param data The data to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(byte[] data)
     throws  IOException
@@ -1365,7 +1393,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param dataOffset The start offset in the data.
    @param length The number of bytes to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(byte[] data,
                     int    dataOffset,
@@ -1396,7 +1424,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    (byte)0.
    @param value The value to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeBoolean(boolean value)
     throws  IOException
@@ -1409,7 +1437,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Writes a byte to the file as a one-byte value.
    @param value The value to be written as a byte.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeByte(int value)
     throws  IOException
@@ -1425,7 +1453,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    @param dataOffset The start offset in the data.
    @param length The number of bytes to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   private void writeBytes(byte[]  data,
                           int     dataOffset,
@@ -1464,7 +1492,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    used to write double-byte characters.  Use writeChars(String) instead.
    @param s The bytes to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see #writeChars(String)
    **/
@@ -1491,7 +1519,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    Writes a char to the file as a two-byte value, high byte first.
    @param value A character value to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeChar(int value)
     throws  IOException
@@ -1511,7 +1539,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    written to the file as if by the writeChar method.
    @param s A String to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeChars(String s)
     throws  IOException
@@ -1541,7 +1569,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @param value The value to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeDouble(double value)
     throws  IOException
@@ -1555,7 +1583,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
    class Float, and then writes that int value to the file as a four-byte
    quantity, high-byte first.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public final void writeFloat(float value)
     throws  IOException
@@ -1569,7 +1597,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @param value The int to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeInt(int value)
     throws  IOException
@@ -1591,7 +1619,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @param value The value to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeLong(long value)
     throws  IOException
@@ -1613,7 +1641,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @param value The value to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeShort(int value)
     throws  IOException
@@ -1637,7 +1665,7 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
 
    @param s The string to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final void writeUTF(String s)
     throws IOException

@@ -1534,14 +1534,16 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
 
 
 /**
- * Set the last modified time of the file named by this
+ * Sets the last modified time of the file named by this
  * IFSJavaFile object.
  *
  * @param time The new last modified time, measured in milliseconds since
  *        00:00:00 GMT, January 1, 1970.
+ *        If -1, sets the last modified time to the current system time.
  * @return <code>true</code> if the time is set; <code>false</code> otherwise.
 **/
   // @D1 - new method because of changes to java.io.file in Java 2.
+  // @B8c - Documented new behavior if argument is -1.
 
   public boolean setLastModified(long time)
   {
@@ -1559,6 +1561,26 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      }
   }
 
+  // @B8a
+  /**
+   * Sets the length of the file named by this
+   * IFSJavaFile object.  The file can be made larger or smaller.
+   * If the file is made larger, the contents of the new bytes
+   * of the file are undetermined.
+   * @param length The new length, in bytes.
+   * @return true if successful; false otherwise.
+   **/
+  public boolean setLength(int length)
+  {
+     try
+     {
+        return ifsFile_.setLength(length);
+     }
+     catch (IOException e)
+     {
+        return false;
+     }
+  }
 
 
 /**

@@ -54,7 +54,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    return (checkAccess(IFSOpenReq.READ_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
+    return (fd_.checkAccess(IFSOpenReq.READ_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
   }
 
 
@@ -67,68 +67,8 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    return (checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
+    return (fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN)); //@D1C
   }
-
-  // Determine if the directory entry can be accessed in the specified
-  // manner.
-  private int checkAccess(int access, int openOption)   // @D1C
-    throws IOException
-  {
-    int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
-
-    // Try to open the file for the specified type of access.
-    try
-    {
-      // Convert the path name to the AS/400 CCSID.
-      byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
-
-      // Process an open file request.
-      IFSOpenReq req = new IFSOpenReq(pathname, fd_.preferredServerCCSID_,
-                                      0, access, IFSOpenReq.DENY_NONE,
-                                      IFSOpenReq.NO_CONVERSION,
-                                      openOption);                    // @D1C
-      ClientAccessDataStream ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
-      if (ds instanceof IFSOpenRep)
-      {
-        // The open was successful.  Close the file.
-     returnCode = IFSReturnCodeRep.SUCCESS;
-        IFSCloseReq closeReq = new
-          IFSCloseReq(((IFSOpenRep) ds).getFileHandle());
-        ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(closeReq);
-      }
-      else if (ds instanceof IFSReturnCodeRep)
-      {
-        returnCode = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-        {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
-                    returnCode);
-        }
-      }
-      else
-      {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-        throw new
-          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                 InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost", e);
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted", e);
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    return returnCode;
-  }
-
 
 
 
@@ -175,7 +115,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    return (checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_CREATE_FAIL));
+    return (fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_CREATE_FAIL));
   }
 
 
@@ -1036,21 +976,8 @@ implements IFSFileImpl
       reply = (IFSListAttrsRep) replys.elementAt(0);
     }
 
-    // If we got a file handle, close it.
-    if (fileHandle != -1)
-    {
-      // Close the file.  We don't check the close reply
-      // because a failure at this point isn't of interest.
-      // The caller doesn't need to know that
-      // we opened and closed the file in question.
-      IFSCloseReq closeReq = new IFSCloseReq(fileHandle);
-      try { fd_.server_.sendAndReceive(closeReq); }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
-      }
-    }
+    fd_.close0();  // B8c
+
     return reply;
   }
 
@@ -1579,9 +1506,12 @@ implements IFSFileImpl
   }
 
 
+  // @B8c
   /**
    Changes the last modified time of the integrated file system object represented by this object to <i>time</i>.
-   @param time The desired last modification time (measured in milliseconds since January 1, 1970 00:00:00 GMT).
+   @param time The desired last modification time (measured in milliseconds
+   since January 1, 1970 00:00:00 GMT), or -1 to set the last modification time to the current system time.
+
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -1596,6 +1526,132 @@ implements IFSFileImpl
   {
     // Assume the argument has been validated by the public class.
 
+    boolean fileIsEmpty = false;  // @B8a
+
+    // Ensure that we are connected to the server.
+    try
+    {
+      fd_.connect();
+      // If we're setting timestamp to "current system time", we'll need to know how big the file is.
+      if (time == -1) fileIsEmpty = (length0()==0 ? true : false);  // @B8a
+
+    }
+    catch (AS400SecurityException e)
+    {
+      throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
+    }
+
+    boolean success = false;
+
+    if (time != -1)  // @B8a
+    {
+      // Issue a change attributes request.
+      ClientAccessDataStream ds = null;
+      try
+      {
+        // Convert the path name to the AS/400 CCSID.
+        byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
+
+        IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
+                                                      fd_.preferredServerCCSID_,
+                                                      0, time, 0);
+        ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
+      }
+      catch(ConnectionDroppedException e)
+      {
+        Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+        fd_.connectionDropped(e);
+      }
+      catch(InterruptedException e)
+      {
+        Trace.log(Trace.ERROR, "Interrupted");
+        throw new InterruptedIOException(e.getMessage());
+      }
+
+      // Verify the reply.
+      if (ds instanceof IFSReturnCodeRep)
+      {
+        int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+        if (rc == IFSReturnCodeRep.SUCCESS)
+          success = true;
+        else
+          Trace.log(Trace.ERROR, "Error setting last-modified date: " +
+                    "IFSReturnCodeRep return code = ", rc);
+      }
+      else
+      {
+        // Unknown data stream.
+        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        throw new
+          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                 InternalErrorException.DATA_STREAM_UNKNOWN);
+      }
+    }
+    else  // we are setting modification time to "current system time"
+    {
+      // Open the file for read/write, setting the file handle in fd_.
+      int rc = fd_.checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN, true);  // leave the file open
+      if (rc != IFSReturnCodeRep.SUCCESS)
+      {
+        Trace.log(Trace.ERROR, "Failed to open file: " +
+                  "IFSReturnCodeRep return code = ", rc);
+        return false;
+      }
+
+      byte[] buffer = new byte[1];  // buffer for reading/writing a single byte
+
+      if (fileIsEmpty)
+      {
+        // Update last-modification date by writing one byte (the value doesn't matter).
+        fd_.writeBytes(buffer, 0, 1, true);
+
+        // Reset the file size to zero.
+        success = fd_.setLength(0);
+      }
+      else // the file is not empty
+      {
+        // Read the first byte.
+        if (1 == fd_.read(buffer, 0, 1))
+        {
+          // Write back the first byte.
+          fd_.setFileOffset(0);
+          fd_.writeBytes(buffer, 0, 1, true);
+          success = true;
+        }
+        else
+        {
+          Trace.log(Trace.ERROR, "Failed to read first byte of file.");
+          success = false;
+        }
+      }
+
+      fd_.close0();
+    }
+
+    // Clear any cached attributes.
+    attributes_ = null;
+
+    return success;
+  }
+
+
+  // @B8a
+  /**
+   Sets the length of the integrated file system object represented by this object.  The file can be made larger or smaller.  If the file is made larger, the contents of the new bytes of the file are undetermined.
+   @param length The new length, in bytes.
+   @return true if successful; false otherwise.
+
+   @exception ConnectionDroppedException If the connection is dropped unexpectedly.
+   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception InterruptedIOException If this thread is interrupted.
+   @exception ServerStartupException If the AS/400 server cannot be started.
+   @exception UnknownHostException If the AS/400 system cannot be located.
+   **/
+  public boolean setLength(int length)
+    throws IOException
+  {
+    // Assume the argument has been validated by the public class.
+
     // Ensure that we are connected to the server.
     try
     {
@@ -1606,53 +1662,10 @@ implements IFSFileImpl
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
-    // Issue a change attributes request.
-    ClientAccessDataStream ds = null;
-    try
-    {
-      // Convert the path name to the AS/400 CCSID.
-      byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
-
-      IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
-                                                    fd_.preferredServerCCSID_,
-                                                    0, time, 0);
-      ds = (ClientAccessDataStream) fd_.server_.sendAndReceive(req);
-    }
-    catch(ConnectionDroppedException e)
-    {
-      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-      fd_.connectionDropped(e);
-    }
-    catch(InterruptedException e)
-    {
-      Trace.log(Trace.ERROR, "Interrupted");
-      throw new InterruptedIOException(e.getMessage());
-    }
-
-    // Verify the reply.
-    boolean success = false;
-    if (ds instanceof IFSReturnCodeRep)
-    {
-      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-      if (rc == IFSReturnCodeRep.SUCCESS)
-        success = true;
-      else
-        Trace.log(Trace.ERROR, "Error setting last-modified date: " +
-                    "IFSReturnCodeRep return code = ", rc);
-    }
-    else
-    {
-      // Unknown data stream.
-      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-      throw new
-        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                               InternalErrorException.DATA_STREAM_UNKNOWN);
-    }
-
     // Clear any cached attributes.
     attributes_ = null;
 
-    return success;
+    return fd_.setLength(length);
   }
 
   /**

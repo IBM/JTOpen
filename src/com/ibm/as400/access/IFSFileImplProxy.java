@@ -361,6 +361,21 @@ implements IFSFileImpl
     }
   }
 
+  // @B8a
+  public boolean setLength(int length)
+    throws IOException
+  {
+    try {
+      return connection_.callMethod (pxId_, "setLength",
+                                     new Class[] { Integer.TYPE },
+                                     new Object[] { new Integer(length) })
+        .getReturnValueBoolean();
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
    // @D1 - new method because of changes to java.io.file in Java 2.
   public boolean setReadOnly(boolean attribute)
     throws IOException

@@ -25,10 +25,11 @@ implements IFSFileDescriptorImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
+  private static final int UNINITIALIZED = -1;  // @B8a
 
   // Note: We allow direct access to some of these fields, for performance.  @B2C
           ConverterImplRemote converter_;
-  private int         fileHandle_;
+  private int         fileHandle_ = UNINITIALIZED;  // @B8c
           int         preferredServerCCSID_;
           int         serverDatastreamLevel_; // @B3A
           int         requestedDatastreamLevel_; // @B6a
@@ -84,16 +85,83 @@ implements IFSFileDescriptorImpl
     }
   }
 
+  // @B8m  - Moved this method here from IFSFileImplRemote.
+  // Determine if the directory entry can be accessed in the specified
+  // manner.
+  int checkAccess(int access, int openOption)   // @D1C @B8c
+    throws IOException
+  {
+    return checkAccess(access, openOption, false);
+  }
+  int checkAccess(int access, int openOption, boolean leaveOpen)   // @D1C @B8c
+    throws IOException
+  {
+    int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
+
+    // Try to open the file for the specified type of access.
+    try
+    {
+      // Convert the path name to the AS/400 CCSID.
+      byte[] pathname = converter_.stringToByteArray(path_);
+
+      // Process an open file request.
+      IFSOpenReq req = new IFSOpenReq(pathname, preferredServerCCSID_,
+                                      0, access, IFSOpenReq.DENY_NONE,
+                                      IFSOpenReq.NO_CONVERSION,
+                                      openOption);                    // @D1C
+      ClientAccessDataStream ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+      if (ds instanceof IFSOpenRep)
+      {
+        // The open was successful.  Close the file if appropriate.
+        returnCode = IFSReturnCodeRep.SUCCESS;
+        int fileHandle = ((IFSOpenRep) ds).getFileHandle();  // @B8a
+        fileHandle_ = fileHandle;  // @B8a
+        if (leaveOpen) isOpen_ = true; // @B8a
+        else close0();  // @B8c
+      }
+      else if (ds instanceof IFSReturnCodeRep)
+      {
+        returnCode = ((IFSReturnCodeRep) ds).getReturnCode();
+        if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+        {
+          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code ",
+                    returnCode);
+        }
+      }
+      else
+      {
+        // Unknown data stream.
+        Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+        throw new
+          InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                                 InternalErrorException.DATA_STREAM_UNKNOWN);
+      }
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost", e);
+      connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted", e);
+      throw new InterruptedIOException(e.getMessage());
+    }
+
+    return returnCode;
+  }
+
 
   public void close()
   {
     isOpen_ = false;
+    fileHandle_ = UNINITIALIZED;
   }
 
   void close0()  // @B2A - code relocated from IFSFileOutputStreamImplRemote,etc.
     throws IOException
   {
-    if (isOpen_)
+    if (fileHandle_ != UNINITIALIZED)  // @B8c
     {
       // Close the file.  Send a close request to the server.
       ClientAccessDataStream ds = null;
@@ -109,9 +177,12 @@ implements IFSFileDescriptorImpl
       }
       catch(InterruptedException e)
       {
-        isOpen_ = false;
         Trace.log(Trace.ERROR, "Interrupted", e);
         throw new InterruptedIOException(e.getMessage());
+      }
+      finally
+      {
+        close();
       }
 
       // Validate the reply.
@@ -140,7 +211,6 @@ implements IFSFileDescriptorImpl
           InternalErrorException(Integer.toHexString(ds.getReqRepID()),
                                  InternalErrorException.DATA_STREAM_UNKNOWN);
       }
-      isOpen_ = false;
     }
   }
 
@@ -190,7 +260,7 @@ implements IFSFileDescriptorImpl
     {
       system_.disconnectServer(server_);
       server_ = null;
-      isOpen_ = false;  // Note: Not relevant for IFSFileImplRemote.
+      close();  // Note: Not relevant for IFSFileImplRemote.
     }
     Trace.log(Trace.ERROR, "Byte stream connection lost.");
     throw e;
@@ -301,7 +371,7 @@ implements IFSFileDescriptorImpl
   void finalize0()  // @B2A
     throws IOException
   {
-    if (isOpen_)
+    if (fileHandle_ != UNINITIALIZED)  // @B8c
     {
       // Close the file.  Send a close request to the server.
       IFSCloseReq req = new IFSCloseReq(fileHandle_);
@@ -319,7 +389,7 @@ implements IFSFileDescriptorImpl
       }
       finally
       {
-        isOpen_ = false;
+        close();
       }
     }
 
@@ -687,7 +757,12 @@ implements IFSFileDescriptorImpl
 
   void setFileHandle(int fileHandle)
   {
-    fileHandle_ = fileHandle;
+    if (fileHandle != UNINITIALIZED) fileHandle_ = fileHandle;
+    else {
+      Trace.log(Trace.ERROR, "Called setOpen with invalid file handle: " + fileHandle);
+      throw new
+        InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+    }
   }
 
   public void setFileOffset(int fileOffset)
@@ -698,8 +773,84 @@ implements IFSFileDescriptorImpl
     }
   }
 
-  void setOpen(boolean state)
+
+  // @B8a
+  boolean setLength(int length)
+    throws IOException
   {
+    // Assume that we are connected to the server.
+
+    // Issue a change attributes request.
+    ClientAccessDataStream ds = null;
+
+    boolean closeWhenFinished = false;
+
+    try
+    {
+      // Convert the path name to the AS/400 CCSID.
+      byte[] pathname = converter_.stringToByteArray(path_);
+
+      if (fileHandle_ == UNINITIALIZED)
+      {
+        // Open the file for read/write, and set the file handle.
+        int rc = checkAccess(IFSOpenReq.WRITE_ACCESS, IFSOpenReq.OPEN_OPTION_FAIL_OPEN, true);  // leave the file open
+        if (rc != IFSReturnCodeRep.SUCCESS)
+        {
+          Trace.log(Trace.ERROR, "Failed to open file: " +
+                    "IFSReturnCodeRep return code = ", rc);
+          return false;
+        }
+        closeWhenFinished = true;
+      }
+      IFSChangeAttrsReq req = new IFSChangeAttrsReq(fileHandle_, length);
+      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+    }
+    catch(ConnectionDroppedException e)
+    {
+      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+      connectionDropped(e);
+    }
+    catch(InterruptedException e)
+    {
+      Trace.log(Trace.ERROR, "Interrupted");
+      throw new InterruptedIOException(e.getMessage());
+    }
+
+    // Verify the reply.
+    boolean success = false;
+    if (ds instanceof IFSReturnCodeRep)
+    {
+      int rc = ((IFSReturnCodeRep) ds).getReturnCode();
+      if (rc == IFSReturnCodeRep.SUCCESS)
+        success = true;
+      else
+        Trace.log(Trace.ERROR, "Error resetting file length: " +
+                  "IFSReturnCodeRep return code = ", rc);
+    }
+    else
+    {
+      // Unknown data stream.
+      Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
+      throw new
+        InternalErrorException(Integer.toHexString(ds.getReqRepID()),
+                               InternalErrorException.DATA_STREAM_UNKNOWN);
+    }
+
+    // Back off the file pointer if needed.
+    if (fileOffset_ > length) {
+      fileOffset_ = length;
+    }
+
+    if (closeWhenFinished) close0();
+
+    return success;
+  }
+
+
+  // Ignores fileHandle if state==false.
+  void setOpen(boolean state, int fileHandle)
+  {
+    if (state == true) setFileHandle(fileHandle);
     isOpen_ = state;
   }
 

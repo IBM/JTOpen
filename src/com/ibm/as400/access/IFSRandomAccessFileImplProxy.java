@@ -205,6 +205,20 @@ implements IFSRandomAccessFileImpl
   }
 
 
+  public void setLength(int length)
+    throws IOException
+  {
+    try {
+      connection_.callMethod (pxId_, "setLength",
+                              new Class[] { Integer.TYPE },
+                              new Object[] { new Integer(length) });
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow1 (e);
+    }
+  }
+
+
   public void setMode(String mode)
   {
     try {

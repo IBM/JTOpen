@@ -93,7 +93,7 @@ public class IFSFileOutputStream extends OutputStream
 
   private boolean append_ = false;
 
-  private int ccsid_ = -1;  // The target CCSID with which to write data.
+  private int ccsid_ = -1;  // The CCSID for tagging the data in the file.
 
   /**
      Constructs an IFSFileOutputStream object.
@@ -140,7 +140,7 @@ public class IFSFileOutputStream extends OutputStream
    replaced if it exists; otherwise, the file is created.
    @param system The AS/400 that contains the file.
    @param name The file to be opened for writing.
-   @param ccsid The target CCSID with which to write data.
+   @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the AS/400.
@@ -196,7 +196,7 @@ public class IFSFileOutputStream extends OutputStream
    If true, output is appended to the file;
    otherwise, the current contents of the file are erased,
    and output replaces the file contents.
-   @param ccsid The target CCSID with which to write data.
+   @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the AS/400.
@@ -276,8 +276,7 @@ public class IFSFileOutputStream extends OutputStream
 
   /**
    Constructs an IFSFileOutputStream object.
-   It creates a file output stream to write to the file specified by <i>file</i> using the
-   ccsid specified by <i>ccsid</i>.
+   Creates a file output stream to write to the file specified by <i>file</i>, tagging the data with the CCSID specified by <i>ccsid</i>.
    @param system The AS/400 that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
@@ -285,7 +284,7 @@ public class IFSFileOutputStream extends OutputStream
    If true, output is appended to the file;
    otherwise, the current contents of the file are erased,
    and output replaces the file contents.
-   @param ccsid The target CCSID with which to write data.
+   @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the AS/400.
@@ -352,7 +351,7 @@ public class IFSFileOutputStream extends OutputStream
   // @A5a
   /**
    Constructs an IFSFileOutputStream object.
-   It creates a file output stream to write to the file specified by <i>file</i>.
+   Creates a file output stream to write to the file specified by <i>file</i>.
    Other readers and writers are allowed to access the file.
    The file is replaced if it exists; otherwise, the file is created.
    @param file The file to be opened for writing.
@@ -369,7 +368,7 @@ public class IFSFileOutputStream extends OutputStream
   // @A3A
   /**
    Constructs an IFSFileOutputStream object.
-   It creates a file output stream to write to the file specified by <i>file</i>.
+   Creates a file output stream to write to the file specified by <i>file</i>.
    @param system The AS/400 that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
@@ -401,8 +400,7 @@ public class IFSFileOutputStream extends OutputStream
   // @A3A
   /**
    Constructs an IFSFileOutputStream object.
-   It creates a file output stream to write to the file specified by <i>file</i> using the
-   ccsid specified by <i>ccsid</i>.
+   Creates a file output stream to write to the file specified by <i>file</i>, tagging the data with the CCSID specified by <i>ccsid</i>.
    @param system The AS/400 that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
@@ -410,7 +408,7 @@ public class IFSFileOutputStream extends OutputStream
    If true, output is appended to the file;
    otherwise, the current contents of the file are erased,
    and output replaces the file contents.
-   @param ccsid The target CCSID with which to write data.
+   @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
    @exception IOException If an error occurs while communicating with the AS/400.
@@ -692,7 +690,8 @@ public class IFSFileOutputStream extends OutputStream
 
 
   /**
-   Opens the specified file.
+   Opens the specified file.  If the file is already open, does nothing.
+   @param fileDataCCSID The CCSID with which to tag the data in the file.
 
    @exception IOException If an error occurs while communicating with the AS/400.
    **/
@@ -812,7 +811,7 @@ public class IFSFileOutputStream extends OutputStream
 
 
   /**
-   Sets the CCSID for the data written to the file.
+   Sets the CCSID for tagging the data written to the file.
    @param ccsid The target CCSID.
    @exception PropertyVetoException If the change is vetoed.
    **/

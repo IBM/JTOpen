@@ -40,6 +40,7 @@ interface IFSRandomAccessFileImpl
   void setFD(IFSFileDescriptorImpl fd);
 
   void setForceToStorage(boolean forceToStorage);
+  void setLength(int length)  throws IOException;
   void setMode(String mode);
   void unlock(IFSKey key)  throws IOException;
   void writeBytes(byte[]  data,
