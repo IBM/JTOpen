@@ -1389,8 +1389,16 @@ Partial closing of the connection.
     while (enum.hasMoreElements())
     {                                                  // @DAC
       AS400JDBCStatement statement = (AS400JDBCStatement)enum.nextElement();       // @DAA
-      if (! statement.isClosed())                                                  // @DAC
-        statement.close();                                                       // @DAC
+      try                                                                          // @J4a
+      {                                                                            // @J4a
+         if (! statement.isClosed())                                               // @DAC
+             statement.close();                                                    // @DAC
+      }                                                                            // @J4a
+      catch (SQLException e)                                                       // @J4a
+      {                                                                            // @J4a
+         if (JDTrace.isTraceOn())                                                  // @J4a
+             JDTrace.logInformation (this, "Closing statement while closing connection failed: " + e.getMessage()); // @j4a
+      }                                                                            // @J4a
     }
 
     // @j1a clean up any server debug that is going on.
