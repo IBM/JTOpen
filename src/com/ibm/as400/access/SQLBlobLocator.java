@@ -212,6 +212,7 @@ class SQLBlobLocator implements SQLLocator
           if (blob.savedObject_ != null)
           {
             savedObject_ = blob.savedObject_;
+            scale_ = blob.savedScale_;
             blob.savedObject_ = null;
             writeToServer();
             return;
@@ -446,7 +447,7 @@ class SQLBlobLocator implements SQLLocator
     // We don't want to give out our internal locator to the public,
     // otherwise when we go to change its handle on the next row, they'll
     // get confused.  So we have to clone it.
-    return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_);
+    return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_, scale_);
   }
 
 
@@ -491,7 +492,7 @@ class SQLBlobLocator implements SQLLocator
 
   public Clob toClob() throws SQLException
   {
-    return new AS400JDBCClobLocator(new JDLobLocator(locator_), connection_.converter_, savedObject_);
+    return new AS400JDBCClobLocator(new JDLobLocator(locator_), connection_.converter_, savedObject_, scale_);
   }
 
 
@@ -553,7 +554,7 @@ class SQLBlobLocator implements SQLLocator
     // This doesn't make much sense, since we technically can't reuse it because
     // the prepared statement is calling toObject() to store off the parameters,
     // but it's all we can do for now.
-    return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_);
+    return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_, scale_);
   }
 
 

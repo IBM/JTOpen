@@ -232,6 +232,7 @@ class SQLClobLocator implements SQLLocator
           if (clob.savedObject_ != null)
           {
             savedObject_ = clob.savedObject_;
+            scale_ = clob.savedScale_;
             clob.savedObject_ = null;
             writeToServer();
             return;
@@ -506,7 +507,7 @@ class SQLClobLocator implements SQLLocator
 
   public Clob toClob() throws SQLException
   {
-    return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_);        
+    return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
   }
 
 
@@ -562,7 +563,7 @@ class SQLClobLocator implements SQLLocator
     // inside the AS400JDBCClobLocator. Then, when convertToRawBytes() is called, the writeToServer()
     // code checks the AS400JDBCClobLocator's saved InputStream... if it exists, then it writes the
     // data out of the InputStream to the server by calling writeToServer() again.
-    return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_);
+    return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
   }
 
 

@@ -54,6 +54,7 @@ public class AS400JDBCClobLocator implements Clob
   JDLobLocator locator_;
 
   Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
+  int savedScale_; // This is our length that goes with our savedObject_.
 
   private char[] cache_;
   private int cacheOffset_;
@@ -70,11 +71,12 @@ public class AS400JDBCClobLocator implements Clob
   @param  locator             The locator.
   @param  converter           The text converter.
   **/
-  AS400JDBCClobLocator(JDLobLocator locator, ConvTable converter, Object savedObject)
+  AS400JDBCClobLocator(JDLobLocator locator, ConvTable converter, Object savedObject, int savedScale)
   {
     locator_  = locator;
     converter_ = converter;
     savedObject_ = savedObject;
+    savedScale_ = savedScale;
     maxLength_ = locator_.getMaxLength();
   }
 

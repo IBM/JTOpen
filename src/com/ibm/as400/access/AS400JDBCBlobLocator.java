@@ -46,6 +46,7 @@ public class AS400JDBCBlobLocator implements Blob
 
   JDLobLocator locator_; 
   Object savedObject_; // This is our InputStream or byte[] or whatever that needs to be written if we are batching.
+  int savedScale_; // This is our length that goes with our savedObject_.
 
   private byte[] cache_;
   private int cacheOffset_;
@@ -59,10 +60,11 @@ server, using the locator handle.
 
 @param  locator             The locator.
 **/
-  AS400JDBCBlobLocator(JDLobLocator locator, Object savedObject)
+  AS400JDBCBlobLocator(JDLobLocator locator, Object savedObject, int savedScale)
   {
     locator_  = locator;
     savedObject_ = savedObject;
+    savedScale_ = savedScale;
     maxLength_ = locator_.getMaxLength();
   }
 
