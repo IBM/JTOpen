@@ -53,9 +53,29 @@ class PoolItem
   throws AS400SecurityException, IOException  //@B4A
   {
     if (secure)
-      AS400object_ = new SecureAS400(systemName, userID, password);  //@B4C
+    {
+        if (password==null)										//Stevers
+        {
+            if (userID.equals("*CURRENT"))							//Stevers   
+                AS400object_ = new SecureAS400(systemName);			//Stevers
+            else													//Stevers
+                AS400object_ = new SecureAS400(systemName, userID);	//Stevers
+        }
+        else														//Stevers
+            AS400object_ = new SecureAS400(systemName, userID, password);  //@B4C
+    }
     else
-      AS400object_ = new AS400(systemName, userID, password);   //@B4C
+    {
+        if (password==null)										//Stevers
+        {
+            if (userID.equals("*CURRENT"))							//Stevers
+                AS400object_ = new AS400(systemName);				//Stevers
+            else													//Stevers
+                AS400object_ = new AS400(systemName, userID);		//Stevers
+        }
+        else														//Stevers
+            AS400object_ = new AS400(systemName, userID, password);   //@B4C
+    }
     if (locale != null)                                     //@B2A
     {
       //@B2A
@@ -65,12 +85,15 @@ class PoolItem
     else                                                    //@B2A
       locale_ = "";                                   //@B2A
     properties_ = new PoolItemProperties();
-    try
+    if (password!=null)							//Stevers
     {
-      AS400object_.setGuiAvailable(false);
-    }
-    catch (PropertyVetoException e)
-    {
+      try
+      {
+        AS400object_.setGuiAvailable(false);
+      }
+      catch (PropertyVetoException e)
+      {
+      }
     }
     if (!threadUse)                                     //@B4A
     {
