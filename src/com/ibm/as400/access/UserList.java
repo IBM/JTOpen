@@ -377,39 +377,9 @@ Returns the list of users in the user list.
       load(); // Need to get the length_
     }
 
-    User[] users = getUsers(-1, length_);
-
-    return new UserEnumeration(users);
+    return new UserEnumeration(this, length_);
     }
 
-
-
-/**
-   * Helper class. Used to wrap the User[] with an Enumeration.
-  **/
-  private static class UserEnumeration implements Enumeration
-  {
-    private User[] users_;
-    private int counter_;
-    UserEnumeration(User[] users)
-    {
-      users_ = users;
-    }
-
-    public final boolean hasMoreElements()
-    {
-      return counter_ < users_.length;
-    }
-
-    public final Object nextElement()
-    {
-      if (counter_ >= users_.length)
-      {
-        throw new NoSuchElementException();
-      }
-      return users_[counter_++];
-    }
-  }
 
 
   /**
@@ -423,8 +393,10 @@ Returns the list of users in the user list.
    * less than the list length, or specify -1 to retrieve all of the users.
    * @param number The number of users to retrieve out of the list, starting at the specified
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
-   * to the list length.
+   * to the list length. If the <i>listOffset</i> is -1, this parameter is ignored.
    * @return The array of retrieved {@link com.ibm.as400.access.User User} objects.
+   * The length of this array may not necessarily be equal to <i>number</i>, depending upon the size
+   * of the list on the server, and the specified <i>listOffset</i>.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -442,7 +414,7 @@ Returns the list of users in the user list.
       throw new ExtendedIllegalArgumentException("listOffset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    if (number < 0)
+    if (number < 0 && listOffset != -1)
     {
       throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
@@ -452,7 +424,7 @@ Returns the list of users in the user list.
       throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
-    if (number == 0)
+    if (number == 0 && listOffset != -1)
     {
       return new User[0];
     }
@@ -484,7 +456,7 @@ Returns the list of users in the user list.
     byte[] listInfo = parms2[3].getOutputData();
     int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
-    while (totalRecords > recordsReturned)
+    while (listOffset == -1 && totalRecords > recordsReturned)
     {
       len = len*(1+(totalRecords/(recordsReturned+1)));
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling UserList QGYGTLE again with an updated length of "+len+".");
@@ -505,9 +477,9 @@ Returns the list of users in the user list.
 
     byte[] data = parms2[0].getOutputData();
 
-    User[] users = new User[number];
+    User[] users = new User[recordsReturned];
     int offset = 0;
-    for (int i=0; i<number; ++i) // each user
+    for (int i=0; i<users.length; ++i) // each user
     {
       String profileName = conv.byteArrayToString(data, offset+0, 10).trim();
       boolean isGroupProfile = (data[offset+10] == (byte)0xF1); // 0xF1 is '1' for group profile, else '0' for user profile.

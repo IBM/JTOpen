@@ -908,9 +908,7 @@ This is the same as calling getJobs(-1, getLength()).
       load(); // Need to get the length_
     }
     
-    Job[] jobs = getJobs(-1, length_);
-
-    return new JobEnumeration(jobs);
+    return new JobEnumeration(this, length_);
   }
 
   
@@ -925,8 +923,10 @@ This is the same as calling getJobs(-1, getLength()).
    * less than the list length, or specify -1 to retrieve all of the jobs.
    * @param number The number of jobs to retrieve out of the list, starting at the specified
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
-   * to the list length.
+   * to the list length. If the <i>listOffset</i> is -1, this parameter is ignored.
    * @return The array of retrieved {@link com.ibm.as400.access.Job Job} objects.
+   * The length of this array may not necessarily be equal to <i>number</i>, depending upon the size
+   * of the list on the server, and the specified <i>listOffset</i>.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -942,7 +942,7 @@ This is the same as calling getJobs(-1, getLength()).
       throw new ExtendedIllegalArgumentException("listOffset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    if (number < 0)
+    if (number < 0 && listOffset != -1)
     {
       throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
@@ -977,11 +977,11 @@ This is the same as calling getJobs(-1, getLength()).
     ProgramParameter[] parms2 = new ProgramParameter[7];
     int len = (60+total*numKeys)*number; // Boundaries of 4
     parms2[0] = new ProgramParameter(len); // receiver variable
-    parms2[1] = new ProgramParameter(bin4_.toBytes(len)); // length of receiver variable
+    parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
     parms2[3] = new ProgramParameter(80); // list information
-    parms2[4] = new ProgramParameter(bin4_.toBytes(number)); // number of records to return
-    parms2[5] = new ProgramParameter(bin4_.toBytes(listOffset == -1 ? -1 : listOffset+1)); // starting record
+    parms2[4] = new ProgramParameter(BinaryConverter.intToByteArray(number)); // number of records to return
+    parms2[5] = new ProgramParameter(BinaryConverter.intToByteArray(listOffset == -1 ? -1 : listOffset+1)); // starting record
     parms2[6] = errorCode_;
 
     ProgramCall pc2 = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parms2);
@@ -990,11 +990,34 @@ This is the same as calling getJobs(-1, getLength()).
       throw new AS400Exception(pc2.getMessageList());
     }
     
+    byte[] listInfo = parms2[3].getOutputData();
+    int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
+    int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
+    while (listOffset == -1 && totalRecords > recordsReturned)
+    {
+      len = len*(1+(totalRecords/(recordsReturned+1)));
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling JobList QGYGTLE again with an updated length of "+len+".");
+      try
+      {
+        parms2[0].setOutputDataLength(len);
+        parms2[1].setInputData(BinaryConverter.intToByteArray(len));
+      }
+      catch(PropertyVetoException pve) {}
+      if (!pc2.run())
+      {
+        throw new AS400Exception(pc2.getMessageList());
+      }
+      listInfo = parms2[3].getOutputData();
+      totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
+      recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
+    }
+
+    
     byte[] data = parms2[0].getOutputData();
 
-    Job[] jobs = new Job[number];
+    Job[] jobs = new Job[recordsReturned];
     int offset = 0;
-    for (int i=0; i<number; ++i) // each job
+    for (int i=0; i<jobs.length; ++i) // each job
     {
       String jobName = conv.byteArrayToString(data, offset, 10);
       String userName = conv.byteArrayToString(data, offset+10, 10);
@@ -1031,34 +1054,6 @@ This is the same as calling getJobs(-1, getLength()).
     }
 
     return jobs;
-  }
-
-
-  /**
-   * Helper class. Used to wrap the Job[] with an Enumeration.
-  **/
-  static class JobEnumeration implements Enumeration
-  {
-    private Job[] jobs_;
-    private int counter_;
-    JobEnumeration(Job[] jobs)
-    {
-      jobs_ = jobs;
-    }
-
-    public final boolean hasMoreElements()
-    {
-      return counter_ < jobs_.length;
-    }
-
-    public final Object nextElement()
-    {
-      if (counter_ >= jobs_.length)
-      {
-        throw new NoSuchElementException();
-      }
-      return jobs_[counter_++];
-    }
   }
 
 

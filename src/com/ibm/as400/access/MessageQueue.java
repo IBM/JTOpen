@@ -440,7 +440,7 @@ need replies.
    * less than the list length, or specify -1 to retrieve all of the messages.
    * @param number The number of messages to retrieve out of the list, starting at the specified
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
-   * to the list length.
+   * to the list length. If the <i>listOffset</i> is -1, this parameter is ignored.
    * @return The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.
    * The length of this array may not necessarily be equal to <i>number</i>, depending upon the size
    * of the list on the server, and the specified <i>listOffset</i>.
@@ -459,7 +459,7 @@ need replies.
       throw new ExtendedIllegalArgumentException("listOffset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
 
-    if (number < 0)
+    if (number < 0 && listOffset != -1)
     {
       throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
@@ -469,7 +469,7 @@ need replies.
       throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
-    if (number == 0)
+    if (number == 0 && listOffset != -1)
     {
       return new QueuedMessage[0];
     }
@@ -501,12 +501,9 @@ need replies.
     byte[] listInfo = parms2[3].getOutputData();
     int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
-/*    boolean changing = totalRecords > recordsReturned;
-    while (changing)
+    while (listOffset == -1 && totalRecords > recordsReturned)
     {
-      // len = len*(1+(totalRecords/(recordsReturned+1)));
-      System.out.println("Doubling previous length of "+len);
-      len = len*2;
+      len = len*(1+(totalRecords/(recordsReturned+1)));
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling MessageQueue QGYGTLE again with an updated length of "+len+".");
       try
       {
@@ -520,14 +517,9 @@ need replies.
       }
       listInfo = parms2[3].getOutputData();
       totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
-      int newRecordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
-      if (newRecordsReturned <= recordsReturned)
-      {
-        changing = false;
-      }
-      recordsReturned = newRecordsReturned;
+      recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
     }
-*/
+
     byte[] data = parms2[0].getOutputData();
 
     QueuedMessage[] messages = new QueuedMessage[recordsReturned];
