@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 /**
  * The PanelGroupHelpIdentifier class represents information about
  * a specific help identifier for an OS/400 panel group (*PNLGRP) object.
- * Use {@link com.ibm.as400.access.PanelGroup#getHelpIDs PanelGroup.getHelpIDs()}
+ * Use {@link com.ibm.as400.access.PanelGroup#getHelpIdentifiers PanelGroup.getHelpIdentifiers()}
  * to create an instance of this class.
  * @see com.ibm.as400.access.PanelGroup
  * @see com.ibm.as400.access.Command
@@ -37,8 +37,9 @@ public class PanelGroupHelpIdentifier
   public static final int STATUS_FOUND = 1;
 
   /**
-   * Constant indicating that there the system encountered a problem while accessing
-   * the panel group or specified keyword information.
+   * Constant indicating that the system encountered a problem while accessing
+   * the panel group or specified keyword information. Check the remote command
+   * host server job log for details.
   **/
   public static final int STATUS_OBJECT_ACCESS_FAILURE = 2;
 
