@@ -84,7 +84,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_RCVBUF socket option is set.
-     @return  The value of SO_RCVBUF.
+     @return  The value of SO_RCVBUF, in bytes.
      **/
     public int getReceiveBufferSize()
     {
@@ -94,7 +94,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_SNDBUF socket option is set.
-     @return  The value of SO_SNDBUF.
+     @return  The value of SO_SNDBUF, in bytes.
      **/
     public int getSendBufferSize()
     {
@@ -104,7 +104,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_LINGER socket option is set.
-     @return  The value of SO_LINGER.
+     @return  The value of SO_LINGER, in seconds.
      **/
     public int getSoLinger()
     {
@@ -114,7 +114,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_TIMEOUT socket option is set.
-     @return  The value of SO_TIMEOUT.
+     @return  The value of SO_TIMEOUT, in milliseconds.
      **/
     public int getSoTimeout()
     {
@@ -215,7 +215,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_RCVBUF socket option should be set.
-     @param  receiveBufferSize  The value to set SO_RCVBUF.
+     @param  receiveBufferSize  The value to set SO_RCVBUF, in bytes.
      **/
     public void setReceiveBufferSize(int receiveBufferSize)
     {
@@ -226,7 +226,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_SNDBUF socket option should be set.
-     @param  sendBufferSize  The value to set SO_SNDBUF.
+     @param  sendBufferSize  The value to set SO_SNDBUF, in bytes.
      **/
     public void setSendBufferSize(int sendBufferSize)
     {
@@ -237,7 +237,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_LINGER socket option should be set.
-     @param  soLinger  The value to set SO_LINGER.
+     @param  soLinger  The value to set SO_LINGER, in seconds.
      **/
     public void setSoLinger(int soLinger)
     {
@@ -248,7 +248,7 @@ public class SocketProperties implements Serializable
 
     /**
      Indicates the value to which the SO_TIMEOUT socket option should be set.
-     @param  soTimeout  The value to set SO_TIMEOUT.
+     @param  soTimeout  The value to set SO_TIMEOUT, in milliseconds.
      **/
     public void setSoTimeout(int soTimeout)
     {
