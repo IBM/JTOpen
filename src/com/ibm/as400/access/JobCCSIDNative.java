@@ -15,8 +15,6 @@ package com.ibm.as400.access;
 
 class JobCCSIDNative
 {
-    private static final String copyright = "Copyright (C) 2003 International Business Machines Corporation and others.";
-
     static
     {
         System.load("/QSYS.LIB/QYJSPART.SRVPGM");

@@ -17,8 +17,6 @@ import java.io.CharConversionException;
 
 public class ConvTableUnicodeBigMap extends ConvTable
 {
-    private static final String copyright = "Copyright (C) 2004 International Business Machines Corporation and others.";
-
     ConvTableUnicodeBigMap(int ccsid)
     {
         super(ccsid);

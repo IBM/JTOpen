@@ -21,7 +21,6 @@ import org.ietf.jgss.Oid;
 
 class TokenManager2
 {
-    private static final String copyright = "Copyright (C) 2004 International Business Machines Corporation and others.";
     static byte[] getGSSToken(String systemName, Object gssCredential) throws Exception
     {
         GSSManager manager = GSSManager.getInstance();

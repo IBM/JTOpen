@@ -10,8 +10,7 @@ package com.ibm.as400.access;
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
  */
 public class ValidationListDataToEncrypt extends ValidationListTranslatedData {
-	static final String COPYRIGHT =
-		"Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.";
+
 /**
  * Constructs a ValidationListTranslatedData.
  */

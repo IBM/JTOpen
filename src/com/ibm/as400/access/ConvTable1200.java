@@ -15,8 +15,6 @@ package com.ibm.as400.access;
 
 class ConvTable1200 extends ConvTableUnicodeBigMap 
 {
-    private static final String copyright = "Copyright (C) 2004 International Business Machines Corporation and others.";
-
     ConvTable1200()
     {
         super(1200);

@@ -15,8 +15,6 @@ import java.beans.PropertyVetoException;
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
  */
 public class ValidationList {
-	static final String COPYRIGHT =
-		"Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.";
 
 	private static int LISTBUFFER_LENGTH_INITIAL = 32768;  //32K
 	private static int LISTBUFFER_LENGTH_NEXT    = 524288; //512K

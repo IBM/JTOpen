@@ -11,8 +11,6 @@ package com.ibm.as400.access;
  * @author Thomas Johnson (tom.johnson@kingland.com), Kingland Systems Corporation
  */
 public class ValidationListAttribute {
-	static final String COPYRIGHT =
-		"Copyright © 2001, International Business Machines Corporation and others. All Rights Reserved.";
 
 	private AS400 as400_ = null;
 	private AS400Structure attribEntry_ = null;

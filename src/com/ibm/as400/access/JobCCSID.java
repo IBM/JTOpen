@@ -20,8 +20,6 @@ import java.io.IOException;
  **/
 public class JobCCSID
 {
-    private static final String copyright = "Copyright (C) 2003 International Business Machines Corporation and others.";
-
     // The server where the job is located.
     private AS400 system_ = null;
     private int ccsid_ = -1;

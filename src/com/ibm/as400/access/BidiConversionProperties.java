@@ -20,8 +20,6 @@ import java.io.Serializable;
  **/
 public class BidiConversionProperties implements Serializable
 {
-    private static final String copyright = "Copyright (C) 2004 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // String type.
