@@ -263,17 +263,18 @@ public class JdbcMeStatement implements Statement
      * database containing the results of the query
      * specified. This offline database can be accessed
      * without a connection to the host database server.
-     *
+     * <p>
      * If the SQL statement does not generate query results,
      * then the target offline database is not changed.
-     *
+     * <p>
      * If the target offline database exists, it is destroyed
      * and its contents are filled with the results of the query.
-     *
+     * <p>
      * Use JdbcMeOfflineResultSet to access the data from the
      * offline data at a later time (for example after disconnecting
      * from the DB server.
-     *
+     * <p>
+     * <pre>
      * For example.
      *  MIDP - The 'name' is a unique string of up to 32
      *         unique characters identifying a
@@ -285,7 +286,7 @@ public class JdbcMeStatement implements Statement
      *         key, while the offline data is uniquely
      *         identified by the 'dbCreator' and the
      *         'dbType' parameters.
-     *
+     *  </pre>
      *  @param sql  The SQL statement.
      *  @param dbName  The name of the offline database.
      *  @param dbCreator The unique offline database creator identifier.

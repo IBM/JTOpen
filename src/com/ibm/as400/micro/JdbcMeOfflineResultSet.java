@@ -57,14 +57,14 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Construct a result set based on the offline data indicated.
-     *
+     *  <p>
      *  The offline data must have been created by JdbcMe (for
      *  example via JdbcMeStatement.executeToMIDPDB() or
      *  JdbcMeStatement.executeToPalmDB()).
-     *
+     *  <p>
      *  No Connection or Statement is required when
      *  accessing a JdbcMeOfflineResultSet.
-     *
+     *  <p>
      *  If the RecordStore was not created with
      *  JdbcMeStatement.executeToMIDPDB(), the
      *  constructor JdbcMeOfflineResultSet(String, int, int, int, int[])
@@ -85,16 +85,16 @@ public class JdbcMeOfflineResultSet implements ResultSet
     /**
      *  Construct a result set based on the imported offline
      *  data records indicated.
-     *
+     *  <p>
      *  No Connection or Statement is required when
      *  accesing a JdbcMeOfflineResultSet.
-     *
+     *  <p>
      *  An imported offline data store (Palm DB or
      *  MIDP record store) is created by
      *  some other application. The caller indicates the number
      *  of columns and the format of the data using the
      *  numColumns and columnTypes parameters.
-     *
+     *  <p>
      *  The offline data must be a proper result set (i.e. number
      *  of records in the offline data must evenly divisible by
      *  the number of columns).
@@ -313,7 +313,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
     /**
      *  Inserts the contents of the insert row into the result set
      *  and the database.
-     *
+     *  <p>
      *  <b>Note:</b> This method is currently not implemented and
      *  will throw a JdbcMeException.
      *  
@@ -333,7 +333,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  If an InputStream from the current row is open, it is
      *  implicitly closed.  In addition, all warnings and pending updates
      *  are cleared.
-     *
+     *  <p>
      *  <b>Note:</b> This method is currently not implemented and
      *  will throw a JdbcMeException.
      *
@@ -355,7 +355,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
      *  <p>If an InputStream from the current row is open, it is
      *  implicitly closed.  In addition, all warnings and pending updates
      *  are cleared.
-     *
+     *  <p>
      *  <b>Note:</b> This method is currently not implemented and
      *  will throw a JdbcMeException.
      *
@@ -594,7 +594,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Updates a column in the current row using a String value.
-     * 
+     *  <p>
      *  The updateString for the JdbcMeOfflineResultSet works
      *  rather differently than a standard result set,
      *  it updates the column specified by the 'columnIndex' parameter
@@ -636,7 +636,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Updates a column in the current row using a Java int value.
-     *
+     *  <p>
      *  The updateInt for the JdbcMeOfflineResultSet works
      *  rather differently than a standard result set,
      *  it updates the column specified by the 'columnIndex' parameter
@@ -662,7 +662,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Updates the database with the new contents of the current row.
-     *
+     *  <p>
      *  <b>Note:</b> This method is currently not implemented.
      *
      *  @exception JdbcMeException This exception is never thrown.
@@ -687,7 +687,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Returns the statement for this result set.
-     *
+     *  <p>
      *  <b>Note:</b> This method returns null, no JdbcMeOfflineResultSet
      *  is ever owned by a statement.
      *
@@ -805,7 +805,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Return the type of result set.
-     *
+     *  <p>
      *  All offline database result sets are TYPE_SCROLL_SENSITIVE.
      *
      *  @return The result set type, which is always TYPE_SCROLL_SENSITIVE.
@@ -819,7 +819,7 @@ public class JdbcMeOfflineResultSet implements ResultSet
 
     /**
      *  Return the concurrency of the result set.
-     *
+     *  <p>
      *  All offline database result sets are CONCUR_UPDATABLE.
      *
      *  @return The result set concurrency, which is always CONCUR_UPDATABLE.

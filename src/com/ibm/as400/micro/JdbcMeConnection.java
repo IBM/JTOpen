@@ -273,7 +273,7 @@ public class JdbcMeConnection implements java.sql.Connection
      *  Sets the auto-commit mode. If the connection is in auto-commit mode, then all of its SQL statements are
      *  executed and committed as individual transactions. Otherwise, its SQL statements are grouped into
      *  transactions that are terminated by either a commit or rollback. 
-     * 
+     *  <p>
      *  By default, the connection is in auto-commit mode. The commit occurs when the statement execution
      *  completes or the next statement execute occurs, whichever comes first. In the case of statements returning
      *  a result set, the statement execution completes when the last row of the result set has been retrieved or the
