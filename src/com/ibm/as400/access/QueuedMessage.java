@@ -113,7 +113,6 @@ Constructs a QueuedMessage object.
                   String sendingProgramName, String dateSent, String timeSent,
                   byte[] replacementData, String messageData, String messageHelp)
     {
-      this(messageQueue.getSystem(), messageSeverity, messageIdentifier, messageType, messageKey, messageFileName
       super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, messageHelp, dateSent, timeSent, null);
       messageQueue_ = messageQueue;
       setSystem(messageQueue_.getSystem()); //@G1A

@@ -390,7 +390,7 @@ oldest to newest.
       String dateSent = conv.byteArrayToString(data, offset+49, 7); // CYYMMDD
       String timeSent = conv.byteArrayToString(data, offset+56, 6); // HHMMSS
 
-      messages[i] = new QueuedMessage(null, messageSeverity, messageIdentifier, messageType,
+      messages[i] = new QueuedMessage(system_, messageSeverity, messageIdentifier, messageType, //@G1C
                                       messageKey, messageFileName, messageFileLibrarySpecified,
                                       dateSent, timeSent);
 
