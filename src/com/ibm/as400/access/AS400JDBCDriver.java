@@ -200,12 +200,23 @@ supported by this driver.
       JDDataSourceURL	dataSourceUrl = new JDDataSourceURL (url);
       Properties urlProperties = dataSourceUrl.getProperties ();
 
-      if (JDProperties.isTraceSet (urlProperties, info)) {
-        if (! JDTrace.isTraceOn ())
-          JDTrace.setTraceOn (true);
-      }
-      else
-        JDTrace.setTraceOn (false);
+		// If trace property was set to true, turn on tracing.  If trace property was set to false,
+		// turn off tracing.  If trace property was not set, do not change.
+		if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_ON)
+		{	  //@B5C
+			if (! JDTrace.isTraceOn ())
+				JDTrace.setTraceOn (true);
+		}
+		else if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_OFF) //@B5A
+		{
+			//@B5A
+			if (JDTrace.isTraceOn ())										 //@B5A
+				JDTrace.setTraceOn (false);									   //@B5A
+		}																   //@B5A
+		//@B4D Deleted lines because trace should not be set off just because property
+		//@B4D not specified.
+		//@B4D else
+		//@B4D JDTrace.setTraceOn (false);
 
       JDProperties jdProperties = new JDProperties (urlProperties, info);
 
@@ -218,6 +229,116 @@ supported by this driver.
       return connection;
     }
 
+
+
+	//@B5A
+	/**
+	Connects to the database on the specified system.
+	<p>Note: Since this method is not defined in the JDBC Driver interface,
+	you typically need to create a Driver object in order
+	to call this method:
+	<blockquote><pre>
+	AS400JDBCDriver d = new AS400JDBCDriver();
+	AS400 o = new AS400(myAS400, myUserId, myPwd);
+	Connection c = d.connect (o);
+	</pre></blockquote>
+	
+	
+	@param  AS400   The AS/400 to connect.
+	@return         The connection to the database or null if
+					the driver does not understand how to connect
+					to the database.
+	
+	@exception SQLException If the driver is unable to make the connection.
+	**/
+	public java.sql.Connection connect (AS400 system)
+	throws SQLException
+	{
+		if (system == null)
+			throw new NullPointerException("system");
+		
+		if (system instanceof SecureAS400)
+		   return initializeConnection(new SecureAS400(system));
+		else
+		   return initializeConnection(new AS400(system));
+
+		// Initialize the connection.
+		//@B7D Connection connection = null;                                        
+		//@B7D connection = initializeConnection (o); 
+		//@B7D return connection;
+	}
+
+
+	//@B5A
+	/**
+	Connects to the database on the specified system.
+	There are many optional properties that can be specified.
+	Properties can be specified in
+	a java.util.Properties object.  See <a href="JDBCProperties.html">
+	JDBC properties</a> for a complete list of properties
+	supported by this driver.  
+	
+	<p>Note: Since this method is not defined in the JDBC Driver interface,
+	you typically need to create a Driver object in order
+	to call this method:
+	<blockquote><pre>
+	AS400JDBCDriver d = new AS400JDBCDriver();
+	String mySchema = "defaultSchema";
+	Properties p = new Properties();
+	AS400 o = new AS400(myAS400, myUserId, myPwd);
+	Connection c = d.connect (o, p, mySchema);
+	</pre></blockquote>
+	
+	@param  system  The AS/400 to connect.
+	@param  info    The connection properties.
+	@param  schema  The default schema or null meaning no default schema specified.
+	@return         The connection to the database or null if
+					the driver does not understand how to connect
+					to the database.
+	
+	@exception SQLException If the driver is unable to make the connection.
+	**/
+	public java.sql.Connection connect (AS400 system, Properties info, String schema)
+	throws SQLException
+	{
+		if (system == null)
+			throw new NullPointerException("system");
+
+		if (info == null)
+			throw new NullPointerException("properties");
+
+		//@B7D AS400 o = new AS400(system);
+		Properties urlProperties = new Properties();
+
+		// Check first thing to see if the trace property is
+		// turned on.  This way we can trace everything, including
+		// the important stuff like loading the properties.
+
+		// If trace property was set to true, turn on tracing.  If trace property was set to false,
+		// turn off tracing.  If trace property was not set, do not change.
+		if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_ON)
+		{
+			if (! JDTrace.isTraceOn ())
+				JDTrace.setTraceOn (true);
+		}
+		else if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_OFF)
+		{
+			if (JDTrace.isTraceOn ())
+				JDTrace.setTraceOn (false);
+		}
+
+		JDProperties jdProperties = new JDProperties (urlProperties, info);
+
+		if (system instanceof SecureAS400)
+		    return initializeConnection(schema, info, new SecureAS400(system));
+		else
+		    return initializeConnection(schema, info, new AS400(system));
+		// Initialize the connection if the URL is valid.
+		//@B7D Connection connection = null;                                        
+		//@B7D connection = initializeConnection (schema, info, o);  
+
+		//@B7D return connection;
+	}
 
 
 /**
@@ -323,7 +444,7 @@ Returns a resource from the resource bundle.
                                              Properties info)
         throws SQLException
     {
-      Connection connection                       = null;
+		//@B7D Connection connection                       = null;
       AS400 as400                                 = null;
       boolean proxyServerWasSpecifiedInUrl        = false;
       boolean proxyServerWasSpecifiedInProperties = false;
@@ -407,71 +528,69 @@ Returns a resource from the resource bundle.
         catch (java.beans.PropertyVetoException e) {} // Will never happen.
       }
 
-      // @A0C
-      // Create the appropriate kind of Connection object.
-      connection = (Connection) as400.loadImpl2 (
-                                  "com.ibm.as400.access.AS400JDBCConnection",
-                                  "com.ibm.as400.access.JDConnectionProxy");
-
-      // Set the properties on the Connection object.
-      if (connection != null) {
-
-        // @A2D Class[] argClasses = new Class[] { JDDataSourceURL.class,
-        // @A2D                                    JDProperties.class,
-        // @A2D                                    AS400.class };
-        // @A2D Object[] argValues = new Object[] { dataSourceUrl,
-        // @A2D                                     jdProperties,
-        // @A2D                                     as400 };
-        // @A2D try {
-          // Hand off the public AS400 object to keep it from getting
-          // garbage-collected.
-          Class clazz = connection.getClass ();          
-          // @A2D Method method = clazz.getDeclaredMethod ("setSystem",
-          // @A2D                                   new Class[] { AS400.class });
-          // @A2D method.invoke (connection, new Object[] { as400 });
-
-          // @A2D method = clazz.getDeclaredMethod ("setProperties", argClasses);
-          // @A2D method.invoke (connection, argValues);
-
-          String className = clazz.getName();
-          if (className.equals("com.ibm.as400.access.AS400JDBCConnection")) {
-              ((AS400JDBCConnection)connection).setSystem(as400);
-              ((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400);
-          }
-          else if (className.equals("com.ibm.as400.access.JDConnectionProxy")) {
-              ((JDConnectionProxy)connection).setSystem(as400);
-              ((JDConnectionProxy)connection).setProperties(dataSourceUrl, jdProperties, as400);
-          }
-        // @A2D }
-        // @A2D catch (NoSuchMethodException e) {
-        // @A2D   JDTrace.logInformation (this,
-        // @A2D                           "Could not resolve setProperties() method");
-        // @A2D   throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-        // @A2D }
-        // @A2D catch (IllegalAccessException e) {
-        // @A2D   JDTrace.logInformation (this,
-        // @A2D                           "Could not access setProperties() method");
-        // @A2D   throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-        // @A2D }
-        // @A2D catch (InvocationTargetException e) {
-        // @A2D   Throwable e2 = e.getTargetException ();
-        // @A2D   if (e2 instanceof SQLException)
-        // @A2D     throw (SQLException) e2;
-        // @A2D   else if (e2 instanceof RuntimeException)
-        // @A2D     throw (RuntimeException) e2;
-        // @A2D   else if (e2 instanceof Error)
-        // @A2D     throw (Error) e2;
-        // @A2D   else {
-        // @A2D     JDTrace.logInformation (this,
-        // @A2D                             "Could not invoke setProperties() method");
-        // @A2D     throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
-        // @A2D   }
-        // @A2D }
-      }
-
-      return connection;
+		//@B6C Moved common code to prepareConnection.
+		return prepareConnection(as400, dataSourceUrl, info, jdProperties); 
     }
 
+
+
+	//@B5A
+	private Connection initializeConnection (AS400 as400)
+	throws SQLException
+	{
+		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(null);
+		Properties info = new Properties();
+		JDProperties jdProperties = new JDProperties(null, info);
+
+		//@B6C Moved common code to prepareConnection.
+		return prepareConnection(as400, dataSourceUrl, info, jdProperties); 
+	}
+
+
+	//@B5A
+	private Connection initializeConnection (String schema, Properties info, AS400 as400)
+	throws SQLException
+	{
+		boolean proxyServerWasSpecifiedInUrl        = false;
+
+		String url = null;
+		if (schema != null)						   				//@B6A
+			url = "jdbc:as400://" + as400.getSystemName() + "/" + schema;
+		else							   						//@B6A
+			url	= "jdbc:as400://" + as400.getSystemName();	    //@B6A
+		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(url);
+
+		JDProperties jdProperties = new JDProperties(null, info);
+
+		if (JDTrace.isTraceOn())
+			JDTrace.logInformation (this, "Using AS/400 Toolbox for Java JDBC driver implementation");
+
+		// See if a proxy server was specified.
+		if (jdProperties.getString(JDProperties.PROXY_SERVER).length() != 0)
+			proxyServerWasSpecifiedInUrl = true;
+
+		if (proxyServerWasSpecifiedInUrl)
+		{
+			// A proxy server was specified in URL, so we need to inform the AS400 object.
+
+			//boolean proxyServerSecure = jdProperties.getBoolean (JDProperties.PROXY_SERVER_SECURE);// TBD
+			String proxyServerNameAndPort = jdProperties.getString (JDProperties.PROXY_SERVER);
+			// Note: The PROXY_SERVER property is of the form:
+			//       hostName[:portNumber]
+			//       where portNumber is optional.
+			try
+			{
+				as400.setProxyServer (proxyServerNameAndPort);
+				//as400.setProxyServerSecure (proxyServerSecure);  // TBD
+			}
+			catch (java.beans.PropertyVetoException e)
+			{
+			} // Will never happen.
+		}
+
+		//@B6C Moved common code to prepareConnection.
+		return prepareConnection(as400, dataSourceUrl, info, jdProperties);      
+	}
 
 
 /**
@@ -483,6 +602,81 @@ Indicates if the driver is a genuine JDBC compliant driver.
     {
         return true;
     }
+
+
+
+	//@B6A -- This logic was formerly in the initializeConnection() method.
+	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
+					     Properties info, JDProperties jdProperties)
+	throws SQLException
+	{
+		// @A0C
+		// Create the appropriate kind of Connection object.
+		Connection connection = (Connection) as400.loadImpl2 (
+						"com.ibm.as400.access.AS400JDBCConnection",
+						"com.ibm.as400.access.JDConnectionProxy");
+
+		// Set the properties on the Connection object.
+		if (connection != null)
+		{
+
+			// @A2D Class[] argClasses = new Class[] { JDDataSourceURL.class,
+			// @A2D                                    JDProperties.class,
+			// @A2D                                    AS400.class };
+			// @A2D Object[] argValues = new Object[] { dataSourceUrl,
+			// @A2D                                     jdProperties,
+			// @A2D                                     as400 };
+			// @A2D try {
+			// Hand off the public AS400 object to keep it from getting
+			// garbage-collected.
+			Class clazz = connection.getClass ();          
+			// @A2D Method method = clazz.getDeclaredMethod ("setSystem",
+			// @A2D                                   new Class[] { AS400.class });
+			// @A2D method.invoke (connection, new Object[] { as400 });
+
+			// @A2D method = clazz.getDeclaredMethod ("setProperties", argClasses);
+			// @A2D method.invoke (connection, argValues);
+
+			String className = clazz.getName();
+			if (className.equals("com.ibm.as400.access.AS400JDBCConnection"))
+			{
+				((AS400JDBCConnection)connection).setSystem(as400);
+				((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400);
+			}
+			else if (className.equals("com.ibm.as400.access.JDConnectionProxy"))
+			{
+				((JDConnectionProxy)connection).setSystem(as400);
+				((JDConnectionProxy)connection).setProperties(dataSourceUrl, jdProperties, as400);
+			}
+			// @A2D }
+			// @A2D catch (NoSuchMethodException e) {
+			// @A2D   JDTrace.logInformation (this,
+			// @A2D                           "Could not resolve setProperties() method");
+			// @A2D   throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+			// @A2D }
+			// @A2D catch (IllegalAccessException e) {
+			// @A2D   JDTrace.logInformation (this,
+			// @A2D                           "Could not access setProperties() method");
+			// @A2D   throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+			// @A2D }
+			// @A2D catch (InvocationTargetException e) {
+			// @A2D   Throwable e2 = e.getTargetException ();
+			// @A2D   if (e2 instanceof SQLException)
+			// @A2D     throw (SQLException) e2;
+			// @A2D   else if (e2 instanceof RuntimeException)
+			// @A2D     throw (RuntimeException) e2;
+			// @A2D   else if (e2 instanceof Error)
+			// @A2D     throw (Error) e2;
+			// @A2D   else {
+			// @A2D     JDTrace.logInformation (this,
+			// @A2D                             "Could not invoke setProperties() method");
+			// @A2D     throw new InternalErrorException (InternalErrorException.UNEXPECTED_EXCEPTION);
+			// @A2D   }
+			// @A2D }
+		}
+		return connection;
+	}
+
 
 
 

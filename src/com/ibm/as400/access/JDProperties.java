@@ -244,6 +244,10 @@ class JDProperties implements Serializable {
    private static final String      CURSORHOLD_NO                = "0";        // @D1
    private static final String      CURSORHOLD_YES               = "1";        // @D1
 
+   static final String              TRACE_SET_ON                 = "TRUE";           // @E7
+   static final String              TRACE_SET_OFF                = "FALSE";          // @E7
+   static final String              TRACE_NOT_SPECIFIED          = "NOT SPECIFIED";  // @E7
+
     // Static data.
 	private static DriverPropertyInfo[] dpi_;
 	private static String[]             defaults_;
@@ -971,11 +975,17 @@ which is why it is static.
 
 @param      urlProperties   The URL properties.
 @param      info            The info properties.
-@return     true or false
+@return     Whether the trace property was set to true, false, or not specified when constructed.
 **/
-    static boolean isTraceSet (Properties urlProperties, Properties info)
+    static String isTraceSet (Properties urlProperties, Properties info)	//@E7C
     {
-        return Boolean.valueOf (getProperty (urlProperties, info, TRACE_)).booleanValue();
+	if (getProperty (urlProperties, info, TRACE_) == null)	 
+	   return TRACE_NOT_SPECIFIED;   
+	else if (Boolean.valueOf(getProperty (urlProperties, info, TRACE_)).booleanValue())
+	   return TRACE_SET_ON;
+	else
+	   return TRACE_SET_OFF;
+        //@E7D return Boolean.valueOf (getProperty (urlProperties, info, TRACE_)).booleanValue();
     }
 
 

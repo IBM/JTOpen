@@ -686,6 +686,28 @@ Returns the connection properties.
 
 
 
+// @EHA
+/**
+Returns the system object which is managing the connection to the AS/400.
+
+<p>Note: Since this method is not defined in the JDBC Connection interface,
+you typically need to cast a Connection object to AS400JDBCConnection in order
+to call this method:
+<blockquote><pre>
+AS400 system = ((AS400JDBCConnection)connection).getSystem();
+</pre></blockquote>
+
+@return The system.
+**/
+    public AS400 getSystem()                                            // @EHA
+    {                                                                   // @EHA
+        return as400PublicClassObj_;                                    // @EHA
+    }                                                                   // @EHA
+
+
+
+
+
 /**
 Returns the transaction isolation level.
 
