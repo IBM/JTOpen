@@ -283,7 +283,8 @@
            failonerror="true"
            debug="on"
            debuglevel="lines,source"
-           fork="true">
+           fork="true"
+           target="1.1">
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
@@ -303,7 +304,8 @@
            failonerror="true"
            debug="on"
            debuglevel="lines,source"
-           fork="true">
+           fork="true"
+           target="1.1">
       <include name="com/ibm/as400/micro/*.java"/>
       <include name="java/sql/*.java"/>
       
