@@ -267,7 +267,7 @@ public class AS400 implements Serializable
     /**
      Constructs an AS400 object.  It uses the specified system name and user ID.  When the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
      @param  systemName  The name of the server.  Use localhost to access data locally.
-     @param  userId  The user profile name to use to authenticate to the server.  If running on a the server, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the server.  If running on the server, *CURRENT may be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
     {
@@ -699,7 +699,7 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("newPassword.length {" + newPassword.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -1589,7 +1589,7 @@ public class AS400 implements Serializable
         }
 
         // Validate state.
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot get service port before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -3036,7 +3036,7 @@ public class AS400 implements Serializable
         }
 
         // Validate state.
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot set service port before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -3054,7 +3054,7 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting service ports to default.");
 
         // Validate state.
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot set service port to default before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -3470,7 +3470,7 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating Signon.");
 
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -3507,7 +3507,7 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
@@ -3555,7 +3555,7 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        if (systemName_.length() == 0)
+        if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
