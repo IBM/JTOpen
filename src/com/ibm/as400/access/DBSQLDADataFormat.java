@@ -146,7 +146,11 @@ when it was not previously set by the constructor.
 		// Type 488 is a NUMERIC (Zoned Decimal)
 		length = precision;                                                         //@A0A
 	    }                                                                               //@A0A
-
+            else if ((fieldType == 464) || (fieldType == 472) || (fieldType == 468))        //@F1A
+            {                                                                               //@F1A
+                //@F1A The graphic datatypes have their length listed in characters, not bytes like the rest.
+                length = length*2;                                                          //@F1A
+            }                                                                               //@F1A
 
 	    if (isVarType (fieldIndex))
 	        length += 2;
