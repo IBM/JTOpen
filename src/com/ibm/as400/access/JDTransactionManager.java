@@ -514,14 +514,16 @@ Set the auto-commit mode.
           setCommitMode (currentCommitMode_);
       else                                                                                //@KBA use new auto commit support
       {                                                                                   //@KBA
+          DBSQLAttributesDS request = null;                                               //@KBA
+          DBReplyRequestedDS reply = null;                                                //@KBA
           try                                                                                 //@KBA
           {                                                                                   //@KBA
-              DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+              request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
               request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
               request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
-              DBReplyRequestedDS reply = connection_.sendAndReceive(request);                 //@KBA
+              reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
               if(errorClass != 0)                                                             //@KBA
@@ -530,6 +532,11 @@ Set the auto-commit mode.
           catch(DBDataStreamException e)                                                      //@KBA
           {                                                                                   //@KBA
               JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             //@KBA
+          }                                                                                   //@KBA
+          finally                                                                             //@KBA
+          {                                                                                   //@KBA
+              if (request != null) request.inUse_ = false;                                    //@KBA
+              if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
       }                                                                                       //@KBA
     }                                                                       // @C4A
@@ -654,15 +661,17 @@ java.sql.Connection.TRANSACTION_* values.
         setCommitMode (currentCommitMode_);
     else                                                                        //@KBA use new auto commit and commit level support
     {                                                                                         //@KBA
+        DBSQLAttributesDS request = null;                                               //@KBA
+        DBReplyRequestedDS reply = null;                                                //@KBA
           try                                                                                 //@KBA
           {                                                                                   //@KBA
               if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
               {                                                                               //@KBA
-                  DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                  request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                          + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA
-                  DBReplyRequestedDS reply = connection_.sendAndReceive(request);                 //@KBA
+                  reply = connection_.sendAndReceive(request);                 //@KBA
                   int errorClass = reply.getErrorClass();                                         //@KBA
                   int returnCode = reply.getReturnCode();                                         //@KBA
                   if(errorClass != 0)                                                             //@KBA
@@ -672,6 +681,11 @@ java.sql.Connection.TRANSACTION_* values.
           catch(DBDataStreamException e)                                                      //@KBA
           {                                                                                   //@KBA
               JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             //@KBA
+          }                                                                                   //@KBA
+          finally                                                                             //@KBA
+          {                                                                                   //@KBA
+              if (request != null) request.inUse_ = false;                                    //@KBA
+              if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
           serverCommitMode_ = currentCommitMode_;                                             //@KBA
     }                                                                                         //@KBA
@@ -709,16 +723,18 @@ can not be called directly on this object.
           setCommitMode(currentCommitMode_);
       else                                                  //@KBA
       {
+          DBSQLAttributesDS request = null;                                                   //@KBA
+          DBReplyRequestedDS reply = null;                                                 //@KBA
           try                                                                                 //@KBA
           {                                                                                   //@KBA
               //auto commit is always false when we are in here so we will run under default or specified isolation level
-              DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+              request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                      id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                      + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
               request.setAutoCommit(0xD5);                                                    //@KBA turn off auto commit
               if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
                   request.setCommitmentControlLevelParserOption(getIsolationLevel());         //@KBA
-              DBReplyRequestedDS reply = connection_.sendAndReceive(request);                 //@KBA
+              reply = connection_.sendAndReceive(request);                 //@KBA
               int errorClass = reply.getErrorClass();                                         //@KBA
               int returnCode = reply.getReturnCode();                                         //@KBA
               if(errorClass != 0)                                                             //@KBA
@@ -727,6 +743,11 @@ can not be called directly on this object.
           catch(DBDataStreamException e)                                                      //@KBA
           {                                                                                   //@KBA
               JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             //@KBA
+          }                                                                                   //@KBA
+          finally                                                                             //@KBA
+          {                                                                                   //@KBA
+              if (request != null) request.inUse_ = false;                                    //@KBA
+              if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
           
           serverCommitMode_ = currentCommitMode_;                                             //@KBA

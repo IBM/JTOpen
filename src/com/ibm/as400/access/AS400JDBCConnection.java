@@ -2617,6 +2617,8 @@ implements Connection
     {
         if(vrm_ >= JDUtilities.vrm530)
         {
+            DBSQLAttributesDS request = null;
+            DBReplyRequestedDS reply = null;
             try                                                                                 
             {          
                 if(bytes == null)
@@ -2624,11 +2626,11 @@ implements Connection
                     if(JDTrace.isTraceOn())
                         JDTrace.logInformation(this, "Correlator is null");
                 }
-                DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                             id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
                                                             + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);   
                 request.seteWLMCorrelator(bytes);                                
-                DBReplyRequestedDS reply = sendAndReceive(request);                 
+                reply = sendAndReceive(request);                 
                 int errorClass = reply.getErrorClass();
                 if(errorClass != 0)
                     JDError.throwSQLException(this, id_, errorClass, reply.getReturnCode());        
@@ -2636,7 +2638,12 @@ implements Connection
             catch(DBDataStreamException e)                                                      
             {                                                                                   
                 JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             
-            }                                                                                   
+            }   
+            finally
+            {
+                if (request != null) request.inUse_ = false;
+                if (reply != null) reply.inUse_ = false;
+            }
         }
     }
 
