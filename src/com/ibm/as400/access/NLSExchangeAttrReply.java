@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NLSExchangeAttrReply.java
 //                                                                             
@@ -19,11 +19,6 @@ import java.io.IOException;
 class NLSExchangeAttrReply extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    static private String Copyright()
-    {
-	return Copyright.copyright;
-    }
 
     int primaryRC_=0;            // return code returned by server
     int secondaryRC_=0;          // return code returned by server

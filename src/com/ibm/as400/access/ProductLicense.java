@@ -193,7 +193,7 @@ public class ProductLicense implements java.io.Serializable
 
 
     /**
-    *   Constructs a default ProductLicense object. The AS400 system,
+    *   Constructs a default ProductLicense object. The system,
     *   product, feature and release must be set for requesting a license.
     **/
     public ProductLicense()
@@ -206,7 +206,7 @@ public class ProductLicense implements java.io.Serializable
     }
 
     /**
-    *   Constructs a ProductLicense object for an AS400 system, product, feature,
+    *   Constructs a ProductLicense object for a system, product, feature,
     *   and release.
     *   @param  system  the server from which the license will be requested.
     *   @param  productID the product identifier.  For example, "5769JC1".
@@ -433,7 +433,7 @@ public class ProductLicense implements java.io.Serializable
     }
 
     /**
-    *   Return the name of the AS400 for this license. A license must have been
+    *   Return the name of the system for this license. A license must have been
     *   requested prior to calling this method.
     *   @return The name of the AS400.
     **/
@@ -456,7 +456,7 @@ public class ProductLicense implements java.io.Serializable
 
     /**
     *   Returns the usage count for this license.  The count returned is the number
-    *   of licenses that are in use on the AS400 for that product ID, feature, and
+    *   of licenses that are in use on the server for that product ID, feature, and
     *   release when this license was requested. A license must have been requested
     *   prior to calling this method.
     *   @return The usage count when this license was retrieved.
@@ -524,7 +524,7 @@ public class ProductLicense implements java.io.Serializable
     /**
     *   Release this license.  This method must be called to release the license.  Failure
     *   to do so may result in incorrect license usage count. Calling this method will
-    *   disconnect from the AS400 Optimized License Management server.
+    *   disconnect from the i5/OS Optimized License Management server.
     *   @exception  IOException  If an error occurs while communicating with the server.
     *   @exception  InterruptedException  If this thread is interrupted.
     *   @exception  LicenseException  If a license error occurs.

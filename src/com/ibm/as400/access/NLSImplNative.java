@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NLSImplNative.java
 //                                                                             
@@ -27,7 +27,7 @@ class NLSImplNative extends NLSImpl
     }
 
 
-    // connect to the central server of the AS/400.
+    // connect to the central server of the server.
     void connect() throws ServerStartupException, UnknownHostException, AS400SecurityException, ConnectionDroppedException, InterruptedException, IOException
     {
     }

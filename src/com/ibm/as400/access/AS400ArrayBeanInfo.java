@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ArrayBeanInfo.java
 //                                                                             
@@ -27,10 +27,6 @@ public class AS400ArrayBeanInfo extends SimpleBeanInfo
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    static private String Copyright()
-    {
-     return Copyright.copyright;
-    }
     // Class this bean info represents.
     private final static Class beanClass = AS400Array.class;
 
