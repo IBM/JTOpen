@@ -127,9 +127,14 @@ public final class MEException extends Exception
     public static final int ILLEGAL_OBJECT_TYPE = 0x0027;
 
     /**
+     *  The return code indicating that a pcml exception occurred.
+     **/
+    public static final int PCML_EXCEPTION = 0x0028;
+
+    /**
      *  The return code indicating that an unknown error occurred.
      **/
-    public static final int UNKNOWN = 0x0028;
+    public static final int UNKNOWN = 0x0035;
     
 
     // THE SQL RETURN CODES (range 40 - 59).
