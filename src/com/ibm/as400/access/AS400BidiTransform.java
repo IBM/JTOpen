@@ -71,67 +71,67 @@ public class AS400BidiTransform
     {
         // CCSID, String-Type
         { 420, ST4 },  // Arabic.420
-        { 424, ST4 },  // Hebrew.424   
+        { 424, ST4 },  // Hebrew.424
         { 425, ST5 },  // Arabic/Latin EBCDIC defined for OS/390 open edition.
-        { 856, ST5 },  // Hebrew.856   
-        { 862, ST4 },  // Hebrew.862   
-        { 864, ST5 },  // Arabic.864   
-        { 867, ST4 },  // Hebrew.867   
-        { 916, ST5 },  // Hebrew.916   
-        { 1046, ST5 },  // Arabic.1046  
-        { 1089, ST5 },  // Arabic.1089  
-        { 1255, ST5 },  // Hebrew.1255  
-        { 1256, ST5 },  // Arabic.1256  
-        { 5012, ST5 },  // Hebrew.916   
-        { 5351, ST5 },  // Hebrew.1255  
-        { 5352, ST5 },  // Arabic.1256  
-        { 8612, ST5 },  // Arabic.420   
-        { 8616, ST10 },  // Hebrew.424   
-        { 9238, ST5 },  // Arabic.1046  
-        { 12708, ST7 },  // Arabic.420   
-        { 12712, ST10 },  // Hebrew.424   
+        { 856, ST5 },  // Hebrew.856
+        { 862, ST4 },  // Hebrew.862
+        { 864, ST5 },  // Arabic.864
+        { 867, ST4 },  // Hebrew.867
+        { 916, ST5 },  // Hebrew.916
+        { 1046, ST5 },  // Arabic.1046
+        { 1089, ST5 },  // Arabic.1089
+        { 1255, ST5 },  // Hebrew.1255
+        { 1256, ST5 },  // Arabic.1256
+        { 5012, ST5 },  // Hebrew.916
+        { 5351, ST5 },  // Hebrew.1255
+        { 5352, ST5 },  // Arabic.1256
+        { 8612, ST5 },  // Arabic.420
+        { 8616, ST10 },  // Hebrew.424
+        { 9238, ST5 },  // Arabic.1046
+        { 12708, ST7 },  // Arabic.420
+        { 12712, ST10 },  // Hebrew.424
         { 13488, ST10 },  // Unicode.10646
-        { 16804, ST4 },  // Arabic.420   
-        { 17248, ST5 },  // Arabic.864   
+        { 16804, ST4 },  // Arabic.420
+        { 17248, ST5 },  // Arabic.864
         { 61952, ST10 },  // Unicode.10646
-        { 62208, ST4 },  // Hebrew.856   
-        { 62209, ST10 },  // Hebrew.862   
-        { 62210, ST4 },  // Hebrew.916   
-        { 62211, ST5 },  // Hebrew.424   
-        { 62212, ST10 },  // Hebrew.867   
-        { 62213, ST5 },  // Hebrew.862   
-        { 62214, ST5 },  // Hebrew.867   
-        { 62215, ST4 },  // Hebrew.1255  
-        { 62216, ST6 },  // Hebrew.867   
-        { 62217, ST8 },  // Hebrew.867   
-        { 62218, ST4 },  // Arabic.864   
-        { 62219, ST11 },  // Hebrew.867   
-        { 62220, ST6 },  // Hebrew.856   
-        { 62221, ST6 },  // Hebrew.862   
-        { 62222, ST6 },  // Hebrew.916   
-        { 62223, ST6 },  // Hebrew.1255  
-        { 62224, ST6 },  // Arabic.420   
-        { 62225, ST6 },  // Arabic.864   
-        { 62226, ST6 },  // Arabic.1046  
-        { 62227, ST6 },  // Arabic.1089  
-        { 62228, ST6 },  // Arabic.1256  
-        { 62229, ST8 },  // Hebrew.424   
-        { 62230, ST8 },  // Hebrew.856   
-        { 62231, ST8 },  // Hebrew.862   
-        { 62232, ST8 },  // Hebrew.916   
-        { 62233, ST8 },  // Arabic.420   
-        { 62234, ST9 },  // Arabic.420   
-        { 62235, ST6 },  // Hebrew.424   
-        { 62236, ST10 },  // Hebrew.856   
-        { 62237, ST8 },  // Hebrew.1255  
-        { 62238, ST10 },  // Hebrew.916   
-        { 62239, ST10 },  // Hebrew.1255  
-        { 62240, ST11 },  // Hebrew.424   
-        { 62241, ST11 },  // Hebrew.856   
-        { 62242, ST11 },  // Hebrew.862   
-        { 62243, ST11 },  // Hebrew.916   
-        { 62244, ST11 },  // Hebrew.1255  
-        { 62245, ST10 },  // Hebrew.424   
+        { 62208, ST4 },  // Hebrew.856
+        { 62209, ST10 },  // Hebrew.862
+        { 62210, ST4 },  // Hebrew.916
+        { 62211, ST5 },  // Hebrew.424
+        { 62212, ST10 },  // Hebrew.867
+        { 62213, ST5 },  // Hebrew.862
+        { 62214, ST5 },  // Hebrew.867
+        { 62215, ST4 },  // Hebrew.1255
+        { 62216, ST6 },  // Hebrew.867
+        { 62217, ST8 },  // Hebrew.867
+        { 62218, ST4 },  // Arabic.864
+        { 62219, ST11 },  // Hebrew.867
+        { 62220, ST6 },  // Hebrew.856
+        { 62221, ST6 },  // Hebrew.862
+        { 62222, ST6 },  // Hebrew.916
+        { 62223, ST6 },  // Hebrew.1255
+        { 62224, ST6 },  // Arabic.420
+        { 62225, ST6 },  // Arabic.864
+        { 62226, ST6 },  // Arabic.1046
+        { 62227, ST6 },  // Arabic.1089
+        { 62228, ST6 },  // Arabic.1256
+        { 62229, ST8 },  // Hebrew.424
+        { 62230, ST8 },  // Hebrew.856
+        { 62231, ST8 },  // Hebrew.862
+        { 62232, ST8 },  // Hebrew.916
+        { 62233, ST8 },  // Arabic.420
+        { 62234, ST9 },  // Arabic.420
+        { 62235, ST6 },  // Hebrew.424
+        { 62236, ST10 },  // Hebrew.856
+        { 62237, ST8 },  // Hebrew.1255
+        { 62238, ST10 },  // Hebrew.916
+        { 62239, ST10 },  // Hebrew.1255
+        { 62240, ST11 },  // Hebrew.424
+        { 62241, ST11 },  // Hebrew.856
+        { 62242, ST11 },  // Hebrew.862
+        { 62243, ST11 },  // Hebrew.916
+        { 62244, ST11 },  // Hebrew.1255
+        { 62245, ST10 },  // Hebrew.424
         { 62251, ST6 }    // Arabic.425 - Used for OS/390.
     };
 
@@ -323,11 +323,9 @@ public class AS400BidiTransform
      **/
     public void setBidiConversionProperties(BidiConversionProperties properties)
     {
+        properties.copyOptionsTo(bdxJ2A_);
+        properties.copyOptionsTo(bdxA2J_);
         setJavaStringType(properties.getBidiStringType());
-        bdxJ2A_.impToImp = properties.isBidiImplicitReordering();
-        bdxJ2A_.roundTrip = properties.isBidiNumericOrderingRoundTrip();
-        bdxA2J_.impToImp = properties.isBidiImplicitReordering();
-        bdxA2J_.roundTrip = properties.isBidiNumericOrderingRoundTrip();
     }
 
     /**
@@ -336,9 +334,9 @@ public class AS400BidiTransform
      **/
     public BidiConversionProperties getBidiConversionProperties()
     {
-        BidiConversionProperties properties = new BidiConversionProperties(getJavaStringType());
-        properties.setBidiImplicitReordering(bdxA2J_.impToImp);
-        properties.setBidiNumericOrderingRoundTrip(bdxA2J_.roundTrip);
+        BidiConversionProperties properties = new BidiConversionProperties(getJavaStringType(),bdxA2J_);
+        properties.transformOptions_.dstToSrcMap = bdxA2J_.dstToSrcMap;
+        properties.transformOptions_.srcToDstMap = bdxJ2A_.srcToDstMap;
         return properties;
     }
 

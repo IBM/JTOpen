@@ -6,12 +6,14 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2005 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
+
+import java.util.Vector;
 
 /**
  *  Bidi text is a combination of a sequence of characters and a set of
@@ -41,7 +43,6 @@ package com.ibm.as400.access;
  */
 
 class BidiTransform {
-  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 /**
  *  Option: Bidi flags of destination BidiText
@@ -55,6 +56,31 @@ class BidiTransform {
  *  Option: use "roundtrip" algorithm for reordering
  */
     public boolean          roundTrip;
+/**
+ *  Option: use "Windows compatible" algorithm for reordering
+ *  <p>If this option is true, the reordering algorithm is modified to
+ *  perform more closely like Windows.  In particular, logical string
+ *  "12ABC" in LTR orientation (where ABC represent Arabic or Hebrew letters)
+ *  is reordered as "CBA12" instead of "12CBA".
+ *  Also, logical string "abc 123 45" (where all digits represent Hindi numbers)
+ *  is reordered as "abc 123 45" instead of "abc 45 123".
+ */
+    public boolean          winCompatible;
+/**
+ *  Option: add Markers to destination text when needed for round trip
+ *  <p>If this option is true, LRM markers are inserted when transforming
+ *  from visual LTR to logical (LTR or RTL) where needed to insure round trip.
+ *  <p>This option is ignored if the removeMarkers option is true.
+ */
+    public boolean          insertMarkers;
+/**
+ *  Option: remove Markers from destination text after performing a Bidi
+ *  transformation
+ *  <p>If this option is true, LRM and RLM markers in the source text
+ *  participate in the reordering, but they are removed from the destination
+ *  text after performing the Bidi transformation.
+ */
+    public boolean          removeMarkers;
 /**
  *  Option: shaping options for this transformation
  */
@@ -142,6 +168,7 @@ class BidiTransform {
     BidiOrder       myOrder;
     BidiShape       myShape;
     BidiFlagSet     flags1, flags2;
+    Vector          insertPoints;
 
     long    internalState;      /* used by continuation calls */
 

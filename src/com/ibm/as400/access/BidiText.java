@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 1997-2005 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,6 @@ package com.ibm.as400.access;
 
 class BidiText
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 /**
  *  BidiFlagSet qualifying the character data
@@ -254,7 +253,6 @@ class BidiText
 
         BidiText dst = new BidiText();
         dst.flags.setAllFlags(bdx.flags);
-        dst.data = new char[this.count];
         if (bdx.myOrder == null)  bdx.myOrder = new BidiOrder();
         bdx.myOrder.order(this, dst, bdx);
 
