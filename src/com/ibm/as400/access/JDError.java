@@ -419,6 +419,67 @@ trace for debugging purposes.
   }
 
 
+/**
+Throws an SQL exception based on an error in the
+error table and dumps an internal exception stack
+trace for debugging purposes.
+
+@param  sqlState    The SQL State.
+@param  message     The message text.
+
+@exception          SQLException    Always.
+**/
+  public static void throwSQLException (String sqlState, String message)
+  throws SQLException
+  {
+     JDError.throwSQLException(null, sqlState, message);
+  }
+
+
+/**
+Throws an SQL exception based on an error in the
+error table and dumps an internal exception stack
+trace for debugging purposes.
+
+@param  sqlState    The SQL State.
+@param  message     The message text.
+
+@exception          SQLException    Always.
+**/
+  public static void throwSQLException (Object thrower, String sqlState, String message)
+  throws SQLException
+  {
+    String reason = getReason(sqlState);                                                                                    
+    StringBuffer buffer = new StringBuffer(reason);
+    if (message != null)
+    {
+      buffer.append(" (");
+      buffer.append(message);
+      buffer.append(')');
+    }
+
+    // The DB2 for OS/400 SQL CLI manual says that
+    // we should set the native error code to -99999
+    // when the driver generates the error.
+    //
+    SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);
+
+    if (JDTrace.isTraceOn ())
+    {                    
+      String m2 = "Throwing exception. Message text: "+message;
+      JDTrace.logInformation(thrower, m2);                   
+                                                              
+      m2 = "Throwing exception.  Actual exception: "
+           + buffer.toString() 
+           + " sqlState: " + sqlState 
+           + " vendor code -99999";       
+      JDTrace.logException(thrower, m2, e2);             
+    }                                      
+
+    throw e2;
+  }
+
+
 // @J4 new method.  It has all the code from the method that takes a state and an
 //     exception.  What is added is a reference to the thrower so we know
 //     who is throwing the exception.
@@ -445,7 +506,7 @@ trace for debugging purposes.
 
     String reason = getReason(sqlState);                                                                                    
     StringBuffer buffer = new StringBuffer(reason);                 // @E3A
-    buffer.append('(');                                             // @E3A   
+    buffer.append(" (");                                             // @E3A   
     String message = e.getMessage();                                // @E3A
     if (message != null)                                            // @E3A
       buffer.append(message);                                     // @E3A

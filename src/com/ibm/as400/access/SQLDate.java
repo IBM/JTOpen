@@ -162,11 +162,13 @@ implements SQLData
         }
         catch(NumberFormatException e)
         {
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, e);
+            if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
         catch(StringIndexOutOfBoundsException e)
         {
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, e);
+            if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, s);
         }
 
         return new Date(calendar.getTime().getTime());
