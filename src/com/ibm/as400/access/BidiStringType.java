@@ -35,6 +35,12 @@ public interface BidiStringType
    final static int DEFAULT = 0;
    
    /**
+    * String type used when an EBCDIC/Unicode conversion is desired, but
+    * without swapping, shaping, or transformation.
+   **/
+   public final static int NONE = -1;
+
+   /**
     *  String Type 4
     *  <ul>
     *     <li>Type of text:  Visual  

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,14 +19,11 @@ package com.ibm.as400.access;
 **/
 abstract class ConvTableBidiMap extends ConvTable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   char[] toUnicode_ = null;
   byte[] fromUnicode_ = null;
 
-  // The Bidi Transformation object used to set bidi text characteristics
-  private AS400BidiTransform abt;
-  
   
   /**
    * Constructor.
@@ -36,18 +33,15 @@ abstract class ConvTableBidiMap extends ConvTable
     super(ccsid);
     ccsid_ = ccsid;
     toUnicode_ = toUnicode;
-    //@E4M: Moved decompressiong algorithm to parent class.
-    if (Trace.traceOn_) //@E2C @P0C
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.CONVERSION, "Decompressing bidi single-byte conversion table for ccsid: " + ccsid_, fromUnicode.length);
     }
-    fromUnicode_ = decompressSB(fromUnicode, (byte)0x3F); //@E4C
+    fromUnicode_ = decompressSB(fromUnicode, (byte)0x3F);
 
-    abt = new AS400BidiTransform(ccsid);
-    
-    bidiStringType_ = AS400BidiTransform.getStringType(ccsid); //@P0A
+    bidiStringType_ = AS400BidiTransform.getStringType(ccsid);
 
-    if (Trace.traceOn_) //@E2C @P0C
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.CONVERSION, "Successfully loaded bidi single-byte map for ccsid: " + ccsid_);
     }
@@ -57,9 +51,9 @@ abstract class ConvTableBidiMap extends ConvTable
   /**
    * Perform an AS/400 CCSID to Unicode conversion.
   **/
-  final String byteArrayToString(byte[] buf, int offset, int length, int type)    //@E0C @P0C
+  final String byteArrayToString(byte[] buf, int offset, int length, int type)
   {
-    if (Trace.traceOn_) //@E2C @P0C
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.CONVERSION, "Bidi String Type: " + type);
       Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
@@ -67,10 +61,20 @@ abstract class ConvTableBidiMap extends ConvTable
 
     char[] dest = new char[length];
     for (int i=0; i<length; dest[i] = toUnicode_[0x00FF & buf[offset + (i++)]]); // The 0x00FF is so we don't get any negative indices
-    if (type != 0)                            //@E0A
-      abt.setJavaStringType(type);           //@E0A
+    if (type == BidiStringType.NONE)
+    {
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.CONVERSION, "Destination string (no java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+      }
+      return String.copyValueOf(dest);
+    }
+
+    AS400BidiTransform abt = new AS400BidiTransform(ccsid_);
+    if (type == BidiStringType.DEFAULT) type = bidiStringType_;
+    abt.setJavaStringType(type);
     
-    if (Trace.traceOn_) //@E3A @P0C
+    if (Trace.traceOn_)
     {
       Trace.log(Trace.CONVERSION, "Destination string (before java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest)); //@E3A
     }
@@ -82,22 +86,35 @@ abstract class ConvTableBidiMap extends ConvTable
   /**
    * Perform a Unicode to AS/400 CCSID conversion.
   **/
-  final byte[] stringToByteArray(String source, int type)   //@E0C @P0C
+  final byte[] stringToByteArray(String source, int type)
   {
-    if (type != 0)                            //@E0A
-      abt.setJavaStringType(type);           //@E0A
-    char[] src = abt.toAS400Layout(source).toCharArray();
-    if (Trace.traceOn_) //@E2C @P0C
+    char[] src = null;
+    if (type == BidiStringType.NONE)
     {
+      src = source.toCharArray();
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.CONVERSION, "Converting string to byte array (no layout applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+      }
+    }
+    else
+    {
+      AS400BidiTransform abt = new AS400BidiTransform(ccsid_);
+      if (type == BidiStringType.DEFAULT) type = bidiStringType_;
+      abt.setJavaStringType(type);
+      src = abt.toAS400Layout(source).toCharArray();
+      if (Trace.traceOn_)
+      {
       Trace.log(Trace.CONVERSION, "Bidi String Type: " + type);
       Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+    }
     }
     byte[] dest = new byte[src.length];
     for (int i=0; i<src.length; dest[i] = fromUnicode_[src[i++]]);
      
-    if (Trace.traceOn_) //@E3A @P0C
+    if (Trace.traceOn_)
     {
-      Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest); //@E3A
+      Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
     }
     return dest;
   }
