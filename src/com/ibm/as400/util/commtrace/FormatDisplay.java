@@ -366,6 +366,11 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 	    fsave = new JMenuItem(ResourceBundleLoader_ct.getText("Save"),KeyEvent.VK_S); // Create the menu and its key binding
 	    fsave.setAccelerator(KeyStroke.getKeyStroke( // Bind the key binding to the menu item
 						KeyEvent.VK_S, ActionEvent.CTRL_MASK));
+						
+		// Disable save if they are displaying a previously traced file
+		if(oper==OPEN || oper==OPENRMT) {
+			fsave.setEnabled(false);
+		}
 
 	    fclose = new JMenuItem(ResourceBundleLoader_ct.getText("Close"),KeyEvent.VK_W);
 	    fclose.setAccelerator(KeyStroke.getKeyStroke(
