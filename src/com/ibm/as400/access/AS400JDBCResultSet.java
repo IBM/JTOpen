@@ -5192,7 +5192,11 @@ public class AS400JDBCResultSet implements ResultSet
                     {
                         // @K1A
                         convTable = ((AS400JDBCConnection)connection_).converter_;                         // @K1A
-                        buffer.append(extendedDescriptors.getColumnDescriptors(i+1).getColumnLabel(convTable));  //@K1A
+                        String columnName = extendedDescriptors.getColumnDescriptors(i+1).getBaseColumnName(convTable); //@K1A     //@K2A changed from getColumnLabel
+                        if(columnName != null)
+                            buffer.append(columnName);  
+                        else
+                            buffer.append(row_.getFieldName(i+1));
                     }                                                                                      // @K1A
                     else                                                                                   // @K1A
                         buffer.append (row_.getFieldName (i+1));                                           // @K1A
