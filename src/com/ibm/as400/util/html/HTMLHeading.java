@@ -48,7 +48,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     
     private int level_;
     private String text_;
-    private String align_ = HTMLConstants.LEFT;
+    private String align_;                                      // @B3C
 
     private String lang_;        // The primary language used to display the tags contents.  //$B1A
     private String dir_;         // The direction of the text interpretation.                //$B1A
@@ -251,8 +251,9 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
     }
 
 
+    // @B3C
     /**
-    *  Sets the horizontal alignment for the header.  The default is left alignment. 
+    *  Sets the horizontal alignment for the header.
     *  @param align The alignment.  One of the following constants
     *  defined in HTMLConstants:  LEFT, RIGHT, or CENTER.
     *
