@@ -90,8 +90,8 @@ public class DirectoryEntry
 
 
   /**
-   * Returns the country.
-   * @return The country.
+   * Returns the country or region.
+   * @return The country or region code.
   **/
   public String getCountry()
   {
