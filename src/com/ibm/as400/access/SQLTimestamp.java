@@ -136,7 +136,8 @@ implements SQLData
 	{
           // @F3A
           // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, while we output timestamps like 2100-01-02 03:45:56.000000. The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. This was pointed out by a user who noticed that although he gets a timestamp from our database in one format, he can't put it back in the database in that same format. 
-	    StringBuffer buffer = new StringBuffer ();
+	     // @F6A Change back to old format because of service issue.
+         StringBuffer buffer = new StringBuffer ();
       if (calendar == null) calendar = Calendar.getInstance(); //@P0A
 	    calendar.setTime (ts);
 
@@ -145,16 +146,16 @@ implements SQLData
 	    buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
 	    buffer.append ('-');
 	    buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-	    // @F3D buffer.append (' ');
-	    buffer.append ('-');    // @F3C
+	    buffer.append (' '); //@F6C
+	    //@F6D buffer.append ('-');    // @F3C
 	    int hour = calendar.get (Calendar.HOUR_OF_DAY);       // @F4A
 	    // @F4D buffer.append (JDUtilities.padZeros (calendar.get (Calendar.HOUR_OF_DAY), 2));
 	    buffer.append (JDUtilities.padZeros (hour, 2));       // @F4C
-	    // @F3D buffer.append (':');
-	    buffer.append ('.');    // @F3C
+	    buffer.append (':');  //@F6C
+	    //@F6D buffer.append ('.');    // @F3C
 	    buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MINUTE), 2));
-	    // @F3D buffer.append (':');
-	    buffer.append ('.');    // @F3C
+	    buffer.append (':');  //@F6C
+	    //@F6D buffer.append ('.');    // @F3C
 	    buffer.append (JDUtilities.padZeros (calendar.get (Calendar.SECOND), 2));
 	    buffer.append ('.');
 	    buffer.append (JDUtilities.padZeros (ts.getNanos (), 9)); // @B1C
