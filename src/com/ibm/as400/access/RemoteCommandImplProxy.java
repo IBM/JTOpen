@@ -19,9 +19,9 @@ import java.lang.reflect.InvocationTargetException;
 // The RemoteCommandImplProxy class is an implementation of the CommandCall and ProgramCall classes used on a client communicating with a proxy server.
 class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-    public RemoteCommandImplProxy()
+    RemoteCommandImplProxy()
     {
         super("RemoteCommand");
     }

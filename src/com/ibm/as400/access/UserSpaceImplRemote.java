@@ -19,9 +19,29 @@ import java.io.IOException;
 /**
  The UserSpaceImplRemote is the remote implementation of the user space class.
  **/
-class UserSpaceImplRemote extends UserSpaceImpl
+class UserSpaceImplRemote implements UserSpaceImpl
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+   /**
+     Constants
+   **/
+   final static int SPACE_SIZE = 1;      // Key option for the size attribute.
+   final static int INITIAL_VALUE = 2;   // Key option for the initial value attribute.
+   final static int AUTO_EXTEND = 3;     // Key option for the auto extendibility attribute.
+
+    /**
+     Variables
+     **/
+    AS400Impl system_ = null;           // The AS400 where the user space is located.
+    String userSpacePathName_ = null;   // The full path name of the user space.
+    String library_ = null;             // The library that contains the user space.
+    String name_ = null;                // The name of the user space.
+    byte[] userSpaceSystemPathName_;    // The name and library of the user space used in program call.
+
+    boolean mustUseProgramCall_ = false; // Use ProgramCall instead of IFS @E1a
+
+    ConverterImpl converter_;            // The string to AS400 data converter.              // @C1C
 
     /**
      Force to Auxiliary Storage option that allow changes to be forced asynchronously.
@@ -51,7 +71,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
     /**
      Closes the user space's random access file stream and releases any system resources associated with the stream.
      **/
-    void close() throws IOException       // $B2
+    public void close() throws IOException       // $B2
     {
         if (mustUseProgramCall_)           // E1a close only if using IFS to read/write
         {                                  // E1a
@@ -97,7 +117,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    void create(String domain,
+    public void create(String domain,
                 int length,
                 boolean replace,
                 String extendedAttribute,
@@ -204,7 +224,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    void delete()
+    public void delete()
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -363,7 +383,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    byte getInitialValue()
+    public byte getInitialValue()
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -386,7 +406,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    int getLength()
+    public int getLength()
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -409,7 +429,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    boolean isAutoExtendible()
+    public boolean isAutoExtendible()
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -456,7 +476,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
 
     // @E1 Method added to call the correct read method.  The signature existed before,
     //     it is the implementation of the method that is changed.
-    int read(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length)
+    public int read(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length)
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -761,7 +781,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    void setAutoExtendible(boolean autoExtendibility)
+    public void setAutoExtendible(boolean autoExtendibility)
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -793,7 +813,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    void setInitialValue(byte initialValue)
+    public void setInitialValue(byte initialValue)
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -818,7 +838,7 @@ class UserSpaceImplRemote extends UserSpaceImpl
      @exception IOException Signals that an I/O exception of some sort has occurred.
      @exception ObjectDoesNotExistException If the AS400 object does not exist.
      **/
-    void setLength(int length)
+    public void setLength(int length)
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -833,9 +853,26 @@ class UserSpaceImplRemote extends UserSpaceImpl
         setAttributes(SPACE_SIZE, size);
     }
 
+    public void setProperties(AS400Impl system, String path, String name, String library, boolean mustUseProgramCall) throws IOException
+    {
+        system_ = system;
+        userSpacePathName_ = path;
+        library_ = library;
+        name_ = name;
+        mustUseProgramCall_ = mustUseProgramCall;
+
+        converter_ = ConverterImplRemote.getConverter(((AS400ImplRemote)system_).getCcsid(), (AS400ImplRemote)system_);
+        StringBuffer pathName = new StringBuffer("                    ");
+        pathName.insert(0, name_);
+        pathName.insert(10, library_);
+        pathName.setLength(20);
+        String newString = pathName.toString();
+        userSpaceSystemPathName_ = converter_.stringToByteArray(newString);
+    }
+
     // @E1 Method added to call the correct write method.  The signature existed before,
     //     it is the implementation of the method that is changed.
-    void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int force)
+    public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int force)
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,

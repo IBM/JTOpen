@@ -53,7 +53,7 @@ class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
 
         // Set user identity.
         //   LL
-        set32bit(8 + userIdentity.length, 45);
+        set32bit(6 + userIdentity.length, 45);
         //   CP
         set16bit(0x1127, 49);
         //   Data.

@@ -20,7 +20,7 @@ import java.util.Vector;
 
 
 
-class UserSpaceImplNative extends UserSpaceImpl
+class UserSpaceImplNative extends UserSpaceImplRemote
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
@@ -70,6 +70,9 @@ class UserSpaceImplNative extends UserSpaceImpl
     // Do Nothing.  This is really used by the UserSpaceImplRemote class to
     // release the IFSRandomAccessFile object associated with the user space.
     //}
+    public void close() throws IOException
+   {
+   }
 
     // ----------------------------------------------------------------------
     //
@@ -77,7 +80,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    void delete()
+    public void delete()
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -281,7 +284,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    byte getInitialValue()
+    public byte getInitialValue()
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,
@@ -302,7 +305,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ---------------------------------------------------------------------------
 
-    boolean isAutoExtendible()
+    public boolean isAutoExtendible()
       throws AS400SecurityException,
     ErrorCompletingRequestException,
     InterruptedException,
@@ -329,7 +332,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    int getLength()
+    public int getLength()
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,
@@ -350,7 +353,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    void create(String   domain,      int length,
+    public void create(String   domain,      int length,
                 boolean replace,      String extendedAttribute,
                 byte    initialValue, String textDescription,   String authority)
 
@@ -691,7 +694,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    void setAutoExtendible(boolean newValue)
+    public void setAutoExtendible(boolean newValue)
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,
@@ -716,7 +719,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    void setLength(int length)
+    public void setLength(int length)
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,
@@ -738,7 +741,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    void setInitialValue(byte initialValue)
+    public void setInitialValue(byte initialValue)
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,
@@ -757,7 +760,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary)
+    public void write(byte[] dataBuffer, int userSpaceOffset, int dataOffset, int length, int forceAuxiliary)
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,
@@ -888,7 +891,7 @@ class UserSpaceImplNative extends UserSpaceImpl
     //
     // ----------------------------------------------------------------------
 
-    int read(byte dataBuffer[], int userSpaceOffset, int dataOffset, int length)
+    public int read(byte dataBuffer[], int userSpaceOffset, int dataOffset, int length)
 
       throws AS400SecurityException,
     ErrorCompletingRequestException,

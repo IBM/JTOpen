@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: PortMapper.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  PortMapper.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -17,12 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Hashtable;
 
 class PortMapper
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     private PortMapper()
     {
@@ -107,12 +106,14 @@ class PortMapper
         return portList[service];
     }
 
+    static boolean unixSocketAvailable = true;
+
     static SocketContainer getServerSocket(String systemName, int service, SSLOptions useSSL, SocketProperties socketProperties) throws IOException
     {
         SocketContainer sc = null;
         String serviceName = AS400.getServerName(service);
         // If we're running on a native vm, we're requesting a service that supports a unix domain socket connection, and the unix domain socket code is accessable.
-        if (AS400.onAS400 && systemName.equalsIgnoreCase("localhost") && service != AS400.DATABASE && service != AS400.FILE)
+        if (AS400.onAS400 && systemName.equalsIgnoreCase("localhost") && service != AS400.DATABASE && service != AS400.FILE && unixSocketAvailable)
         {
             try
             {
@@ -120,15 +121,17 @@ class PortMapper
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix");
                 if (sc != null)
                 {
-                sc.setServiceName(serviceName);
-                return sc;
-            }
+                    sc.setServiceName(serviceName);
+                    return sc;
+                }
             }
             catch (IOException e)
             {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Error attempting to connect with Unix Socket:", e); //@P0C
+                Trace.log(Trace.ERROR, "Error attempting to connect with Unix Socket:", e);
                 sc = null;
             }
+            // Only try for Unix domain connection once.
+            unixSocketAvailable = false;
         }
 
         int srvPort = PortMapper.getServicePort(systemName, service, useSSL);
@@ -156,7 +159,7 @@ class PortMapper
             }
             catch (ServerStartupException e)
             {
-                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e); //@P0C
+                Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e);
                 throw e;
             }
 
@@ -244,8 +247,8 @@ class PortMapper
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting an inet socket to " + serviceName);
             sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerInet");
-        sc.setSocket(socket);
-        sc.setServiceName(serviceName);
+            sc.setSocket(socket);
+            sc.setServiceName(serviceName);
         }
         return sc;
     }

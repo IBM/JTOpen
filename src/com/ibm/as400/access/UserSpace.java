@@ -7,7 +7,7 @@
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
 // Copyright (C) 1997-2003 International Business Machines Corporation and
-// others. All rights reserved.
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -293,6 +293,7 @@ public class UserSpace implements Serializable
      **/
     public void create(String domain, int length, boolean replace, String extendedAttribute, byte initialValue, String textDescription, String authority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating user space.");
         // Validate the domain parameter.
         if (domain == null)
         {
@@ -363,6 +364,7 @@ public class UserSpace implements Serializable
      **/
     public void delete() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Deleting user space.");
         chooseImpl();
         impl_.delete();
 
@@ -380,6 +382,7 @@ public class UserSpace implements Serializable
      **/
     public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Determining user space existence.");
         try
         {
             chooseImpl();
@@ -440,6 +443,7 @@ public class UserSpace implements Serializable
      **/
     public byte getInitialValue() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving user space initial value.");
         chooseImpl();
         return impl_.getInitialValue();
     }
@@ -455,6 +459,7 @@ public class UserSpace implements Serializable
      **/
     public int getLength() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving user space length.");
         chooseImpl();
         return impl_.getLength();
     }
@@ -465,6 +470,7 @@ public class UserSpace implements Serializable
      **/
     public String getName()
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user space name: " + name_);
         return name_;
     }
 
@@ -474,6 +480,7 @@ public class UserSpace implements Serializable
      **/
     public String getPath()
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user space path: " + path_);
         return path_;
     }
 
@@ -483,6 +490,7 @@ public class UserSpace implements Serializable
      **/
     public AS400 getSystem()
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting system: " + system_);
         return system_;
     }
 
@@ -497,17 +505,9 @@ public class UserSpace implements Serializable
      **/
     public boolean isAutoExtendible() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving user space auto extendibility.");
         chooseImpl();
         return impl_.isAutoExtendible();
-    }
-
-    /**
-     Indicates if a connection has been established.
-     @return  true if a connection has been established; false otherwise.
-     **/
-    boolean isConnected()
-    {
-        return impl_ != null;
     }
 
     /**
@@ -516,6 +516,7 @@ public class UserSpace implements Serializable
      **/
     public boolean isMustUseProgramCall()
     {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if user space must use program call:", mustUseProgramCall_);
         return mustUseProgramCall_;
     }
 
