@@ -103,8 +103,14 @@ implements SQLData
     public void set (Object object, Calendar calendar, int scale)
         throws SQLException
     {
-        if (object instanceof String)
+        if (object instanceof String) {
+          try {
             value_ = Double.valueOf((String)object).doubleValue();
+          }
+          catch (NumberFormatException nfe) {                                // @E4A
+            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, nfe); // @E4A
+          }
+        }
 
         else if (object instanceof Number) 
             value_ = ((Number)object).doubleValue();
