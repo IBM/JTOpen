@@ -725,7 +725,7 @@ public class CommandHelpRetriever
   **/
   private static final String[][] getTransformedHTMLParms(Locale locale)
   {
-    String[][] parms = new String[mriTags_.length+4][];
+    String[][] parms = new String[mriHTMLTags_.length+4][];
     if (Trace.isTraceOn())
     {
       Trace.log(Trace.DIAGNOSTIC, "Transforming CommandHelpRetriever HTML MRI for locale: "+locale);
@@ -734,9 +734,9 @@ public class CommandHelpRetriever
     ResourceBundle bundle2 = ResourceBundle.getBundle("com.ibm.as400.access.MRI2", locale);
 
     int i=0;
-    for (; i<mriTags_.length; ++i)
+    for (; i<mriHTMLTags_.length; ++i)
     {
-      parms[i] = new String[] { "_"+mriTags_[i], encode(bundle2.getString("GENCMDDOC_"+mriTags_[i]))};
+      parms[i] = new String[] { "_"+mriHTMLTags_[i], encode(bundle2.getString("GENCMDDOC_"+mriHTMLTags_[i]))};
     }
     parms[i++] = new String[] { "_DESCRIPTION", encode(bundle2.getString("NETSERVER_DESCRIPTION_NAME"))};
     parms[i++] = new String[] { "_THREADSAFE_NO", encode(bundle.getString("DLG_NO_BUTTON"))};
