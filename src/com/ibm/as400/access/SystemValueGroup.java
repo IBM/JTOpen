@@ -130,7 +130,17 @@ public class SystemValueGroup implements java.io.Serializable
     
     initializeTransient();
     
-    values_ = (Vector)SystemValueList.groups_.get(SystemValueList.getGroupName(group)); // getGroupName validates the group parm
+//@B0D    values_ = (Vector)SystemValueList.groups_.get(SystemValueList.getGroupName(group)); // getGroupName validates the group parm
+
+    //@B0A - "Clone" the Vector:
+    Vector original = (Vector)SystemValueList.groups_.get(SystemValueList.getGroupName(group)); // getGroupName validates the group parm
+    int len = original.size();
+    values_ = new Vector();
+    values_.setSize(len);
+    for (int i=0; i<len; ++i)
+    {
+      values_.setElementAt(original.elementAt(i), i); // Copy the SystemValueInfo objects into the new Vector
+    }
   }
     
   
