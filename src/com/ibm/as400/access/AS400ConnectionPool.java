@@ -233,7 +233,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     if (Trace.isTraceOn())
       Trace.log(Trace.INFORMATION, "fill() key before resolving= " + systemName + "/" + userID);
     systemName = AS400.resolveSystem(systemName);  
-    userID = AS400.resolveUserId(userID);      
+    userID = AS400.resolveUserId(userID.toUpperCase());   //@KBA   
     String key = createKey(systemName, userID);
     if (Trace.isTraceOn())
       Trace.log(Trace.INFORMATION, "fill() key after resolving= " + key);
@@ -317,7 +317,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     if (userID == null)
       throw new NullPointerException("userID");
     systemName = AS400.resolveSystem(systemName);  //@A5A
-    userID = AS400.resolveUserId(userID);      //@A5A
+    userID = AS400.resolveUserId(userID.toUpperCase());      //@A5A  //@KBA
     String key = createKey(systemName, userID);
     if (Trace.isTraceOn()) //@A5A
       Trace.log(Trace.INFORMATION, "getActiveConnectionCount key= " + key); //@A5A
@@ -346,7 +346,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     if (userID == null)
       throw new NullPointerException("userID");
     systemName = AS400.resolveSystem(systemName);  //@A5A
-    userID = AS400.resolveUserId(userID);      //@A5A
+    userID = AS400.resolveUserId(userID.toUpperCase());      //@A5A   //@KBA
     String key = createKey(systemName, userID);
     if (Trace.isTraceOn()) //@A5A
       Trace.log(Trace.INFORMATION, "getAvailableConnectionCount key= " + key); //@A5A
@@ -623,7 +623,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
       Trace.log(Trace.INFORMATION, "getConnection() key before resolving= " + systemName + "/" + userID); //@A5A
     }
     systemName = AS400.resolveSystem(systemName);           //@A5A
-    userID = AS400.resolveUserId(userID);               //@A5A
+    userID = AS400.resolveUserId(userID.toUpperCase());               //@A5A  //@KBA
 
     String key = createKey(systemName, userID);
     if (Trace.traceOn_)                                //@A5A
@@ -1032,7 +1032,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     if (userID == null)
       throw new NullPointerException("userID");
     systemName = AS400.resolveSystem(systemName);  
-    userID = AS400.resolveUserId(userID);          
+    userID = AS400.resolveUserId(userID.toUpperCase());       //@KBA   
     String key = createKey(systemName, userID);
     ConnectionList listToBeRemoved = (ConnectionList)as400ConnectionPool_.get(key);
     if (listToBeRemoved != null)
