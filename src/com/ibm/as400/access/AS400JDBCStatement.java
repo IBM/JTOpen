@@ -728,8 +728,9 @@ public class AS400JDBCStatement implements Statement
 
                     // Take note on prefetch if the last block was fetched.
                     boolean lastBlock = false;
-                    if(((errorClass == 1) && (returnCode == 100))
+                    if((((errorClass == 1) && (returnCode == 100))
                        || ((errorClass == 2) && (returnCode == 701)))
+                       && functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)      // make sure we attempted to prefetch data, otherwise post a warning
                     {
                         lastBlock = true;
                     }
