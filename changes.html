@@ -9,8 +9,8 @@ Copyright (C) 1997-2004 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: August 2, 2004
-<!-- cvs log -rJTOpen_4_4:JTOpen_4_5 -N -d >2004-06-23 -->
+Last updated: October 25, 2004
+<!-- cvs log -rJTOpen_4_5_1:JTOpen_4_6 -N -d >2004-09-14 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -27,6 +27,8 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#46">Fixes and enhancements in JTOpen 4.6</A><BR>
+<A HREF="#45_1">Fixes and enhancements in JTOpen 4.5.1</A><BR>
 <A HREF="#45">Fixes and enhancements in JTOpen 4.5</A><BR>
 <A HREF="#44">Fixes and enhancements in JTOpen 4.4</A><BR>
 <A HREF="#43_1">Fixes and enhancements in JTOpen 4.3.1</A><BR>
@@ -35,6 +37,58 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="46">Fixes and enhancements in JTOpen 4.6</A></H3>
+<PRE>
+- <i>Various:</i> Updated OS/400 and AS/400 references in comments, text.
+- <i>Various:</i> Minor documentation updates.
+- <i>Various:</i> Removed private getCopyright() method.
+- Build: Updated readme to refer to build.xml.
+- Build: Updated JDK level check in build.xml.
+- Connection: Fixed localhost IllegalStateException. (AS400)
+- CallStackEntry: Added new class CallStackEntry.
+- Data conversion: Fix mixed byte buffering problem. (ConvTableReader)
+- FTP: Use separate thread to monitor ServerSocket when in "active" mode.
+- IFS: Throw IOException instead of ClosedChannelException. (IFSFileInputStream)
+- IFS: Changed name of directory created by IFSFileSystemView.createNewFolder().
+- JDBC: Added check for locators when batching.
+- JDBC: Set the socket properties on AS400 object before getting a connection.
+- JDBC: Minor performance improvement. (JDProperties)
+- JDBC: Added "rollback cursor hold" property to hold a cursor over a rollback.
+- PCML: Eliminated performance bottleneck in PcmlDocument.
+- Permission: Fixed filename character conversion bug.
+- Print: Fixed JTOpen bugs 3686 and 3694.  NullPointerException when holding spooled file that is completed.
+- Print: Added spooled file attributes ATTR_JOBCCSID, ATTR_JOBCCSID.
+- Print: Spooled file save/restore.
+- RLA: Synchronized incrementation of DCLNAME. (AS400FileImplRemote)
+- User: Added setters to User class.
+- User: Added V5R3 "local password management" property.
+- User: Added ability to filter by name in UserList.
+</PRE>
+
+<HR>
+<H3><A NAME="45_1">Fixes and enhancements in JTOpen 4.5.1 <i>(not announced publicly)</i></A></H3>
+<PRE>
+- <i>Various:</i> Updated OS/400 and AS/400 references in comments, text.
+- <i>Various:</i> Added serialVersionUID where missing.
+- Connection: Added ability to specify NLV on AS400.setLocale().
+- Connection: Clarified javadoc for AS400.setLocale() method.
+- Connection: Specified units for get/set methods of SocketProperties class.
+- IFS: Added new classes IFSFileReader and IFSFileWriter.
+- IFS: Upgraded IFSFileSystemView class to work with newer JDK's.
+- IFS: Corrected behavior of IFSJavaFile.isAbsolute().
+- JDBC: Fixed JTOpen Bug 4025.  Accommodate *LIBL not included in list_ array.
+- JDBC: Fixed JTOpen Bug 4013.  Don't ignore "thread used" connection property.
+- JDBC: Clarified javadoc: "cursor hold" only applies to commits, not rollbacks.
+- JDBC: Added more toolbox trace support to data source interface.
+- JDBC: Fixed proxy tracing.
+- PCML: Added method ProgramCallDocument.serialize(OutputStream).
+- Print: Added PrintObject attributes ATTR_DATE_END and ATTR_TIME_END.
+- Save file: Added new component to represent "save files".
+- Security: Removed unnecessary serializability from AS400Certificate* classes.
+- System values: Added new system values.
+</PRE>
 
 <HR>
 <H3><A NAME="45">Fixes and enhancements in JTOpen 4.5</A></H3>
