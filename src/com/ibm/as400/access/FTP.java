@@ -18,6 +18,7 @@ import java.net.*;
 import java.util.*;
 import java.beans.*;
 
+
 /**
  * The FTP class represents a generic ftp client.  Methods
  * on the FTP class allow you to connect to an ftp server,
@@ -246,6 +247,139 @@ public class FTP
 
 
 
+// ---------------------------------------------------------------------------
+// @D5 new method
+   /**
+    * Starts the process of appending data to a file on the server.  FTP
+    * opens the data connection to the server, then opens the file on
+    * the server and returns an output stream to the caller.  The caller
+    * then writes the file's data to the output stream.
+    * <br>Throws SecurityException if userid or password is invalid.
+    *   @param fileName The file to put.
+    *   @return An output stream to the file.  The caller uses the output
+    *           stream to write data to the file.
+    *           Null is returned if the connection to the server fails.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public synchronized OutputStream append(String fileName)
+                                     throws IOException
+    {
+          if (Trace.isTraceOn())
+             Trace.log(Trace.DIAGNOSTIC,"entering append(file)");
+
+
+          if (fileName == null)
+             throw new NullPointerException("file");
+
+          if (fileName.length() == 0)
+             throw new IllegalArgumentException("file");
+
+          return doAppendOrPut(fileName, "APPEND");
+    }
+
+
+
+
+
+// ---------------------------------------------------------------------------
+// @D5 new method
+   /**
+    * Appends data to a file on the server.
+    *   @param sourceFileName The file to put.
+    *   @param targetFileName The file on the server.
+    *   @return true if the copy was successful; false otherwise.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public synchronized boolean append(String sourceFileName, String targetFileName)
+                   throws IOException
+    {
+         if (Trace.isTraceOn())
+            Trace.log(Trace.DIAGNOSTIC,"entering append(String, String)");
+
+
+         if (sourceFileName == null)
+            throw new NullPointerException("source");
+
+         if (sourceFileName.length() == 0)
+            throw new IllegalArgumentException("source");
+
+         if (targetFileName == null)
+            throw new NullPointerException("target");
+
+         if (targetFileName.length() == 0)
+            throw new IllegalArgumentException("target");
+
+         boolean result = append(new java.io.File(sourceFileName), targetFileName);
+
+         if (Trace.isTraceOn())
+             Trace.log(Trace.DIAGNOSTIC,"leaving append(String, String)");
+
+         return result;
+    }
+
+
+
+
+
+
+// ---------------------------------------------------------------------------
+   /**
+    * Appends data to a file on the server.
+    * <br>Throws SecurityException if userid or password is invalid.
+    *   @param sourceFileName The file to put.
+    *   @param targetFileName The file on the server.
+    *   @return true if the copy was successful; false otherwise.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public synchronized boolean append(java.io.File sourceFileName, String targetFileName)
+                   throws IOException
+    {
+         if (Trace.isTraceOn())
+            Trace.log(Trace.DIAGNOSTIC,"entering append(File, String)");
+
+
+         if (sourceFileName == null)
+            throw new NullPointerException("source");
+
+         if (targetFileName == null)
+            throw new NullPointerException("target");
+
+         if (targetFileName.length() == 0)
+            throw new IllegalArgumentException("target");
+
+
+         connect();
+
+         byte[] buffer = new byte[bufferSize_];
+
+         FileInputStream f = new FileInputStream(sourceFileName);
+         OutputStream out = append(targetFileName);
+
+         int length = f.read(buffer);
+
+         while (length > 0)
+         {
+             out.write(buffer,0,length);
+             length = f.read(buffer);
+         }
+         out.close();
+         f.close();
+
+         if (Trace.isTraceOn())
+             Trace.log(Trace.DIAGNOSTIC,"leaving append(String, String)");
+
+         return true;
+    }
+
+
+
+
+
+
+
 // -----------------------------------------------------------------------
    /**
     * Adds a listener to be notified when the value of any
@@ -373,6 +507,7 @@ public class FTP
            inConnect_ = false;
            throw new IllegalStateException("password");
         }
+
 
         controlSocket_ = new Socket(server_, port_);
 //      controlSocket_.setTcpNoDelay(true);
@@ -528,6 +663,66 @@ public class FTP
         if (Trace.isTraceOn())
            Trace.log(Trace.DIAGNOSTIC,"leaving disconnect()");
     }
+
+
+
+
+
+
+// ---------------------------------------------------------------------------
+// @D5 new method.  This code used to be the put() method that did work. 
+   /**
+    * Starts the process of putting a file or appending data to a file on 
+    * the server.  FTP opens the data connection to the server, then opens 
+    * the file on the server and returns an output stream to the caller.  The 
+    * caller then writes the file's data to the output stream.
+    * <br>Throws SecurityException if userid or password is invalid.
+    *   @param fileName The file to put.
+    *   @param command "APPEND" to append data, "STOR" to simply put 
+    *   @return An output stream to the file.  The caller uses the output
+    *           stream to write data to the file.
+    *           Null is returned if the connection to the server fails.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    synchronized OutputStream doAppendOrPut(String fileName, String command)
+                                          throws IOException
+    {
+          if (Trace.isTraceOn())
+             Trace.log(Trace.DIAGNOSTIC,"entering doAppendOrPut(file)");
+
+          connect();
+
+          String response = issueCommand("PASV");
+          int p = extractPortAddress(response);
+
+
+
+          Socket dataSocket = new Socket(server_, p);
+
+       // dataSocket.setTcpNoDelay(false);
+       // dataSocket.setSoLinger(true, 60);
+
+          String result = issueCommand(command + " " + fileName);
+
+          if (result.startsWith("4") || result.startsWith("5"))
+          {
+             if (Trace.isTraceOn())
+                 Trace.log(Trace.DIAGNOSTIC,"put failed " + result);
+
+             throw new IOException(result);
+          }
+
+          if (Trace.isTraceOn())
+              Trace.log(Trace.DIAGNOSTIC,"leaving put(file)");
+
+          fireEvent(FTPEvent.FTP_PUT);
+
+          return new FTPOutputStream(dataSocket, this);
+    }
+
+
+
 
 
 
@@ -1287,32 +1482,9 @@ public class FTP
           if (fileName.length() == 0)
              throw new IllegalArgumentException("file");
 
-          connect();
-
-          String response = issueCommand("PASV");
-          int p = extractPortAddress(response);
-
-          Socket dataSocket = new Socket(server_, p);
-
-       // dataSocket.setTcpNoDelay(false);
-       // dataSocket.setSoLinger(true, 60);
-
-          String result = issueCommand("STOR " + fileName);
-
-          if (result.startsWith("4") || result.startsWith("5"))
-          {
-             if (Trace.isTraceOn())
-                 Trace.log(Trace.DIAGNOSTIC,"put failed " + result);
-
-             throw new IOException(result);
-          }
-
-          if (Trace.isTraceOn())
-              Trace.log(Trace.DIAGNOSTIC,"leaving put(file)");
-
-          fireEvent(FTPEvent.FTP_PUT);
-
-          return new FTPOutputStream(dataSocket, this);
+          return doAppendOrPut(fileName, "STOR");
+                                                 
+          // @D5d the rest of this method is now in worker method doAppendOrPut()                                       
     }
 
 

@@ -163,9 +163,91 @@ public class AS400FTP
 
 
 
+// @D5 new method
+// ---------------------------------------------------------------------------
+   /**
+    * Starts the process of appending to a file on the server.  AS400FTP
+    * opens the data connection to the server, then opens the file on
+    * the server and returns an output stream to the caller.  The caller
+    * then writes the file's data to the output stream.
+    *   @param fileName The file to put.
+    *   @return An output stream to the file.  The caller uses the output
+    *           stream to write data to the file.
+    *           Null is returned if the connection to the server fails.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public synchronized OutputStream append(String fileName)
+                                     throws IOException
+    {
+       OutputStream result = null;
+
+       if (connect())
+       {
+          saveFileProcessing(fileName);
+          try     { result = super.append(fileName);  }
+          finally { inSaveFileProcessing_ = false; }
+       }
+
+       return result;
+    }
 
 
 
+
+// @D5 new method
+// ---------------------------------------------------------------------------
+   /**
+    * Appends to a file on the server.
+    *   @param sourceFileName The file to put.
+    *   @param targetFileName The file on the server.
+    *   @return true if the append was successful; false otherwise.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public synchronized boolean append(String sourceFileName, String targetFileName)
+                   throws IOException
+    {
+       boolean result = false;
+
+       if (connect())
+       {
+          saveFileProcessing(targetFileName);
+          try     { result = super.append(sourceFileName, targetFileName); }
+          finally { inSaveFileProcessing_ = false; }
+       }
+
+       return result;
+    }
+
+
+
+
+
+// @D5 new method
+// ---------------------------------------------------------------------------
+   /**
+    * Appends to a file on the server.
+    *   @param sourceFileName The file to put.
+    *   @param targetFileName The file on the server.
+    *   @return true if the append was successful; false otherwise.
+    *   @exception IOException If an error occurs while communicating with the server.
+   **/
+
+    public synchronized boolean append(java.io.File sourceFileName, String targetFileName)
+                   throws IOException
+    {
+       boolean result = false;
+
+       if (connect())
+       {
+          saveFileProcessing(targetFileName);
+          try     { result = super.append(sourceFileName, targetFileName); }
+          finally { inSaveFileProcessing_ = false; }
+       }
+
+       return result;
+    }
 
 
 
@@ -225,10 +307,11 @@ public class AS400FTP
 
           // Force a sign-on.  Since the super class does not throw
           // AS400 exceptions I have to catch it and throw an
-          // IOException.
+          // IOException.  The @D5 change is to call signon(false)
+          // instead of getVRM();
           try
           {
-             system_.getVRM();
+             system_.signon(false);                                           // @D5a
           }
           catch (AS400SecurityException e)
           {
