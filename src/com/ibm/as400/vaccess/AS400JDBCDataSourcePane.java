@@ -433,7 +433,17 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
     dataSource.setServerName(m_dataBean.getAS400Server());
     
     // Server Tab
-    dataSource.setLibraries(m_dataBean.getDefaultLibraries());
+    
+    // The Toolbox expects the SQL library, if any, as the first entry of the libraries string.
+    // If there is no SQL library, the string should (and will) have a leading comma.       //@A1A
+    String defaultLibs = m_dataBean.getDefaultLibraries().trim();                           //@A1A
+    if (defaultLibs.length() > 0)                                                           //@A1A
+        dataSource.setLibraries(m_dataBean.getSQLlibrary().trim() + ", " + defaultLibs);    //@A1A
+    else                                                                                    //@A1A
+        dataSource.setLibraries(m_dataBean.getSQLlibrary().trim());                         //@A1C
+        
+    //System.out.println(">>>>>>>>>>> SQL LIB into ds:  " + m_dataBean.getSQLlibrary().trim());
+    //System.out.println(">>>>>>>>>>> DEFAULT LIBS into ds:  " + defaultLibs);
     
     String scratchName = ((ChoiceDescriptor)m_dataBean.getCommitMode()).getName();
     if (scratchName.equals("AJDSP_COMMIT_NONE"))
@@ -459,6 +469,7 @@ private void applyChangesToCurrentDataSource(AS400JDBCDataSource dataSource)
     
     // Package Tab
     dataSource.setExtendedDynamic(m_dataBean.isEnableExtDynamic());
+    dataSource.setPackageCriteria("select");                                                //@A3A
     
     dataSource.setPackage(m_dataBean.getPackage());
     
@@ -809,7 +820,45 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
   m_dataBean.setAS400Server(dataSource.getServerName());
     
   // Server Tab
-  m_dataBean.setDefaultLibraries(dataSource.getLibraries());
+  
+    scratchString = dataSource.getLibraries().trim();                                   //@A1A
+    //System.out.println(">>>>>>>>>>> dataSource.getLibraries() returned:  " + scratchString);
+  
+    if (scratchString.length() > 0)                                                     //@A1A
+    {                                                                                   //@A1A
+        // The Toolbox stores the SQL library, if any, as the 1st entry of
+        // the default libraries string.  If the string has a leading comma,
+        // that means there is no SQL library.                                          //@A1A
+        if (scratchString.charAt(0) == ',')                                             //@A1A
+            // There is no SQL lib, only the default list                               //@A1A
+            m_dataBean.setDefaultLibraries(scratchString.substring(1).trim());          //@A1A
+        else                                                                            //@A1A
+        {                                                                               //@A1A
+            // Find first comma and/or blank                                            //@A1A
+            int iComma = scratchString.indexOf(',');                                    //@A1A
+            int iSpace = scratchString.indexOf(' ');                                    //@A1A
+                
+            if (iComma == -1 && iSpace == -1)                                           //@A1A
+                // No comma or space found, so there is no default list, only the SQL lib
+                m_dataBean.setSQLlibrary(scratchString);                                //@A1A
+            else                                                                        //@A1A
+            {                                                                           //@A1A
+                // A comma and/or space was found. Set iComma to lowest index of comma or space.
+                if (iComma >= 0)                                                        //@A1A
+                {                                                                       //@A1A
+                    if (iSpace >= 0 && iSpace < iComma)                                 //@A1A
+                        iComma = iSpace;                                                //@A1A
+                }                                                                       //@A1A
+                else                                                                    //@A1A
+                if (iSpace >= 0)                                                        //@A1A
+                    iComma = iSpace;                                                    //@A1A
+
+                m_dataBean.setSQLlibrary(scratchString.substring(0,iComma));            //@A1A
+                m_dataBean.setDefaultLibraries(scratchString.substring(iComma + 1));    //@A1A
+            }                                                                           //@A1A
+        }                                                                               //@A1A
+    }                                                                                   //@A1A
+
   if (dataSource.getTransactionIsolation().equals("none"))
   {
       scratchString = resource_Loader.getString("AJDSP_COMMIT_NONE");
@@ -921,7 +970,8 @@ private void setDataSourcePreLoadData(AS400JDBCDataSource dataSource)
    
   double lobThresholdInKBLittleD = dataSource.getLobThreshold() / 1024;
   Double lobThresholdInKBBigD = new Double(lobThresholdInKBLittleD);
-  m_dataBean.setLOBThreshold(lobThresholdInKBBigD.toString());
+  m_dataBean.setLOBThreshold(lobThresholdInKBBigD);                                         //@A2C
+  //m_dataBean.setLOBThreshold(lobThresholdInKBBigD.toString());            <----- ORIGINALLY
      
   // Language Tab
   
