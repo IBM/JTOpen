@@ -550,12 +550,11 @@ final class ToolboxSignonHandler extends SignonHandlerAdapter
                 }
               }
             }
+
             // Also see if the AS400 should use the cached password.
-            if (pd.getPasswordCacheState())
-            {
-              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from dialog...");
-              system.setUsePasswordCache(true);
-            }
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password cache entry from dialog...");
+            system.setUsePasswordCache(pd.getPasswordCacheState());
+
             done = true;  // if we got this far, we're good to go
           }
           catch (PropertyVetoException e) {
