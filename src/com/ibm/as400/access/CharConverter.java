@@ -164,6 +164,21 @@ public class CharConverter implements Serializable
     return table.byteArrayToString(source);
   }
 
+  /**
+    Converts the specified bytes into a String.
+    If the Toolbox does not possess a table for the given CCSID, nor does the JVM,
+    an UnsupportedEncodingException is thrown.
+    @param  ccsid   the CCSID of the AS/400 text.
+    @param  source  the bytes to convert.
+    @return  the resultant String.
+    @exception  UnsupportedEncodingException  If the <i>ccsid</i> is not supported.
+   **/
+  public static String byteArrayToString(int ccsid, byte[] source) throws UnsupportedEncodingException
+  {
+    Converter table = new Converter(ccsid);
+    return table.byteArrayToString(source);
+  }
+
 
   //@F0A
   /**
