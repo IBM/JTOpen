@@ -89,6 +89,7 @@
 // Filename: jtStubs.jar
 // Location: http://oss.software.ibm.com/developerworks/opensource/jt400/jtStubs.jar
 // Description: JTOpen stub classes. Contains compile-time stubs for some JDBC, J2ME, JGSS, and browser functions.
+//              This file now exists in the JTOpen repository, under the /include directory.
 //
 // Filename: jui400.jar
 // Location: https://www6.software.ibm.com/dl/as400exp/expastbjm3-p
