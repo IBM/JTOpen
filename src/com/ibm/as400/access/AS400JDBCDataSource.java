@@ -71,9 +71,6 @@ import javax.naming.StringRefAddr;                // JNDI
 **/
 public class AS400JDBCDataSource implements DataSource, Referenceable, Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-
-
     static final long serialVersionUID = 4L;
 
 
@@ -130,7 +127,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
 
     // In mod 5 support was added to optionally serialize the password with the
-    // rest of the properties.  By deafult this is off.  setSavePasswordWhenSerialized(true)
+    // rest of the properties.  By default this is off.  setSavePasswordWhenSerialized(true)
     // must be called to save the password.  By calling this the application takes
     // responsibility for protecting the serialized bytes.  The password is not saved in the 
     // clear.  The password string is confused so that something more than just looking at the 
@@ -3326,7 +3323,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @M0A - added support for hex constant parser option
     /**
     * Gets the translate hex property, which indicates how
-    * the parser will treat hexidecimal literals.
+    * the parser will treat hexadecimal literals.
     * @return The value of the translate hex property.
     * <p>Valid values include:
     * <ul>
@@ -3343,7 +3340,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     // @M0A
     /**
     * Sets the translate hex property, which indicates how
-    * the parser will treat hexidecimal literals.
+    * the parser will treat hexadecimal literals.
     * @param parseOption The hex constant parser option.
     * <p>Valid values include:
     * <ul>
