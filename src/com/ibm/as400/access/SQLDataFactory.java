@@ -84,7 +84,7 @@ notation.
                 buffer.append ('0');                
             buffer.append (scientificNotation.substring (sign ? 0 : 1, e));                
         }
-        else if (exponent > 0) {                    
+        else if (exponent >= 0) {                       //@G3C Added the equals.
             buffer.append (scientificNotation.substring (sign ? 0 : 1, e));                
             for (int i = 1; i <= exponent; ++i)
                 buffer.append ('0');                
@@ -109,10 +109,15 @@ notation.
 
         // Strip leading and trailing 0's, if any.
         int start = 0;
-        for (; buffer.charAt (start) == '0'; ++start);
+        for (; start < buffer.length() && buffer.charAt (start) == '0'; ++start);   // @G3C  
         int end = buffer.length () - 1;
-        for (; buffer.charAt (end) == '0'; --end);
-        String result = buffer.toString ().substring (start, end + 1);
+        for (; end >= 0 && buffer.charAt (end) == '0'; --end);                      // @G3C  
+	String result;                                                              // @G3C  
+	if (end >= start) {                                                         // @G3A  
+           result = buffer.toString ().substring (start, end + 1);                  // @G3C  
+	} else {                                                                    // @G3A  
+	    result = "0";                                                           // @G3A  
+	}                                                                           // @G3A  
 
         // Add the sign and return.
         return (sign ? "" : "-") + result;
@@ -239,7 +244,7 @@ it will map to the next closest type.
 @param  precision   Precision of data.
 @param  scale       Scale of data.
 @param  settings    The conversion settings.
-@param  vrm         The AS/400 Version, Release, and Modification.
+@param  vrm         The OS/400 Version, Release, and Modification.
 @return             A SQLData object.
 
 @exception  SQLException    If no valid type can be
@@ -340,7 +345,7 @@ the next closest type.
 
 @param  object      A Java object.
 @param  settings    The conversion settings.
-@param  vrm         The AS/400 Version, Release, and Modification.
+@param  vrm         The OS/400 Version, Release, and Modification.
 @return             A SQLData object.
 
 @exception  SQLException    If no valid type can be
@@ -414,11 +419,11 @@ the next closest type.
 
 /**
 Return a SQLData object corresponding to the
-specific AS/400 native type identifier.
+specific OS/400 native type identifier.
 
 @param  connection      The connection.
 @param  id              The id.                                   
-@param  nativeType      An AS/400 native type identifier.
+@param  nativeType      An OS/400 native type identifier.
 @param  length          Length of data (in bytes).
 @param  precision       Precision of data.
 @param  scale           Scale of data.
@@ -525,6 +530,9 @@ specific AS/400 native type identifier.
         case 500:                           // Smallint.
             return new SQLSmallint (scale);              // @A0C
 
+        case 904:                          // @J1A
+            return new SQLRowID(settings); // @J1A - Added support for the ROWID data type
+
         case 960:                           // Blob locator.
             return new SQLBlobLocator (connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex);  //@F2C //@J0M added converter
 
@@ -547,9 +555,9 @@ specific AS/400 native type identifier.
 
 /**
 Return a SQLData object corresponding to the
-specific AS/400 native type string.
+specific OS/400 native type string.
 
-@param  nativeType  An AS/400 native type.
+@param  nativeType  An OS/400 native type.
 @param  length      Length of data (in bytes).
 @param  precision   Precision of data.
 @param  scale       Scale of data.
@@ -646,6 +654,9 @@ specific AS/400 native type string.
 
         else if (nativeType.equals ("REAL"))
             return new SQLReal (settings);
+
+        else if (nativeType.equals("ROWID")) // @J1A
+            return new SQLRowID(settings);   // @J1A
 
         else if (nativeType.equals ("SMALLINT"))
             return new SQLSmallint ();

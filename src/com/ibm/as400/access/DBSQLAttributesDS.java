@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.sql.SQLException;                                            //@E9a
+import java.io.UnsupportedEncodingException;                             //@H1A
 
 
 /**
@@ -25,8 +26,8 @@ extends DBBaseRequestDS
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-  public static final int	FUNCTIONID_RETRIEVE_ATTRIBUTES   = 0x1F81;
-  public static final int	FUNCTIONID_SET_ATTRIBUTES        = 0x1F80;
+    public static final int   FUNCTIONID_RETRIEVE_ATTRIBUTES   = 0x1F81;
+    public static final int   FUNCTIONID_SET_ATTRIBUTES        = 0x1F80;
 
 
 /**
@@ -38,25 +39,25 @@ extends DBBaseRequestDS
    @param  parameterMarkerDescriptorHandle the Parameter marker descriptor handle identifier.
 **/
 
-  public DBSQLAttributesDS(int requestId,
-		             int rpbId,
-			     int operationResultsBitmap,
-			     //@P0D int basedOnORSHandle, // This isn't used
-			     int parameterMarkerDescriptorHandle)
+    public DBSQLAttributesDS(int requestId,
+                             int rpbId,
+                             int operationResultsBitmap,
+                             //@P0D int basedOnORSHandle, // This isn't used
+                             int parameterMarkerDescriptorHandle)
 
-   {
-	   // Create the datastream header and template
-	   super(requestId, rpbId, operationResultsBitmap,
-		     parameterMarkerDescriptorHandle);
-	   setServerID(SERVER_SQL);
-   }
+    {
+        // Create the datastream header and template
+        super(requestId, rpbId, operationResultsBitmap,
+              parameterMarkerDescriptorHandle);
+        setServerID(SERVER_SQL);
+    }
 
 
 
-       //--------------------------------------------------//
-       // Create the data stream optional /                //
-       // variable length data section via addParameters   //
-       //--------------------------------------------------//
+    //--------------------------------------------------//
+    // Create the data stream optional /                //
+    // variable length data section via addParameters   //
+    //--------------------------------------------------//
 
 
 /**
@@ -67,11 +68,11 @@ extends DBBaseRequestDS
    updatability.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setAmbiguousSelectOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3811, (short) value);
-	}
+    void setAmbiguousSelectOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3811, (short) value);
+    }
 
 
 
@@ -81,11 +82,11 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
 
-	void setASCIICCSIDForTranslationTable (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3810, (short) value);
-	}
+    void setASCIICCSIDForTranslationTable (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3810, (short) value);
+    }
 
 
 
@@ -103,11 +104,11 @@ extends DBBaseRequestDS
    client CCSID.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-	void setClientCCSID (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3801, (short) value);
-	}
+    void setClientCCSID (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3801, (short) value);
+    }
 
 
 
@@ -118,13 +119,26 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
 
-	void setClientFunctionalLevel(String value)                         // @E2C
-		throws DBDataStreamException
-	{
-        // There is no need to use a Converter for this value              @E2A
-        // since it is always numeric.                                     @E2A
-		addParameter (0x3803, value);                                   // @E2C
-	}
+    void setClientFunctionalLevel(String value)                         // @E2C
+    throws DBDataStreamException
+    {
+        try                                                                   //@H1A
+        {
+            //@H1D There is no need to use a Converter for this value             @E2A
+            //@H1D since it is always numeric.                                    @E2A
+            //@H1A Need to use Converter now since this is not all numeric any more.
+            addParameter (0x3803, ConvTable.getTable(37, null), value); // @E2C @H1C 
+        }
+        catch (SQLException se)                                               //@H1A
+        {                                                                     //@H1A
+            //only throws an SQL exception if bytes.length when converted >   //@H1A
+            //65535, which they will never be in this case                    //@H1A
+        }                                                                     //@H1A
+        catch (UnsupportedEncodingException e)                                //@H1A
+        {                                                                     //@H1A
+            //37 will always be supported                                     //@H1A
+        }                                                                     //@H1A
+    }
 
 
 
@@ -133,17 +147,17 @@ extends DBBaseRequestDS
    @param value	the commitment control level.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setCommitmentControlLevelParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380E, (short) value);
-	}
+    void setCommitmentControlLevelParserOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x380E, (short) value);
+    }
 
 
 
     // @D0A
     void setDataCompressionOption(int value)
-        throws DBDataStreamException
+    throws DBDataStreamException
     {
         addParameter(0x3823, (short)value);
     }
@@ -155,11 +169,11 @@ extends DBBaseRequestDS
    @param value	the date format.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setDateFormatParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3807, (short) value);
-	}
+    void setDateFormatParserOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3807, (short) value);
+    }
 
 
 
@@ -168,11 +182,11 @@ extends DBBaseRequestDS
    @param value	the date separator.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setDateSeparatorParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3808, (short) value);
-	}
+    void setDateSeparatorParserOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3808, (short) value);
+    }
 
 
 
@@ -181,11 +195,11 @@ extends DBBaseRequestDS
    @param value	the decimal separator.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setDecimalSeparatorParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380B, (short) value);
-	}
+    void setDecimalSeparatorParserOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x380B, (short) value);
+    }
 
 
 
@@ -197,11 +211,11 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setDefaultSQLLibraryName (String value, ConvTable converter) //@P0C
-		throws DBDataStreamException, SQLException                      // @E9c
-	{
-		addParameter (0x380F, converter, value);
-	}
+    void setDefaultSQLLibraryName (String value, ConvTable converter) //@P0C
+    throws DBDataStreamException, SQLException                      // @E9c
+    {
+        addParameter (0x380F, converter, value);
+    }
 
 
 
@@ -210,11 +224,11 @@ extends DBBaseRequestDS
    @param value	the DRDA package size.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setDRDAPackageSize (int value)
-		throws DBDataStreamException, SQLException                      // @E9c
-	{
-		addParameter (0x3806, (short) value);
-	}
+    void setDRDAPackageSize (int value)
+    throws DBDataStreamException, SQLException                      // @E9c
+    {
+        addParameter (0x3806, (short) value);
+    }
 
 
 
@@ -224,11 +238,11 @@ extends DBBaseRequestDS
    errors are to be ignored or not.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setIgnoreDecimalDataErrorParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380D, (short) value);
-	}
+    void setIgnoreDecimalDataErrorParserOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x380D, (short) value);
+    }
 
 
 
@@ -238,13 +252,13 @@ extends DBBaseRequestDS
    @param value	the server language feature code.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setLanguageFeatureCode(String value)                           // @E2C
-		throws DBDataStreamException
-	{
+    void setLanguageFeatureCode(String value)                           // @E2C
+    throws DBDataStreamException
+    {
         // There is no need to use a Converter for this value              @E2A
         // since it is always numeric.                                     @E2A
-		addParameter(0x3802, value);                                    // @E2C
-	}
+        addParameter(0x3802, value);                                    // @E2C
+    }
 
 
 
@@ -253,11 +267,11 @@ extends DBBaseRequestDS
    @param value	the LOB field threshold.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setLOBFieldThreshold (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3822, value);
-	}
+    void setLOBFieldThreshold (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3822, value);
+    }
 
 
 
@@ -267,10 +281,10 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
     void setNamingConventionParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380C, (short) value);
-	}
+    throws DBDataStreamException
+    {
+        addParameter (0x380C, (short) value);
+    }
 
 
 
@@ -284,15 +298,15 @@ extends DBBaseRequestDS
    @param converter the converter.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setNLSSortSequence (int type,
-				   String tableFile,
-				   String tableLibrary,
-				   String languageId,
-				   ConvTable converter) //@P0C
-		throws DBDataStreamException
-	{
-		addParameter (0x3804, converter, type, tableFile, tableLibrary, languageId);
-	}
+    void setNLSSortSequence (int type,
+                             String tableFile,
+                             String tableLibrary,
+                             String languageId,
+                             ConvTable converter) //@P0C
+    throws DBDataStreamException
+    {
+        addParameter (0x3804, converter, type, tableFile, tableLibrary, languageId);
+    }
 
 
 
@@ -302,11 +316,11 @@ extends DBBaseRequestDS
    should be added to the package, if one is in use.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setPackageAddStatementAllowed(int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3812, (short) value);
-	}
+    void setPackageAddStatementAllowed(int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3812, (short) value);
+    }
 
 
 // @J2 new method
@@ -314,25 +328,37 @@ extends DBBaseRequestDS
    Sets the database (IASP) name for this connection.  The RDB name
    is an 18 byte (blank padded) name.
 **/
-   	void setRDBName(String value, ConvTable converter) //@P0C
-		throws DBDataStreamException, SQLException                      // @E9c
-	{
-		addParameter (0x3826, converter, value, value.length());
-	}
+    void setRDBName(String value, ConvTable converter) //@P0C
+    throws DBDataStreamException, SQLException                      // @E9c
+    {
+        addParameter (0x3826, converter, value, value.length());
+    }
 
 
-
+// @J1 - added support for ROWID data type
+/**
+   Sets client support information such as whether we
+   support the ROWID type directly or if the host
+   should return a VARCHAR FOR BIT DATA instead.
+   @parm value of the client support info bitmap
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+    void setClientSupportInformation(int value)
+    throws DBDataStreamException
+    {
+        addParameter(0x3825, value);
+    }
 
 /**
    Sets the Time Format Parser Option parameter in the data stream.
    @param value	the time format.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setTimeFormatParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3809, (short) value);
-	}
+    void setTimeFormatParserOption (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3809, (short) value);
+    }
 
 
 
@@ -342,10 +368,10 @@ extends DBBaseRequestDS
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
     void setTimeSeparatorParserOption (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x380A, (short) value);
-	}
+    throws DBDataStreamException
+    {
+        addParameter (0x380A, (short) value);
+    }
 
 
 
@@ -356,11 +382,11 @@ extends DBBaseRequestDS
    translated to the client's CCSID before the data is returned.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setTranslateIndicator (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3805, (byte) value);
-	}
+    void setTranslateIndicator (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3805, (byte) value);
+    }
 
 
 
@@ -371,11 +397,11 @@ extends DBBaseRequestDS
    using extended formats.
    @exception DBDataStreamException If there is not enough space left in the data byte array.
 **/
-   	void setUseExtendedFormatsIndicator (int value)
-		throws DBDataStreamException
-	{
-		addParameter (0x3821, (byte) value);
-	}
+    void setUseExtendedFormatsIndicator (int value)
+    throws DBDataStreamException
+    {
+        addParameter (0x3821, (byte) value);
+    }
 
 
 

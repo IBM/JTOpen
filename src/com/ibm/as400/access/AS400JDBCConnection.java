@@ -133,7 +133,7 @@ implements Connection
     // @F8 -- the key change is to put a 1 in the 7th position.  That 1 is the "ODBC" flag.
     //        The server passes it along to database to enable correct package caching of
     //        "where current of" statements.  This flag affects only package caching. 
-    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R2M01   "; // @EDA F8c
+    private static final String         CLIENT_FUNCTIONAL_LEVEL_= "V5R3M01   "; // @EDA F8c H2c
 
     private static final int            DRDA_SCROLLABLE_CUTOFF_ = 129;        // @B1A
     private static final int            DRDA_SCROLLABLE_MAX_    = 255;        // @DAA
@@ -271,7 +271,7 @@ implements Connection
                     }
                     catch (DBDataStreamException e)
                     {
-                        JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+                        JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
                     }
                     finally
                     {
@@ -316,7 +316,7 @@ implements Connection
         // than a SELECT can not be executed.
         if ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
             && (! sqlStatement.isSelect ()))
-            JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
+            JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
 
         // If we have read call access, then anything other than
         // a SELECT or CALL can not be executed.
@@ -324,7 +324,7 @@ implements Connection
              || ((access.equalsIgnoreCase (JDProperties.ACCESS_READ_CALL))))
             && (! sqlStatement.isSelect())
             && (! sqlStatement.isProcedureCall()))
-            JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
+            JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
     }
 
 
@@ -379,7 +379,7 @@ implements Connection
     throws SQLException
     {
         if (server_ == null)
-            JDError.throwSQLException (JDError.EXC_CONNECTION_NONE);
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
     }
 
 
@@ -455,7 +455,7 @@ implements Connection
             // @B3D   send (request);
             // @B3D }
             // @B3D catch (Exception e) {
-            // @B3D   JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            // @B3D   JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             // @B3D }
 
 
@@ -491,7 +491,7 @@ implements Connection
         checkOpen ();
 
         if (!transactionManager_.isLocalTransaction())                      // @E4A
-            JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @E4A
+            JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
         // Note:  Intuitively, it seems like if we are in
         //        auto-commit mode, that we should not need to
@@ -662,7 +662,7 @@ implements Connection
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
 
         if (!checkHoldabilityConstants (resultSetHoldability))                  //@F3A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
 
         // Create the statement.
         int statementId = getUnusedId (resultSetType); // @B1C
@@ -847,7 +847,7 @@ implements Connection
         }
         catch (UnsupportedEncodingException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             return null;
         }
     }
@@ -925,7 +925,7 @@ implements Connection
             // value for driver.
             else
             {
-                JDError.throwSQLException (JDError.EXC_INTERNAL);
+                JDError.throwSQLException (this, JDError.EXC_INTERNAL);
                 return AS400JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
             }
         }
@@ -995,7 +995,7 @@ implements Connection
     // @E2D
     // @E2D         // Return the graphic converter, or throw an exception.
     // @E2D         if (graphicConverter_ == null)
-    // @E2D             JDError.throwSQLException (JDError.EXC_CCSID_INVALID);
+    // @E2D             JDError.throwSQLException (this, JDError.EXC_CCSID_INVALID);
     // @E2D         return graphicConverter_;
     // @E2D     }
 
@@ -1037,7 +1037,7 @@ implements Connection
     // @E8A
     /**
     Returns the job identifier of the host server job corresponding to this connection.
-    Every JDBC connection is associated with a host server job on the AS/400 or iSeries server.  The
+    Every JDBC connection is associated with an OS/400 host server job on the server.  The
     format is:
     <ul>
       <li>10 character job name
@@ -1070,7 +1070,7 @@ implements Connection
 
     // @EHA
     /**
-    Returns the system object which is managing the connection to the AS/400 or iSeries server.
+    Returns the system object which is managing the connection to the server.
     
     <p>Note: Since this method is not defined in the JDBC Connection interface,
     you typically need to cast a Connection object to AS400JDBCConnection in order
@@ -1133,7 +1133,7 @@ implements Connection
     public Map getTypeMap ()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
     }
 
@@ -1219,13 +1219,14 @@ implements Connection
         }
 
         // All ids are being used.
-        JDError.throwSQLException (JDError.EXC_MAX_STATEMENTS_EXCEEDED);
-        return -1;
-      }
+        JDError.throwSQLException (this, JDError.EXC_MAX_STATEMENTS_EXCEEDED);
+        return -1;                 
+      }  
     }
 
 
-    // @j31a new method -- must the user have "for update" on their
+
+    // @j31a new method -- Must the user have "for update" on their
     //       SQL statement to guarantee an updatable cursor?  The answer is
     //       no for v5r2 and v5r1 servers with a PTF.  For V5R1 servers
     //       without the PTF, v4r5, and earlier, the answer is yes.  
@@ -1409,8 +1410,8 @@ implements Connection
         //@P0D assigned_.clear(id);                            // @DAC
         synchronized(assigned_) //@P1A
         {
-          assigned_[id] = false; //@P0A
-        }
+        assigned_[id] = false; //@P0A
+    }
     }
 
 
@@ -1549,7 +1550,7 @@ implements Connection
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
 
         if (!checkHoldabilityConstants(resultSetHoldability))                   //@F3A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
 
         // Create the statement.
         JDSQLStatement sqlStatement = new JDSQLStatement (sql,
@@ -1643,7 +1644,7 @@ implements Connection
     throws SQLException
     {
         if (getVRM() < JDUtilities.vrm520)                                         //@F5A
-            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);         //@F5A
+            JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);   //@F5A
 
         // Validation.
         checkOpen ();
@@ -1765,7 +1766,7 @@ implements Connection
             resultSetType = correctResultSetType (resultSetType, resultSetConcurrency);
 
         if (!checkHoldabilityConstants(resultSetHoldability))                   //@F3A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
 
         // Create the statement.
         JDSQLStatement sqlStatement = new JDSQLStatement (sql,
@@ -1813,7 +1814,7 @@ implements Connection
     public PreparedStatement prepareStatement (String sql, int[] columnIndexes)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
     }
 
@@ -1836,7 +1837,7 @@ implements Connection
     public PreparedStatement prepareStatement (String sql, String[] columnNames)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
         return null;
     }
 
@@ -1848,15 +1849,15 @@ implements Connection
     {                                                                       
         // must be OS/400 v5r2 or later
         if (vrm_ < JDUtilities.vrm520)
-            JDError.throwSQLException(JDError.EXC_FUNCTION_NOT_SUPPORTED);
+            JDError.throwSQLException(this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
 
         // cannot do savepoints on XA transactions
         if (!transactionManager_.isLocalTransaction())
-            JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);
 
         // cannot do savepoints if autocommit on 
         if (getAutoCommit())
-            JDError.throwSQLException(JDError.EXC_TXN_STATE_INVALID);
+            JDError.throwSQLException(this, JDError.EXC_TXN_STATE_INVALID);
 
         Statement statement = createStatement();
 
@@ -2042,7 +2043,7 @@ implements Connection
             JDTrace.logInformation (this, "Releasing savepoint " + sp.getName());
 
         if (sp.getStatus() != AS400JDBCSavepoint.ACTIVE)
-            JDError.throwSQLException(JDError.EXC_SAVEPOINT_DOES_NOT_EXIST);
+            JDError.throwSQLException(this, JDError.EXC_SAVEPOINT_DOES_NOT_EXIST);
 
         String SQLCommand = "RELEASE SAVEPOINT " + sp.getName();
 
@@ -2080,7 +2081,7 @@ implements Connection
         checkOpen ();
 
         if (!transactionManager_.isLocalTransaction())                      // @E4A
-            JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @E4A
+            JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4A
 
         if (! transactionManager_.getAutoCommit ())
         {
@@ -2123,7 +2124,7 @@ implements Connection
             JDTrace.logInformation (this, "Rollback with savepoint " + sp.getName());
 
         if (sp.getStatus() != AS400JDBCSavepoint.ACTIVE)
-            JDError.throwSQLException(JDError.EXC_SAVEPOINT_DOES_NOT_EXIST);
+            JDError.throwSQLException(this, JDError.EXC_SAVEPOINT_DOES_NOT_EXIST);
 
         String SQLCommand = "ROLLBACK TO SAVEPOINT " + sp.getName();
 
@@ -2259,18 +2260,18 @@ implements Connection
         // @J5D catch (ConnectionDroppedException e) {                               // @C1A
         // @J5D    server_ = null;                                                  // @D8
         // @J5D    request.freeCommunicationsBuffer();                              // @EMa
-        // @J5D    JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
+        // @J5D    JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE, e);      // @C1A
         // @J5D }                                                                    // @C1A
         catch (IOException e)
         {                                              // @J5A
             server_ = null;                                                  // @J5A
             //@P0D request.freeCommunicationsBuffer();                              // @J5A
-            JDError.throwSQLException (JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
+            JDError.throwSQLException (this, JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
         }                                                                    // @J5A
         catch (Exception e)
         {
             //@P0D request.freeCommunicationsBuffer();                              // @EMa
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
     }
 
@@ -2317,10 +2318,10 @@ implements Connection
     // @EBD         }
     // @EBD         catch (ConnectionDroppedException e) {                               // @C1A
     // @EBD             server_ = null;                                                  // @D8
-    // @EBD             JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
+    // @EBD             JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE, e);      // @C1A
     // @EBD         }                                                                    // @C1A
     // @EBD        catch (Exception e) {
-    // @EBD             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+    // @EBD             JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
     // @EBD        }
     // @EBD   }
 
@@ -2385,7 +2386,7 @@ implements Connection
         // Note: No need to check for an IOException in this method, since we don't contact the server.       @J5A
         catch (Exception e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
     }
 
@@ -2488,18 +2489,18 @@ implements Connection
         // @J5D catch (ConnectionDroppedException e) {                              // @C1A
         // @J5D    server_ = null;                                                  // @D8
         // @J5D    request.freeCommunicationsBuffer();                              // @EMa
-        // @J5D    JDError.throwSQLException (JDError.EXC_CONNECTION_NONE, e);      // @C1A
+        // @J5D    JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE, e);      // @C1A
         // @J5D }                                                                   // @C1A
         catch (IOException e)
         {                                             // @J5A
             server_ = null;                                                  // @J5A
             //@P0D request.freeCommunicationsBuffer();                              // @J5A
-            JDError.throwSQLException (JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
+            JDError.throwSQLException (this, JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
         }                                                                   // @J5A
         catch (Exception e)
         {
             //@P0D request.freeCommunicationsBuffer();                              // @EMa
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         return(DBReplyRequestedDS) reply;
@@ -2603,7 +2604,7 @@ implements Connection
         checkOpen ();
 
         if (!checkHoldabilityConstants(holdability))                            //@F3A
-            JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
+            JDError.throwSQLException (this, JDError.EXC_ATTRIBUTE_VALUE_INVALID);    //@F3A
 
         holdability_ = holdability;
 
@@ -2629,11 +2630,11 @@ implements Connection
         }
         catch (AS400SecurityException e)
         {                            //@D5C
-            JDError.throwSQLException (JDError.EXC_CONNECTION_REJECTED, e);
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_REJECTED, e);
         }
         catch (IOException e)
         {                                       //@D5C
-            JDError.throwSQLException (JDError.EXC_CONNECTION_UNABLE, e);
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_UNABLE, e);
         }
 
         setProperties (dataSourceUrl, properties, as400.getImpl());
@@ -2666,7 +2667,7 @@ implements Connection
         // Initialize the library list.
         String urlSchema = dataSourceUrl_.getSchema ();
         if (urlSchema == null)
-            JDError.throwSQLException (JDError.WARN_URL_SCHEMA_INVALID);
+            JDError.throwSQLException (this, JDError.WARN_URL_SCHEMA_INVALID);
 
         JDLibraryList libraryList = new JDLibraryList (
                                                       properties_.getString (JDProperties.LIBRARIES), urlSchema,
@@ -2703,7 +2704,7 @@ implements Connection
         //open ();
 
         //@A3A
-        // Connect.
+        // Connect.        
         if (JDTrace.isTraceOn())                                                      // @F6a
         {                                                                             // @F6a
             JDTrace.logInformation("Toolbox for Java - " + Copyright.version);        // @F6a
@@ -2716,11 +2717,11 @@ implements Connection
         }
         catch (AS400SecurityException e)
         {
-            JDError.throwSQLException (JDError.EXC_CONNECTION_REJECTED, e);
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_REJECTED, e);
         }
         catch (IOException e)
         {
-            JDError.throwSQLException (JDError.EXC_CONNECTION_UNABLE, e);
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_UNABLE, e);
         }
 
         // Initialize the catalog name at this point to be the system
@@ -2887,12 +2888,12 @@ implements Connection
         checkOpen ();
 
         if (transactionManager_.isLocalActive () || transactionManager_.isGlobalActive()) // @E4C
-            JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);      // @E4C
+            JDError.throwSQLException (this, JDError.EXC_TXN_STATE_INVALID);      // @E4C
 
         if ((readOnly == false)
             && ((properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_ONLY))
                 || (properties_.getString (JDProperties.ACCESS).equalsIgnoreCase (JDProperties.ACCESS_READ_CALL))))
-            JDError.throwSQLException (JDError.EXC_ACCESS_MISMATCH);
+            JDError.throwSQLException (this, JDError.EXC_ACCESS_MISMATCH);
 
         readOnly_ = readOnly;
 
@@ -2956,7 +2957,7 @@ implements Connection
             name = "T_JDBCINTERNAL_" + id;
 
         // When creating the savepoint specify retain cursors.  That is the
-        // only option supported by the AS/400 at this time.  We have to specify
+        // only option supported by the iSeries server at this time.  We have to specify
         // it because the SQL default is close cursors.  Since we need to use 
         // an option other than the default we have to specify it on the statement.
         // Plus, the server will return an error if we don't specify it.  
@@ -3031,6 +3032,9 @@ implements Connection
 
                 // Client functional level.
                 request.setClientFunctionalLevel(CLIENT_FUNCTIONAL_LEVEL_);       // @EDC
+
+                // Client support information
+                request.setClientSupportInformation(0x80000000);  // @K0A - indicate our support for ROWID data type
 
                 if (JDTrace.isTraceOn ())                                                                   // @EDC
                     JDTrace.logInformation (this, "Client functional level = " + CLIENT_FUNCTIONAL_LEVEL_); // @EDC
@@ -3220,7 +3224,7 @@ implements Connection
 
                 // Other server errors.
                 else if (errorClass != 0)
-                    JDError.throwSQLException (this, id_, errorClass, returnCode);
+                    JDError.throwSQLException (this, this, id_, errorClass, returnCode);
 
                 // Process the returned server attributes.
                 serverAttributes = reply.getServerAttributes ();
@@ -3238,12 +3242,12 @@ implements Connection
             int serverCCSID = serverAttributes.getServerCCSID();
             //@P0D converter_ = ConverterImplRemote.getConverter (serverCCSID, as400_);
             converter_ = ConvTable.getTable(serverCCSID, null); //@P0A
-
+   
             // Get the server functional level.  It comes back as in the                           @E7A
             // format VxRxMx9999.                                                                  @E7A
             String serverFunctionalLevelAsString = serverAttributes.getServerFunctionalLevel(converter_); // @E7A
             try
-            {                                                                               // @E7A
+            {                                                     // @E7A
                 serverFunctionalLevel_ = Integer.parseInt(serverFunctionalLevelAsString.substring(6)); // @E7A
             }                                                                                   // @E7A
             catch (NumberFormatException e)
@@ -3412,12 +3416,12 @@ implements Connection
         }
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
         // @J5D catch (IOException e) {
         catch (UnsupportedEncodingException e)
         {                      // @J5C
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
     }
 
@@ -3443,7 +3447,7 @@ implements Connection
     mapping:
     
     <p><table border>
-    <tr><th>AS/400 or iSeries isolation level</th><th>JDBC transaction isolation level</th></tr>
+    <tr><th>OS/400 isolation level</th><th>JDBC transaction isolation level</th></tr>
     <tr><td>*CHG</td> <td>TRANSACTION_READ_UNCOMMITTED</td></tr>
     <tr><td>*CS</td>  <td>TRANSACTION_READ_COMMITTED</td></tr>
     <tr><td>*ALL</td> <td>TRANSACTION_READ_REPEATABLE_READ</td></tr>
@@ -3495,7 +3499,7 @@ implements Connection
     public void setTypeMap (Map typeMap)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
     }
 
 
