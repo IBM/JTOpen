@@ -526,11 +526,11 @@ specific AS/400 native type identifier.
             return new SQLSmallint (scale);              // @A0C
 
         case 960:                           // Blob locator.
-            return new SQLBlobLocator (connection, id, lobMaxSize, settings, columnIndex);  //@F2C
+            return new SQLBlobLocator (connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex);  //@F2C //@J0M added converter
 
         case 964:                           // Clob locator.
             if ((ccsid == 65535) && (translateBinary == false))               //@E4C
-                return new SQLBlobLocator (connection, id, lobMaxSize, settings, columnIndex); //@F2C
+                return new SQLBlobLocator (connection, id, lobMaxSize, settings, connection.getConverter(ccsid), columnIndex); //@F2C //@J0M added converter
             else
                 return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid), columnIndex); // @E1C //@F2C
         

@@ -85,18 +85,61 @@ implements SQLData
 
         if (object instanceof String)
         {
-            // @D10c new implementation
-            // @D11c put old back in because Rich told us to.
-            // old ...
-            
+            // @K0A - make the parsing consistent with that of SQLInteger
+            //     First try to convert the string to an int (no extra object creation).  If
+            //     that fails try turning it into a Double, which will involve an extra object
+            //     create but Double will accept bigger numbers and floating point numbers so it 
+            //     will catch more truncation cases.  The bottom line is don't create an extra
+            //     object in the normal case.  If the user does ps.setString(1, "111222333.444.555")
+            //     on an integer field, they can't expect the best performance. 
+            boolean tryAgain = false;
+
             try
             {
-                value_ = Long.parseLong((String) object);
+                long longValue = (long) Long.parseLong ((String) object);
+
+                if (( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
+                {
+                    truncated_ = 4;
+                }
+                value_ = (int) longValue;
             }
             catch (NumberFormatException e)
             {
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+                tryAgain = true;
             }
+
+            if (tryAgain)
+            {
+               try
+               {
+                  double doubleValue = Double.valueOf ((String) object).doubleValue ();
+
+                  if (( doubleValue > Short.MAX_VALUE ) || ( doubleValue < Short.MIN_VALUE ))
+                  {
+                      truncated_ = 6;
+                  }
+                  value_ = (short) doubleValue;
+               }
+               catch (NumberFormatException e)
+               {
+                  JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+               }
+            }
+            // @K0A - end of addition for consistency
+            
+            // @D10c new implementation 
+            // @D11c put old back in because Rich told us to.
+            // old ...
+            
+            // @K0D try
+            // @K0D {
+            // @K0D     value_ = Long.parseLong((String) object);
+            // @K0D }
+            // @K0D catch (NumberFormatException e)
+            // @K0D {
+            // @K0D     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            // @K0D }
             
             // new ...
             // @D11d get rid of new case.  Toronto found a place where this code corrupts data, which
@@ -115,7 +158,7 @@ implements SQLData
             // }
             // catch (NumberFormatException e)
             // {
-            //     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+            //    JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
             // }
         }   
 
