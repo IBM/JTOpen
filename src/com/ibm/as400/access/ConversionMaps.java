@@ -69,17 +69,20 @@ abstract class ConversionMaps
   // http://w3pclan.rchland.ibm.com/idweb/v4r5/ic2924/info/java/rzaha/fileenc.htm
   static 
   {
-    // 136+ possible Java encodings. 13 have unknown CCSIDs.
-    // We have 127 known in this table.
+    // 137+ possible Java encodings. 13 have unknown CCSIDs.
+    // We have 128 known in this table.
     encodingCcsid_.put("ASCII",         "367"); // ANSI X.34 ASCI
     encodingCcsid_.put("Cp1252",        "1252");
     encodingCcsid_.put("ISO8859_1",     "819");
     encodingCcsid_.put("Unicode",       "13488");
     encodingCcsid_.put("UnicodeBig",    "13488"); // bom is 0xFEFF
+//    encodingCcsid_.put("UnicodeBigUnmarked", 13488); //@B0A
     encodingCcsid_.put("UnicodeLittle", "1200"); // bom is 0xFFFE
+//    encodingCcsid_.put("UnicodeLittleUnmarked", 13488); //@B0A
     encodingCcsid_.put("UTF8",          "1208");
     
     encodingCcsid_.put("Big5",      "950");
+//    encodingCcsid_.put("Big5 HKSCS", ???); //@B0A: Big5 with Hong Kong extensions
     encodingCcsid_.put("CNS11643",  "964");
     encodingCcsid_.put("Cp037",     "37");
     encodingCcsid_.put("Cp273",     "273");
@@ -173,8 +176,11 @@ abstract class ConversionMaps
     encodingCcsid_.put("EUC_TW", "964"); // superset of 5060
     
     encodingCcsid_.put("GB2312", "1381");
+    encodingCcsid_.put("GB18030", "1392"); //@B0A: 1392 is mixed 4-byte; the individual component CCSIDs are not supported
     encodingCcsid_.put("GBK",    "1386");
     
+//    encodingCcsid_.put("ISCII91", ???); //@B0A: Indic scripts
+ 
     // The Toolbox does not directly support ISO2022
 //    encodingCcsid_.put("ISO2022CN",     ???); // Not sure of the CCSID, possibly 9575?
 //    encodingCcsid_.put("ISO2022CN_CNS", "965"); // Java doesn't support this one?
@@ -191,6 +197,7 @@ abstract class ConversionMaps
     encodingCcsid_.put("ISO8859_7", "813");
     encodingCcsid_.put("ISO8859_8", "916");
     encodingCcsid_.put("ISO8859_9", "920");
+//  encodingCcsid_.put("ISO8859_13", ???); //@B0A: Latin alphabet No. 7
 //    encodingCcsid_.put("ISO8859_15_FDIS", ???); // Don't know the CCSID; FYI, this codepage is ISO 28605.
   
     // The Toolbox does not directly support JIS
