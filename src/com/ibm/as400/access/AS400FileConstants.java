@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileConstants.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,20 +73,20 @@ interface AS400FileConstants
   /**
    *Constant indicating lock type of read willing to share with
    *other readers.  This is the equivalent of specifying *SHRNUP
-   *on the AS/400 Allocate Object (ALCOBJ) command.
+   *on the Allocate Object (ALCOBJ) command.
    *@see AS400File#lock
    **/
   static public final int READ_ALLOW_SHARED_READ_LOCK = 1;
   /**
    *Constant indicating lock type of read willing to share with
    *updaters.  This is the equivalent of specifying *SHRRD
-   *on the AS/400 Allocate Object (ALCOBJ) command.
+   *on the Allocate Object (ALCOBJ) command.
    *@see AS400File#lock
    **/
   static public final int READ_ALLOW_SHARED_WRITE_LOCK = 0;
   /**
    *Constant indicating lock type of read willing to share with no one.
-   *This is the equivalent of specifying *EXCL on the AS/400 Allocate Object (ALCOBJ)
+   *This is the equivalent of specifying *EXCL on the Allocate Object (ALCOBJ)
    *command.
    *@see AS400File#lock
    **/
@@ -126,21 +126,21 @@ interface AS400FileConstants
   /**
    *Constant indicating lock type of update willing to share with
    *readers.  This is the equivalent of specifying *EXCLRD
-   *on the AS/400 Allocate Object (ALCOBJ) command.
+   *on the Allocate Object (ALCOBJ) command.
    *@see AS400File#lock
    **/
   static public final int WRITE_ALLOW_SHARED_READ_LOCK = 3;
   /**
    *Constant indicating lock type of update willing to share with
    *updaters.  This is the equivalent of specifying *SHRUPD
-   *on the AS/400 Allocate Object (ALCOBJ) command.
+   *on the Allocate Object (ALCOBJ) command.
    *@see AS400File#lock
    **/
   static public final int WRITE_ALLOW_SHARED_WRITE_LOCK = 2;
   /**
    *Constant indicating lock type of update willing to share with
    *no one.  This is the equivalent of specifying *EXCL
-   *on the AS/400 Allocate Object (ALCOBJ) command.
+   *on the Allocate Object (ALCOBJ) command.
    *@see AS400File#lock
    **/
   static public final int WRITE_EXCLUSIVE_LOCK = 5;

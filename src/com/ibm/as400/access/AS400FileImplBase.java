@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,14 +24,14 @@ import java.text.Collator;
 
 abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   // Is this class an ImplRemote or an ImplNative
   boolean isNative_ = false; //@E2A
 
   boolean discardReplys_ = false; //@D1A (moved out of AS400FileImplRemote)
 
-  // Converter that converts to the AS400 job CCSID.
+  // Converter that converts to the server job CCSID.
   ConverterImplRemote converter_; //@B5C
 
   // retrieve the requested record, do not consider deleted records as
@@ -108,7 +108,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // possible types of locks.  Initially each array element is false.
   Vector explicitLocksObtained_ = new Vector(6);
 
-  // AS/400 systems currently under commitment control.
+  // Servers currently under commitment control.
   static Vector commitmentControlSystems_ = new Vector();
 
   // Used for commitment control when we're running natively. See AS400FileImplBase.
@@ -129,7 +129,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // is not opened for READ_WRITE, records will be cached.
   boolean cacheRecords_ = false;
 
-  // Caches the record formats retrieved from the AS/400 for the file
+  // Caches the record formats retrieved from the server for the file
   RecordFormat[] rfCache_ = null; //@B2A
 
   // The lock level for commitment control for this file.  This value is
@@ -403,20 +403,20 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param textDescription The text description with which to create the file.
    *This value must be 50 characters or less.  If this value is null, the
    *text description will be blank.<br>
-   *The name of the file and the AS400 system to which to connect must be set
+   *The name of the file and the server to which to connect must be set
    *prior to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
    *@see AS400File#setSystem
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped
    * unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the
-   * AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   * server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void addPhysicalFileMember(String name, String textDescription)
   throws AS400Exception,
@@ -652,12 +652,12 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
 
   /**
-   *Closes the file on the AS400.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *Closes the file on the server.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    **/
   public void close() //@B0C -- this method is overridden by the subclasses
   throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
@@ -699,11 +699,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Commits all transactions since the last commit boundary.  Invoking this
    *method will cause all transactions under commitment control for this
    *connection to be committed.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    **/
   public abstract void commit()
   throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
@@ -769,7 +769,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   //@B2A
   /**
    * Retrieves rfCache_[rf]. If the cache is empty, retrieves the record
-   * formats from the AS/400.
+   * formats from the server.
   **/
   public RecordFormat setRecordFormat(int rf)
   throws AS400Exception,
@@ -794,7 +794,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   //@B2A
   /**
    * Retrieves "rf" from rfCache_. If the cache is empty, retrieves the record
-   * formats from the AS/400.
+   * formats from the server.
   **/
   public RecordFormat setRecordFormat(String rf)
   throws AS400Exception,
@@ -1136,10 +1136,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Deletes the record at the current cursor position.  The file must be open and
    *the cursor must be positioned on an active record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract void deleteCurrentRecord()
   throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
@@ -1147,18 +1147,18 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Deletes the member associated with this object from the file.  The object cannot
    *be open when invoking this method.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
    *@see AS400File#setSystem
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void deleteMember()
   throws AS400Exception,
@@ -1177,7 +1177,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     else
     {
-      throw new InternalErrorException("No AS/400 messages",
+      throw new InternalErrorException("No messages from server",
                                        InternalErrorException.UNKNOWN);
     }
   }
@@ -1198,11 +1198,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Ends commitment control for this connection.
    *If commitment control has not been started for the connection, no action
    *is taken.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void endCommitmentControl()
   throws AS400Exception,
@@ -1278,13 +1278,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *                  <li>COMMIT_LOCK_LEVEL_CHANGE
    *                  <li>COMMIT_LOCK_LEVEL_CURSOR_STABILITY
    *                  </ul>
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void startCommitmentControl(int commitLockLevel)
   throws AS400Exception,
@@ -1348,7 +1348,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       {
         // AS400Impl that was passed in must be natively connected
         // or we would never have been instantiated as an AS400FileImplNative.
-        // The AS400's loadImpl() method makes sure of that.
+        // The AS400.loadImpl() method makes sure of that.
         // We just check a boolean flag in the ImplNative... no need to add
         // it to the Vector, since there should only ever be one "connection"
         // for an ImplNative.
@@ -1424,13 +1424,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Releases all locks acquired via the lock() method.  If no locks have been
    *explicitly obtained, no action is taken.
    *@see AS400File#lock
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void releaseExplicitLocks()
   throws AS400Exception,
@@ -1490,12 +1490,12 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
 
   /**
-   *Executes a command on the AS/400.
+   *Executes a command on the server.
    *@param cmd the command
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract AS400Message[] execute(String cmd)
   throws AS400SecurityException, InterruptedException, IOException;
@@ -1576,12 +1576,12 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *</ul>
    *</ul>
    *</ul>
-   *<b>Note:</b> The file is created using the default values for the AS/400
+   *<b>Note:</b> The file is created using the default values for the
    * Create Physical File command (CRTPF).
    * Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF
    * command  to change the file after it
    *has been created.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -1597,13 +1597,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *This value must be between 1 and 50 characters inclusive.
    *If this value is null, the empty string, or AS400File.BLANK,
    *the text description is blank.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void create(int recordLength, String fileType, String textDescription)
   throws AS400Exception,
@@ -1653,11 +1653,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Creates a physical file using the specified DDS source file.
-   *<b>Note:</b> The file is created using the default values for AS/400
+   *<b>Note:</b> The file is created using the default values for the
    * Create Physical File (CRTPF) command.
    *Use the <a href="CommandCall.html">CommandCall</a> class to issue a CHGPF to change the file after it
    *has been created.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -1670,13 +1670,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *the text description will be blank.
    *Specify AS400File.SOURCE_MEMBER_TEXT for the text description if the text
    *description from <i>ddsSourceFile</i> is to be used.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void create(String ddsSourceFile,
                      String textDescription)
@@ -1743,7 +1743,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Creates the DDS source file to be used to create a physical file based on a user
    *supplied RecordFormat.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -1770,13 +1770,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *value is to be specified, null may be specified.
    *@param text The value to be specified for the record-level keyword TEXT.  If no
    *value is to be specified, null may be specified.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public abstract void createDDSSourceFile(RecordFormat recordFormat, //@D0C 7/15/99 @E1C
                                            String altSeq,
@@ -1794,19 +1794,19 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Deletes the file.  The object cannot be open when calling this method.  The file
    *and all its members will be deleted.
    *Use deleteMember() to delete only the member associated with this object.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
    *@see AS400File#setSystem
    *@see AS400File#deleteMember
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void delete()
   throws AS400Exception,
@@ -1825,7 +1825,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     else
     {
-      throw new InternalErrorException("No AS/400 messages",
+      throw new InternalErrorException("No messages from server",
                                        InternalErrorException.UNKNOWN);
     }
   }
@@ -1834,7 +1834,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Obtains a lock on the file.
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -1850,13 +1850,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *                     <li>WRITE_ALLOW_SHARED_WRITE_LOCK
    *                     </ul>
    *If <i>lockToObtain</i> has already been obtained, no action is taken.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
    **/
   public void lock(int lockToObtain)
   throws AS400Exception,
@@ -1915,10 +1915,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param bf blocking factor
    *@param access The type of file access for which to open the file.
    *@return the open feedback data
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public abstract DDMS38OpenFeedback openFile(int openType, int bf, String access)
   throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
@@ -1994,7 +1994,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     String[] toReturn = new String[2]; //@B0A
 
     // If a special value was specified for library or member, set the actual name
-    // now.  Note that the AS400 returns the names blank padded to ten characters
+    // now.  Note that the server returns the names blank padded to ten characters
     // so we trim off any blanks.
     if (library_.charAt(0) == '*')
     {
@@ -2016,11 +2016,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *this method.
    *@param recordNumber The record number of the record at which to position the
    *cursor.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursor(int recordNumber)
   throws AS400Exception,
@@ -2067,11 +2067,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *<li>KEY_GE<br>
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursor(Object[] key, int searchType)
   throws AS400Exception,
@@ -2112,11 +2112,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *First record whose key is greater than or equal to <i>key</i>.
    *</ul>
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursor(byte[] key, int searchType, int numberOfKeyFields)
   throws AS400Exception,
@@ -2141,11 +2141,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorAfter(Object[] key)
   throws AS400Exception,
@@ -2175,11 +2175,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorAfter(byte[] key, int numberOfKeyFields)
   throws AS400Exception,
@@ -2202,10 +2202,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Positions the file cursor to after the last record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract void positionCursorAfterLast()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -2215,10 +2215,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Positions the file cursor to the specified position (first, last, next,
    *previous).
    *@param type the type of position operation
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record[] positionCursorAt(int type)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -2230,11 +2230,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *this method.
    *@param recordNumber The record number of the record before which to position
    *           the cursor.  The <i>recordNumber</i> must be greater than zero.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBefore(int recordNumber)
   throws AS400Exception,
@@ -2278,11 +2278,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *the elements that make up <i>key</i> must match the type and order of the
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBefore(Object[] key)
   throws AS400Exception,
@@ -2330,11 +2330,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBefore(byte[] key, int numberOfKeyFields)
   throws AS400Exception,
@@ -2375,10 +2375,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Positions the file cursor to before the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract void positionCursorBeforeFirst()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -2386,10 +2386,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Positions the cursor to the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void positionCursorToFirst()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2415,10 +2415,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Positions the cursor to the record at the specified file position.
    *@parm index the file position
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record positionCursorToIndex(int index)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -2428,10 +2428,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *specified key.
    *@param key the key
    *@param searchType the way to compare keys
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record positionCursorToKey(Object[] key,
                                              int searchType)
@@ -2445,10 +2445,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param key the byte array that contains the byte values of the key
    *@param searchType the way to compare keys
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record positionCursorToKey(byte[] key,
                                              int searchType, int numberOfKeyFields)
@@ -2458,10 +2458,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Positions the cursor to the last record in the file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void positionCursorToLast()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2485,10 +2485,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Positions the cursor to the next record in the file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void positionCursorToNext()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2523,10 +2523,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Positions the cursor to the previous record in the file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void positionCursorToPrevious()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2562,10 +2562,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    Reads the record at the current file position.
    @return the record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record read()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2591,10 +2591,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    Reads the record at the specified file position.
    @param recordNumber the file position
    @return the record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record read(int recordNumber) //@B0C -- this is overridden in the subclasses
   throws AS400Exception,
@@ -2644,10 +2644,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param key The values that make up the key with which to find the record.
    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@return The record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record read(Object[] key,
                               int searchType)
@@ -2661,10 +2661,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record read(byte[] key,
                               int searchType, int numberOfKeyFields)
@@ -2691,11 +2691,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param recordNumber record number of the record prior to the record to be read.
    *The <i>recordNumber</i> must be greater than zero.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readAfter(int recordNumber)
   throws AS400Exception,
@@ -2746,11 +2746,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readAfter(Object[] key)
   throws AS400Exception,
@@ -2777,11 +2777,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readAfter(byte[] key, int numberOfKeyFields)
   throws AS400Exception,
@@ -2802,10 +2802,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *Reads all the records in the file.
    *@param fileType The type of file.  Valid values are: key or seq
    *@return The records read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record[] readAll(String fileType, int bf) //@D0C
   throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
@@ -2816,11 +2816,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@param recordNumber The record number of the record after the record to be read.
    *The <i>recordNumber</i> must be greater than zero.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readBefore(int recordNumber)
   throws AS400Exception,
@@ -2871,11 +2871,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *key fields in the record format for this object.  Null values for key fields
    *are not supported.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readBefore(Object[] key)
   throws AS400Exception,
@@ -2902,11 +2902,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readBefore(byte[] key, int numberOfKeyFields)
   throws AS400Exception,
@@ -2926,10 +2926,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Reads the first record from the file.
    *@return the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record readFirst()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2956,10 +2956,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Reads the last record from the file.
    *@return the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record readLast()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2986,10 +2986,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Reads the next record from the file.
    *@return the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record readNext()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -3024,11 +3024,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *The file must be open when invoking this method.  The file must be
    *positioned on an active record when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readNextEqual()
   throws AS400Exception,
@@ -3085,11 +3085,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readNextEqual(Object[] key)
   throws AS400Exception,
@@ -3138,11 +3138,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readNextEqual(byte[] key, int numberOfKeyFields)
   throws AS400Exception,
@@ -3183,10 +3183,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   /**
    *Reads the previous record from the file.
    *@return the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record readPrevious()
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -3221,11 +3221,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * The file must be open when invoking this method.  The file must be
    *positioned on an active record when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readPreviousEqual()
   throws AS400Exception,
@@ -3282,11 +3282,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *not include the current record.  The <i>key</i> may be a partial key.
    *The file must be open when invoking this method.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readPreviousEqual(Object[] key)
   throws AS400Exception,
@@ -3335,11 +3335,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *are not supported.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readPreviousEqual(byte[] key, int numberOfKeyFields)
   throws AS400Exception,
@@ -3381,10 +3381,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    Reads the record at the current file position.
    *@param type type of read (first, last, next, previous)
    @return the record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record readRecord(int type)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -3395,10 +3395,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *records are retrieved depending on the direction specified.
    *@param direction (DDMRecordCache.FORWARD or DDMRecordCache.BACKWARD)
    *@return the records read
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract Record[] readRecords(int direction)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -3415,11 +3415,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *cache after the getm.
    *@param containsLastRecord Indicates if the last record will be contained in the
    *cache after the getm.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void refreshCache(Record[] records, int direction, boolean containsFirstRecord, boolean containsLastRecord)
   throws AS400Exception,
@@ -3532,17 +3532,17 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   /**
    *Refreshes the record cache for this file.  Invoking this method will cause the
-   *retrieval of records from the AS/400.  The cursor position is set to the
+   *retrieval of records from the server.  The cursor position is set to the
    *first record of the file.  This method only needs to
    *be invoked if a blocking factor greater than 1 is being used, and the user
    *wants to refresh the records in the cache.  The file must be open when invoking
    *this method.  No action is taken if records are not being cached (for example, the
    *blocking factor is set to one).
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void refreshRecordCache()
   throws AS400Exception,
@@ -3568,10 +3568,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *to be rolled back.  This means that any AS400File object for which a commit
    *lock level was specified and that was opened under this connection will have
    *outstanding transactions rolled back.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract void rollback()
   throws AS400Exception,  AS400SecurityException, InterruptedException,   IOException;
@@ -3608,10 +3608,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
    *method to obtain a default record whose fields can be set appropriately by
    *the Java program and then written to the file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public abstract void update(Record record)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
@@ -3626,11 +3626,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
   *method to obtain default records whose fields can be set appropriately
   *by the Java program and then written to the file.
-  *@exception AS400Exception If the AS/400 system returns an error message.
+  *@exception AS400Exception If the server returns an error message.
   *@exception AS400SecurityException If a security or authority error occurs.
   *@exception InterruptedException If this thread is interrupted.
   *@exception IOException If an error occurs while communicating with the
-  *AS/400.
+  *server.
   **/
   public abstract void write(Record[] records)
   throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ import java.math.BigDecimal; //@D0A 7/15/99
 
 class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C0C
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -71,15 +71,15 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
 
   /**
-   *Closes the file on the AS400.  All file locks held by this connection
+   *Closes the file on the server.  All file locks held by this connection
    *are released.  All
    *uncommitted transactions against the file are rolled back if commitment
    *control has been started.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
   **/
   public void close()
   throws AS400Exception,
@@ -112,15 +112,15 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Commits all transactions since the last commit boundary.  Invoking this
    *method will cause all transactions under commitment control for this
    *connection to be committed.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped
    *unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public void commit()
   throws AS400Exception,
@@ -128,7 +128,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   InterruptedException,
   IOException
   {
-    // Connect to the AS400.  Note: If we have already connected, that connection
+    // Connect to the server.  Note: If we have already connected, that connection
     // will be used.
     connect();
 
@@ -157,16 +157,16 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   }
 
   /**
-   *Connects to the AS400.  The name and system must have been
+   *Connects to the server.  The name and system must have been
    *set at this point via the constructor or the setters.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped
    *unexpectedly.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public void connect()
   throws AS400SecurityException, ConnectionDroppedException, IOException,
@@ -181,7 +181,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    *Creates the DDS source file to be used to create a physical file based on a user
    *supplied RecordFormat.<br>
-   *The name of the file and the AS400 system to which to connect must be set prior
+   *The name of the file and the server to which to connect must be set prior
    *to invoking this method.
    *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400File#setPath
@@ -208,13 +208,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *value is to be specified, null may be specified.
    *@param text The value to be specified for the record-level keyword TEXT.  If no
    *value is to be specified, null may be specified.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public synchronized void createDDSSourceFile(RecordFormat recordFormat,
                                                String altSeq,
@@ -227,7 +227,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     // Create the source physical file to hold the DDS source.  Note that we create the
-    // file in library QTEMP.  Each AS400 job has its own QTEMP library which is created
+    // file in library QTEMP.  Each server job has its own QTEMP library which is created
     // when the job starts and is deleted when the job ends.  Using QTEMP allows
     // the file to be created regardless of the user's authority and also eliminates
     // name collision problems when different jobs are creating files from a record
@@ -265,7 +265,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     else
     {
       // No messages.  This shouldn't happen.
-      throw new InternalErrorException("No AS/400 messages.",
+      throw new InternalErrorException("No messages from server.",
                                        InternalErrorException.UNKNOWN);
     }
 
@@ -481,11 +481,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
   /**
    *Deletes the record at the current cursor position.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void deleteCurrentRecord()
   throws AS400Exception,
@@ -506,13 +506,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
 
   /**
-   Executes a command on the AS/400.
+   Executes a command on the server.
    @param cmd the command
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public AS400Message[] execute(String cmd)
   throws AS400SecurityException, InterruptedException, IOException
@@ -542,11 +542,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *data stream specified.
    *@param replys The replys to be checked to determine the error.
    *@param index The index within replys at which to start.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void handleErrorReply(Vector replys, int index)
   throws AS400Exception,
@@ -570,8 +570,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           // error condition, we build a vector of AS400Message arrays and
           // throw an AS400Exception with all messages once we have finished
           // parsing the replies.  Note that the DDMAS400MessageReply class
-          // extracts all the AS400 messages contained in reply.data_.  I.e.
-          // a single reply may contain more than one AS400 message.
+          // extracts all the server messages contained in reply.data_.  I.e.
+          // a single reply may contain more than one message.
           DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_); //@C0C
           as400MsgList.addElement(msgReply.getAS400MessageList());
           break;
@@ -599,7 +599,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, codePoint);
       }
     }
-    // If we get to here, we should have a list of AS400 messages to throw
+    // If we get to here, we should have a list of messages to throw
     if (as400MsgList.size() > 0)
     {
       // We need to expand out the Vector of AS400Message[]'s to individual
@@ -632,13 +632,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Logs warning messages if tracing is on.  This method should be used to log
    *warning messages (trace.WARNING) when an operation is successful yet additional
    *AS400 messages are sent with the reply.
-   *@param v The vector of replies containing AS400 messages to log.
-   *@param index The index into <i>v</i> at which to stop pulling out AS400 messages.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@param v The vector of replies containing messages to log.
+   *@param index The index into <i>v</i> at which to stop pulling out messages.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public void logWarningMessages(Vector v, int index)
   throws AS400Exception,
@@ -704,13 +704,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param bf blocking factor
    *@param access The type of file access for which to open the file.
    *@return the open feedback data
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started..
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started..
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public DDMS38OpenFeedback openFile(int openType, int bf, String access)
   throws AS400Exception,
@@ -718,7 +718,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   InterruptedException,
   IOException
   {
-    // Ensure that we are connected to the AS/400.
+    // Ensure that we are connected to the server.
     connect();
 
     // Create the user file control block.
@@ -738,7 +738,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
         Trace.log(Trace.INFORMATION, "AS400FileImplRemote.openFile()\n" + openFeedback_.toString());
       }
       if (index != 0)
-      { // AS400 informational and/or diagnostic messages were issued.  Log them.
+      { // Informational and/or diagnostic messages were issued.  Log them.
         logWarningMessages(replys, index);
       }
     }
@@ -776,11 +776,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *<li>TYPE_GET_LAST
    *<li>TYPE_GET_PREV
    *<li>TYPE_GET_SAME
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record[] positionCursorAt(int type)
   throws AS400Exception,
@@ -822,11 +822,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
   /**
    *Positions the file cursor to after the last record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorAfterLast()
   throws AS400Exception,
@@ -914,11 +914,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
   /**
    *Positions the file cursor to before the first record.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void positionCursorBeforeFirst()
   throws AS400Exception,
@@ -1006,13 +1006,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
 
   /**
-   *Positions the file cursor to the specified record number in the file on the AS/400.
+   *Positions the file cursor to the specified record number in the file on the server.
    *@param recordNumber The record number to which to position the file cursor.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record positionCursorToIndex(int recordNumber)
   throws AS400Exception,
@@ -1069,11 +1069,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *type of read.
    *@param key The values that make up the key with which to find the record.
    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record positionCursorToKey(Object[] key, int type)
   throws AS400Exception,
@@ -1128,11 +1128,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param key The byte array that contains the byte values that make up the key with which to find the record.
    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record positionCursorToKey(byte[] key, int type, int numberOfKeyFields)
   throws AS400Exception,
@@ -1186,10 +1186,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param replys The reply datastream(s) containing the record(s) read.
    *@return The records read from the system.  Returns null if no records were
    *read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
 //  Record[] processReadReply(Vector replys)  // @A1D
   public Record[] processReadReply(Vector replys, boolean discardRecords)  // @A1A
@@ -1207,7 +1207,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // be an S38MSGRM indicating CPF5006 or CPF5001 will be returned.  If this is
     // the case, we return null instead of throwing an exception.
     // If an error occurs we may get an S38IOFB followed by S38MSGRM objects indicating
-    // the AS400 errors that occurred.  In that case we throw an exception via
+    // the server errors that occurred.  In that case we throw an exception via
     // handleErrorReply.  If we only get an S38IOFB back, we also throw an
     // exception as an error must have occurred.  This case should not happen.
     int codePoint = ((DDMDataStream)replys.elementAt(0)).getCodePoint();
@@ -1231,7 +1231,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           }
         }
         else
-        { // Some other error (other than an AS400 error) occurred
+        { // Some other error (other than an error) occurred
           handleErrorReply(replys, 1);
         }
       }
@@ -1336,10 +1336,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   /**
    Process replys.
    @param replys the replys from a request.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public AS400Message[] processReplys(Vector replys)
   throws AS400SecurityException, InterruptedException, IOException
@@ -1358,8 +1358,8 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           // error condition, we build a vector of AS400Message arrays and
           // throw an AS400Exception with all messages once we have finished
           // parsing the replies.  Note that the DDMAS400MessageReply class
-          // extracts all the AS400 messages contained in reply.data_.  I.e.
-          // a single reply may contain more than one AS400 message.
+          // extracts all the server messages contained in reply.data_.  I.e.
+          // a single reply may contain more than one message.
           DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
           as400MsgList.addElement(msgReply.getAS400MessageList());
           break;
@@ -1387,7 +1387,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
           throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, codePoint);
       }
     }
-    // If we get to here, we should have a list of AS400 messages to throw
+    // If we get to here, we should have a list of messages to throw
     if (as400MsgList.size() > 0)
     {
       // We need to expand out the Vector of AS400Message[]'s to individual
@@ -1422,11 +1422,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param recordNumber The record number of the record to be read.  The
    *<i>recordNumber</i> must be greater than zero.
    *@return The record read.  If the record is not found, null is returned.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record read(int recordNumber)
   throws AS400Exception,
@@ -1461,13 +1461,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *Reads all the records in the file. Helper function.
    *@param fileType The type of file.  Valid values are: key or seq
    *@return The records read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public Record[] readAll(String fileType, int bf) //@D0C
   throws AS400Exception,
@@ -1545,7 +1545,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
 //@B0D: start block
 /*
-    // Connect to the AS400.  Note: If we have already connected, that connection
+    // Connect to the server.  Note: If we have already connected, that connection
     // will be used.
     connect();
     // Send the request to read all records.  Because the reply object may contain many records
@@ -1660,11 +1660,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param key The values that make up the key with which to find the record.
    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@return The record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(Object[] key, int type)
   throws AS400Exception,
@@ -1708,11 +1708,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
    *@return The record read.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record read(byte[] key, int type, int numberOfKeyFields)
   throws AS400Exception,
@@ -1757,11 +1757,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *<li>TYPE_GET_LAST
    *<li>TYPE_GET_PREV
    *@return the record read
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Record readRecord(int type)
   throws AS400Exception,
@@ -1796,11 +1796,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *records are retrieved depending on the direction specified.
    *@param direction
    *@return the records read
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
    **/
   public Record[] readRecords(int direction)
   throws AS400Exception,
@@ -1826,17 +1826,17 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *to be rolled back.  This means that any AS400File object for which a commit
    *lock level was specified and that was opened under this connection will have
    *outstanding transactions rolled back.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception IOException If an error occurs while communicating with the server.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
   **/
   public void rollback() throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
-    // Connect to the AS400.  Note: If we have already connected, that connection
+    // Connect to the server.  Note: If we have already connected, that connection
     // will be used.
     connect();
 
@@ -1869,10 +1869,10 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *for chained replies exists.
    *@param req The request to be sent.
    *@param correlationId The correlation id for the request.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public Vector sendRequestAndReceiveReplies(DDMDataStream req, int correlationId)
   throws InterruptedException, IOException
@@ -1960,11 +1960,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 
   /**
    *Updates the record at the current cursor position.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void update(Record record)
   throws AS400Exception,
@@ -2041,13 +2041,13 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *information.  If msgID is not null, svrCode is not checked.
    *If msgId is null, svrCode is verified.
    @param reply The DDM reply data stream.
-   @param msgId The AS/400 message id that this reply should contain.
+   @param msgId The message id that this reply should contain.
    @param svrCode The severity code that this reply should contain.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public boolean verifyS38MSGRM(DDMReplyDataStream reply, String msgId, int svrCode)
   throws AS400Exception,
@@ -2087,11 +2087,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
    *method to obtain default records whose fields can be set appropriately by
    *the Java program and then written to the file.
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the AS/400.
+   *@exception IOException If an error occurs while communicating with the server.
   **/
   public void write(Record[] records)
   throws AS400Exception,

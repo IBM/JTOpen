@@ -366,10 +366,10 @@ public class AS400FileRecordDescription implements Serializable
     }
 
     /**
-     *Returns the AS400 system object for this object.
+     *Returns the system object for this object.
      *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400FileRecordDescription#setSystem
-     *@return The AS400 system for this object.  If the system has not been set,
+     *@return The system for this object.  If the system has not been set,
      *null is returned.
      **/
     public AS400 getSystem()

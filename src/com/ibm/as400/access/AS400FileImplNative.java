@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImplNative.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ import java.util.Vector; //@C1A
 //@C0C: We now extend AS400FileImplBase.
 class AS400FileImplNative extends AS400FileImplBase implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     // File handle.
     transient int handle_;
@@ -59,12 +59,12 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
     }
 
     /**
-     *Closes the file on the AS400.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *Closes the file on the server.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
-     *AS/400.
+     *server.
      **/
     public void close()
       throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
@@ -94,7 +94,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
     }
 
     /**
-     *Closes the file on the AS400.
+     *Closes the file on the server.
      *@param handle the file handle.
      *@return the message feedback data
      **/
@@ -108,13 +108,13 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *under this connection, for which a commit lock level was specified, will
      *have outstanding transactions committed.  If commitment control has not been
      *started for the connection, no action is taken.<br>
-     *The AS400 system to which to connect must be set prior to invoking this
+     *The server to which to connect must be set prior to invoking this
      *method.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
      *@exception IOException If an error occurs while communicating with the
-     *AS/400.
+     *server.
      **/
     public void commit()
       throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
@@ -145,7 +145,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *under this connection, for which a commit lock level was specified, will
      *have outstanding transactions committed.  If commitment control has not been
      *started for the connection, no action is taken.<br>
-     *The AS400 system to which to connect must be set prior to invoking this
+     *The server to which to connect must be set prior to invoking this
      *method.
      **/
     native void commitNtv()
@@ -156,7 +156,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
     /**
      *Creates the DDS source file to be used to create a physical file based on a user
      *supplied RecordFormat.<br>
-     *The name of the file and the AS400 system to which to connect must be set prior
+     *The name of the file and the server to which to connect must be set prior
      *to invoking this method.
      *@see AS400File#AS400File(com.ibm.as400.access.AS400, java.lang.String)
      *@see AS400File#setPath
@@ -183,13 +183,13 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *value is to be specified, null may be specified.
      *@param text The value to be specified for the record-level keyword TEXT.  If no
      *value is to be specified, null may be specified.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
-     *@exception ServerStartupException If the AS/400 server cannot be started.
-     *@exception UnknownHostException If the AS/400 system cannot be located.
+     *@exception IOException If an error occurs while communicating with the server.
+     *@exception ServerStartupException If the server cannot be started.
+     *@exception UnknownHostException If the server cannot be located.
      **/
     public synchronized void createDDSSourceFile(RecordFormat recordFormat,
                                                  String altSeq,
@@ -202,7 +202,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
       throws AS400Exception, AS400SecurityException, InterruptedException, IOException
     {
         // Create the source physical file to hold the DDS source.  Note that we create the
-        // file in library QTEMP.  Each AS400 job has its own QTEMP library which is created
+        // file in library QTEMP.  Each server job has its own QTEMP library which is created
         // when the job starts and is deleted when the job ends.  Using QTEMP allows
         // the file to be created regardless of the user's authority and also eliminates
         // name collision problems when different jobs are creating files from a record
@@ -240,7 +240,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
         else
         {
             // No messages.  This shouldn't happen.
-            throw new InternalErrorException("No AS/400 messages.",
+            throw new InternalErrorException("No messages from server.",
                                              InternalErrorException.UNKNOWN);
         }
 
@@ -447,10 +447,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
 
     /**
      *Deletes the record at the current cursor position.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public void deleteCurrentRecord()
       throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
@@ -480,21 +480,21 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *the cursor must be positioned on an active record.
      *@param handle the file handle
      *@return the message feedback data and the I/O feedback data
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     native void deleteCurrentRecordNtv(int handle, byte[] optl)
       throws NativeException;
 
     /**
-     *Executes a command on the AS/400.
+     *Executes a command on the server.
      *@param cmd the command
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public AS400Message[] execute(String cmd)
       throws AS400SecurityException, InterruptedException, IOException
@@ -526,7 +526,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
     }
 
     /**
-     *Executes a command on the AS/400.
+     *Executes a command on the server.
      *@param cmd the command
      *@return the message feedback data
      **/
@@ -649,13 +649,13 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *@param bf blocking factor
      *@param access The type of file access for which to open the file.
      *@return the open feedback data
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
-     *@exception ServerStartupException If the AS/400 server cannot be started..
-     *@exception UnknownHostException If the AS/400 system cannot be located.
+     *@exception IOException If an error occurs while communicating with the server.
+     *@exception ServerStartupException If the server cannot be started..
+     *@exception UnknownHostException If the server cannot be located.
      **/
     public DDMS38OpenFeedback openFile(int openType, int bf, String access)
       throws AS400Exception, AS400SecurityException, InterruptedException, IOException
@@ -914,10 +914,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
     }
     /**
      *Positions the file cursor to after the last record.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public void positionCursorAfterLast()
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -961,10 +961,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *Positions the file cursor to the specified position (first, last, next,
      *previous).
      *@param type the type of position operation
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record[] positionCursorAt(int type)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -1027,10 +1027,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
 
     /**
      *Positions the file cursor to before the first record.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public void positionCursorBeforeFirst()
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -1072,10 +1072,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
     /**
      *Positions the cursor to the record at the specified file position.
      *@parm index the file position
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record positionCursorToIndex(int index)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -1173,10 +1173,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *specified key.
      *@param key the key
      *@param searchType the way to compare keys
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record positionCursorToKey(Object[] keys,
                                       int searchType)
@@ -1211,7 +1211,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
         {
             try
             {
-                // Convert each key field to AS400 data writing it to keyAsBytes
+                // Convert each key field to server data writing it to keyAsBytes
                 description = recordFormat_.getKeyFieldDescription(i); //@C0C
 
                 // Check if field is a variable length field.  This means that the field
@@ -1382,10 +1382,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *specified key.
      *@param key the key
      *@param searchType the way to compare keys
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record positionCursorToKey(byte[] keys,
                                       int searchType, int numberOfKeyFields)
@@ -1510,10 +1510,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      Reads the record at the specified file position.
      @param index the file position
      @return the record read.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record read(int index)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -1614,10 +1614,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *@param key The values that make up the key with which to find the record.
      *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
      *@return The record read.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record read(Object[] key,
                        int searchType)
@@ -1652,7 +1652,7 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
         {
             try
             {
-                // Convert each key field to AS400 data writing it to keyAsBytes
+                // Convert each key field to server data writing it to keyAsBytes
                 description = recordFormat_.getKeyFieldDescription(i); //@C0C
 
                 // Check if field is a variable length field.  This means that the field
@@ -1823,10 +1823,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *@param key The values that make up the key with which to find the record.
      *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
      *@return The record read.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record read(byte[] key,
                        int searchType, int numberOfKeyFields)
@@ -1940,10 +1940,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *Reads all the records in the file.
      *@param fileType The type of file.  Valid values are: key or seq
      *@return The records read.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record[] readAll(String fileType, int bf) //@C1C
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -1999,10 +1999,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *Reads the record at the current file position.
      *@param type type of read (first, last, next, previous)
      *@return the record read.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record readRecord(int type)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2070,10 +2070,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *records are retrieved depending on the direction specified.
      *@param direction (DDMRecordCache.FORWARD or DDMRecordCache.BACKWARD)
      *@return the records read
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public Record[] readRecords(int direction)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2137,10 +2137,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *to be rolled back.  This means that any AS400File object for which a commit
      *lock level was specified and that was opened under this connection will have
      *outstanding transactions rolled back.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public void rollback()
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2187,10 +2187,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
 
     /**
      *Updates the record at the current cursor position.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public void update(Record record)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
@@ -2248,10 +2248,10 @@ class AS400FileImplNative extends AS400FileImplBase implements Serializable
      *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
      *method to obtain default records whose fields can be set appropriately by
      *the Java program and then written to the file.
-     *@exception AS400Exception If the AS/400 system returns an error message.
+     *@exception AS400Exception If the server returns an error message.
      *@exception AS400SecurityException If a security or authority error occurs.
      *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
+     *@exception IOException If an error occurs while communicating with the server.
      **/
     public void write(Record[] records)
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FTP.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@ import java.beans.*;
 
 
 /**
- * The AS400FTP class represents a client for the AS/400 FTP server.
- * It is written to take advantage of AS/400 server features.
+ * The AS400FTP class represents a client for the iSeries FTP server.
+ * It is written to take advantage of iSeries server features.
  * Use the parent class, FTP, if you need a generic
  * client.
  *
@@ -34,13 +34,13 @@ import java.beans.*;
  * the system name, userid, and password in both the FTP class and other
  * Toolbox classes.
  * <P>
- * One restriction when the client is an AS/400 --
+ * One restriction when the client is an iSeries --
  * the userid and password must be
  * set on the AS400 object in this environment.  That is, *CURRENT
- * will not work when connecting from one AS/400 to another AS/400.
+ * will not work when connecting from one iSeries to another iSeries.
  * <P><LI>
  * Automatically setting the current directory to the
- * root of the AS/400 when a connection is made. If the
+ * root directory on the server when a connection is made. If the
  * FTP class is used, the root may be QSYS.LIB when
  * a connection is made.  The integrated file system name
  * of objects in libraries must be used to access them.
@@ -49,13 +49,13 @@ import java.beans.*;
  * QSYSObjectPathName</A> documentation for more information.
  * <P><LI>
  * Handling extra work necessary to put a save file
- * to the AS/400.  If you use the FTP class, you have to
+ * to the server.  If you use the FTP class, you have to
  * do the extra steps.  The extra processing is done only
  * if the extension of the file is .savf and the file will be
- * put into an AS/400 library.
+ * put into a server library.
  * <P>
  * The extra processing includes internally using Toolbox CommandCall
- * to create the save file on the AS/400.  The default *Public authority
+ * to create the save file on the server.  The default *Public authority
  * is *EXCLUDE.  Use
  * the setSaveFilePublicAuthority() method to change the *Public
  * authority value specified on the create save file command.
@@ -67,7 +67,7 @@ import java.beans.*;
  * The forward slash is the separator character for paths sent
  * to the FTP server.
  * <P>
- * The following example puts a save file to the AS/400.
+ * The following example puts a save file to the server.
  * Note the application does not set data transfer type to
  * binary or use Toolbox CommandCall to create the save file.
  * Since the extension is .savf,
@@ -86,7 +86,7 @@ public class AS400FTP
              extends FTP
              implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -150,7 +150,7 @@ public class AS400FTP
 // -----------------------------------------------------------------------
    /**
     * Constructs an AS400FTP object.
-    *   @param system The AS/400 to which to connect.
+    *   @param system The server to which to connect.
    **/
 
     public AS400FTP(AS400 system)
@@ -524,9 +524,9 @@ public class AS400FTP
    /**
     * Returns the public authority of save files created by
     * this object.  If this object detects putting a save file
-    * to the library file system of the AS/400, it will first
+    * to the library file system of the server, it will first
     * create the save file by sending a CRTSAVF command to
-    * the AS/400.  The method lets you set the *PUBLIC authority
+    * the server.  The method lets you set the *PUBLIC authority
     * value on the CRTSAVF command.  The default is *EXCLUDE.
     *   @return The authority granted to *PUBLIC.
    **/
@@ -850,8 +850,8 @@ public class AS400FTP
                if (currentPath == null)
                   return;
 
-               // We received something from the AS/400.  On
-               // the AS/400, pwd() returns
+               // We received something from the server.  On
+               // the server, pwd() returns
                //   257  "/a/b/c" is current directory
                // so I need to pull the real directory out
                // of the message.  If the message does not
@@ -1054,9 +1054,9 @@ public class AS400FTP
    /**
     * Sets the public authority of save files created by
     * this object.  If this object detects putting a save file
-    * to the library file system of the AS/400, it will first
+    * to the library file system of the server, it will first
     * create the save file by sending a CRTSAVF command to
-    * the AS/400.  Through this method you can set the *PUBLIC
+    * the server.  Through this method you can set the *PUBLIC
     * authority used when sending the CRTSAVF command.  The
     * value is set only if the save file is created.  The public
     * authority of an existing save file is not changed.
