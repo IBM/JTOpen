@@ -603,7 +603,8 @@
       <fileset dir="${output}">
         <patternset refid="exclude.native.optimizations"/>
         <patternset>
-            <exclude name="com/ibm/as400/util/**"/>
+            <exclude name="com/ibm/as400/util/html/**"/>
+            <exclude name="com/ibm/as400/util/servlet/**"/>
         </patternset>
       </fileset>
       <fileset dir="${include}"
@@ -611,8 +612,8 @@
         <patternset refid="exclude.native.optimizations"/>
       </fileset>
       <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd"
-               excludes="com/ibm/as400/util/**"/>
+               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
+               excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
   </target>
@@ -622,7 +623,8 @@
       <fileset dir="${output-xerces-4.0}">
         <patternset refid="exclude.native.optimizations"/>
         <patternset>
-            <exclude name="com/ibm/as400/util/**"/>
+            <exclude name="com/ibm/as400/util/html/**"/>
+            <exclude name="com/ibm/as400/util/servlet/**"/>
         </patternset>
       </fileset>
       <fileset dir="${include}"
@@ -630,8 +632,8 @@
         <patternset refid="exclude.native.optimizations"/>
       </fileset>
       <fileset dir="${source}"
-               includes="**/*.gif,**/*.ser,**/*.dtd"
-               excludes="com/ibm/as400/util/**"/>
+               includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
+               excludes="com/ibm/as400/util/html/**,com/ibm/as400/util/servlet/**"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
   </target>
@@ -690,7 +692,8 @@
     <jar jarfile="${dist}/jt400Servlet.jar" manifest="${build}/build/jt400Servlet_manifest.txt">
       <fileset dir="${output}">
         <patternset>
-            <include name="com/ibm/as400/util/**"/>
+            <include name="com/ibm/as400/util/html/**"/>
+            <include name="com/ibm/as400/util/servlet/**"/>
             <include name="com/ibm/as400/access/ResourceBundleLoader.class"/>
             <include name="com/ibm/as400/access/ExtendedIllegalArgumentException.class"/>
             <include name="com/ibm/as400/access/ExtendedIllegalStateException.class"/>
@@ -700,7 +703,8 @@
       </fileset>
       <fileset dir="${source}">
         <patternset>
-          <include name="com/ibm/as400/util/**/**.gif"/>
+          <include name="com/ibm/as400/util/html/**.gif"/>
+          <include name="com/ibm/as400/util/servlet/**.gif"/>
         </patternset>
       </fileset>
       <fileset dir="${build}" includes="license.html"/>
