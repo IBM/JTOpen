@@ -223,7 +223,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     @param loader The ClassLoader that will be used when loading the DTD for PCML. This parameter can be null.
     @param xsdStream An input stream that contains XML schema definitions that extend XPCML
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml".  This parameter can be null.
-    @param isXPCML The type of data contained in docStream. Possible values are:
+    @param type The type of data contained in docStream. Possible values are:
     <UL>
     <LI>ProgramCallDocument.SERIALIZED - The docStream contains a serialized PCML or XPCML document.
     <LI>ProgramCallDocument.SOURCE_PCML - The docStream contains a PCML document.
