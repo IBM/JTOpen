@@ -204,7 +204,6 @@ class JDSQLStatement
         //@F6D     }
         //@F6D }
 
-
         //@F6A Start new code
         // Strip off comments.  Don't strip comment characters in literals.
         int length = sql.length ();
@@ -528,6 +527,7 @@ class JDSQLStatement
         while (tokenizer_.hasMoreTokens())
         {
             String token = tokenizer_.nextToken().toUpperCase();
+
             if (isInsert_ && token.equals(SELECT_))
             {
                 isSubSelect_ = true;
@@ -546,9 +546,55 @@ class JDSQLStatement
                 if (tokenizer_.hasMoreTokens())
                 {
                     token = tokenizer_.nextToken(); //@F3C
+                    
                     if (!token.startsWith(LPAREN_))
                     {
-                        selectTable_ = token;
+                       // The "@G6A" code is trying to fix our parsing of the 
+                       // table-name in statements like
+                       //      SELECT * FROM collection."table with space" WHERE ....
+                       // The tokenizer will break this up into tokens
+                       //      SELECT
+                       //      *
+                       //      FROM
+                       //      collection."table
+                       //      with
+                       //      space 
+                       // A customer reported a bug where we incorrectly re-formed
+                       // the table name when doing an update row.  The string we
+                       // ended up with was.
+                       //      UPDATE collection."table SET column = value WHERE CURRENT OF cursor
+                       // Note the fix is not to just slam tokens together, separating them by a space,
+                       // until we find a token that ends with a quote.  That won't fix the case
+                       // where mulitple spaces are between characters such as collection."a   b".
+                       // "a b" and "a    b" are different tables.  The fix is to go back to the
+                       // original SQL statement, find the beginning of the collection/table name,
+                       // then copy characters until finding the ending quote. 
+                       if (token.indexOf('\"') >= 0)                                              //@G6A
+                       {                                                                          //@G6A
+                            // find out if we already have the whole name by counting the quotes  //@G6A
+                            int cnt = 0;                                                          //@G6A
+                            int ind = -1;                                                         //@G6A
+                            while ((ind = token.indexOf('\"', ind+1)) >= 0) {                     //@G6A
+                                cnt++;                                                            //@G6A
+                            }                                                                     //@G6A
+                            // if there is an even number of quotes we already have an open       //@G6A
+                            // and close so there is no need to look for another close            //@G6A
+                            if (cnt % 2 == 0) {                                                   //@G6A
+                                selectTable_ = token;                                             //@G6A
+                            } else {                                                              //@G6A
+                                // grab the rest of the token to the closing quote                //@G6A
+                                String quotetok = "";                                             //@G6A
+                                if (tokenizer_.hasMoreTokens()) {                                 //@G6A
+                                    quotetok = tokenizer_.nextToken("\"") + "\"";                 //@G6A
+                                    // grab the quote token from the end                          //@G6A
+                                    tokenizer_.nextToken(" \t\n\r\f");                            //@G6A
+                                }                                                                 //@G6A
+                                selectTable_ = token + quotetok;                                  //@G6A
+                            }                                                                     //@G6A
+                       }                                                                          //@G6A
+                       else                                                                       //@G6A
+                           selectTable_ = token;                                                  //@G6M
+
                         if (tokenizer_.hasMoreTokens())
                         {
                             token = tokenizer_.nextToken().toUpperCase();
