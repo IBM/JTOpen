@@ -343,7 +343,7 @@ oldest to newest.
     ConvTable conv = ConvTable.getTable(ccsid, null);
 
     ProgramParameter[] parms2 = new ProgramParameter[7];
-    int len = 400*num;
+    int len = 400*number;
     parms2[0] = new ProgramParameter(len); // receiver variable
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);

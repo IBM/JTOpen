@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.util.*;
+
 /**
  * Helper class. Used to wrap the QueuedMessage[] with an Enumeration.
  * This class is used by MessageQueue and JobLog.
@@ -23,6 +25,7 @@ class QueuedMessageEnumeration implements Enumeration
 
   private QueuedMessage[] messageCache_;
   private MessageQueue mq_;
+  private JobLog jl_;
   private int counter_;
   private int numMessages_;
   private int listOffset_ = 0;
