@@ -236,7 +236,10 @@ exception is thrown.
 
 @param  data    The byte array to fill with data.  This method
                 will read as much data as possible to fill
-                the array.
+                the array. All data may not be available to
+                read from the stream at once, only when this
+                method returns -1 can you be sure all of the
+                data was read.
 @param  start   The start position in the array.
 @param  length  The maximum number of bytes to read.
 @return         The number of bytes of data read,
@@ -263,9 +266,29 @@ exception is thrown.
             throw new ExtendedIllegalArgumentException("length", 
                       ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);  // @A1A
 
+        // added this to prevent trying to read past the end of the stream
+
+        if (length == 0) {                                                              // @D0A
+            return 0;                                                                   // @D0A
+        }                                                                               // @D0A
+        try {                                                                           // @D0A
+            if (offset_ >= locator_.getLength()) {                                      // @D0A
+                closed_ = true;                                                         // @D0A
+                return -1;                                                              // @D0A
+            }                                                                           // @D0A
+        } catch (SQLException e) {                                                      // @D0A
+           if (JDTrace.isTraceOn ()) {                                                  // @D0A
+              JDTrace.logInformation(this, "Error in read");                            // @D0A
+              e.printStackTrace (DriverManager.getLogStream ());                        // @D0A
+              closed_ = true;                                                           // @D0A
+           }                                                                            // @D0A
+           throw new IOException (e.getMessage());                                      // @D0A
+        }                                                                               // @D0A
+
         // Retrieve the next bytes of data.
         try {
-            DBLobData lobData = locator_.retrieveData (offset_, length);        // @B1C
+            DBLobData lobData = locator_.retrieveData(offset_, length);                 // @D1A
+
             int lengthRead = lobData.getLength ();                              // @A1A @B1C
             if (lengthRead == 0) {                                              // @A1A
                 if (length == 0)                                                // @A1A
@@ -294,7 +317,8 @@ exception is thrown.
                 }
     
     
-                offset_ += actualLength;                                        // @A1A
+                //offset_ += actualLength;                                        // @A1A // @D1D
+                offset_ += lengthRead;                                            // @D1A
                 return actualLength;
             }                                                                   // @A1A
         }
