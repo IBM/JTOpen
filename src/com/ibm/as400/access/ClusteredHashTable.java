@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: ClusteredHashTable.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -19,8 +19,8 @@ import java.util.*;
 import java.beans.*;
 
 /**
-The ClusteredHashTable class provides access to an OS/400 highly available Clustered Hash Table.
-A Clustered Hash Table is represented as an OS/400 server job.
+The ClusteredHashTable class provides access to an i5/OS highly available Clustered Hash Table.
+A Clustered Hash Table is represented as an i5/OS server job.
 A Clustered Hash Table is a container for small to medium-sized non-persistent data that is
 replicated to the Clustered Hash Table domain. The Clustered Hash Table domain is comprised of
 nodes defined in a cluster. The Clustered Hash Table domain is defined using the STRCHTSVR CL command.
@@ -31,7 +31,7 @@ topic in the iSeries Information Center.
 <p>The purpose of this class is to provide interfaces to the Clustered Hash Table APIs.
 An instance of this class can be used to {@link #put put()} and {@link #get get()}
 keyed entries from the Clustered Hash Table. The entries stored in the Clustered Hash Table
-are replicated to cluster nodes defined in the Clustered Hash Table domain. 
+are replicated to cluster nodes defined in the Clustered Hash Table domain.
 
 <p>A connection to the Clustered Hash Table server is required to access the Clustered Hash Table.
 Call {@link #open open()} to obtain the connection. After the open() is complete, entries defined by the
@@ -62,7 +62,7 @@ public class MyFile extends Object<br>
 
             // CHTSVR01 is the server name<br>
 	    ClusteredHashTable cht = new ClusteredHashTable(the400,"CHTSVR01");<br><br>
-	    
+
 	    cht.open();  // make a connection<br><br>
 
 	    byte[] key = null;<br>
@@ -85,14 +85,14 @@ public class MyFile extends Object<br>
 }<br>
 }<p>
 
-Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2MO or later.<p>
+Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2M0 or later.<p>
 
 **/
 
 public class ClusteredHashTable
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   /**
      Constants
@@ -132,7 +132,7 @@ implements java.io.Serializable
 
   private String name_;
   private transient byte[] connectionHandle_;
-  private AS400 system_; 
+  private AS400 system_;
 
   private static final Object userSpaceLock_ = new Object();
 
@@ -148,7 +148,7 @@ implements java.io.Serializable
 
 
   /**
-   Constructs a ClusteredHashTable object that represents the OS/400 clustered hash table server.
+   Constructs a ClusteredHashTable object that represents the i5/OS clustered hash table server.
    @param system The system that contains the clustered hash table server.
    @param name The name of an clustered hash table server.
                This is a 10-byte string that identifies the Clustered Hash Table server to use.
@@ -211,7 +211,7 @@ implements java.io.Serializable
     @exception ErrorCompletingRequestException  If an error occurs before the request is completed.
     @exception IOException  If an error occurs while communicating with the server.
     @exception InterruptedException  If this thread is interrupted.
-    @exception ObjectDoesNotExistException  If the AS400 object does not exist.
+    @exception ObjectDoesNotExistException  If the object does not exist on the server.
   **/
   synchronized public void close() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
@@ -258,7 +258,7 @@ implements java.io.Serializable
         }
         else
         {
-          // Indicate success.	
+          // Indicate success.
           connectionHandle_ = null;
           connected_ = false;
         }
@@ -421,11 +421,11 @@ implements java.io.Serializable
     {
       try
       {
-        // Create the user space  
+        // Create the user space
         // initial name and path for the userspace
         // Construct the ServiceProgramCall object.
         ServiceProgramCall sPGMCall = new ServiceProgramCall(system_);
-	
+
         String jobNumber = sPGMCall.getServerJob().getNumber();
         String userSpacePath = "/QSYS.LIB/QUSRSYS.LIB/QCHT"+jobNumber+".USRSPC";
         UserSpace usrSpc = new UserSpace(system_, userSpacePath);
@@ -547,7 +547,7 @@ implements java.io.Serializable
 
   /**
     Generates a 16-byte universally unique key.
-    This key can be used to put() information in the Clustered Hash Table. 
+    This key can be used to put() information in the Clustered Hash Table.
     This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
@@ -614,7 +614,7 @@ implements java.io.Serializable
       }
       else
       {
-        // Indicate success.	
+        // Indicate success.
         generatedKey = parameterList[0].getOutputData();
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Successfully generated key:", generatedKey);
       }
@@ -723,7 +723,7 @@ implements java.io.Serializable
       }
       else
       {
-        // Indicate success.	
+        // Indicate success.
         temp = parameterList[0].getOutputData();
       }
       // gather and parse all the data from the returned api call
@@ -790,8 +790,8 @@ implements java.io.Serializable
 
 
   /**
-    Returns the AS400 system object for the clustered hash table.
-     @return The AS400 system object for the clustered hash table.
+    Returns the system object for the clustered hash table.
+     @return The system object for the clustered hash table.
   **/
   public AS400 getSystem()
   {
@@ -902,7 +902,7 @@ implements java.io.Serializable
       }
       else
       {
-        // Indicate success.	
+        // Indicate success.
         connectionHandle_ = parameterList[0].getOutputData();
         connected_ = true;
         if (Trace.isTraceOn()) Trace.log(Trace.INFORMATION, "Connection handle is:", connectionHandle_);
@@ -917,9 +917,9 @@ implements java.io.Serializable
   /**
      Put an entry in the clustered hash table identified by the connection handle. The storage for the entry is not persistent. Not persistent means the storage for the entry is only known to the clustered hash table server on the local node and only available until the clustered hash table server is ended.
 
-     <p>This request to store an entry is replicated to other nodes in the clustered hash table domain.  Control will not be returned until the entry is stored in the clustered hash table on all active nodes in the clustered hash table domain. 
+     <p>This request to store an entry is replicated to other nodes in the clustered hash table domain.  Control will not be returned until the entry is stored in the clustered hash table on all active nodes in the clustered hash table domain.
 
-     <p>There is no encrypting of the information that is replicated and stored in the clustered hash table. 
+     <p>There is no encrypting of the information that is replicated and stored in the clustered hash table.
 
      <p>When an entry is stored, a time to live value is specified. The entry can become expired, when the time to live value has expired. Expired entries will be removed when processing various functions.
 
@@ -930,7 +930,7 @@ implements java.io.Serializable
      <p>Duplicate keys are not supported. An entry associated with an existing key can be updated if the requesting user is the owner of the entry or is authorized to the entry.
 
     <p>This method implicitly opens the connection to the clustered hash table server.
-    
+
     @param entry This object describes the information to put in the clustered hash table.
     @exception AS400Exception If the system returns an error message.
   **/

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: Command.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -24,7 +24,7 @@ import javax.xml.parsers.*;
 import org.xml.sax.SAXException;
 
 /**
- * The Command class represents information about an OS/400 CL command (*CMD) object. 
+ * The Command class represents information about a CL command (*CMD) object on the server.
  * <P>
  * To actually execute a CL command, see the
  * {@link com.ibm.as400.access.CommandCall CommandCall} class.
@@ -35,13 +35,13 @@ import org.xml.sax.SAXException;
 **/
 public class Command implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-  /** 
-   * NOTE:   This class uses the QCDRCMDD and QCDRCMDI system APIs to retrieve information about an OS/400 CL command.
+  /**
+   * NOTE:   This class uses the QCDRCMDD and QCDRCMDI system APIs to retrieve information about a CL command.
    **/
 
-  static final long serialVersionUID = 6L;  
+  static final long serialVersionUID = 6L;
 
   /**
    * Constant indicating that the multithreaded job action used by
@@ -222,7 +222,7 @@ public class Command implements Serializable
   private boolean refreshedXML_ = false;
   private boolean refreshedXML2_ = false;
   private boolean refreshedHelpIDs_ = false;
-  private boolean refreshedHelpText_ = false;  
+  private boolean refreshedHelpText_ = false;
   private boolean refreshedParsedXML_ = false;
   private boolean loadedDescription_ = false;
 
@@ -278,7 +278,7 @@ public class Command implements Serializable
 
 
   /**
-   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  
+   *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.
    *  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this Command.  It can be removed with removePropertyChangeListener.
    *
    *  @param  listener  The PropertyChangeListener.
@@ -616,7 +616,7 @@ public class Command implements Serializable
   }
 
   /**
-   * Returns the fully qualified integrated file system path of the 
+   * Returns the fully qualified integrated file system path of the
    * source file member that contains the command definition statements
    * used to create this command.
    * @return The source file name, or null if the source file is not known.
@@ -633,7 +633,7 @@ public class Command implements Serializable
 
 
   /**
-   * Returns the AS400 object for this command.
+   * Returns the system object for this command.
    * @return The system, or null if the system is not set.
   **/
   public AS400 getSystem()
@@ -895,7 +895,7 @@ public class Command implements Serializable
       String helpResults = panelGroup.getHelpText(helpIDs);
 
       xmlHelpText_ = helpResults;
-      
+
       // Remove the product library from the library list if we added it.
       if (added)
       {
@@ -934,7 +934,7 @@ public class Command implements Serializable
 
     refreshedParsedXML_ = true;
   }
-    
+
 
   private synchronized void refreshHelpIDs() throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
@@ -948,7 +948,7 @@ public class Command implements Serializable
     factory.setNamespaceAware(false);
     SAXParser parser = factory.newSAXParser();
     parser.parse(new InputSource(new StringReader(xml)), handler);
-    
+
     // Add the product library to the library list
     // otherwise the API used by PanelGroup won't find the help text.
     // First, check to see if it's there.
@@ -1358,7 +1358,7 @@ public class Command implements Serializable
   }
 
 
-  // Worker method.  
+  // Worker method.
   private synchronized void refreshXML(boolean f) throws AS400Exception, AS400SecurityException,
   ErrorCompletingRequestException, IOException,
   InterruptedException, ObjectDoesNotExistException
@@ -1506,7 +1506,7 @@ public class Command implements Serializable
 
   /**
    * Returns a String representation of this Command.
-   * @return The string, which includes the fully integrated file system 
+   * @return The string, which includes the fully integrated file system
    * path name of this command.
   **/
   public String toString()

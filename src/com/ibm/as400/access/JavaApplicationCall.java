@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: JavaApplicationCall.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -80,7 +80,7 @@ import java.util.Vector;
  *
  *       try
  *       {
- *           // Construct an AS400 object.  The Java program is on this iSeries system.
+ *           // Construct an object to represent the server where the Java program is located.
  *           AS400 as400 = new AS400();
  *
  *           // Construct a JavaApplicationCall object.
@@ -137,7 +137,7 @@ import java.util.Vector;
 
 public class JavaApplicationCall implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -859,7 +859,7 @@ public class JavaApplicationCall implements Serializable
        @exception ErrorCompletingRequestException If an error occurs before the request is completed.
        @exception InterruptedException If this thread is interrupted.
       @exception IOException If an error occurs while communicating with the server.
-       @exception ServerStartupException If the OS/400 server cannot be started.
+       @exception ServerStartupException If the server cannot be started.
        @exception UnknownHostException If the server cannot be located.
 
     **/
@@ -925,12 +925,12 @@ public class JavaApplicationCall implements Serializable
         // 6.INTERPRET
         commandString += "INTERPRET(" + getInterpret() + ") ";
         // 7.PROP
- 
+
         String localAddress = null;                                         // @E1c
                                                                             // @E1a
         // Because of bugs in Java, cannot get the local                    // @E1a
         // address until a socket (not a server socket)                     // @E1a
-        // is connected.                                                    // @E1a                
+        // is connected.                                                    // @E1a
         try                                                                 // @E1a
         {                                                                   // @E1a
            Socket pmSocket = new Socket(getSystem().getSystemName(), 449);  // @E1a
@@ -939,11 +939,11 @@ public class JavaApplicationCall implements Serializable
         }                                                                   // @E1a
         catch (Exception e) { localAddress = null; }                        // @E1a
                                                                             // @E1a
-        // if new method didn't work, try the old technique.                // @E1a                                                    
+        // if new method didn't work, try the old technique.                // @E1a
         if (localAddress == null)                                           // @E1a
         {
            localAddress = "localhost";
-        
+
            try
            {
                localAddress = java.net.InetAddress.getLocalHost().getHostAddress();
@@ -1367,7 +1367,7 @@ public class JavaApplicationCall implements Serializable
     /**
        Sets the name that this job will run under.
        The maximum length allowed is 10 characters.
-      
+
        <p>The possible values are:
        <UL>
        <li>QJVACMDSRV - The default job name.
@@ -1378,7 +1378,7 @@ public class JavaApplicationCall implements Serializable
        </UL>
 
        @param jobname The value of the job name.
-       @since OS/400 V5R3M0
+       @since i5/OS V5R3M0
     **/
     public void setJobName(String jobname) // @F0A
     {

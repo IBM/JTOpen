@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: CommandList.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -20,14 +20,14 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
- *  The CommandList class represents a list of OS/400 CL command (*CMD) objects. This class allows the user to retrieve
+ *  The CommandList class represents a list of CL command (*CMD) objects on the server. This class allows the user to retrieve
  *  a list of {@link com.ibm.as400.access.Command Command} objects which can then be
- *  used to retrieve information about each individual OS/400 CL command in the list.
+ *  used to retrieve information about each individual CL command in the list.
  *
  *  <P>The following example demonstrates the use of CommandList:
  *  <br>
  *  <pre>
- *  
+ *
  *    AS400 system = new AS400("mySystem");
  *
  *    // Generate a list of commands that start with "CRT".
@@ -45,10 +45,10 @@ import java.io.Serializable;
  **/
 public class CommandList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
-    static final long serialVersionUID = 6L;  
+    static final long serialVersionUID = 6L;
 
     /**
      *  Constant used to retrieve all commands in a given library.
@@ -66,7 +66,7 @@ public class CommandList implements Serializable
     private static final ProgramParameter parm1_ = new ProgramParameter(new byte[] { (byte)0xD6, (byte)0xC2, (byte)0xD1, (byte)0xD3, (byte)0xF0, (byte)0xF2, (byte)0xF0, (byte)0xF0});
     // Parm3: "*CMD      "
     private static final ProgramParameter parm3_ = new ProgramParameter(new byte[] { (byte)0x5C, (byte)0xC3, (byte)0xD4, (byte)0xC4, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40});
-    // Error code.  
+    // Error code.
     private static final ProgramParameter parm4_ = new ProgramParameter(new byte[4]);
 
     // List of property change event bean listeners.
@@ -109,7 +109,7 @@ public class CommandList implements Serializable
 
 
     /**
-    *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.  
+    *  Adds a PropertyChangeListener.  The specified PropertyChangeListener's <b>propertyChange</b> method will be called each time the value of any bound property is changed.
     *  The PropertyChangeListener object is added to a list of PropertyChangeListeners managed by this CommandList.  It can be removed with removePropertyChangeListener.
     *
     *  @param  listener  The PropertyChangeListener.
