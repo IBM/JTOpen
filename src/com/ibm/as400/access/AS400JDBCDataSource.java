@@ -220,6 +220,21 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         setPassword(password);
     }
 
+    //@K1A
+    /**
+    * Constructs an AS400JDBCDataSource object with the specified AS400 object
+    * @param as400 The AS400 object
+    **/
+    public AS400JDBCDataSource(AS400 as400)
+    {
+        this();
+
+        as400_ = as400;
+        if( as400 instanceof SecureAS400 )
+            setSecure(true);
+
+    }
+
     //@B4A
     /**
     *  Constructs an AS400JDBCDataSource object with the specified signon information
@@ -1445,7 +1460,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
             throw new NullPointerException("listener");
         changes_.removePropertyChangeListener(listener);
 
-        as400_.addPropertyChangeListener(listener);
+        as400_.removePropertyChangeListener(listener);                 //@K1C  changed to removePropertyChangeListener instead of addPropertyChangeListener
     }
 
     /**
