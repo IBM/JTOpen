@@ -3377,17 +3377,21 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       // at in the cache.  Then we compare the record number.  This is in case
       // the file has duplicate keys.  If the record number does not match,
       // we do a readNext() and compare, etc.
+
+      //@G0: Always position by record number.
+      //     The code path for positioning by key was causing a performance hit
+      //     and seems to be superfluous.
       int recordNumber = (cache_.getCurrent() == null)? cache_.getNext().getRecordNumber() : cache_.getCurrent().getRecordNumber();
       if (Trace.isTraceOn())
       {
         Trace.log(Trace.INFORMATION, "AS400FileImplBase.refreshCache(): cursors not in synch.");
       }
-      if (!isKeyed_) //@B0C: Must be instance of SequentialFile
-      {
+      //@G0D if (!isKeyed_) //@B0C: Must be instance of SequentialFile
+      //@G0D {
         // Invalidate the cache in case an exception occurs
         cache_.setIsEmpty();
         positionCursor(recordNumber);
-      }
+      /*@G0D }
       else
       {
         Object[] key = (cache_.getCurrent() == null)? cache_.getNext().getKeyFields() : cache_.getCurrent().getKeyFields();
@@ -3425,6 +3429,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         }
         cacheRecords_ = true;
       }
+      */ //@G0D
 
       if (records == null)
       {
