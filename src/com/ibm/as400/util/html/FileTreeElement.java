@@ -137,8 +137,8 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
   private boolean populated_ = false;
   private String parameter_; //@CRS
 
-  private StringBuffer shareName_;             // @B1A
-  private StringBuffer sharePath_;             // @B1A
+  private String shareName_;             // @B1A @CRS
+  private String sharePath_;             // @B1A @CRS
 
 
   /**
@@ -239,9 +239,10 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
           Trace.log(Trace.INFORMATION, "FileTree share path:    " + sharePath_);            // @B1A
         }                                                                                     // @B1A
 
-        StringBuffer pathInfo = new StringBuffer(shareName_.toString());                      // @B1A
-
-        pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));            // @B1A
+        StringBuffer pathInfo = new StringBuffer(shareName_);                      // @B1A @CRS
+        String remainingPath = absPath.substring(sharePath_.length()); //@CRS
+        if (remainingPath.charAt(0) != '/') pathInfo.append('/'); //@CRS
+        pathInfo.append(remainingPath);            // @B1A @CRS
 
         if (parameter_ != null) //@CRS
         {
@@ -308,7 +309,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     if (shareName_ == null)
       return null;
     else
-      return shareName_.toString();                           // @B1A
+      return shareName_;                           // @B1A @CRS
   }
 
 
@@ -322,7 +323,7 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     if (sharePath_ == null)
       return null;
     else
-      return sharePath_.toString();                           // @B1A
+      return sharePath_;                           // @B1A @CRS
   }
 
 
@@ -440,8 +441,8 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
           // object for the list of directories with the share name.
           if (shareName_ != null)
             node = new FileTreeElement(files[i],                            // @B1C
-                                       shareName_.toString(),               // @B1C
-                                       sharePath_.toString(),
+                                       shareName_,               // @B1C @CRS
+                                       sharePath_, //@CRS
                                        parameter_);              // @B1C @CRS
           else
             node = new FileTreeElement(files[i], parameter_); //@CRS
@@ -463,9 +464,10 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
               if (Trace.isTraceOn())                                                                      // @B1A
                 Trace.log(Trace.INFORMATION, "FileTree absolute path: " + absPath);                     // @B1A
 
-              StringBuffer pathInfo = new StringBuffer(shareName_.toString());                            // @B1A
-
-              pathInfo.append(absPath.substring(sharePath_.length(), absPath.length()));                  // @B1A
+              StringBuffer pathInfo = new StringBuffer(shareName_);                            // @B1A @CRS
+              String remainingPath = absPath.substring(sharePath_.length()); //@CRS
+              if (remainingPath.charAt(0) != '/') pathInfo.append('/'); //@CRS
+              pathInfo.append(remainingPath);                  // @B1A @CRS
 
               if (parameter_ != null) //@CRS
               {
@@ -545,11 +547,11 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     if (shareName == null)                                                                                // @B1A
       throw new NullPointerException("shareName");                                                       // @B1A
                                                                                                          // @B1A
-    StringBuffer old = shareName_;                                                                        // @B1A
+    String old = shareName_;                                                                        // @B1A @CRS
                                                                                                           // @B1A
-    shareName_ = new StringBuffer(shareName);                                                             // @B1A
+    shareName_ = shareName;                                                             // @B1A @CRS
                                                                                                           // @B1A
-    if (changes_ != null) changes_.firePropertyChange("shareName", old==null ? null : old.toString(), shareName_.toString());   // @B1A @P2C
+    if (changes_ != null) changes_.firePropertyChange("shareName", old, shareName_);   // @B1A @P2C @CRS
   }
 
 
@@ -563,14 +565,14 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     if (sharePath == null)                                                                                // @B1A
       throw new NullPointerException("sharePath");                                                       // @B1A
                                                                                                          // @B1A
-    StringBuffer old = sharePath_;                                                                        // @B1A
+    String old = sharePath_;                                                                        // @B1A @CRS
                                                                                                           // @B1A
-    sharePath_ = new StringBuffer(sharePath);                                                             // @B1A
+    sharePath_ = sharePath;                                                             // @B1A @CRS
                                                                                                           // @B1A
-    if (Trace.isTraceOn())                                                                                // @B1A
-      Trace.log(Trace.INFORMATION, "FileTree sharePath: " + sharePath_);                                // @B1A
+//@CRS    if (Trace.isTraceOn())                                                                                // @B1A
+//@CRS      Trace.log(Trace.INFORMATION, "FileTree sharePath: " + sharePath_);                                // @B1A
                                                                                                         // @B1A
-    if (changes_ != null) changes_.firePropertyChange("sharePath", old==null ? null : old.toString(), sharePath_.toString());   // @B1A @P2C
+    if (changes_ != null) changes_.firePropertyChange("sharePath", old, sharePath_);   // @B1A @P2C @CRS
   }
 
 
