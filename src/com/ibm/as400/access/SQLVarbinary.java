@@ -121,7 +121,7 @@ implements SQLData
             try {                                                                   // @C1C
                 if (object instanceof Blob) {                                       // @C1C
                     Blob blob = (Blob) object;                                      // @C1C
-                    value = blob.getBytes (0, (int) blob.length ());                // @C1C
+                    value = blob.getBytes (1, (int) blob.length ());                // @C1C  @E2C Blobs are 1 based.
                 }                                                                   // @C1C
                 else if (object instanceof Clob) {                                  // @C1C
                     Clob clob = (Clob) object;                                      // @C1C

@@ -64,6 +64,7 @@ implements SQLLocator                                       // @B3C
         graphic_        = graphic;
         id_             = id;
         locator_        = new JDLobLocator (connection, id, maxLength);             // @B3C
+        locator_.setGraphic(graphic); // @E4A
         maxLength_      = maxLength;
         settings_       = settings;
         truncated_      = 0;
@@ -385,7 +386,8 @@ implements SQLLocator                                       // @B3C
 	    throws SQLException
 	{
        try {                                                                    // @B3A
-	        return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @B3C
+           //@E4D return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @B3C  
+           return new ConvTableReader (new AS400JDBCInputStream (locator_), converter_.getCcsid()); // @E4A
        }                                                                        // @B3A
        catch (UnsupportedEncodingException e) {                                 // @B3A
            JDError.throwSQLException (JDError.EXC_INTERNAL, e);                 // @B3A

@@ -105,6 +105,12 @@ Copyright.
     }
 
 
+    // @A3A 
+    // Adjust length for a DBClob (graphic).
+    void adjustForGraphic()     
+    {
+        actualLength_ = actualLength_ * 2;
+    }    
 
 }
 

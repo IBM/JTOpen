@@ -46,6 +46,8 @@ class JDLobLocator
     private int                     maxLength_;                         // @A1A
     private int                     columnIndex_;                       // @D1A
 
+    private boolean                 graphic_ = false;                   // @C4A
+    private boolean                 firstTime_ = true;                  // @C4a 2
 
 
 /**
@@ -88,11 +90,37 @@ Returns the locator handle.
             retrieveData(0,0);                              // @C1A
         return length_;                                     // @C1A
     }                                                       // @C1A
+                         
+    // @C4a new method.  Character based objects (Clobs, for example),
+    //      need to know how many characters are in the lob, not
+    //      how many bytes. Bytes = characters unless the lob
+    //      is a graphic clob. 
+    public long getLengthInCharacters()                     
+           throws SQLException                                  
+    {                                                      
+        if (length_ == -1)                                 
+            retrieveData(0,0);                             
+            
+        if (graphic_)                                  
+           return length_ / 2;
+        else
+           return length_;                                 
+    }                                                      
+
 
 
     
     public int getMaxLength ()                              // @A1A
     {                                                       // @A1A
+        if (graphic_)                           // @C4A
+        {                                       // @C4A
+            if (firstTime_)                     // @C4a 2
+            {                                   // @C4a 2
+               maxLength_ = maxLength_ * 2;     // @C4a 2
+               firstTime_ = false;              // @C4a 2
+            }                                   // @C4a 2
+        }                                       // @C4a 2
+    
         return maxLength_;                                  // @A1A
     }                                                       // @A1A
 
@@ -167,18 +195,32 @@ Retrieves part of the contents of the lob.
         // @C1D     return lobData;                                         // @A1A @B0C
         // @C1D }                                                           // @A1A
 
+        // The input parameter (length) is the number of bytes to read.  If
+        // the bloc is a graphic clob (DBClob), we must tell the server the
+        // number of characters to read beginning with a certain character, 
+        // not the number of bytes starting at a certain byte.  Graphic
+        // clobs guarentee two bytes per character so take the length and
+        // starting offset and divide them by 2.
+        int bytesToRead = length;                 // @C4a 2
+        int startingOffset = start;               // @C4a 2
+        if (graphic_)                             // @C4a 2
+        {                                         // @C4a 2
+           startingOffset = startingOffset / 2;   // @C4a 2
+           bytesToRead = bytesToRead / 2;         // @C4a 2
+        }   
+
         try {
     	  	DBSQLRequestDS request = new DBSQLRequestDS (
     		    DBSQLRequestDS.FUNCTIONID_RETRIEVE_LOB_DATA,
 	    	    id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
 	    	    + DBBaseRequestDS.ORS_BITMAP_RESULT_DATA, 0);
 	    	request.setLOBLocatorHandle (handle_);
-	    	request.setRequestedSize (length);
-	    	request.setStartOffset (start);
+	    	request.setRequestedSize (bytesToRead);                   // @C4c 2
+	    	request.setStartOffset (startingOffset);                  // @C4c 2
 	    	request.setCompressionIndicator (dataCompression_ ? 0xF1 : 0xF0);   // @B0C
             request.setReturnCurrentLengthIndicator(0xF1);                      // @C1A
-            request.setColumnIndex(columnIndex_);  //@D1A
-
+          request.setColumnIndex(columnIndex_);   //@C3A
+             
             if (JDTrace.isTraceOn ())
                 JDTrace.logInformation (connection_, "Retrieving lob data");
 
@@ -190,7 +232,28 @@ Retrieves part of the contents of the lob.
 	    	    JDError.throwSQLException (connection_, id_, errorClass, returnCode);
 
             length_ = reply.getCurrentLOBLength();                              // @C1A
-            return reply.getLOBData ();
+
+            //@C4D return reply.getLOBData ();
+            //@C4 Adjust lengths if necessary.  The server returns the number
+            //    of characters but these routine work in bytes.  If the
+            //    clob is a dbclob then there are two bytes per characters
+            //    so multiple the lengths.
+            if (graphic_)                           // @C4A
+               length_ = length_ * 2;               // @C4A
+               
+            DBLobData lobData = reply.getLOBData(); // @C4A
+
+            if (graphic_)                           // @C4A
+            {                                       // @C4A
+                lobData.adjustForGraphic();         // @C4A
+                if (firstTime_)                     // @C4a 2
+                {                                   // @C4a 2
+                   maxLength_ = maxLength_ * 2;     // @C4a 2
+                   firstTime_ = false;              // @C4a 2
+                }                                   // @C4a 2
+            }                                       // @C4a 2
+
+            return lobData;                         // @C4A
 	    }
         catch (DBDataStreamException e) {
     	  	JDError.throwSQLException (JDError.EXC_INTERNAL, e);
@@ -272,5 +335,14 @@ Writes part of the contents of the lob.
     }
 
 
+    void setGraphic(boolean graphic)  // @C4A
+    {
+        graphic_ = graphic;
+    }
+    
+    boolean isGraphic()  // @C4a
+    {
+        return graphic_;
+    }
 
 }

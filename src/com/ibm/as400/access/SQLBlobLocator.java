@@ -129,7 +129,7 @@ implements SQLLocator           // @A2C
                 if (object instanceof Blob) {                                       // @A1C
                     Blob blob = (Blob) object;                                      // @A1C
                     int length = (int) blob.length ();
-                    locator_.writeData (0, length, blob.getBytes (0, length));
+                    locator_.writeData (0, length, blob.getBytes (1, length));      // @C4C Blobs are 1 based.
                     set = true;                                                     // @A1A
                 }                                                                   // @A1C
             }                                                                       // @A1C

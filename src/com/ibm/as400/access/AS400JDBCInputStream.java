@@ -91,7 +91,7 @@ server, using the locator handle.
     }
 
 
-
+// @C4 method re-worked to return a value
 /**
 Returns the number of bytes that can be read without blocking.
 
@@ -102,7 +102,35 @@ Returns the number of bytes that can be read without blocking.
     public int available ()
         throws IOException
     {
-        return 0;
+        long returnValue = 0;
+
+        if (closed_)
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE);
+        
+        try
+        {
+           returnValue = locator_.getLength() - offset_;
+           
+           if (returnValue < 0)
+              returnValue = 0;
+        }
+        catch (SQLException e) 
+        { 
+           if (JDTrace.isTraceOn ()) 
+           {
+              JDTrace.logInformation(this, "Error in available");
+              e.printStackTrace (DriverManager.getLogStream ());         
+              closed_ = true;
+           }
+           throw new IOException (e.getMessage());  
+        }          
+                                
+        // Make sure we don't return a negative number when casting the long
+        // to an int.
+        if (returnValue > 0x7FFF)
+           returnValue = 0x7FFF;
+
+        return (int) returnValue;
     }
 
 
@@ -120,14 +148,6 @@ Closes the stream and releases any associated system resources.
 
 
 
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-    
 
 
 /**
@@ -167,28 +187,6 @@ is thrown.
     public int read ()
         throws IOException
     {
-        /* @E1D
-        // If the stream is closed.
-        if (closed_)
-            throw new IOException ();
-
-        // Retrieve the next byte of data.
-        try {
-            DBLobData data = locator_.retrieveData (offset_, 1);        // @B1C
-            offset_ += 1;
-            int length = data.getLength ();                             // @A1A
-            if (length == 0) {                                          // @A1A
-                closed_ = true;                                         // @A1A
-                return -1;                                              // @A1A
-            }
-            else                                                        // @A1A 
-                return data.getRawBytes ()[data.getOffset ()];        
-        }
-        catch (SQLException e) {
-            closed_ = true;
-            throw new IOException (e.getMessage());   // @A2C
-        }
-        */
 
         // @D1d old:
         // byte[] data = new byte[1];                                      // @E1A
@@ -250,13 +248,19 @@ exception is thrown.
     {
         // If the stream is closed.
         if (closed_)
-            throw new IOException ();
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE); // @C4a
 
         // Validate the arguments.                                                 @A1A
+        if (data == null)                    
+            throw new NullPointerException("data");
+
         if ((start < 0) || (start > data.length))                               // @A1A
-            throw new IndexOutOfBoundsException ("start");                      // @A1A
+            throw new ExtendedIllegalArgumentException("start", 
+                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);  // @A1A
+
         if ((length < 0) || (start + length > data.length))                     // @A1A
-            throw new IndexOutOfBoundsException ("length");                     // @A1A
+            throw new ExtendedIllegalArgumentException("length", 
+                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);  // @A1A
 
         // Retrieve the next bytes of data.
         try {
@@ -329,15 +333,40 @@ Skips over and discards data.
     {
         // If the stream is closed.
         if (closed_)
-            throw new IOException ();
+            throw new ExtendedIOException(ExtendedIOException.RESOURCE_NOT_AVAILABLE); // @C4c
         
         // Validate the arguments.                                                 @A1A
         if (length < 0)                                                         // @A1A
-            throw new IllegalArgumentException ("length");                      // @A1A
+            throw new ExtendedIllegalArgumentException("length", 
+                      ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);  // @A1A
 
-        // Skip.
-        offset_ += length;
-        return length;
+          // Skip.                        
+        try
+        {
+          long newOffset = length + offset_;
+          long len = locator_.getLength();
+         
+           if (newOffset > len)
+           {
+             length = len - offset_;
+             offset_ = (int) len;
+           }
+           else
+           {
+             offset_ = offset_ + (int) length;
+           }  
+           return length;         
+        }
+        catch (SQLException e) 
+        { 
+           if (JDTrace.isTraceOn ()) 
+           {
+              JDTrace.logInformation(this, "Error in skip");
+              e.printStackTrace (DriverManager.getLogStream ());         
+              closed_ = true;
+           }
+           throw new IOException (e.getMessage());  
+        } 
     }
 
 

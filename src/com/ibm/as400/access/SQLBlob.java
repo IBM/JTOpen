@@ -120,7 +120,7 @@ implements SQLData
             try {                                                                   // @A1C
                 if (object instanceof Blob) {                                       // @A1C
                     Blob blob = (Blob) object;                                      // @A1C
-                    value = blob.getBytes (0, (int) blob.length ());                // @A1C
+                    value = blob.getBytes (1, (int) blob.length ());                // @A1C  @C2C Blobs are 1 based.
                 }                                                                   // @A1C
             }                                                                       // @A1C
             catch (NoClassDefFoundError e) {                                        // @A1C

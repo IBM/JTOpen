@@ -200,7 +200,7 @@ extends ClientAccessDataStream
 
 	// Optional variables.   
     private int                     byteCount_              = -1;               // @E2A
-    private long                    currentLOBLength_       = -1;               // @E1A
+    private long                    currentLOBLength_       = -1;               // @E1A, see @E6 comment below
     private DBDataFormat            dataFormat_             = null;
     private String		            firstLevelMessageText_  = null;
     private DBLobData               lobData_                = null;             // @D2C
@@ -236,6 +236,7 @@ four bytes, and sixteen bytes per line.
 
 
 
+     // See @E6 comment below
 	public long getCurrentLOBLength()                               // @E1A
 	{                                                               // @E1A
 		return currentLOBLength_;                                   // @E1A
@@ -639,6 +640,13 @@ Parses the datastream.
                 }                                                                   // @C1A
 				break;
 
+            // @E6   Warning, currentLOBLength_ is wrong if the lob is a
+            //       graphic lob (DBClob)!  It is too hard to get that
+            //       information through the collective so this code
+            //       can do the right thing.  At the time of this @E6
+            //       change, the only code that uses this value is JDLobLocator,
+            //       and it fixes it up because it knows the field is a 
+            //       graphic field. 
             // Current LOB length.                                                  // @E1A
             case 0x3810:                                                            // @E1A
                 int sl = get16bit(offset + 6);                                      // @E1A

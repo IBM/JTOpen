@@ -85,7 +85,8 @@ Returns the entire clob as a character stream.
         throws SQLException
     {
         try {                                                                   // @A1A
-            return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @A1C
+            //@C2D return new InputStreamReader (new AS400JDBCInputStream (locator_), converter_.getEncoding ()); // @A1C
+            return new ConvTableReader (new AS400JDBCInputStream (locator_), converter_.getCcsid()); // @C2A
         }                                                                       // @A1A
         catch (UnsupportedEncodingException e) {                                // @A1A
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);                // @A1A
@@ -111,6 +112,16 @@ Returns part of the contents of the clob.
         throws SQLException
     {
         --start;                                                                // @B2A
+                            
+        // @C4 A graphic locator means two bytes per character.  Locator_.retrieveData
+        //     expects bytes, but this method has input parms (start/length) in 
+        //     characters.  Convert them to bytes so retrieveData works properly
+        if (locator_.isGraphic())      // @C4a 2
+        {                              // @C4a 2
+            start = start * 2;         // @C4a 2
+            length = length * 2;       // @C4a 2
+        }                              // @C4a 2
+        
         DBLobData data = locator_.retrieveData ((int) start, length);           // @B1C
         String substring = converter_.byteArrayToString (data.getRawBytes (),
                                                          data.getOffset (),
@@ -141,7 +152,7 @@ Returns the length of the clob.
         // @C1D // and memory intensive.                                       @A1A
 
         // @C1D return locator_.getMaxLength ();                            // @A1A
-        return locator_.getLength();                                        // @C1A
+        return locator_.getLengthInCharacters();                            // @C1A @C4c 2
     }
 
 
