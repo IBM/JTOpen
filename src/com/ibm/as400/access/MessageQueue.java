@@ -248,8 +248,7 @@ need replies.
     public MessageQueue()
     {
     path_ = CURRENT;
-        initializeTransient();
-    }
+  }
 
 
 /**
@@ -263,8 +262,7 @@ need replies.
     if (system == null) throw new NullPointerException("system");
     system_ = system;
     path_ = CURRENT;
-        initializeTransient();
-    }
+  }
 
 
 /**
@@ -284,8 +282,7 @@ need replies.
       QSYSObjectPathName name = new QSYSObjectPathName(path, "MSGQ"); // Validate.
     }
     path_ = path;
-        initializeTransient();
-    }
+  }
 
 
 /**
@@ -723,16 +720,6 @@ need replies.
 
 
 /**
-   * Initializes the transient data.
-**/
-    private void initializeTransient()
-    {
-        propertyChangeSupport_      = new PropertyChangeSupport(this);
-        vetoableChangeSupport_      = new VetoableChangeSupport(this);
-    }
-
-
-/**
    * Loads the list of messages on the system. This method informs the
    * system to build a list of messages given the previously added
    * attributes to select, retrieve, and sort. This method blocks until the system returns
@@ -867,8 +854,7 @@ need replies.
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
   {
         in.defaultReadObject();
-        initializeTransient ();
-    }
+  }
 
 
 /**
