@@ -733,36 +733,53 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }
 
     //Check to see if a connection list exists for this system/userId combination
-    ConnectionList connections; //@B1C = (ConnectionList)as400ConnectionPool_.get(key);
+    //@CRSConnectionList connections; //@B1C = (ConnectionList)as400ConnectionPool_.get(key);
 
-    synchronized (as400ConnectionPool_) //@B1M
+    //@CRS - Let's do a double-check here for performance, per JTOpen bug #3727.
+    ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
+
+    if (connections == null)
     {
-      connections = (ConnectionList)as400ConnectionPool_.get(key);  //@B1C
-
-      if (connections == null)
+      synchronized (as400ConnectionPool_) //@B1M
       {
-        // no connection list exists, start a new list
-        if (log_ != null)
-          log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_CONNLIST"), new String[] {systemName, userID} ));
-        connections = new ConnectionList(systemName, userID, properties_);
-        // log_ can be null, meaning events should not be logged
-        connections.setLog(log_);
+        connections = (ConnectionList)as400ConnectionPool_.get(key);  //@B1C
 
-        // create a new connection
-        //@B1D PoolItem sys = connections.createNewConnection(service, connect, secure, poolListeners_); 
+        if (connections == null) //@CRS - Double-check idiom.
+        {
+          // no connection list exists, start a new list
+          if (log_ != null)
+          {
+            log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_CONNLIST"), new String[] {systemName, userID} ));
+          }
+          connections = new ConnectionList(systemName, userID, properties_);
+          // log_ can be null, meaning events should not be logged
+          connections.setLog(log_);
 
-        as400ConnectionPool_.put(key, connections);
+          // create a new connection
+          //@B1D PoolItem sys = connections.createNewConnection(service, connect, secure, poolListeners_); 
 
-        //@B1D return sys.getAS400Object(); 
-      }
+          as400ConnectionPool_.put(key, connections);
 
-      //Get a connection from the list
-      if (connect)
-        return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
-      else
-        return connections.getConnection(secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+          //@B1D return sys.getAS400Object(); 
+        }
+      }// end synchronized block
+    }
 
-    }// end synchronized block 
+
+    //@CRS - Moved the block below out of the synch block above per JTOpen bug #3727...
+    // We don't want to hold the lock on the entire pool if we are trying to get a connection
+    // for a system that is down or non-existent. ConnectionList.getConnection() is synchronized
+    // inside itself, anyway.
+
+    //Get a connection from the list
+    if (connect)
+    {
+      return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+    }
+    else
+    {
+      return connections.getConnection(secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+    }
 
   }
 
