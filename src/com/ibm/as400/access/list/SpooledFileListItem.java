@@ -141,7 +141,7 @@ public class SpooledFileListItem
    * but the print complete status has not been sent back.
    * @see #getStatus
   **/
-  public static final String STATUS_PRINTING = "*PRINTING";
+  public static final String STATUS_PRINTING = "*PRINTER";
 
   /**
    * Constant indicating the spooled file is no longer in the system. A spooled file

@@ -1109,7 +1109,7 @@ public class SpooledFileOpenList extends OpenList
    * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_MESSAGE_WAIT SpooledFileListItem.STATUS_MESSAGE_WAIT} - "*MESSAGE"
    * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_OPEN SpooledFileListItem.STATUS_OPEN} - "*OPEN"
    * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_PENDING SpooledFileListItem.STATUS_PENDING} - "*PENDING"
-   * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_PRINTING SpooledFileListItem.STATUS_PRINTING} - "*PRINTING"
+   * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_PRINTING SpooledFileListItem.STATUS_PRINTING} - "*PRINTER"
    * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_READY SpooledFileListItem.STATUS_READY} - "*READY"
    * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_SAVED SpooledFileListItem.STATUS_SAVED} - "*SAVED"
    * <LI>{@link com.ibm.as400.access.list.SpooledFileListItem#STATUS_WRITING SpooledFileListItem.STATUS_WRITING} - "*WRITING"
