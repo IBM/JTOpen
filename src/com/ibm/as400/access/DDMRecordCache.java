@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMRecordCache.java
 //                                                                             
@@ -246,7 +246,7 @@ class DDMRecordCache
    *@return the index of the record in the cache or -1 if the record does not exist
    *in the cache.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   int findRecord(Object[] key, boolean searchForward)
     throws UnsupportedEncodingException
@@ -283,15 +283,6 @@ class DDMRecordCache
 
     // No record found matching key
     return -1;
-  }
-
-  /**
-   *Returns the copyright for the class.
-   *@return the copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**
@@ -390,7 +381,7 @@ class DDMRecordCache
    *@return the next record in the cache that matches the specified key,
    *or null if cache is empty or if the record is not found.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   Record getNextEqualRecord(Object[] key)
     throws UnsupportedEncodingException
@@ -417,7 +408,7 @@ class DDMRecordCache
    *@return the previous record in the cache that matches the specified key,
    *or null if cache is empty or if the record is not found.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   Record getPreviousEqualRecord(Object[] key)
     throws UnsupportedEncodingException
@@ -577,7 +568,7 @@ class DDMRecordCache
    *@param key the key of the record to position to.
    *@return true if the record was found and positioned to; false otherwise.
    *@exception UnsupportedEncodingException If an error occurs when converting
-   *the AS400 data to a Java Object.
+   *the server data to a Java Object.
   **/
   boolean setPosition(Object[] key)
     throws UnsupportedEncodingException

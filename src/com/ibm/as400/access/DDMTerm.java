@@ -137,9 +137,4 @@ class DDMTerm
   static final int USRID      = 0x11A0; // Userid for connecting
   static final int VALNSPRM   = 0x1252; // Parameter value not supported
 
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 }

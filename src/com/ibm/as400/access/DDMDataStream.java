@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMDataStream.java
 //                                                                             
@@ -24,11 +24,6 @@ import java.util.Hashtable;
 class DDMDataStream extends DataStream
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-    private static String getCopyright()
-    {
-	return Copyright.copyright;
-    }
 
     ////////////////////////////////////////////////////////////////////////////
     // DDM header length is 6 bytes:
@@ -82,7 +77,7 @@ class DDMDataStream extends DataStream
     // Constructs a model of this data stream object.  Read from the InputStream to obtain the data stream data for the model.
     // @param  is  InputStream from which to read to obtain the data stream contents.
     // @param  dataStreams  Hashtable containing DDMDataStream objects from which to obtain a model of this object.
-    // @param  system  AS400 object from which to get the CCSID for conversion.
+    // @param  system  The system from which to get the CCSID for conversion.
     // @return  DDMDataStream object
     // @exception  IOException  We are unable to read from the input stream for some reason.
     static DDMDataStream construct(InputStream is, Hashtable dataStreams, AS400ImplRemote system) throws IOException

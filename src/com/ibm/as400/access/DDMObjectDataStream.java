@@ -61,16 +61,6 @@ class DDMObjectDataStream extends DDMDataStream
     setType(3);
   }
 
-
-  /**
-   *Returns the copyright for the class.
-   *@return the copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
   /**
    *Returns a new instance of a DDMObjectDataStream.
    *used by the DDMDataStream.construct() method.

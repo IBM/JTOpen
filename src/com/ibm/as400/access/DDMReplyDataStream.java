@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMReplyDataStream.java
 //                                                                             
@@ -40,15 +40,6 @@ class DDMReplyDataStream extends DDMDataStream
   DDMReplyDataStream(byte[] data)
   {
     super(data);
-  }
-
-  /**
-   *Returns the copyright for the class.
-   *@return the copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMAS400MessageReply.java
 //                                                                             
@@ -20,7 +20,7 @@ import java.util.Vector;
 
 /**
  *Represents the S38MSGRM DDM data stream.  This reply stream is returned
- *when an error has occurred for which there is an AS400 error message(s).
+ *when an error has occurred for which there is an i5/OS error message(s).
  *Format:
  *  Bytes      Description
  * ----------  -------------------------------------------------------
@@ -51,7 +51,7 @@ class DDMAS400MessageReply extends DDMReplyDataStream
 
   /**
    *Constructs an S38MSGRM reply message data stream.
-   *@param system AS400 object representing the system we are connected to.
+   *@param system  The system we are connected to.
    *Used to determine CCSID/encoding for conversions.
    *@param data the S38MSGRM data
   **/
@@ -90,16 +90,7 @@ class DDMAS400MessageReply extends DDMReplyDataStream
   }
 
   /**
-   *Returns the copyright for the class.
-   *@return the copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-  /**
-   *Extracts the AS400 messages from the data supplied on the constructor
+   *Extracts the AS400Messages from the data supplied on the constructor
    *for this object.
   **/
   void parseMessageInfo()
@@ -108,11 +99,11 @@ class DDMAS400MessageReply extends DDMReplyDataStream
     int length;
     int codePoint;
     while(offset < data_.length)
-    { // Go through the data extracting AS400 messages
+    { // Go through the data extracting AS400Messages
       codePoint = get16bit(offset);
       length = get16bit(offset - 2);
       if (codePoint == DDMTerm.S38MSGRM)
-      { // This is an AS400 message; extract it.
+      { // This is an AS400Message; extract it.
         AS400Message msg = getMessage(offset + 2, length - 4);
         messages_.addElement(msg);
       }
@@ -121,10 +112,10 @@ class DDMAS400MessageReply extends DDMReplyDataStream
   }
 
   /**
-   *Extracts the message details for a single AS400 message.
+   *Extracts the message details for a single AS400Message.
    *@param offset the offset in data_ at which to start extracting.
-   *@param len the length of the data for this AS400 message.
-   *@return the AS400 message that the data represents.
+   *@param len the length of the data for this AS400Message.
+   *@return the AS400Message that the data represents.
   **/
   AS400Message getMessage(int offset, int len)
   {
@@ -157,14 +148,14 @@ class DDMAS400MessageReply extends DDMReplyDataStream
       case DDMTerm.SRVDGN:   // Server diagnostics
         offset += length;    // We don't want any of these
         break;
-      default:               // Done with this particular AS400 message
+      default:               // Done with this particular AS400Message
         done = true;
         break;
       }
     }
-    // Create an AS400Message object to add to our list of AS400 messages in this reply
+    // Create an AS400Message object to add to our list of AS400Messages in this reply
     // msgId_ and msgText_ may be null if no information was supplied by the
-    // AS400 for these items (yes it does happen, see AS400File.close())
+    // server for these items (yes it does happen, see AS400File.close())
     AS400Message msg = new AS400Message(msgId_, msgText_);
     if (svrCode_ != -1)
     {

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMS38IOFB.java
 //                                                                             
@@ -48,15 +48,6 @@ class DDMS38IOFB
     // Both data and offset are expected to be valid and will not be checked here.
     data_ = data;
     offset_ = offset;
-  }
-
-  /**
-   *Returns the copyright for the class.
-   *@return the copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

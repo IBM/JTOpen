@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMS38OpenFeedback.java
 //                                                                             
@@ -70,7 +70,7 @@ class DDMS38OpenFeedback
 
   /**
    *Construct a DDMS38OpenFeedback object from the specified data.
-   *@param system the AS400 object from which to get the CCSID for converions.
+   *@param system the system from which to get the CCSID for converions.
    *@param data the data from which to obtain the open feedback information.
   **/
   DDMS38OpenFeedback(AS400ImplRemote system, byte[] data) //@B5C
@@ -83,7 +83,7 @@ class DDMS38OpenFeedback
 
   /**
    *Construct a DDMS38OpenFeedback object from the specified data.
-   *@param system the AS400 object from which to get the CCSID for converions.
+   *@param system the system from which to get the CCSID for converions.
    *@param data the data from which to obtain the open feedback information.
   **/
   DDMS38OpenFeedback(AS400ImplRemote system, byte[] data, int offset) //@B5C

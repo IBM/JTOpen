@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMRequestDataStream.java
 //                                                                             
@@ -327,7 +327,7 @@ class DDMRequestDataStream extends DDMDataStream
    *@param file file name.
    *@param member member name.
    *@param wait number of seconds to wait for locks.
-   *@param system the AS400 object from which to get the CCSID for conversions
+   *@param system the system from which to get the CCSID for conversions
    *@return DDMRequestDataStream for locking a file.
    *S38ALCOB request:
    * Term = S38ALCOB
@@ -436,7 +436,7 @@ class DDMRequestDataStream extends DDMDataStream
   /**
    *Returns the submit command data stream request.
    *@param command the command to submit.
-   *@param system the AS400 object from which to get the CCSID for conversions.
+   *@param system the system from which to get the CCSID for conversions.
    *@return DDMRequestDataStream for submitting a command.
    *Submit remote command request:
    * Term = S38CMD
@@ -510,7 +510,7 @@ class DDMRequestDataStream extends DDMDataStream
    *@param library library name.
    *@param file file name.
    *@param member member name.
-   *@param system the AS400 object from which to get the CCSID for conversions.
+   *@param system the system from which to get the CCSID for conversions.
    *@return DDMRequestDataStream for releasing explicit locks on a file.
    *S38DLCOB:
    * Term = S38DLCOB
@@ -694,7 +694,7 @@ class DDMRequestDataStream extends DDMDataStream
    *@param share share option
    *@param data data option
    *@param rrn relative record number
-   *@param system the AS400 object from which to get the CCSID for conversions.
+   *@param system the system from which to get the CCSID for conversions.
    *@return DDMRequestDataStream for retrieving a record.
    * Term = S38GETD
    * Parms = DCLNAM => byte[8] containing declared name (alias)
@@ -798,7 +798,7 @@ class DDMRequestDataStream extends DDMDataStream
    *@param share share option
    *@param data data option
    *@param keyFields the fields of the key
-   *@param system the AS400 object from which to get the CCSID for conversions.
+   *@param system the system from which to get the CCSID for conversions.
    *@return DDMRequestDataStream for retrieving a record.
    * Term = S38GETK
    * Parms = DCLNAM => byte[8] containing declared name (alias)
@@ -872,7 +872,7 @@ class DDMRequestDataStream extends DDMDataStream
     {
       try
       {
-        // Convert each key field to AS400 data writing it to keyAsBytes
+        // Convert each key field to server data writing it to keyAsBytes
         description = recordFormat.getKeyFieldDescription(i);
         
         // Check if field is a variable length field.  This means that the field
@@ -995,7 +995,7 @@ class DDMRequestDataStream extends DDMDataStream
             // characters in the datastream, but nevertheless, they need to be there in
             // order for subsequent key fields in the datastream to work.
             text.setConverter(conv); // Set the converter into the AS400Text object (side effect of proxification)
-            fieldAsBytes = text.toBytes(toWrite); // Convert the Java String to AS/400 EBCDIC bytes using AS400Text, which will blank pad to the length of the field for us.
+            fieldAsBytes = text.toBytes(toWrite); // Convert the Java String to i5/OS EBCDIC bytes using AS400Text, which will blank pad to the length of the field for us.
 
             if (varLength) // If we are variable length, need to write the 2-byte length header
             {
@@ -1101,7 +1101,7 @@ class DDMRequestDataStream extends DDMDataStream
    *@param share share option
    *@param data data option
    *@param keyFields the byte array that contains the byte values of fields of the key
-   *@param system the AS400 object from which to get the CCSID for conversions.
+   *@param system the system from which to get the CCSID for conversions.
    *@param numberOfKeyFields The number of key fields contained in the byte array <i>keyFields</i>.
    *@return DDMRequestDataStream for retrieving a record.
    * Term = S38GETK
@@ -1382,7 +1382,7 @@ class DDMRequestDataStream extends DDMDataStream
    *@param share share option
    *@param data data option
    *@param rrn relative record number
-   *@param system the AS400 object from which to get the CCSID for conversions.
+   *@param system the system from which to get the CCSID for conversions.
    *@return DDMRequestDataStream for putting a record by record number.
    * Term = SXXPUTDR
    * Parms = DCLNAM => byte[8] containing declared name (alias)
