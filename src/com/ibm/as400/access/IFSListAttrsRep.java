@@ -56,8 +56,6 @@ class IFSListAttrsRep extends IFSDataStream
   private static final int CHECKOUT_CCSID_OFFSET = 75;
   private static final int RESTART_ID_OFFSET = 77;
   // Note: Offets of fields beyond this point depend on the server datastream level (DSL).
-  private static final int OPTIONAL_SECTION_OFFSET_OLD = 81; // if DSL < 8
-  private static final int OPTIONAL_SECTION_OFFSET     = 113; // if DSL >= 8
   private static final int LARGE_FILE_SIZE_OFFSET = 81;      // if DSL >= 8
   private static final int SYMBOLIC_LINK_OFFSET = 91;        // if DSL >= 8
 
@@ -112,25 +110,6 @@ Get the date/time that the file was last accessed.
   {
     return getDate(ACCESS_DATE_OFFSET);
   }
-
-/**
-Get the code page value for the IFS file on the AS/400.
-@return the code page value for the IFS file on the AS/400
-**/
-/* @B6d
-  private int getCodePage()
-  {
-    int codePageOffset;
-    int 
-    if (fd_.serverDatastreamLevel_ == 0xf4f4)          //@A2a @B6c
-      codePageOffset = CODE_PAGE_OFFSET_INTO_OA2a;     //@A2a
-    else
-      codePageOffset = CODE_PAGE_OFFSET_INTO_OA2;
-
-    return get16bit(HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET) +
-                    LLCP_LENGTH + codePageOffset);
-  }
-*/
 
 /**
 Get the CCSID value for the IFS file on the AS/400.
@@ -210,53 +189,51 @@ Returns null if the reply contains no extended attribute.
 **/
   byte[] getExtendedAttributeValue(int datastreamLevel)
   {
-    // Determine length and starting offset of the EA.
+    // The offset to the start of the "optional/variable section" depends on the datastream level.
 
-    // The field preceding the "Extended Attributes" field
-    // is the "File Name" field.
-    int file_name_LL_offset;
-    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
-      file_name_LL_offset = OPTIONAL_SECTION_OFFSET_OLD; }
-    else {
-      file_name_LL_offset = OPTIONAL_SECTION_OFFSET; }
-    int fileNameFieldLength = get32bit(file_name_LL_offset);
+    int optionalSectionOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
 
-    // Verify that we got at least one EA back.  A "full EA" is at least 20 bytes long.
-    int eaOffset = file_name_LL_offset + fileNameFieldLength;
-    byte[] eaVal = null;
-    if (eaOffset+20 > data_.length)
+    // Step through the optional fields, looking for the "EA list" field (code point 0x0009).
+
+    int curLL_offset = optionalSectionOffset;
+    int curLL = get32bit(curLL_offset);
+    int curCP = get16bit(curLL_offset+4);
+    int eaOffset;  // offset to start of Extended Attr list
+    while (curCP != 0x0009 && (curLL_offset+curLL+6 <= data_.length))
     {
-      if (DEBUG) System.out.println("DEBUG eaOffset+20 > data_.length: " + (eaOffset+20));
+      curLL_offset += curLL;
+      curLL = get32bit(curLL_offset);
+      curCP = get16bit(curLL_offset+4);
+    }
+    if (curCP == 0x0009)
+    {
+      // We found the start of the Extended Attributes list.
+      eaOffset = curLL_offset;
     }
     else
     {
-      int eaListLength = get32bit(eaOffset);
-      int eaCodePoint = get16bit(eaOffset+4);
-      if (eaCodePoint != 0x0009)
-      {
-        if (DEBUG) System.out.println("DEBUG Code point is not x0009: " + eaCodePoint);
-      }
-      else
-      {
-        int eaCount = get16bit(eaOffset+6);
-        int eaCcsid = get16bit(eaOffset+8);
-        int eaNameLL= get16bit(eaOffset+10);
-           // Note: eaNameLL does *not* include length of the LL field itself.
-        int eaFlags = get16bit(eaOffset+12);
-        int eaValLL = get32bit(eaOffset+14);
-           // Note: eaValLL includes the 4 "mystery bytes" that precede the name.
-        byte[] eaName = new byte[eaNameLL];
-        System.arraycopy(data_, eaOffset+18, eaName, 0, eaNameLL);
-        if (eaValLL <= 4)
-        {
-          if (DEBUG) System.out.println("DEBUG eaValLL<=4: " + eaValLL);
-        }
-        else
-        {
-          eaVal = new byte[eaValLL-4];
-          System.arraycopy(data_, eaOffset+18+eaNameLL+4, eaVal, 0, eaValLL-4);
-        }
-      }
+      if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "No Extended Attributes were returned.");
+      return null;
+    }      
+
+    byte[] eaVal = null;
+    int eaCount = get16bit(eaOffset+6);
+    int eaCcsid = get16bit(eaOffset+8);
+    int eaNameLL= get16bit(eaOffset+10);
+    // Note: eaNameLL does *not* include length of the LL field itself.
+    int eaFlags = get16bit(eaOffset+12);
+    int eaValLL = get32bit(eaOffset+14);
+    // Note: eaValLL includes the 4 "mystery bytes" that precede the name.
+    byte[] eaName = new byte[eaNameLL];
+    System.arraycopy(data_, eaOffset+18, eaName, 0, eaNameLL);
+    if (eaValLL <= 4)
+    {
+      if (DEBUG) System.out.println("DEBUG eaValLL<=4: " + eaValLL);
+    }
+    else
+    {
+      eaVal = new byte[eaValLL-4];
+      System.arraycopy(data_, eaOffset+18+eaNameLL+4, eaVal, 0, eaValLL-4);
     }
 
     return eaVal;
@@ -286,11 +263,9 @@ Get the file name.
 **/
   byte[] getName(int datastreamLevel)
   {
-    int file_name_LL_offset;
-    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
-      file_name_LL_offset = OPTIONAL_SECTION_OFFSET_OLD; }
-    else {
-      file_name_LL_offset = OPTIONAL_SECTION_OFFSET; }
+    // Assume that the "File Name" field is at the beginning of the Optional Section.
+    int file_name_LL_offset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
+
     int length = get32bit( file_name_LL_offset) - 6;
     if (DEBUG && length < 0) {
       Trace.log(Trace.ERROR, "Error getting file name: Value at name-length offset is too small.");
@@ -364,38 +339,29 @@ Get the length of the file (8 bytes).
   {
     long fileSize = 0L;
 
-    // Determine starting offset of the Optional field "8-byte file size".
+    int optionalSectionOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
 
-    // The field preceding the "8-byte file size" field is the "File Name" field.
-    int file_name_LL_offset;
-    if (datastreamLevel < 8 || datastreamLevel == 0xF4F4) {
-      file_name_LL_offset = OPTIONAL_SECTION_OFFSET_OLD; }
-    else {
-      file_name_LL_offset = OPTIONAL_SECTION_OFFSET; }
-    int fileNameFieldLength = get32bit(file_name_LL_offset);
-
-    // Verify that we got the optional "file size" field back.  The field's length should be 8 bytes.
-    int fsOffset = file_name_LL_offset + fileNameFieldLength;
-    byte[] fsVal = null;
-    if (fsOffset+8 > data_.length)
+    // Step through the optional fields, looking for the "8-byte file size" field (code point 0x0014).
+    int curLL_offset = optionalSectionOffset;
+    int curLL = get32bit(curLL_offset);
+    int curCP = get16bit(curLL_offset+4);
+    while (curCP != 0x0014 && (curLL_offset+curLL+6 <= data_.length))
     {
-      if (DEBUG) System.out.println("DEBUG fsOffset+8 > data_.length: " + (fsOffset+8));
-      Trace.log(Trace.ERROR, "Error getting 8-byte file size: Optional field was not returned.");
-      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      curLL_offset += curLL;
+      curLL = get32bit(curLL_offset);
+      curCP = get16bit(curLL_offset+4);
+    }
+    if (curCP == 0x0014)
+    {
+      // We found the 8-byte file size optional attribute that we requested.
+      fileSize = get64bit(curLL_offset+6);
     }
     else
     {
-      int fsCodePoint = get16bit(fsOffset+4);
-      if (fsCodePoint != 0x0014)
-      {
-        Trace.log(Trace.ERROR, "Error getting 8-byte file size: Unexpected optional field code point value: " + fsCodePoint);
+      // Didn't find it. The server goofed up and didn't send it to us.
+        Trace.log(Trace.ERROR, "Error getting 8-byte file size: Optional field was not returned.");
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
-      }
-      else
-      {
-        fileSize = get64bit(fsOffset+6);
-      }
-    }
+    }      
 
     return fileSize;
   }
