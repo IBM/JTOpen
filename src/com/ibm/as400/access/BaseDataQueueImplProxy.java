@@ -76,7 +76,7 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     {
         try
         {
-            connection_.callMethod(pxId_, "processDelete");
+            connection_.callMethod(pxId_, "delete");
         }
         catch (InvocationTargetException e)
         {
