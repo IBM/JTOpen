@@ -47,7 +47,7 @@ Construct a list attributes request.
   private static final int TEMPLATE_LENGTH = 20;
   private static final int LLCP_LENGTH = 6;            // @A1a
 
-  // @D2A
+  // @C1a - Added longFileSize parameter.
 /**
 Construct a list file attributes request.
 @param name the file name
@@ -59,13 +59,16 @@ Construct a list file attributes request.
 @param restartName The restart name, or null to return all entries.
 @param extendedAttrName The extended attribute name, or null to return
                         no extended attributes.
+@param longFileSize true: return file size as 8-byte value (as optional field),
+                    false: do not return 8-byte file-size field.
 **/
   IFSListAttrsReq(byte[] name,
                   int    fileNameCCSID,
                   int    authority,
                   int    maximumGetCount,                                      // @D2A
                   byte[] restartName,                                          // @D2A
-                  byte[] extendedAttrName)                                     // @A1a
+                  byte[] extendedAttrName,                                     // @A1a
+                  boolean longFileSize)                                        // @C1a
   {
     super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + name.length
          + ((restartName != null) ? (LLCP_LENGTH + restartName.length) : 0)    // @D2A
@@ -82,7 +85,12 @@ Construct a list file attributes request.
         set16bit(0xffff, MAX_GET_COUNT_OFFSET);
     else                                                                                // @D2A
         set16bit(maximumGetCount, MAX_GET_COUNT_OFFSET);                                // @D2A
-    set16bit(1, FILE_ATTR_LIST_LEVEL_OFFSET);
+    if (longFileSize == true) {                                                         // @C1a
+      set16bit(0x0101, FILE_ATTR_LIST_LEVEL_OFFSET);
+    }
+    else {
+      set16bit(0x0001, FILE_ATTR_LIST_LEVEL_OFFSET);                                    // @C1c
+    }
     set16bit(0, PATTERN_MATCHING_OFFSET);
 
     // Set the LL.
@@ -105,6 +113,13 @@ Construct a list file attributes request.
         // It would would be more efficient to use the ordinal values                    // @D2A
         // (which work outside of QSYS and QDLS).  I chose to keep it                    // @D2A
         // simple for now, but we should make it more sophisticated later.               // @D2A
+
+        // Design note: As of 02/05/01, according to the File Server team:
+        // "The vnode architecture allows a file system to use the cookie
+        // (Restart Number) or a Restart Name to find the entry
+        // that processing should start at.
+        // QDLS and QSYS allow Restart Name, but /root (EPFS) does not."
+
         offset += LLCP_LENGTH + restartName.length;  // next field     @A1a
     }                                                                                    // @D2A
 
@@ -122,6 +137,29 @@ Construct a list file attributes request.
                          extendedAttrName.length);         // @D2A
     }
 
+  }
+
+  // @D2A
+/**
+Construct a list file attributes request.
+@param name the file name
+@param fileNameCCSID file name CCSID
+@param authority bit 0: on = client must have read authority,
+                 bit 1: on = client must have write authority,
+                 bit 2: on = client must have execute authority
+@param maximumGetCount The maximum get count, or -1 to return all entries.
+@param restartName The restart name, or null to return all entries.
+@param extendedAttrName The extended attribute name, or null to return
+                        no extended attributes.
+**/
+  IFSListAttrsReq(byte[] name,
+                  int    fileNameCCSID,
+                  int    authority,
+                  int    maximumGetCount,                                      // @D2A
+                  byte[] restartName,                                          // @D2A
+                  byte[] extendedAttrName)                                     // @A1a
+  {
+    this(name, fileNameCCSID, authority, maximumGetCount, restartName, extendedAttrName, false); // @C1c
   }
 
 /**

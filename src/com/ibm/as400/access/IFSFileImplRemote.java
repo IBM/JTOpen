@@ -736,6 +736,8 @@ implements IFSFileImpl
 
     long size = 0L;
 
+    if (fd_.getSystemVRM() < 0x00050200)  // system is pre-V5R2   @C1c
+    {
     // Attempt to list the attributes of the specified file.
     // Note: Do not use cached attributes, since they may be out of date.
     IFSListAttrsRep attrs = getAttributeSetFromServer(fd_.path_);
@@ -745,7 +747,41 @@ implements IFSFileImpl
       attributes_ = attrs;
       size = attrs.getSize();
     }
+    }
+    else  // the system is V5R2 or later                         @C1a - added this entire 'else' block
+    {
+      // Convert the path name to the AS/400 CCSID.
+      byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
+      // Send the List Attributes request.  Indicate that we want the "8-byte file size".
+      IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
+                                                IFSListAttrsReq.NO_AUTHORITY_REQUIRED, -1,
+                                                null, null, true);
+      Vector replys = listAttributes0(req);
+
+      if (replys == null) {
+        Trace.log(Trace.ERROR, "Received null from listAttributes().");
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      }
+      else if (replys.size() == 0) {
+        // Assume this simply indicates that the file does not exist.
+        if (Trace.isTraceOn() && Trace.isTraceWarningOn()) {
+          Trace.log(Trace.WARNING, "Received zero replies from listAttributes().");
+        }
+      }
+      else
+      {
+        if ( replys.size() > 1 &&
+             Trace.isTraceOn() &&
+             Trace.isTraceWarningOn() )
+        {
+            Trace.log(Trace.WARNING, "Received multiple replies from listAttributes() (" +
+                      replys.size() + ")");
+        }
+        IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
+        size = reply.getSize8Bytes();
+      }
+    }
     return size;
   }
 

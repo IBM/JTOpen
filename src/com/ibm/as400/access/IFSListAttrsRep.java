@@ -219,7 +219,7 @@ Get the date/time that the file was created.
 //@A3a
 /**
 Get the extended attribute value.
-Returns null the the reply contains no extended attribute.
+Returns null if the reply contains no extended attribute.
 @return extended attribute value
 **/
   byte[] getExtendedAttributeValue()
@@ -235,7 +235,7 @@ Returns null the the reply contains no extended attribute.
     byte[] eaVal = null;
     if (eaOffset+20 > data_.length)
     {
-      if (DEBUG) System.out.println("DEBUG eaOffset+20 > data_.length: " + eaOffset+20);
+      if (DEBUG) System.out.println("DEBUG eaOffset+20 > data_.length: " + (eaOffset+20));
     }
     else
     {
@@ -333,6 +333,47 @@ Determine the file size (in bytes).
     // We need to suppress sign-extension if the leftmost bit is on.
     int size = get32bit( FILE_SIZE_OFFSET);     // @B8c
     return ((long)size) & 0xffffffffL;          // @B8c
+  }
+
+//@C1a
+/**
+Get the length of the file (8 bytes).
+@return length of the file
+**/
+  long getSize8Bytes()
+  {
+    long fileSize = 0L;
+
+    // Determine starting offset of the optional field "8-byte file size".
+
+    // The field preceding the "8-byte file size" field is the "File Name" field.
+    int fileNameFieldLength = get32bit(FILE_NAME_LL_OFFSET);
+
+    // Verify that we got the optional "file size" field back.  The field's length should be 8 bytes.
+    int fsOffset = FILE_NAME_LL_OFFSET + fileNameFieldLength;
+    byte[] fsVal = null;
+    if (fsOffset+8 > data_.length)
+    {
+      if (DEBUG) System.out.println("DEBUG fsOffset+8 > data_.length: " + (fsOffset+8));
+      Trace.log(Trace.ERROR, "Error getting 8-byte file size: Optional field was not returned.");
+      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+    }
+    else
+    {
+      if (DEBUG) System.out.println("DEBUG fsListLength==" + get32bit(fsOffset));
+      int fsCodePoint = get16bit(fsOffset+4);
+      if (fsCodePoint != 0x0014)
+      {
+        Trace.log(Trace.ERROR, "Error getting 8-byte file size: Unexpected optional field code point value: " + fsCodePoint);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      }
+      else
+      {
+        fileSize = get64bit(fsOffset+6);
+      }
+    }
+
+    return fileSize;
   }
 
 /**

@@ -495,7 +495,7 @@ implements IFSFileDescriptorImpl
 
 
   // Determine the system version.
-  private int getSystemVRM()  // @B3A
+  int getSystemVRM()  // @B3A @C1c
   {
     if (!determinedSystemVRM_)
     {
