@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMObjectDataStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ import java.util.Hashtable;
 **/
 class DDMObjectDataStream extends DDMDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   /**
    *Constructs a DDMObjectDataStream object.
@@ -61,7 +61,7 @@ class DDMObjectDataStream extends DDMDataStream
     setType(3);
   }
 
-    
+
   /**
    *Returns the copyright for the class.
    *@return the copyright for this class.
@@ -101,11 +101,15 @@ class DDMObjectDataStream extends DDMDataStream
    *        2 --> CP S38BUF code point (8,9)
    *@exception CharConversionException If an error occurs during conversion.
    *@exception UnsupportedEncodingException If an error occurs during conversion.
+   *
+   * #SSPDDM1 - Changed method to accept isSSPFile parameter and skip null field
+   *            map if it is set to true
   **/
   static DDMObjectDataStream[] getObjectS38BUF(Record[] records,
-                                               DDMS38OpenFeedback openFeedback)
-    throws CharConversionException,
-           UnsupportedEncodingException
+                                               DDMS38OpenFeedback openFeedback,
+                                               boolean isSSPFile)         // #SSPDDM1
+  throws CharConversionException,
+  UnsupportedEncodingException
   {
     // Get the record format, the record increment, and the blocking
     // factor.
@@ -115,12 +119,12 @@ class DDMObjectDataStream extends DDMDataStream
 
     // Instantiate an array of data streams.
     DDMObjectDataStream[] dataStreams =
-      new DDMObjectDataStream[records.length / blockingFactor +
-                               (records.length % blockingFactor == 0 ? 0 : 1)];
+    new DDMObjectDataStream[records.length / blockingFactor +
+                            (records.length % blockingFactor == 0 ? 0 : 1)];
 
     // Create a data stream every 'blockingFactor' records.
     for (int dataStreamIndex = 0, recordIndex = 0;
-         dataStreamIndex < dataStreams.length; dataStreamIndex++)
+        dataStreamIndex < dataStreams.length; dataStreamIndex++)
     {
       // We can only copy 'blockingFactor' records per data stream.
       // Calculate the end index of the last record to be copied to the
@@ -172,7 +176,7 @@ class DDMObjectDataStream extends DDMDataStream
       // For each record, write the record data and the null field byte
       // map after the record data.
       for (; recordIndex < endIndex; recordIndex++,
-           recordOffset += recordIncrement)
+          recordOffset += recordIncrement)
       {
         // Copy the record data to the data stream.
         byte[] recordData = records[recordIndex].getContents();
@@ -184,15 +188,31 @@ class DDMObjectDataStream extends DDMDataStream
         // There may be a gap between the end of the record data and the
         // start of the null field byte map.
         int numFields = records[recordIndex].getNumberOfFields();
-        for (int f = 0, fieldOffset = recordOffset +
-             (recordIncrement - numFields); f < numFields; fieldOffset++, f++)
+        // Skip writing the null field map for SSP files					    	// #SSPDDM1
+        if (!isSSPFile)                                 // #SSPDDM1
         {
-          dataStreams[dataStreamIndex].data_[fieldOffset] =
+          // #SSPDDM1
+          for (int f = 0, fieldOffset = recordOffset +
+               (recordIncrement - numFields); f < numFields; fieldOffset++, f++)
+          {
+            dataStreams[dataStreamIndex].data_[fieldOffset] =
             (records[recordIndex].isNullField(f) ? (byte) 0xf1 : (byte) 0xf0);
-        }
+          }
+        }                                        // #SSPDDM1
       }
     }
 
     return dataStreams;
   }
+
+
+  // #SSPDDM1 - method changed to all overloaded method with isSSP parameter
+  static DDMObjectDataStream[] getObjectS38BUF(Record[] records,
+                                               DDMS38OpenFeedback openFeedback)
+  throws CharConversionException,
+  UnsupportedEncodingException
+  {
+    return getObjectS38BUF(records, openFeedback, false);  // #SSPDDM1 - Call with isSSP default to false
+  }    
+
 }

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ import java.math.BigDecimal; //@D0A 7/15/99
 
 class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C0C
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -83,9 +83,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void close()
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     super.close(); //@C0A
 
@@ -124,9 +124,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void commit()
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Connect to the AS400.  Note: If we have already connected, that connection
     // will be used.
@@ -170,7 +170,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void connect()
   throws AS400SecurityException, ConnectionDroppedException, IOException,
-         InterruptedException, ServerStartupException, UnknownHostException
+  InterruptedException, ServerStartupException, UnknownHostException
   {
     server_ = system_.getConnection(AS400.RECORDACCESS, false); //@C0C @B5C
   }
@@ -269,149 +269,149 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
                                        InternalErrorException.UNKNOWN);
     }
 
-      /////////////////////////////////////////////////////////////////////////////////
-      // Create the records to be written to the file.  These records will contain the
-      // DDS based on the supplied RecordFormat object.
-      /////////////////////////////////////////////////////////////////////////////////
-      // Create a RecordFormat object which describes the record format of a source
-      // physical file.
-      RecordFormat srcRF = new RecordFormat("JT400DSSRC");
-      srcRF.addFieldDescription(new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6, 2), "SRCSEQ"));
-      srcRF.addFieldDescription(new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6, 0), "SRCDAT"));
-      // - Can't use the system object here because we have no way of filling in the converter
-      srcRF.addFieldDescription(new CharacterFieldDescription(new AS400Text(80, system_.getCcsid()), "SRCDTA")); //@D0C
-      Vector lines = new Vector();  // Contains DDS lines to write to source file
-      String line; // A single line of DDS source
-      // Create line(s) for any file level keywords - file level keywords must precede
-      // the line specifying the record format name.
-      if (altSeq != null)
-      {
-        line = STR44 + "ALTSEQ(" + altSeq + ")";
-        lines.addElement(line);
-      }
-      if (ccsid != null)
-      {
-        line = STR44 + "CCSID(" + ccsid + ")";
-        lines.addElement(line);
-      }
-      if (order != null)
-      {
-        line = STR44 + order;
-        lines.addElement(line);
-      }
-      if (ref != null)
-      {
-        line = STR44 + "REF(" + ref + ")";
-        lines.addElement(line);
-      }
-      if (unique)
-      {
-        line = STR44 + "UNIQUE";
-        lines.addElement(line);
-      }
+    /////////////////////////////////////////////////////////////////////////////////
+    // Create the records to be written to the file.  These records will contain the
+    // DDS based on the supplied RecordFormat object.
+    /////////////////////////////////////////////////////////////////////////////////
+    // Create a RecordFormat object which describes the record format of a source
+    // physical file.
+    RecordFormat srcRF = new RecordFormat("JT400DSSRC");
+    srcRF.addFieldDescription(new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6, 2), "SRCSEQ"));
+    srcRF.addFieldDescription(new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6, 0), "SRCDAT"));
+    // - Can't use the system object here because we have no way of filling in the converter
+    srcRF.addFieldDescription(new CharacterFieldDescription(new AS400Text(80, system_.getCcsid()), "SRCDTA")); //@D0C
+    Vector lines = new Vector();  // Contains DDS lines to write to source file
+    String line; // A single line of DDS source
+    // Create line(s) for any file level keywords - file level keywords must precede
+    // the line specifying the record format name.
+    if (altSeq != null)
+    {
+      line = STR44 + "ALTSEQ(" + altSeq + ")";
+      lines.addElement(line);
+    }
+    if (ccsid != null)
+    {
+      line = STR44 + "CCSID(" + ccsid + ")";
+      lines.addElement(line);
+    }
+    if (order != null)
+    {
+      line = STR44 + order;
+      lines.addElement(line);
+    }
+    if (ref != null)
+    {
+      line = STR44 + "REF(" + ref + ")";
+      lines.addElement(line);
+    }
+    if (unique)
+    {
+      line = STR44 + "UNIQUE";
+      lines.addElement(line);
+    }
 
-      // Create line for the record format name
-      line = STR16 + "R ";
-      // The record format name cannot exceed 10 characters and must be in upper case
-      if (recordFormat.getName().length() > 10)
+    // Create line for the record format name
+    line = STR16 + "R ";
+    // The record format name cannot exceed 10 characters and must be in upper case
+    if (recordFormat.getName().length() > 10)
+    {
+      if (Trace.isTraceOn() && Trace.isTraceWarningOn())
       {
-        if (Trace.isTraceOn() && Trace.isTraceWarningOn())
-        {
-          Trace.log(Trace.WARNING, "Record format name '"+recordFormat.getName()+"' too long. Using '"+recordFormat.getName().substring(0,10)+"' instead.");
-        }
-        line += recordFormat.getName().substring(0, 10);
+        Trace.log(Trace.WARNING, "Record format name '"+recordFormat.getName()+"' too long. Using '"+recordFormat.getName().substring(0,10)+"' instead.");
+      }
+      line += recordFormat.getName().substring(0, 10);
+    }
+    else
+    {
+      line += recordFormat.getName();
+    }
+    lines.addElement(line);
+
+    // Create line(s) for any record level keywords.  The record level keywords
+    // must be on the same line or on the lines immediately following the record
+    // format line.
+    if (format != null)
+    {
+      line = STR44 + "FORMAT(" + format + ")";
+      lines.addElement(line);
+    }
+    if (text != null)
+    {
+      if (text.length() > 32)
+      { // Text exceeds length left on line - need to continue on next line
+        line = STR44 + "TEXT('" + text.substring(0, 33) + "-";
+        lines.addElement(line);
+        // Add the remainder of the TEXT keyword
+        line = STR44 + text.substring(34) + "')";
+        lines.addElement(line);
       }
       else
-      {
-        line += recordFormat.getName();
-      }
-      lines.addElement(line);
-
-      // Create line(s) for any record level keywords.  The record level keywords
-      // must be on the same line or on the lines immediately following the record
-      // format line.
-      if (format != null)
-      {
-        line = STR44 + "FORMAT(" + format + ")";
+      { // Text fits on one line
+        line = STR44 + "TEXT('" + text + "')";
         lines.addElement(line);
       }
-      if (text != null)
+    }
+
+    // Create lines for each field description and any keywords for the field
+    int numberOfFields = recordFormat.getNumberOfFields();
+    FieldDescription f = null;
+    String ddsDesc;
+    String[] dds = null;
+    int length;
+    int beginningOffset;
+    for (int i = 0; i < numberOfFields; ++i)
+    {
+      f = recordFormat.getFieldDescription(i);
+      // Specify the DDS description of the field.  The DDS description returned
+      // from FieldDescription contains the field level keywords as well as the
+      // description of the field.  It is formatted properly for DDS except for
+      // the preceding blanks.  Therefore, we add 18 blanks so that the field
+      // description starts in column 19 of the line.
+      dds = f.getDDSDescription();
+      // Add the fixed portion of the DDS description for the field to the vector
+      ddsDesc = STR18 + dds[0];
+      lines.addElement(ddsDesc);
+      // Add lines containing field level keywords
+      for (int j = 1; j < dds.length; ++j)
       {
-        if (text.length() > 32)
-        { // Text exceeds length left on line - need to continue on next line
-          line = STR44 + "TEXT('" + text.substring(0, 33) + "-";
+        ddsDesc = STR44 + dds[j];
+        length = ddsDesc.length();
+        beginningOffset = 0;
+        if (length > 80)
+        { // Need to continue the line on the next line
+          line = ddsDesc.substring(beginningOffset, 79) + "-";
           lines.addElement(line);
-          // Add the remainder of the TEXT keyword
-          line = STR44 + text.substring(34) + "')";
+          length -= 79;
+          beginningOffset = 79;
+          line = STR44 + ddsDesc.substring(beginningOffset);
           lines.addElement(line);
         }
         else
-        { // Text fits on one line
-          line = STR44 + "TEXT('" + text + "')";
+        { // It all fits on one line
+          lines.addElement(ddsDesc);
+        }
+      }
+    }
+    // Create lines for key fields and key field level keywords
+    numberOfFields = recordFormat.getNumberOfKeyFields();
+    for (int i = 0; i < numberOfFields; ++i)
+    {
+      f = recordFormat.getKeyFieldDescription(i);
+      // Specify the name of the field
+      line = STR16 + "K ";
+      line += f.getDDSName();
+      lines.addElement(line);
+      // Specify any key field level keywords
+      String[] keyFuncs = f.getKeyFieldFunctions();
+      if (keyFuncs != null)
+      {
+        for (short j = 0; j < keyFuncs.length; ++j)
+        {
+          line = STR44 + keyFuncs[j];
           lines.addElement(line);
         }
       }
-
-      // Create lines for each field description and any keywords for the field
-      int numberOfFields = recordFormat.getNumberOfFields();
-      FieldDescription f = null;
-      String ddsDesc;
-      String[] dds = null;
-      int length;
-      int beginningOffset;
-      for (int i = 0; i < numberOfFields; ++i)
-      {
-        f = recordFormat.getFieldDescription(i);
-        // Specify the DDS description of the field.  The DDS description returned
-        // from FieldDescription contains the field level keywords as well as the
-        // description of the field.  It is formatted properly for DDS except for
-        // the preceding blanks.  Therefore, we add 18 blanks so that the field
-        // description starts in column 19 of the line.
-        dds = f.getDDSDescription();
-        // Add the fixed portion of the DDS description for the field to the vector
-        ddsDesc = STR18 + dds[0];
-        lines.addElement(ddsDesc);
-        // Add lines containing field level keywords
-        for (int j = 1; j < dds.length; ++j)
-        {
-          ddsDesc = STR44 + dds[j];
-          length = ddsDesc.length();
-          beginningOffset = 0;
-          if (length > 80)
-          { // Need to continue the line on the next line
-            line = ddsDesc.substring(beginningOffset, 79) + "-";
-            lines.addElement(line);
-            length -= 79;
-            beginningOffset = 79;
-            line = STR44 + ddsDesc.substring(beginningOffset);
-            lines.addElement(line);
-          }
-          else
-          { // It all fits on one line
-            lines.addElement(ddsDesc);
-          }
-        }
-      }
-      // Create lines for key fields and key field level keywords
-      numberOfFields = recordFormat.getNumberOfKeyFields();
-      for (int i = 0; i < numberOfFields; ++i)
-      {
-        f = recordFormat.getKeyFieldDescription(i);
-        // Specify the name of the field
-        line = STR16 + "K ";
-        line += f.getDDSName();
-        lines.addElement(line);
-        // Specify any key field level keywords
-        String[] keyFuncs = f.getKeyFieldFunctions();
-        if (keyFuncs != null)
-        {
-          for (short j = 0; j < keyFuncs.length; ++j)
-          {
-            line = STR44 + keyFuncs[j];
-            lines.addElement(line);
-          }
-        }
-      }
+    }
 
     // Create an array of records representing each line to be written
     // to the file.
@@ -489,9 +489,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void deleteCurrentRecord()
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     connect();
 
@@ -550,9 +550,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void handleErrorReply(Vector replys, int index)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int size = replys.size();
     DDMDataStream reply;
@@ -642,9 +642,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    **/
   public void logWarningMessages(Vector v, int index)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (Trace.isTraceOn() && Trace.isTraceWarningOn())
     {
@@ -714,9 +714,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public DDMS38OpenFeedback openFile(int openType, int bf, String access)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Ensure that we are connected to the AS/400.
     connect();
@@ -784,9 +784,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record[] positionCursorAt(int type)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
 
@@ -830,9 +830,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void positionCursorAfterLast()
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // If we are caching records and the cache contains the last record,
     // position the cache.  Otherwise, position the file and refresh the
@@ -922,9 +922,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void positionCursorBeforeFirst()
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // If we are caching records and the cache contains the first record,
     // position the cache.  Otherwise, position the file and refresh the
@@ -1016,9 +1016,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record positionCursorToIndex(int recordNumber)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
 
@@ -1027,7 +1027,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       // Invalidate the cache
       cache_.setIsEmpty(); //@G0A
     }
-    
+
     // @A1C
     if ((openType_ == AS400File.READ_ONLY) ||   //@C0C
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
@@ -1077,9 +1077,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record positionCursorToKey(Object[] key, int type)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
 
@@ -1088,7 +1088,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       // Invalidate the cache
       cache_.setIsEmpty(); //@G0A
     }
-    
+
     // @A1C
     if ((openType_ == AS400File.READ_ONLY) ||  //@C0C
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A //@C0C
@@ -1136,18 +1136,18 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record positionCursorToKey(byte[] key, int type, int numberOfKeyFields)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
-    
+
     if (cacheRecords_) //@G0A
     {
       // Invalidate the cache
       cache_.setIsEmpty(); //@G0A
     }
-    
+
     if ((openType_ == AS400File.READ_ONLY) ||
         ((openType_ == AS400File.READ_WRITE) && readNoUpdate_)) // @A1A
     {
@@ -1194,9 +1194,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 //  Record[] processReadReply(Vector replys)  // @A1D
   public Record[] processReadReply(Vector replys, boolean discardRecords)  // @A1A
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record[] returned = null;  // Will contain the records read.
     int recordIncrement = openFeedback_.getRecordIncrement();
@@ -1430,9 +1430,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    **/
   public Record read(int recordNumber)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (cacheRecords_) //@C0A
       return super.read(recordNumber); //@C0A
@@ -1454,7 +1454,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     Vector replys = sendRequestAndReceiveReplies(DDMRequestDataStream.getRequestS38GETD(dclName_, recordFormatCTLLName_, 0x08, shr, DATA_DTA_DTARCD,recordNumber, system_), newCorrelationId());  // @A1A @B6C
     Record[] returned = processReadReply(replys, false);    // @A1C
 
-    return (returned == null)? null : returned[0];
+    return(returned == null)? null : returned[0];
   }
 
   /**
@@ -1471,9 +1471,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record[] readAll(String fileType, int bf) //@D0C
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
 //@B0A: Changed readAll() to not use the ULDRECF codepoint in the DDM data stream.
 //      This is because ULDRECF (Unload all records from file) does not handle
@@ -1668,9 +1668,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record read(Object[] key, int type)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
     if ((openType_ == AS400File.READ_ONLY) ||
@@ -1696,7 +1696,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       cache_.setIsEmpty(); //@C0A
     }                  //@C0A
 
-    return (returned == null)? null : returned[0];
+    return(returned == null)? null : returned[0];
   }
 
 
@@ -1716,9 +1716,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record read(byte[] key, int type, int numberOfKeyFields)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
     if ((openType_ == AS400File.READ_ONLY) ||
@@ -1744,7 +1744,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       cache_.setIsEmpty(); //@C0A
     }                  //@C0A
 
-    return (returned == null)? null : returned[0];
+    return(returned == null)? null : returned[0];
   }
 
   /**
@@ -1765,9 +1765,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public Record readRecord(int type)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int shr;  // Type of locking for the record
 
@@ -1788,7 +1788,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // Call processReadReply to extract the records read (or throw an
     // exception if appropriate)
     Record[] returned = processReadReply(replys, false);    // @A1C
-    return (returned == null)? null : returned[0];
+    return(returned == null)? null : returned[0];
   }
 
   /**
@@ -1804,9 +1804,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    **/
   public Record[] readRecords(int direction)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     int type = (direction == DDMRecordCache.FORWARD ? TYPE_GET_NEXT :
                 TYPE_GET_PREV);
@@ -1875,17 +1875,43 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Vector sendRequestAndReceiveReplies(DDMDataStream req, int correlationId)
-    throws InterruptedException, IOException
+  throws InterruptedException, IOException
   {
     DDMDataStream reply = null;
+    try
+    {
+      synchronized(server_) //@F1A - make sure all of our operations are atomic
+      { //@F1A - we are synchronized so we don't interrupt any other sends
+        // that are sensitive.
+        server_.send(req, correlationId);
+        reply = (DDMDataStream)server_.receive(correlationId);
+      } //@F1A
+    }
+    catch (ConnectionDroppedException e)
+    {
+      // UConnection dropped.  Disconnect server and rethrow
+      if (Trace.isTraceOn() && Trace.isTraceErrorOn())
+      {
+        Trace.log(Trace.ERROR, "ConnectionDroppedException.");
+      }
+      system_.disconnectServer(server_);
+//@C1 - Setting the server_ object to null means that
+//      any operations on this AS400File object after the connection has been
+//      dropped will result in a NullPointerException. By leaving the server_ object
+//      around, any subsequent operations should also throw a ConnectionDroppedException.
+//@C1D      server_ = null;
+      resetState();
+      throw e;
+    }
+
+    // Receive all replies from the read into a vector.
+    Vector replys = new Vector();
+    while (reply.isChained())
+    {
+      replys.addElement(reply);
       try
       {
-        synchronized(server_) //@F1A - make sure all of our operations are atomic
-        { //@F1A - we are synchronized so we don't interrupt any other sends
-          // that are sensitive.
-          server_.send(req, correlationId);
-          reply = (DDMDataStream)server_.receive(correlationId);
-        } //@F1A
+        reply = (DDMDataStream)server_.receive(correlationId);
       }
       catch (ConnectionDroppedException e)
       {
@@ -1899,37 +1925,11 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
 //      any operations on this AS400File object after the connection has been
 //      dropped will result in a NullPointerException. By leaving the server_ object
 //      around, any subsequent operations should also throw a ConnectionDroppedException.
-//@C1D      server_ = null;
+//@C1D        server_ = null;
         resetState();
         throw e;
       }
-
-      // Receive all replies from the read into a vector.
-      Vector replys = new Vector();
-      while (reply.isChained())
-      {
-        replys.addElement(reply);
-        try
-        {
-          reply = (DDMDataStream)server_.receive(correlationId);
-        }
-        catch (ConnectionDroppedException e)
-        {
-          // UConnection dropped.  Disconnect server and rethrow
-          if (Trace.isTraceOn() && Trace.isTraceErrorOn())
-          {
-            Trace.log(Trace.ERROR, "ConnectionDroppedException.");
-          }
-          system_.disconnectServer(server_);
-//@C1 - Setting the server_ object to null means that
-//      any operations on this AS400File object after the connection has been
-//      dropped will result in a NullPointerException. By leaving the server_ object
-//      around, any subsequent operations should also throw a ConnectionDroppedException.
-//@C1D        server_ = null;
-          resetState();
-          throw e;
-        }
-      }
+    }
     // Add the unchained reply to the vector of replys
     replys.addElement(reply);
     return replys;
@@ -1968,9 +1968,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void update(Record record)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (record.getRecordLength() != openFeedback_.getRecordLength())
     {
@@ -1997,7 +1997,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // Get the S38BUF object(s) to send after the request
     // Because we are updating, there will only be one item in dataToSend
     DDMObjectDataStream[] dataToSend =
-        DDMObjectDataStream.getObjectS38BUF(records, openFeedback_);
+    DDMObjectDataStream.getObjectS38BUF(records, openFeedback_, ssp_);    // #SSPDDM1 - add ssp_ parm
 
     Vector replys = null; //@F1A
 
@@ -2051,9 +2051,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public boolean verifyS38MSGRM(DDMReplyDataStream reply, String msgId, int svrCode)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     DDMAS400MessageReply msgReply = new DDMAS400MessageReply(system_, reply.data_);
     AS400Message[] msgs = msgReply.getAS400MessageList();
@@ -2095,9 +2095,9 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
   **/
   public void write(Record[] records)
   throws AS400Exception,
-      AS400SecurityException,
-      InterruptedException,
-      IOException
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (records[0].getRecordLength() != openFeedback_.getRecordLength())
     {
@@ -2116,7 +2116,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     req.setHasSameRequestCorrelation(true); // Indicate hat the ids will match
     // Get the S38BUF object(s) containing the records to write.
     DDMObjectDataStream[] dataToSend =
-        DDMObjectDataStream.getObjectS38BUF(records, openFeedback_);
+    DDMObjectDataStream.getObjectS38BUF(records, openFeedback_, ssp_);    // #SSPDDM1 - add ssp_ parm
 
     // It is possible that we will have more than one S38BUF to send.  This case
     // occurs when the blocking factor is less than the number records to be written.

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileImplBase.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ import java.text.Collator;
 
 abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   // Is this class an ImplRemote or an ImplNative
   boolean isNative_ = false; //@E2A
@@ -176,17 +176,17 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   private Collator collator_ = Collator.getInstance();
 
   public void doIt(String methodName, Class[] classes, Object[] objects)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     try
     {
       invoke(this, methodName, classes, objects); //@F0C
     }
-    catch(InvocationTargetException e)
+    catch (InvocationTargetException e)
     {
       throw ProxyClientConnection.rethrow4a(e);
     }
-    catch(Exception e2)
+    catch (Exception e2)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
@@ -200,7 +200,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     {
       invoke(this, methodName, classes, objects); //@F0C
     }
-    catch(Exception e2)
+    catch (Exception e2)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
@@ -209,17 +209,17 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
   public Record doItRecord(String methodName, Class[] classes, Object[] objects)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     try
     {
-      return (Record)invoke(this, methodName, classes, objects); //@F0C
+      return(Record)invoke(this, methodName, classes, objects); //@F0C
     }
-    catch(InvocationTargetException e)
+    catch (InvocationTargetException e)
     {
       throw ProxyClientConnection.rethrow4a(e);
     }
-    catch(Exception e2)
+    catch (Exception e2)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
@@ -228,17 +228,17 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
   public Record[] doItRecordArray(String methodName, Class[] classes, Object[] objects)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     try
     {
-      return (Record[])invoke(this, methodName, classes, objects); //@F0C
+      return(Record[])invoke(this, methodName, classes, objects); //@F0C
     }
-    catch(InvocationTargetException e)
+    catch (InvocationTargetException e)
     {
       throw ProxyClientConnection.rethrow4a(e);
     }
-    catch(Exception e2)
+    catch (Exception e2)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
@@ -248,17 +248,17 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
   //@B2A
   public RecordFormat doItRecordFormat(String methodName, Class[] classes, Object[] objects)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     try
     {
-      return (RecordFormat)invoke(this, methodName, classes, objects); //@F0C
+      return(RecordFormat)invoke(this, methodName, classes, objects); //@F0C
     }
-    catch(InvocationTargetException e)
+    catch (InvocationTargetException e)
     {
       throw ProxyClientConnection.rethrow4a(e);
     }
-    catch(Exception e2)
+    catch (Exception e2)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e2.toString(), e2);
@@ -270,9 +270,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return ((Integer)invoke(this, methodName, new Class[0], new Object[0])).intValue(); //@F0C
+      return((Integer)invoke(this, methodName, new Class[0], new Object[0])).intValue(); //@F0C
     }
-    catch(Exception e)
+    catch (Exception e)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e.toString(), e);
@@ -284,9 +284,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return ((Boolean)invoke(this, methodName, new Class[0], new Object[0])).booleanValue(); //@F0C
+      return((Boolean)invoke(this, methodName, new Class[0], new Object[0])).booleanValue(); //@F0C
     }
-    catch(Exception e)
+    catch (Exception e)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e.toString(), e);
@@ -299,9 +299,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   {
     try
     {
-      return ((Boolean)invoke(this, methodName, classes, objects)).booleanValue(); //@F0C
+      return((Boolean)invoke(this, methodName, classes, objects)).booleanValue(); //@F0C
     }
-    catch(Exception e)
+    catch (Exception e)
     {
       if (Trace.isTraceErrorOn())
         Trace.log(Trace.ERROR, e.toString(), e);
@@ -309,7 +309,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
   }
 
-  
+
   //@F0A - This method is copied from PxMethodReqSV. We don't
   // want to have dependencies on the proxy classes directly, so
   // that's why I included it here.
@@ -317,37 +317,42 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
                        String methodName, 
                        Class[] argumentClasses,
                        Object[] arguments)
-      throws ClassNotFoundException, 
-             IllegalAccessException,
-             InvocationTargetException, 
-             NoSuchMethodException
+  throws ClassNotFoundException, 
+  IllegalAccessException,
+  InvocationTargetException, 
+  NoSuchMethodException
   {      
-      // Resolve the Method object.  First, try Class.getMethod() which 
-      // only looks for public methods.  If that does not work, try 
-      // Class.getDeclaredMethod(), which only looks for declared 
-      // methods (not inherited methods).  Do this up the superclass tree.
-      Method method = null;
-      Class clazz = object.getClass();
-      NoSuchMethodException e = null;
-      while ((clazz != null) && (method == null)) {
-          try {
-              method = clazz.getMethod(methodName, argumentClasses);
-          }
-          catch (NoSuchMethodException e1) {
-              try {
-                  method = clazz.getDeclaredMethod(methodName, argumentClasses);
-              }
-              catch (NoSuchMethodException e2) {
-                  e = e2;
-                  clazz = clazz.getSuperclass();
-              }
-          }
+    // Resolve the Method object.  First, try Class.getMethod() which 
+    // only looks for public methods.  If that does not work, try 
+    // Class.getDeclaredMethod(), which only looks for declared 
+    // methods (not inherited methods).  Do this up the superclass tree.
+    Method method = null;
+    Class clazz = object.getClass();
+    NoSuchMethodException e = null;
+    while ((clazz != null) && (method == null))
+    {
+      try
+      {
+        method = clazz.getMethod(methodName, argumentClasses);
       }
-      if (method == null)
-          throw e;
+      catch (NoSuchMethodException e1)
+      {
+        try
+        {
+          method = clazz.getDeclaredMethod(methodName, argumentClasses);
+        }
+        catch (NoSuchMethodException e2)
+        {
+          e = e2;
+          clazz = clazz.getSuperclass();
+        }
+      }
+    }
+    if (method == null)
+      throw e;
 
-      // Call the method.
-      return method.invoke (object, arguments);
+    // Call the method.
+    return method.invoke (object, arguments);
   }
 
 
@@ -386,10 +391,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void addPhysicalFileMember(String name, String textDescription)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Create the ADDPFM command string
     StringBuffer cmd = new StringBuffer("QSYS/ADDPFM FILE(");
@@ -406,7 +411,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       cmd.append(")"); //@B3A
     }
     else if (textDescription.length() == 0 || textDescription.equalsIgnoreCase(AS400File.BLANK)) //@A3C
-    { // Empty string passed for text or special value *BLANK specified
+    {
+      // Empty string passed for text or special value *BLANK specified
       cmd.append(AS400File.BLANK); //@B3C
       cmd.append(")"); //@B3A
     }
@@ -500,7 +506,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         else if (res < 0) match = LESS_THAN;
         //@B4C -- end
       }
-      else if ( key[j] instanceof BigDecimal && recKey[j] instanceof BigDecimal)
+      else if (key[j] instanceof BigDecimal && recKey[j] instanceof BigDecimal)
       { // decimal field
         BigDecimal searchKey = (BigDecimal)key[j];
         BigDecimal recordKey = (BigDecimal)recKey[j];
@@ -543,7 +549,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     if ((numberOfKeyFields < 1) || (numberOfKeyFields > recordFormat_.getNumberOfKeyFields()))
     {
       throw new ExtendedIllegalArgumentException("numberOfKeyFields",
-         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                                                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
     // Check to see if the byte length of 'key' is valid on a per key field basis.
@@ -626,21 +632,21 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *AS/400.
    **/
   public void close() //@B0C -- this method is overridden by the subclasses
-    throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
   {
-      // Shut down any caching
-      cacheRecords_ = false;
-      cache_.setIsEmpty();
+    // Shut down any caching
+    cacheRecords_ = false;
+    cache_.setIsEmpty();
 
-      // Reset the blocking factor
-      blockingFactor_ = 0;
+    // Reset the blocking factor
+    blockingFactor_ = 0;
 
-      // Reset the open type. -1 indicates that the file is not open
-      openType_ = -1;
+    // Reset the open type. -1 indicates that the file is not open
+    openType_ = -1;
 
-      // Reset the commit lock level.
-      commitLockLevel_ = (isCommitmentControlStarted() ?
-                          AS400File.COMMIT_LOCK_LEVEL_NONE : -1 );
+    // Reset the commit lock level.
+    commitLockLevel_ = (isCommitmentControlStarted() ?
+                        AS400File.COMMIT_LOCK_LEVEL_NONE : -1 );
   }
 
 
@@ -649,7 +655,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * avoid 4 separate proxy calls.
   **/
   public void setAll(AS400Impl system, String pathName, RecordFormat rf, boolean readNoUpdate, boolean isKeyed, boolean ssp) //@B5C
-    throws IOException //@B5A - 06/08/1999
+  throws IOException //@B5A - 06/08/1999
   {
     setSystem(system);
     setPath(pathName);
@@ -672,7 +678,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *AS/400.
    **/
   public abstract void commit()
-    throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
+  throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
 
 
   //@E2A
@@ -680,7 +686,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // a native method (the call to execute()) so we just set all of the
   // necessary state variables and act like we're a normal object.
   public void commit(AS400Impl system)
-    throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
   {
     if (isCommitmentControlStarted(system))
     {
@@ -738,10 +744,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * formats from the AS/400.
   **/
   public RecordFormat setRecordFormat(int rf)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (rfCache_ == null)
     {
@@ -763,10 +769,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    * formats from the AS/400.
   **/
   public RecordFormat setRecordFormat(String rf)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (rfCache_ == null)
     {
@@ -789,7 +795,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
   public void setRecordFormat(RecordFormat rf)
-    throws IOException //@E0A
+  throws IOException //@E0A
   {
     if (rf != null) //@E0A
     {
@@ -849,31 +855,34 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@return The user file control block to be sent on an open() invocation.
   **/
   /*@D2D protected*/public byte[] createUFCB(int openType, int bf, String access,
-                              boolean userBuffering)
-    throws IOException
+                                             boolean userBuffering)
+  throws IOException
   {
     if (converter_ == null) setConverter(); //@B0A
     int openOptions;
     byte[] ufcb = null;
     boolean isCommitmentControlStarted =
-      isCommitmentControlStarted();
+    isCommitmentControlStarted();
 
     boolean isSSPviaDDM = ssp_;                                                               // #SSPDDM
 
     // The length of the byte array depends on which combination of
     // openType and access has been specified and whether commitment
     // control has been started.
-    if (isSSPviaDDM)													                                            // #SSPDDM
-    {                                                                                     // #SSPDDM
-	    if (access.equalsIgnoreCase("SEQ") && openType == AS400File.WRITE_ONLY)             // #SSPDDM
-	    { // Sequential, write_only                                                         // #SSPDDM
-	      ufcb = new byte[isCommitmentControlStarted ? 93 : 90]; //@A1C                     // #SSPDDM
-	    }                                                                                   // #SSPDDM
-	    else                                                                                // #SSPDDM
-	    { // Sequential, read_write or read_only, commitment control has not been started.  // #SSPDDM
-	      // Keyed, any type of open, commitment control has not been started               // #SSPDDM
-	      ufcb = new byte[isCommitmentControlStarted ? 96 : 93]; //@A1C                     // #SSPDDM
-	    }                                                                                   // #SSPDDM
+    if (isSSPviaDDM)                                                                      // #SSPDDM
+    {
+      // #SSPDDM
+      if (access.equalsIgnoreCase("SEQ") && openType == AS400File.WRITE_ONLY)             // #SSPDDM
+      {
+        // Sequential, write_only                                                         // #SSPDDM
+        ufcb = new byte[isCommitmentControlStarted ? 93 : 90]; //@A1C                     // #SSPDDM
+      }                                                                                   // #SSPDDM
+      else                                                                                // #SSPDDM
+      {
+        // Sequential, read_write or read_only, commitment control has not been started.  // #SSPDDM
+        // Keyed, any type of open, commitment control has not been started               // #SSPDDM
+        ufcb = new byte[isCommitmentControlStarted ? 96 : 93]; //@A1C                     // #SSPDDM
+      }                                                                                   // #SSPDDM
     }
     else
     {
@@ -897,18 +906,29 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     else if (openType == AS400File.READ_WRITE)
     {
-	    if (isSSPviaDDM)                                                                    // #SSPDDM
-	    {                                                                                   // #SSPDDM
-	    	openOptions = 0x2C | userBufferingAndODPSharingOff;                               // #SSPDDM
-	    }                                                                                   // #SSPDDM
-	    else                                                                                // #SSPDDM
-	    {                                                                                   // #SSPDDM
+      if (isSSPviaDDM)                                                                    // #SSPDDM
+      {
+        // #SSPDDM
+        openOptions = 0x2C | userBufferingAndODPSharingOff;                               // #SSPDDM
+      }                                                                                   // #SSPDDM
+      else                                                                                // #SSPDDM
+      {
+        // #SSPDDM
         openOptions = 0x3C | userBufferingAndODPSharingOff;
       }
     }
     else
     {
-      openOptions = 0x10 | userBufferingAndODPSharingOff;
+      if (isSSPviaDDM)                                                                    // #SSPDDM1
+      {
+        // #SSPDDM1
+        openOptions = 0x18 | userBufferingAndODPSharingOff;               // #SSPDDM1
+      }                                                                                   // #SSPDDM1
+      else                                                                                // #SSPDDM1
+      {
+        // #SSPDDM1
+        openOptions = 0x10 | userBufferingAndODPSharingOff;
+      }                                                                                   // #SSPDDM1
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -951,12 +971,14 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     ufcb[56] = 0x20;
 
     // Indicate that we can handle null capable fields
-    if (isSSPviaDDM && (openType == AS400File.WRITE_ONLY) )                               // #SSPDDM
-    {                                                                                     // #SSPDDM
+    if (isSSPviaDDM && (openType == AS400File.WRITE_ONLY))                               // #SSPDDM
+    {
+      // #SSPDDM
       ufcb[60] = 0x00;                                                                    // #SSPDDM
     }                                                                                     // #SSPDDM
     else                                                                                  // #SSPDDM
-    {                                                                                     // #SSPDDM
+    {
+      // #SSPDDM
       ufcb[60] = 0x02;
     }
 
@@ -1010,28 +1032,28 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     {
       // Parameter id for COMMIT is 59
       BinaryConverter.unsignedShortToByteArray(59, ufcb, offset);
-      switch(commitLockLevel_)
+      switch (commitLockLevel_)
       {
-      case AS400File.COMMIT_LOCK_LEVEL_NONE:
-        // COMMIT(NO); No commitment control for this file
-        ufcb[offset + 2] = (byte)0x00;
-        break;
-      case AS400File.COMMIT_LOCK_LEVEL_DEFAULT:
-        // COMMIT(YES); use lock level specified by connection
-        ufcb[offset + 2] = (byte)0x80;
-        break;
-      case AS400File.COMMIT_LOCK_LEVEL_CHANGE:
-        // COMMIT(*CHG); use lock level of *CHG
-        ufcb[offset + 2] = (byte)0x82;
-        break;
-      case AS400File.COMMIT_LOCK_LEVEL_CURSOR_STABILITY:
-        // COMMIT(*CS); use lock level of *CS
-        ufcb[offset + 2] = (byte)0x86;
-        break;
-      case AS400File.COMMIT_LOCK_LEVEL_ALL:
-        // COMMIT(*ALL); use lock level of *ALL
-        ufcb[offset + 2] = (byte)0x87;
-        break;
+        case AS400File.COMMIT_LOCK_LEVEL_NONE:
+          // COMMIT(NO); No commitment control for this file
+          ufcb[offset + 2] = (byte)0x00;
+          break;
+        case AS400File.COMMIT_LOCK_LEVEL_DEFAULT:
+          // COMMIT(YES); use lock level specified by connection
+          ufcb[offset + 2] = (byte)0x80;
+          break;
+        case AS400File.COMMIT_LOCK_LEVEL_CHANGE:
+          // COMMIT(*CHG); use lock level of *CHG
+          ufcb[offset + 2] = (byte)0x82;
+          break;
+        case AS400File.COMMIT_LOCK_LEVEL_CURSOR_STABILITY:
+          // COMMIT(*CS); use lock level of *CS
+          ufcb[offset + 2] = (byte)0x86;
+          break;
+        case AS400File.COMMIT_LOCK_LEVEL_ALL:
+          // COMMIT(*ALL); use lock level of *ALL
+          ufcb[offset + 2] = (byte)0x87;
+          break;
       }
       offset += 3;
     }
@@ -1061,7 +1083,8 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     // RECORD FORMAT GROUP parameter
     //////////////////////////////////////////////////////////////////////////////////
     if (!isSSPviaDDM)                                                                       // #SSPDDM
-    {                                                                                       // #SSPDDM
+    {
+      // #SSPDDM
       BinaryConverter.unsignedShortToByteArray(9, ufcb, offset); // Parm id
       BinaryConverter.unsignedShortToByteArray(1, ufcb, offset + 2); // Max # of record formats
       BinaryConverter.unsignedShortToByteArray(1, ufcb, offset + 4); // Cur # of record formats
@@ -1090,7 +1113,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
    **/
   public abstract void deleteCurrentRecord()
-    throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
+  throws AS400Exception, AS400SecurityException, InterruptedException,  IOException;
 
   /**
    *Deletes the member associated with this object from the file.  The object cannot
@@ -1109,13 +1132,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void deleteMember()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     AS400Message[] msgs = execute("QSYS/RMVM FILE(" + library_ + "/" +  //@B0C
-                                        file_ + ") MBR(" + member_ + ")");
+                                  file_ + ") MBR(" + member_ + ")");
     if (msgs.length > 0 && msgs[0].getID() != null)
     {
       if (!msgs[0].getID().equals("CPC7309"))
@@ -1153,10 +1176,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
    **/
   public void endCommitmentControl()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     endCommitmentControl(system_); //@E2A
 /*@E2D    if (isCommitmentControlStarted())
@@ -1182,10 +1205,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // a native method (the call to execute()) so we just set all of the
   // necessary state variables and act like we're a normal object.
   public void endCommitmentControl(AS400Impl system)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     synchronized(commitmentControlSystems_)
     {
@@ -1235,10 +1258,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void startCommitmentControl(int commitLockLevel)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     startCommitmentControl(system_, commitLockLevel); //@E2A
 /*@E2D
@@ -1284,10 +1307,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // a native method (the call to execute()) so we just set all of the
   // necessary state variables and act like we're a normal object.
   public void startCommitmentControl(AS400Impl system, int commitLockLevel)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     synchronized(commitmentControlSystems_)
     {
@@ -1310,7 +1333,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
       // Build the command to start commitment control.
       StringBuffer cmd = new StringBuffer("QSYS/STRCMTCTL LCKLVL(*");
-      switch(commitLockLevel)
+      switch (commitLockLevel)
       {
         case AS400File.COMMIT_LOCK_LEVEL_CHANGE:
           cmd.append("CHG)");
@@ -1381,43 +1404,43 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void releaseExplicitLocks()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (explicitLocksObtained_.size() > 0)
     {
       // Build the command to release the explicit locks.
       StringBuffer cmd = new StringBuffer("QSYS/DLCOBJ OBJ(");
       for (Enumeration e = explicitLocksObtained_.elements();
-           e.hasMoreElements();)
+          e.hasMoreElements();)
       {
         cmd.append("(");
         cmd.append(library_);
         cmd.append("/");
         cmd.append(file_);
         cmd.append(" *FILE ");
-        switch(((Integer) e.nextElement()).intValue())
+        switch (((Integer) e.nextElement()).intValue())
         {
-        case AS400File.READ_ALLOW_SHARED_READ_LOCK:
-          cmd.append("*SHRNUP ");
-          break;
-        case AS400File.READ_ALLOW_SHARED_WRITE_LOCK:
-          cmd.append("*SHRRD ");
-          break;
-        case AS400File.READ_EXCLUSIVE_LOCK:
-        case AS400File.WRITE_EXCLUSIVE_LOCK:
-          cmd.append("*EXCL ");
-          break;
-        case AS400File.WRITE_ALLOW_SHARED_READ_LOCK:
-          cmd.append("*EXCLRD ");
-          break;
-        case AS400File.WRITE_ALLOW_SHARED_WRITE_LOCK:
-          cmd.append("*SHRUPD ");
-          break;
-        default:
-          throw new InternalErrorException(InternalErrorException.UNKNOWN);
+          case AS400File.READ_ALLOW_SHARED_READ_LOCK:
+            cmd.append("*SHRNUP ");
+            break;
+          case AS400File.READ_ALLOW_SHARED_WRITE_LOCK:
+            cmd.append("*SHRRD ");
+            break;
+          case AS400File.READ_EXCLUSIVE_LOCK:
+          case AS400File.WRITE_EXCLUSIVE_LOCK:
+            cmd.append("*EXCL ");
+            break;
+          case AS400File.WRITE_ALLOW_SHARED_READ_LOCK:
+            cmd.append("*EXCLRD ");
+            break;
+          case AS400File.WRITE_ALLOW_SHARED_WRITE_LOCK:
+            cmd.append("*SHRUPD ");
+            break;
+          default:
+            throw new InternalErrorException(InternalErrorException.UNKNOWN);
         }
         cmd.append(member_);
         cmd.append(") ");
@@ -1446,7 +1469,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
    **/
   public abstract AS400Message[] execute(String cmd)
-    throws AS400SecurityException, InterruptedException, IOException;
+  throws AS400SecurityException, InterruptedException, IOException;
 
 
   /**
@@ -1466,7 +1489,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    **/
   public int getCommitLockLevel()
   {
-    return (isCommitmentControlStarted() ? commitLockLevel_ : -1);
+    return(isCommitmentControlStarted() ? commitLockLevel_ : -1);
   }
 
 
@@ -1554,10 +1577,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void create(int recordLength, String fileType, String textDescription)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Create the CRTPF command string
     StringBuffer cmd = new StringBuffer("QSYS/CRTPF FILE(");
@@ -1627,11 +1650,11 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void create(String ddsSourceFile,
-              String textDescription)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+                     String textDescription)
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Parse the ddsDourceFile into library, file and member
     QSYSObjectPathName ifs = new QSYSObjectPathName(ddsSourceFile);
@@ -1727,14 +1750,14 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
   **/
   public abstract void createDDSSourceFile(RecordFormat recordFormat, //@D0C 7/15/99 @E1C
-                                                String altSeq,
-                                                String ccsid,
-                                                String order,
-                                                String ref,
-                                                boolean unique,
-                                                String format,
-                                                String text)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
+                                           String altSeq,
+                                           String ccsid,
+                                           String order,
+                                           String ref,
+                                           boolean unique,
+                                           String format,
+                                           String text)
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
   //@D0 7/15/99 - made abstract and moved code into ImplRemote
 
 
@@ -1757,13 +1780,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void delete()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     AS400Message[] msgs = execute("QSYS/DLTF FILE(" + library_ + "/" +  //@B0C
-                                        file_ + ")");
+                                  file_ + ")");
     if (msgs.length > 0)
     {
       if (msgs[0].getID() != null && !msgs[0].getID().equals("CPC2191"))
@@ -1807,10 +1830,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception UnknownHostException If the AS/400 system cannot be located.
    **/
   public void lock(int lockToObtain)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Integer l = new Integer(lockToObtain);
     if (!explicitLocksObtained_.contains(l))
@@ -1821,26 +1844,26 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       cmd.append("/");
       cmd.append(file_);
       cmd.append(" *FILE ");
-      switch(lockToObtain)
+      switch (lockToObtain)
       {
-      case AS400File.READ_ALLOW_SHARED_READ_LOCK:
-        cmd.append("*SHRNUP ");
-        break;
-      case AS400File.READ_ALLOW_SHARED_WRITE_LOCK:
-        cmd.append("*SHRRD ");
-        break;
-      case AS400File.READ_EXCLUSIVE_LOCK:
-      case AS400File.WRITE_EXCLUSIVE_LOCK:
-        cmd.append("*EXCL ");
-        break;
-      case AS400File.WRITE_ALLOW_SHARED_READ_LOCK:
-        cmd.append("*EXCLRD ");
-        break;
-      case AS400File.WRITE_ALLOW_SHARED_WRITE_LOCK:
-        cmd.append("*SHRUPD ");
-        break;
-      default:
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        case AS400File.READ_ALLOW_SHARED_READ_LOCK:
+          cmd.append("*SHRNUP ");
+          break;
+        case AS400File.READ_ALLOW_SHARED_WRITE_LOCK:
+          cmd.append("*SHRRD ");
+          break;
+        case AS400File.READ_EXCLUSIVE_LOCK:
+        case AS400File.WRITE_EXCLUSIVE_LOCK:
+          cmd.append("*EXCL ");
+          break;
+        case AS400File.WRITE_ALLOW_SHARED_READ_LOCK:
+          cmd.append("*EXCLRD ");
+          break;
+        case AS400File.WRITE_ALLOW_SHARED_WRITE_LOCK:
+          cmd.append("*SHRUPD ");
+          break;
+        default:
+          throw new InternalErrorException(InternalErrorException.UNKNOWN);
       }
       cmd.append(member_);
       cmd.append("))");
@@ -1869,18 +1892,18 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public abstract DDMS38OpenFeedback openFile(int openType, int bf, String access)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
 
 
   //@B0A - need this for compatibility with the remote and native impls
   public String[] openFile2(int openType, int blockingFactor, int commitLockLevel, String access)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     return openFile2(openType, blockingFactor, commitLockLevel, access.equals("key"));
   }
 
   public String[] openFile2(int openType, int blockingFactor, int commitLockLevel, boolean access) //@B0C
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     commitLockLevel_ = (isCommitmentControlStarted() ? commitLockLevel : -1);
 
@@ -1923,12 +1946,13 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 
     // @A5A
     // Set the record format CTLL name
-    if (!recordFormatName_.equals(recordFormat_.getName())) {
-        recordFormatName_ = recordFormat_.getName();
-        StringBuffer recordName = new StringBuffer(recordFormat_.getName());
-        while (recordName.length() < 10) recordName.append(' ');
-        ConverterImplRemote c = ConverterImplRemote.getConverter(system_.getCcsid(), system_); //@B5C
-        recordFormatCTLLName_ = c.stringToByteArray(recordName.toString());
+    if (!recordFormatName_.equals(recordFormat_.getName()))
+    {
+      recordFormatName_ = recordFormat_.getName();
+      StringBuffer recordName = new StringBuffer(recordFormat_.getName());
+      while (recordName.length() < 10) recordName.append(' ');
+      ConverterImplRemote c = ConverterImplRemote.getConverter(system_.getCcsid(), system_); //@B5C
+      recordFormatCTLLName_ = c.stringToByteArray(recordName.toString());
     }
 
 
@@ -1970,10 +1994,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursor(int recordNumber)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // If caching, check if position is in the cache.  If it is not, refresh the
     // the cache and position appropriately.
@@ -2021,10 +2045,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursor(Object[] key, int searchType)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     positionCursorToKey(key, searchType);
     // Invalidate the cache
@@ -2066,10 +2090,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursor(byte[] key, int searchType, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     positionCursorToKey(key, searchType, numberOfKeyFields);
     // Invalidate the cache
@@ -2095,10 +2119,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursorAfter(Object[] key)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Position the cursor to the record matching key
     positionCursorToKey(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
@@ -2129,10 +2153,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursorAfter(byte[] key, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Position the cursor to the record matching key
     positionCursorToKey(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
@@ -2147,28 +2171,28 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Positions the file cursor to after the last record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract void positionCursorAfterLast()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Positions the file cursor to after the last record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract void positionCursorAfterLast()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
-   /**
-    *Positions the file cursor to the specified position (first, last, next,
-    *previous).
-    *@param type the type of position operation
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record[] positionCursorAt(int type)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Positions the file cursor to the specified position (first, last, next,
+   *previous).
+   *@param type the type of position operation
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record[] positionCursorAt(int type)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
   /**
@@ -2184,10 +2208,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursorBefore(int recordNumber)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (cacheRecords_)
     {
@@ -2232,10 +2256,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursorBefore(Object[] key)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Position the cursor to the record matching key
     positionCursorToKey(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
@@ -2268,10 +2292,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public void positionCursorBefore(byte[] key, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Position the cursor to the record matching key
     positionCursorToKey(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
@@ -2288,265 +2312,265 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Positions the file cursor to before the first record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract void positionCursorBeforeFirst()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Positions the file cursor to before the first record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract void positionCursorBeforeFirst()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
-   /**
-    *Positions the cursor to the first record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public void positionCursorToFirst()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-   {
-     // If we are caching records and the cache contains the first record,
-     // position the cache.  Otherwise, position the file and refresh the
-     // cache if we are caching records.
-     if (cacheRecords_ && cache_.containsFirstRecord())
-     {
-       cache_.setPositionFirst();
-     }
-     else
-     {
-       if (cacheRecords_)
-       {
-         cache_.setIsEmpty();
-       }
-       positionCursorAt(TYPE_GET_FIRST);
-     }
-   }
+  /**
+   *Positions the cursor to the first record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public void positionCursorToFirst()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // If we are caching records and the cache contains the first record,
+    // position the cache.  Otherwise, position the file and refresh the
+    // cache if we are caching records.
+    if (cacheRecords_ && cache_.containsFirstRecord())
+    {
+      cache_.setPositionFirst();
+    }
+    else
+    {
+      if (cacheRecords_)
+      {
+        cache_.setIsEmpty();
+      }
+      positionCursorAt(TYPE_GET_FIRST);
+    }
+  }
 
 
-   /**
-    *Positions the cursor to the record at the specified file position.
-    *@parm index the file position
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record positionCursorToIndex(int index)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Positions the cursor to the record at the specified file position.
+   *@parm index the file position
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record positionCursorToIndex(int index)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
-   /**
-    *Positions the cursor to the first record in the file that matches the
-    *specified key.
-    *@param key the key
-    *@param searchType the way to compare keys
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record positionCursorToKey(Object[] key,
-                                       int searchType)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
-
-
-   // @A2A
-   /**
-    *Positions the cursor to the first record in the file that matches the
-    *specified key.
-    *@param key the byte array that contains the byte values of the key
-    *@param searchType the way to compare keys
-    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record positionCursorToKey(byte[] key,
-                                       int searchType, int numberOfKeyFields)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Positions the cursor to the first record in the file that matches the
+   *specified key.
+   *@param key the key
+   *@param searchType the way to compare keys
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record positionCursorToKey(Object[] key,
+                                             int searchType)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
+  // @A2A
+  /**
+   *Positions the cursor to the first record in the file that matches the
+   *specified key.
+   *@param key the byte array that contains the byte values of the key
+   *@param searchType the way to compare keys
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record positionCursorToKey(byte[] key,
+                                             int searchType, int numberOfKeyFields)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
-   /**
-    *Positions the cursor to the last record in the file.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public void positionCursorToLast()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-   {
-     // If we are caching records and the cache contains the first record,
-     // position the cache.  Otherwise, position the file and refresh the
-     // cache if we are caching records.
-     if (cacheRecords_ && cache_.containsLastRecord())
-     {
-       cache_.setPositionLast();
-     }
-     else
-     {
-       if (cacheRecords_)
-       {
-         cache_.setIsEmpty();
-       }
-       positionCursorAt(TYPE_GET_LAST);
-     }
-   }
 
-   /**
-    *Positions the cursor to the next record in the file.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public void positionCursorToNext()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-   {
-     // Check if we are caching.  If we are and we are not at the end of the cache,
-     // just position ourselves within the cache, otherwise position ourselves in the file
-     // and refresh the cache.
-     if (cacheRecords_)
-     {
-       if (cache_.isEmpty() || (cache_.isEndOfCache() && cache_.currentDirection_ == DDMRecordCache.FORWARD))
-       {
-         cache_.refresh(positionCursorAt(TYPE_GET_NEXT), DDMRecordCache.FORWARD, false, false);
-       }
-       else if (cache_.isEndOfCache() && cache_.currentDirection_ != DDMRecordCache.FORWARD)
-       {
-         refreshCache(null, DDMRecordCache.FORWARD, false, false);
-       }
-       else
-       {
-         if (Trace.isTraceOn())
-         {
-           Trace.log(Trace.INFORMATION, "positionCursorToNext: positioning in cache.");
-         }
-         cache_.setPositionNext();
-       }
-     }
-     else
-     { // Not caching; just position ourselves in the file
-       positionCursorAt(TYPE_GET_NEXT);
-     }
-   }
 
-   /**
-    *Positions the cursor to the previous record in the file.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public void positionCursorToPrevious()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-   {
-     // Check if we are caching.  If we are and we are not at the end of the cache,
-     // just position ourselves within the cache, otherwise position ourselves in the file
-     // and refresh the cache.
-     if (cacheRecords_)
-     {
-       if (cache_.isEmpty() || (cache_.isBeginningOfCache() && cache_.currentDirection_ == DDMRecordCache.BACKWARD))
-       {
-         cache_.refresh(positionCursorAt(TYPE_GET_PREV), DDMRecordCache.BACKWARD, false, false);
-       }
-       else if (cache_.isBeginningOfCache() && cache_.currentDirection_ != DDMRecordCache.BACKWARD)
-       {
-         refreshCache(null, DDMRecordCache.BACKWARD, false, false);
-       }
-       else
-       {
-         if (Trace.isTraceOn())
-         {
-           Trace.log(Trace.INFORMATION, "positionCursorToPrev: positioning in cache.");
-         }
-         cache_.setPositionPrevious();
-       }
-     }
-     else
-     { // Not caching; just position ourselves in the file
-       positionCursorAt(TYPE_GET_PREV);
-     }
-   }
+  /**
+   *Positions the cursor to the last record in the file.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public void positionCursorToLast()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // If we are caching records and the cache contains the first record,
+    // position the cache.  Otherwise, position the file and refresh the
+    // cache if we are caching records.
+    if (cacheRecords_ && cache_.containsLastRecord())
+    {
+      cache_.setPositionLast();
+    }
+    else
+    {
+      if (cacheRecords_)
+      {
+        cache_.setIsEmpty();
+      }
+      positionCursorAt(TYPE_GET_LAST);
+    }
+  }
 
-   /**
-    Reads the record at the current file position.
-    @return the record read.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public Record read()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-   {
-     // If we are caching, get the current record at which we are pointing.  If we are
-     // not positioned on record in the cache we are not positioned on a record in the
-     // file either.  In order to get the correct error information thrown, we call
-     // readRecord() to read from the file and throw the exception.
-     Record r = null;
-     if (cacheRecords_)
-     {
-       r = cache_.getCurrent();
-     }
-     if (r == null)
-     {
-       r = readRecord(TYPE_GET_SAME);
-     }
+  /**
+   *Positions the cursor to the next record in the file.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public void positionCursorToNext()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // Check if we are caching.  If we are and we are not at the end of the cache,
+    // just position ourselves within the cache, otherwise position ourselves in the file
+    // and refresh the cache.
+    if (cacheRecords_)
+    {
+      if (cache_.isEmpty() || (cache_.isEndOfCache() && cache_.currentDirection_ == DDMRecordCache.FORWARD))
+      {
+        cache_.refresh(positionCursorAt(TYPE_GET_NEXT), DDMRecordCache.FORWARD, false, false);
+      }
+      else if (cache_.isEndOfCache() && cache_.currentDirection_ != DDMRecordCache.FORWARD)
+      {
+        refreshCache(null, DDMRecordCache.FORWARD, false, false);
+      }
+      else
+      {
+        if (Trace.isTraceOn())
+        {
+          Trace.log(Trace.INFORMATION, "positionCursorToNext: positioning in cache.");
+        }
+        cache_.setPositionNext();
+      }
+    }
+    else
+    { // Not caching; just position ourselves in the file
+      positionCursorAt(TYPE_GET_NEXT);
+    }
+  }
 
-     return r;
-   }
+  /**
+   *Positions the cursor to the previous record in the file.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public void positionCursorToPrevious()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // Check if we are caching.  If we are and we are not at the end of the cache,
+    // just position ourselves within the cache, otherwise position ourselves in the file
+    // and refresh the cache.
+    if (cacheRecords_)
+    {
+      if (cache_.isEmpty() || (cache_.isBeginningOfCache() && cache_.currentDirection_ == DDMRecordCache.BACKWARD))
+      {
+        cache_.refresh(positionCursorAt(TYPE_GET_PREV), DDMRecordCache.BACKWARD, false, false);
+      }
+      else if (cache_.isBeginningOfCache() && cache_.currentDirection_ != DDMRecordCache.BACKWARD)
+      {
+        refreshCache(null, DDMRecordCache.BACKWARD, false, false);
+      }
+      else
+      {
+        if (Trace.isTraceOn())
+        {
+          Trace.log(Trace.INFORMATION, "positionCursorToPrev: positioning in cache.");
+        }
+        cache_.setPositionPrevious();
+      }
+    }
+    else
+    { // Not caching; just position ourselves in the file
+      positionCursorAt(TYPE_GET_PREV);
+    }
+  }
 
-   /**
-    Reads the record at the specified file position.
-    @param recordNumber the file position
-    @return the record read.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
+  /**
+   Reads the record at the current file position.
+   @return the record read.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public Record read()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // If we are caching, get the current record at which we are pointing.  If we are
+    // not positioned on record in the cache we are not positioned on a record in the
+    // file either.  In order to get the correct error information thrown, we call
+    // readRecord() to read from the file and throw the exception.
+    Record r = null;
+    if (cacheRecords_)
+    {
+      r = cache_.getCurrent();
+    }
+    if (r == null)
+    {
+      r = readRecord(TYPE_GET_SAME);
+    }
+
+    return r;
+  }
+
+  /**
+   Reads the record at the specified file position.
+   @param recordNumber the file position
+   @return the record read.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
   public Record read(int recordNumber) //@B0C -- this is overridden in the subclasses
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
 //@B0D    if (cacheRecords_)
 //@B0D    {
-      Record r = cache_.getRecord(recordNumber);
-      if (r == null)
-      { // Record is not in cache; read it from the file and refresh
-        try
+    Record r = cache_.getRecord(recordNumber);
+    if (r == null)
+    { // Record is not in cache; read it from the file and refresh
+      try
+      {
+        // Position to the record and refresh the cache
+        r = positionCursorToIndex(recordNumber);
+        refreshCache(null, DDMRecordCache.FORWARD, false, false);
+        // Add the current record to the cache at the beginning
+        cache_.add(r, false);
+        cache_.setPositionFirst();
+      }
+      catch (AS400Exception e)
+      { // If we get CPF5001 or CPF5006 (end of file or record not found)
+        // from the position operation we want to return null in order
+        // to mimic what we do when we are not caching.
+        String id = e.getAS400Message().getID();
+        if (id.equals("CPF5001") || id.equals("CPF5006"))
         {
-          // Position to the record and refresh the cache
-          r = positionCursorToIndex(recordNumber);
-          refreshCache(null, DDMRecordCache.FORWARD, false, false);
-          // Add the current record to the cache at the beginning
-          cache_.add(r, false);
-          cache_.setPositionFirst();
+          return null;
         }
-        catch(AS400Exception e)
-        { // If we get CPF5001 or CPF5006 (end of file or record not found)
-          // from the position operation we want to return null in order
-          // to mimic what we do when we are not caching.
-          String id = e.getAS400Message().getID();
-          if (id.equals("CPF5001") || id.equals("CPF5006"))
-          {
-            return null;
-          }
-          else
-          {
-            throw e;
-          }
+        else
+        {
+          throw e;
         }
       }
-      return r;
+    }
+    return r;
 //@B0D    }
 //@B0D    else
 //@B0D    {
@@ -2554,36 +2578,36 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
 //@B0D    }
   }
 
-   /**
-    *Reads the first record with the specified key based on the specified search type.
-    *@param key The values that make up the key with which to find the record.
-    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
-    *@return The record read.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record read(Object[] key,
-                        int searchType)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Reads the first record with the specified key based on the specified search type.
+   *@param key The values that make up the key with which to find the record.
+   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@return The record read.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record read(Object[] key,
+                              int searchType)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
-   // @A2A
-   /**
-    *Reads the first record with the specified key based on the specified search type.
-    *@param key The byte array that contains the byte values that make up the key with which to find the record.
-    *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
-    *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
-    *@return The record read.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record read(byte[] key,
-                        int searchType, int numberOfKeyFields)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  // @A2A
+  /**
+   *Reads the first record with the specified key based on the specified search type.
+   *@param key The byte array that contains the byte values that make up the key with which to find the record.
+   *@param type The type of read.  This value is one of the TYPE_GETKEY_* constants.
+   *@param numberOfKeyFields The number of key fields contained in the byte array <i>key</i>.
+   *@return The record read.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record read(byte[] key,
+                              int searchType, int numberOfKeyFields)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
 /*  Record read2(byte[] key,
@@ -2613,10 +2637,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readAfter(int recordNumber)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (cacheRecords_)
     {
@@ -2668,10 +2692,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readAfter(Object[] key)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     positionCursorToKey(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
     if (cacheRecords_)
@@ -2699,10 +2723,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readAfter(byte[] key, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     positionCursorToKey(key, KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
     if (cacheRecords_)
@@ -2713,17 +2737,17 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Reads all the records in the file.
-    *@param fileType The type of file.  Valid values are: key or seq
-    *@return The records read.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract Record[] readAll(String fileType, int bf) //@D0C
-     throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
+  /**
+   *Reads all the records in the file.
+   *@param fileType The type of file.  Valid values are: key or seq
+   *@return The records read.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record[] readAll(String fileType, int bf) //@D0C
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException;
 
   /**
    *Reads the first record before the record with the specified record number.
@@ -2738,10 +2762,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readBefore(int recordNumber)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     if (cacheRecords_)
     {
@@ -2793,10 +2817,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readBefore(Object[] key)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record r = positionCursorToKey(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ]);
     if (cacheRecords_)
@@ -2824,10 +2848,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readBefore(byte[] key, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record r = positionCursorToKey(key,  KeyedFile.TYPE_TABLE[KeyedFile.KEY_EQ], numberOfKeyFields);
     if (cacheRecords_)
@@ -2838,101 +2862,101 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Reads the first record from the file.
-    *@return the first record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-    public Record readFirst()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  /**
+   *Reads the first record from the file.
+   *@return the first record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public Record readFirst()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // If we are caching, check the cache for the record.  IF not found refresh the
+    // cache.
+    if (cacheRecords_)
     {
-      // If we are caching, check the cache for the record.  IF not found refresh the
-      // cache.
-      if (cacheRecords_)
+      if (cache_.containsFirstRecord())
       {
-        if (cache_.containsFirstRecord())
-        {
-          return cache_.getFirst();
-        }
-        else //@A4A: Invalidate the cache since we will be going to the system
-        {
-          // Invalidate the cache
-          cache_.setIsEmpty();
-        }
+        return cache_.getFirst();
       }
-
-      // Not caching, read from the file.
-      return readRecord(TYPE_GET_FIRST);
+      else //@A4A: Invalidate the cache since we will be going to the system
+      {
+        // Invalidate the cache
+        cache_.setIsEmpty();
+      }
     }
 
-   /**
-    *Reads the last record from the file.
-    *@return the first record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-    public Record readLast()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-    {
-      // If we are caching, check the cache for the record.  IF not found refresh the
-      // cache.
-      if (cacheRecords_)
-      {
-        if (cache_.containsLastRecord())
-        {
-          return cache_.getLast();
-        }
-        else //@A4A: Invalidate the cache since we will be going to the system
-        {
-          // Invalidate the cache
-          cache_.setIsEmpty();
-        }
-      }
+    // Not caching, read from the file.
+    return readRecord(TYPE_GET_FIRST);
+  }
 
-      // Not caching, read from the file.
-      return readRecord(TYPE_GET_LAST);
+  /**
+   *Reads the last record from the file.
+   *@return the first record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public Record readLast()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // If we are caching, check the cache for the record.  IF not found refresh the
+    // cache.
+    if (cacheRecords_)
+    {
+      if (cache_.containsLastRecord())
+      {
+        return cache_.getLast();
+      }
+      else //@A4A: Invalidate the cache since we will be going to the system
+      {
+        // Invalidate the cache
+        cache_.setIsEmpty();
+      }
     }
 
-   /**
-    *Reads the next record from the file.
-    *@return the first record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-    public Record readNext()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
-    {
-      Record r = null;
-      // If we are caching, check the cache for the record.  IF not found refresh the
-      // cache.
-      if (cacheRecords_)
-      {
-        r = cache_.getNext();
-        if (r == null)
-        {
-          if (Trace.isTraceOn())
-          {
-            Trace.log(Trace.INFORMATION, "AS400FileImplBase.readNext(): cache_.getNext() returned null.");
-          }
-          refreshCache(null, DDMRecordCache.FORWARD, false, false);
-          return cache_.getCurrent();
-        }
-        else
-        {
-          return r;
-        }
-      }
+    // Not caching, read from the file.
+    return readRecord(TYPE_GET_LAST);
+  }
 
-      // Not caching, read from the file.
-      return readRecord(TYPE_GET_NEXT);
+  /**
+   *Reads the next record from the file.
+   *@return the first record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public Record readNext()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    Record r = null;
+    // If we are caching, check the cache for the record.  IF not found refresh the
+    // cache.
+    if (cacheRecords_)
+    {
+      r = cache_.getNext();
+      if (r == null)
+      {
+        if (Trace.isTraceOn())
+        {
+          Trace.log(Trace.INFORMATION, "AS400FileImplBase.readNext(): cache_.getNext() returned null.");
+        }
+        refreshCache(null, DDMRecordCache.FORWARD, false, false);
+        return cache_.getCurrent();
+      }
+      else
+      {
+        return r;
+      }
     }
+
+    // Not caching, read from the file.
+    return readRecord(TYPE_GET_NEXT);
+  }
 
   /**
    *Reads the next record whose key matches the full key of the current record.
@@ -2946,10 +2970,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readNextEqual()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Object[] key;
     if (cacheRecords_)
@@ -2975,7 +2999,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
             if (match != EQUAL) r = null;
             //@B4C - end change
           }
-          catch(AS400Exception e)
+          catch (AS400Exception e)
           {
             if (e.getAS400Message().getID().equals("CPF5025"))
             {
@@ -3007,10 +3031,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readNextEqual(Object[] key)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record r = null;
     try
@@ -3027,7 +3051,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       if (match != EQUAL) r = null;
       //@B4C - end change
     }
-    catch(AS400Exception e)
+    catch (AS400Exception e)
     {
       if (e.getAS400Message().getID().equals("CPF5025"))
       {
@@ -3060,27 +3084,27 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readNextEqual(byte[] key, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record r = null;
     try
     {
-            //@B4C - when reading, get out early by checking comparison
-            r = readNext();
-            int match = UNKNOWN;
-            if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
-            while (r != null && (match == GREATER_THAN || match == UNKNOWN))
-            {
-              r = readNext();
-              if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
-            }
-            if (match != EQUAL) r = null;
-            //@B4C - end change
+      //@B4C - when reading, get out early by checking comparison
+      r = readNext();
+      int match = UNKNOWN;
+      if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+      while (r != null && (match == GREATER_THAN || match == UNKNOWN))
+      {
+        r = readNext();
+        if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+      }
+      if (match != EQUAL) r = null;
+      //@B4C - end change
     }
-    catch(AS400Exception e)
+    catch (AS400Exception e)
     {
       if (e.getAS400Message().getID().equals("CPF5025"))
       {
@@ -3095,41 +3119,41 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Reads the previous record from the file.
-    *@return the first record.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-    public Record readPrevious()
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  /**
+   *Reads the previous record from the file.
+   *@return the first record.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public Record readPrevious()
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
+  {
+    // If we are caching, check the cache for the record.  IF not found refresh the
+    // cache.
+    Record r = null;
+    if (cacheRecords_)
     {
-      // If we are caching, check the cache for the record.  IF not found refresh the
-      // cache.
-      Record r = null;
-      if (cacheRecords_)
+      r = cache_.getPrevious();
+      if (r == null)
       {
-        r = cache_.getPrevious();
-        if (r == null)
+        if (Trace.isTraceOn())
         {
-          if (Trace.isTraceOn())
-          {
-            Trace.log(Trace.INFORMATION, "AS400FileImplBase.readPrevious(): cache returned null.");
-          }
-          refreshCache(null, DDMRecordCache.BACKWARD, false, false);
-          return cache_.getCurrent();
+          Trace.log(Trace.INFORMATION, "AS400FileImplBase.readPrevious(): cache returned null.");
         }
-        else
-        {
-          return r;
-        }
+        refreshCache(null, DDMRecordCache.BACKWARD, false, false);
+        return cache_.getCurrent();
       }
-
-      // Not caching, read from the file.
-      return readRecord(TYPE_GET_PREV);
+      else
+      {
+        return r;
+      }
     }
+
+    // Not caching, read from the file.
+    return readRecord(TYPE_GET_PREV);
+  }
 
   /**
    *Reads the previous record whose key matches the key of the current record.
@@ -3143,10 +3167,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readPreviousEqual()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Object[] key;
     Record r;
@@ -3172,7 +3196,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
             if (match != EQUAL) r = null;
             //@B4C - end change
           }
-          catch(AS400Exception e)
+          catch (AS400Exception e)
           {
             if (e.getAS400Message().getID().equals("CPF5025"))
             {
@@ -3204,27 +3228,27 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readPreviousEqual(Object[] key)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record r = null;
     try
     {
-            //@B4C - when reading, get out early by checking comparison
-            r = readPrevious();
-            int match = UNKNOWN;
-            if (r != null) match = compareKeys(key, r.getKeyFields());
-            while (r != null && (match == LESS_THAN || match == UNKNOWN))
-            {
-              r = readPrevious();
-              if (r != null) match = compareKeys(key, r.getKeyFields());
-            }
-            if (match != EQUAL) r = null;
-            //@B4C - end change
+      //@B4C - when reading, get out early by checking comparison
+      r = readPrevious();
+      int match = UNKNOWN;
+      if (r != null) match = compareKeys(key, r.getKeyFields());
+      while (r != null && (match == LESS_THAN || match == UNKNOWN))
+      {
+        r = readPrevious();
+        if (r != null) match = compareKeys(key, r.getKeyFields());
+      }
+      if (match != EQUAL) r = null;
+      //@B4C - end change
     }
-    catch(AS400Exception e)
+    catch (AS400Exception e)
     {
       if (e.getAS400Message().getID().equals("CPF5025"))
       {
@@ -3257,27 +3281,27 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
   **/
   public Record readPreviousEqual(byte[] key, int numberOfKeyFields)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     Record r = null;
     try
     {
-            //@B4C - when reading, get out early by checking comparison
-            r = readPrevious();
-            int match = UNKNOWN;
-            if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
-            while (r != null && (match == LESS_THAN || match == UNKNOWN))
-            {
-              r = readPrevious();
-              if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
-            }
-            if (match != EQUAL) r = null;
-            //@B4C - end change
+      //@B4C - when reading, get out early by checking comparison
+      r = readPrevious();
+      int match = UNKNOWN;
+      if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+      while (r != null && (match == LESS_THAN || match == UNKNOWN))
+      {
+        r = readPrevious();
+        if (r != null) match = compareKeys(key, r.getKeyFieldsAsBytes(), numberOfKeyFields);
+      }
+      if (match != EQUAL) r = null;
+      //@B4C - end change
     }
-    catch(AS400Exception e)
+    catch (AS400Exception e)
     {
       if (e.getAS400Message().getID().equals("CPF5025"))
       {
@@ -3292,31 +3316,31 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-    /**
-     Reads the record at the current file position.
-     *@param type type of read (first, last, next, previous)
-     @return the record read.
-     *@exception AS400Exception If the AS/400 system returns an error message.
-     *@exception AS400SecurityException If a security or authority error occurs.
-     *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
-     **/
-    public abstract Record readRecord(int type)
-      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   Reads the record at the current file position.
+   *@param type type of read (first, last, next, previous)
+   @return the record read.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record readRecord(int type)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
-    /**
-     *Reads records from the file.  The next or previous 'blockingFactor_'
-     *records are retrieved depending on the direction specified.
-     *@param direction (DDMRecordCache.FORWARD or DDMRecordCache.BACKWARD)
-     *@return the records read
-     *@exception AS400Exception If the AS/400 system returns an error message.
-     *@exception AS400SecurityException If a security or authority error occurs.
-     *@exception InterruptedException If this thread is interrupted.
-     *@exception IOException If an error occurs while communicating with the AS/400.
-     **/
-    public abstract Record[] readRecords(int direction)
-      throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Reads records from the file.  The next or previous 'blockingFactor_'
+   *records are retrieved depending on the direction specified.
+   *@param direction (DDMRecordCache.FORWARD or DDMRecordCache.BACKWARD)
+   *@return the records read
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract Record[] readRecords(int direction)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 
   /**
@@ -3337,10 +3361,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
    **/
   public void refreshCache(Record[] records, int direction, boolean containsFirstRecord, boolean containsLastRecord)
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // Fill the cache.  If null was returned, the cache will set itself to empty.
     if (Trace.isTraceOn())
@@ -3388,9 +3412,9 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       }
       //@G0D if (!isKeyed_) //@B0C: Must be instance of SequentialFile
       //@G0D {
-        // Invalidate the cache in case an exception occurs
-        cache_.setIsEmpty();
-        positionCursor(recordNumber);
+      // Invalidate the cache in case an exception occurs
+      cache_.setIsEmpty();
+      positionCursor(recordNumber);
       /*@G0D }
       else
       {
@@ -3460,10 +3484,10 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
    *@exception IOException If an error occurs while communicating with the AS/400.
    **/
   public void refreshRecordCache()
-    throws AS400Exception,
-           AS400SecurityException,
-           InterruptedException,
-           IOException
+  throws AS400Exception,
+  AS400SecurityException,
+  InterruptedException,
+  IOException
   {
     // If we are caching, refresh the cache with records starting from the beginning
     // of the file.
@@ -3477,19 +3501,19 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Rolls back any transactions since the last commit/rollback boundary.  Invoking this
-    *method will cause all transactions under commitment control for this connection
-    *to be rolled back.  This means that any AS400File object for which a commit
-    *lock level was specified and that was opened under this connection will have
-    *outstanding transactions rolled back.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract void rollback()
-     throws AS400Exception,  AS400SecurityException, InterruptedException,   IOException;
+  /**
+   *Rolls back any transactions since the last commit/rollback boundary.  Invoking this
+   *method will cause all transactions under commitment control for this connection
+   *to be rolled back.  This means that any AS400File object for which a commit
+   *lock level was specified and that was opened under this connection will have
+   *outstanding transactions rolled back.
+   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400SecurityException If a security or authority error occurs.
+   *@exception InterruptedException If this thread is interrupted.
+   *@exception IOException If an error occurs while communicating with the AS/400.
+   **/
+  public abstract void rollback()
+  throws AS400Exception,  AS400SecurityException, InterruptedException,   IOException;
 
 
   //@E2A
@@ -3497,7 +3521,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   // a native method (the call to execute()) so we just set all of the
   // necessary state variables and act like we're a normal object.
   public void rollback(AS400Impl system)
-    throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  throws AS400Exception, AS400SecurityException, InterruptedException, IOException
   {
     if (isCommitmentControlStarted(system))
     {
@@ -3510,48 +3534,44 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   }
 
 
-   /**
-    *Updates the record at the current cursor position. The cursor must be positioned to an active record.  The
-    *last operation on the file must have been a cursor positioning operation or a
-    *read operation.  If an attempt is made to update a record more than once without
-    *reading the record or positioning the cursor to the record in between updates, an
-    *AS400Exception is thrown.  The cursor position is not changed when this method
-    *is invoked.
-    *@param record The record with which to update.  The record must be a record whose
-    *format matches the record format of this object.  To ensure that this
-    *requirement is met, use the
-    *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
-    *method to obtain a default record whose fields can be set appropriately by
-    *the Java program and then written to the file.
-    *@exception AS400Exception If the AS/400 system returns an error message.
-    *@exception AS400SecurityException If a security or authority error occurs.
-    *@exception InterruptedException If this thread is interrupted.
-    *@exception IOException If an error occurs while communicating with the AS/400.
-    **/
-   public abstract void update(Record record)
-     throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
-
-   /**
-   *Writes an array of records to the end of the file.
-   *The cursor is positioned to after the last record of the file as a
-   *result of invoking this method.
-   *@param records The records to write.  The records must have a format
-   *which matches the record format of this object.  To ensure that this
+  /**
+   *Updates the record at the current cursor position. The cursor must be positioned to an active record.  The
+   *last operation on the file must have been a cursor positioning operation or a
+   *read operation.  If an attempt is made to update a record more than once without
+   *reading the record or positioning the cursor to the record in between updates, an
+   *AS400Exception is thrown.  The cursor position is not changed when this method
+   *is invoked.
+   *@param record The record with which to update.  The record must be a record whose
+   *format matches the record format of this object.  To ensure that this
    *requirement is met, use the
    *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
-   *method to obtain default records whose fields can be set appropriately
-   *by the Java program and then written to the file.
+   *method to obtain a default record whose fields can be set appropriately by
+   *the Java program and then written to the file.
    *@exception AS400Exception If the AS/400 system returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *@exception IOException If an error occurs while communicating with the AS/400.
    **/
+  public abstract void update(Record record)
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+
+  /**
+  *Writes an array of records to the end of the file.
+  *The cursor is positioned to after the last record of the file as a
+  *result of invoking this method.
+  *@param records The records to write.  The records must have a format
+  *which matches the record format of this object.  To ensure that this
+  *requirement is met, use the
+  *<a href="RecordFormat.html">RecordFormat.getNewRecord()</a>
+  *method to obtain default records whose fields can be set appropriately
+  *by the Java program and then written to the file.
+  *@exception AS400Exception If the AS/400 system returns an error message.
+  *@exception AS400SecurityException If a security or authority error occurs.
+  *@exception InterruptedException If this thread is interrupted.
+  *@exception IOException If an error occurs while communicating with the
+  *AS/400.
+  **/
   public abstract void write(Record[] records)
-    throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
+  throws AS400Exception, AS400SecurityException, InterruptedException,   IOException;
 
 }
-
-
-
-
