@@ -290,6 +290,7 @@ public class AS400 implements Serializable
 
     /**
      Constructs an AS400 object.  It uses the specified system name and identity token.
+     <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for OS/400 V5R2 and V5R1.</i>
      @param  systemName  The name of the server.  Use localhost to access data locally.
      @param  identityToken  The identity token to use to authenticate to the server.
      **/
@@ -2633,6 +2634,7 @@ public class AS400 implements Serializable
 
     /**
      Sets or resets the identity token for this object.  Using this method will clear any set password.
+     <p><i>Note: Authentication via IdentityToken is not currently supported.  Support will become available in a future PTF for OS/400 V5R2 and V5R1.</i>
      @param  identityToken  The identity token.
      **/
     public void setIdentityToken(IdentityToken identityToken)
