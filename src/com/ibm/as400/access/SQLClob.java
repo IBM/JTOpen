@@ -243,7 +243,7 @@ final class SQLClob implements SQLData
 
     public int getMaximumPrecision()
     {
-        return 15728640;
+        return 2147483646; // the DB2 SQL reference says this should be 2147483647 but we return 1 less to allow for NOT NULL columns
     }
 
     public int getMaximumScale()

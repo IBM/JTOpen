@@ -215,7 +215,7 @@ implements SQLData
 
     public int getMaximumPrecision ()
     {
-        return 7;
+        return 24;
     }
 
 
@@ -240,7 +240,7 @@ implements SQLData
 
     public int getPrecision ()
     {
-        return 7;
+        return 24;
     }
 
 
