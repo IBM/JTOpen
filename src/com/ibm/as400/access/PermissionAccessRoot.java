@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: PermissionAccessRoot.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -25,7 +25,7 @@ import java.net.UnknownHostException;
 **/
 class PermissionAccessRoot extends PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     /**
      * Constructs a PermissionAccessRoot object.
@@ -77,9 +77,9 @@ class PermissionAccessRoot extends PermissionAccess
 
     // @B3a - New method.
     /**
-     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * Prepares the object name for parsing by the i5/OS Command Analyzer.
      * @param objName The name of an object.
-     * @return A version of the name that is parsable by the Command Analyzer. 
+     * @return A version of the name that is parsable by the Command Analyzer.
      *
     **/
     protected final String expandQuotes(String objName)
@@ -91,9 +91,9 @@ class PermissionAccessRoot extends PermissionAccess
     /**
      * If the name contains single- or double-quotes, doubles up the quotes and encloses the entire name in double-quotes.
      * Regardless, encloses the entire name in single-quotes.
-     * This prepares the name for parsing by the OS/400 Command Analyzer.
+     * This prepares the name for parsing by the i5/OS Command Analyzer.
      * @param objName The name of an object.
-     * @return A version of the name that is parsable by the Command Analyzer. 
+     * @return A version of the name that is parsable by the Command Analyzer.
      *
     **/
     static String expandQuotes0(String objName)

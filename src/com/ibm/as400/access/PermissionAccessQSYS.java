@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: PermissionAccessQSYS.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 **/
 class PermissionAccessQSYS extends PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
     /**
@@ -77,9 +77,9 @@ class PermissionAccessQSYS extends PermissionAccess
 
     // @B3a - New method.
     /**
-     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * Prepares the object name for parsing by the i5/OS Command Analyzer.
      * @param objName The name of an object.
-     * @return A version of the name that is parsable by the Command Analyzer. 
+     * @return A version of the name that is parsable by the Command Analyzer.
      *
     **/
     protected final String expandQuotes(String objName)
@@ -93,9 +93,9 @@ class PermissionAccessQSYS extends PermissionAccess
      * If the name contains double-quotes, wraps the name in three sets of single-quotes.
      * For example, we would end up with '''The"Name'''.
      * Otherwise, simply wraps the name in single-quotes.
-     * This prepares the name for parsing by the OS/400 Command Analyzer.
+     * This prepares the name for parsing by the i5/OS Command Analyzer.
      * @param objName The name of an object.
-     * @return A version of the name that is parsable by the Command Analyzer. 
+     * @return A version of the name that is parsable by the Command Analyzer.
      *
     **/
     static String expandQuotes0(String objName)
@@ -261,7 +261,7 @@ class PermissionAccessQSYS extends PermissionAccess
            asp = objName.substring(0, locationOfQSYS);                    // @B6a
            objName = objName.substring(locationOfQSYS);                   // @B6a
         }                                                                 // @B6a
-                                            
+
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String objectType = objectPathName.getObjectType();
         boolean threadSafe;      //@A2A
@@ -277,12 +277,12 @@ class PermissionAccessQSYS extends PermissionAccess
             {
               Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
             }
-            
+
             command = "RMVAUTLE"
                       +" AUTL("+object+")"
                       +" USER("+userName+")";
             threadSafe = false; // RMVAUTLE isn't threadsafe.  @A2A @A3C
-        } 
+        }
         else if (objectType.equals("MBR"))
         {
             if (asp != null)                                                  // @B6a
@@ -303,18 +303,18 @@ class PermissionAccessQSYS extends PermissionAccess
             {
               Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
             }
-*/            
+*/
             command="CHGAUT"
                     +" OBJ("+expandQuotes0(object)+")"       // @B4c
                     +" USER("+userName+")"
                     +" DTAAUT(*NONE)"
                     +" OBJAUT(*NONE)";
             threadSafe = true; //@A2A
-        } 
+        }
         else
-        {   
+        {
             String localName = objName;                      // @B6a
-            
+
             if (asp != null)                                 // @B6a
                localName = asp + localName;                  // @B6a
 
@@ -326,7 +326,7 @@ class PermissionAccessQSYS extends PermissionAccess
             {
               Trace.log(Trace.WARNING, "Unable to convert CL command to correct job CCSID.", e);
             }
-*/            
+*/
             command="CHGAUT"
                     +" OBJ(" + expandQuotes0(localName) + ")"      // @B4c @B6c
                     +" USER("+userName+")"
@@ -631,7 +631,7 @@ class PermissionAccessQSYS extends PermissionAccess
       }
       super.setOwner(objName, owner, revokeOldAuthority);
     }
-*/      
+*/
     /**
      * Sets the sensitivity level of the object.
      * @param objName The object that the sensitivity level will be set to.

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: PermissionAccess.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -20,13 +20,13 @@ import java.net.UnknownHostException;
 import java.util.Vector;
 
 /**
- * The PermissionAccess class is provided to retrieve the user's 
+ * The PermissionAccess class is provided to retrieve the user's
  * permission information.
- * 
+ *
 **/
-abstract class PermissionAccess 
+abstract class PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
     AS400 as400_;
     private int ccsid_;         // @A4A
@@ -74,20 +74,20 @@ abstract class PermissionAccess
                    ServerStartupException,
                    PropertyVetoException,
                    UnknownHostException;
-                   
+
 
     // @B3a - New Method.
     /**
-     * Prepares the object name for parsing by the OS/400 Command Analyzer.
+     * Prepares the object name for parsing by the i5/OS Command Analyzer.
      * @param objName The name of an object.
-     * @return A version of the name that is parsable by the Command Analyzer. 
+     * @return A version of the name that is parsable by the Command Analyzer.
      *
     **/
     protected abstract String expandQuotes(String objName);
-                   
+
     /**
      * Returns the server
-     * @return The server object. 
+     * @return The server object.
      * @see #setSystem
      *
     **/
@@ -125,7 +125,7 @@ abstract class PermissionAccess
         //     the QSYRTVUS pgm requires.  For objects in QSYS, the name
         //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
         //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
-        //     caller must correctly build the name. 
+        //     caller must correctly build the name.
 
         // The vector store the information retrieved from system.
         Vector vector=new Vector();
@@ -200,7 +200,7 @@ abstract class PermissionAccess
             }
         }
 
-        // Gets the values of the fields in the record. 
+        // Gets the values of the fields in the record.
         String owner=((String)record0.getField("owner")).trim();
         String primaryGroup=((String)record0.getField("primaryGroup")).trim();
         String authorizationList=((String)record0.getField("authorizationList")).trim();
@@ -253,7 +253,7 @@ abstract class PermissionAccess
     // @A4A
     /**
      * Gets the CCSID for the AS400.
-     * 
+     *
     **/
     private int getCcsid()
     {
@@ -263,7 +263,7 @@ abstract class PermissionAccess
       }
       return ccsid_;
     }
-    
+
     /**
      * Returns the RecordFormat of the feedback informations.
      * @return The RecordFormat of the feedback informations.
@@ -297,7 +297,7 @@ abstract class PermissionAccess
 
     /**
      * Converts the return value's type from String to int.
-     * 
+     *
     **/
     int getIntValue(String string)
     {
@@ -338,7 +338,7 @@ abstract class PermissionAccess
           //@A3A: Need to use uppercase name if it is a DLO object because
           // ccsid 5026 currently doesn't convert a lowercase name to an
           // uppercase one. Normally, case shouldn't matter since
-          // the AS/400 uppercases any QDLS names for us automatically.
+          // the server uppercases any QDLS names for us automatically.
           if (objName.toUpperCase().startsWith("/QDLS/"))      //@A3A
           {
             objName = objName.toUpperCase();                   //@A3A
@@ -456,8 +456,8 @@ abstract class PermissionAccess
     }
 
     /**
-     * Returns the user's permission retrieved from the system. 
-     * @return The user's permission retrieved from the system. 
+     * Returns the user's permission retrieved from the system.
+     * @return The user's permission retrieved from the system.
      * @exception UnsupportedEncodingException The Character Encoding is not supported.
      *
     **/
@@ -489,7 +489,7 @@ abstract class PermissionAccess
                    ServerStartupException,
                    UnknownHostException,
                    PropertyVetoException;
-                   
+
     /**
      * Sets authorized information.
      * @param objName The object the authorized information will be set to.
@@ -542,7 +542,7 @@ abstract class PermissionAccess
                    ServerStartupException,
                    UnknownHostException,
                    PropertyVetoException;
-                   
+
     /**
      * Sets from authorization list of the object.
      * @param objName The object the authorized list will be set to.
@@ -576,7 +576,7 @@ abstract class PermissionAccess
      * @param objName The object whose ownership is being reset.
      * @param owner The owner of the object.
      * @param revokeOldAuthority Specifies whether the authorities for the current
-     * owner are revoked when ownership is transferred to the new owner. 
+     * owner are revoked when ownership is transferred to the new owner.
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
@@ -603,7 +603,7 @@ abstract class PermissionAccess
       //     the CHGOWN command requires.  For objects in QSYS, the name
       //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
       //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
-      //     caller must correctly build the name. 
+      //     caller must correctly build the name.
 
       objName = objName.toUpperCase();
       CommandCall cmd = new CommandCall(as400_);
@@ -656,7 +656,7 @@ abstract class PermissionAccess
       //     the CHGPGP command requires.  For objects in QSYS, the name
       //     is "/QSYS.LIB/...".  If the object is on an ASP, the asp name
       //     must be prepended to the path (/aspName/QSYS.LIB/...).  Our
-      //     caller must correctly build the name. 
+      //     caller must correctly build the name.
 
       objName = objName.toUpperCase();
       CommandCall cmd = new CommandCall(as400_);
