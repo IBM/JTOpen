@@ -69,6 +69,22 @@ final class JDTrace
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
+  // This code copied from JDUtilities so we don't reference that class, 
+  // in case we are running with the proxy jar file.
+  private static int JDBCLevel_ = 10;
+  static
+  {
+     try 
+     { 
+        Class.forName("java.sql.Blob"); 
+        JDBCLevel_ = 20;
+
+        Class.forName("java.sql.Savepoint"); 
+        JDBCLevel_ = 30;
+     }                                         
+     catch (Throwable e) { }   
+  }                          
+
 
 /**
 Private constructor to prevent instantiation.  All methods in
@@ -102,7 +118,7 @@ Indicates if tracing is turned on?
     if (Trace.traceOn_ && Trace.traceJDBC_) return true;
 
     // Is DriverManager tracing on?
-    if (JDUtilities.JDBCLevel_ > 10)
+    if (JDBCLevel_ > 10) // We don't reference JDUtilities here in case we are running proxified.
     {
       if (DriverManager.getLogWriter() != null) return true;
     }
@@ -350,7 +366,7 @@ Logs an open trace message.
   {
     // No need to synchronize, as our operations are atomic... one call to each stream/writer.
     // The streams/writers themselves are synchronized internally.
-    if (JDUtilities.JDBCLevel_ > 10)
+    if (JDBCLevel_ > 10) // We don't reference JDUtilities here in case we are running proxified.
     {
       // Log to the DriverManager writer.
       PrintWriter pw = DriverManager.getLogWriter();
