@@ -52,4 +52,10 @@ class ConvTable838 extends ConvTableSingleMap
   {
     super(838, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
   }
+
+  //@A1A
+  ConvTable838(int ccsid)
+  {
+    super(ccsid, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
+  }
 }
