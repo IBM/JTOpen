@@ -144,19 +144,6 @@ implements SQLData
            return "java.net.URL";
         else
            return "java.lang.Datalink";	      
-
-        // String returnValue = "java.lang.Datalink";	      
-        // 
-        // // Return a URL only when running JDBC 3.0 or later.
-        // try 
-        // { 
-        //    Class.forName("java.sql.Savepoint"); 
-        //    returnValue = "java.net.URL";
-        // 
-        // }                                         
-        // catch (Exception e) { }
-	     // 
-        // return returnValue;
     }
 
     public String getLiteralPrefix ()
@@ -221,6 +208,9 @@ implements SQLData
 
 	public int getType ()
 	{
+         if (JDUtilities.JDBCLevel_ >= 30)                                //@J5A
+           return 70;  //java.sql.Types.DATALINK without requiring 1.4    //@J5A
+         else                                                             //@J5A
 		return java.sql.Types.VARCHAR;
 	}
 
@@ -416,23 +406,6 @@ implements SQLData
          try { return new java.net.URL(value_); } catch (Exception e) {}
       
       return value_;
-	   
-   
-	   // // If we are running JDBC 2.0 or earlier, or if we cannot convert
-	   // // the string into a URL, then return the contents of the cell as a String.
-	   // Object returnValue = value_;       
-      //                                                                     
-      // // Return a URL only when running JDBC 3.0 or later.
-      // try 
-      // { 
-      //    Class.forName("java.sql.Savepoint"); 
-      //    
-      //    // try turning the String into a URL.  If that fails return the string.                                       
-      //    try { returnValue = new java.net.URL(value_); } catch (Exception e) {}
-      // }                                         
-      // catch (Exception e) { }
-	   // 
-	   // return returnValue;                 
 	}
 
 
