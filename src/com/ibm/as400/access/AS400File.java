@@ -1133,10 +1133,13 @@ abstract public class AS400File implements Serializable
 
 
     /**
-     *Returns any explicit locks that have been obtained for this file.
-     *Any locks that have been obtained through the lock(int) method are returned.
+     *Returns the explicit locks that have been obtained for the file using this AS400File object.
+     *Any locks that have been obtained through the lock(int) method on this AS400File
+     *object are returned. Note that this method does not return any locks that have
+     *been obtained by using the ALCOBJ CL command or by using a different AS400File
+     *object created to reference the same physical file.
      *@see AS400File#lock
-     *@return The explicit file locks held for this file.
+     *@return The explicit file locks held for the file by this AS400File object.
      *        Possible lock values are:
      *        <ul>
      *        <li>READ_EXCLUSIVE_LOCK
@@ -1146,8 +1149,8 @@ abstract public class AS400File implements Serializable
      *        <li>WRITE_ALLOW_SHARED_READ_LOCK
      *        <li>WRITE_ALLOW_SHARED_WRITE_LOCK
      *        </ul>
-     *If no explicit locks have been obtained for the file, an array of size zero
-     *is returned.
+     *If no explicit locks have been obtained for the file using this AS400File object, an array of size zero
+     *is returned. Note that this does not necessarily indicate that the actual physical file has not itself been locked by some other means.
      **/
     public int[] getExplicitLocks()
     {
