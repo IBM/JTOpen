@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NetServer.java
 //                                                                             
@@ -37,7 +37,7 @@ import java.util.Vector;
  <p>
  Note: Typically, methods which change the state or attributes of the NetServer require that the server user profile has *IOSYSCFG special authority.  For example, starting or ending the NetServer requires *IOSYSCFG authority.
  <p>
- Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.
+ Note: This class uses some API fields that are not available prior to OS/400 V5R1.
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>
@@ -211,7 +211,7 @@ extends ChangeableResource
   /**
    Attribute ID for "authentication method".  This identifies a read-only Integer
    attribute, which indicates the authentication method used to authenticate users.
-   <i>Note: This attribute is available only if the iSeries server has the OS/400 release <b>following V5R1</b> or later.</i>
+   <i>Note: This attribute is not supported prior to OS/400 release V5R2.</i>
    The value 0 indicates that the server authenticates with encrypted passwords.
    The value 1 indicates the server authenticates with Kerberos v5 tokens.
 
@@ -226,7 +226,7 @@ extends ChangeableResource
   /**
    Attribute ID for "authentication method (pending)".  This identifies an Integer
    attribute, which indicates the authentication method used to authenticate users.
-   <i>Note: This attribute is available only if the iSeries server has the OS/400 release <b>following V5R1</b> or later.</i>
+   <i>Note: This attribute is not supported prior to OS/400 release V5R2.</i>
    The value 0 indicates that the server authenticates with encrypted passwords.
    The value 1 indicates the server authenticates with Kerberos v5 tokens.
    **/

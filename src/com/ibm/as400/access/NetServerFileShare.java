@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NetServerFileShare.java
 //                                                                             
@@ -21,9 +21,9 @@ import com.ibm.as400.data.ProgramCallDocument;
  The NetServerFileShare class represents a NetServer file server share.
  NetServerFileShare objects are created and returned by {@link NetServer#listFileShares() NetServer.listFileShares()}.
  <p>
- <i>Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.</i>
+ <i>Note: This class uses some API fields that are not available prior to OS/400 V5R1.</i>
  <p>
- <i>Note: The methods that <b>add</b> or <b>change</b> NetServer File Shares are supported only when connecting to servers running OS/400 V5R1 or later.</i>
+ <i>Note: The methods that <b>add</b> or <b>change</b> NetServer File Shares are not supported prior to OS/400 V5R1.</i>
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>

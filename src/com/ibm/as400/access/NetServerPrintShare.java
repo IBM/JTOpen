@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NetServerPrintShare.java
 //                                                                             
@@ -21,7 +21,7 @@ import com.ibm.as400.data.ProgramCallDocument;
  The NetServerPrintShare class represents a NetServer print server share.
  NetServerPrintShare objects are created and returned by {@link NetServer#listPrintShares() NetServer.listPrintShares()}.
  <p>
- <i>Note: This class uses some API fields that are available only when connecting to servers running OS/400 V5R1 or later.</i>
+ <i>Note: This class uses some API fields that are not available prior to OS/400 V5R1.</i>
 <p>
 <a name="attributeIDs">The following attribute IDs are supported:
 <ul>
