@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400Impl.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 package com.ibm.as400.access;
 
 import java.io.IOException;
@@ -35,6 +36,8 @@ interface AS400Impl
     byte[] exchangeSeed(byte[] proxySeed);
     // Get the jobs with which we are connected.
     String[] getJobs(int service);
+    // Sets the raw bytes for the provided profile token.
+    void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException;
     // Sets the raw bytes for the provided profile token.
     void generateProfileToken(ProfileTokenCredential profileToken, String userId, byte[] bytes, int byteType) throws AS400SecurityException, IOException, InterruptedException;
     // Get the port for a service.

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400ImplProxy.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -98,6 +98,19 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         catch (InvocationTargetException e)
         {
             throw ProxyClientConnection.rethrow(e);
+        }
+    }
+
+    // Sets the raw bytes for the provided profile token.
+    public void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException
+    {
+        try
+        {
+            connection_.callMethod(pxId_, "generateProfileToken", new Class[] { ProfileTokenCredential.class, String.class }, new Object[] { profileToken, userIdentity });
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow2(e);
         }
     }
 

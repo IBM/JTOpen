@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400SecurityException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,7 +18,7 @@ package com.ibm.as400.access;
  **/
 public class AS400SecurityException extends Exception implements ReturnCodeException
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
@@ -276,6 +276,34 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
       The return code indicating that the user ID or password contains a character that is not valid.
      **/
     public static final int SIGNON_CHAR_NOT_VALID = 63;
+    /**
+      The return code indicating that the user ID does not match the user profile associated with the authentication token.
+     **/
+    public static final int USERID_MISMATCH = 64;
+    /**
+      The return code indicating that the password validation program failed the request.
+     **/
+    public static final int PASSWORD_NEW_VALIDATION_PROGRAM = 65;
+    /**
+     The return code indicating that the user of this program does not have enough authority to generate a profile token for another user.
+     **/
+    public static final int GENERATE_TOKEN_AUTHORITY_INSUFFICIENT = 66;
+    /**
+     The return code indicating that can not connect to the system EIM domain.
+     **/
+    public static final int GENERATE_TOKEN_CAN_NOT_CONNECT = 67;
+    /**
+     The return code indicating that can not change the CCSID.
+     **/
+    public static final int GENERATE_TOKEN_CAN_NOT_CHANGE_CCSID = 68;
+    /**
+     The return code indicating that can not obtain the EIM registry name.
+     **/
+    public static final int GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME = 69;
+    /**
+     The return code indicating that no mapping exists.
+     **/
+    public static final int GENERATE_TOKEN_NO_MAPPING = 70;
 
 
     /**
@@ -431,8 +459,22 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
                 return "EXC_KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES";
             case KERBEROS_TICKET_NOT_VALID_RETRIEVE:
                 return "EXC_KERBEROS_TICKET_NOT_VALID_RETRIEVE";
-	    case SIGNON_CHAR_NOT_VALID:
-		return "EXC_SIGNON_CHAR_NOT_VALID";
+            case SIGNON_CHAR_NOT_VALID:
+                return "EXC_SIGNON_CHAR_NOT_VALID";
+            case USERID_MISMATCH:
+                return "EXC_USERID_MISMATCH";
+            case PASSWORD_NEW_VALIDATION_PROGRAM:
+                return "EXC_PASSWORD_NEW_VALIDATION_PROGRAM";
+            case GENERATE_TOKEN_AUTHORITY_INSUFFICIENT:
+                return "EXC_GENERATE_TOKEN_AUTHORITY_INSUFFICIENT";
+            case GENERATE_TOKEN_CAN_NOT_CONNECT:
+                return "EXC_GENERATE_TOKEN_CAN_NOT_CONNECT";
+            case GENERATE_TOKEN_CAN_NOT_CHANGE_CCSID:
+                return "EXC_GENERATE_TOKEN_CAN_NOT_CHANGE_CCSID";
+            case GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME:
+                return "EXC_GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME";
+            case GENERATE_TOKEN_NO_MAPPING:
+                return "EXC_GENERATE_TOKEN_NO_MAPPING";
             default:
                 return "EXC_UNKNOWN";   // Bad return code was provided.
         }

@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (IBM Toolbox for Java - OSS version)                                 
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: AS400.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
+
 package com.ibm.as400.access;
 
 import java.awt.Frame;
@@ -128,6 +129,8 @@ public class AS400 implements Serializable
     private static Hashtable defaultUsers = new Hashtable();
     // Number of days previous to password expiration to start to warn user.
     private static int expirationWarning = 7;
+    // Random number generator for seeds.
+    static Random rng = new Random();
 
     // System name.
     private String systemName_ = "";
@@ -167,13 +170,13 @@ public class AS400 implements Serializable
     private transient int ccsid_ = 0;
 
     // List of connection event bean listeners.
-    private transient Vector connectionListeners_ = new Vector();
+    private transient Vector connectionListeners_ = null;  // Set on first add.
     // Inner class that connects connection events that occur in the ImplRemote to this class.
-    private transient ConnectionListener dispatcher_;  // Initialized in construct() method.
+    private transient ConnectionListener dispatcher_ = null;  // Set on first add.
     // List of property change event bean listeners.
-    transient PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
+    transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
     // List of vetoable change event bean listeners.
-    transient VetoableChangeSupport vetoableChangeListeners_ = new VetoableChangeSupport(this);
+    transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     // Flag for when object state is allowed to change.
     transient boolean propertiesFrozen_ = false;
@@ -455,6 +458,23 @@ public class AS400 implements Serializable
         }
         synchronized (this)
         {
+            // If first add.
+            if (connectionListeners_ == null)
+            {
+                connectionListeners_ = new Vector();
+                dispatcher_ = new ConnectionListener()
+                {
+                    public void connected(ConnectionEvent event)
+                    {
+                        fireConnectEvent(event, true);
+                    }
+                    public void disconnected(ConnectionEvent event)
+                    {
+                        fireConnectEvent(event, false);
+                    }
+                };
+            }
+            // If this is the first add and we are already connected.
             if (impl_ != null && connectionListeners_.isEmpty())
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connection listener dispatcher.");
@@ -512,7 +532,15 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        propertyChangeListeners_.addPropertyChangeListener(listener);
+        synchronized (this)
+        {
+            // If first add.
+            if (propertyChangeListeners_ == null)
+            {
+                propertyChangeListeners_ = new PropertyChangeSupport(this);
+            }
+            propertyChangeListeners_.addPropertyChangeListener(listener);
+        }
     }
 
     /**
@@ -527,7 +555,15 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        vetoableChangeListeners_.addVetoableChangeListener(listener);
+        synchronized (this)
+        {
+            // If first add.
+            if (vetoableChangeListeners_ == null)
+            {
+                vetoableChangeListeners_ = new VetoableChangeSupport(this);
+            }
+            vetoableChangeListeners_.addVetoableChangeListener(listener);
+        }
     }
 
     /**
@@ -562,7 +598,7 @@ public class AS400 implements Serializable
     {
         try
         {
-            if (AS400.onAS400 && !mustUseSockets_ && systemName_.equalsIgnoreCase("localhost") && proxyServer_.length() == 0 && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
+            if (AS400.onAS400 && !mustUseSockets_ && systemName_.equalsIgnoreCase("localhost") && proxyServer_.length() == 0 && byteType_ == 0 && Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode() == 2)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
                 return true;
@@ -590,18 +626,6 @@ public class AS400 implements Serializable
             Trace.log(Trace.DIAGNOSTIC, "oldPassword: '" + oldPassword + "'");
             Trace.log(Trace.DIAGNOSTIC, "newPassword: '" + newPassword + "'");
         }
-        if (systemName_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
-            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-        userId_ = resolveUserId(userId_);
-        if (userId_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Cannot change password before user ID is set.");
-            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-
         if (oldPassword == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'oldPassword' is null.");
@@ -623,13 +647,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalArgumentException("newPassword.length {" + newPassword.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
+        if (systemName_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        userId_ = resolveUserId(userId_);
+        if (userId_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot change password before user ID is set.");
+            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
         chooseImpl();
 
         // Synchronize to protect sign-on information.
         synchronized (this)
         {
             byte[] proxySeed = new byte[9];
-            new Random().nextBytes(proxySeed);
+            AS400.rng.nextBytes(proxySeed);
             byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
             if (PASSWORD_TRACE)
             {
@@ -654,7 +690,7 @@ public class AS400 implements Serializable
             impl_ = (AS400Impl)loadImpl2("com.ibm.as400.access.AS400ImplRemote", "com.ibm.as400.access.AS400ImplProxy");
 
             // If there is a connection listener.  Connect the remote implementation connection events to this object.
-            if (!connectionListeners_.isEmpty())
+            if (connectionListeners_ != null && !connectionListeners_.isEmpty())
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connection listener dispatcher.");
                 impl_.addConnectionListener(dispatcher_);
@@ -745,17 +781,6 @@ public class AS400 implements Serializable
             // Running on an iSeries server, don't prompt.
             guiAvailable_ = false;
         }
-        dispatcher_ = new ConnectionListener()
-        {
-            public void connected(ConnectionEvent event)
-            {
-                fireConnectEvent(event, true);
-            }
-            public void disconnected(ConnectionEvent event)
-            {
-                fireConnectEvent(event, false);
-            }
-        };
     }
 
     // Unscramble some bytes.
@@ -793,6 +818,7 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting all services...");
         if (impl_ != null)
         {
+            chooseImpl();
             impl_.disconnect(AS400.FILE);
             impl_.disconnect(AS400.PRINT);
             impl_.disconnect(AS400.COMMAND);
@@ -864,6 +890,7 @@ public class AS400 implements Serializable
     // Fire connect events here so source is public object.
     private void fireConnectEvent(ConnectionEvent event, boolean connect)
     {
+        // If we have made it this far, we know we have listeners.
         event.setSource(this);
 
         Vector targets = (Vector)connectionListeners_.clone();
@@ -879,6 +906,55 @@ public class AS400 implements Serializable
                 target.disconnected(event);
             }
         }
+    }
+
+    /**
+     Generates a profile token on behalf of the provided user identity.  This user identity must be associated with OS/400 user profile via EIM.
+     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.  The profile associated with this system object must have enough authority to generate an authentication token for another user.
+     <p>This function is only supported if the server is at release V5R3M0 or greater.
+     @param  userIdentity  The LDAP distinguished name.
+     @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
+     <ul>
+     <li>TYPE_SINGLE_USE
+     <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     <li>TYPE_MULTIPLE_USE_RENEWABLE
+     </ul>
+     @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
+     @return  A ProfileTokenCredential representing the provided user identity.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the server.
+     **/
+    public ProfileTokenCredential generateProfileToken(String userIdentity, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException
+    {
+        connectService(AS400.SIGNON);
+
+        if (userIdentity == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'userIdentity' is null.");
+            throw new NullPointerException("userIdentity");
+        }
+
+        ProfileTokenCredential profileToken = new ProfileTokenCredential();
+        try
+        {
+            profileToken.setSystem(this);
+            profileToken.setTokenType(tokenType);
+            profileToken.setTimeoutInterval(timeoutInterval);
+        }
+        catch (PropertyVetoException e)
+        {
+            Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
+
+        byte[] proxySeed = new byte[9];
+        AS400.rng.nextBytes(proxySeed);
+        chooseImpl();
+        synchronized (this)
+        {
+            impl_.generateProfileToken(profileToken, userIdentity);
+        }
+        return profileToken;
     }
 
     /**
@@ -1062,18 +1138,11 @@ public class AS400 implements Serializable
     public int getModification() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting modification level.");
-        chooseImpl();
 
-        int modification;
-        if (canUseNativeOptimizations())
-        {
-            modification = AS400.nativeVRM.getModificationLevel();
-        }
-        else
-        {
-            signon(false);
-            modification = signonInfo_.version.getModificationLevel();
-        }
+        chooseImpl();
+        signon(false);
+
+        int modification = signonInfo_.version.getModificationLevel();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Modification level:", modification);
 
         return modification;
@@ -1166,18 +1235,18 @@ public class AS400 implements Serializable
             profileToken.setSystem(this);
             profileToken.setTokenType(ProfileTokenCredential.TYPE_SINGLE_USE);
             profileToken.setTimeoutInterval(3600);
-
-            byte[] proxySeed = new byte[9];
-            new Random().nextBytes(proxySeed);
-            synchronized (this)
-            {
-                impl_.generateProfileToken(profileToken, userId_, encode(proxySeed, impl_.exchangeSeed(proxySeed), resolve(bytes_)), byteType_);
-            }
         }
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
+
+        byte[] proxySeed = new byte[9];
+        AS400.rng.nextBytes(proxySeed);
+        synchronized (this)
+        {
+            impl_.generateProfileToken(profileToken, userId_, encode(proxySeed, impl_.exchangeSeed(proxySeed), resolve(bytes_)), byteType_);
         }
         signonInfo_.profileToken = profileToken;
         return profileToken;
@@ -1224,18 +1293,18 @@ public class AS400 implements Serializable
             profileToken.setSystem(this);
             profileToken.setTokenType(tokenType);
             profileToken.setTimeoutInterval(timeoutInterval);
-
-            byte[] proxySeed = new byte[9];
-            new Random().nextBytes(proxySeed);
-            synchronized (this)
-            {
-                impl_.generateProfileToken(profileToken, userId_, encode(proxySeed, impl_.exchangeSeed(proxySeed), resolve(bytes_)), byteType_);
-            }
         }
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
+
+        byte[] proxySeed = new byte[9];
+        AS400.rng.nextBytes(proxySeed);
+        synchronized (this)
+        {
+            impl_.generateProfileToken(profileToken, userId_, encode(proxySeed, impl_.exchangeSeed(proxySeed), resolve(bytes_)), byteType_);
         }
         return profileToken;
     }
@@ -1316,18 +1385,18 @@ public class AS400 implements Serializable
             profileToken.setSystem(this);
             profileToken.setTokenType(tokenType);
             profileToken.setTimeoutInterval(timeoutInterval);
-
-            byte[] proxySeed = new byte[9];
-            new Random().nextBytes(proxySeed);
-            synchronized (this)
-            {
-                impl_.generateProfileToken(profileToken, userId, encode(proxySeed, impl_.exchangeSeed(proxySeed), BinaryConverter.charArrayToByteArray(password.toCharArray())), 0);
-            }
         }
         catch (PropertyVetoException e)
         {
             Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
+
+        byte[] proxySeed = new byte[9];
+        AS400.rng.nextBytes(proxySeed);
+        synchronized (this)
+        {
+            impl_.generateProfileToken(profileToken, userId, encode(proxySeed, impl_.exchangeSeed(proxySeed), BinaryConverter.charArrayToByteArray(password.toCharArray())), 0);
         }
         return profileToken;
     }
@@ -1353,16 +1422,9 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting release level.");
         chooseImpl();
-        int release;
-        if (canUseNativeOptimizations())
-        {
-            release = AS400.nativeVRM.getRelease();
-        }
-        else
-        {
-            signon(false);
-            release = signonInfo_.version.getRelease();
-        }
+        signon(false);
+
+        int release = signonInfo_.version.getRelease();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Release level:", release);
 
         return release;
@@ -1412,18 +1474,18 @@ public class AS400 implements Serializable
     public int getServicePort(int service)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting service port, service:", service);
-        // Validate state.
-        if (systemName_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Cannot get service port before system name is set.");
-            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-
         // Validate parameter.
         if (service < 0 || service > 7)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        // Validate state.
+        if (systemName_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot get service port before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
         chooseImpl();
@@ -1469,7 +1531,7 @@ public class AS400 implements Serializable
     public String getUserId()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting user ID: " + userId_);
-        userId_ = resolveUserId(userId_);
+        userId_ = resolveUserId(userId_, byteType_);
         return userId_;
     }
 
@@ -1484,16 +1546,9 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting version level.");
         chooseImpl();
-        int version;
-        if (canUseNativeOptimizations())
-        {
-            version = AS400.nativeVRM.getVersion();
-        }
-        else
-        {
-            signon(false);
-            version = signonInfo_.version.getVersion();
-        }
+        signon(false);
+
+        int version = signonInfo_.version.getVersion();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Version level:", version);
 
         return version;
@@ -1510,16 +1565,9 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting VRM.");
         chooseImpl();
-        int vrm;
-        if (canUseNativeOptimizations())
-        {
-            vrm = AS400.nativeVRM.getVersionReleaseModification();
-        }
-        else
-        {
-            signon(false);
-            vrm = signonInfo_.version.getVersionReleaseModification();
-        }
+        signon(false);
+
+        int vrm = signonInfo_.version.getVersionReleaseModification();
         if (Trace.traceOn_)
         {
             byte[] vrmBytes = new byte[4];
@@ -1839,7 +1887,7 @@ public class AS400 implements Serializable
         PasswordDialog pd = null;
         boolean signonAttempt = false;
 
-        while (pwState != FINISHED)
+        do
         {
             try
             {
@@ -1989,7 +2037,7 @@ public class AS400 implements Serializable
                         if (signonAttempt)
                         {
                             byte[] proxySeed = new byte[9];
-                            new Random().nextBytes(proxySeed);
+                            AS400.rng.nextBytes(proxySeed);
                             byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
                             if (PASSWORD_TRACE)
                             {
@@ -2010,7 +2058,6 @@ public class AS400 implements Serializable
                 }
                 if (signonAttempt)
                 {
-                    // Request is successful: request is successful.
                     // Check for number of days to expiration, and warn if within threshold.
                     int daysToExpiration = getDaysToExpiration();
                     if (daysToExpiration < AS400.expirationWarning)
@@ -2071,6 +2118,7 @@ public class AS400 implements Serializable
                     case AS400SecurityException.PASSWORD_NEW_USERID:
                     case AS400SecurityException.PASSWORD_NEW_SAME_POSITION:
                     case AS400SecurityException.PASSWORD_NEW_CHARACTER_NOT_VALID:
+                    case AS400SecurityException.PASSWORD_NEW_VALIDATION_PROGRAM:
                         md = new MessageDialog(new Frame(), e.getMessage(), ResourceBundleLoader.getText("DLG_CHANGE_PASSWORD_TITLE"), false);
                         md.display();
                         pwState = CHANGE;
@@ -2102,6 +2150,7 @@ public class AS400 implements Serializable
                 }
             }
         }
+        while (pwState != FINISHED);
     }
 
     // Help de-serialize the object.
@@ -2117,10 +2166,10 @@ public class AS400 implements Serializable
         proxyServer_ = resolveProxyServer("");
         // proxyClientConnection_ can stay null.
         ccsid_ = 0;
-        connectionListeners_ = new Vector();
-        // dispatcher_ is set in construct()
-        propertyChangeListeners_ = new PropertyChangeSupport(this);
-        vetoableChangeListeners_ = new VetoableChangeSupport(this);
+        // connectionListeners_ can stay null.
+        // dispatcher_ can stay null.
+        // propertyChangeListeners_ can stay null.
+        // vetoableChangeListeners_ can stay null.
 
         propertiesFrozen_ = false;
         // impl_ can stay null.
@@ -2141,10 +2190,16 @@ public class AS400 implements Serializable
         }
         synchronized (this)
         {
-            connectionListeners_.removeElement(listener);
-            if (impl_ != null && connectionListeners_.isEmpty())
+            // If we have listeners.
+            if (connectionListeners_ != null)
             {
-                impl_.removeConnectionListener(dispatcher_);
+                connectionListeners_.removeElement(listener);
+                // If we have a connection, and we're now out of listeners.
+                if (impl_ != null && connectionListeners_.isEmpty())
+                {
+                    // Remove the dispatcher.
+                    impl_.removeConnectionListener(dispatcher_);
+                }
             }
         }
     }
@@ -2215,7 +2270,11 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        propertyChangeListeners_.removePropertyChangeListener(listener);
+        // If we have listeners.
+        if (propertyChangeListeners_ != null)
+        {
+            propertyChangeListeners_.removePropertyChangeListener(listener);
+        }
     }
 
     /**
@@ -2230,7 +2289,14 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        vetoableChangeListeners_.removeVetoableChangeListener(listener);
+        synchronized (this)
+        {
+            // If we have listeners.
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.removeVetoableChangeListener(listener);
+            }
+        }
     }
 
     /**
@@ -2303,6 +2369,13 @@ public class AS400 implements Serializable
     // If on an iSeries server, resolve user ID to current user ID.
     static String resolveUserId(String userId)
     {
+        // Resolve user ID, for someone using user ID/password.
+        return resolveUserId(userId, 0);
+    }
+
+    // If on an iSeries server, resolve user ID to current user ID.
+    static String resolveUserId(String userId, int byteType)
+    {
         // First, see if we are running on an iSeries server.
         if (AS400.onAS400)
         {
@@ -2310,22 +2383,22 @@ public class AS400 implements Serializable
             if (currentUserID == null)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current user ID information not available, user ID: '"  + userId + "'");
-                return userId;
             }
-
-            // If user ID is not set, then we get it and set it up.
-            if (userId.length() == 0)
+            else
             {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID: "  + currentUserID);
-                return currentUserID;
-            }
-
-            // If we are running on an iSeries server, then *CURRENT for user ID means we want to connect using current user ID.
-            if (userId.equals("*CURRENT"))
-            {
-                // Get current user ID and use it.
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Replacing *CURRENT as user ID: " + currentUserID);
-                return currentUserID;
+                // If user ID is not set and we're using user ID/password, then we get it and set it up.
+                if (userId.length() == 0 && byteType == 0)
+                {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID: "  + currentUserID);
+                    return currentUserID;
+                }
+                // If we are running on an iSeries server, then *CURRENT for user ID means we want to connect using current user ID.
+                if (userId.equals("*CURRENT"))
+                {
+                    // Get current user ID and use it.
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Replacing *CURRENT as user ID: " + currentUserID);
+                    return currentUserID;
+                }
             }
         }
 
@@ -2361,7 +2434,7 @@ public class AS400 implements Serializable
         }
 
         byte[] proxySeed = new byte[9];
-        new Random().nextBytes(proxySeed);
+        AS400.rng.nextBytes(proxySeed);
         byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
         if (PASSWORD_TRACE)
         {
@@ -2421,12 +2494,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("ccsid", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        Integer oldValue = new Integer(ccsid_);
-        Integer newValue = new Integer(ccsid);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            ccsid_ = ccsid;
+        }
+        else
+        {
+            Integer oldValue = new Integer(ccsid_);
+            Integer newValue = new Integer(ccsid);
 
-        vetoableChangeListeners_.fireVetoableChange("ccsid", oldValue, newValue);
-        ccsid_ = ccsid;
-        propertyChangeListeners_.firePropertyChange("ccsid", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("ccsid", oldValue, newValue);
+            }
+            ccsid_ = ccsid;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("ccsid", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -2479,12 +2565,25 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GUI available:", guiAvailable);
 
-        Boolean oldValue = new Boolean(guiAvailable_);
-        Boolean newValue = new Boolean(guiAvailable);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            guiAvailable_ = guiAvailable;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(guiAvailable_);
+            Boolean newValue = new Boolean(guiAvailable);
 
-        vetoableChangeListeners_.fireVetoableChange("guiAvailable", oldValue, newValue);
-        guiAvailable_ = guiAvailable;
-        propertyChangeListeners_.firePropertyChange("guiAvailable", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("guiAvailable", oldValue, newValue);
+            }
+            guiAvailable_ = guiAvailable;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("guiAvailable", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -2505,11 +2604,18 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("locale", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        Locale oldValue = locale_;
-        Locale newValue = locale;
+        if (propertyChangeListeners_ == null)
+        {
+            locale_ = locale;
+        }
+        else
+        {
+            Locale oldValue = locale_;
+            Locale newValue = locale;
 
-        locale_ = locale;
-        propertyChangeListeners_.firePropertyChange("locale", oldValue, newValue);
+            locale_ = locale;
+            propertyChangeListeners_.firePropertyChange("locale", oldValue, newValue);
+        }
     }
 
     /**
@@ -2587,7 +2693,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the name and port of the middle-tier machine where the proxy server is running.  If this is not set, then the name is retrieved from the <em>com.ibm.as400.access.AS400.proxyServer</em> <a href="../../../../SystemProperties.html">system property</a>.  The <a href="ProxyServer.html">ProxyServer</a> must be running on the middle-tier machine.
+     Sets the name and port of the middle-tier machine where the proxy server is running.  If this is not set, then the name is retrieved from the <em>com.ibm.as400.access.AS400.proxyServer</em> <a href="../../../../../SystemProperties.html">system property</a>.  The <a href="ProxyServer.html">ProxyServer</a> must be running on the middle-tier machine.
      <p>The name of the middle-tier machine is ignored in a two-tier environment.  If no middle-tier machine is specified, then it is assumed that no middle-tier will be accessed.  The name of the middle-tier machine cannot be changed once a connection to this machine has been established.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
@@ -2602,12 +2708,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("proxyServer", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        String oldValue = proxyServer_;
-        String newValue = resolveProxyServer(proxyServer);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            proxyServer_ = resolveProxyServer(proxyServer);
+        }
+        else
+        {
+            String oldValue = proxyServer_;
+            String newValue = resolveProxyServer(proxyServer);
 
-        vetoableChangeListeners_.fireVetoableChange("proxyServer", oldValue, newValue);
-        proxyServer_ = newValue;
-        propertyChangeListeners_.firePropertyChange("proxyServer", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("proxyServer", oldValue, newValue);
+            }
+            proxyServer_ = newValue;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("proxyServer", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -2628,13 +2747,6 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting service port, service " + service + ", port " + port);
 
-        // Validate state.
-        if (systemName_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Cannot set service port before system name is set.");
-            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-
         // Validate parameters.
         if (service < 0 || service > 7)
         {
@@ -2646,6 +2758,14 @@ public class AS400 implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'port' is not valid:", port);
             throw new ExtendedIllegalArgumentException("port (" + port + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+
+        // Validate state.
+        if (systemName_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot set service port before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
         chooseImpl();
         impl_.setServicePort(systemName_, service, port);
     }
@@ -2684,6 +2804,16 @@ public class AS400 implements Serializable
     public void setSocketProperties(SocketProperties socketProperties)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket properties: " + socketProperties);
+        if (socketProperties == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'socketProperties' is null.");
+            throw new NullPointerException("socketProperties");
+        }
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set socket properties after connection has been made.");
+            throw new ExtendedIllegalStateException("socketProperties", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
         socketProperties_.copyValues(socketProperties);
     }
 
@@ -2701,12 +2831,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        String oldValue = systemName_;
-        String newValue = resolveSystem(systemName);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            systemName_ = resolveSystem(systemName);
+        }
+        else
+        {
+            String oldValue = systemName_;
+            String newValue = resolveSystem(systemName);
 
-        vetoableChangeListeners_.fireVetoableChange("systemName", oldValue, newValue);
-        systemName_ = newValue;
-        propertyChangeListeners_.firePropertyChange("systemName", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("systemName", oldValue, newValue);
+            }
+            systemName_ = newValue;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("systemName", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -2724,12 +2867,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("threadUsed", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        Boolean oldValue = new Boolean(threadUsed_);
-        Boolean newValue = new Boolean(useThreads);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            threadUsed_ = useThreads;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(threadUsed_);
+            Boolean newValue = new Boolean(useThreads);
 
-        vetoableChangeListeners_.fireVetoableChange("threadUsed", oldValue, newValue);
-        threadUsed_ = useThreads;
-        propertyChangeListeners_.firePropertyChange("threadUsed", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("threadUsed", oldValue, newValue);
+            }
+            threadUsed_ = useThreads;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("threadUsed", oldValue, newValue);
+            }
+        }
     }
 
     // Setup password dialog based on information already set.
@@ -2781,12 +2937,25 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting use default user:", useDefaultUser);
 
-        Boolean oldValue = new Boolean(useDefaultUser_);
-        Boolean newValue = new Boolean(useDefaultUser);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            useDefaultUser_ = useDefaultUser;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(useDefaultUser_);
+            Boolean newValue = new Boolean(useDefaultUser);
 
-        vetoableChangeListeners_.fireVetoableChange("useDefaultUser", oldValue, newValue);
-        useDefaultUser_ = useDefaultUser;
-        propertyChangeListeners_.firePropertyChange("useDefaultUser", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("useDefaultUser", oldValue, newValue);
+            }
+            useDefaultUser_ = useDefaultUser;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("useDefaultUser", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -2798,16 +2967,29 @@ public class AS400 implements Serializable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting use password cache:", usePasswordCache);
 
-        Boolean oldValue = new Boolean(usePasswordCache_);
-        Boolean newValue = new Boolean(usePasswordCache);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            usePasswordCache_ = usePasswordCache;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(usePasswordCache_);
+            Boolean newValue = new Boolean(usePasswordCache);
 
-        vetoableChangeListeners_.fireVetoableChange("usePasswordCache", oldValue, newValue);
-        usePasswordCache_ = usePasswordCache;
-        propertyChangeListeners_.firePropertyChange("usePasswordCache", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("usePasswordCache", oldValue, newValue);
+            }
+            usePasswordCache_ = usePasswordCache;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("usePasswordCache", oldValue, newValue);
+            }
+        }
     }
 
     /**
-     Sets the user ID for this object.  The user ID cannot be changed once a connection to the server has been established.  Only one authentication means (Kerberos ticket, profile token, or user ID/password) can be used at a single time.  Using this method will clear any set Kerberos ticket or profile token.
+     Sets the user ID for this object.  The user ID cannot be changed once a connection to the server has been established.  If this method is used in conjunction with a Kerberos ticket or profile token, the user profile associated with the authentication token must match this user ID.
      @param  userId  The user profile name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -2831,12 +3013,25 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        String oldValue = userId_;
-        String newValue = userId.toUpperCase();
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            userId_ = userId.toUpperCase();
+        }
+        else
+        {
+            String oldValue = userId_;
+            String newValue = userId.toUpperCase();
 
-        vetoableChangeListeners_.fireVetoableChange("userId", oldValue, newValue);
-        userId_ = newValue;
-        propertyChangeListeners_.firePropertyChange("userId", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("userId", oldValue, newValue);
+            }
+            userId_ = newValue;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("userId", oldValue, newValue);
+            }
+        }
     }
 
     // Initiate sign-on to the server.  This method is syncronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
@@ -2846,7 +3041,7 @@ public class AS400 implements Serializable
         if (signonInfo_ == null)
         {
             chooseImpl();
-            userId_ = resolveUserId(userId_);
+            userId_ = resolveUserId(userId_, byteType_);
             // If system name is set.
             if (systemName_.length() != 0)
             {
@@ -2878,8 +3073,10 @@ public class AS400 implements Serializable
 
             try
             {
+                // If the system name is set, we're not using proxy, and the password is not set.
                 if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null)
                 {
+                    // Try for Kerberos.
                     bytes_ = TokenManager.getGSSToken(systemName_);
                     byteType_ = 1;
                 }
@@ -2909,12 +3106,11 @@ public class AS400 implements Serializable
         {
             Trace.log(Trace.DIAGNOSTIC, "AS400 object store, profile token: '" + info + "'");
         }
-        Random rng = new Random();
         byte[] adder = new byte[9];
-        rng.nextBytes(adder);
+        AS400.rng.nextBytes(adder);
 
         byte[] mask = new byte[7];
-        rng.nextBytes(mask);
+        AS400.rng.nextBytes(mask);
 
         byte[] infoBytes = encode(adder, mask, info);
         byte[] returnBytes = new byte[infoBytes.length + 16];
@@ -2937,12 +3133,11 @@ public class AS400 implements Serializable
         }
         if (AS400.onAS400) if (info.equalsIgnoreCase("*CURRENT") || info.equals("")) return null;
 
-        Random rng = new Random();
         byte[] adder = new byte[9];
-        rng.nextBytes(adder);
+        AS400.rng.nextBytes(adder);
 
         byte[] mask = new byte[7];
-        rng.nextBytes(mask);
+        AS400.rng.nextBytes(mask);
 
         byte[] infoBytes = encode(adder, mask, BinaryConverter.charArrayToByteArray(info.toCharArray()));
         byte[] returnBytes = new byte[infoBytes.length + 16];
