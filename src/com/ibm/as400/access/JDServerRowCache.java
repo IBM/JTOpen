@@ -247,9 +247,16 @@ Fetches a block of data from the server.
             || ((errorClass == 2) && (returnCode == 701)))
           endBlock = true;
 
-        // Other server errors.
+        // As in AS400JDBCStatement, post a warning if the server gives us a warning,
+        // otherwise throw an exception
         else if (errorClass != 0)
-          JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+        {                                                                                // @D1a
+           // JDError.throwSQLException (connection_, id_, errorClass, returnCode);      // @D1d
+           if (returnCode < 0)                                                           // @D1a
+              JDError.throwSQLException (connection_, id_, errorClass, returnCode);      // @D1a
+           else                                                                          // @D1a
+              connection_.postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode)); // @D1a
+        }                                                                                // @D1a
 
         // Extract data from the row.
         serverData_ = reply.getResultData ();
