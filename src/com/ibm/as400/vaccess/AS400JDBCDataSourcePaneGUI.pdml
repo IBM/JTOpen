@@ -1,12 +1,12 @@
 <!--///////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400JDBCDataSourcePaneGUI.pdml
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ////////////////////////////////////////////////////////////////////////////-->
@@ -294,7 +294,7 @@
 			<LOCATION>25,54</LOCATION>
 			<SIZE>209,18</SIZE>
 		</LABEL>
-		<TEXTFIELD name="AJDSP_PACKAGE_TEXTBOX">
+		<TEXTFIELD name="AJDSP_PACKAGE_TEXTBOX" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_PACKAGE_TEXTBOX</TITLE>
 			<LOCATION>244,54</LOCATION>
 			<SIZE>242,20</SIZE>
@@ -307,7 +307,7 @@
 			<LOCATION>40,80</LOCATION>
 			<SIZE>194,18</SIZE>
 		</LABEL>
-		<TEXTFIELD name="AJDSP_PACKAGELIB_TEXTBOX">
+		<TEXTFIELD name="AJDSP_PACKAGELIB_TEXTBOX" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_PACKAGELIB_TEXTBOX</TITLE>
 			<LOCATION>244,80</LOCATION>
 			<SIZE>242,20</SIZE>
@@ -320,12 +320,12 @@
 			<LOCATION>25,120</LOCATION>
 			<SIZE>461,20</SIZE>
 		</LABEL>
-		<RADIOBUTTON name="AJDSP_USE_RADIOBUTTON" group="AJDSP_USAGE_GROUP">
+		<RADIOBUTTON name="AJDSP_USE_RADIOBUTTON" group="AJDSP_USAGE_GROUP" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_USE_RADIOBUTTON</TITLE>
 			<LOCATION>40,145</LOCATION>
 			<SIZE>451,22</SIZE>
 		</RADIOBUTTON>
-		<RADIOBUTTON name="AJDSP_USEADD_RADIOBUTTON" group="AJDSP_USAGE_GROUP">
+		<RADIOBUTTON name="AJDSP_USEADD_RADIOBUTTON" group="AJDSP_USAGE_GROUP" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_USEADD_RADIOBUTTON</TITLE>
 			<LOCATION>40,175</LOCATION>
 			<SIZE>451,22</SIZE>
@@ -335,22 +335,22 @@
 			<LOCATION>25,219</LOCATION>
 			<SIZE>472,20</SIZE>
 		</LABEL>
-		<RADIOBUTTON name="AJDSP_SEND_EXCEP_RADIOBUTTON" group="AJDSP_UNUSABLE_PKG_ACTION_GROUP">
+		<RADIOBUTTON name="AJDSP_SEND_EXCEP_RADIOBUTTON" group="AJDSP_UNUSABLE_PKG_ACTION_GROUP" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_SEND_EXCEP_RADIOBUTTON</TITLE>
 			<LOCATION>40,244</LOCATION>
 			<SIZE>290,22</SIZE>
 		</RADIOBUTTON>
-		<RADIOBUTTON name="AJDSP_POST_WARN_RADIOBUTTON" group="AJDSP_UNUSABLE_PKG_ACTION_GROUP">
+		<RADIOBUTTON name="AJDSP_POST_WARN_RADIOBUTTON" group="AJDSP_UNUSABLE_PKG_ACTION_GROUP" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_POST_WARN_RADIOBUTTON</TITLE>
 			<LOCATION>40,274</LOCATION>
 			<SIZE>290,22</SIZE>
 		</RADIOBUTTON>
-		<RADIOBUTTON name="AJDSP_IGNORE_RADIOBUTTON" group="AJDSP_UNUSABLE_PKG_ACTION_GROUP">
+		<RADIOBUTTON name="AJDSP_IGNORE_RADIOBUTTON" group="AJDSP_UNUSABLE_PKG_ACTION_GROUP" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_IGNORE_RADIOBUTTON</TITLE>
 			<LOCATION>40,303</LOCATION>
 			<SIZE>290,22</SIZE>
 		</RADIOBUTTON>
-		<CHECKBOX name="AJDSP_CACHE_PACKAGE_CHECKBOX">
+		<CHECKBOX name="AJDSP_CACHE_PACKAGE_CHECKBOX" disabled="yes">
 			<TITLE>AJDSP_PACKAGE.AJDSP_CACHE_PACKAGE_CHECKBOX</TITLE>
 			<LOCATION>25,350</LOCATION>
 			<SIZE>318,22</SIZE>
@@ -464,8 +464,8 @@
 		</COMBOBOX>
 		<GROUPBOX name="DECIMALPROPSGRPBOX">
 			<TITLE>AJDSP_SERVER.DECIMALPROPSGRPBOX</TITLE>
-			<LOCATION>11,209</LOCATION>
-			<SIZE>439,179</SIZE>
+			<LOCATION>7,209</LOCATION>
+			<SIZE>446,179</SIZE>
 		</GROUPBOX>
 		<LABEL name="MAX_PRECISIONLBL">
 			<TITLE>AJDSP_SERVER.MAX_PRECISIONLBL</TITLE>
@@ -515,7 +515,7 @@
 		<CHECKBOX name="AJDSP_TRANSLATE_HEX_CHECKBOX">
 			<TITLE>AJDSP_TRANSLATION.AJDSP_TRANSLATE_HEX_CHECKBOX</TITLE>
 			<LOCATION>10,54</LOCATION>
-			<SIZE>447,20</SIZE>
+			<SIZE>484,20</SIZE>
 			<DATACLASS>com.ibm.as400.vaccess.AS400JDBCDataSourcePaneDataBean</DATACLASS>
 			<ATTRIBUTE>TranslateHex</ATTRIBUTE>
 		</CHECKBOX>
