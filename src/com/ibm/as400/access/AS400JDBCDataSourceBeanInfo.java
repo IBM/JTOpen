@@ -469,11 +469,18 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             translateHex.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_HEX"));                //@K5C
             translateHex.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));                //@K5C
 
+            // @KBA - added support for true auto commit
+            PropertyDescriptor autoCommit = new PropertyDescriptor("autoCommit", beanClass, "isTrueAutoCommit", "setTrueAutoCommit");   //@KBA
+            autoCommit.setBound(true);                                                                      //@KBA
+            autoCommit.setConstrained(false);                                                               //@KBA
+            autoCommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTO_COMMIT"));                //@KBA
+            autoCommit.setShortDescription(AS400JDBCDriver.getResource("AUTO_COMMIT_DESC"));                //@KBA
+
             properties_ = new PropertyDescriptor[] { access, behaviorOverride, bidiStringType, bigDecimal, blockCriteria, blockSize, cursorHold, cursorSensitivity, databaseName, dataCompression, dataSourceName, dataTruncation, dateFormat, dateSeparator, //@A4C @J6C @J7c
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout, autoCommit};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A //@KBC
         }
         catch(Exception e)
         {

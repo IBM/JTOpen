@@ -1168,6 +1168,17 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
     }
 
+    //@KBA
+    /**
+    *  Indicates whether true auto commit support is used.
+    *  @return true if true auto commit support is used; false otherwise.
+    *  The default value is true.
+    **/
+    public boolean isTrueAutoCommit()
+    {
+        return properties_.getBoolean(JDProperties.AUTO_COMMIT);
+    }
+
     /**
     *  Indicates whether a big decimal value is returned.
     *  @return true if a big decimal is returned; false otherwise.
@@ -1496,6 +1507,29 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + access);  //@A8C
+    }
+
+    //@KBA
+    /**
+    *  Sets whether true auto commit support is used.
+    *  @param value true if true auto commit support should be used; false otherwise.
+    *  The default value is true.
+    **/
+    public void setTrueAutoCommit(boolean value)
+    {
+        String property = "autoCommit";
+        Boolean oldValue = new Boolean(isTrueAutoCommit());
+        Boolean newValue = new Boolean(value);
+
+        if (value)
+            properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
+        else
+            properties_.setString(JDProperties.AUTO_COMMIT, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
     }
 
 

@@ -392,12 +392,15 @@ reverts back to its initial commit mode.
   private void resetServer ()
   throws SQLException
   {
-    // Model the server automatically reverting back to
-    // its initial commit mode.
-    serverCommitMode_ = initialCommitMode_;
+      if(connection_.newAutoCommitSupport_ == 0)                        //@KBA  If V5R2 or earlier do what we always have
+      {
+        // Model the server automatically reverting back to
+        // its initial commit mode.
+        serverCommitMode_ = initialCommitMode_;
 
-    // Reset the server's commit mode.
-    setCommitMode (currentCommitMode_);
+        // Reset the server's commit mode.
+        setCommitMode (currentCommitMode_);
+      }
   }
 
 
@@ -506,8 +509,29 @@ Set the auto-commit mode.
       // @C5D     }                                                                           // @C5A
       // @C5D }                                                                               // @C5A
       // @C5D else                                                                            // @C5A
-      setCommitMode (currentCommitMode_);
 
+      if(connection_.newAutoCommitSupport_ == 0)                                          //@KBA OS/400 V5R2 or earlier so do what we always have
+          setCommitMode (currentCommitMode_);
+      else                                                                                //@KBA use new auto commit support
+      {                                                                                   //@KBA
+          try                                                                                 //@KBA
+          {                                                                                   //@KBA
+              DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                                                         id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                                                         + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
+              request.setAutoCommit(autoCommit ? 0xE8 : 0xD5);                                //@KBA  Set auto commit to on or off
+              request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA  Set isolation level
+              DBReplyRequestedDS reply = connection_.sendAndReceive(request);                 //@KBA
+              int errorClass = reply.getErrorClass();                                         //@KBA
+              int returnCode = reply.getReturnCode();                                         //@KBA
+              if(errorClass != 0)                                                             //@KBA
+                  JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+          }                                                                                   //@KBA
+          catch(DBDataStreamException e)                                                      //@KBA
+          {                                                                                   //@KBA
+              JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             //@KBA
+          }                                                                                   //@KBA
+      }                                                                                       //@KBA
     }                                                                       // @C4A
   }
 
@@ -614,8 +638,8 @@ java.sql.Connection.TRANSACTION_* values.
   throws SQLException
   {
     // This is invalid if a transaction is active.
-    if (activeLocal_)                                               // @C4C
-      JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);  // @C4C
+    if (activeLocal_ && connection_.newAutoCommitSupport_ == 0)                                               // @C4C   //@KBC
+       JDError.throwSQLException (JDError.EXC_TXN_STATE_INVALID);  // @C4C
 
     // @C7D We do not allow TRANSACTION_NONE at this time.
     // @C7D if (level == Connection.TRANSACTION_NONE)
@@ -626,7 +650,31 @@ java.sql.Connection.TRANSACTION_* values.
     currentIsolationLevel_ = level;
 
     // Set the commit mode on the server.
-    setCommitMode (currentCommitMode_);
+    if(connection_.newAutoCommitSupport_ == 0)                                  //@KBA OS/400 V5R2 or earlier do what we always have
+        setCommitMode (currentCommitMode_);
+    else                                                                        //@KBA use new auto commit and commit level support
+    {                                                                                         //@KBA
+          try                                                                                 //@KBA
+          {                                                                                   //@KBA
+              if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
+              {                                                                               //@KBA
+                  DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                                                         id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                                                         + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
+                  request.setCommitmentControlLevelParserOption(getIsolationLevel());             //@KBA
+                  DBReplyRequestedDS reply = connection_.sendAndReceive(request);                 //@KBA
+                  int errorClass = reply.getErrorClass();                                         //@KBA
+                  int returnCode = reply.getReturnCode();                                         //@KBA
+                  if(errorClass != 0)                                                             //@KBA
+                      JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+              }                                                                               //@KBA
+          }                                                                                   //@KBA
+          catch(DBDataStreamException e)                                                      //@KBA
+          {                                                                                   //@KBA
+              JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             //@KBA
+          }                                                                                   //@KBA
+          serverCommitMode_ = currentCommitMode_;                                             //@KBA
+    }                                                                                         //@KBA
   }
 
 
@@ -657,7 +705,32 @@ can not be called directly on this object.
     {
       localAutoCommit_ = autoCommit_;
       autoCommit_ = false;
-      setCommitMode(currentCommitMode_);
+      if(connection_.newAutoCommitSupport_ == 0)            //@KBA   Server is v5r2 or less, do what we always have
+          setCommitMode(currentCommitMode_);
+      else                                                  //@KBA
+      {
+          try                                                                                 //@KBA
+          {                                                                                   //@KBA
+              //auto commit is always false when we are in here so we will run under default or specified isolation level
+              DBSQLAttributesDS request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
+                                                     id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
+                                                     + DBBaseRequestDS.ORS_BITMAP_SERVER_ATTRIBUTES, 0);    //@KBA
+              request.setAutoCommit(0xD5);                                                    //@KBA turn off auto commit
+              if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
+                  request.setCommitmentControlLevelParserOption(getIsolationLevel());         //@KBA
+              DBReplyRequestedDS reply = connection_.sendAndReceive(request);                 //@KBA
+              int errorClass = reply.getErrorClass();                                         //@KBA
+              int returnCode = reply.getReturnCode();                                         //@KBA
+              if(errorClass != 0)                                                             //@KBA
+                  JDError.throwSQLException(connection_, id_, errorClass, returnCode);        //@KBA
+          }                                                                                   //@KBA
+          catch(DBDataStreamException e)                                                      //@KBA
+          {                                                                                   //@KBA
+              JDError.throwSQLException(JDError.EXC_INTERNAL, e);                             //@KBA
+          }                                                                                   //@KBA
+          
+          serverCommitMode_ = currentCommitMode_;                                             //@KBA
+      }
     }
   }
 
@@ -689,5 +762,24 @@ Take note that a statement has been executed.
   }
 
 
+  //@KBA
+  /**
+  Returns the isolation/commit level to send to the server.
+  **/
+  private int getIsolationLevel()           
+  {
+      int isolationLevel = currentCommitMode_;                                        
+      //Server commit mode level is different than clients so map client commit level to appropriate server commit level
+      if(isolationLevel == COMMIT_MODE_CHG_)                                          
+          isolationLevel = COMMIT_SERVER_MODE_CHG_;                                   
+      else if(isolationLevel == COMMIT_MODE_CS_)                                      
+          isolationLevel = COMMIT_SERVER_MODE_CS_;                                    
+      
+      //if auto commit is on and user specified false for 'true autocommit property' or by default run under *NONE isolation level
+      if(autoCommit_ && connection_.newAutoCommitSupport_ == 1)                         
+          isolationLevel = COMMIT_MODE_NONE_;                                           
+
+      return isolationLevel;
+  }
 
 }

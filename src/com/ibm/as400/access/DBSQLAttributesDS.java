@@ -81,11 +81,11 @@ extends DBBaseRequestDS
         addParameter(0x3810, (short)value);
     }
 
-    // @E1D void setAutoCommit(int value)                                           // @E1A
-    // @E1D     throws DBDataStreamException                                        // @E1A
-    // @E1D {                                                                       // @E1A
-    // @E1D     addParameter(0x3824, (short)value);                                 // @E1A
-    // @E1D }                                                                       // @E1A
+    void setAutoCommit(int value)                                           // @E1A     //@KBC  uncommented the code
+    throws DBDataStreamException                                        // @E1A         //@KBC
+    {                                                                       // @E1A     //@KBC
+        addParameter(0x3824, (byte)value);                                 // @E1A      //@KBC
+    }                                                                       // @E1A     //@KBC
 
     /**
        Sets the Client CCSID parameter in the data stream.

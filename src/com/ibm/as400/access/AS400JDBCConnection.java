@@ -195,6 +195,13 @@ implements Connection
     private boolean thousandStatements_ = false;                        //@K1A
 
     private String qaqqiniLibrary_ = null;                              //@K2A
+                                                                                   
+    //@KBA Specifies level of autocommit support to use.  
+    // If V5R2 or earlier use old support of running SET TRANSACTION STATEMENTS (0)
+    // If "true autocommit" connection property is false - run autocommit under *NONE isolation (1)
+    // If "true autocommit" connection property is true - run with specified isolation (2)
+    int newAutoCommitSupport_ = 1;                                      //@KBA  
+
 
     /**
     Static initializer.  Initializes the reply data streams
@@ -2695,6 +2702,12 @@ implements Connection
         properties_             = properties;
         //@P0D requestPending_         = new BitSet(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
         statements_             = new Vector(INITIAL_STATEMENT_TABLE_SIZE_);         // @DAC
+        if(as400_.getVRM() <= JDUtilities.vrm520)                                    //@KBA         //if V5R2 or less use old support of issuing set transaction statements
+            newAutoCommitSupport_ = 0;                                               //@KBA
+        else if(!properties_.getBoolean(JDProperties.AUTO_COMMIT))                   //@KBA         //run autocommit with *NONE isolation level
+            newAutoCommitSupport_ = 1;                                               //@KBA
+        else                                                                         //@KBA
+            newAutoCommitSupport_ = 2;                                               //@KBA         //run autocommit with specified isolation level
 
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
@@ -2792,7 +2805,8 @@ implements Connection
         // The conversation was initialized to a certain
         // transaction isolation.  It is now time to turn on auto-
         // commit by default.
-        transactionManager_.setAutoCommit (true);
+        if(newAutoCommitSupport_ == 0)          //KBA  V5R2 or less so do what we always have
+            transactionManager_.setAutoCommit (true);
 
         // Initialize the package manager.
         packageManager_ = new JDPackageManager (this, id_, properties_,
@@ -3126,6 +3140,13 @@ implements Connection
 
                 request.setTranslateIndicator (0xF0);                       // @E2C
                 request.setDRDAPackageSize (1);
+                if(!(newAutoCommitSupport_ == 0))                           //@KBA  V5R3 or greater so run with new support
+                    request.setAutoCommit(0xE8);                            //@KBA  Turn on auto commit
+
+                if(newAutoCommitSupport_ == 1)                              //@KBA
+                    request.setCommitmentControlLevelParserOption(0);       //@KBA Run under *NONE when in autocommit
+                else                                                        //@KBA Run under default isolation level
+                    request.setCommitmentControlLevelParserOption (transactionManager_.getCommitMode ());
 
                 // Server attributes based on property values.
                 // These all match the index within the property's
@@ -3153,8 +3174,6 @@ implements Connection
                 request.setNamingConventionParserOption (properties_.getIndex (JDProperties.NAMING));
 
                 // Do not set the ignore decimal data error parser option.
-
-                request.setCommitmentControlLevelParserOption (transactionManager_.getCommitMode ());
 
                 // If the system supports RLE data compression, then use it.               @ECA
                 // Otherwise, use the old-style data compression.                          @ECA
@@ -3233,10 +3252,24 @@ implements Connection
                     request.setAmbiguousSelectOption(1);                     // @J3a
                     mustSpecifyForUpdate_ = false;                           // @J31a
                 
-                    // @M0A - Client support information - indicate our support for ROWID data type
-                    request.setClientSupportInformation(0x80000000);
-                    if(JDTrace.isTraceOn())
-                        JDTrace.logInformation(this, "ROWID supported = true");
+                    if (vrm_ >= JDUtilities.vrm530)                          //@KBA  For OS/400 V5R3 and later true auto commit support is supported.
+                    {
+                        // @KBA - Client support information - indicate our support for ROWID data type and
+                        // true auto-commit
+                        request.setClientSupportInformation(0xC0000000);    //@KBC
+                        if(JDTrace.isTraceOn())                             //@KBA
+                        {                                                   //@KBA
+                            JDTrace.logInformation(this, "ROWID supported = true");             //@KBA
+                            JDTrace.logInformation(this, "True auto-commit supported = true");  //@KBA
+                        }                                                                       //@KBA
+                   }                                                                           //@KBA
+                    else                                                                        //@KBA
+                    {                                                                           //@KBA
+                        // @M0A - Client support information - indicate our support for ROWID data type
+                        request.setClientSupportInformation(0x80000000);
+                        if(JDTrace.isTraceOn())
+                            JDTrace.logInformation(this, "ROWID supported = true");
+                    }                                                                           //@KBA
                 }
 
                 // @M0A - added support for 63 digit decimal precision
