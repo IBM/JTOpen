@@ -20,6 +20,7 @@ import com.ibm.as400.access.BidiStringType;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.Trace;                          // @C4A
+import com.ibm.as400.access.ProgramCall;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -368,6 +369,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     }
 
+
+
     /**
      Calls the named program.
 
@@ -608,6 +611,16 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException
     {
         return m_pcmlDoc.getIntValue(name, new PcmlDimensions(indices));
+    }
+
+
+    /**
+     Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram() callProgram()}.
+     @return The ProgramCall object; null if callProgram() has not been called.
+     **/
+    public ProgramCall getProgramCall()
+    {
+      return ( m_pcmlDoc == null ? null : m_pcmlDoc.getProgramCall() );
     }
 
     /**

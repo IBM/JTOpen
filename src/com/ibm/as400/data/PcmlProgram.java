@@ -86,6 +86,7 @@ class PcmlProgram extends PcmlDocNode
      Not written when serializing interface definition.
      Written when serializing ProgramCallDocument object.
     ***********************************************************/
+    private ProgramCall m_pgmCall;      // ProgramCall instance from most recent call
     private boolean m_pgmRc;            // Return code from most recent call             @C1A
     private int m_pgmCCSID;             // CCSID of host last time program was run       @C1A
     private AS400Message[] msgList;     // Array of AS400Message                         @C1C
@@ -304,6 +305,15 @@ class PcmlProgram extends PcmlDocNode
         m_Parseorder = parseorder;
     }
 
+    /**
+     Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram() callProgram()}.
+     @return The ProgramCall object; null if callProgram has not been called.
+     **/
+    ProgramCall getProgramCall()
+    {
+      return m_pgmCall;
+    }
+
     // Sets the returnvalue= attribute value
     void setReturnvalue(String returnvalue)                         // @B1A
     {                                                               // @B1A
@@ -459,7 +469,6 @@ class PcmlProgram extends PcmlDocNode
                   IOException,
                   PcmlException
     {
-        ProgramCall pgmCall;               // com.ibm.as400.access.ProgramCall object
         ProgramParameter[] childParms;     // One entry in array for every child of <program>           @A1A
                                            // This array is indexed by child number, entries for
                                            // parameters not supported at host VRm are null.
@@ -632,7 +641,7 @@ class PcmlProgram extends PcmlDocNode
             else                                                    // @B1A
                 rtnValType = ServiceProgramCall.NO_RETURN_VALUE;    // @B1A
 
-            pgmCall = new ServiceProgramCall(as400,
+            m_pgmCall = new ServiceProgramCall(as400,
                                              getPath(),
                                              getEntrypoint(),
                                              rtnValType,
@@ -641,7 +650,7 @@ class PcmlProgram extends PcmlDocNode
             {                                                       // @D1A
                 try 
                 {
-                    ((ServiceProgramCall) pgmCall).setProcedureName(getEntrypoint(),   // @D1A
+                    ((ServiceProgramCall) m_pgmCall).setProcedureName(getEntrypoint(),   // @D1A
                                          getEpCcsid());             // @D1A
                 }
                 catch (PropertyVetoException e)                     // @D1A
@@ -651,7 +660,7 @@ class PcmlProgram extends PcmlDocNode
         }                                                           // @B1A
         else                                                        // @B1A
         {                                                           // @B1A
-            pgmCall = new ProgramCall(as400,
+            m_pgmCall = new ProgramCall(as400,
                                         getPath(),
                                         supportedParms);            // @A1C @B1C
         }                                                           // @B1A
@@ -660,20 +669,20 @@ class PcmlProgram extends PcmlDocNode
         if ( (m_ThreadsafeOverrideCalled) ||                        // @D2A
              (getThreadsafe() != null) )                            // @D2A
         {
-        pgmCall.setThreadSafe(getThreadsafeOverride());             // @C6A
+        m_pgmCall.setThreadSafe(getThreadsafeOverride());             // @C6A
         }
 
         //
         // Call the target program
         //
-        m_pgmRc = pgmCall.run();                                    // @B1A
+        m_pgmRc = m_pgmCall.run();                                    // @B1A
 
         //
         // If the program signalled a message, save the message list.
         //
         if (m_pgmRc != true)
         {
-            msgList = pgmCall.getMessageList();
+            msgList = m_pgmCall.getMessageList();
             return m_pgmRc;
         }
 
@@ -687,8 +696,8 @@ class PcmlProgram extends PcmlDocNode
         {                                                           // @B1A
             if ( m_ReturnvalueStr != null && m_ReturnvalueStr.equals("integer") ) // @B1A
             {                                                       // @B1A
-                m_IntReturnValue = ((ServiceProgramCall) pgmCall).getIntegerReturnValue(); // @B1A
-                m_Errno = ((ServiceProgramCall) pgmCall).getErrno(); // @B1A
+                m_IntReturnValue = ((ServiceProgramCall) m_pgmCall).getIntegerReturnValue(); // @B1A
+                m_Errno = ((ServiceProgramCall) m_pgmCall).getErrno(); // @B1A
             }                                                       // @B1A
         }                                                           // @B1A
 

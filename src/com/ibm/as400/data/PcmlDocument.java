@@ -31,6 +31,7 @@ import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ObjectDoesNotExistException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.ProgramCall;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -110,6 +111,7 @@ class PcmlDocument extends PcmlDocRoot
     private transient PcmlSpecificationException m_PcmlSpecificationException;
     private transient boolean m_bSerializingWithData = false;       // @C1A
     private transient long m_DeserializationTs = 0;                 // @C1A
+    private transient PcmlProgram m_pcmlProgram;
 
 
     // @E1A -- String constant for use in XPCML
@@ -395,7 +397,8 @@ class PcmlDocument extends PcmlDocRoot
 						                  IOException,
 						                  PcmlException
     {
-        return getProgramNode(name).callProgram(m_as400);
+        m_pcmlProgram = getProgramNode(name);
+        return m_pcmlProgram.callProgram(m_as400);
     }
 
     /**
@@ -524,6 +527,15 @@ class PcmlDocument extends PcmlDocRoot
     synchronized AS400Message[] getMessageList(String name) throws PcmlException
     {
         return getProgramNode(name).getMessageList();
+    }
+
+    /**
+     Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram() callProgram()}.
+     @return The ProgramCall object; null if callProgram has not been called.
+     **/
+    ProgramCall getProgramCall()
+    {
+      return ( m_pcmlProgram == null ? null : m_pcmlProgram.getProgramCall() );
     }
 
     /**
