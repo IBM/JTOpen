@@ -608,7 +608,19 @@ public class CommandHelpRetriever
     if (Trace.isTraceOn())
       Trace.log(Trace.DIAGNOSTIC, "Using command threadsafety = "+threadSafe+" and where allowed to run = "+whereAllowedToRun+".");
 
-    String helpResults = (panelGroup == null ? command.getXMLHelpText() : command.getXMLHelpText(panelGroup));
+    String helpResults = null;
+    try
+    {
+      helpResults = (panelGroup == null ? command.getXMLHelpText() : command.getXMLHelpText(panelGroup));
+    }
+    catch (AS400Exception e)
+    {
+      AS400Message[] msgs = e.getAS400MessageList();
+
+      // CPF6250 - Can't retrieve info for command. Probably because it is a system command.
+      if (msgs.length != 1 || !msgs[0].getID().toUpperCase().trim().equals("CPF6250"))
+        throw new AS400Exception(msgs);
+    }
 
     if (debug_ && helpResults != null)
     {
