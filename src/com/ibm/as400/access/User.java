@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: User.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ import java.util.Calendar;
 
 
 /**
-The User class represents an OS/400 user profile and directory entry.
+The User class represents an OS/400 user profile.
 <P>
 Note that calling any of the attribute getters for the first time will
 result in an implicit call to {@link #loadUserInformation loadUserInformation()}.
@@ -39,6 +39,7 @@ loadUserInformation(), it will be thrown to the caller.
 Implementation note:
 This class internally calls the Retrieve User Information (QSYRUSRI) API.
 
+@see com.ibm.as400.access.DirectoryEntry
 @see com.ibm.as400.access.UserList
 @see com.ibm.as400.access.UserGroup
 @see com.ibm.as400.resource.RUser
@@ -46,7 +47,7 @@ This class internally calls the Retrieve User Information (QSYRUSRI) API.
 **/
 public class User implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
   static final long serialVersionUID = 5L;
 
@@ -123,7 +124,6 @@ public class User implements Serializable
     private String[] iaspNames_;
     private int[] iaspMaxAllowed_;
     private int[] iaspStorageUsed_;
-
 
 /**
 Constructs a User object.
@@ -364,6 +364,27 @@ retrieved from the system via an implicit call to loadUserInformation().
       return description_;
     }
 
+
+/**
+     * Returns the system distribution directory entry for the user profile, if one exists.
+     * The directory entry is retrieved from the system every time this method is called,
+     * so its value is unaffected by any call to loadUserInformation().
+     * @return The directory entry, or null if none exists.
+    **/
+    public DirectoryEntry getDirectoryEntry()
+    throws AS400Exception,
+           AS400SecurityException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           IOException,
+           ObjectDoesNotExistException
+    {
+      DirectoryEntryList list = new DirectoryEntryList(system_);
+      list.addSelection(DirectoryEntryList.USER_PROFILE, user_);
+      DirectoryEntry[] entries = list.getEntries();
+      if (entries.length == 0) return null;
+      return entries[0];
+    }
 
 
 /**
@@ -1346,6 +1367,68 @@ was set into this User object by the constructor or a call to setUser().
       if (!loaded_) refresh();
       return userProfileName_;
     }
+
+
+/**
+   * Indicates if this user profile has been granted the specified authority, or
+   * belongs to a group profile that has been granted the specified authority.
+   * @param authority The authority to check. It must be one of the following special authority
+   * values:
+<ul>
+<li>*ALLOBJ - All object.
+<li>*SECADM - Security administrator.
+<li>*JOBCTL - Job control.
+<li>*SPLCTL - Spool control.
+<li>*SAVSYS - Save system.
+<li>*SERVICE - Service.
+<li>*AUDIT - Audit.
+<li>*IOSYSCFG - Input/output system configuration.
+</ul>
+   * @return true if this user has the authority or belongs to a group that has
+   * the authority; false otherwise.
+   * @exception ResourceException If an error occurs.
+  **/
+  public boolean hasSpecialAuthority(String authority) throws ResourceException
+  {
+    if (authority == null) throw new NullPointerException("authority");
+    
+    // Check to see if this user is authorized.
+    String[] specialAuthorities = getSpecialAuthority();
+    if (specialAuthorities != null)
+    {
+      for (int i=0; i<specialAuthorities.length; ++i)
+      {
+        if (specialAuthorities[i].trim().equals(authority))
+        {
+          return true;
+        }
+      }
+    }
+    // Check to see if a group this user belongs to is authorized.
+    String primaryGroup = getGroupProfileName().trim();
+    if (primaryGroup != null && !primaryGroup.equals("*NONE"))
+    {
+      User group = new User(system_, primaryGroup);
+      if (group.hasSpecialAuthority(authority))
+      {
+        return true;
+      }
+    }
+    // Check the supplemental groups.
+    String[] supplementalGroups = getSupplementalGroups();
+    if (supplementalGroups != null)
+    {
+      for (int i=0; i<supplementalGroups.length; ++i)
+      {
+        User group = new User(system_, supplementalGroups[i].trim());
+        if (group.hasSpecialAuthority(authority))
+        {
+          return true;
+        }
+      }
+    }
+    return false; // Not authorized.
+  }
 
 
 /**
