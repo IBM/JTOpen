@@ -1,21 +1,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: JobList.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import com.ibm.as400.resource.ResourceException;
-import com.ibm.as400.resource.RJob;
-import com.ibm.as400.resource.RJobList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
@@ -26,105 +23,505 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-
+import java.util.NoSuchElementException;
 
 
 /**
-The JobList class represents a list of AS/400 jobs.
-
-<p>Some of the selections have associated get and set methods
-defined in this class.  These are provided for backwards compatibility
-with previous versions of the AS/400 Toolbox for Java.  The complete
-set of selections can be accessed using the
-{@link com.ibm.as400.resource.RJobList RJobList } class.
-
-
-@see com.ibm.as400.resource.RJobList
+The JobList class represents a list of OS/400 jobs.
 **/
-public class JobList
-implements Serializable
+public class JobList implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+
+  static final long serialVersionUID = 5L;
+
+  /**
+   * Constant representing the value *ALL.
+  **/
+  public static final String ALL = "*ALL";
+
+  /**
+   * Constant representing the value *BLANK.
+  **/
+  public static final String BLANK = "*BLANK";
+
+  /**
+   * Constant representing the value *CURRENT.
+  **/
+  public static final String CURRENT = "*CURRENT";
+
+  /**
+   * Constant representing the value false.
+  **/
+  public static final Boolean FALSE = new Boolean(false);
+
+  /**
+   * Constant representing the value true.
+  **/
+  public static final Boolean TRUE = new Boolean(true);
 
 
-    static final long serialVersionUID = 4L;
+  // Selection criteria
+
+  /**
+   * Selection type used for job selection based on job name.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * The default is *ALL.
+   * @see #setName
+  **/
+  public static final int JOB_NAME =                      1;
+
+  /**
+   * Selection type used for job selection based on user name.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * The default is *ALL.
+   * @see #setUser
+  **/
+  public static final int USER_NAME =                     2;
+  
+  /**
+   * Selection type used for job selection based on job number.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * The default is *ALL.
+   * @see #setNumber
+  **/
+  public static final int JOB_NUMBER =                    3;
+  
+  /**
+   * Selection type used for job selection based on job type.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * The default is *.
+   * @see #setNumber
+  **/
+  public static final int JOB_TYPE =                      4;
+  
+  /**
+   * Selection type used for job selection based on primary job status.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+  **/
+  public static final int PRIMARY_JOB_STATUS_ACTIVE =     5;
+  
+  /**
+   * Selection type used for job selection based on primary job status.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+  **/
+  public static final int PRIMARY_JOB_STATUS_JOB_QUEUE =  6;
+  
+  /**
+   * Selection type used for job selection based on primary job status.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+  **/
+  public static final int PRIMARY_JOB_STATUS_OUT_QUEUE =  7;
+  
+  /**
+   * Selection type used for job selection based on active job status.
+   * Multiple selection values are allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * See the QUSRJOBI API for allowed values.
+   * By default no selection values are specified for this selection type.
+   * This value is only used when the value for PRIMARY_JOB_STATUS_ACTIVE is true.
+   * @see #PRIMARY_JOB_STATUS_ACTIVE
+  **/
+  public static final int ACTIVE_JOB_STATUS =             8;
+  
+  /**
+   * Selection type used for job selection based on a job's status on the job queue.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
+   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+  **/
+  public static final int JOB_QUEUE_STATUS_SCHEDULED =    9;
+  
+  /**
+   * Selection type used for job selection based on a job's status on the job queue.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
+   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+  **/
+  public static final int JOB_QUEUE_STATUS_HELD =        10;
+  
+  /**
+   * Selection type used for job selection based on a job's status on the job queue.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a Boolean.
+   * The default is true.
+   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
+   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+  **/
+  public static final int JOB_QUEUE_STATUS_READY =       11;
+
+  /**
+   * Selection type used for job selection based on job queue.
+   * Only one selection value is allowed for this selection type.
+   * The selection value corresponding to this selection type is a String
+   * representing the fully-qualified integrated file system name for an OS/400 job queue.
+   * By default no selection values are specified for this selection type.
+   * This value is only used when the value for PRIMARY_JOB_STATUS_JOB_QUEUE is true.
+   * @see #PRIMARY_JOB_STATUS_JOB_QUEUE
+   * @see com.ibm.as400.access.QSYSObjectPathName
+  **/
+  public static final int JOB_QUEUE =                    12;
+  
+  /**
+   * Selection type used for job selection based on the user name for a job's initial thread.
+   * Multiple selection values are allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * By default no selection values are specified for this selection type.
+  **/
+  public static final int INITIAL_THREAD_USER_PROFILE =  13;
+  
+  /**
+   * Selection type used for job selection based on the server type.
+   * Multiple selection values are allowed for this selection type.
+   * The selection value corresponding to this selection type is a String.
+   * By default no selection values are specified for this selection type.
+   * Allowed values are any server type, generic value, ALL, or BLANK.
+  **/
+  public static final int SERVER_TYPE =                  14;
+  
+  //public static final int ACTIVE_SUBSYSTEM =             15;
+  //public static final int MEMORY_POOL =                  16;
+  
+  /**
+   * Selection type used for job selection based on the enhanced job type.
+   * Multiple selection values are allowed for this selection type.
+   * The selection value corresponding to this selection type is an Integer.
+   * By default no selection values are specified for this selection type.
+  **/
+  public static final int JOB_TYPE_ENHANCED =            17;
 
 
-//-----------------------------------------------------------------------------------------
-// Public constants.
-//-----------------------------------------------------------------------------------------
 
-/**
-Constant indicating that all jobs are returned.
-**/
-    public static final String ALL = RJobList.ALL;
+  private AS400 system_;
+  private transient PropertyChangeSupport propertyChangeSupport_;
+  private transient VetoableChangeSupport vetoableChangeSupport_;
+
+  // Selection variables  
+  private String selectionJobName_ = ALL;
+  private String selectionUserName_ = ALL;
+  private String selectionJobNumber_ = ALL;
+  private String selectionJobType_ = "*";
+  private boolean selectActiveJobs_ = true;
+  private boolean selectJobQueueJobs_ = true;
+  private boolean selectOutQueueJobs_ = true;
+  private String[] activeStatuses_ = new String[1];
+  private int currentActiveStatus_ = 0;
+  private boolean selectHeldJobs_ = true;
+  private boolean selectScheduledJobs_ = true;
+  private boolean selectReadyJobs_ = true;
+  private String[] jobQueues_ = new String[1];
+  private int currentJobQueue_ = 0;
+  private String[] initialUsers_ = new String[1];
+  private int currentInitialUser_ = 0;
+  private String[] serverTypes_ = new String[1];
+  private int currentServerType_ = 0;
+  private int[] enhancedJobTypes_ = new int[1];
+  private int currentEnhancedJobType_ = 0;
+
+  private int length_;
+  private byte[] handle_; // handle that references the user space used by the open list APIs
+  private byte[] handleToClose_; // used to close a previously opened list
+  private boolean isConnected_;
+  
+  private static final AS400Bin4 bin4_ = new AS400Bin4();
+  private static final AS400Bin2 bin2_ = new AS400Bin2();
+  private static final Integer zero_ = new Integer(0);
+  private static final ProgramParameter errorCode_ = new ProgramParameter(bin4_.toBytes(0));
+
+  // Info saved between calls to load() and getJobs()
+  private int numKeysReturned_;
+  private int[] keyFieldsReturned_;
+  private char[] keyTypesReturned_;
+  private int[] keyLengthsReturned_;
+  private int[] keyOffsetsReturned_;
+
+  // Keys to pre-load
+  private int currentKey_ = 0;
+  private int[] keys_ = new int[1];
+  
+  // Sort keys
+  private int currentSortKey_ = 0;
+  private int[] sortKeys_ = new int[1];
+  private boolean[] sortOrders_ = new boolean[1];
+  
+  
+  /**
+   * Constructs a JobList object.
+  **/
+  public JobList()
+  {
+  }
 
 
-/**
-Constant indicating that a blank value is used.
-**/
-    public static final String BLANK = RJobList.BLANK;
-
-
-/**
-Constant indicating that the current value is used.
-**/
-    public static final String CURRENT = RJobList.CURRENT;
-
-
-
-
-//-----------------------------------------------------------------------------------------
-// Private data.
-//-----------------------------------------------------------------------------------------
-
-    private RJobList rJobList_;
-
-    private transient   PropertyChangeSupport   propertyChangeSupport_;
-    private transient   VetoableChangeSupport   vetoableChangeSupport_;
-
-
-
-//-----------------------------------------------------------------------------------------
-// Code.
-//-----------------------------------------------------------------------------------------
 
 /**
 Constructs a JobList object.
+@param system The system.
 **/
-    public JobList()
+  public JobList(AS400 system)
+  {
+    if (system == null)
     {
-        rJobList_ = new RJobList();
-        initializeTransient();
+      throw new NullPointerException("system");
     }
 
+    system_ = system;
+  }
 
 
-/**
-Constructs a JobList object.
-
-@param system   The system.
-**/
-    public JobList(AS400 system)
+  /**
+   * Adds a job attribute that will be retrieved for each job in this job list.
+   * This method allows the Job objects that are retrieved from this JobList
+   * to have some of their attributes already filled in, so that a call to
+   * one of the Job getter methods does not result in an API call back to the server.
+   * <P>
+   * The list of job attributes is maintained internally even when this JobList is closed and re-used.
+   * To start over with a new set of job attributes to retrieve, construct a new JobList object.
+   * <P>
+   * The Job class contains the list of attributes to use.
+   * @see com.ibm.as400.access.Job
+  **/
+  public void addJobAttributeToRetrieve(int attribute)
+  {
+    if (attribute < 0)
     {
-        rJobList_ = new RJobList(system);
-        initializeTransient();
+      throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
 
+    if (currentKey_ >= keys_.length)
+    {
+      // Resize
+      int[] temp = keys_;
+      keys_ = new int[temp.length*2];
+      System.arraycopy(temp, 0, keys_, 0, temp.length);
+    }
 
+    keys_[currentKey_++] = attribute;
+  }
+
+  
+  /**
+   * Adds a selection type and value to be used to filter the list of jobs.
+   * @param selectionType The constant indicating which selection type used to filter the list.
+   * @param selectionValue The value for the selection type. See the individual selection type
+   * constants for the appropriate object to use. Some types support multiple selection values.
+  **/
+  public void addJobSelectionCriteria(int selectionType, Object selectionValue) throws PropertyVetoException
+  {
+    if (selectionValue == null) throw new NullPointerException("selectionValue");
+
+    switch(selectionType)
+    {
+      case JOB_NAME:
+        setName((String)selectionValue);
+        break;
+      case USER_NAME:
+        setUser((String)selectionValue);
+        break;
+      case JOB_NUMBER:
+        setNumber((String)selectionValue);
+        break;
+      case JOB_TYPE:
+        selectionJobType_ = ((String)selectionValue).toUpperCase();
+        break;
+      case PRIMARY_JOB_STATUS_ACTIVE:
+        selectActiveJobs_ = ((Boolean)selectionValue).booleanValue();
+        break;
+      case PRIMARY_JOB_STATUS_JOB_QUEUE:
+        selectJobQueueJobs_ = ((Boolean)selectionValue).booleanValue();
+        break;
+      case PRIMARY_JOB_STATUS_OUT_QUEUE:
+        selectOutQueueJobs_ = ((Boolean)selectionValue).booleanValue();
+        break;
+      case ACTIVE_JOB_STATUS:
+        String status = ((String)selectionValue).toUpperCase();
+        if (currentActiveStatus_ > activeStatuses_.length)
+        {
+          String[] temp = activeStatuses_;
+          activeStatuses_ = new String[temp.length*2];
+          System.arraycopy(temp, 0, activeStatuses_, 0, temp.length);
+        }
+        activeStatuses_[currentActiveStatus_++] = status;
+        break;
+      case JOB_QUEUE_STATUS_SCHEDULED:
+        selectScheduledJobs_ = ((Boolean)selectionValue).booleanValue();
+        break;
+      case JOB_QUEUE_STATUS_HELD:
+        selectHeldJobs_ = ((Boolean)selectionValue).booleanValue();
+        break;
+      case JOB_QUEUE_STATUS_READY:
+        selectReadyJobs_ = ((Boolean)selectionValue).booleanValue();
+        break;
+      case JOB_QUEUE:
+        String queue = (String)selectionValue;
+        QSYSObjectPathName path = new QSYSObjectPathName(queue);
+        StringBuffer buf = new StringBuffer();
+        String name = path.getObjectName();
+        buf.append(name);
+        for (int i=name.length(); i<10; ++i)
+        {
+          buf.append(' ');
+        }
+        String lib = path.getLibraryName();
+        buf.append(lib);
+        
+        if (currentJobQueue_ > jobQueues_.length)
+        {
+          String[] temp = jobQueues_;
+          jobQueues_ = new String[temp.length*2];
+          System.arraycopy(temp, 0, jobQueues_, 0, temp.length);
+        }
+        jobQueues_[currentJobQueue_++] = buf.toString();
+        break;
+      case INITIAL_THREAD_USER_PROFILE:
+        String profile = ((String)selectionValue).toUpperCase();
+        if (currentInitialUser_ > initialUsers_.length)
+        {
+          String[] temp = initialUsers_;
+          initialUsers_ = new String[temp.length*2];
+          System.arraycopy(temp, 0, initialUsers_, 0, temp.length);
+        }
+        initialUsers_[currentInitialUser_++] = profile;
+        break;
+      case SERVER_TYPE:
+        String type = ((String)selectionValue).toUpperCase();
+        if (currentServerType_ > serverTypes_.length)
+        {
+          String[] temp = serverTypes_;
+          serverTypes_ = new String[temp.length*2];
+          System.arraycopy(temp, 0, serverTypes_, 0, temp.length);
+        }
+        serverTypes_[currentServerType_++] = type;
+        break;
+      case JOB_TYPE_ENHANCED:
+        int val = ((Integer)selectionValue).intValue();
+        if (currentEnhancedJobType_ > enhancedJobTypes_.length)
+        {
+          int[] temp = enhancedJobTypes_;
+          enhancedJobTypes_ = new int[temp.length*2];
+          System.arraycopy(temp, 0, enhancedJobTypes_, 0, temp.length);
+        }
+        enhancedJobTypes_[currentEnhancedJobType_++] = val;
+        break;
+      default:
+        throw new ExtendedIllegalArgumentException("selectionType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    resetHandle();
+  }
+
+
+  /**
+   * Adds a job attribute to be used to sort the list. The Job class contains the list
+   * of attributes used.
+   * @param attribute The job attribute.
+   * @param sortAscending The sort order. true to sort ascending; false to sort descending.
+   * @see com.ibm.as400.access.Job
+  **/
+  public void addJobAttributeToSortOn(int attribute, boolean sortOrder)
+  {
+    if (attribute < 0)
+    {
+      throw new ExtendedIllegalArgumentException("attribute", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (currentSortKey_ >= sortKeys_.length)
+    {
+      int[] temp = sortKeys_;
+      sortKeys_ = new int[temp.length*2];
+      System.arraycopy(temp, 0, sortKeys_, 0, temp.length);
+      boolean[] tempSort = sortOrders_;
+      sortOrders_ = new boolean[tempSort.length*2];
+      System.arraycopy(tempSort, 0, sortOrders_, 0, tempSort.length);
+    }
+    sortKeys_[currentSortKey_] = attribute;
+    sortOrders_[currentSortKey_++] = sortOrder;
+    resetHandle();
+  }
+  
+
+  /**
+   * Clears the job attributes used to sort the list. This resets all of the 
+   * job sort parameters to their default values.
+   * @see #addJobAttributeToSortOn
+  **/
+  public void clearJobAttributesToSortOn()
+  {
+    currentSortKey_ = 0;
+    sortKeys_ = new int[1];
+    sortOrders_ = new boolean[1];
+    resetHandle();
+  }
+  
+  
+  /**
+   * Clears the job attributes to be retrieved. This removes all of the job
+   * attributes that would be retrieved. Some attributes are always
+   * retrieved, regardless if they are in this list or not.
+   * @see #addJobAttributeToRetrieve
+  **/
+  public void clearJobAttributesToRetrieve()
+  {
+    currentKey_ = 0;
+    keys_ = new int[1];
+    resetHandle();
+  }
+  
+  
+  /**
+   * Clears the selection types and values used to filter the list of jobs.
+   * This resets all of the job selection parameters to their default values.
+   * @see #addJobSelectionCriteria
+  **/
+  public void clearJobSelectionCriteria() throws PropertyVetoException
+  {
+    setName(ALL);
+    setUser(ALL);
+    setNumber(ALL);
+    selectionJobType_ = "*";
+    selectActiveJobs_ = true;
+    selectJobQueueJobs_ = true;
+    selectOutQueueJobs_ = true;
+    activeStatuses_ = new String[1];
+    currentActiveStatus_ = 0;
+    selectHeldJobs_ = true;
+    selectScheduledJobs_ = true;
+    selectReadyJobs_ = true;
+    jobQueues_ = new String[1];
+    currentJobQueue_ = 0;
+    initialUsers_ = new String[1];
+    currentInitialUser_ = 0;
+    serverTypes_ = new String[1];
+    currentServerType_ = 0;
+    enhancedJobTypes_ = new int[1];
+    currentEnhancedJobType_ = 0;
+    resetHandle();
+  }
+   
 
 /**
 Adds a PropertyChangeListener.  The specified PropertyChangeListener's
 <b>propertyChange()</b> method will be called each time the value of
 any bound property is changed.
-
 @param listener The listener.
 */
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
-        propertyChangeSupport_.addPropertyChangeListener(listener);
-        rJobList_.addPropertyChangeListener(listener);
-    }
+  public void addPropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null) throw new NullPointerException("listener");
+    if (propertyChangeSupport_ == null) propertyChangeSupport_ = new PropertyChangeSupport(this);
+    propertyChangeSupport_.addPropertyChangeListener(listener);
+  }
 
 
 
@@ -132,21 +529,79 @@ any bound property is changed.
 Adds a VetoableChangeListener.  The specified VetoableChangeListener's
 <b>vetoableChange()</b> method will be called each time the value of
 any constrained property is changed.
-
 @param listener The listener.
 */
-    public void addVetoableChangeListener(VetoableChangeListener listener)
-    {
-        vetoableChangeSupport_.addVetoableChangeListener(listener);
-        rJobList_.addVetoableChangeListener(listener);
-    }
+  public void addVetoableChangeListener(VetoableChangeListener listener)
+  {
+    if (listener == null) throw new NullPointerException("listener");
+    if (vetoableChangeSupport_ == null) vetoableChangeSupport_ = new VetoableChangeSupport(this);
+    vetoableChangeSupport_.addVetoableChangeListener(listener);
+  }
 
+
+
+//@E0A  
+  /**
+   * Closes the job list on the system.
+   * This releases any system resources previously in use by this job list.
+  **/
+  public synchronized void close() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    if (!isConnected_)
+    {
+      return;
+    }
+    if (handleToClose_ != null && (handle_ == null || handle_ == handleToClose_))
+    {
+      handle_ = handleToClose_;
+      handleToClose_ = null;
+    }
+    if (Trace.traceOn_)
+    {
+      Trace.log(Trace.DIAGNOSTIC, "Closing job list with handle: ", handle_);
+    }
+    ProgramParameter[] parms = new ProgramParameter[]
+    {
+      new ProgramParameter(handle_),
+      errorCode_
+    };
+    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parms);
+    if (!pc.run())
+    {
+      throw new AS400Exception(pc.getMessageList());
+    }
+    isConnected_ = false;
+    handle_ = null;
+    if (handleToClose_ != null) // Just in case.
+    {
+      handle_ = handleToClose_;
+      handleToClose_ = null;
+      close();
+    }
+  }
+
+
+  /**
+   * Closes the job list on the system when this object is garbage collected.
+  **/
+  protected void finalize() throws Throwable
+  {
+    try
+    {
+      close();
+    }
+    catch(Exception e)
+    {
+    }
+    super.finalize();
+  }
 
 
 /**
 Returns the list of jobs in the job list.
+This is the same as calling getJobs(-1, getLength()).
 
-@return An Enumeration of <a href="Job.html">Job</a> objects.
+@return An Enumeration of {@link com.ibm.as400.access.Job Job} objects.
 
 @exception AS400Exception                  If the AS/400 system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
@@ -158,24 +613,153 @@ Returns the list of jobs in the job list.
 @exception ServerStartupException          If the AS/400 server cannot be started.
 @exception UnknownHostException            If the AS/400 system cannot be located.
 **/
-    public Enumeration getJobs ()
-       throws AS400Exception,
-              AS400SecurityException,
-              ErrorCompletingRequestException,
-              InterruptedException,
-              IOException,
-              ObjectDoesNotExistException
+  public Enumeration getJobs() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    if (system_ == null)
     {
-        try {
-            rJobList_.refreshContents(); // @C1A
-            return new EnumerationAdapter(rJobList_.resources());
-        }
-        catch(ResourceException e) {
-            e.unwrap();
-            return null;
-        }
+      throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
+    if (handle_ == null)
+    {
+      load(); // Need to get the length_
+    }
+    
+    Job[] jobs = getJobs(-1, length_);
+
+    return new JobEnumeration(jobs);
+  }
+
+  
+  /**
+   * Returns a subset of the list of jobs in the job list.
+   * This method allows the user to retrieve the job list from the server
+   * in pieces. If a call to {@link #load load()} is made (either implicitly or explicitly),
+   * then the jobs at a given offset will change, so a subsequent call to
+   * getJobs() with the same <i>listOffset</i> and <i>number</i>
+   * will most likely not return the same Jobs as the previous call.
+   * @param listOffset The offset into the list of jobs. This value must be greater than 0 and
+   * less than the list length, or specify -1 to retrieve all of the jobs.
+   * @param number The number of jobs to retrieve out of the list, starting at the specified
+   * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
+   * to the list length.
+   * @return The array of retrieved {@link com.ibm.as400.access.Job Job} objects.
+  **/
+  public Job[] getJobs(int listOffset, int number) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    if (listOffset < -1)
+    {
+      throw new ExtendedIllegalArgumentException("listOffset", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    }
+
+    if (number < 0)
+    {
+      throw new ExtendedIllegalArgumentException("number", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    }
+    
+    if (system_ == null)
+    {
+      throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
+
+    if (number == 0)
+    {
+      return new Job[0];
+    }
+
+    if (handle_ == null)
+    {
+      load();
+    }
+
+    int ccsid = system_.getCcsid();
+    ConvTable conv = ConvTable.getTable(ccsid, null);
+    
+    int numKeys = numKeysReturned_;
+    int total = 0;
+    for (int i=0; i<numKeys; ++i)
+    {
+      int kl = keyLengthsReturned_[i];
+      total += kl;
+      total += (4 - (kl % 4)) % 4; // Need to pad to the end of the boundary
+    }
+
+    ProgramParameter[] parms2 = new ProgramParameter[7];
+    int len = (60+total*numKeys)*number; // Boundaries of 4
+    parms2[0] = new ProgramParameter(len); // receiver variable
+    parms2[1] = new ProgramParameter(bin4_.toBytes(len)); // length of receiver variable
+    parms2[2] = new ProgramParameter(handle_);
+    parms2[3] = new ProgramParameter(80); // list information
+    parms2[4] = new ProgramParameter(bin4_.toBytes(number)); // number of records to return
+    parms2[5] = new ProgramParameter(bin4_.toBytes(listOffset == -1 ? -1 : listOffset+1)); // starting record
+    parms2[6] = errorCode_;
+
+    ProgramCall pc2 = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parms2);
+    if (!pc2.run())
+    {
+      throw new AS400Exception(pc2.getMessageList());
+    }
+    
+    byte[] data = parms2[0].getOutputData();
+
+    Job[] jobs = new Job[number];
+    int offset = 0;
+    for (int i=0; i<number; ++i) // each job
+    {
+      String jobName = conv.byteArrayToString(data, offset, 10);
+      String userName = conv.byteArrayToString(data, offset+10, 10);
+      String jobNumber = conv.byteArrayToString(data, offset+20, 6);
+      String status = conv.byteArrayToString(data, offset+42, 10);
+      String jobType = conv.byteArrayToString(data, offset+52, 1);
+      String jobSubtype = conv.byteArrayToString(data, offset+53, 1);
+
+      jobs[i] = new Job(system_, jobName.trim(), userName.trim(), jobNumber.trim(), status, jobType, jobSubtype);
+
+      for (int j=0; j<numKeys; ++j)
+      {
+        int keyOffset = keyOffsetsReturned_[j];
+        
+        if (keyTypesReturned_[j] == 'C')
+        {
+          ConvTable valConv = ConvTable.getTable(ccsid, null);
+          String value = valConv.byteArrayToString(data, offset+keyOffset, keyLengthsReturned_[j]);
+          jobs[i].setValueInternal(keyFieldsReturned_[j], value);
+        }
+        else
+        {
+          jobs[i].setAsInt(keyFieldsReturned_[j], BinaryConverter.byteArrayToInt(data, offset+keyOffset));
+        }
+      }
+      offset += total + 60;
+    }
+
+    return jobs;
+  }
+
+
+  static class JobEnumeration implements Enumeration
+  {
+    private Job[] jobs_;
+    private int counter_;
+    JobEnumeration(Job[] jobs)
+    {
+      jobs_ = jobs;
+    }
+
+    public final boolean hasMoreElements()
+    {
+      return counter_ < jobs_.length;
+    }
+
+    public final Object nextElement()
+    {
+      if (counter_ >= jobs_.length)
+      {
+        throw new NoSuchElementException();
+      }
+      return jobs_[counter_++];
+    }
+  }
 
 
 /**
@@ -183,224 +767,650 @@ Returns the number of jobs in the list.
 
 @return The number of jobs, or 0 if no list has been retrieved.
 **/
-    public int getLength()
+  public int getLength()
+  {
+    try
     {
-        try {
-            rJobList_.waitForComplete();
-            return (int)rJobList_.getListLength();
-        }
-        catch(ResourceException e) {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, "An error occurred while getting the job log length", e);
-            return 0;
-        }
+      if (handle_ == null)
+      {
+        load();
+      }
     }
+    catch(Exception e)
+    {
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.ERROR, "Exception caught on JobList load():", e);
+      }
+    }
+
+    return length_;
+  }
 
 
 
 /**
 Returns the job name that describes which jobs are returned.
-
 @return The job name.
-
-@see com.ibm.as400.resource.RJobList#JOB_NAME
 **/
-    public String getName()
-    {
-        return getSelectionValueAsString(RJobList.JOB_NAME);
-    }
+  public String getName()
+  {
+    return selectionJobName_;
+  }
 
 
 
 /**
 Returns the job number that describes which jobs are returned.
-
 @return The job number.
-
-@see com.ibm.as400.resource.RJobList#JOB_NUMBER
 **/
-    public String getNumber()
-    {
-        return getSelectionValueAsString(RJobList.JOB_NUMBER);
-    }
-
-
-
-/*-------------------------------------------------------------------------
-Convenience method for getting selection values.
-All ResourceExceptions are swallowed!
--------------------------------------------------------------------------*/
-    private String getSelectionValueAsString(Object selectionID)
-    {
-        try {
-            return (String)rJobList_.getSelectionValue(selectionID);
-        }
-        catch(ResourceException e) {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, "Error getting selection value", e);
-            return null;
-        }
-    }
+  public String getNumber()
+  {
+    return selectionJobNumber_;
+  }
 
 
 
 /**
 Returns the system.
-
 @return The system.
 **/
-    public AS400 getSystem()
-    {
-        return rJobList_.getSystem();
-    }
+  public AS400 getSystem()
+  {
+    return system_;
+  }
 
 
 
 /**
 Returns the user name that describes which jobs are returned.
-
 @return The user name.
-
-@see com.ibm.as400.resource.RJobList#USER_NAME
 **/
-    public String getUser()
+  public String getUser()
+  {
+    return selectionUserName_;
+  }
+
+
+
+//@E0A
+  /**
+   * Loads the list of jobs on the system. This method informs the
+   * system to build a list of jobs given the previously added job
+   * attribute keys. This method blocks until the system returns
+   * the total number of jobs it has compiled. A subsequent call to
+   * {@link #getJobs getJobs()} will retrieve the actual job information
+   * and attributes from the system, for each job in the list.
+   * <p>After this method is called, the elapsed time and list length
+   * are updated.
+   *
+   * @exception AS400Exception                  If the system returns an error message.
+   * @exception AS400SecurityException          If a security or authority error occurs.
+   * @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
+   * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+   * @exception InterruptedException            If this thread is interrupted.
+   * @exception IOException                     If an error occurs while communicating with the system.
+   * @exception ObjectDoesNotExistException     If the object does not exist on the system.
+   * @exception ServerStartupException          If the server cannot be started.
+   * @exception UnknownHostException            If the system cannot be located.
+  **/
+  public synchronized void load() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+  {
+    // Close the previous list
+    if (handle_ != null || handleToClose_ != null)
     {
-        return getSelectionValueAsString(RJobList.USER_NAME);
+      close();
+    }
+    
+    // Generate text objects based on system CCSID
+    final int ccsid = system_.getCcsid();
+    ConvTable conv = ConvTable.getTable(ccsid, null);
+    AS400Text text1 = new AS400Text(1, ccsid, system_);
+    AS400Text text6 = new AS400Text(6, ccsid, system_);
+    AS400Text text10 = new AS400Text(10, ccsid, system_);
+
+    // Figure out our selection criteria.
+    String[] primaryJobStatuses = null;
+    if (selectActiveJobs_ || selectJobQueueJobs_ || selectOutQueueJobs_)
+    {
+      int size = (selectActiveJobs_ ? 1:0)+(selectJobQueueJobs_ ? 1:0)+(selectOutQueueJobs_ ? 1:0);
+      primaryJobStatuses = new String[size];
+      int i = 0;
+      if (selectActiveJobs_)
+      {
+        primaryJobStatuses[i++] = "*ACTIVE";
+      }
+      if (selectJobQueueJobs_)
+      {
+        primaryJobStatuses[i++] = "*JOBQ";
+      }
+      if (selectOutQueueJobs_)
+      {
+        primaryJobStatuses[i] = "*OUTQ";
+      }
+    }
+    String[] jobQueueStatuses = null;
+    if (selectJobQueueJobs_ && (selectHeldJobs_ || selectScheduledJobs_ || selectReadyJobs_))
+    {
+      int size = (selectHeldJobs_ ? 1:0)+(selectScheduledJobs_ ? 1:0)+(selectReadyJobs_ ? 1:0);
+      jobQueueStatuses = new String[size];
+      int i = 0;
+      if (selectHeldJobs_)
+      {
+        jobQueueStatuses[i++] = "HLD";
+      }
+      if (selectScheduledJobs_)
+      {
+        jobQueueStatuses[i++] = "SCD";
+      }
+      if (selectReadyJobs_)
+      {
+        jobQueueStatuses[i++] = "RLS";
+      }
+    }
+
+    byte[] selectionInfo = new byte[108 +
+                                    (primaryJobStatuses == null ? 0 : primaryJobStatuses.length*10) +
+                                    currentActiveStatus_*4 +
+                                    (jobQueueStatuses == null ? 0 : jobQueueStatuses.length*10) +
+                                    currentJobQueue_*20 +
+                                    currentInitialUser_*10 +
+                                    currentServerType_*30 +
+                                    currentEnhancedJobType_*4];
+    text10.toBytes(selectionJobName_.toUpperCase(), selectionInfo, 0);
+    text10.toBytes(selectionUserName_.toUpperCase(), selectionInfo, 10);
+    text6.toBytes(selectionJobNumber_, selectionInfo, 20);
+    text1.toBytes(selectionJobType_, selectionInfo, 26);
+    int offset = 108;
+    if (primaryJobStatuses != null)
+    {
+      BinaryConverter.intToByteArray(offset, selectionInfo, 28);
+      BinaryConverter.intToByteArray(primaryJobStatuses.length, selectionInfo, 32);
+      for (int i=0; i<primaryJobStatuses.length; ++i)
+      {
+        text10.toBytes(primaryJobStatuses[i], selectionInfo, offset);
+        offset += 10;
+      }
+    }
+    if (currentActiveStatus_ > 0)
+    {
+      // Make sure ACTIVE_JOB_STATUS key is specified.
+      boolean foundKey = false;
+      for (int i=0; i<currentKey_ && !foundKey; ++i)
+      {
+        if (keys_[i] == Job.ACTIVE_JOB_STATUS)
+        {
+          foundKey = true;
+        }
+      }
+      if (!foundKey)
+      {
+        addJobAttributeToRetrieve(Job.ACTIVE_JOB_STATUS);
+      }
+      
+      BinaryConverter.intToByteArray(offset, selectionInfo, 36);
+      BinaryConverter.intToByteArray(currentActiveStatus_, selectionInfo, 40);
+      AS400Text text4 = new AS400Text(4, ccsid, system_);
+      for (int i=0; i<currentActiveStatus_; ++i)
+      {
+        text4.toBytes(activeStatuses_[i], selectionInfo, offset);
+        offset += 4;
+      }
+    }
+    if (jobQueueStatuses != null)
+    {
+      // Make sure JOB_QUEUE_STATUS key is specified.
+      boolean foundKey = false;
+      for (int i=0; i<currentKey_ && !foundKey; ++i)
+      {
+        if (keys_[i] == Job.JOB_QUEUE_STATUS)
+        {
+          foundKey = true;
+        }
+      }
+      if (!foundKey)
+      {
+        addJobAttributeToRetrieve(Job.JOB_QUEUE_STATUS);
+      }
+      
+      BinaryConverter.intToByteArray(offset, selectionInfo, 44);
+      BinaryConverter.intToByteArray(jobQueueStatuses.length, selectionInfo, 48);
+      for (int i=0; i<jobQueueStatuses.length; ++i)
+      {
+        text10.toBytes(jobQueueStatuses[i], selectionInfo, offset);
+        offset += 10;
+      }
+    }
+    if (currentJobQueue_ > 0)
+    {
+      // Make sure JOB_QUEUE key is specified.
+      boolean foundKey = false;
+      for (int i=0; i<currentKey_ && !foundKey; ++i)
+      {
+        if (keys_[i] == Job.JOB_QUEUE)
+        {
+          foundKey = true;
+        }
+      }
+      if (!foundKey)
+      {
+        addJobAttributeToRetrieve(Job.JOB_QUEUE);
+      }
+      
+      BinaryConverter.intToByteArray(offset, selectionInfo, 52);
+      BinaryConverter.intToByteArray(currentJobQueue_, selectionInfo, 56);
+      AS400Text text20 = new AS400Text(20, ccsid, system_);
+      for (int i=0; i<currentJobQueue_; ++i)
+      {
+        text20.toBytes(jobQueues_[i], selectionInfo, offset);
+        offset += 20;
+      }
+    }
+    if (currentInitialUser_ > 0)
+    {
+      // Make sure CURRENT_USER key is specified.
+      boolean foundKey = false;
+      for (int i=0; i<currentKey_ && !foundKey; ++i)
+      {
+        if (keys_[i] == Job.CURRENT_USER)
+        {
+          foundKey = true;
+        }
+      }
+      if (!foundKey)
+      {
+        addJobAttributeToRetrieve(Job.CURRENT_USER);
+      }
+      
+      BinaryConverter.intToByteArray(offset, selectionInfo, 60);
+      BinaryConverter.intToByteArray(currentInitialUser_, selectionInfo, 64);
+      for (int i=0; i<currentInitialUser_; ++i)
+      {
+        text10.toBytes(initialUsers_[i], selectionInfo, offset);
+        offset += 10;
+      }
+    }
+    if (currentServerType_ > 0)
+    {
+      // Make sure SERVER_TYPE key is specified.
+      boolean foundKey = false;
+      for (int i=0; i<currentKey_ && !foundKey; ++i)
+      {
+        if (keys_[i] == Job.SERVER_TYPE)
+        {
+          foundKey = true;
+        }
+      }
+      if (!foundKey)
+      {
+        addJobAttributeToRetrieve(Job.SERVER_TYPE);
+      }
+      
+      BinaryConverter.intToByteArray(offset, selectionInfo, 68);
+      BinaryConverter.intToByteArray(currentServerType_, selectionInfo, 72);
+      AS400Text text30 = new AS400Text(30, ccsid, system_);
+      for (int i=0; i<currentServerType_; ++i)
+      {
+        text30.toBytes(serverTypes_[i], selectionInfo, offset);
+        offset += 30;
+      }
+    }
+    if (currentEnhancedJobType_ > 0)
+    {
+      // Make sure JOB_TYPE_ENHANCED key is specified.
+      boolean foundKey = false;
+      for (int i=0; i<currentKey_ && !foundKey; ++i)
+      {
+        if (keys_[i] == Job.JOB_TYPE_ENHANCED)
+        {
+          foundKey = true;
+        }
+      }
+      if (!foundKey)
+      {
+        addJobAttributeToRetrieve(Job.JOB_TYPE_ENHANCED);
+      }
+      
+      BinaryConverter.intToByteArray(offset, selectionInfo, 92);
+      BinaryConverter.intToByteArray(currentEnhancedJobType_, selectionInfo, 96);
+      for (int i=0; i<currentEnhancedJobType_; ++i)
+      {
+        BinaryConverter.intToByteArray(enhancedJobTypes_[i], selectionInfo, offset);
+        offset += 4;
+      }
+    }
+
+    
+    // Key values to retrieve.
+    int numKeys = currentKey_;
+    int[] keys = keys_;
+    
+    byte[] keyData = new byte[4*numKeys];
+    for (int i=0; i<numKeys; ++i)
+    {
+      BinaryConverter.intToByteArray(keys[i], keyData, i*4);
+    }
+
+    // Setup program parameters
+    ProgramParameter[] parms = new ProgramParameter[14];
+    int len = 20*numKeys + 64 + (primaryJobStatuses == null ? 0 : primaryJobStatuses.length*10);
+    parms[0] = new ProgramParameter(len); // receiver variable  - this should really be 56, but RCHASF6D doesn't like that number for some odd reason.
+    parms[1] = new ProgramParameter(bin4_.toBytes(len)); // length of receiver variable
+    parms[2] = new ProgramParameter(conv.stringToByteArray("OLJB0200"));
+    parms[3] = new ProgramParameter(4+20*numKeys); // receiver variable definition information
+    parms[4] = new ProgramParameter(bin4_.toBytes(4+20*numKeys)); // length of receiver variable definition information
+    parms[5] = new ProgramParameter(80); // list information
+    parms[6] = new ProgramParameter(bin4_.toBytes(1)); // number of records to return (have to specify at least 1... for some reason 0 doesn't work)
+    
+    byte[] sortInfo = null;
+    int numSortKeys = currentSortKey_;
+    if (numSortKeys > 0)
+    {
+      sortInfo = new byte[4+numSortKeys*12];
+      BinaryConverter.intToByteArray(numSortKeys, sortInfo, 0);
+      offset = 4;
+      for (int i=0; i<numSortKeys; ++i)
+      {
+        int key = sortKeys_[i];
+        boolean order = sortOrders_[i];
+        int fieldLength = Job.setterKeys_.get(key);
+        int fieldStartingPosition = 0;
+        short dataType = (short)4; // Data type 4 = character data, NLS-sort supported, DBCS treated as single-byte.
+        // We'll use 0 (signed binary) for all of the int types:
+        switch(key)
+        {
+          case Job.CCSID:
+          case Job.CPU_TIME_USED:
+          case Job.DEFAULT_WAIT_TIME:
+          case Job.END_SEVERITY:
+          case Job.MESSAGE_QUEUE_MAX_SIZE:
+          case Job.JOB_END_REASON:
+          case Job.JOB_TYPE_ENHANCED:
+          case Job.LOGGING_SEVERITY:
+          case Job.MAX_CPU_TIME:
+          case Job.MAX_TEMP_STORAGE:
+          //case Job.MAX_THREADS:
+          //case Job.MAX_TEMP_STORAGE_LARGE:
+          case Job.AUXILIARY_IO_REQUESTS:
+          case Job.INTERACTIVE_TRANSACTIONS:
+          //case Job.NUM_DATABASE_LOCK_WAITS:
+          //case Job.NUM_INTERNAL_MACHINE_LOCK_WAITS:
+          //case Job.NUM_NONDATABASE_LOCK_WAITS:
+          case Job.PRODUCT_RETURN_CODE:
+          case Job.PROGRAM_RETURN_CODE:
+          //case Job.PROCESS_ID:
+          case Job.TOTAL_RESPONSE_TIME:
+          case Job.RUN_PRIORITY:
+          case Job.SYSTEM_POOL_ID:
+          //case Job.SIGNAL_STATUS:
+          case Job.TIME_SLICE:
+          case Job.TEMP_STORAGE_USED:
+          case Job.USER_RETURN_CODE:
+            dataType = (short)0;
+            fieldLength = 4;
+            break;
+          case Job.CPU_TIME_USED_LARGE:
+          case Job.CPU_TIME_USED_FOR_DATABASE:
+          case Job.AUXILIARY_IO_REQUESTS_LARGE:
+            dataType = (short)9; // unsigned binary
+            fieldLength = 8;
+            break;
+          default:
+            //dataType = (short)4;
+            break;
+        }
+        
+        // Why are these offsets 1-based? The API documentation is poor.
+        switch(key)
+        {
+          case Job.JOB_NAME:
+            fieldStartingPosition = 1;
+            fieldLength = 10;
+            break;
+          case Job.USER_NAME:
+            fieldStartingPosition = 11;
+            fieldLength = 10;
+            break;
+          case Job.JOB_NUMBER:
+            fieldStartingPosition = 21;
+            fieldLength = 6;
+            break;
+          case Job.INTERNAL_JOB_ID:
+            fieldStartingPosition = 27;
+            fieldLength = 16;
+            break;
+          case Job.JOB_STATUS:
+            fieldStartingPosition = 43;
+            fieldLength = 10;
+            break;
+          case Job.JOB_TYPE:
+            fieldStartingPosition = 53;
+            fieldLength = 1;
+            break;
+          case Job.JOB_SUBTYPE:
+            fieldStartingPosition = 54;
+            fieldLength = 1;
+            break;
+          default:
+            fieldStartingPosition = 61; //OLJB0200 format
+            for (int j=0; keys_[j] != key; ++j)
+            {
+              fieldStartingPosition += Job.setterKeys_.get(keys_[j]);
+            }
+            break;
+        }
+        BinaryConverter.intToByteArray(fieldStartingPosition, sortInfo, offset);
+        offset += 4;
+        BinaryConverter.intToByteArray(fieldLength, sortInfo, offset);
+        offset += 4;
+        BinaryConverter.shortToByteArray(dataType, sortInfo, offset);
+        offset += 2; 
+        // '1' = ascending, '2' = descending (0xF1 = 1 and 0xF2 = 2)
+        sortInfo[offset] = order ? (byte)0xF1 : (byte)0xF2;
+        offset += 2;
+      }
+        
+    }
+    else
+    {
+      sortInfo = bin4_.toBytes(0); // sort none
+      //Note: To sort the jobs by order in job queue, 
+      // use -1 for the number of keys to sort on. This also
+      // requires 1005, 404, and 403 to be specified as keys.
+    }
+    parms[7] = new ProgramParameter(sortInfo); // sort information
+    parms[8] = new ProgramParameter(selectionInfo); // job selection information
+    parms[9] = new ProgramParameter(bin4_.toBytes(selectionInfo.length)); // format OLJS0200
+    parms[10] = new ProgramParameter(bin4_.toBytes(numKeys)); // number of key fields
+    parms[11] = new ProgramParameter(keyData); // array of key fields to be returned
+    parms[12] = errorCode_;
+    parms[13] = new ProgramParameter(conv.stringToByteArray("OLJS0200"));
+    
+    // Call the program
+    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLJOB.PGM", parms);
+    if (!pc.run())
+    {
+      throw new AS400Exception(pc.getMessageList());
+    }
+
+    isConnected_ = true;
+    
+    // Key information returned
+    byte[] defInfo = parms[3].getOutputData();
+    numKeysReturned_ = BinaryConverter.byteArrayToInt(defInfo, 0);
+    keyFieldsReturned_ = new int[numKeysReturned_];
+    keyTypesReturned_ = new char[numKeysReturned_];
+    keyLengthsReturned_ = new int[numKeysReturned_];
+    keyOffsetsReturned_ = new int[numKeysReturned_];
+
+    offset = 4;
+    for (int i=0; i<numKeysReturned_; ++i)
+    {
+      keyFieldsReturned_[i] = BinaryConverter.byteArrayToInt(defInfo, offset+4);
+      keyTypesReturned_[i] = conv.byteArrayToString(defInfo, offset+8, 1).charAt(0); // 'C' or 'B'
+      keyLengthsReturned_[i] = BinaryConverter.byteArrayToInt(defInfo, offset+12);
+      keyOffsetsReturned_[i] = BinaryConverter.byteArrayToInt(defInfo, offset+16);
+      offset += 20;
     }
 
 
+    // List information returned
+    byte[] listInformation = parms[5].getOutputData();
+    handle_ = new byte[4];
+    System.arraycopy(listInformation, 8, handle_, 0, 4);
 
-/**
-Initializes the transient data.
-**/
-    private void initializeTransient()
+    // This second program call is to retrieve the number of jobs in the list.
+    // It will wait until the server has fully populated the list before it
+    // returns.
+    ProgramParameter[] parms2 = new ProgramParameter[7];
+    parms2[0] = new ProgramParameter(1); // receiver variable
+    parms2[1] = new ProgramParameter(bin4_.toBytes(1)); // length of receiver variable
+    parms2[2] = new ProgramParameter(handle_); // request handle
+    parms2[3] = new ProgramParameter(80); // list information
+    parms2[4] = new ProgramParameter(bin4_.toBytes(0)); // number of records to return
+    parms2[5] = new ProgramParameter(bin4_.toBytes(-1)); // starting record
+    parms2[6] = errorCode_;
+
+    ProgramCall pc2 = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parms2);
+    if (!pc2.run())
     {
-        propertyChangeSupport_      = new PropertyChangeSupport(this);
-        vetoableChangeSupport_      = new VetoableChangeSupport(this);
+      throw new AS400Exception(pc2.getMessageList());
     }
-
-
-
-/**
-Deserializes the resource.
-**/
-    private void readObject(ObjectInputStream in)
-    throws IOException, ClassNotFoundException
+    byte[] listInfo2 = parms2[3].getOutputData();
+    length_ = bin4_.toInt(listInfo2, 0);
+    
+    if (Trace.traceOn_)
     {
-        in.defaultReadObject();
-        initializeTransient ();
+      Trace.log(Trace.DIAGNOSTIC, "Loaded job list with length = "+length_+" and handle: ", handle_);
     }
-
-
+  }
 
 
 /**
 Removes a PropertyChangeListener.
-
 @param listener The listener.
 **/
-    public void removePropertyChangeListener(PropertyChangeListener listener)
-    {
-        propertyChangeSupport_.removePropertyChangeListener(listener);
-        rJobList_.removePropertyChangeListener(listener);
-    }
+  public void removePropertyChangeListener(PropertyChangeListener listener)
+  {
+    if (listener == null) throw new NullPointerException("listener");
+    if (propertyChangeSupport_ != null)
+      propertyChangeSupport_.removePropertyChangeListener(listener);
+  }
 
 
 
 /**
 Removes a VetoableChangeListener.
-
 @param listener The listener.
 **/
-    public void removeVetoableChangeListener(VetoableChangeListener listener)
-    {
-        vetoableChangeSupport_.removeVetoableChangeListener(listener);
-        rJobList_.removeVetoableChangeListener(listener);
-    }
+  public void removeVetoableChangeListener(VetoableChangeListener listener)
+  {
+    if (listener == null) throw new NullPointerException("listener");
+    if (vetoableChangeSupport_ != null)
+      vetoableChangeSupport_.removeVetoableChangeListener(listener);
+  }
 
 
+  // Resets the handle to indicate we should close the list the next time
+  // we do something, usually as a result of one of the selection criteria
+  // being changed since that should build a new list on the server.
+  private synchronized void resetHandle()
+  {
+    if (handleToClose_ == null) handleToClose_ = handle_; // Close the old list on the next load
+    handle_ = null;
+  }
+  
 
 /**
 Sets the job name that describes which jobs are returned.
 The default is ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
-
-@param name The job name, or ALL for all job names.
-
+@param name The job name, or {@link #ALL ALL} for all job names.
 @exception PropertyVetoException If the change is vetoed.
-
-@see com.ibm.as400.resource.RJobList#JOB_NAME
 **/
-    public void setName(String name)
-        throws PropertyVetoException
+  public void setName(String name) throws PropertyVetoException
+  {
+    if (name == null)
     {
-        if (name == null)
-            throw new NullPointerException("name");
-
-        String oldValue = getName();
-        vetoableChangeSupport_.fireVetoableChange("name", oldValue, name);
-        setSelectionValueAsString(RJobList.JOB_NAME, name);
-        propertyChangeSupport_.firePropertyChange("name", oldValue, name);
-
+      throw new NullPointerException("name");
     }
+/*    if (isConnected_)
+    {
+      throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+    }
+*/
+    String oldValue = selectionJobName_;
+
+    if (vetoableChangeSupport_ != null)
+      vetoableChangeSupport_.fireVetoableChange("name", oldValue, name);
+    
+    selectionJobName_ = name;
+    resetHandle();
+
+    if (propertyChangeSupport_ != null)
+      propertyChangeSupport_.firePropertyChange("name", oldValue, name);
+  }
 
 
 /**
 Sets the job number that describes which jobs are returned.
 The default is ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
-
-@param number The job number, or ALL for all job numbers.
-
+@param number The job number, or {@link #ALL ALL} for all job numbers.
 @exception PropertyVetoException If the change is vetoed.
-
-@see com.ibm.as400.resource.RJobList#JOB_NUMBER
 **/
-    public void setNumber(String number)
-        throws PropertyVetoException
+  public void setNumber(String number) throws PropertyVetoException
+  {
+    if (number == null)
     {
-        if (number == null)
-            throw new NullPointerException("number");
-
-        String oldValue = getNumber();
-        vetoableChangeSupport_.fireVetoableChange("number", oldValue, number);
-        setSelectionValueAsString(RJobList.JOB_NUMBER, number);
-        propertyChangeSupport_.firePropertyChange("number", oldValue, number);
-
+      throw new NullPointerException("number");
     }
-
-
-
-/*-------------------------------------------------------------------------
-Convenience method for setting selection values.
-All ResourceExceptions are swallowed!
--------------------------------------------------------------------------*/
-    private void setSelectionValueAsString(Object selectionID, Object value)
+/*    if (isConnected_)
     {
-        try {
-            rJobList_.setSelectionValue(selectionID, value);
-        }
-        catch(ResourceException e) {
-            if (Trace.isTraceOn())
-                Trace.log(Trace.ERROR, "Error setting selection value", e);
-        }
+      throw new ExtendedIllegalStateException("number", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
+*/
+    String oldValue = selectionJobNumber_;
+
+    if (vetoableChangeSupport_ != null)
+      vetoableChangeSupport_.fireVetoableChange("number", oldValue, number);
+
+    selectionJobNumber_ = number;
+    resetHandle();
+
+    if (propertyChangeSupport_ != null)
+      propertyChangeSupport_.firePropertyChange("number", oldValue, number);
+  }
 
 
 
 /**
 Sets the system.  This cannot be changed if the object
-has established a connection to the AS/400.
-
+has established a connection to the server.
 @param system The system.
-
 @exception PropertyVetoException    If the property change is vetoed.
 **/
-    public void setSystem(AS400 system)
-    throws PropertyVetoException
+  public void setSystem(AS400 system) throws PropertyVetoException
+  {
+    if (system == null)
     {
-        rJobList_.setSystem(system);
+      throw new NullPointerException("system");
     }
+    if (isConnected_)
+    {
+      throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+    }
+
+    AS400 oldValue = system_;
+
+    if (vetoableChangeSupport_ != null)
+      vetoableChangeSupport_.fireVetoableChange("system", oldValue, system);
+
+    system_ = system;
+
+    if (propertyChangeSupport_ != null)
+      propertyChangeSupport_.firePropertyChange("system", oldValue, system);
+  }
 
 
 
@@ -408,51 +1418,30 @@ has established a connection to the AS/400.
 Sets the user name value that describes which jobs are returned.
 The default is ALL.  This takes effect the next time the
 list of jobs is retrieved or refreshed.
-
-@param user The user name, or ALL for all user names.
-
+@param user The user name, or {@link #ALL ALL} for all user names.
 @exception PropertyVetoException If the change is vetoed.
-
-@see com.ibm.as400.resource.RJobList#USER_NAME
 **/
-    public void setUser(String user)
-        throws PropertyVetoException
+  public void setUser(String user) throws PropertyVetoException
+  {
+    if (user == null)
     {
-        if (user == null)
-            throw new NullPointerException("user");
-
-        String oldValue = getUser();
-        vetoableChangeSupport_.fireVetoableChange("user", oldValue, user);
-        setSelectionValueAsString(RJobList.USER_NAME, user);
-        propertyChangeSupport_.firePropertyChange("user", oldValue, user);
+      throw new NullPointerException("user");
     }
-
-
-/**
-Converts the Enumeration (whose elements are RQueuedMessage objects)
-to an Enumeration whose elements are QueuedMessage objects.
-**/
-    private static class EnumerationAdapter implements Enumeration
+/*    if (isConnected_)
     {
-       private Enumeration rEnum_;
-
-       public EnumerationAdapter(Enumeration rEnum)
-       {
-           rEnum_ = rEnum;
-       }
-
-       public boolean hasMoreElements()
-       {
-           return rEnum_.hasMoreElements();
-       }
-
-       public Object nextElement()
-       {
-           return new Job((RJob)rEnum_.nextElement());
-       }
+      throw new ExtendedIllegalStateException("user", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
+*/
+    String oldValue = selectionUserName_;
 
+    if (vetoableChangeSupport_ != null)
+      vetoableChangeSupport_.fireVetoableChange("user", oldValue, user);
 
-
+    selectionUserName_ = user;
+    resetHandle();
+    
+    if (propertyChangeSupport_ != null)
+      propertyChangeSupport_.firePropertyChange("user", oldValue, user);
+  }
 }
 
