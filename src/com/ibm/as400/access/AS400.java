@@ -170,6 +170,7 @@ public class AS400 implements Serializable
     private transient byte[] bytes_ = null;
     // Type of authentication bytes, start by default in password mode.
     private transient int byteType_ = AUTHENTICATION_SCHEME_PASSWORD;
+    private transient Object gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
     // How to use the GSS framework.
@@ -1328,7 +1329,7 @@ public class AS400 implements Serializable
             if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
             {
                 // Try for Kerberos.
-                bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
                 byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
             }
         }
@@ -1399,7 +1400,7 @@ public class AS400 implements Serializable
             if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
             {
                 // Try for Kerberos.
-                bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
                 byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
             }
         }
@@ -2596,6 +2597,7 @@ public class AS400 implements Serializable
         if (byteType_ == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             signonInfo_ = impl_.signon(systemName_, userId_, bytes_, byteType_, gssName_, gssOption_);
+            if (gssCredential_ != null) ((AS400ImplRemote)impl_).setGSSCredential(gssCredential_);
             bytes_ = null;  // GSSToken is single use only.
         }
         else
@@ -2751,6 +2753,31 @@ public class AS400 implements Serializable
         return false;
     }
 
+    public void setGSSCredential(Object gssCredential)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential: '" + gssCredential + "'");
+
+        if (gssCredential == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'gssCredential' is null.");
+            throw new NullPointerException("gssCredential");
+        }
+
+        if (signonInfo_ != null)
+        {
+            Trace.log(Trace.ERROR, "Cannot set gssCredential after connection has been made.");
+            throw new ExtendedIllegalStateException("gssCredential", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        synchronized (this)
+        {
+            gssCredential_ = gssCredential;
+            gssName_ = "";
+            bytes_ = null;
+            byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
+        }
+    }
+
     /**
      Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the server.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on an iSeries server, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
      @param  gssOption  A constant indicating how GSS will be used.  Valid values are:
@@ -2794,6 +2821,7 @@ public class AS400 implements Serializable
         synchronized (this)
         {
             gssName_ = gssName;
+            gssCredential_ = null;
             bytes_ = null;
             byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
         }
@@ -3320,7 +3348,7 @@ public class AS400 implements Serializable
                 if (systemName_.length() != 0 && proxyServer_.length() == 0 && bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE && !canUseNativeOptimizations())
                 {
                     // Try for Kerberos.
-                    bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                    bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
                     byteType_ = AUTHENTICATION_SCHEME_GSS_TOKEN;
                 }
             }

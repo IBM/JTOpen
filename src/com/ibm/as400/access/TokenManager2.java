@@ -2,11 +2,11 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename:  TokenManager.java
+// Filename:  TokenManager2.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2004 International Business Machines Corporation and
+// Copyright (C) 2004 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,10 +19,10 @@ import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 
-class TokenManager
+class TokenManager2
 {
-    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
-    static byte[] getGSSToken(String systemName, String gssName) throws Exception
+    private static final String copyright = "Copyright (C) 2004 International Business Machines Corporation and others.";
+    static byte[] getGSSToken(String systemName, Object gssCredential) throws Exception
     {
         GSSManager manager = GSSManager.getInstance();
         if (Trace.isTraceOn())
@@ -34,16 +34,7 @@ class TokenManager
         Oid krb5Mech = new Oid("1.2.840.113554.1.2.2");
         GSSName serverName = manager.createName("krbsvr400@" + systemName, GSSName.NT_HOSTBASED_SERVICE, krb5Mech);
 
-        GSSCredential credential;
-        if (gssName.length() == 0)
-        {
-            credential = manager.createCredential(GSSCredential.INITIATE_ONLY);
-        }
-        else
-        {
-            GSSName userName = manager.createName(gssName, GSSName.NT_USER_NAME);
-            credential = manager.createCredential(userName, GSSCredential.DEFAULT_LIFETIME, krb5Mech, GSSCredential.INITIATE_ONLY);
-        }
+        GSSCredential credential = (GSSCredential)gssCredential;
 
         GSSContext context = manager.createContext(serverName, krb5Mech, credential, GSSCredential.DEFAULT_LIFETIME);
         return context.initSecContext(new byte[0], 0, 0);

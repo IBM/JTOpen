@@ -49,8 +49,10 @@ class AS400ImplRemote implements AS400Impl
     private byte[] bytes_ = null;
     // Type of authentication bytes, start by default in password mode.
     private int byteType_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
+    private Object gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
+    int gssOption_;
     // Adder for twiddled password bytes.
     private byte[] adder_ = null;
     // Mask for twiddled password bytes.
@@ -619,7 +621,7 @@ class AS400ImplRemote implements AS400Impl
                 case 1:  // GSS Token
                     try
                     {
-                        authenticationBytes = TokenManager.getGSSToken(systemName_, gssName_);
+                        authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
                     }
                     catch (Exception e)
                     {
@@ -1177,7 +1179,7 @@ class AS400ImplRemote implements AS400Impl
         {
             try
             {
-                return TokenManager.getGSSToken(systemName_, gssName_);
+                return (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
             }
             catch (Throwable e)
             {
@@ -1195,7 +1197,7 @@ class AS400ImplRemote implements AS400Impl
             if (bytes_ == null && gssOption_ != AS400.GSS_OPTION_NONE)
             {
                 // Try for Kerberos.
-                bytes_ = TokenManager.getGSSToken(systemName_, gssName_);
+                bytes_ = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
                 byteType_ = AS400.AUTHENTICATION_SCHEME_GSS_TOKEN;
             }
         }
@@ -1687,6 +1689,12 @@ class AS400ImplRemote implements AS400Impl
         }
     }
 
+    void setGSSCredential(Object gssCredential)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential into impl: '" + gssCredential + "'");
+        gssCredential_ = gssCredential;
+    }
+
     // Set port for service.
     public void setServicePort(String systemName, int service, int port)
     {
@@ -1726,7 +1734,6 @@ class AS400ImplRemote implements AS400Impl
         ddmRDB_ = ddmRDB;
     }
 
-    int gssOption_;
     // Exchange sign-on flows with sign-on server.
     public SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException
     {

@@ -63,7 +63,11 @@ abstract class ConvTableBidiMap extends ConvTable
 
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string (before java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
 
-        return abt.toJavaLayout(String.copyValueOf(dest));
+        String destString = abt.toJavaLayout(String.copyValueOf(dest));
+
+        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string (after java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(destString.toCharArray()));
+
+        return destString;
     }
 
     // Perform a Unicode to OS/400 CCSID conversion.
@@ -84,12 +88,16 @@ abstract class ConvTableBidiMap extends ConvTable
                 properties.setBidiStringType(bidiStringType_);
             }
             abt.setBidiConversionProperties(properties);
-            src = abt.toAS400Layout(source).toCharArray();
+
             if (Trace.traceOn_)
             {
                 Trace.log(Trace.CONVERSION, "Bidi String Type: " + type);
-                Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+                Trace.log(Trace.CONVERSION, "Converting string to byte array (before java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
             }
+
+            src = abt.toAS400Layout(source).toCharArray();
+
+            if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Converting string to byte array (after java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         }
         byte[] dest = new byte[src.length];
         for (int i = 0; i < src.length; dest[i] = fromUnicode_[src[i++]]);
