@@ -428,6 +428,15 @@ public abstract class AS400Servlet extends AuthenticationServlet
 			log(loader_.getText("PROP_DESC_AUTHFAILED"));           //$A1C  $A6C
          if (Trace.isTraceOn())                                        //$A6A
             Trace.log(Trace.ERROR, e);                                 //$A6A
+
+            if (connectionPool_ != null)                                          //@B1A
+            {                                                                     //@B1A
+                int rtncode = e.getReturnCode();                                  //@B1A
+                if (rtncode == AS400SecurityException.USERID_UNKNOWN ||           //@B1A
+                    rtncode == AS400SecurityException.PASSWORD_INCORRECT ||       //@B1A
+                    rtncode == AS400SecurityException.USERID_DISABLE)             //@B1A
+                    connectionPool_.removeFromPool(realm, uid);                   //@B1A
+            }                                                                     //@B1A
 			throw new SecurityException(e.getMessage());
 		}
 	}
