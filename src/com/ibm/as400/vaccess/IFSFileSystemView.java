@@ -68,14 +68,14 @@ public class IFSFileSystemView extends FileSystemView
     private AS400 system_;
     private static final String ROOT_PATH = IFSJavaFile.separator;
 
-    private static final String DEFAULT_FOLDER_NAME = "NewDirectory";
+    private static final String DEFAULT_FOLDER_NAME = "NewFolder";
 
     private static final String NEW_FOLDER_STRING0 =
     UIManager.getString("FileChooser.other.newFolder");
     private static final String NEW_FOLDER_NEXT_STRING0  =
     UIManager.getString("FileChooser.other.newFolder.subsequent");
     private static final String NEW_FOLDER_STRING = ((NEW_FOLDER_STRING0 == null || NEW_FOLDER_STRING0.length() == 0) ? DEFAULT_FOLDER_NAME : NEW_FOLDER_STRING0);
-    private static final String NEW_FOLDER_NEXT_STRING = ((NEW_FOLDER_NEXT_STRING0 == null || NEW_FOLDER_NEXT_STRING0.length() == 0) ? DEFAULT_FOLDER_NAME+"{0}" : NEW_FOLDER_NEXT_STRING0);
+    private static final String NEW_FOLDER_NEXT_STRING = ((NEW_FOLDER_NEXT_STRING0 == null || NEW_FOLDER_NEXT_STRING0.length() == 0) ? DEFAULT_FOLDER_NAME+".{0}" : NEW_FOLDER_NEXT_STRING0);
 
     private static Icon             serverIcon32_           = ResourceLoader.getIcon ("AS40032.gif");
 
