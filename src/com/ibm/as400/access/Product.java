@@ -661,7 +661,8 @@ public class Product
   /**
    * Retrieves the description text for this product's message ID out of
    * this product's message file.
-   * @return The description text.
+   * @return The description text, or null if an underlying error occurred while
+   * trying to load the description text from the message file.
    * @see #getDescriptionID
    * @see #getDescriptionMessageFile
   **/
@@ -683,7 +684,11 @@ public class Product
         AS400Message msg = mf.getMessage(id);
         descriptionText_ = msg.getText();
       }
-      catch(PropertyVetoException pve) {}
+      catch(Exception e)
+      {
+        // Couldn't find the message file, or some other error.
+        if (Trace.traceOn_) Trace.log(Trace.ERROR, "Unable to retrieve product description text: ", e);
+      }      
       loadedDescriptionText_ = true;
     }
     return descriptionText_;
