@@ -176,6 +176,97 @@ public class CharConverter implements Serializable
         return table.byteArrayToString(source);
     }
 
+  //@F0A
+  /**
+    Converts a QSYS pathname String obtained from the IFS classes into a
+    String suitable for use with other Toolbox services such as CommandCall
+    and DataQueues.
+    <P>
+    This method is meant to handle QSYS pathnames and other string data that was retrieved
+    using the IFS classes. Object names in QSYS are stored in EBCDIC. The file server always
+    returns names to the Toolbox IFS classes in Unicode, so the server must convert the name
+    from EBCDIC to Unicode before returning it to the client. The server does this conversion
+    using CCSID 37, not the file server job CCSID; however, the name may contain
+    variant (but legal) codepoints. Specifically, the three legal variant EBCDIC
+    codepoints for QSYS object names are 0x5B, 0x7B, and 0x7C. If the name retrieved using the
+    Toolbox IFS classes is given to another Toolbox component such as CommandCall, the name
+    will be converted to EBCDIC using the job CCSID for that particular component. If variant
+    characters exist in the name, the resulting name used by the host server job may not be
+    the same as the original name.
+    <P>
+    Here is a typical scenario in which this method will be needed.
+    The user profile name CASH$FLOW exists on the server. In EBCDIC CCSID 37, it is comprised
+    of the codepoints:
+    <PRE>
+        0xC3 0xC1 0xE2 0xC8  <B>0x5B</B>  0xC6 0xD3 0xD6 0xE6
+    </PRE>
+    Note that the dollar sign '$' is codepoint 0x5B so it is one of
+    the legal codepoints for a QSYS object pathname.
+    Now, if this pathname is used in a CommandCall, such as "DLTUSRPRF CASH$FLOW", that 
+    command string will get converted to the CCSID of the host server job. If the host server
+    job isn't running under CCSID 37, the resulting command string may not contain the 
+    dollar sign. For example, in CCSID 285 (United Kingdom) the codepoint 0x5B
+    is actually an English pound sterling ('\u00A3' or Unicode 0x00A3). The dollar sign '$' is found at
+    codepoint 0x4A instead.
+    Hence, the "CASH$FLOW" in the command string will get converted to the following
+    EBCDIC CCSID 285 codepoints:
+    <PRE>
+        0xC3 0xC1 0xE2 0xC8  <B>0x4A</B>  0xC6 0xD3 0xD6 0xE6
+    </PRE>
+    That is not how the user profile name is stored in QSYS. The 0x4A codepoint should really
+    be a 0x5B codepoint. So in this case, the command server will return an error message
+    indicating the user profile was not found.
+    <P>
+    The solution is to use this method to replace the variant codepoints with codepoints that
+    will correctly convert given the host server job CCSID.
+    When given the string "CASH$FLOW" and the CCSID 285, this method will return the string "CASH\u00A3FLOW".
+    If the CommandCall is issued with the string "DLTUSRPRF CASH\u00A3FLOW" and the job CCSID of the
+    remote command host server is 285, it will correctly convert the pound sterling '\u00A3' into
+    codepoint 0x5B, which is how the user profile name "CASH$FLOW" is actually stored in QSYS.
+    <P>
+    For more information, please see <A HREF="http://publib.boulder.ibm.com/pubs/html/as400/v4r5/ic2924/info/RBAM6NAMEINCOM.HTM">iSeries Information Center: CL and APIs: Control Language (CL): Naming within commands</A>.
+    @see #convertJobPathnameToIFSQSYSPathname
+    @see com.ibm.as400.ui.util.AS400SnameFormatter
+    @param qsysData the String in which to substitute variant QSYS characters.
+    @param jobCCSID the CCSID of the job in which to convert the variant characters.
+    @return the Unicode String with correctly substituted variant characters for use with host servers that convert based upon job CCSID.
+    @exception  UnsupportedEncodingException  If the specified CCSID is not supported.
+  **/
+  public static String convertIFSQSYSPathnameToJobPathname(String qsysData, int jobCCSID) throws UnsupportedEncodingException
+  {
+    Converter hostTable = new Converter(jobCCSID, null);
+    Converter qsysTable = new Converter(37, null);
+    byte[] ebcdic37 = qsysTable.stringToByteArray(qsysData);
+    String replaced = hostTable.byteArrayToString(ebcdic37);
+    return replaced;
+  }
+
+  //@F0A
+  /**
+    Converts a pathname String obtained from a Toolbox host server (such as CommandCall
+    or DataQueue) to a QSYS pathname suitable for use with the IFS classes.
+    <P>
+    See the javadoc for {@link #convertIFSQSYSPathnameToJobPathname convertIFSQSYSPathnameToJobPathname}
+    for more information. This method essentially does the opposite of what convertIFSQSYSPathnameToJobPathname
+    does. The specified <I>jobData</I> string has its variant characters substituted so that it can be used
+    with the IFS classes. If given the String returned by this method, the file server will correctly convert
+    the codepoints into the real QSYS object pathname using CCSID 37.
+    @see #convertIFSQSYSPathnameToJobPathname
+    @param jobData the String in which to substitute variant QSYS characters.
+    @param jobCCSID the CCSID of the job in which to convert the variant characters.
+    @return the Unicode String with correctly substituted variant characters for use with the IFS server that converts based upon CCSID 37.
+    @exception  UnsupportedEncodingException  If the specified CCSID is not supported.
+  **/  
+  public static String convertJobPathnameToIFSQSYSPathname(String jobData, int jobCCSID) throws UnsupportedEncodingException
+  {
+    Converter hostTable = new Converter(jobCCSID, null);
+    Converter qsysTable = new Converter(37, null);
+    byte[] ebcdicHost = hostTable.stringToByteArray(jobData);
+    String replaced = qsysTable.byteArrayToString(ebcdicHost);
+    return replaced;
+  }
+
+  
     /**
       Returns the ccsid of this conversion object.
       @return  the ccsid.
