@@ -288,6 +288,40 @@ method will be called each time the value of any constrained property is changed
     }
 
 
+    /**
+     * Determines if this user profile exists on the system. This method just calls
+     * {@link #loadUserInformation loadUserInformation()} and if no exception is thrown,
+     * the user profile exists, if a CPF9801 then the user profile does not exist.
+     * Any other exceptions (e.g. not enough authority) are still thrown.
+     * <p>The value returned by this method is not cached. That is, every time exists()
+     * is called, a call to the server is made to determine if the user profile still exists.
+     * @return true if the profile exists, false if it does not.
+    **/
+    public boolean exists()
+    throws AS400Exception,
+           AS400SecurityException,
+           ConnectionDroppedException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           ObjectDoesNotExistException,
+           IOException,
+           UnsupportedEncodingException
+    {
+      try
+      {
+        loadUserInformation();
+      }
+      catch(AS400Exception e)
+      {
+        AS400Message[] messages = e.getAS400MessageList();
+        if (messages.length == 1 && messages[0].getID().equalsIgnoreCase("CPF9801"))
+        {
+          return false;
+        }
+        throw e;
+      }
+      return true;
+    }
 
 /**
 Returns the accounting code that is associated with this user.
