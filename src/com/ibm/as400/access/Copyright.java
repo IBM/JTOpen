@@ -20,6 +20,6 @@ version information for the IBM Toolbox for Java.
 public interface Copyright
 {
     public static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-    public static final String version   = "Open Source Software, JTOpen 2.03, original codebase 5769-JC1 V4R5M0.1";
+    public static final String version   = "Open Source Software, JTOpen 2.03, codebase 5722-JC1 V5R1M0.1";
 }
 
