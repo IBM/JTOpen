@@ -366,7 +366,7 @@ implements IFSFileDescriptorImpl
                 // Use GMT date/time, don't use posix style return codes,
                 // use PC pattern matching semantics,
                 // maximum data transfer size of 0xffffffff.
-                ds = (IFSExchangeAttrRep)server_.sendExchangeAttrRequest( //@B3A
+                ds = server_.sendExchangeAttrRequest( //@B3A
                          new IFSExchangeAttrReq(true, false,
                                                 IFSExchangeAttrReq.PC_PATTERN_MATCH,
                                                 0xffffffff,
