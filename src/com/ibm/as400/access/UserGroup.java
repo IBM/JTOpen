@@ -22,6 +22,10 @@ import java.util.Enumeration;
 /**
 The UserGroup class represents a user profile that is
 a group profile.
+@see com.ibm.as400.access.User
+@see com.ibm.as400.access.UserList
+@see com.ibm.as400.access.RUser
+@see com.ibm.as400.access.RUserList
 **/
 public class UserGroup extends User
 {
@@ -30,7 +34,7 @@ public class UserGroup extends User
 
 
 
-    static final long serialVersionUID = 4L;
+    static final long serialVersionUID = 5L;
 
 
 
@@ -40,7 +44,8 @@ public class UserGroup extends User
 
 /**
 Constructs a UserGroup object.
-
+Note that this constructor no longer throws any of the
+declared exceptions, but they remain for compatibility.
 @param system   The system.
 @param name     The group profile name.
 
@@ -67,12 +72,17 @@ Constructs a UserGroup object.
     }
 
 
+    //@F0A Called by UserList.getUsers().
+    UserGroup(AS400 system, String name, boolean hasMembers, String description)
+    {
+      super(system, name, hasMembers, description);
+    }
+
 
 /**
 Returns the list of users that are members of this group.
 
-@return An Enumeration of <a href="User.html">User</a>
-objects.
+@return An Enumeration of {@link com.ibm.as400.access.User User} objects.
 
 @exception AS400Exception                  If the AS/400 system returns an error message.
 @exception AS400SecurityException          If a security or authority error occurs.
