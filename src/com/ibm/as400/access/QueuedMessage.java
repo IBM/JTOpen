@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,8 +25,6 @@ The QueuedMessage class represents a message on an OS/400 message queue
 or job log.
 @see com.ibm.as400.access.MessageQueue
 @see com.ibm.as400.access.JobLog
-@see com.ibm.as400.resource.RMessageQueue
-@see com.ibm.as400.resource.RQueuedMessage
 **/
 //
 // Implementation notes:
@@ -39,31 +37,32 @@ or job log.
 //
 public class QueuedMessage extends AS400Message implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
-    static final long serialVersionUID = 5L;
+  static final long serialVersionUID = 5L;
 
-    private MessageQueue                messageQueue_;
+  private MessageQueue messageQueue_;
 
-    private String sendingUser_ = "";
-    private String sendingProgram_ = "";
-    private String sendingJobName_ = "";
-    private String sendingJobNumber_ = "";
-    private byte[] key_;
+  private String sendingUser_ = "";
+  private String sendingProgram_ = "";
+  private String sendingJobName_ = "";
+  private String sendingJobNumber_ = "";
+  private String currentUser_ = "";
+  private byte[] key_;
 
-    private String replyStatus_ = "";
+  private String replyStatus_ = "";
 
-    private JobHashtable values_;
+  private JobHashtable values_;
 
-    private String alertOption_ = "";
+  private String alertOption_ = "";
 
 /**
 Constructs a QueuedMessage object.
 **/
-    QueuedMessage()
-    {
-    }
+  QueuedMessage()
+  {
+  }
 
 
 
@@ -72,74 +71,74 @@ Constructs a QueuedMessage object.
 
 @param messageQueue The message queue.
 **/
-    QueuedMessage(MessageQueue messageQueue)
-    {
-        if (messageQueue == null) throw new NullPointerException("messageQueue");
-        messageQueue_   = messageQueue;
-        setSystem(messageQueue_.getSystem()); //@G1A
-    }
+  QueuedMessage(MessageQueue messageQueue)
+  {
+    if (messageQueue == null) throw new NullPointerException("messageQueue");
+    messageQueue_   = messageQueue;
+    setSystem(messageQueue_.getSystem()); //@G1A
+  }
 
 /**
  * Constructs a QueuedMessage object. Used by MessageQueue.receive().
  * Called from MessageQueue.getMessages().
 **/
-    QueuedMessage(MessageQueue messageQueue, int messageSeverity, String messageIdentifier,
-                  int messageType, byte[] messageKey, String messageFileName, String messageLibraryName, 
-                  String dateSent, String timeSent)
-    {
-      super(messageIdentifier, null, messageFileName, messageLibraryName, messageSeverity, messageType, null, null, dateSent, timeSent, null);
-      messageQueue_ = messageQueue;
-      setSystem(messageQueue_.getSystem()); //@G1A
-      key_ = messageKey;
-    }
+  QueuedMessage(MessageQueue messageQueue, int messageSeverity, String messageIdentifier,
+                int messageType, byte[] messageKey, String messageFileName, String messageLibraryName, 
+                String dateSent, String timeSent)
+  {
+    super(messageIdentifier, null, messageFileName, messageLibraryName, messageSeverity, messageType, null, null, dateSent, timeSent, null);
+    messageQueue_ = messageQueue;
+    setSystem(messageQueue_.getSystem()); //@G1A
+    key_ = messageKey;
+  }
 
 //@G1A
 /**
  * Constructs a QueuedMessage object. Called from JobLog.getMessages().
 **/
-    QueuedMessage(AS400 system, int messageSeverity, String messageIdentifier,
-                  int messageType, byte[] messageKey, String messageFileName, String messageLibraryName, 
-                  String dateSent, String timeSent)
-    {
-      super(messageIdentifier, null, messageFileName, messageLibraryName, messageSeverity, messageType, null, null, dateSent, timeSent, null);
-      setSystem(system);
-      key_ = messageKey;
-    }
+  QueuedMessage(AS400 system, int messageSeverity, String messageIdentifier,
+                int messageType, byte[] messageKey, String messageFileName, String messageLibraryName, 
+                String dateSent, String timeSent)
+  {
+    super(messageIdentifier, null, messageFileName, messageLibraryName, messageSeverity, messageType, null, null, dateSent, timeSent, null);
+    setSystem(system);
+    key_ = messageKey;
+  }
 
 /**
  * Constructs a QueuedMessage object. Used by MessageQueue.receive().
 **/
-    QueuedMessage(MessageQueue messageQueue, int messageSeverity, String messageIdentifier,
-                  int messageType, byte[] messageKey, String messageFileName, String messageLibraryName,
-                  String sendingJob, String sendingUserProfile, String sendingJobNumber,
-                  String sendingProgramName, String dateSent, String timeSent,
-                  byte[] replacementData, String messageData, String messageHelp, String alertOption)
-    {
-      super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, messageHelp, dateSent, timeSent, null);
-      messageQueue_ = messageQueue;
-      setSystem(messageQueue_.getSystem()); //@G1A
-      key_ = messageKey;
-      sendingUser_ = sendingUserProfile;
-      sendingJobName_ = sendingJob;
-      sendingJobNumber_ = sendingJobNumber;
-      sendingProgram_ = sendingProgramName;
-      alertOption_ = alertOption;
-    }
+  QueuedMessage(MessageQueue messageQueue, int messageSeverity, String messageIdentifier,
+                int messageType, byte[] messageKey, String messageFileName, String messageLibraryName,
+                String sendingJob, String sendingUserProfile, String sendingJobNumber,
+                String sendingProgramName, String dateSent, String timeSent,
+                byte[] replacementData, String messageData, String messageHelp, String alertOption)
+  {
+    super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, messageHelp, dateSent, timeSent, null);
+    messageQueue_ = messageQueue;
+    setSystem(messageQueue_.getSystem()); //@G1A
+    key_ = messageKey;
+    sendingUser_ = sendingUserProfile;
+    sendingJobName_ = sendingJob;
+    sendingJobNumber_ = sendingJobNumber;
+    sendingProgram_ = sendingProgramName;
+    alertOption_ = alertOption;
+  }
 
-    /**
-     * Returns the alert option.
-     * Possible values are:
-     * <UL>
-     * <LI>*DEFER - An alert is sent after local problem analysis.
-     * <LI>*IMMED - An alert is sent immediately when the message is sent to a 
-     * message queue that has the allow alerts attribute set to *YES.
-     * <LI>*NO - No alert is sent.
-     * <LI>*UNATTEND - An alert is sent immediately when the system is running
-     * in unattended mode. See the ALRSTS network attribute.
-     * <LI>"" - The alert option was not specified when the message was sent.
-     * </UL>
-     * @return One of the above values.
-    **/
+  /**
+   * Returns the alert option.
+   * Possible values are:
+   * <UL>
+   * <LI>*DEFER - An alert is sent after local problem analysis.
+   * <LI>*IMMED - An alert is sent immediately when the message is sent to a 
+   * message queue that has the allow alerts attribute set to *YES.
+   * <LI>*NO - No alert is sent.
+   * <LI>*UNATTEND - An alert is sent immediately when the system is running
+   * in unattended mode. See the ALRSTS network attribute.
+   * <LI>"" - The alert option was not specified when the message was sent.
+   * </UL>
+   * @return One of the above values.
+  **/
   public String getAlertOption()
   {
     return alertOption_.trim();
@@ -150,18 +149,18 @@ Returns the sending program name.
 
 @return The sending program name, or "" if it is not set.
 **/
-    public String getFromProgram()
+  public String getFromProgram()
+  {
+    if (sendingProgram_ == "" && values_ != null)
     {
-      if (sendingProgram_ == "" && values_ != null)
+      String s = (String)values_.get(603);
+      if (s != null)
       {
-        String s = (String)values_.get(603);
-        if (s != null)
-        {
-          sendingProgram_ = s.trim();
-        }
+        sendingProgram_ = s.trim();
       }
-      return sendingProgram_;
     }
+    return sendingProgram_;
+  }
 
 
 
@@ -170,18 +169,18 @@ Returns the sender job name.
 
 @return The sender job name, or "" if it is not set.
 **/
-    public String getFromJobName()
+  public String getFromJobName()
+  {
+    if (sendingJobName_ == "" && values_ != null)
     {
-      if (sendingJobName_ == "" && values_ != null)
+      String s = (String)values_.get(601);
+      if (s != null)
       {
-        String s = (String)values_.get(601);
-        if (s != null)
-        {
-          sendingJobName_ = s.substring(0,10).trim();
-        }
+        sendingJobName_ = s.substring(0,10).trim();
       }
-      return sendingJobName_;
     }
+    return sendingJobName_;
+  }
 
 
 
@@ -190,29 +189,50 @@ Returns the sender job number.
 
 @return The sender job number, or "" if it is not set.
 **/
-    public String getFromJobNumber()
+  public String getFromJobNumber()
+  {
+    if (sendingJobNumber_ == "" && values_ != null)
     {
-      if (sendingJobNumber_ == "" && values_ != null)
+      String s = (String)values_.get(601);
+      if (s != null)
       {
-        String s = (String)values_.get(601);
-        if (s != null)
-        {
-          sendingJobNumber_ = s.substring(20,26);
-        }
+        sendingJobNumber_ = s.substring(20,26);
       }
-      return sendingJobNumber_;
     }
+    return sendingJobNumber_;
+  }
+
+
+  /**
+   * Returns the sender job's user. This method works the way {@link #getUser getUser()} did
+   * in previous releases, by returning the user portion of the job information. To get the
+   * current user of the message, call {@link #getUser getUser()} when accessing a system
+   * running OS/400 V5R3 or higher.
+   * @return The sender job's user, or "" if it is not set.
+  **/
+  public String getFromJobUser()
+  {
+    if (sendingUser_.length() == 0 && values_ != null)
+    {
+      String s = (String)values_.get(601);
+      if (s != null)
+      {
+        sendingUser_ = s.substring(10,20).trim();
+      }
+    }
+    return sendingUser_;
+  }
 
 
 /**
-Returns the message key.
+Returns the 4-byte message key.
 
 @return The message key, or null if it is not set.
 **/
-    public byte[] getKey()
-    {
-      return key_;
-    }
+  public byte[] getKey()
+  {
+    return key_;
+  }
 
 
 
@@ -221,10 +241,10 @@ Returns the message queue.
 
 @return The message queue, or null if it is not set.
 **/
-    public MessageQueue getQueue()
-    {
-        return messageQueue_;
-    }
+  public MessageQueue getQueue()
+  {
+    return messageQueue_;
+  }
 
 
 
@@ -234,113 +254,113 @@ Returns the reply status.
 @return The reply status, "" if it is not set, or null
         if it is not applicable.
 **/
-    public String getReplyStatus()
+  public String getReplyStatus()
+  {
+    if (replyStatus_ == "" && values_ != null)
     {
-      if (replyStatus_ == "" && values_ != null)
+      String s = (String)values_.get(1001);
+      if (s != null)
       {
-        String s = (String)values_.get(1001);
-        if (s != null)
-        {
-          replyStatus_ = s.trim();
-        }
-      }
-      return replyStatus_;
-    }
-
-
-
-/**
-Returns the sender user name.
-
-@return The sender user name, or "" if it is not set.
-**/
-    public String getUser()
-    {
-        //Check if the system is a v5r3 or greater
-        boolean currentUser = false;                                                                    //@K1A
-        try                                                                                             //@K1A
-        {                                                                                               //@K1A
-            currentUser = messageQueue_.getSystem().getVRM() >= JDUtilities.vrm530;                     //@K1A
-        }                                                                                               //@K1A
-        catch(Exception e)                                                                              //@K1A
-        {                                                                                               //@K1A
-            //IF AS400SecurityException or IOException occurred                                         //@K1A
-            currentUser = false;                                                                        //@K1A
-        }                                                                                               //@K1A
-        if(currentUser)                                                                                 //@K1A
-        {                                                                                               //@K1A
-            //Use current user information
-            if (sendingUser_ == "" && values_ != null)                                                  //@K1A
-            {                                                                                           //@K1A
-                String s = (String)values_.get(607);                                                    //@K1A
-                if (s != null)                                                                          //@K1A
-                {                                                                                       //@K1A
-                    sendingUser_ = s.trim();                                                            //@K1A
-                }                                                                                       //@K1A
-            }                                                                                           //@K1A
-        }                                                                                               //@K1A
-        else                                                                                            //@K1A
-        {
-            if (sendingUser_ == "" && values_ != null)
-            {
-                String s = (String)values_.get(601);
-                if (s != null)
-                {
-                    sendingUser_ = s.substring(10,20).trim();
-                }
-            }
-        }                                                                                               //@K1A
-      return sendingUser_;
-    }
-
-
-    // Helper method called by MessageQueue.
-    void setAsInt(int fieldID, int value)
-    {
-      setValueInternal(fieldID, new Integer(value));
-    }
-
-
-    // Helper method called by MessageQueue.
-    void setAsLong(int fieldID, long value)
-    {
-      setValueInternal(fieldID, new Long(value));
-    }
-
-
-    // Helper method called by MessageQueue.
-    void setValueInternal(int fieldID, Object value)
-    {
-      if (values_ == null) values_ = new JobHashtable();
-      values_.put(fieldID, value);
-      switch(fieldID)
-      {
-        case 501:
-          setDefaultReply((String)value);
-          break;
-        case 404:
-          setHelp((String)value);
-          break;
-        case 302:
-          setText((String)value);
-          break;
-        case 101:
-          alertOption_ = (String)value;
-          break;
-        default:
-          break;
+        replyStatus_ = s.trim();
       }
     }
+    return replyStatus_;
+  }
 
 
-    /**
-     * Returns the String representation of this QueuedMessage object.
-     * @return The string.
-     **/
-    public String toString()
+
+  /**
+   * Returns the current user name. If the system being accessed is running OS/400 V5R2 or earlier,
+   * the sender job's user name is returned, via the {@link #getFromJobUser getFromJobUser()} method.
+   * @return The sender user name, or "" if it is not set.
+   * @see #getFromJobUser
+  **/
+  public String getUser()
+  {
+    //Check if the system is a v5r3 or greater
+    boolean currentUser = false;                                                                    //@K1A
+    try                                                                                             //@K1A
     {
-        return super.toStringM2();
+      //@K1A
+      currentUser = messageQueue_.getSystem().getVRM() >= AS400.generateVRM(5,3,0);                     //@K1A
+    }                                                                                               //@K1A
+    catch (Exception e)                                                                              //@K1A
+    {
+      //@K1A
+      //IF AS400SecurityException or IOException occurred                                         //@K1A
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.WARNING, "Can't get VRM because of: "+e.toString()+". QueuedMessage user may reflect a different value.");
+      }
+      currentUser = false;                                                                        //@K1A
+    }                                                                                               //@K1A
+    if (currentUser)                                                                                 //@K1A
+    {
+      //@K1A
+      //Use current user information
+      if (currentUser_.length() == 0 && values_ != null)                                                  //@K1A
+      {
+        //@K1A
+        String s = (String)values_.get(607);                                                    //@K1A
+        if (s != null)                                                                          //@K1A
+        {
+          //@K1A
+          currentUser_ = s.trim();                                                            //@K1A
+        }                                                                                       //@K1A
+      }                                                                                           //@K1A
+      return currentUser_;
+    }                                                                                               //@K1A
+    return getFromJobUser();
+  }
+
+
+  // Helper method called by MessageQueue.
+  void setAsInt(int fieldID, int value)
+  {
+    setValueInternal(fieldID, new Integer(value));
+  }
+
+
+  // Helper method called by MessageQueue.
+  void setAsLong(int fieldID, long value)
+  {
+    setValueInternal(fieldID, new Long(value));
+  }
+
+
+  // Helper method called by MessageQueue.
+  void setValueInternal(int fieldID, Object value)
+  {
+    if (values_ == null) values_ = new JobHashtable();
+    values_.put(fieldID, value);
+    switch (fieldID)
+    {
+      case 501:
+        setDefaultReply((String)value);
+        break;
+      case 404:
+        setHelp((String)value);
+        break;
+      case 302:
+        setText((String)value);
+        break;
+      case 101:
+        alertOption_ = (String)value;
+        break;
+      default:
+        break;
     }
+  }
+
+
+  /**
+   * Returns the String representation of this QueuedMessage object.
+   * @return The string.
+   **/
+  public String toString()
+  {
+    return super.toStringM2();
+  }
 
 }
 
