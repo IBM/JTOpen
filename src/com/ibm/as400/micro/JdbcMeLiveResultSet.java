@@ -736,9 +736,6 @@ public class JdbcMeLiveResultSet implements ResultSet
             if (which == MEConstants.RS_UPDATE_ROW)
                 mustBeOnRow = ROW_UPDATE;
 
-            System.out.println("Modified Row Buffer: " + modifiedRowBuffer_);
-            System.out.println("whichRow: " + onWhichRow_);
-            System.out.println("mustBeOnRow: " + mustBeOnRow);
             if (modifiedRowBuffer_ == null || !(onWhichRow_ == mustBeOnRow))
                 throw new IllegalArgumentException("RS no in/upd row");
 
