@@ -1572,7 +1572,8 @@ public class Product
         String msgID = conv.byteArrayToString(outputData, offset, 7);
         offset += 7;
         String minVRM = conv.byteArrayToString(outputData, offset, 6);
-        options_[i] = new Product(system_, productID_, prodOption, releaseLevel_, loadID_, allow, msgID, minVRM);
+//        options_[i] = new Product(system_, productID_, prodOption, releaseLevel_, loadID_, allow, msgID, minVRM);
+        options_[i] = new Product(system_, productID_, prodOption, releaseLevel_, getFeatureID(), allow, msgID, minVRM);
       }
       loaded500_ = true;
     }
