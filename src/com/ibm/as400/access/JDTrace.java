@@ -6,16 +6,15 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.DriverManager;
-import java.io.PrintStream;  //@E1A
 
 
 
@@ -57,20 +56,27 @@ basis, not on a driver or connection basis.
 //    blocks are slow.  We only want to incur that
 //    performance penalty when tracing is on.
 //
-class JDTrace
+// @CRS: 4. To provide compatibility between JDK 1.1 and JDK 1.2+,
+//    we now handle both DriverManager.getLogStream() and DriverManager.getLogWriter().
+//    In JDK 1.4.1, if a log writer is set, getLogStream() returns null, but if a
+//    log stream is set, getLogWriter() still returns a writer.  This is confusing.
+//    We attempt to treat the log writer and the log stream separately, and we log
+//    to both of them if they are available. This is to maintain backwards-compatibility
+//    with apps that are still using the deprecated log stream methods.
+//    Note that we also treat Toolbox JDBC tracing separately now.
+
+final class JDTrace
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
-
-    private static PrintStream previousTraceInfo_ = null;   //@E1A
-
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
 /**
 Private constructor to prevent instantiation.  All methods in
 this class are static.
 **/
-    private JDTrace () { }
+  private JDTrace()
+  {
+  }
 
 
 
@@ -80,12 +86,28 @@ Indicates if tracing is turned on?
 
 @return true or false
 **/
-    static boolean isTraceOn ()
+  static boolean isTraceOn()
+  {
+    // If there is a log writer or log stream in the DriverManager, then
+    // according to the DriverManager javadoc, all JDBC drivers should be
+    // logging.  If there is not one set (e.g. set to null), all drivers
+    // should not be logging. However, since we have our own Toolbox tracing, we are
+    // nicer than that.  We let the user turn off Toolbox JDBC tracing without
+    // turning off DriverManager tracing. And vice-versa: If Toolbox JDBC tracing is
+    // turned on via the Trace class, we will log our JDBC traces there... we don't 
+    // muck with the DriverManager logging until someone sets a log writer or log
+    // stream into it.
+    
+    // Is Toolbox tracing on?
+    if (Trace.traceOn_ && Trace.traceJDBC_) return true;
+
+    // Is DriverManager tracing on?
+    if (JDUtilities.JDBCLevel_ > 10)
     {
-        return (DriverManager.getLogStream() != null);
-        // When we move to JDK 1.2, we can use:
-        // return (DriverManager.getLogWriter() != null);
+      if (DriverManager.getLogWriter() != null) return true;
     }
+    return (DriverManager.getLogStream() != null);
+  }
 
 
 
@@ -96,38 +118,38 @@ Logs information about tracing.
 @param  object          The object
 @param  information     The information.
 **/
-    static void logDataEvenIfTracingIsOff(Object object,
-                                          String information)
-    {
-       // We will force tracing on for this information.  If we turned
-       // tracing just to log this debug info we will turn it back off
-       // at the end of the routine
-       boolean turnTraceOff = ! isTraceOn();
-       setTraceOn(true);
-       logInformation(object, information);
-       if (turnTraceOff)
-          setTraceOn(false);
-    }
+  static void logDataEvenIfTracingIsOff(Object object, String information)
+  {
+    // We will force tracing on for this information.  If we turned
+    // tracing just to log this debug info we will turn it back off
+    // at the end of the routine.
+
+    //@CRS - Not sure why we have this method.  The whole point of turning trace
+    // on or off is whether or not you want data logged.  I've changed this method
+    // to just call logInformation().
+
+    logInformation(object, information);
+  }
 
 
 
 
-                                       
+
 // @J2 new method                                       
 /**
 Logs an information trace message.
 
 @param  information     The information.
 **/
-    static void logInformation (String information)
+  static void logInformation(String information)
+  {
+    if (isTraceOn())
     {
-        String data = "as400: " + information;
+      String data = "as400: " + information;
 
-        synchronized (DriverManager.class) 
-        {                            
-            DriverManager.println (data);
-        }                                                               
+      log(data);
     }
+  }
 
 
 // @J3 new method.
@@ -138,28 +160,32 @@ Logs an information trace message.
 @param  information     The information.
 @param  exception       The exception.
 **/
-    static void logException (Object object,
-                              String information, 
-                              Exception e)
+  static void logException(Object object, String information, Exception e)
+  {
+    if (isTraceOn())
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("as400: ");
- 
-        if (object != null)
-           buffer.append (objectToString (object));
-        else
-           buffer.append ("static method");
- 
-        buffer.append (": ");
-        buffer.append (information);
-        buffer.append (".");
+      StringWriter sw = new StringWriter();
+      PrintWriter buffer = new PrintWriter(sw);
+      buffer.write("as400: ");
 
-        synchronized (DriverManager.class)
-        {                        
-            DriverManager.println (buffer.toString());   
-            e.printStackTrace (DriverManager.getLogStream ());
-        }                                                             
+      if (object != null)
+      {
+        buffer.write(objectToString(object));
+      }
+      else
+      {
+        buffer.write("static method");
+      }
+
+      buffer.write(": ");
+      buffer.write(information);
+      buffer.write(".");
+
+      e.printStackTrace(buffer);
+
+      log(sw.toString());
     }
+  }
 
 // @J4 new method.
 /**
@@ -170,32 +196,40 @@ Logs an information trace message.
 @param  information     The information.
 @param  exception       The exception.
 **/
-    static void logException (Object object,                                          
-                              Object object2,
-                              String information, 
-                              Exception e)
+  static void logException(Object object,                                          
+                           Object object2,
+                           String information, 
+                           Exception e)
+  {
+    if (isTraceOn())
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("as400: ");
- 
-        if (object != null)
-           buffer.append (objectToString (object));
-        else
-           buffer.append ("static method ");
+      StringWriter sw = new StringWriter();
+      PrintWriter buffer = new PrintWriter(sw);
+      buffer.write("as400: ");
 
-        if (object2 != null)
-           buffer.append (objectToString (object2));
- 
-        buffer.append (": ");
-        buffer.append (information);
-        buffer.append (".");
+      if (object != null)
+      {
+        buffer.write(objectToString(object));
+      }
+      else
+      {
+        buffer.write("static method ");
+      }
 
-        synchronized (DriverManager.class)
-        {                        
-            DriverManager.println (buffer.toString());   
-            e.printStackTrace (DriverManager.getLogStream ());
-        }                                                             
-    }
+      if (object2 != null)
+      {
+        buffer.write(objectToString(object2));
+      }
+
+      buffer.write(": ");
+      buffer.write(information);
+      buffer.write(".");
+
+      e.printStackTrace(buffer);
+
+      log(sw.toString());
+    }                                                             
+  }
 
 
 
@@ -206,20 +240,20 @@ Logs an information trace message.
 @param  object          The object
 @param  information     The information.
 **/
-    static void logInformation (Object object,
-                                String information)
+  static void logInformation(Object object, String information)
+  {
+    if (isTraceOn())
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("as400: ");
-        buffer.append (objectToString (object));
-        buffer.append (": ");
-        buffer.append (information);
-        buffer.append (".");
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("as400: ");
+      buffer.append(objectToString(object));
+      buffer.append(": ");
+      buffer.append(information);
+      buffer.append(".");
 
-        synchronized (DriverManager.class) {                            // @D0A
-            DriverManager.println (buffer.toString());
-        }                                                               // @D0A
+      log(buffer.toString());
     }
+  }
 
 
 
@@ -230,23 +264,22 @@ Logs a property trace message.
 @param  propertyName    The property name.
 @param  propertyValue   The property value.
 **/
-    static void logProperty (Object object,
-                             String propertyName,
-                             String propertyValue)
+  static void logProperty(Object object, String propertyName, String propertyValue)
+  {
+    if (isTraceOn())
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("as400: ");
-        buffer.append (objectToString (object));
-        buffer.append (": ");
-        buffer.append (propertyName);
-        buffer.append (" = \"");
-        buffer.append (propertyValue);
-        buffer.append ("\".");
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("as400: ");
+      buffer.append(objectToString(object));
+      buffer.append(": ");
+      buffer.append(propertyName);
+      buffer.append(" = \"");
+      buffer.append(propertyValue);
+      buffer.append("\".");
 
-        synchronized (DriverManager.class) {                            // @D0A
-            DriverManager.println (buffer.toString());
-        }                                                               // @D0A
+      log(buffer.toString());
     }
+  }
 
 
 
@@ -257,13 +290,14 @@ Logs a property trace message.
 @param  propertyName    The property name.
 @param  propertyValue   The property value.
 **/
-    static void logProperty (Object object,
-                             String propertyName,
-                             boolean propertyValue)
+  static void logProperty(Object object, String propertyName, boolean propertyValue)
+  {
+    if (isTraceOn())
     {
-        Boolean b = new Boolean (propertyValue);
-        logProperty (object, propertyName, b.toString ());
+      Boolean b = new Boolean(propertyValue);
+      logProperty(object, propertyName, b.toString());
     }
+  }
 
 
 
@@ -274,12 +308,13 @@ Logs a property trace message.
 @param  propertyName    The property name.
 @param  propertyValue   The property value.
 **/
-    static void logProperty (Object object,
-                             String propertyName,
-                             int propertyValue)
+  static void logProperty(Object object, String propertyName, int propertyValue)
+  {
+    if (isTraceOn())
     {
-        logProperty (object, propertyName, Integer.toString (propertyValue));
+      logProperty(object, propertyName, Integer.toString(propertyValue));
     }
+  }
 
 
 
@@ -288,25 +323,51 @@ Logs an open trace message.
 
 @param  object          The object
 **/
-    static void logOpen (Object object, Object parent)
+  static void logOpen(Object object, Object parent)
+  {
+    if (isTraceOn())
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("as400: ");
-        buffer.append (objectToString (object));
-        buffer.append (" open.");                    
-        
-        if (parent != null)                                        // @J3a
-        {                                                          // @J3a
-           buffer.append(" Parent: ");                             // @J3a
-           buffer.append(objectToString(parent));                  // @J3a
-           buffer.append(".");                                     // @J3a
-        }                                                          // @J3a
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("as400: ");
+      buffer.append(objectToString(object));
+      buffer.append(" open.");                    
 
-        synchronized (DriverManager.class) {                            // @D0A
-            DriverManager.println (buffer.toString());
-        }                                                               // @D0A
+      if (parent != null)                                        // @J3a
+      {
+        // @J3a
+        buffer.append(" Parent: ");                             // @J3a
+        buffer.append(objectToString(parent));                  // @J3a
+        buffer.append(".");                                     // @J3a
+      }                                                          // @J3a
+
+      log(buffer.toString());
     }
+  }
 
+
+  // Logs the data to the DriverManager and/or Toolbox trace.
+  private static void log(String data)
+  {
+    // No need to synchronize, as our operations are atomic... one call to each stream/writer.
+    // The streams/writers themselves are synchronized internally.
+    if (JDUtilities.JDBCLevel_ > 10)
+    {
+      // Log to the DriverManager writer.
+      PrintWriter pw = DriverManager.getLogWriter();
+      if (pw != null)
+      {
+        pw.println(data);
+      }
+    }
+    // Log to the DriverManager stream.
+    PrintStream ps = DriverManager.getLogStream();
+    if (ps != null)
+    {
+      ps.println(data);
+    }
+    // Log to Toolbox trace.
+    Trace.log(Trace.JDBC, data);
+  }
 
 
 /**
@@ -314,17 +375,17 @@ Logs a close trace message.
 
 @param  object          The object
 **/
-    static void logClose (Object object)
+  static void logClose(Object object)
+  {
+    if (isTraceOn())
     {
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append ("as400: ");
-        buffer.append (objectToString (object));
-        buffer.append (" closed.");
-
-        synchronized (DriverManager.class) {                            // @D0A
-            DriverManager.println (buffer.toString());
-        }                                                               // @D0A
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("as400: ");
+      buffer.append(objectToString(object));
+      buffer.append(" closed.");
+      log(buffer.toString());
     }
+  }
 
 
 
@@ -334,28 +395,28 @@ Maps an object to a string.
 @param  object      The object.
 @return             The string.
 **/
-    static String objectToString (Object object)               // @J3c (no longer private)
-    {
-        // Determine the class name.
-        String clazz = object.getClass().getName();     // @D3C
-        String className;
-        if (clazz.startsWith("com.ibm.as400.access.AS400JDBC")) // @D3A
-            className = clazz.substring(30);                    // @D3A
-        else if (clazz.startsWith("com.ibm.as400.access.JD"))   // @D3A
-            className = clazz.substring(23);                    // @D3A
-        else
-            className = "Unknown";
+  static String objectToString(Object object)               // @J3c (no longer private)
+  {
+    // Determine the class name.
+    String clazz = object.getClass().getName();     // @D3C
+    String className;
+    if (clazz.startsWith("com.ibm.as400.access.AS400JDBC")) // @D3A
+      className = clazz.substring(30);                    // @D3A
+    else if (clazz.startsWith("com.ibm.as400.access.JD"))   // @D3A
+      className = clazz.substring(23);                    // @D3A
+    else
+      className = "Unknown";
 
-        StringBuffer buffer = new StringBuffer ();
-        buffer.append (className);
-        buffer.append (" ");
-        buffer.append (object.toString ());
-        buffer.append (" (");                            // @J3a
-        buffer.append (object.hashCode());               // @J3a 
-        buffer.append (") ");                            // @J3a
+    StringBuffer buffer = new StringBuffer();
+    buffer.append(className);
+    buffer.append(" ");
+    buffer.append(object.toString());
+    buffer.append(" (");                            // @J3a
+    buffer.append(object.hashCode());               // @J3a 
+    buffer.append(") ");                            // @J3a
 
-        return buffer.toString ();
-    }
+    return buffer.toString();
+  }
 
 
 
@@ -364,38 +425,9 @@ Turns trace on, to System.out or what it was previously set to if it was turned 
 by this method.  This method will not initialize trace again if trace is already set
 on by another method.
 **/
-    static void setTraceOn (boolean traceOn)
-    {
-     if (traceOn)                               //@E1A
-     {                                                       //@E1A
-         if (previousTraceInfo_ == null)                     //@E1A
-         {                                                   //@E1A
-          if (DriverManager.getLogStream() == null)       //@E1A
-          {                                               //@E1A
-              DriverManager.setLogStream (System.out);    //@E1A
-          }                                               //@E1A
-         }                                                   //@E1A
-         else if (DriverManager.getLogStream() == null)      //@E1A
-         {                                                   //@E1A
-          DriverManager.setLogStream(previousTraceInfo_); //@E1A
-         }                                                   //@E1A
-     }                                                       //@E1A
-     else                                                    //@E1A
-     {                                                       //@E1A
-         previousTraceInfo_ = DriverManager.getLogStream();  //@E1A
-         if (previousTraceInfo_ != null)               //@E2A
-            previousTraceInfo_.flush();                   //@E1A
-         DriverManager.setLogStream(null);                   //@E1A
-     }                                                       //@E1A
-        //@E1D if (traceOn == true)   // @D1C
-        //@E1D    DriverManager.setLogStream (System.out);
-        //@E1D else
-        //@E1D    DriverManager.setLogStream (null);
-        // When we move to JDK 1.2, we can change this to:
-        // DriverManager.setLogWriter (new PrintWriter (System.out));
-    }
-
-
-
+  static void setTraceOn(boolean traceOn)
+  {
+    Trace.setTraceJDBCOn(false);
+  }
 }
 
