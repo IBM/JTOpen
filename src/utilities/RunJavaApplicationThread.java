@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RunJavaApplicationThread.java
 //                                                                             
@@ -87,7 +87,7 @@ class RunJavaApplicationThread extends Thread
 
         else if (threadID_ == OUTPUT)
         {
-            // receives output string from as/400, prints it by System.out
+            // receives output string from server, prints it by System.out
             while(true)
             {
                 String so = null;
@@ -105,7 +105,7 @@ class RunJavaApplicationThread extends Thread
 
         else if (threadID_ == ERROR)
         {
-            // receives error string from as/400, prints it by System.out
+            // receives error string from server, prints it by System.out
             while(true)
             {
                 String se = null;

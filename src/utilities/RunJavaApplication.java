@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RunJavaApplication.java
 //                                                                             
@@ -224,7 +224,7 @@ public class RunJavaApplication
                        }
                    }
                    else
-                   {   // send the string to AS/400
+                   {   // send the string to server
                        runMain_.sendStandardInString(is);
                    }
                }

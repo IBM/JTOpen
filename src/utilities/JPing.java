@@ -171,10 +171,10 @@ public class JPing
       if(arguments.getOptionValue("-h") != null)
          usage();
 
-      // Get the AS400 system that the user wants to ping.
+      // Get the system that the user wants to ping.
       sys_ = arguments.getOptionValue("");
 
-      // Get the specific AS400 service the user wants to ping.
+      // Get the specific i5/OS service the user wants to ping.
       s = arguments.getOptionValue("-service");
       if (s != null)
       {
