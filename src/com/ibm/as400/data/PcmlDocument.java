@@ -90,7 +90,7 @@ class PcmlDocument extends PcmlDocRoot
     private static AS400PackedDecimal m_Packed_15_5 = new AS400PackedDecimal(15, 5);
     private static AS400ZonedDecimal  m_Zoned_15_5 = new AS400ZonedDecimal(15, 5);
 
-    private static long   correllationID = 0;                       // @C8A
+    private long   correlationID_ = 0;                       // @C8A
 
     // Transient data not stored durial serialization
     // These are a cache of the most common converters.
@@ -164,7 +164,7 @@ class PcmlDocument extends PcmlDocRoot
 		// Note that timestamps are only an issue when serializing "with data".
 		// The timestamp sensitive classes are not serialized when serializing
 		// without data.
-                m_DeserializationTs = getCorrellationID();                  // @C1A @C8C
+                m_DeserializationTs = getCorrelationID();                  // @C1A @C8C
 
 		// Default deserialization
 		in.defaultReadObject();                                     // @C1A
@@ -477,9 +477,9 @@ class PcmlDocument extends PcmlDocRoot
     PcmlDataValues to control data conversion, PcmlDataVector to keep track
     of when the data dimension changes, and PcmlDocument for serialization.
     */
-    static synchronized long getCorrellationID()                                           // @C8A
+    synchronized long getCorrelationID()                                           // @C8A
     {
-        return ++correllationID;                                                    // @C8A
+        return ++correlationID_;                                                    // @C8A
     }
 
     /**

@@ -39,9 +39,9 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     private PcmlDimensions m_indices; // Indices into owning PcmlNode's vectors of PcmlDataValues
 
     private Object m_value;        // Java native value: (String, Short, Integer, Long, Float, Double, BigDecimal. byte[])
-    private long   m_valueTs;      // Correllation id of Java native value from PcmlDocument.getCorrellationID()
+    private long   m_valueTs;      // Correlation id of Java native value from PcmlDocument.getCorrelationID()
     private byte[] m_bytes;        // i5/OS bytes (ebcdic/big-endian)
-    private long   m_bytesTs;      // Correllation id of i5/OS bytes from PcmlDocument.getCorrellationID()
+    private long   m_bytesTs;      // Correlation id of i5/OS bytes from PcmlDocument.getCorrelationID()
     
     private int    m_bidiStringType;    // Type of string that is contained in the value @C6A
 
@@ -180,7 +180,6 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         }
         if ( v.getClass().equals(getValueClass()) ) 
         {
-            ///m_value = v;
             if (v instanceof BigDecimal) {
               m_value = ((BigDecimal)v).setScale(getPrecision(), BigDecimal.ROUND_HALF_EVEN);       // @D0A
             }
@@ -195,14 +194,14 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             m_value = convertValue(v, getDataType(), getLength(), getPrecision(), getNameForException());
         }
         // Update the value timestamp
-        m_valueTs = PcmlDocument.getCorrellationID();           // @C7C
+        m_valueTs = m_owner.getDoc().getCorrelationID();
     }
 
     // Set i5/OS bytes
     public void setBytes(byte[] ba) 
     {
         m_bytes = ba;
-        m_bytesTs = PcmlDocument.getCorrellationID();           // @C7C
+        m_bytesTs = m_owner.getDoc().getCorrelationID();           // @C7C
     }
 
     // Set the bidi string type 
@@ -842,7 +841,6 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             case PcmlData.ZONED:
                 if (newVal instanceof BigDecimal) 
                 {
-                    ///convertedVal = (BigDecimal) newVal;
                     convertedVal = ((BigDecimal)newVal).setScale(dataPrecision, BigDecimal.ROUND_HALF_EVEN);      // @D0C
                 }
                 else 
@@ -858,7 +856,6 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     {
                         if (newVal instanceof Number) 
                         {
-                            ///convertedVal = new BigDecimal(((Number) newVal).doubleValue());
                             convertedVal = (new BigDecimal(((Number) newVal).doubleValue())).setScale(dataPrecision, BigDecimal.ROUND_HALF_EVEN);    // @D0C
                         }
                         else

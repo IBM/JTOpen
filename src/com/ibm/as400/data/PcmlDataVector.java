@@ -36,7 +36,7 @@ class PcmlDataVector extends Vector {
     	super();
         m_owner = owner;
         m_indices = new PcmlDimensions(indices);
-        m_dimTs = PcmlDocument.getCorrellationID();                 // @C2C
+        m_dimTs = m_owner.getDoc().getCorrelationID();
     }
 
     PcmlDataVector(int size, PcmlData owner, PcmlDimensions indices) 
@@ -44,7 +44,7 @@ class PcmlDataVector extends Vector {
     	super(size);
         m_owner = owner;
         m_indices = new PcmlDimensions(indices);
-        m_dimTs = PcmlDocument.getCorrellationID();                 // @C2C
+        m_dimTs = m_owner.getDoc().getCorrelationID();
     }
 
 	// Custom deserialization
@@ -111,7 +111,7 @@ class PcmlDataVector extends Vector {
     void redimension(int newSize) 
     {
         flushValues();
-        m_dimTs = PcmlDocument.getCorrellationID();                 // @C2C
+        m_dimTs = m_owner.getDoc().getCorrelationID();
         if (newSize > capacity())
         {
             ensureCapacity(newSize);
