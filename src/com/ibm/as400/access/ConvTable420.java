@@ -1,22 +1,41 @@
-///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: ConvTable420.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//
+// IBM Confidential
+//
+// OCO Source Materials
+//
+// The Source code for this program is not published or otherwise
+// divested of its trade secrets, irrespective of what has been
+// deposited with the U.S. Copyright Office
+//
+// 5722-JC1
+// (C) Copyright IBM Corp. 1997, 2000
+//
+////////////////////////////////////////////////////////////////////////
+//
+// File Name:    ConvTable420.java
+//
+// Description:  Contains Unicode converter tables for ccsid 420.
+//
+// Classes:      ConvTable420
+//
+////////////////////////////////////////////////////////////////////////
+//
+// CHANGE ACTIVITY:
+//
+// $A0=PTR/DCR   Release      Date        Userid    Comments
+//     D98012    v5r1m0.jacl  10/29/1999  csmith    Created.
+//               v5r1m0.jacl  05/11/2000  csmith    Regenerated.
+//
+//
+// END CHANGE ACTIVITY
+//
+////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
 class ConvTable420 extends ConvTableBidiMap
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
   private static final String toUnicode_ = 
     "\u0000\u0001\u0002\u0003\u009C\t\u0086\u007F\u0097\u008D\u008E\u000B\f\r\u000E\u000F" +
     "\u0010\u0011\u0012\u0013\u009D\u0085\b\u0087\u0018\u0019\u0092\u008F\u001C\u001D\u001E\u001F" +
@@ -43,17 +62,18 @@ class ConvTable420 extends ConvTableBidiMap
     "\u3F81\u8283\u8485\u8687\u8889\u9192\u9394\u9596\u9798\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u4F3F\u3F07" +
     "\u2021\u2223\u2415\u0617\u2829\u2A2B\u2C09\u0A1B\u3031\u1A33\u3435\u3608\u3839\u3A3B\u0414\u3EFF" +
     "\u413F\u4A3F\u3F3F\u6A3F\u3F3F\u3F3F\u5FCA\uFFFF\u0014\u3F3F\u3FE0\uFFFF\u000F\u3F3F\u3FA1\uFFFF" +
-    "\u028A\u3F3F\u793F\uFFFF\u0006\u3F3F\u3FC0\u3F3F\u3FD0\u3F46\u4749\u5256\u5556\u5862\u6365\u6769" +
-    "\u7173\u7475\u7677\u808B\u8D8F\u909A\u9E3F\u3F3F\u3F3F\u44AB\uADAF\uB1BB\uBDBF\uCFDA\uDC3F\u3F3F" +
-    "\u3F3F\u3F42\uFFFF\u0007\u3F3F\uDFEA\uEBED\uEEEF\uFBFC\uFDFE\u6C6B\u4B5C\uFFFF\u0CCC\u3F3F\u3FE1" +
-    "\u3F3F\u3F45\uFFFF\u0050\u3F3F\uFA3F\uFFFF\u6EE7\u3F3F\u4243\u3F3F\u4647\u4849\u5152\u5256\u573F" +
-    "\u3F55\u5556\u5758\u5859\u5962\u6263\u6364\u6465\u6566\u6667\u6768\u6869\u6970\u7071\u7172\u7273" +
-    "\u7374\u7475\u7576\u7677\u7778\u7880\u808A\u8A8B\u8B8C\u8C8D\u8D8E\u8E8F\u8F8F\u8F90\u9090\u909A" +
-    "\u9B9C\u9D9E\u9FA0\uAAAB\uABAC\uACAD\uADAE\uAEAF\uAFB0\uB0B1\uB1BA\uBABB\uBBBC\uBCBD\uBDBE\uBEBF" +
-    "\uBFCB\uCDCF\uCFDA\uDBDC\uDDDE\uDEB2\uB3B4\uB5B8\uB9B8\uB93F\u3F3F\u3F5A\u7F7B\u5B6C\u507D\u4D5D" +
-    "\u5C4E\u6B60\u4B61\uF0F1\uF2F3\uF4F5\uF6F7\uF8F9\u7A5E\u4C7E\u6E6F\u7CC1\uC2C3\uC4C5\uC6C7\uC8C9" +
-    "\uD1D2\uD3D4\uD5D6\uD7D8\uD9E2\uE3E4\uE5E6\uE7E8\uE93F\u3F3F\u3F6D\u3F81\u8283\u8485\u8687\u8889" +
-    "\u9192\u9394\u9596\u9798\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u4F3F\uFFFF\u0051\u3F3F";
+    "\u0395\u3F3F\u3F5C\u6B4B\u6CDF\uEAEB\uEDEE\uEFFB\uFCFD\uFEB8\uB8B4\uB23F\uFFFF\u0004\u3F3F\u3F42" +
+    "\u3F3F\u3F3F\u3F3F\uDCDA\uCFCD\uBEBC\uBAB0\uAEAC\u443F\u3F3F\u3F3F\u9F9D\u908F\u8E8C\u8A78\u7675" +
+    "\u7473\u7270\u6866\u6462\u5957\u5556\u5249\u4746\u3FD0\u3F3F\u3FC0\uFFFF\u0007\u3F3F\u793F\uFFFF" +
+    "\u0BC0\u3F3F\u3FE1\u3F3F\u3F45\uFFFF\u0050\u3F3F\uFA3F\uFFFF\u6D38\u3F3F\uF0F1\uF2F3\uF4F5\uF6F7" +
+    "\uF8F9\u614B\u606B\u4E5C\u5D4D\u7D50\u6C5B\u7B7F\u5A3F\u3F3F\u3FB9\uB8B9\uB8B5\uB4B3\uB2DE\uDEDD" +
+    "\uDCDB\uDACF\uCFCD\uCBBF\uBFBE\uBEBD\uBDBC\uBCBB\uBBBA\uBAB1\uB1B0\uB0AF\uAFAE\uAEAD\uADAC\uACAB" +
+    "\uABAA\uA09F\u9E9D\u9C9B\u9A90\u9090\u908F\u8F8F\u8F8E\u8E8D\u8D8C\u8C8B\u8B8A\u8A80\u8078\u7877" +
+    "\u7776\u7675\u7574\u7473\u7372\u7271\u7170\u7069\u6968\u6867\u6766\u6665\u6564\u6463\u6362\u6259" +
+    "\u5958\u5857\u5655\u553F\u3F57\u5652\u5251\u4948\u4746\u3F3F\u4342\uFFFF\u01AF\u3F3F\u7A5E\u4C7E" +
+    "\u6E6F\u7CC1\uC2C3\uC4C5\uC6C7\uC8C9\uD1D2\uD3D4\uD5D6\uD7D8\uD9E2\uE3E4\uE5E6\uE7E8\uE93F\u3F3F" +
+    "\u3F6D\u3F81\u8283\u8485\u8687\u8889\u9192\u9394\u9596\u9798\u99A2\uA3A4\uA5A6\uA7A8\uA93F\u4F3F" +
+    "\uFFFF\u0051\u3F3F";
 
 
   ConvTable420()
