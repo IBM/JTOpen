@@ -3265,10 +3265,10 @@ implements Serializable
   /**
    * Constructs a Job object.
    * @param system The system.
-   * @param name The job name. Specify "*" to indicate the job that this
+   * @param name The job name. Specify JOB_NAME_CURRENT to indicate the job that this
    * program is running in.
-   * @param user The user name. This must be blank if the job name is "*".
-   * @param number The job number. This must be blank if job name is "*".
+   * @param user The user name. This must be USER_NAME_BLANK if the job name is JOB_NAME_CURRENT.
+   * @param number The job number. This must be JOB_NUMBER_BLANK if job name is JOB_NAME_CURRENT.
   **/
   public Job(AS400 system,
              String jobName,
@@ -3279,7 +3279,7 @@ implements Serializable
     if (jobName == null) throw new NullPointerException("jobName");
     if (userName == null) throw new NullPointerException("userName");
     if (jobNumber == null) throw new NullPointerException("jobNumber");
-    if (jobName.equals("*"))
+    if (jobName.equals(JOB_NAME_CURRENT))
     {
       if (userName.trim().length() != 0) throw new ExtendedIllegalArgumentException("userName", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
       if (jobNumber.trim().length() != 0) throw new ExtendedIllegalArgumentException("jobNumber", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -3299,8 +3299,8 @@ implements Serializable
 
 
   /**
-   * Constructs a Job object. This sets the job name to "*INT", the user name to blank,
-   * and the job number to blank.
+   * Constructs a Job object. This sets the job name to JOB_NAME_INTERNAL, the user name to USER_NAME_BLANK,
+   * and the job number to JOB_NUMBER_BLANK.
    * @param system The system.
    * @param internalJobID The internal job identifier.
   **/
@@ -3312,11 +3312,11 @@ implements Serializable
     system_ = system;
     internalJobID_ = internalJobID;
     setValueInternal(INTERNAL_JOB_ID, internalJobID);
-    name_ = "*INT";
+    name_ = JOB_NAME_INTERNAL;
     setValueInternal(JOB_NAME, null);
-    user_ = "";
+    user_ = USER_NAME_BLANK;
     setValueInternal(USER_NAME, null);
-    number_ = "";
+    number_ = JOB_NUMBER_BLANK;
     setValueInternal(JOB_NUMBER, null);
   }
 
@@ -4577,7 +4577,15 @@ description.
   ObjectDoesNotExistException,
   UnsupportedEncodingException
   {
-    return((String)getValue(JOB_DESCRIPTION)).trim();
+    String jobd = ((String)getValue(JOB_DESCRIPTION)).trim();
+    if (jobd.length() > 0 && !jobd.startsWith("*"))
+    {
+      String name = jobd.substring(0, 10).trim();
+      String lib = jobd.substring(10, jobd.length());
+      String path = QSYSObjectPathName.toPath(lib, name, "JOBD");
+      return path;
+    }
+    return jobd;
   }
 
 
@@ -6552,7 +6560,7 @@ of work identifier.
     number_ = table.byteArrayToString(data, 28, 6);
     internalJobID_ = table.byteArrayToString(data, 34, 16);
 */
-    status_ = table.byteArrayToString(data, 50, 10);
+    status_ = table.byteArrayToString(data, 50, 10).trim();
     type_ = table.byteArrayToString(data, 60, 1);
     subtype_ = table.byteArrayToString(data, 61, 1);    
 
@@ -6630,7 +6638,7 @@ of work identifier.
       setValueInternal(DATE_ENTERED_SYSTEM, table.byteArrayToString(data, 62, 13));
       setValueInternal(DATE_STARTED, table.byteArrayToString(data, 75, 13));
       setValueInternal(ACCOUNTING_CODE, table.byteArrayToString(data, 88, 15));
-      setValueInternal(JOB_DESCRIPTION, table.byteArrayToString(data, 103, 10));
+      setValueInternal(JOB_DESCRIPTION, table.byteArrayToString(data, 103, 20));
 
       // Unit of work ID.
       setValueInternal(UNIT_OF_WORK_ID, table.byteArrayToString(data, 123, 24));
@@ -7889,13 +7897,12 @@ or displayed to the user.
 
 
 /**
-Sets the job name.  This does not change the job on
-the AS/400.  Instead, it changes the job
-this Job object references.   This cannot be changed
-if the object has established a connection to the AS/400.
+Sets the job name.  This does not change the name of the actual OS/400 job.
+Instead, it changes the job this Job object references.   This cannot be changed
+if the object has already established a connection to the server.
 
 @param name    The job name.  Specify JOB_NAME_CURRENT to indicate the job this
-               program running in, or "*INT" to indicate that the job
+               program running in, or JOB_NAME_INTERNAL to indicate that the job
                is specified using the internal job identifier.
 
 @exception PropertyVetoException    If the property change is vetoed.
@@ -7928,12 +7935,11 @@ if the object has established a connection to the AS/400.
 
 
 /**
-Sets the job number.  This does not change the job on
-the AS/400.  Instead, it changes the job
-this Job object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+Sets the job number.  This does not change the name of the actual OS/400 job.
+Instead, it changes the job this Job object references.  This cannot be changed
+if the object has already established a connection to the server.
 
-@param number    The job number.  This must be blank if the job name is "*".
+@param number    The job number.  This must be JOB_NUMBER_BLANK if the job name is JOB_NAME_CURRENT.
 
 @exception PropertyVetoException    If the property change is vetoed.
 **/
@@ -8853,12 +8859,11 @@ pool at the end of its time slice.
 
 
 /**
-Sets the user name.  This does not change the job on
-the AS/400.  Instead, it changes the job
-this Job object references.  This cannot be changed
-if the object has established a connection to the AS/400.
+Sets the user name.  This does not change the name of the actual OS/400 job.
+Instead, it changes the job this Job object references.  This cannot be changed
+if the object has already established a connection to the server.
 
-@param user    The user name.  This must be blank if the job name is "*".
+@param user    The user name.  This must be USER_NAME_BLANK if the job name is JOB_NAME_CURRENT.
 
 @exception PropertyVetoException    If the property change is vetoed.
 **/
