@@ -60,7 +60,7 @@ public abstract class IPPacket {
 	}
 
     /**
-     * Returns this packet as a string. 
+     * Returns the header of this packet. 
      * @return	    Header the header of this packet. 
      */
     public Header getHeader() {
