@@ -498,7 +498,7 @@ public class EnvironmentVariable implements Serializable
     }
 
     /**
-     Sets the environment variable name.  This does not change the environment variable name on the server.  Instead, it changes the environment variable to which this EnvironmentVariable object references.  This cannot be changed if the object has established a connection to the server.
+     Sets the environment variable name.  This does not change the environment variable name on the server.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
      <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
      @param  name  The environment variable name.
      **/
@@ -515,11 +515,14 @@ public class EnvironmentVariable implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'name' is not valid: " + name);
             throw new ExtendedIllegalArgumentException("name (" + name + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-        if (spc_ != null)
-        {
-            Trace.log(Trace.ERROR, "Cannot set property 'name' after connect.");
-            throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
-        }
+
+        // Clear the cache.
+        nameBytes_ = null;
+        value_ = null;
+        valueBytes_ = null;
+        ccsid_ = 0;
+        stringType_ = 0;
+
         if (propertyChangeListeners_ == null)
         {
             name_ = name;
@@ -534,7 +537,7 @@ public class EnvironmentVariable implements Serializable
      }
 
     /**
-     Sets the environment variable name.  This does not change the environment variable name on the server.  Instead, it changes the environment variable to which this EnvironmentVariable object references.  This cannot be changed if the object has established a connection to the server.
+     Sets the environment variable name.  This does not change the environment variable name on the server.  Instead, it changes the environment variable to which this EnvironmentVariable object references.
      <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
      @param  name  The environment variable name.
      @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representataion Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.

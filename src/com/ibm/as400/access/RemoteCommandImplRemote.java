@@ -25,7 +25,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
     boolean ccsidIsUserOveride_ = false;  // Flag to say don't override ccsid in open().
     private AS400Server server_;
     AS400Message[] messageList_  = new AS400Message[0];
-    private int serverDataStreamLevel_ = 0;
+    int serverDataStreamLevel_ = 0;
 
     static
     {

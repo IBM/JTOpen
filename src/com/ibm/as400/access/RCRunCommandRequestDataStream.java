@@ -32,7 +32,7 @@ class RCRunCommandRequestDataStream extends ClientAccessDataStream
         setReqRepID(0x1002);
 
         // Return messages.
-        if (dataStreamLevel < 6 && messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = AS400Message.MESSAGE_OPTION_UP_TO_10;
+        if (dataStreamLevel < 7 && messageCount == AS400Message.MESSAGE_OPTION_ALL) messageCount = AS400Message.MESSAGE_OPTION_UP_TO_10;
         data_[20] = (byte)messageCount;
 
         set32bit(6 + commandBytes.length, 21);  // Set LL = 4 bytes LL, 2 bytes CP + length of command.
