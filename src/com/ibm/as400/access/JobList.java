@@ -975,6 +975,11 @@ This is the same as calling getJobs(-1, getLength()).
 
     if (listOffset == -1) number = length_;
 
+    if (number == 0)
+    {
+      return new Job[0];
+    }
+
     int ccsid = system_.getCcsid();
     ConvTable conv = ConvTable.getTable(ccsid, null);
     
