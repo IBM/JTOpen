@@ -89,7 +89,7 @@ public class QSYSObjectTypeTable
         add("CSPTBL");
         add("CTLD", new String[] { "", "APPC", "ASC", "BSC", "FNC", "HOST", "LWS", "NET", "RTL", "RWS", "TAP", "VWS" });
         add("DDIR");  // this type does not occur in QSYS
-        add("DEVD", new String[] { "", "APPC", "ASC", "ASP", "BSC", "CRP", "DKT", "DSPLCL", "DSPRMT", "DSPSNP", "DSPVRT", "FNC", "HOST", "INTR", "MLB", "NET", "OPT", "PRTLCL", "PRTLAN", "PRTRMT", "PRTSNP", "PRTVRT", "RTL", "SNPTUP", "SNPTDN", "TAP" });
+        add("DEVD", new String[] { "", "APPC", "ASC", "ASP", "BSC", "CRP", "DKT", "DSPLCL", "DSPRMT", "DSPSNP", "DSPVRT", "FNC", "HOST", "INTR", "MLB", "NET", "OPT", "PRTLCL", "PRTLAN", "PRTRMT", "PRTSNP", "PRTVRT", "RTL", "SNPTUP", "SNPTDN", "SNUF", "TAP" });
         add("DIR");  // this type does not occur in QSYS
         add("DOC");
         add("DSTMF");  // this type does not occur in QSYS
@@ -102,7 +102,7 @@ public class QSYSObjectTypeTable
         add("FIFO");  // this type does not occur in QSYS
         add("FILE", new String[] { "", "PF", "LF", "BSCF38", "CMNF38", "CRDF38", "DFU", "DFUEXC", "DFUNOTEXC", "DSPF", "DSPF36", "DSPF38", "DDMF", "DKTF", "ICFF", "LF38", "MXDF38", "PF38", "PRTF", "PRTF38", "SAVF", "TAPF" });
         add("FLR");
-        add("FNTRSC", new String[] { "CDEFNT", "FNTCHRSET", "CDEPAG" });
+        add("FNTRSC", new String[] { "", "CDEFNT", "FNTCHRSET", "CDEPAG" });
         add("FNTTBL");
         add("FORMDF");
         add("FTR", new String[] { "", "ALR", "PRB" });
@@ -122,7 +122,7 @@ public class QSYSObjectTypeTable
         add("LOCALE");
         add("MEDDFN");
         add("MENU", new String[] { "", "UIM", "DSPF", "PGM" });
-        add("MGTCOL", new String[] { "PFR", "PFRHST", "PFRDTL" });
+        add("MGTCOL", new String[] { "", "PFR", "PFRHST", "PFRDTL" });
         add("MODD");
         add("MODULE", new String[] { "", "CLE", "CLLE", "RPGLE", "CBLLE", "CPPLE" });
         add("MSGF");
@@ -133,7 +133,7 @@ public class QSYSObjectTypeTable
         add("NODL");
         add("NTBD");
         add("NWID", new String[] { "", "ATM", "FR", "ISDN" });
-        add("NWSCFG");   // TBD: Also update MRI2.java
+        add("NWSCFG");
         add("NWSD", new String[] { "", "WINDOWSNT" });
         add("OUTQ");
         add("OVL");
@@ -150,9 +150,9 @@ public class QSYSObjectTypeTable
         add("PRDDFN");
         add("PRDLOD");
         add("PSFCFG");
-        add("QMFORM", new String[] { "QUERYMGR" });
+        add("QMFORM", new String[] { "", "QUERYMGR" });
         add("QMQRY", new String[] { "PROMPT", "SQL" });
-        add("QRYDFN", new String[] { "QRY" });
+        add("QRYDFN", new String[] { "", "QRY" });
         add("RCT");
         add("SBSD");    // @D1c (was originally commended out under @A1d)
         add("SCHIDX");
