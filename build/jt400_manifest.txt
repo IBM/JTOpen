@@ -119,7 +119,13 @@ Java-Bean: True
 Name: com/ibm/as400/access/ClusteredHashTableEntry.class
 Java-Bean: True
 
+Name: com/ibm/as400/access/Command.class
+Java-Bean: True
+
 Name: com/ibm/as400/access/CommandCall.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/CommandList.class
 Java-Bean: True
 
 Name: com/ibm/as400/access/ConnectionPool.class
@@ -207,6 +213,9 @@ Name: com/ibm/as400/access/OutputQueue.class
 Java-Bean: True
 
 Name: com/ibm/as400/access/OutputQueueList.class
+Java-Bean: True
+
+Name: com/ibm/as400/access/PanelGroup.class
 Java-Bean: True
 
 Name: com/ibm/as400/access/Printer.class
