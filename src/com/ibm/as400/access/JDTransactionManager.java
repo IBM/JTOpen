@@ -127,7 +127,10 @@ server is behaving.
     currentIsolationLevel_  = mapStringToLevel (initialLevel);
     currentCommitMode_      = mapLevelToCommitMode (currentIsolationLevel_);
     initialCommitMode_    = currentCommitMode_;
-    serverCommitMode_   = currentCommitMode_;
+    if(connection_.newAutoCommitSupport_ == 1)          //@K64  If running under new auto commit support (V5R3 and higher), by default, auto commit is run under the *NONE isolation level
+        serverCommitMode_ = COMMIT_MODE_NONE_;          //@K64
+    else                                                //@K64
+        serverCommitMode_   = currentCommitMode_;
   }
 
 
@@ -671,7 +674,7 @@ java.sql.Connection.TRANSACTION_* values.
         DBReplyRequestedDS reply = null;                                                //@KBA
           try                                                                                 //@KBA
           {                                                                                   //@KBA
-              if(serverCommitMode_ != currentCommitMode_)                                     //@KBA
+              if(serverCommitMode_ != getIsolationLevel())         //@K64 changed currentCommitMode to getIsolationLevel()                           //@KBA
               {                                                                               //@KBA
                   request = DBDSPool.getDBSQLAttributesDS (DBSQLAttributesDS.FUNCTIONID_SET_ATTRIBUTES,
                                                          id_, DBBaseRequestDS.ORS_BITMAP_RETURN_DATA
@@ -693,7 +696,7 @@ java.sql.Connection.TRANSACTION_* values.
               if (request != null) request.inUse_ = false;                                    //@KBA
               if (reply != null) reply.inUse_ = false;                                        //@KBA
           }                                                                                   //@KBA
-          serverCommitMode_ = currentCommitMode_;                                             //@KBA
+          serverCommitMode_ = getIsolationLevel();     //@K64 changed currentCommitMode to getIsolationLevel()                                       //@KBA    Note:  This may not be what the user set it to, if the user want to always run auto commit with the *NONE isolation level
     }                                                                                         //@KBA
   }
 
