@@ -350,6 +350,7 @@ public class Record implements Serializable
     {
       throw new NullPointerException("listener");
     }
+    if (changes_ == null) changes_ = new PropertyChangeSupport(this);
     changes_.addPropertyChangeListener(listener);
   }
 
@@ -364,6 +365,7 @@ public class Record implements Serializable
     {
       throw new NullPointerException("listener");
     }
+    if (recordDescriptionListeners_ == null) recordDescriptionListeners_ = new Vector();
     recordDescriptionListeners_.addElement(listener);
 //@B5D    currentRecordDescriptionListeners_ = (Vector)recordDescriptionListeners_.clone();
   }
@@ -383,6 +385,7 @@ public class Record implements Serializable
     }
 //@B5D    vetoListeners_.addElement(listener);
 //@B5D    currentVetoListeners_ = (Vector)vetoListeners_.clone();
+    if (vetos_ == null) vetos_ = new VetoableChangeSupport(this);
     vetos_.addVetoableChangeListener(listener); //@B5A
   }
 
@@ -458,6 +461,7 @@ public class Record implements Serializable
   private void fireFieldModifiedEvent()
   {
     //@B5C - fire events the "new" way
+    if (recordDescriptionListeners_ == null) return;
     Vector targets = (Vector)recordDescriptionListeners_.clone();
     RecordDescriptionEvent event = new RecordDescriptionEvent(this, RecordDescriptionEvent.FIELD_MODIFIED);
     for (int i=0; i<targets.size(); ++i)
@@ -651,7 +655,7 @@ public class Record implements Serializable
       // Not a VariableLengthFieldDescription
       fields_[index] = dType.toObject(as400Data_, offset);
     }
-    fireFieldModifiedEvent();
+    if (recordDescriptionListeners_ != null) fireFieldModifiedEvent();
     isConvertedToJava_[index] = true;
     return fields_[index];
   }
@@ -955,7 +959,7 @@ public class Record implements Serializable
     }
     // Allocate the space for as400Data_
     as400Data_ = b.toByteArray();
-    fireFieldModifiedEvent();
+    if (recordDescriptionListeners_ != null) fireFieldModifiedEvent();
   }
 
   //@D0A
@@ -984,9 +988,9 @@ public class Record implements Serializable
   **/
   private void initializeTransient()
   {
-    recordDescriptionListeners_ = new Vector();
-    vetos_ = new VetoableChangeSupport(this);
-    changes_ = new PropertyChangeSupport(this);
+    //recordDescriptionListeners_ = new Vector();
+    //vetos_ = new VetoableChangeSupport(this);
+    //changes_ = new PropertyChangeSupport(this);
   }
 
   /**
@@ -1097,7 +1101,7 @@ public class Record implements Serializable
     {
       throw new NullPointerException("listener");
     }
-    changes_.removePropertyChangeListener(listener);
+    if (changes_ != null) changes_.removePropertyChangeListener(listener);
   }
 
   /**
@@ -1112,7 +1116,7 @@ public class Record implements Serializable
     {
       throw new NullPointerException("listener");
     }
-    recordDescriptionListeners_.removeElement(listener);
+    if (recordDescriptionListeners_ != null) recordDescriptionListeners_.removeElement(listener);
 //@B5D    currentRecordDescriptionListeners_ = (Vector)recordDescriptionListeners_.clone();
   }
 
@@ -1130,7 +1134,7 @@ public class Record implements Serializable
     }
 //@B5D    vetoListeners_.removeElement(listener);
 //@B5D    currentVetoListeners_ = (Vector)vetoListeners_.clone();
-    vetos_.removeVetoableChangeListener(listener); //@B5A
+    if (vetos_ != null) vetos_.removeVetoableChangeListener(listener); //@B5A
   }
 
   /**
@@ -1308,7 +1312,7 @@ public class Record implements Serializable
         isConvertedToJava_[i] = true;
         isConvertedToAS400_[i] = false;
       }
-      fireFieldModifiedEvent();
+      if (recordDescriptionListeners_ != null) fireFieldModifiedEvent();
     }
     else
     { // No dependent fields; we can convert on the fly as necessary
@@ -1383,7 +1387,7 @@ public class Record implements Serializable
 
 
     fields_[index] = value;
-    fireFieldModifiedEvent();
+    if (recordDescriptionListeners_ != null) fireFieldModifiedEvent();
     if (value == null)
     {
       nullFieldMap_[index] = true;
@@ -1474,10 +1478,10 @@ public class Record implements Serializable
     }
     //@B5C - fire events the "new" way
     // Notify veto listeners of the change
-    vetos_.fireVetoableChange("recordFormat", recordFormat_, recordFormat);
+    if (vetos_ != null) vetos_.fireVetoableChange("recordFormat", recordFormat_, recordFormat);
     RecordFormat old = recordFormat_;
     initializeRecord(recordFormat);
-    changes_.firePropertyChange("recordFormat", old, recordFormat_);
+    if (changes_ != null) changes_.firePropertyChange("recordFormat", old, recordFormat_);
   }
 
   /**
@@ -1494,10 +1498,10 @@ public class Record implements Serializable
     }
     //@B5C - fire events the "new" way
     // Notify veto listeners of the change
-    vetos_.fireVetoableChange("recordName", name_, name);
+    if (vetos_ != null) vetos_.fireVetoableChange("recordName", name_, name);
     String old = name_;
     name_ = name;
-    changes_.firePropertyChange("recordName", old, name_);
+    if (changes_ != null) changes_.firePropertyChange("recordName", old, name_);
   }
 
   /**
@@ -1517,11 +1521,16 @@ public class Record implements Serializable
     }
     //@B5C - fire events the "new" way
     // Notify veto listeners of the change
-    Integer old = new Integer(recordNumber_);
-    Integer newnum = new Integer(recordNumber);
-    vetos_.fireVetoableChange("recordNumber", old, newnum);
+    Integer old = null;
+    Integer newnum = null;
+    if (vetos_ != null || changes_ != null)
+    {
+      old = new Integer(recordNumber_);
+      newnum = new Integer(recordNumber);
+    }
+    if (vetos_ != null) vetos_.fireVetoableChange("recordNumber", old, newnum);
     recordNumber_ = recordNumber;
-    changes_.firePropertyChange("recordNumber", old, newnum);
+    if (changes_ != null) changes_.firePropertyChange("recordNumber", old, newnum);
   }
 
   /**
