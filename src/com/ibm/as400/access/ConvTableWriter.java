@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableWriter.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,9 +31,9 @@ import java.io.BufferedOutputStream;
 **/
 public class ConvTableWriter extends OutputStreamWriter
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-  OutputStream lock_ = null;
+//@B0D  OutputStream lock_ = null;
   BufferedOutputStream os_ = null;
 
   int ccsid_ = -1;
@@ -61,7 +61,7 @@ public class ConvTableWriter extends OutputStreamWriter
   public ConvTableWriter(OutputStream out) throws UnsupportedEncodingException
   {
     super(out);
-    lock_ = out;
+//@B0D    lock_ = out;
     os_ = new BufferedOutputStream(out);
     initializeCcsid();
     initializeTable();
@@ -78,7 +78,7 @@ public class ConvTableWriter extends OutputStreamWriter
   public ConvTableWriter(OutputStream out, String encoding) throws UnsupportedEncodingException
   {
     super(out, encoding);
-    lock_ = out;
+//@B0D    lock_ = out;
     os_ = new BufferedOutputStream(out);
     initializeCcsid();
     initializeTable();
@@ -94,7 +94,7 @@ public class ConvTableWriter extends OutputStreamWriter
   public ConvTableWriter(OutputStream out, int ccsid) throws UnsupportedEncodingException
   {
     super(out);
-    lock_ = out;
+//@B0D    lock_ = out;
     if(ccsid < 0 || ccsid > 65535)
     {
       throw new ExtendedIllegalArgumentException("ccsid", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -115,7 +115,7 @@ public class ConvTableWriter extends OutputStreamWriter
   public ConvTableWriter(OutputStream out, int ccsid, int bidiStringType) throws UnsupportedEncodingException
   {
     super(out);
-    lock_ = out;
+//@B0D    lock_ = out;
     if(ccsid < 0 || ccsid > 65535)
     {
       throw new ExtendedIllegalArgumentException("ccsid", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -134,7 +134,7 @@ public class ConvTableWriter extends OutputStreamWriter
 
   private void addToCache(char c) throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       checkOpen();
       if(nextWrite_ == cache_.length)
@@ -152,7 +152,7 @@ public class ConvTableWriter extends OutputStreamWriter
 
   private void addToCache(char[] c, int off, int len) throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       checkOpen();
       int reps = len / cache_.length;
@@ -196,7 +196,7 @@ public class ConvTableWriter extends OutputStreamWriter
   **/
   public void close() throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if(table_ == null) return; // we are already closed
       flush();
@@ -221,7 +221,7 @@ public class ConvTableWriter extends OutputStreamWriter
   **/  
   public void flush() throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if(Trace.isTraceOn() && Trace.isTraceConversionOn())
       {

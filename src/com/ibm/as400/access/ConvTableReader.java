@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableReader.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,9 +33,9 @@ import java.io.BufferedInputStream;
 **/
 public class ConvTableReader extends InputStreamReader
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
-  InputStream lock_ = null;
+//@B0D  InputStream lock_ = null;
   BufferedInputStream is_ = null;
 
   int ccsid_ = -1;
@@ -75,7 +75,7 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in) throws UnsupportedEncodingException
   {
     super(in);
-    lock_ = in;
+//@B0D    lock_ = in;
     is_ = new BufferedInputStream(in);
     initializeCcsid();
     initializeTable();
@@ -92,7 +92,7 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in, String encoding) throws UnsupportedEncodingException
   {
     super(in, encoding);
-    lock_ = in;
+//@B0D    lock_ = in;
     is_ = new BufferedInputStream(in);
     initializeCcsid();
     initializeTable();
@@ -108,7 +108,7 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in, int ccsid) throws UnsupportedEncodingException
   {
     super(in);
-    lock_ = in;
+//@B0D    lock_ = in;
     if(ccsid < 0 || ccsid > 65535)
     {
       throw new ExtendedIllegalArgumentException("ccsid", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -129,7 +129,7 @@ public class ConvTableReader extends InputStreamReader
   public ConvTableReader(InputStream in, int ccsid, int bidiStringType) throws UnsupportedEncodingException
   {
     super(in);
-    lock_ = in;
+//@B0D    lock_ = in;
     if(ccsid < 0 || ccsid > 65535)
     {
       throw new ExtendedIllegalArgumentException("ccsid", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
@@ -152,7 +152,7 @@ public class ConvTableReader extends InputStreamReader
   **/
   public void close() throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if(table_ == null) return; //we are already closed
       table_ = null;
@@ -166,7 +166,7 @@ public class ConvTableReader extends InputStreamReader
 
   private boolean fillCache() throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       checkOpen();
       if(nextRead_ >= nextWrite_)
@@ -495,7 +495,7 @@ public class ConvTableReader extends InputStreamReader
   **/
   public int read() throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if(fillCache())
       {
@@ -518,7 +518,7 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new NullPointerException("buffer");
     }
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if(fillCache())
       {
@@ -554,7 +554,7 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if(fillCache())
       {
@@ -585,7 +585,7 @@ public class ConvTableReader extends InputStreamReader
     {
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       StringBuffer buf = new StringBuffer();
       if(fillCache())
@@ -609,7 +609,7 @@ public class ConvTableReader extends InputStreamReader
   **/
   public boolean ready() throws IOException
   {
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       if (table_ == null) // we are closed
       {
@@ -633,7 +633,7 @@ public class ConvTableReader extends InputStreamReader
       throw new ExtendedIllegalArgumentException("length", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
     long total = 0;
-    synchronized(lock_)
+    synchronized(lock) //@B0C
     {
       checkOpen();  
       char[] buf = new char[length < cache_.length ? (int)length : cache_.length];
