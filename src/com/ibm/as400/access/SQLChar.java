@@ -46,6 +46,7 @@ implements SQLData
     private int                     maxLength_;
     private int                     truncated_;
     private String                  value_;
+    private String                  originalValue_; // @F66a  (in case we need to repad)
 
 
 
@@ -58,6 +59,7 @@ implements SQLData
         maxLength_      = maxLength;
         truncated_      = 0;
         value_          = default_; // @C4C
+        originalValue_  = default_; // @F66a
     }
 
 
@@ -82,15 +84,18 @@ implements SQLData
 
         // @A0A
         // Added code to do hand conversion if ccsidConverter is null or not Unicode.     // @E1C
-        if ((ccsidConverter != null) && (ccsidConverter.getCcsid() != 13488)) {           // @A0A @C3C @E1C
+        if ((ccsidConverter != null) && (ccsidConverter.getCcsid() != 13488))             // @A0A @C3C @E1C
+        {
             int length = /* @C5D graphic_ ? maxLength_ * 2 :*/ maxLength_;                // @C3A
 	    
 	    int bidiStringType = settings_.getBidiStringType();  //@E3A
+
 	    // if bidiStringType is not set by user, use ccsid to get value
 	    if (bidiStringType == -1)			         //@E3A
-		//@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
-	    bidiStringType = ccsidConverter.bidiStringType_; //@P0A
-	    value_ = ccsidConverter.byteArrayToString (rawBytes, offset, length, bidiStringType); //@E3C
+          //@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
+             bidiStringType = ccsidConverter.bidiStringType_; //@P0A
+
+          value_ = ccsidConverter.byteArrayToString (rawBytes, offset, length, bidiStringType); //@E3C
         }                                                                       // @C3A
         else {                                                                  // @A0A
             // This is a 13488 Unicode ccsid. Do the hand conversion.
@@ -117,16 +122,34 @@ implements SQLData
     public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
         throws SQLException
     {
-	int bidiStringType = settings_.getBidiStringType();  //@E3A
-	// if bidiStringType is not set by user, use ccsid to get value
-	if (bidiStringType == -1)			     //@E3A
+      // @F66 We originally padded with a single byte space.  We now have the
+      //   ccsid so we can figure out if that was right or not.  If we should
+      //   have use the double byte space, re-pad.
+      if (graphic_ && (ccsidConverter.getCcsid() != 13488))          // @F66a
+      {                                                              // @F66a
+         int valueLength = originalValue_.length ();                 // @F66a
+         int exactLength = getDisplaySize ();                        // @F66a
+         if (valueLength < exactLength)                              // @F66a
+         {                                                           // @F66a
+            StringBuffer buffer = new StringBuffer (originalValue_); // @F66a
+            char c = '\u3000';                                       // @F66a
+            for (int i = valueLength; i < exactLength; ++i)          // @F66a
+                buffer.append (c);                                   // @F66a
+            value_ = buffer.toString ();                             // @F66a
+         }                                                           // @F66a
+      }                                                              // @F66a
+         
+      
+      int bidiStringType = settings_.getBidiStringType();  //@E3A
+
+      // if bidiStringType is not set by user, use ccsid to get value
+      if (bidiStringType == -1)			     //@E3A
 	    //@P0D bidiStringType = AS400BidiTransform.getStringType((char)ccsidConverter.getCcsid()); //@E3A
       bidiStringType = ccsidConverter.bidiStringType_; //@P0A
             
         try {
-	    ccsidConverter.stringToByteArray (value_, rawBytes,
-                offset, maxLength_, bidiStringType);	   //@E3C
-        }
+	     ccsidConverter.stringToByteArray (value_, rawBytes, offset, maxLength_, bidiStringType);	   //@E3C
+      }
         catch (CharConversionException e) {
             maxLength_ = ccsidConverter.stringToByteArray(value_, bidiStringType).length; // @BAA @E3C
             JDError.throwSQLException (JDError.EXC_INTERNAL, e);
@@ -182,6 +205,8 @@ implements SQLData
         if (value == null)                                                          // @C2C
             JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
         value_ = value;                                                             // @C2A
+        originalValue_ = value;                               // @F66a
+        
 
         // Set to the exact length.
         int valueLength = value_.length ();
@@ -189,13 +214,13 @@ implements SQLData
         if (valueLength < exactLength)                              // @C1C
         {
             StringBuffer buffer = new StringBuffer (value_);
-            char c = graphic_ ? '\u3000' : '\u0020'; //@F6A - Use appropriate Unicode space.
+            char c = '\u0020';                                //@F66c - Pad with single byte space for now
             for (int i = valueLength; i < exactLength; ++i)         // @C1C
                 buffer.append (c); //@F6C
             value_ = buffer.toString ();
             truncated_ = 0;
         }
-        else if (valueLength > exactLength) {                       // @C1C
+        else if (valueLength > exactLength) {                       // @C1C @F6C
             value_ = value_.substring (0, exactLength);             // @C1C
             truncated_ = valueLength - exactLength;                 // @C1C
         }
