@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCS3812Writer.java
 //                                                                             
@@ -217,7 +217,7 @@ public class SCS3812Writer extends SCS5219Writer
     /** Ends current page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void endPage()
            throws IOException
@@ -232,7 +232,8 @@ public class SCS3812Writer extends SCS5219Writer
 
      /*  Sends out controls to initialize the start of a page.
       *
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the
+      *   server.
       */
     void initPage()
          throws IOException
@@ -265,7 +266,7 @@ public class SCS3812Writer extends SCS5219Writer
       * @param bold If true, turns bold on; if false, turns bold off.
       *4
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setBold(boolean bold)
            throws IOException
@@ -309,7 +310,7 @@ public class SCS3812Writer extends SCS5219Writer
       *   valid values.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setFont(int font)
            throws IOException

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputQueueList.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The OutputQueueList class is used to build a list of AS/400 output queue objects of type OutputQueue.
+ * The OutputQueueList class is used to build a list of server objects of type OutputQueue.
  * The list can be filtered by library and queue name.
  *
  * @see OutputQueue
@@ -25,18 +25,15 @@ import java.beans.PropertyVetoException;
 public class OutputQueueList extends PrintObjectList
 implements java.io.Serializable 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
    
     static final long serialVersionUID = 4L;
-
-
 
     private static final String QUEUE_FILTER = "queueFilter";    
 
 
     /**
-     * Constructs an OutputQueueList object. The AS/400 system must            
+     * Constructs an OutputQueueList object. The system must            
      * be set later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
      * by application programmers.
@@ -45,7 +42,7 @@ implements java.io.Serializable
      **/
     public OutputQueueList()
     {
-        super(NPConstants.OUTPUT_QUEUE, new NPCPSelOutQ()); // @B1C
+        super(NPConstants.OUTPUT_QUEUE, new NPCPSelOutQ());
         // Because of this constructor we will need to check the
         // system before trying to use it.
     }
@@ -55,17 +52,16 @@ implements java.io.Serializable
     /**
      * Constructs an OutputQueueList object. It uses the specified system name.
      *
-     * @param system The AS/400 on which the output queues exists.
+     * @param system The server on which the output queues exists.
      *
      **/
     public OutputQueueList(AS400 system)
     {
-        super(NPConstants.OUTPUT_QUEUE, new NPCPSelOutQ(), system); // @B1C
+        super(NPConstants.OUTPUT_QUEUE, new NPCPSelOutQ(), system);
     }
   
     
     
-    // @A1A - Added chooseImpl() method
     /**
      * Chooses the appropriate implementation.
      **/
@@ -98,8 +94,6 @@ implements java.io.Serializable
     }
 
 
-
-    // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new OutputQueue(system_, (NPCPIDOutQ)cpid, cpattr);
@@ -150,8 +144,8 @@ implements java.io.Serializable
         selectionCP.setQueue(queueFilter);
         
         // Propagate change to ImplRemote if necessary...
-        if (impl_ != null) // @A1A
-            impl_.setFilter("queue", queueFilter);   // @A1A
+        if (impl_ != null)
+            impl_.setFilter("queue", queueFilter);
 
         // Notify any property change listeners.
         changes.firePropertyChange( QUEUE_FILTER, oldQueueFilter, queueFilter );

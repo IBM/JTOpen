@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCS5224Writer.java
 //                                                                             
@@ -178,7 +178,7 @@ public class SCS5224Writer extends SCS5256Writer
       * @param cpi The characters per inch.  Valid values are 10 and 15.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setCPI(int cpi)
            throws IOException
@@ -216,7 +216,7 @@ public class SCS5224Writer extends SCS5256Writer
       *   12.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setLPI(int lpi)
            throws IOException

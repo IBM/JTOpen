@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: WriterJobList.java
 //                                                                             
@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 
 /**
- * The WriterJobList class is used to build a list of AS/400 writer job objects of type
+ * The WriterJobList class is used to build a list of objects of type
  * WriterJob.  The list can be filtered by writer job name or output queue.
  *
  * @see WriterJob
@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 public class WriterJobList extends PrintObjectList
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     
     static final long serialVersionUID = 4L;

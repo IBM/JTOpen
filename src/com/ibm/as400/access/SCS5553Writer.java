@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCS5553Writer.java
 //                                                                             
@@ -168,7 +168,7 @@ public class SCS5553Writer extends SCS5224Writer
       *   to stop the grid line.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void printHorizontalGridLine(double start, double stop)
            throws IOException
@@ -202,7 +202,7 @@ public class SCS5553Writer extends SCS5224Writer
       *   CHARACTER_NORMAL and CHARACTER_ROTATED.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setCharacterRotation(int rotation)
            throws IOException
@@ -236,7 +236,7 @@ public class SCS5553Writer extends SCS5224Writer
       *   values are SETCCP_NO_PRINT, SETCCP_BLANK_CODE, and SETCCP_SI_BLANK.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setControlCharPresentation(int set)
             throws IOException
@@ -266,7 +266,7 @@ public class SCS5553Writer extends SCS5224Writer
       *   SCALE_DOUBLE_HORIZONTAL.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setFontScaling(int scale)
            throws IOException
@@ -298,7 +298,7 @@ public class SCS5553Writer extends SCS5224Writer
       *   left paper edge, to start a vertical grid line.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void startVerticalGridLines(double [] positions)
            throws IOException
@@ -330,7 +330,7 @@ public class SCS5553Writer extends SCS5224Writer
     /** Stops printing vertical grid lines.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void stopVerticalGridLines()
            throws IOException

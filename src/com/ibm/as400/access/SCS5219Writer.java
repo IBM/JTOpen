@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SCS5219Writer.java
 //                                                                             
@@ -158,7 +158,7 @@ public class SCS5219Writer extends SCS5224Writer
     /** Ends current page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void endPage()
            throws IOException
@@ -175,7 +175,7 @@ public class SCS5219Writer extends SCS5224Writer
      /*  Sends out controls to initialize the start of a page.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       */
     void initPage()
          throws IOException
@@ -216,7 +216,7 @@ public class SCS5219Writer extends SCS5224Writer
       if(plex_ != 0)            //@A2A
       {
         // This is to fix a duplex problem in IPDS and some newer SCS printers.  Because
-        // the AS/400 always repeats page formatting commands at the top of each
+        // the server always repeats page formatting commands at the top of each
         // page the PPM command is repeated w/ the last specified value of plex_.
         // If plex_ is non-zero, the duplex mode gets reset to agree w/ plex_ at
         // the start of each page, thereby setting each page to the first of two
@@ -258,7 +258,7 @@ public class SCS5219Writer extends SCS5224Writer
       * @param charset The new character set.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setCodePage(int codepage, int charset)              //@A1A
          throws IOException
@@ -286,7 +286,7 @@ public class SCS5219Writer extends SCS5224Writer
       *   and 15.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setCPI(int cpi)
            throws IOException
@@ -370,7 +370,7 @@ public class SCS5219Writer extends SCS5224Writer
       *   inches.  Valid values are 0.0 to 14.0.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setLeftMargin(double leftMargin)
            throws IOException
@@ -466,7 +466,7 @@ public class SCS5219Writer extends SCS5224Writer
       * @param ul If true, turns underline on; if false, turns underline off.
       *
       * @exception IOException If an error occurs while communicating
-      *   with the AS/400.
+      *   with the server.
       **/
     public void setUnderline(boolean ul)
            throws IOException

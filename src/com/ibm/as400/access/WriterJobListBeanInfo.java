@@ -26,7 +26,7 @@ BeanInfo for WriterJobList class.
 **/
 public class WriterJobListBeanInfo extends PrintObjectListBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Additional properties for WriterJobList
     private static PropertyDescriptor[] wrtJListProperties_;
