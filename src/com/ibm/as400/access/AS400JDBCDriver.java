@@ -396,6 +396,39 @@ implements java.sql.Driver
 		//@B7D return connection;
 	}
 
+        //@KKB
+	/**
+	Connects to the database on the specified system.
+	<p>Note: Since this method is not defined in the JDBC Driver interface,
+	you typically need to create a Driver object in order
+	to call this method:
+	<blockquote><pre>
+	AS400JDBCDriver d = new AS400JDBCDriver();
+	AS400 o = new AS400(myAS400, myUserId, myPwd);
+	Connection c = d.connect (o, false);
+	</pre></blockquote>
+	
+	
+	@param  system   The AS/400 or iSeries server to connect.
+        @param  clone    True if the AS400 object should be cloned, false otherwises
+	@return         The connection to the database or null if
+					the driver does not understand how to connect
+					to the database.
+	
+	@exception SQLException If the driver is unable to make the connection.
+	**/
+	public java.sql.Connection connect (AS400 system, boolean clone)
+	throws SQLException
+	{
+		if (system == null)
+			throw new NullPointerException("system");
+
+                if(!clone)  //Do not clone the AS400 object, use the one passed in
+                    return initializeConnection(system);
+                else        //clone the AS400 object
+                    return connect(system);
+	}
+
 
 	//@B5A
 	/**
