@@ -6262,7 +6262,7 @@ implements DatabaseMetaData
     <table border=1>
     <tr><th><br></th><th>CONCUR_READ_ONLY</th><th>CONCUR_UPDATABLE</th></tr>
     <tr><td>TYPE_FORWARD_ONLY</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td>TYPE_SCROLL_INSENSITIVE</td><td>Yes</td><td>No</td></tr>
+    <tr><td>TYPE_SCROLL_INSENSITIVE</td><td>No</td><td>No</td></tr>
     <tr><td>TYPE_SCROLL_SENSITIVE</td><td>No</td><td>Yes</td></tr>
     </table>
     <br>
@@ -6368,14 +6368,16 @@ implements DatabaseMetaData
     /**
     Indicates if the specified result set type is supported.
     
-    @param resultSetType        The result set type.  Value values are:
+    @param resultSetType        The result set type.  Valid values are:
                                 <ul>
                                   <li>ResultSet.TYPE_FORWARD_ONLY
                                   <li>ResultSet.TYPE_SCROLL_INSENSITIVE
                                   <li>ResultSet.TYPE_SCROLL_SENSITIVE
                                 </ul>
-    @return                     Always true.  All result set types
-                                are supported.
+    @return                     true for ResultSet.TYPE_FORWARD_ONLY and
+                                ResultSet.TYPE_SCROLL_SENSITIVE.
+                                ResultSet.TYPE_SCROLL_INSENSITIVE is not
+                                currently supported.
     
     @exception  SQLException    If the result set type is not valid.
     **/
@@ -6624,7 +6626,14 @@ implements DatabaseMetaData
             && (transactionIsolationLevel != Connection.TRANSACTION_SERIALIZABLE))
             JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
 
-        return true;
+        if(transactionIsolationLevel == Connection.TRANSACTION_NONE)
+        {
+            return false; // we have determined that we do not support JDBC's idea of TRANSACTION_NONE
+        }
+        else
+        {
+            return true;
+        }
     }
 
 
