@@ -1062,6 +1062,13 @@ public class ProgramCallDocument implements Serializable, Cloneable
                ioe.printStackTrace(Trace.getPrintWriter());     // @C4C
             throw new PcmlException(ioe.getClass().getName());
         }
+        catch (Exception e)
+        {
+          if (Trace.isTraceErrorOn())
+             e.printStackTrace(Trace.getPrintWriter());
+          throw new PcmlException(e.getClass().getName());
+        }
+
         return pd;
     }
 }

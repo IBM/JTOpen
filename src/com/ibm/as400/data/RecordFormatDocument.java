@@ -787,6 +787,12 @@ public class RecordFormatDocument implements Serializable, Cloneable
                ioe.printStackTrace(Trace.getPrintWriter());
             throw new XmlException(ioe.getClass().getName());
         }
+        catch (Exception e)
+        {
+            if (Trace.isTraceErrorOn())
+               e.printStackTrace(Trace.getPrintWriter());
+            throw new XmlException(e.getClass().getName());
+        }
         return pd;
     }
 
