@@ -936,6 +936,7 @@ public class MRI2 extends ListResourceBundle
       { "GENCMDDOC_EXAMPLE_2_TITLE",         "Example 2: More Complex Command Example" },        
       { "GENCMDDOC_EXAMPLES",                "Examples" },
       { "GENCMDDOC_EXAMPLES_HEADING",        "Examples for &1" },        
+      { "GENCMDDOC_HELP",                    "Help" },
       { "GENCMDDOC_HELP_FOR_COMMAND",        "Help for command" },                 
       { "GENCMDDOC_HELP_FOR_PARAMETER",      "Help for parameter" },        
       { "GENCMDDOC_INTRO_COMMAND_HELP",      "The &1 command ..." },
