@@ -1819,7 +1819,7 @@ public class User implements Serializable
 
     /**
      Sets the accounting code that is associated with this user profile.
-     @param  The accounting code that is associated with this user profile.  Possible values are:
+     @param accountingCode The accounting code that is associated with this user profile.  Possible values are:
      <ul>
      <li>"*BLANK" - An accounting code of 15 blanks is assigned to this user profile.
      <li>An accounting code - A 15 character accounting code to be used by jobs that get their accounting code from this user profile.  If less than 15 characters are specified, the string is padded on the right with blanks.
@@ -1858,7 +1858,7 @@ public class User implements Serializable
 
     /**
      Sets which user interface to use.
-     @param  The user interface to use.  Possible values are:
+     @param assistanceLevel The user interface to use.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The assistance level defined in the system value QASTLVL is used.
      <li>"*BASIC" - The Operational Assistant user interface is used.
@@ -1878,7 +1878,7 @@ public class User implements Serializable
 
     /**
      Sets the program to be used as the Attention (ATTN) key handling program for this user.  The ATTN key handling program is called when the ATTN key is pressed during an interactive job.  The program is active only when the user routes to the system-supplied QCMD processor.  The ATTN key handling program is set on before the initial program (if any) is called and it is active for both program and menu.  If the program changes the ATNPGM (by using the SETATNPGM command), the new program remains active only for the duration of the program.  When contol returns and QCMD call the menu, the original ATTN key handling program becomes active again.  If the SETATNPGM command is run from the menues or an application is called from the menues, the new ATTN key handling program that is specified overrides the original ATTN key handling program.  If *YES or *PARTIAL is specified for the Limit capabilites (LMTCPB) parameter on the Create User Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF) command, the ATTN key handling program cannot be changed.  The caller must have *USE authority to the specified program.
-     @param  The program to be used as the Attention (ATTN) key handling program for this user.  Possible values are:
+     @param attentionKeyHandlingProgram The program to be used as the Attention (ATTN) key handling program for this user.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QATNPGM is used.
      <li>{@link #NONE User.NONE} - No ATTN key handling program is used by this user.
@@ -1909,7 +1909,7 @@ public class User implements Serializable
      Sets the character code set identifier (CCSID) to be used for this user.
      <p>A CCSID is a 16-bit number identifying a specific set of encoding scheme identifiers, character set identifiers, code page identifiers, and additional coding-related information that uniquely identifies the coded graphic representation used.
      <p>Note:  If the value for CCSID is changed, the change does not affect job that are currently running.
-     @param  The character code set identifier (CCSID) to be used for this user.  Possible values are:
+     @param ccsid The character code set identifier (CCSID) to be used for this user.  Possible values are:
      <ul>
      <li>-2 - The system value QCCSID is used to determine the user's character code set ID.
      <li>A character code set ID.
@@ -1924,7 +1924,7 @@ public class User implements Serializable
      Sets the character code set identifier (CCSID) to be used for this user.
      <p>A CCSID is a 16-bit number identifying a specific set of encoding scheme identifiers, character set identifiers, code page identifiers, and additional coding-related information that uniquely identifies the coded graphic representation used.
      <p>Note:  If the value for CCSID is changed, the change does not affect job that are currently running.
-     @param  The character code set identifier (CCSID) to be used for this user.  Possible values are:
+     @param ccsid The character code set identifier (CCSID) to be used for this user.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QCCSID is used to determine the user's character code set ID.
      <li>"*HEX" - The CCSID 65535 is used.
@@ -1943,7 +1943,7 @@ public class User implements Serializable
 
     /**
      Sets the character identifier control (CHRIDCTL) for the job.  This attribute controls the type of coded character set identifier (CCSID) conversion that occurs for display files, printer files and panel groups.  The *CHRIDCTL special value must be specified for the Character identifier (CHRID) parameter an the create, change, or override commands for display files, printer files, and panel groups before this attribute will be used.
-     @param  The character identifier control (CHRIDCTL) for the job.  Possible values are:
+     @param chridControl The character identifier control (CHRIDCTL) for the job.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QCHRIDCTL is used.
      <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
@@ -1962,7 +1962,7 @@ public class User implements Serializable
 
     /**
      Sets the country or region identifier to be used for this user.
-     @param  The country or region identifier to be used for this user.  Possible values are:
+     @param countryID The country or region identifier to be used for this user.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QCNTRYID is used.
      <li>A country or region identifier.
@@ -1982,7 +1982,7 @@ public class User implements Serializable
      Sets the name of the current library associated with the job being run.
      <p>Specifies the name of the library to be used as the current library for this user.  If *PARTIAL or *YES is specified for the Limit capabilities (LMTCPB) parameter of the Create User Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF) command, the user cannot change the current library at sign-on or with the Change Profile (CHGPRF) command.
      <p>The caller must have *USE authority to the specified library.
-     @param  The name of the current library associated with the job being run.  Possible values are:
+     @param currentLibraryName The name of the current library associated with the job being run.  Possible values are:
      <ul>
      <li>"*CRTDFT" - The user has no current library.  The library QGPL is used as the default current library.
      <li>A library name.
@@ -2000,7 +2000,7 @@ public class User implements Serializable
 
     /**
      Sets the text that briefly describes the object.
-     @param  The text that briefly describes the object.  Possible values are:
+     @param description The text that briefly describes the object.  Possible values are:
      <ul>
      <li>"*BLANK" - No text is specified.
      <li>No more than 50 characters of text.
@@ -2025,7 +2025,7 @@ public class User implements Serializable
 
     /**
      Sets whether the sign-on information display is shown.
-     @param  Whether the sign-on information display is shown.  Possible values are:
+     @param displaySignOnInformation Whether the sign-on information display is shown.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QDSPSGNINF is used to determine whether the sign-on information display is shown.
      <li>"*NO" - The sign-on information display is not shown.
@@ -2044,7 +2044,7 @@ public class User implements Serializable
 
     /**
      Sets the specific authority given to the group profile for newly created objects.  If *GRPPRF is specified for the Owner (OWNER) parameter, specification of this parameter is not allowed.
-     @param  The specific authority given to the group profile for newly created objects.  Possible values are:
+     @param groupAuthority The specific authority given to the group profile for newly created objects.  Possible values are:
      <ul>
      <li>{@link #NONE User.NONE} - No group authority is given.
      <li>"*ALL" - The user can perform all operations execept those limited to the owner or controlled by authorization list management (*AUTLMGT) authority.  The user can control the object's existence, specify the security for the object, change the object, and perform basic functions on the object.  The user can also change ownership of the object.
@@ -2065,7 +2065,7 @@ public class User implements Serializable
 
     /**
      Sets the type of authority to be granted to the group profile for newly-created objects.  If *NONE is specified for the Group Authority (GRPAUT) parameter, specification of this parameter is ignored.
-     @param  The type of authority to be granted to the group profile for newly-created objects.  Possible values are:
+     @param groupAuthorityType The type of authority to be granted to the group profile for newly-created objects.  Possible values are:
      <ul>
      <li>"*PRIVATE" - The group profile is granted private authority to newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is *NONE, this value is ignored.
      <li>"*PGP" - The group profile is the primary group for newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is *NONE, this value is ignored.
@@ -2087,7 +2087,7 @@ public class User implements Serializable
      <li>The user profile is the primary group of an object in a directory.
      <li>There are one or more active jobs for the user.
      </ul>
-     @param  The group ID number (gid number) for this user profile.  Possible values are:
+     @param groupID The group ID number (gid number) for this user profile.  Possible values are:
      <ul>
      <li>0 - The user does not have a gid number or an existing gid number is removed.
      <p>Note:  This value cannot be specified if the user is a group profile or the primary group of an object.
@@ -2112,7 +2112,7 @@ public class User implements Serializable
      <li>The user profile is the primary group of an object in a directory.
      <li>There are one or more active jobs for the user.
      </ul>
-     @param  The group ID number (gid number) for this user profile.  Possible values are:
+     @param groupID The group ID number (gid number) for this user profile.  Possible values are:
      <ul>
      <li>"*NONE" - The user does not have a gid number or an existing gid number is removed.
      <p>Note:  This value cannot be specified if the user is a group profile or the primary group of an object.
@@ -2132,7 +2132,7 @@ public class User implements Serializable
 
     /**
      Sets the user's group profile name whose authority is used if no specific authority is given for the user.  The caller must have object management (*OBJMGT) and change (*CHANGE) authority to the profile specified for the Group profile (GRPPRF) parameter.  The required *OBJMGT authority cannot be given by a program adopt operation.
-     @param  The user's group profile name whose authority is used if no specific authority is given for the user.  Possible values are:
+     @param groupProfileName The user's group profile name whose authority is used if no specific authority is given for the user.  Possible values are:
      <ul>
      <li>{@link #NONE User.NONE} - The user profile has no group profile.
      <li>The name of the group profile used with this user profile.
@@ -2150,7 +2150,7 @@ public class User implements Serializable
 
     /**
      Sets the highest scheduling priority the user is allowed to have for each job submitted to the system.  This value controls the job processing priority and output priority for any job running under this user profile; that is, values specified in the JOBPTY and OUTPTY parameters of any job command cannot exceed the PTYLMT value of the user profile under which the job is run.  The scheduling priority can have a value ranging from 0 through 9, where 0 is the highest priority and 9 is the lowest priority.
-     @param  The highest scheduling priority the user is allowed to have for each job submitted to the system.
+     @param highestSchedulingPriority The highest scheduling priority the user is allowed to have for each job submitted to the system.
      **/
     public void setHighestSchedulingPriority(int highestSchedulingPriority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2159,7 +2159,7 @@ public class User implements Serializable
 
     /**
      Sets the path name of the home directory for this user profile.  The home directory is the user's initial working directory.  The working directory, associated with a process, is used during path name resolution in the directory file system for path names that do not begin with a slash (/).  If the home directory specified does not exist when the user signs on, the user's initial working directory is the root (/) directory.
-     @param  The path name of the home directory for this user profile.  Possible values are:
+     @param homeDirectory The path name of the home directory for this user profile.  Possible values are:
      <ul>
      <li>"*USRPRF" - The home directory assigned to the user will be /home/USRPRF, where USRPRF is the name of the user profile.
      <li>The path name of the home directory to be assigned to this user.
@@ -2190,7 +2190,7 @@ public class User implements Serializable
      <li>*SYSVAL is specified on the SPCENV parameter and the system value, QSPCENV, is *S36.
      </ul>
      <p>The caller must have *USE authority to the specified menu.
-     @param  The initial menu displayed when the user signs on the system if the user's routing program is the command processor.  Possible values are:
+     @param initialMenu The initial menu displayed when the user signs on the system if the user's routing program is the command processor.  Possible values are:
      <ul>
      <li>"*SIGNOFF" - The system signs off the user when the program completes.  This is intended for users authorized only to run the program.
      <li>The fully qualified integrated file system path name of the initial menu.
@@ -2223,7 +2223,7 @@ public class User implements Serializable
      <li>*SYSVAL is specified on the SPCENV parameter and the system value, QSPCENV is *S36.
      </ul>
      <p>The caller must have *USE authority to the specified program.
-     @param  The initial program for the user.  Possible values are:
+     @param initialProgram The initial program for the user.  Possible values are:
      <ul>
      <li>{@link #NONE User.NONE} - No program is called when the user signs on.  If a menu name is specified in the Initial menu (INLMNU) parameter, that menu is displayed.
      <li>The fully qualified integrated file system path name of the initial program for the user.
@@ -2250,7 +2250,7 @@ public class User implements Serializable
 
     /**
      Sets the fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.  If the job description does not exist when the user profile is created or changed, a library qualifier must be specified, because the job description name is kept in the user profile.  The caller must have *USE authority to the specified job description.
-     @param  The fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
+     @param jobDescription The fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
      @see  QSYSObjectPathName
      **/
     public void setJobDescription(String jobDescription) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -2273,7 +2273,7 @@ public class User implements Serializable
 
     /**
      Sets the keyboard buffering value to be used when a job is initialized for this user profile.  If the type-ahead feature is active, you can buffer your keyboard strokes.  If the attention key buffering option is active, the attention key is buffered as any other key.  If it is not active, the attention key is not buffered and is sent to the system even if the display station is input-inhibited.  This value can alse be set by a user application.
-     @param  The keyboard buffering value to be used when a job is initialized for this user profile.  Possible values are:
+     @param keyboardBuffering The keyboard buffering value to be used when a job is initialized for this user profile.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value, QKBDBUF, is used to determine the keyboard buffering value.
      <li>"*NO" - The type-ahead and attention-key buffering options are not active.
@@ -2293,7 +2293,7 @@ public class User implements Serializable
 
     /**
      Sets the language ID to be used for this user.
-     @param  The language ID to be used for this user.  Possible values are:
+     @param languageID The language ID to be used for this user.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLANGID is used.
      <li>The language ID to be used.
@@ -2312,7 +2312,7 @@ public class User implements Serializable
     /**
      Sets the limit to which the user can control the program, menu, current library, and the ATTN key handling program values.  It alse determines whether the user can run commands from the command line.  This parameter is ignored when the security level is 10.
      <p>Note:  When creating or changing other users' user profile, you cannot specify values on this parameter that grant greater capabilities to other users than your own user profile grants to you.  For example, if *PARTIAL is specified for the Limit capabilities (LMTCPB) parameter in your user profile, you can specify *PARTIAL or *YES for anther user.  You cannot specify *NO for another user.
-     @param  The limit to which the user can control the program, menu, current library, and the ATTN key handling program values.  Possible values are:
+     @param limitCapabilities The limit to which the user can control the program, menu, current library, and the ATTN key handling program values.  Possible values are:
      <ul>
      <li>"*NO" - The program, menu, and current library values can be changed when the usre signs on the system.  User may change the program, menu, current library, or ATTN key handling program values is the own user profiles with the Change Profile (CHGPRF) command.  Commands can be run from a command line.
      <li>"*PARTIAL" - The program and current library cannot be changed on the sign-on display.  The menu can be changed and comands can be run from a command line.  A user can change the menu value with the Change profile (CHGPRF) command.  The program, current library, and the ATTN key handling program cannot be changed using the CHGPRF command.
@@ -2331,7 +2331,7 @@ public class User implements Serializable
 
     /**
      Sets if the number of device sessions allowed for a user is limited to 1.  This does not limit SYSREQ and second sign-on.
-     @param  If the number of device sessions allowed for a user is limited to 1.  Possible values are:
+     @param limitDeviceSessions If the number of device sessions allowed for a user is limited to 1.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLMTDEVSSN is used to determine whether the user is limited to a single device session.
      <li>"*NO" - The user is not limited to one device session.
@@ -2350,7 +2350,7 @@ public class User implements Serializable
 
     /**
      Sets which job attributes are to be taken from the locale specified for the Locale (LOCALE) parameter when the job is initiated.
-     @param  A list of attributes which are set from the locale path name at the time a job is started for this user.  Possible values for the elements of this array are:
+     @param localeJobAttributes A list of attributes which are set from the locale path name at the time a job is started for this user.  Possible values for the elements of this array are:
      <ul>
      <li>"*SYSVAL" - The system value, QSETJOBATR, is used to determine which job attributes are taken from the locale.
      <li>{@link #NONE User.NONE} - No job attributes are taken from the locale.
@@ -2374,7 +2374,7 @@ public class User implements Serializable
 
     /**
      Sets the path name of the locale that is assigned to LANG environment variable for this user.
-     @param  The locale path name that is assigned to the user profile when a job is started.  Possible values are:
+     @param localePathName The locale path name that is assigned to the user profile when a job is started.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QLOCALE is used to determine the locale path name to be assigned for this user.
      <li>{@link #NONE User.NONE} - No locale path name is assigned for this user.
@@ -2402,7 +2402,7 @@ public class User implements Serializable
 
     /**
      Sets whether the user profile password should be managed locally.
-     @param  true if the password will be managed on the local system, false otherwise.
+     @param localPasswordManagement true if the password will be managed on the local system, false otherwise.
      **/
     public void setLocalPasswordManagement(boolean localPasswordManagement) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2419,7 +2419,7 @@ public class User implements Serializable
      <li>User profiles that transfer created objects to their group profile must have adequate storage in the user profiles to contain created objects before the objects are transferred to the group profile.
      <li>The owner of the library is assigned the storage for the descriptions of objects which are stored in a library, even when the objects are owned by another user profile.  Examples of such objects are text and program references.
      </ul>
-     @param  The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile.  Possible values are:
+     @param maximumStorageAllowed The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile.  Possible values are:
      <ul>
      <li>-1 - As much storage as is required is assigned to this profile (*NOMAX).
      <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024 bytes).
@@ -2440,7 +2440,7 @@ public class User implements Serializable
      <li>User profiles that transfer created objects to their group profile must have adequate storage in the user profiles to contain created objects before the objects are transferred to the group profile.
      <li>The owner of the library is assigned the storage for the descriptions of objects which are stored in a library, even when the objects are owned by another user profile.  Examples of such objects are text and program references.
      </ul>
-     @param  The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile.  Possible values are:
+     @param maximumStorageAllowed The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile.  Possible values are:
      <ul>
      <li>"*NOMAX" - As much storage as is required is assigned to this profile.
      <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024 bytes).
@@ -2460,7 +2460,7 @@ public class User implements Serializable
      Sets the message queue to which messages are sent.
      <p>Note:  The message queue is created, if it does not exist.  The user profile specified for the User profile (USRPRF) parameter is the owner of the message queue.
      <p>The caller must have *USE authority to the specified message queue.
-     @param  The message queue to which messages are sent.  Possible values are:
+     @param messageQueue The message queue to which messages are sent.  Possible values are:
      <ul>
      <li>"*USRPRF" - A message queue with the same name as that specified for the USRPRF parameter is used as the message queue for this user.  This message queue is located in the QUSERSYS library.
      <li>The fully qualified integrated file system path name of the message queue to be used with this profile.
@@ -2487,7 +2487,7 @@ public class User implements Serializable
 
     /**
      Sets how the messages are sent to the message queue for this user are to be delivered.
-     @param  How the messages are sent to the message queue for this user are to be delivered.  Possible values are:
+     @param messageQueueDeliveryMethod How the messages are sent to the message queue for this user are to be delivered.  Possible values are:
      <ul>
      <li>"*NOTIFY" - The job to which the message queue is assigned is notified when a message arrives on the message queue.  For interactive jobs at a work station, the audible alarm is sounded (if the alarm feature is set) and the Message Waiting light is turned on.  The delivery mode cannot be changed to *NOTIFY if the message queue is also being used by another job.
      <li>"*HOLD" - The messages are held in the message queue until they are requested by the user or program.
@@ -2507,7 +2507,7 @@ public class User implements Serializable
 
     /**
      Sets the lowest severity code that a message can have and still be delivered to a user in break or notify mode.  Messages arriving at the message queue whose severities are lower than the the severity code specified for this parameter do not interrupt the job or turn on the audible alarm or the message-waiting light; they are held in the queue until they are requested by using the Display Message (DSPMSG) command.  If *BREAK or *NOTIFY is specidied for the Delivery (DLVRY) parameter, and is in effect when a message arrives at the queue, the message is delivered if the severity code associated with the message is equal or greater then the value specified here.  Otherwiese, the message is held in the queue until it is requested.
-     @param  A severity code ranging from 00 through 99.
+     @param messageQueueSeverity A severity code ranging from 00 through 99.
      **/
     public void setMessageQueueSeverity(int messageQueueSeverity) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2563,7 +2563,7 @@ public class User implements Serializable
     /**
      Sets the object auditing value for the user.  This value only takes effect if the object auditing (OBJAUD) value for the object being accessed has the value *USRPRF.
      <p>Implementation note:  The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change User Profile (CHGUSRPRF) command.  The caller must have audit (*AUDIT) special authority.  Changes take effect the next time a job is started for this user.
-     @param  The object auditing value for the user.  Possible values are:
+     @param objectAuditingValue The object auditing value for the user.  Possible values are:
      <ul>
      <li>{@link #NONE User.NONE} - The auditing value for the object determines when auditing is performed.
      <li>"*CHANGE" - All changes accesses by this user on all objects with the *USRPRF audit value are logged.
@@ -2582,7 +2582,7 @@ public class User implements Serializable
 
     /**
      Sets the output queue to be used by this user profile.  The output queue must already exist when this command is run.  The caller must have *USE authority to the specified output queue.
-     @param  The output queue to be used by this user profile..  Possible values are:
+     @param outputQueue The output queue to be used by this user profile..  Possible values are:
      <ul>
      <li>"*WRKSTN" - The output queue assigned to the user's work station is used.
      <li>"*DEV" - The output queue associated with the printer specified for the Print device (PRTDEV) parameter is used.  The output queue has the same name as the printer.  (The pringer file DEV parameter is determined by the CRTPRTF, CHGPRTF, or the OVRPRTF command).
@@ -2611,7 +2611,7 @@ public class User implements Serializable
 
     /**
      Sets the user profile that is to be the owner of objects created by this user.
-     @param  The user profile that is to be the owner of objects created by this user.  Possible values are:
+     @param owner The user profile that is to be the owner of objects created by this user.  Possible values are:
      <ul>
      <li>"*USRPRF" - The user profile associated with the job is the owner of the object.
      <li>"*GRPPRF" - The group profile is made the owner of newly created objects and has all authority to the object.  The user profile associated with the job does not have any specific authority to the object.  If *GRPPRF is specified, a user profile name must be specified for the Group profile (GRPPTF) parameter, and the Group authority (GRPAUT) parameter cannot be specified.
@@ -2629,7 +2629,7 @@ public class User implements Serializable
 
     /**
      Sets the password expiration interval (in days).
-     @param  The number of days the user's password can remain active before it must be changed.  Possible values are:
+     @param passwordExpirationInterval The number of days the user's password can remain active before it must be changed.  Possible values are:
      <ul>
      <li>0 - The system value QPWDEXPITV is used to determine the password expiration interval (*SYSVAL).
      <li>-1 - The password does not expire (*NOMAX).
@@ -2643,7 +2643,7 @@ public class User implements Serializable
 
     /**
      Sets the password expiration interval (in days).
-     @param  The number of days the user's password can remain active before it must be changed.  Possible values are:
+     @param passwordExpirationInterval The number of days the user's password can remain active before it must be changed.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QPWDEXPITV is used to determine the password expiration interval.
      <li>"*NOMAX" - The password does not expire.
@@ -2662,7 +2662,7 @@ public class User implements Serializable
 
     /**
      Sets whether the password for this user is set to expired.  If the password is set to expired, the use is required to change the password to sign on the system.  When the user attempts to sign on the system, the sign-on information display is shown and the user has the option to change this password.
-     @param  true if the password set to expired, false otherwise.
+     @param passwordSetExpire true if the password set to expired, false otherwise.
      **/
     public void setPasswordSetExpire(boolean passwordSetExpire) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2673,7 +2673,7 @@ public class User implements Serializable
      Sets the default printer device for this user.  If the pringer file used to create printed output specifies to spool the data, the spooled file is placed on the device's output queue, which is named the same as the device.
      <p>Note:  This assumes the defaults are specified for the Output queue (OUTQ) parameter for the printer file, job description, user profile, and workstation.
      <p>The caller must have *USE authority to the specified print device.
-     @param  The default printer device for this user.  Possible values are:
+     @param printDevice The default printer device for this user.  Possible values are:
      <ul>
      <li>"*WRKSTN" - The printer assigned to the user's work station is used.
      <li>"*SYSVAL" - The value specified in the system value QPRTDEV is used.
@@ -2692,7 +2692,7 @@ public class User implements Serializable
 
     /**
      Sets the sort sequence table to be used for string comparisons for this profile.
-     @param  The sort sequence table to be used for string comparisons for this profile.  Possible values are:
+     @param sortSequenceTable The sort sequence table to be used for string comparisons for this profile.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QSRTSEQ is used.
      <li>"*HEX" - A sort sequence table is not used.  The hexadecimal values of the characters are used to determine the sort sequence.
@@ -2739,7 +2739,7 @@ public class User implements Serializable
      <li>A user must have *ALLOBJ and *SECADM special authorities to give a user *SECADM special authority when using the CHGUSRPRF command.
      <li>The user must have *ALLOBJ, *SECADM, and *AUDIT special authorities to give a user *AUDIT special authority when using the CHGUSRPRF command.
      </ul>
-     @param  The special authorities given to a user.  Possible values for the elements of this array are:
+     @param specialAuthority The special authorities given to a user.  Possible values for the elements of this array are:
      <ul>
      <li>"*USRCLS" - Special authorities are granted to this user based on the value specified on User class (USRCLS) parameter.
      <li>"*NONE" - No special authorities are granted to this user.
@@ -2765,7 +2765,7 @@ public class User implements Serializable
 
     /**
      Sets the special environment in which the user operates after signing on.
-     @param  The special environment in which the user operates after signing on.  Possible values are:
+     @param specialEnvironment The special environment in which the user operates after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value, QSPCENV, is used to determine the system environment after the user signs on the system.
      <li>{@link #NONE User.NONE} - The user operates in the server operating system environment after signing on the system.
@@ -2785,7 +2785,7 @@ public class User implements Serializable
     /**
      Sets the status of the user profile.
      <p>The system will disable a user profile if the number of failed sign-on attempts reaches the limit specified on the QMAXSIGN system value and option 2 or 3 has been specified on the QMAXSGNACN system value.
-     @param  The status of the user profile.  Possible values are:
+     @param status The status of the user profile.  Possible values are:
      <ul>
      <li>"*ENABLED" - The user profile is valid for sign-on.
      <li>"*DISABLED" - The user profile is not valid for sign-on until an authorized user enables it again.  Batch jobs can be submitted under a disabled user profile.
@@ -2809,7 +2809,7 @@ public class User implements Serializable
      <li>The following IBM-supplied user profiles are not valid for this parameter:
      <p>QAUTPROF, QCLUMGT, QCLUSTER, QCOLSRV, QDBSHR, QDBSHRDO, QDFTOWN, QDIRSRV, QDLFM, QDOC, QDSNX, QEJB, QFNC, QGATE, QIPP, QLPAUTO, QLPINSTALL, QMGTC, QMSF, QNETSPLF, QNFSANON, QNTP, QPEX, QPM400, QRJE, QSNADS, QSPL, QSPLJOB, QSRV, QSRVAGT, QSRVBAS, QSYS, QTCM, QTCP, QTFTP, QTSTRQS, QYCMCIMOM, QYPSJSVR
      </ul>
-     @param  The user's supplemental group profiles.  Possible values for the elements of this array are:
+     @param supplementalGroups The user's supplemental group profiles.  Possible values for the elements of this array are:
      <ul>
      <li>"*NONE" - No supplemental group profiles are used with this user profile.
      <li>The group profile names to be used with this user profile and the group profile specified on the GRPPRF parameter to determine a job's eligibility for getting access to existing objects and special authority.  A maximum of 15 group profile names may be specified.
@@ -2868,7 +2868,7 @@ public class User implements Serializable
     /**
      Sets the level of activity that is audited for this user profile.  Note:  The system values QAUDLVL and QAUDLVL2 are used in conjunction with this parameter.  Example:  If QAUDLVL is set to *DELETE and AUDLVL is set to *CREATE, then both *DELETE and *CREATE would be audited for this user.  The default value for the QAUDLVL and QAUDLVL2 system values is *NONE.
      <p>Implementation note:  The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change User Profile (CHGUSRPRF) command.  The caller must have audit (*AUDIT) special authority.  Changes take effect the next time a job is started for this user.
-     @param  The level of activity that is audited for this user profile.  Possible values for the elements of this array are:
+     @param userActionAuditLevel The level of activity that is audited for this user profile.  Possible values for the elements of this array are:
      <ul>
      <li>"*NONE" - No auditing level is specified.  The auditing level for this user is taken from system values QAUDLVL and QAUDLVL2.
      <li>"*CMD" - CL command strings, System/36 environment operator control commands, and System/36 enviromnent procedures are logged for this user.
@@ -2917,7 +2917,7 @@ public class User implements Serializable
 
     /**
      Sets the type of user associated with this user profile: security officer, security administrator, programmer, system operator, or user.  The user class controls the options that are shown on a menu.  Special authorities are given only if *USRCLS is specified for the Special authority (SPCAUT) parameter.  If SPCAUT(*USRCLS) is specified, the special authorities granted will differ depending on the QSECURITY value.
-     @param  The type of user associated with this user profile.  Possible values are:
+     @param userClassName The type of user associated with this user profile.  Possible values are:
      <ul>
      <li>"*USER" - At QSECURITY level 10 or 20, the user has *ALLOBJ and *SAVSYS authority.  At QSECURITY level 30 or above, the user has no special authorities.
      <li>"*SECOFR" - At all levels of security, the security officer is granted the following special authorities:
@@ -2948,7 +2948,7 @@ public class User implements Serializable
 
     /**
      Sets the user ID number (uid number) for this user profile.  The uid number is used to identify the user when the user is using the directory file system.  The uid number for a user cannot be changed if there are one or more active jobs for the user.
-     @param  The uid number to be assigned to the user profile.  A value from 1 to 4294967294 can be entered.  The uid number assigned must not already be assigned to another user profile.
+     @param userID The uid number to be assigned to the user profile.  A value from 1 to 4294967294 can be entered.  The uid number assigned must not already be assigned to another user profile.
      **/
     public void setUserID(long userID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2957,7 +2957,7 @@ public class User implements Serializable
 
     /**
      Sets the level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  The system shows several displays that are suitable for the inexperienced user.  More experienced users must perform an extra action to see detailed information.  When values are specified for this parameter, the system presents detailed information without further action by the experienced user.
-     @param  The level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  Possible values include:
+     @param userOptions The level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  Possible values include:
      <ul>
      <li>"*NONE" - Detailed information is not shown.
      <li>"*CLKWD" - Parameter keywords are shown instead of the possible parameter values when a control language (CL) command is prompted.

@@ -1262,7 +1262,7 @@ implements Serializable
    Sets whether the open data path (ODP) for the save file is shared with other programs in the routing step.  When an ODP is shared, the programs accessing the file can share facilities such as the file status and the buffer.  For more details refer to the specification of the <tt>CHGSAVF</tt> CL command in the i5/OS reference.
    If the save file doesn't exist on the server, an exception is thrown.
    <br>The default is "not shared".
-   @param share Whether ODP is shared.
+   @param shared Whether ODP is shared.
 
    @throws  AS400Exception  If the program call returns error messages.
    @throws  AS400SecurityException  If a security or authority error occurs.

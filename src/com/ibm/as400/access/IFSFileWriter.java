@@ -170,7 +170,6 @@ public class IFSFileWriter extends Writer
   /**
    Constructs an IFSFileWriter object. 
    The file is opened if it exists; otherwise an exception is thrown.
-   @param append If true, output is appended to the file; otherwise, any data currently in the file will be overwritten.
    @param fd The file descriptor to be opened for writing.
    **/
   public IFSFileWriter(IFSFileDescriptor fd)
