@@ -220,7 +220,7 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 else
                 {
                     SQLData sqlData = parameterRow_.getSQLData(i+1);
-                    parameters[i] = sqlData.toObject();
+                    parameters[i] = sqlData.getObject();
                     if(containsLocator_ == LOCATOR_UNKNOWN && (sqlData.getSQLType() == SQLData.CLOB_LOCATOR || 
                                                                sqlData.getSQLType() == SQLData.BLOB_LOCATOR ||
                                                                sqlData.getSQLType() == SQLData.DBCLOB_LOCATOR))

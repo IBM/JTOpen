@@ -56,7 +56,7 @@ implements JDFieldMap
     public Object getValue (JDRow row)
         throws SQLException
     {
-        return row.getSQLData (fromIndex_).toObject ();
+        return row.getSQLData (fromIndex_).getObject ();
     }
 
 

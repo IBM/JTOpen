@@ -363,10 +363,12 @@ final class SQLBlob implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+
+        truncated_ = 0;
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
@@ -378,149 +380,155 @@ final class SQLBlob implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale) //@CRS - Could use a Converter here to make this work.
+    public BigDecimal getBigDecimal(int scale) //@CRS - Could use a Converter here to make this work.
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new ByteArrayInputStream(value_);
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new AS400JDBCBlob(value_, maxLength_);
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return value_;
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new StringReader(BinaryConverter.bytesToString(value_));
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        return new AS400JDBCClob(BinaryConverter.bytesToString(value_), maxLength_);
+        truncated_ = 0;
+        String string = BinaryConverter.bytesToString(value_);
+        return new AS400JDBCClob(string, string.length());
     }
 
-    public Date toDate(Calendar calendar) //@CRS - Could use toLong() to make this work.
+    public Date getDate(Calendar calendar) //@CRS - Could use toLong() to make this work.
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble() //@CRS - Could use a Converter here to make this work.
+    public double getDouble() //@CRS - Could use a Converter here to make this work.
+    throws SQLException
+   {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return -1;
+    }
+
+    public float getFloat() //@CRS - Could use a Converter here to make this work.
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public float toFloat() //@CRS - Could use a Converter here to make this work.
+    public int getInt() //@CRS - Could use a Converter here to make this work.
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public int toInt() //@CRS - Could use a Converter here to make this work.
+    public long getLong() //@CRS - Could use a Converter here to make this work.
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public long toLong() //@CRS - Could use a Converter here to make this work.
+    public Object getObject()
     throws SQLException
     {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return -1;
-    }
-
-    public Object toObject()
-    {
-        try
-        {
-            if(savedObject_ != null) doConversion();
-        }
-        catch(SQLException sqle)
-        {
-            value_ = default_;
-        }
+        if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new AS400JDBCBlob(value_, maxLength_);
     }
 
-    public short toShort() //@CRS - Could use a Converter here to make this work.
+    public short getShort() //@CRS - Could use a Converter here to make this work.
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public String toString()
-    {
-        try
-        {
-            if(savedObject_ != null) doConversion();
-        }
-        catch(SQLException sqle)
-        {
-            value_ = default_;
-        }
-        return BinaryConverter.bytesToString(value_);
-    }
-
-    public Time toTime(Calendar calendar) //@CRS - Could use toLong() to make this work.
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-    public Timestamp toTimestamp(Calendar calendar) //@CRS - Could use toLong() to make this work.
-    throws SQLException
-    {
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-    public InputStream toUnicodeStream()
+    public String getString()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
-        return new ByteArrayInputStream(value_);
+        truncated_ = 0;
+        return BinaryConverter.bytesToString(value_);
+    }
+
+    public Time getTime(Calendar calendar) //@CRS - Could use toLong() to make this work.
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+
+    public Timestamp getTimestamp(Calendar calendar) //@CRS - Could use toLong() to make this work.
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return null;
+    }
+
+    public InputStream getUnicodeStream()
+    throws SQLException
+    {
+        if(savedObject_ != null) doConversion();
+        truncated_ = 0;
+
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(value_)));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
 }
 

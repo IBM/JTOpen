@@ -336,7 +336,7 @@ BigDecimal object.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.NUMERIC, Types.DECIMAL);
-            BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
+            BigDecimal value = (data == null) ? null : data.getBigDecimal (-1);
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -372,7 +372,7 @@ BigDecimal object.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.NUMERIC, Types.DECIMAL);
-            BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
+            BigDecimal value = (data == null) ? null : data.getBigDecimal (scale);
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -421,7 +421,7 @@ Returns the value of an SQL BLOB output parameter as a Blob value.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.BLOB, NO_VALIDATION_);
-            Blob value = (data == null) ? null : data.toBlob ();
+            Blob value = (data == null) ? null : data.getBlob ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -475,7 +475,7 @@ Java boolean.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
-            boolean value = (data == null) ? false : data.toBoolean ();
+            boolean value = (data == null) ? false : data.getBoolean ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -537,7 +537,7 @@ Java byte.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
-            byte value = (data == null) ? 0 : data.toByte ();
+            byte value = (data == null) ? 0 : data.getByte ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -593,7 +593,7 @@ Java byte array.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.BINARY, Types.VARBINARY);
-            byte[] value = (data == null) ? null : data.toBytes ();
+            byte[] value = (data == null) ? null : data.getBytes ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -643,7 +643,7 @@ Returns the value of an SQL CLOB output parameter as a Clob value.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.CLOB, NO_VALIDATION_);
-            Clob value = (data == null) ? null : data.toClob ();
+            Clob value = (data == null) ? null : data.getClob ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -730,7 +730,7 @@ java.sql.Date object using a calendar other than the default.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.DATE, NO_VALIDATION_);
-            Date value = (data == null) ? null : data.toDate (calendar);
+            Date value = (data == null) ? null : data.getDate (calendar);
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -804,7 +804,7 @@ Java double.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.DOUBLE, Types.FLOAT);
-            double value = (data == null) ? 0 : data.toDouble ();
+            double value = (data == null) ? 0 : data.getDouble ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -854,7 +854,7 @@ Java float.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.REAL, Types.FLOAT);
-            float value = (data == null) ? 0 : data.toFloat ();
+            float value = (data == null) ? 0 : data.getFloat ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -903,7 +903,7 @@ Java int.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.INTEGER, NO_VALIDATION_);
-            int value = (data == null) ? 0 : data.toInt ();
+            int value = (data == null) ? 0 : data.getInt ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -966,7 +966,7 @@ and later.
                 data = getValue(parameterIndex, Types.BIGINT, NO_VALIDATION_);              // @D0A
             else                                                                            // @D0A
                 data = getValue(parameterIndex, Types.INTEGER, NO_VALIDATION_);             // @D0C
-            long value = (data == null) ? 0 : data.toLong ();
+            long value = (data == null) ? 0 : data.getLong ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -1030,7 +1030,7 @@ connection's type map is used to create the object.
             SQLData data = getValue (parameterIndex, NO_VALIDATION_, NO_VALIDATION_);
             if (data == null)
                 return null;
-            Object value = (data == null) ? null : data.toObject ();
+            Object value = (data == null) ? null : data.getObject ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -1174,7 +1174,7 @@ Java short value.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.SMALLINT, NO_VALIDATION_);
-            short value = (data == null) ? 0 : data.toShort ();
+            short value = (data == null) ? 0 : data.getShort ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -1223,7 +1223,7 @@ parameter as a Java String object.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.CHAR, Types.VARCHAR);
-            String value = (data == null) ? null : data.toString ();
+            String value = (data == null) ? null : data.getString ();
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -1301,7 +1301,7 @@ default.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.TIME, NO_VALIDATION_);
-            Time value = (data == null) ? null : data.toTime (calendar);
+            Time value = (data == null) ? null : data.getTime (calendar);
             testDataTruncation (parameterIndex, data);
             return value;
         }
@@ -1405,7 +1405,7 @@ default.
         synchronized(internalLock_) {                                            // @E1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (parameterIndex, Types.TIMESTAMP, NO_VALIDATION_);
-            Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
+            Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
             testDataTruncation (parameterIndex, data);
             return value;
         }

@@ -344,17 +344,20 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
+        truncated_ = 0;
+        
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
 
         // changed to return stream containing hex string
         // return new ByteArrayInputStream(toBytes());
+
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(toBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -363,44 +366,50 @@ implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
+        truncated_ = 0;
+
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new ByteArrayInputStream(toBytes());
+
+        return new ByteArrayInputStream(getBytes());
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
+        truncated_ = 0;
+        
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCBlob(toBytes(), maxLength_);
+
+        return new AS400JDBCBlob(getBytes(), maxLength_);
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     {
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. @B1A
@@ -419,98 +428,110 @@ implements SQLData
         }
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
+        truncated_ = 0;
+
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new StringReader (new String(toBytes()));
-        return new StringReader(BinaryConverter.bytesToString(toBytes())); //@F1A
+        return new StringReader(BinaryConverter.bytesToString(getBytes())); //@F1A
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        truncated_ = 0;
+
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new AS400JDBCClob(new String(toBytes()));
-        return new AS400JDBCClob(BinaryConverter.bytesToString(toBytes()), maxLength_); //@F1A
+        return new AS400JDBCClob(BinaryConverter.bytesToString(getBytes()), maxLength_); //@F1A
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
+        truncated_ = 0;
+
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
-        return toBytes();
+        return getBytes();
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
+        truncated_ = 0;
+
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
         //@F1D return new String (toBytes());
-        return BinaryConverter.bytesToString(toBytes()); //@F1A
+        return BinaryConverter.bytesToString(getBytes()); //@F1A
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toUnicodeStream()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
+        truncated_ = 0;
+
         // This is written in terms of toBytes(), since it will
         // handle truncating to the max field size if needed.
 
@@ -518,7 +539,7 @@ implements SQLData
         // return new ByteArrayInputStream(toBytes());
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(toBytes())));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
         }
         catch(UnsupportedEncodingException e)
         {

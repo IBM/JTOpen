@@ -264,12 +264,14 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
+        truncated_ = 0;
+
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(toString()));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -278,12 +280,12 @@ implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
         try
         {
-            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(toString().trim())); // @F3C
+            BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(getString().trim())); // @F3C
             if(scale >= 0)
             {
                 if(scale >= bigDecimal.scale())
@@ -307,18 +309,21 @@ implements SQLData
         }
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
-        return new HexReaderInputStream(new StringReader(toString()));
+        truncated_ = 0;
+        return new HexReaderInputStream(new StringReader(getString()));
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
+        truncated_ = 0;
+
         try
         {
-            return new AS400JDBCBlob(BinaryConverter.stringToBytes(toString()), maxLength_);
+            return new AS400JDBCBlob(BinaryConverter.stringToBytes(getString()), maxLength_);
         }
         catch(NumberFormatException nfe)
         {
@@ -327,7 +332,7 @@ implements SQLData
         }
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         truncated_ = 0;
@@ -335,20 +340,20 @@ implements SQLData
         // If value equals "true", "false", "1", or "0", then return the
         // corresponding boolean, otherwise an empty string is
         // false, a non-empty string is true.
-        String trimmedValue = toString().trim();        
+        String trimmedValue = getString().trim();        
         return((trimmedValue.length() > 0) 
                && (! trimmedValue.equalsIgnoreCase("false"))
                && (! trimmedValue.equals("0")));
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         truncated_ = 0;
 
         try
         {
-            return(new Double(toString().trim())).byteValue();
+            return(new Double(getString().trim())).byteValue();
         }
         catch(NumberFormatException e)
         {
@@ -357,12 +362,14 @@ implements SQLData
         }
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
+        truncated_ = 0;
+
         try
         {
-            return BinaryConverter.stringToBytes(toString());
+            return BinaryConverter.stringToBytes(getString());
         }
         catch(NumberFormatException nfe)
         {
@@ -371,37 +378,42 @@ implements SQLData
         }
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        truncated_ = 0;
+
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(toString());
+        return new StringReader(getString());
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        truncated_ = 0;
+
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob(toString(), maxLength_);
+        String string = getString();
+        return new AS400JDBCClob(string, string.length());
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
-        return SQLDate.stringToDate(toString(), settings_, calendar);
+        return SQLDate.stringToDate(getString(), settings_, calendar);
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         truncated_ = 0;
 
         try
         {
-            return(new Double(toString().trim())).doubleValue();
+            return(new Double(getString().trim())).doubleValue();
         }
         catch(NumberFormatException e)
         {
@@ -410,14 +422,14 @@ implements SQLData
         }
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         truncated_ = 0;
 
         try
         {
-            return(new Double(toString().trim())).floatValue();
+            return(new Double(getString().trim())).floatValue();
         }
         catch(NumberFormatException e)
         {
@@ -426,14 +438,14 @@ implements SQLData
         }
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
         truncated_ = 0;
 
         try
         {
-            return(new Double(toString().trim())).intValue();
+            return(new Double(getString().trim())).intValue();
         }
         catch(NumberFormatException e)
         {
@@ -442,14 +454,14 @@ implements SQLData
         }
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
         truncated_ = 0;
 
         try
         {
-            return(new Double(toString().trim())).longValue();
+            return(new Double(getString().trim())).longValue();
         }
         catch(NumberFormatException e)
         {
@@ -458,21 +470,22 @@ implements SQLData
         }
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        return toString();
+        return getString();
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
         truncated_ = 0;
 
         try
         {
-            return(new Double(toString().trim())).shortValue();
+            return(new Double(getString().trim())).shortValue();
         }
         catch(NumberFormatException e)
         {
@@ -481,7 +494,8 @@ implements SQLData
         }
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. @B1A
@@ -498,26 +512,28 @@ implements SQLData
         }
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
-        return SQLTime.stringToTime(toString(), settings_, calendar);
+        return SQLTime.stringToTime(getString(), settings_, calendar);
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
-        return SQLTimestamp.stringToTimestamp(toString(), calendar);
+        return SQLTimestamp.stringToTimestamp(getString(), calendar);
     }
 
-    public InputStream toUnicodeStream()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
+        truncated_ = 0;
+
         try
         {
-            return new ReaderInputStream(new StringReader(toString()), 13488);
+            return new ReaderInputStream(new StringReader(getString()), 13488);
         }
         catch(UnsupportedEncodingException e)
         {

@@ -135,7 +135,7 @@ implements ResultSetMetaData
     {
         checkIndex(columnIndex);
         SQLData sqlData = row_.getSQLType(columnIndex);
-        String className = sqlData.toObject().getClass().getName();
+        String className = sqlData.getObject().getClass().getName();
         return className;
     }
 

@@ -2041,7 +2041,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            InputStream value = (data == null) ? null : data.toAsciiStream ();
+            InputStream value = (data == null) ? null : data.getAsciiStream ();
             openInputStream_ = value;
             testDataTruncation (columnIndex, data);
             return value;
@@ -2097,7 +2097,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            BigDecimal value = (data == null) ? null : data.toBigDecimal (-1);
+            BigDecimal value = (data == null) ? null : data.getBigDecimal (-1);
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2160,7 +2160,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            BigDecimal value = (data == null) ? null : data.toBigDecimal (scale);
+            BigDecimal value = (data == null) ? null : data.getBigDecimal (scale);
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2219,7 +2219,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            InputStream value = (data == null) ? null : data.toBinaryStream ();
+            InputStream value = (data == null) ? null : data.getBinaryStream ();
             openInputStream_ = value;
             testDataTruncation (columnIndex, data);
             return value;
@@ -2273,7 +2273,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Blob value = (data == null) ? null : data.toBlob ();
+            Blob value = (data == null) ? null : data.getBlob ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2325,7 +2325,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            boolean value = (data == null) ? false : data.toBoolean ();
+            boolean value = (data == null) ? false : data.getBoolean ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2378,7 +2378,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            byte value = (data == null) ? 0 : data.toByte ();
+            byte value = (data == null) ? 0 : data.getByte ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2453,7 +2453,7 @@ public class AS400JDBCResultSet implements ResultSet
                                                                                         // @C1A
             else
             {                                                                      // @C1A
-                value = (data == null) ? null : data.toBytes ();                        // @C1C
+                value = (data == null) ? null : data.getBytes ();                        // @C1C
                 testDataTruncation (columnIndex, data);
             }                                                                           // @C1A
             return value;
@@ -2512,7 +2512,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Reader value = (data == null) ? null : data.toCharacterStream ();
+            Reader value = (data == null) ? null : data.getCharacterStream ();
             openReader_ = value;
             testDataTruncation (columnIndex, data);
             return value;
@@ -2567,7 +2567,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Clob value = (data == null) ? null : data.toClob ();
+            Clob value = (data == null) ? null : data.getClob ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2648,7 +2648,7 @@ public class AS400JDBCResultSet implements ResultSet
         {
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Date value = (data == null) ? null : data.toDate (calendar);
+            Date value = (data == null) ? null : data.getDate (calendar);
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2736,7 +2736,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            double value = (data == null) ? 0 : data.toDouble ();
+            double value = (data == null) ? 0 : data.getDouble ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2789,7 +2789,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            float value = (data == null) ? 0 : data.toFloat ();
+            float value = (data == null) ? 0 : data.getFloat ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2842,7 +2842,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            int value = (data == null) ? 0 : data.toInt ();
+            int value = (data == null) ? 0 : data.getInt ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2895,7 +2895,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            long value = (data == null) ? 0 : data.toLong ();
+            long value = (data == null) ? 0 : data.getLong ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -2983,7 +2983,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Object value = (data == null) ? null : data.toObject ();
+            Object value = (data == null) ? null : data.getObject ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -3126,7 +3126,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            short value = (data == null) ? 0 : data.toShort ();
+            short value = (data == null) ? 0 : data.getShort ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -3177,7 +3177,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            String value = (data == null) ? null : data.toString ();
+            String value = (data == null) ? null : data.getString ();
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -3256,7 +3256,7 @@ public class AS400JDBCResultSet implements ResultSet
         {
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Time value = (data == null) ? null : data.toTime (calendar);
+            Time value = (data == null) ? null : data.getTime (calendar);
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -3372,7 +3372,7 @@ public class AS400JDBCResultSet implements ResultSet
         {
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            Timestamp value = (data == null) ? null : data.toTimestamp (calendar);
+            Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
             testDataTruncation (columnIndex, data);
             return value;
         }
@@ -3466,7 +3466,7 @@ public class AS400JDBCResultSet implements ResultSet
         {                                            // @D1A
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            InputStream value = (data == null) ? null : data.toUnicodeStream ();
+            InputStream value = (data == null) ? null : data.getUnicodeStream ();
             openInputStream_ = value;
             testDataTruncation (columnIndex, data);
             return value;
@@ -3769,7 +3769,7 @@ public class AS400JDBCResultSet implements ResultSet
             {
                 if(updateSet_[i] == true)
                 {
-                    Object columnValue = updateRow_.getSQLData (i+1).toObject ();
+                    Object columnValue = updateRow_.getSQLData (i+1).getObject ();
                     if(updateNulls_[i])
                         insertStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
                     else
@@ -5098,7 +5098,7 @@ public class AS400JDBCResultSet implements ResultSet
             {
                 if(updateSet_[i] == true)
                 {
-                    Object columnValue = updateRow_.getSQLData (i+1).toObject ();
+                    Object columnValue = updateRow_.getSQLData (i+1).getObject ();
                     if(updateNulls_[i] == true)
                         updateStatement.setNull (++columnsSet2, row_.getSQLType (i+1).getType ());
                     else

@@ -43,10 +43,10 @@ implements JDFieldMap
     public Object getValue(JDRow row)
     throws SQLException
     {
-        String typeName = row.getSQLData(typeIndex_).toString().trim();
-        int length = row.getSQLData(lengthIndex_).toInt();
-        int precision = row.getSQLData(precisionIndex_).toInt();
-        int scale = row.getSQLData(scaleIndex_).toInt();
+        String typeName = row.getSQLData(typeIndex_).getString().trim();
+        int length = row.getSQLData(lengthIndex_).getInt();
+        int precision = row.getSQLData(precisionIndex_).getInt();
+        int scale = row.getSQLData(scaleIndex_).getInt();
         return SQLDataFactory.newData(typeName, length, precision, scale, null, vrm_, properties_); // @M0C - added vrm and properties
     }
 

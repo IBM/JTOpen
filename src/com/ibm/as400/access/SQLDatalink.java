@@ -15,6 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -24,8 +27,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.net.URL;                     // @d2a
-
-
+import java.net.MalformedURLException;
 
 final class SQLDatalink
 implements SQLData
@@ -36,27 +38,22 @@ implements SQLData
     private int                     length_;
     private int                     maxLength_;
     private SQLConversionSettings   settings_;
+    private int                     truncated_;
     private String                  value_;
 
-
-
-
-    SQLDatalink (int maxLength, SQLConversionSettings settings)
+    SQLDatalink(int maxLength, SQLConversionSettings settings)
     {
         length_         = 0;
         maxLength_      = maxLength;
         settings_       = settings;
+        truncated_      = 0;
         value_          = ""; // @A1C
     }
 
-
-
-    public Object clone ()
+    public Object clone()
     {
-        return new SQLDatalink (maxLength_, settings_);
+        return new SQLDatalink(maxLength_, settings_);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -64,32 +61,26 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        length_ = BinaryConverter.byteArrayToUnsignedShort (rawBytes, offset);
-        value_ = ccsidConverter.byteArrayToString (rawBytes, offset+2, length_);
+        length_ = BinaryConverter.byteArrayToUnsignedShort(rawBytes, offset);
+        value_ = ccsidConverter.byteArrayToString(rawBytes, offset+2, length_);
     }
 
-
-
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        BinaryConverter.unsignedShortToByteArray (length_, rawBytes, offset);
+        BinaryConverter.unsignedShortToByteArray(length_, rawBytes, offset);
         try
         {
-            ccsidConverter.stringToByteArray (value_, rawBytes, offset + 2, length_);
+            ccsidConverter.stringToByteArray(value_, rawBytes, offset + 2, length_);
         }
         catch(Exception e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);              // @C2A
+            JDError.throwSQLException(JDError.EXC_INTERNAL, e);              // @C2A
         }
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -97,21 +88,17 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void set (Object object, Calendar calendar, int scale)
+    public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
         if(object instanceof String)
-            value_ = (String) object;
+            value_ = (String)object;
 
         else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
 
-        length_ = value_.length ();
+        length_ = value_.length();
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -124,13 +111,12 @@ implements SQLData
         return SQLData.DATALINK;
     }
 
-    public String getCreateParameters ()
+    public String getCreateParameters()
     {
-        return AS400JDBCDriver.getResource ("MAXLENGTH");
+        return AS400JDBCDriver.getResource("MAXLENGTH");
     }
 
-
-    public int getDisplaySize ()
+    public int getDisplaySize()
     {
         return maxLength_;
     }
@@ -146,67 +132,57 @@ implements SQLData
             return "java.lang.Datalink";       
     }
 
-    public String getLiteralPrefix ()
+    public String getLiteralPrefix()
     {
         return "\'";
     }
 
-
-    public String getLiteralSuffix ()
+    public String getLiteralSuffix()
     {
         return "\'";
     }
 
-
-    public String getLocalName ()
+    public String getLocalName()
     {
         return "DATALINK"; 
     }
 
-
-    public int getMaximumPrecision ()
+    public int getMaximumPrecision()
     {
         return 32717;
     }
 
-
-    public int getMaximumScale ()
+    public int getMaximumScale()
     {
         return 0;
     }
 
-
-    public int getMinimumScale ()
+    public int getMinimumScale()
     {
         return 0;
     }
 
-
-    public int getNativeType ()
+    public int getNativeType()
     {
         return 396;
     }
 
-
-    public int getPrecision ()
+    public int getPrecision()
     {
         return maxLength_;
     }
 
-
-    public int getRadix ()
+    public int getRadix()
     {
         return 0;
     }
 
-
-    public int getScale ()
+    public int getScale()
     {
         return 0;
     }
 
-
-    public int getType ()
+    public int getType()
     {
         if(JDUtilities.JDBCLevel_ >= 30)                                //@J5A
             return 70;  //java.sql.Types.DATALINK without requiring 1.4    //@J5A
@@ -214,36 +190,30 @@ implements SQLData
             return java.sql.Types.VARCHAR;
     }
 
-
-
-    public String getTypeName ()
+    public String getTypeName()
     {
         return "DATALINK"; 
     }
 
-
-
-    // @C1D public boolean isGraphic ()
-    // @C1D {
-    // @C1D    return false;
-    // @C1D }
-
-
-
-    public boolean isSigned ()
+    public boolean isSigned()
     {
         return false;
     }
 
-
-
-    public boolean isText ()
+    public boolean isText()
     {
         return true;
     }
 
+    public int getActualSize()
+    {
+        return value_.length();
+    }
 
-
+    public int getTruncated()
+    {
+        return truncated_;
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -251,213 +221,183 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public int getActualSize ()
-    {
-        return value_.length();
-    }
-
-
-
-    public int getTruncated ()
-    {
-        return 0;
-    }
-
-
-
-    public InputStream toAsciiStream ()
+    public InputStream getAsciiStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        truncated_ = 0;
+
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
+    }
+
+    public BigDecimal getBigDecimal(int scale)
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public BigDecimal toBigDecimal (int scale)
+    public InputStream getBinaryStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream toBinaryStream ()
+    public Blob getBlob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Blob toBlob ()
+    public boolean getBoolean()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public boolean toBoolean ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-
-
-    public byte toByte ()
+    public byte getByte()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-
-
-    public byte[] toBytes ()
+    public byte[] getBytes()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Reader toCharacterStream ()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        truncated_ = 0;
+        return new StringReader(value_);
+    }
+
+    public Clob getClob()
+    throws SQLException
+    {
+        truncated_ = 0;
+        return new AS400JDBCClob(value_, value_.length());
+    }
+
+    public Date getDate(Calendar calendar)
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Clob toClob ()
+    public double getDouble()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public Date toDate (Calendar calendar)
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public double toDouble ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-
-
-    public float toFloat ()
+    public float getFloat()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-
-
-    public int toInt ()
+    public int getInt()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-
-
-    public long toLong ()
+    public long getLong()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
-
-
 
     // @d2a entire method reworked.  Used to simply return value_.
     // @j4c - rewritten now that JDUtilites knows the JDBC level
-    public Object toObject ()
+    public Object getObject()
+    throws SQLException
     {
+        truncated_ = 0;
         // if JDBC 3.0 or later return a URL instead of a string.
         // If we are not able to turn the string into a URL then return
         // the string (that is why there is no "else".  That shouldn't
         // happen because the database makes sure the cell contains
         // a valid URL for this data type.
         if(JDUtilities.JDBCLevel_ >= 30)
+        {
             try
             {
                 return new java.net.URL(value_);
             }
-            catch(Exception e)
+            catch(MalformedURLException e)
             {
+                JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, e);
+                return null;
             }
-
-        return value_;
+        }
+        else
+        {
+            return value_;
+        }
     }
 
-
-
-    public short toShort ()
+    public short getShort()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-
-
-    public String toString ()
+    public String getString()
+    throws SQLException
     {
         return value_;
     }
 
-
-
-    public Time toTime (Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Timestamp toTimestamp (Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream toUnicodeStream ()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;
+
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(value_));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
-
-
-
 }
 

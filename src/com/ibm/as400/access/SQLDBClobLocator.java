@@ -240,7 +240,7 @@ final class SQLDBClobLocator implements SQLLocator
                 int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
                 if(length < blockSize) blockSize = length;
                 int position = 1;
-                AS400JDBCClobLocator thisClob = (AS400JDBCClobLocator)toClob();
+                AS400JDBCClobLocator thisClob = (AS400JDBCClobLocator)getClob();
                 while(position <= length)
                 {
                     String substring = clob.getSubString(position, blockSize);
@@ -367,7 +367,7 @@ final class SQLDBClobLocator implements SQLLocator
 
     public int getTruncated()
     {
-        return 0;
+        return truncated_;
     }
 
     //---------------------------------------------------------//
@@ -376,9 +376,10 @@ final class SQLDBClobLocator implements SQLLocator
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(new JDLobLocator(locator_)), converter_.getCcsid()), 819); // ISO-8859-1.
@@ -390,16 +391,17 @@ final class SQLDBClobLocator implements SQLLocator
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new HexReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(new JDLobLocator(locator_)), converter_.getCcsid()));
@@ -411,12 +413,13 @@ final class SQLDBClobLocator implements SQLLocator
         }
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
-            return new AS400JDBCBlob(BinaryConverter.stringToBytes(toString()), maxLength_);
+            return new AS400JDBCBlob(BinaryConverter.stringToBytes(getString()), maxLength_);
         }
         catch(NumberFormatException nfe)
         {
@@ -426,26 +429,27 @@ final class SQLDBClobLocator implements SQLLocator
         }
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
-            return BinaryConverter.stringToBytes(toString());
+            return BinaryConverter.stringToBytes(getString());
         }
         catch(NumberFormatException nfe)
         {
@@ -455,9 +459,10 @@ final class SQLDBClobLocator implements SQLLocator
         }
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new ConvTableReader(new AS400JDBCInputStream(new JDLobLocator(locator_)), converter_.getCcsid());
@@ -469,99 +474,91 @@ final class SQLDBClobLocator implements SQLLocator
         }
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
+        truncated_ = 0;
         return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
-        // toObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
+        // getObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
         // inside the AS400JDBCClobLocator. Then, when convertToRawBytes() is called, the writeToServer()
         // code checks the AS400JDBCClobLocator's saved InputStream... if it exists, then it writes the
         // data out of the InputStream to the server by calling writeToServer() again.
+        truncated_ = 0;
         return new AS400JDBCClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
-        try
-        {
-            Clob c = toClob();
-            return c.getSubString(1L, (int)c.length());      
-            /*      DBLobData data = locator_.retrieveData(0, locator_.getMaxLength());        // @C0A
-                  String value = converter_.byteArrayToString(data.getRawBytes(),           // @C0A
-                                                              data.getOffset(),             // @C0A
-                                                              data.getLength());            // @C0A
-                  return value;                                                               // @C0A
-            */
-        }                                                                               // @C0A
-        catch(SQLException e)
-        {                                                        // @C0A
-            // toString() should not throw exceptions!                                  // @C0A
-            return super.toString();
-        }                                                                               // @C0A
+        truncated_ = 0;
+        Clob c = getClob();
+        return c.getSubString(1L, (int)c.length());      
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toUnicodeStream() throws SQLException
+    public InputStream getUnicodeStream() throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new ReaderInputStream(new ConvTableReader(new AS400JDBCInputStream(locator_), converter_.getCcsid()), 13488);

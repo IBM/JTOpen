@@ -38,6 +38,7 @@ implements SQLData
     private int                     scale_;
     private AS400PackedDecimal      typeConverter_;
     private double                  value_;
+    private int                     truncated_;
     private JDProperties            properties_;  // @M0A - added JDProperties so we can get the scale & precision
     private int                     vrm_;         // @M0A
 
@@ -52,6 +53,7 @@ implements SQLData
         scale_          = scale;
         typeConverter_  = new AS400PackedDecimal(precision_, scale_);
         value_          = 0;
+        truncated_      = 0;
         vrm_            = vrm;         // @M0A
         properties_     = properties;  // @M0A
     }
@@ -226,7 +228,7 @@ implements SQLData
 
     public int getTruncated()
     {
-        return 0;
+        return truncated_;
     }
 
     //---------------------------------------------------------//
@@ -235,12 +237,13 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(toString()));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -249,102 +252,157 @@ implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
+        truncated_ = 0;
         return new BigDecimal(value_);
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
+        truncated_ = 0;
         return(value_ != 0);
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
+        truncated_ = 0;
+        if(value_ > Byte.MAX_VALUE || value_ < Byte.MIN_VALUE)
+        {
+            if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
+            {
+                if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
+                {
+                    truncated_ = 7;
+                }
+                else
+                {
+                    truncated_ = 3;
+                }
+            }
+            else
+            {
+                truncated_ = 1;
+            }
+        }
         return(byte)value_;
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        return new StringReader(toString());
+        truncated_ = 0;
+        return new StringReader(getString());
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
-        String string = toString();
+        truncated_ = 0;
+        String string = getString();
         return new AS400JDBCClob(string, string.length());
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
+        truncated_ = 0;
         return value_;
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
+        truncated_ = 0;
+        if(value_ > Float.MAX_VALUE || value_ < Float.MIN_VALUE)
+        {
+            truncated_ = 4;
+        }
         return(float)value_;
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
+        truncated_ = 0;
+        if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
+        {
+            truncated_ = 4;
+        }
         return(int)value_;
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
+        truncated_ = 0;
+        if(value_ > Long.MAX_VALUE || value_ < Long.MIN_VALUE)
+        {
+            truncated_ = 1; // this is not necessarily correct, but we know there is truncation
+        }
         return(long)value_;
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
+        truncated_ = 0;
         return new Double(value_);
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
+        truncated_ = 0;
+        if(value_ > Short.MAX_VALUE || value_ < Short.MIN_VALUE)
+        {
+            if(value_ > Integer.MAX_VALUE || value_ < Integer.MIN_VALUE)
+            {
+                truncated_ = 6;
+            }
+            else
+            {
+                truncated_ = 2;
+            }
+        }
         return(short)value_;
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
+        truncated_ = 0;
         String stringRep = Double.toString(value_);
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
@@ -355,26 +413,27 @@ implements SQLData
             + stringRep.substring(decimal+1);
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream  toUnicodeStream()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(toString()));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
         }
         catch(UnsupportedEncodingException e)
         {

@@ -16,6 +16,9 @@ package com.ibm.as400.access;
 import java.io.CharConversionException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.ByteArrayInputStream;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -25,8 +28,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-
-
 final class SQLDate
 implements SQLData
 {
@@ -34,32 +35,28 @@ implements SQLData
 
     // Private data.
     private SQLConversionSettings   settings_;
+    private int                     truncated_;
     private int                     year_;
     private int                     month_;
     private int                     day_;
 
-
-
-    SQLDate (SQLConversionSettings settings)
+    SQLDate(SQLConversionSettings settings)
     {
         settings_   = settings;
+        truncated_  = 0;
         year_       = 0;
         month_      = 0;
         day_        = 0;
     }
 
-
-
-    public Object clone ()
+    public Object clone()
     {
-        return new SQLDate (settings_);
+        return new SQLDate(settings_);
     }
 
-
-
-    public static Date stringToDate (String s,
-                                     SQLConversionSettings settings,
-                                     Calendar calendar)
+    public static Date stringToDate(String s,
+                                    SQLConversionSettings settings,
+                                    Calendar calendar)
     throws SQLException
     {
         // If the string is empty or set to zeros,
@@ -69,8 +66,8 @@ implements SQLData
         int sTrimLength = sTrim.length();  // @F2A
         try
         {
-            if((sTrimLength == 0) || (Integer.parseInt (sTrim) == 0))  // @F2C
-                return new Date (0);
+            if((sTrimLength == 0) || (Integer.parseInt(sTrim) == 0))  // @F2C
+                return new Date(0);
         }
         catch(NumberFormatException e)
         {
@@ -82,188 +79,182 @@ implements SQLData
         try
         {
             // Parse the string according to the format and separator.
-            switch(settings.getDateFormat ())
+            switch(settings.getDateFormat())
             {
                 case SQLConversionSettings.DATE_FORMAT_USA:
-                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (6, 10)));
-                    calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (0, 2)) - 1);
-                    calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (3, 5)));
+                    calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(6, 10)));
+                    calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(0, 2)) - 1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(3, 5)));
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_EUR:
-                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (6, 10)));
-                    calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (3, 5)) - 1);
-                    calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (0, 2)));
+                    calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(6, 10)));
+                    calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(3, 5)) - 1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(0, 2)));
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_JULIAN:
                     if(sTrimLength <= 6)
                     {  // YY/DDD      // @F2C
-                        calendar.set (Calendar.DAY_OF_YEAR, Integer.parseInt (s.substring (3, 6)));
-                        calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (0, 2))));
+                        calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(s.substring(3, 6)));
+                        calendar.set(Calendar.YEAR, twoDigitYearToFour(Integer.parseInt(s.substring(0, 2))));
                     }
                     else
                     {  // Assume they've specified a 4-digit year: YYYY/DDD    // @F2A
-                        calendar.set (Calendar.DAY_OF_YEAR, Integer.parseInt (s.substring (5, 8)));
-                        calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (0, 4)));
+                        calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(s.substring(5, 8)));
+                        calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(0, 4)));
                     }
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_MDY:
                     if(sTrimLength <= 8)
                     {  // MM/DD/YY     // @F2C
-                        calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (6, 8))));
+                        calendar.set(Calendar.YEAR, twoDigitYearToFour(Integer.parseInt(s.substring(6, 8))));
                     }
                     else
                     {  // Assume they've specified a 4-digit year: MM/DD/YYYY  // @F2A
-                        calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (6, 10)));
+                        calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(6, 10)));
                     }
-                    calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (0, 2)) - 1);
-                    calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (3, 5)));
+                    calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(0, 2)) - 1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(3, 5)));
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_DMY:
                     if(sTrimLength <= 8)
                     {  // DD/MM/YY     // @F2C
-                        calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (6, 8))));
+                        calendar.set(Calendar.YEAR, twoDigitYearToFour(Integer.parseInt(s.substring(6, 8))));
                     }
                     else
                     {  // Assume they've specified a 4-digit year: DD/MM/YYYY    // @F2A
-                        calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (6, 10)));
+                        calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(6, 10)));
                     }
-                    calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (3, 5)) - 1);
-                    calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (0, 2)));
+                    calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(3, 5)) - 1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(0, 2)));
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_YMD:
                     if(sTrimLength <= 8)
                     {  // YY/MM/DD     // @F2C
-                        calendar.set (Calendar.YEAR, twoDigitYearToFour (Integer.parseInt (s.substring (0, 2))));
-                        calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (3, 5)) - 1);
-                        calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (6, 8)));
+                        calendar.set(Calendar.YEAR, twoDigitYearToFour(Integer.parseInt(s.substring(0, 2))));
+                        calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(3, 5)) - 1);
+                        calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(6, 8)));
                     }
                     else
                     {  // Assume they've specified a 4-digit year: YYYY/MM/DD  // @F2A
-                        calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (0, 4)));
-                        calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (5, 7)) - 1);
-                        calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (8, 10)));
+                        calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(0, 4)));
+                        calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
+                        calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
                     }
                     break;
 
                 case SQLConversionSettings.DATE_FORMAT_JIS:
                 case SQLConversionSettings.DATE_FORMAT_ISO:
-                    calendar.set (Calendar.YEAR, Integer.parseInt (s.substring (0, 4)));
-                    calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (5, 7)) - 1);
-                    calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (8, 10)));
+                    calendar.set(Calendar.YEAR, Integer.parseInt(s.substring(0, 4)));
+                    calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
+                    calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
                     break;
             }
 
-            calendar.set (Calendar.HOUR_OF_DAY, 0);
-            calendar.set (Calendar.MINUTE, 0);
-            calendar.set (Calendar.SECOND, 0);
-            calendar.set (Calendar.MILLISECOND, 0);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
         }
         catch(NumberFormatException e)
         {
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
         catch(StringIndexOutOfBoundsException e)
         {
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
 
-        return new Date (calendar.getTime ().getTime ());
+        return new Date(calendar.getTime().getTime());
     }
 
-
-
-    public static String dateToString (java.util.Date d,              // @F5C
-                                       SQLConversionSettings dataFormat,
-                                       Calendar calendar)
+    public static String dateToString(java.util.Date d,              // @F5C
+                                      SQLConversionSettings dataFormat,
+                                      Calendar calendar)
     {
-        StringBuffer buffer = new StringBuffer ();
-        String separator = dataFormat.getDateSeparator ();
+        StringBuffer buffer = new StringBuffer();
+        String separator = dataFormat.getDateSeparator();
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-        calendar.setTime (d);
+        calendar.setTime(d);
 
         // @F3D Note: No matter what format is being used, ensure that exactly 10 characters are in the buffer.
 
-        switch(dataFormat.getDateFormat ())
+        switch(dataFormat.getDateFormat())
         {
             
             case SQLConversionSettings.DATE_FORMAT_USA:                          // mm/dd/yyyy
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-                buffer.append ('/');
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-                buffer.append ('/');
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 4));
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+                buffer.append('/');
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
+                buffer.append('/');
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_EUR:                          // dd.mm.yyyy
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-                buffer.append ('.');
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-                buffer.append ('.');
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 4));
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
+                buffer.append('.');
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+                buffer.append('.');
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_JULIAN:                      // yy/ddd
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_YEAR), 3));
-                // @F3D buffer.append ("    ");
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_YEAR), 3));
+                // @F3D buffer.append("    ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_MDY:                         // mm/dd/yy
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
-                // @F3D buffer.append ("  ");
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 2));
+                // @F3D buffer.append("  ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_DMY:                         // dd/mm/yy
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
-                // @F3D buffer.append ("  ");
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 2));
+                // @F3D buffer.append("  ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_YMD:                         // yy/mm/dd
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-                // @F3D buffer.append ("  ");
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
+                // @F3D buffer.append("  ");
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_JIS:                         // yyyy-mm-dd
             case SQLConversionSettings.DATE_FORMAT_ISO:                         // yyyy-mm-dd
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 4));
-                buffer.append ('-');
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-                buffer.append ('-');
-                buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
+                buffer.append('-');
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+                buffer.append('-');
+                buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
                 break;
         }
 
-        return buffer.toString ();
+        return buffer.toString();
     }
 
-
-
-    private static int twoDigitYearToFour (int twoDigitYear)
+    private static int twoDigitYearToFour(int twoDigitYear)
     {
         return(twoDigitYear <= 39)
         ? (twoDigitYear + 2000)
         : (twoDigitYear + 1900);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -271,27 +262,25 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        switch(settings_.getDateFormat ())
+        switch(settings_.getDateFormat())
         {
             
             case SQLConversionSettings.DATE_FORMAT_JULIAN:                      // yy/ddd
-                year_ = twoDigitYearToFour ((rawBytes[offset+0] & 0x0f) * 10
-                                            + (rawBytes[offset+1] & 0x0f));
-                Calendar calendar = Calendar.getInstance ();
-                calendar.clear ();
-                calendar.set (Calendar.YEAR, year_);
-                calendar.set (Calendar.DAY_OF_YEAR,
-                              (rawBytes[offset+3] & 0x0f) * 100
-                              + (rawBytes[offset+4] & 0x0f) * 10
-                              + (rawBytes[offset+5] & 0x0f));
-                calendar.setTime (calendar.getTime ()); 
-                month_ = calendar.get (Calendar.MONTH);
-                day_ = calendar.get (Calendar.DAY_OF_MONTH);
+                year_ = twoDigitYearToFour((rawBytes[offset+0] & 0x0f) * 10
+                                           + (rawBytes[offset+1] & 0x0f));
+                Calendar calendar = Calendar.getInstance();
+                calendar.clear();
+                calendar.set(Calendar.YEAR, year_);
+                calendar.set(Calendar.DAY_OF_YEAR,
+                             (rawBytes[offset+3] & 0x0f) * 100
+                             + (rawBytes[offset+4] & 0x0f) * 10
+                             + (rawBytes[offset+5] & 0x0f));
+                calendar.setTime(calendar.getTime()); 
+                month_ = calendar.get(Calendar.MONTH);
+                day_ = calendar.get(Calendar.DAY_OF_MONTH);
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_MDY:                      // mm/dd/yy
@@ -299,8 +288,8 @@ implements SQLData
                          + (rawBytes[offset+1] & 0x0f) - 1;
                 day_ = (rawBytes[offset+3] & 0x0f) * 10
                        + (rawBytes[offset+4] & 0x0f);
-                year_ = twoDigitYearToFour ((rawBytes[offset+6] & 0x0f) * 10
-                                            + (rawBytes[offset+7] & 0x0f));
+                year_ = twoDigitYearToFour((rawBytes[offset+6] & 0x0f) * 10
+                                           + (rawBytes[offset+7] & 0x0f));
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_DMY:                      // dd/mm/yy
@@ -308,13 +297,13 @@ implements SQLData
                        + (rawBytes[offset+1] & 0x0f);
                 month_ = (rawBytes[offset+3] & 0x0f) * 10
                          + (rawBytes[offset+4] & 0x0f) - 1;
-                year_ = twoDigitYearToFour ((rawBytes[offset+6] & 0x0f) * 10
-                                            + (rawBytes[offset+7] & 0x0f));
+                year_ = twoDigitYearToFour((rawBytes[offset+6] & 0x0f) * 10
+                                           + (rawBytes[offset+7] & 0x0f));
                 break;
 
             case SQLConversionSettings.DATE_FORMAT_YMD:                      // yy/mm/dd
-                year_ = twoDigitYearToFour ((rawBytes[offset+0] & 0x0f) * 10
-                                            + (rawBytes[offset+1] & 0x0f));
+                year_ = twoDigitYearToFour((rawBytes[offset+0] & 0x0f) * 10
+                                           + (rawBytes[offset+1] & 0x0f));
                 month_ = (rawBytes[offset+3] & 0x0f) * 10
                          + (rawBytes[offset+4] & 0x0f) - 1;
                 day_ = (rawBytes[offset+6] & 0x0f) * 10
@@ -357,30 +346,26 @@ implements SQLData
         }
     }
 
-
-
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
         // Always use ISO format here.
-        StringBuffer buffer = new StringBuffer (10);
-        buffer.append (JDUtilities.padZeros (year_, 4));
-        buffer.append ('-');
-        buffer.append (JDUtilities.padZeros (month_ + 1, 2));
-        buffer.append ('-');
-        buffer.append (JDUtilities.padZeros (day_, 2));
+        StringBuffer buffer = new StringBuffer(10);
+        buffer.append(JDUtilities.padZeros(year_, 4));
+        buffer.append('-');
+        buffer.append(JDUtilities.padZeros(month_ + 1, 2));
+        buffer.append('-');
+        buffer.append(JDUtilities.padZeros(day_, 2));
 
         try
         {
-            ccsidConverter.stringToByteArray (buffer.toString (), rawBytes, offset);
+            ccsidConverter.stringToByteArray(buffer.toString(), rawBytes, offset);
         }
         catch(CharConversionException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);        // @E2C
+            JDError.throwSQLException(JDError.EXC_INTERNAL, e);        // @E2C
         }
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -388,41 +373,37 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void set (Object object, Calendar calendar, int scale)
+    public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if(object instanceof String)
         {
-            stringToDate ((String) object, settings_, calendar);
-            year_   = calendar.get (Calendar.YEAR);
-            month_  = calendar.get (Calendar.MONTH);
-            day_    = calendar.get (Calendar.DAY_OF_MONTH);
+            stringToDate((String) object, settings_, calendar);
+            year_   = calendar.get(Calendar.YEAR);
+            month_  = calendar.get(Calendar.MONTH);
+            day_    = calendar.get(Calendar.DAY_OF_MONTH);
         }
 
         else if(object instanceof Timestamp)
         {    // @F5M
-            calendar.setTime ((Timestamp) object);
-            year_   = calendar.get (Calendar.YEAR);
-            month_  = calendar.get (Calendar.MONTH);
-            day_    = calendar.get (Calendar.DAY_OF_MONTH);
+            calendar.setTime((Timestamp) object);
+            year_   = calendar.get(Calendar.YEAR);
+            month_  = calendar.get(Calendar.MONTH);
+            day_    = calendar.get(Calendar.DAY_OF_MONTH);
         }
 
         else if(object instanceof java.util.Date)
         {     // @F5C
-            calendar.setTime ((java.util.Date) object);  // @F5C
-            year_   = calendar.get (Calendar.YEAR);
-            month_  = calendar.get (Calendar.MONTH);
-            day_    = calendar.get (Calendar.DAY_OF_MONTH);
+            calendar.setTime((java.util.Date) object);  // @F5C
+            year_   = calendar.get(Calendar.YEAR);
+            month_  = calendar.get(Calendar.MONTH);
+            day_    = calendar.get(Calendar.DAY_OF_MONTH);
         }
 
         else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -435,13 +416,13 @@ implements SQLData
         return SQLData.DATE;
     }
 
-    public String getCreateParameters ()
+    public String getCreateParameters()
     {
         return null;
     }
 
 
-    public int getDisplaySize ()
+    public int getDisplaySize()
     {
         return 10;
     }
@@ -452,103 +433,85 @@ implements SQLData
         return "java.sql.Date";
     }
 
-
-    public String getLiteralPrefix ()
+    public String getLiteralPrefix()
     {
         return "\'";
     }
 
-
-    public String getLiteralSuffix ()
+    public String getLiteralSuffix()
     {
         return "\'";
     }
 
-
-
-    public String getLocalName ()
+    public String getLocalName()
     {
         return "DATE";
     }
 
-
-    public int getMaximumPrecision ()
+    public int getMaximumPrecision()
     {
         return 10;
     }
 
-
-    public int getMaximumScale ()
+    public int getMaximumScale()
     {
         return 0;
     }
 
-
-    public int getMinimumScale ()
+    public int getMinimumScale()
     {
         return 0;
     }
 
-
-    public int getNativeType ()
+    public int getNativeType()
     {
         return 384;
     }
 
-
-
-    public int getPrecision ()
+    public int getPrecision()
     {
         return 10;
     }
 
-
-    public int getRadix ()
+    public int getRadix()
     {
         return 10;
     }
 
-
-
-    public int getScale ()
+    public int getScale()
     {
         return 0;
     }
 
-
-    public int getType ()
+    public int getType()
     {
         return java.sql.Types.DATE;
     }
 
-
-
-    public String getTypeName ()
+    public String getTypeName()
     {
         return "DATE";
     }
 
-
-    // @E1D    public boolean isGraphic ()
-    // @E1D    {
-    // @E1D        return false;
-    // @E1D    }
-
-
-
-    public boolean isSigned ()
+    public boolean isSigned()
     {
         return false;
     }
 
-
-
-    public boolean isText ()
+    public boolean isText()
     {
         return false;
     }
 
+    public int getActualSize()
+    {
+        return 10;
+    }
 
+    public int getTruncated()
+    {
+        return truncated_;
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -556,215 +519,175 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public int getActualSize ()
-    {
-        return 10;
-    }
-
-
-
-    public int getTruncated ()
-    {
-        return 0;
-    }
-
-
-
-    public InputStream toAsciiStream ()
+    public InputStream getAsciiStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        truncated_ = 0;
+
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
+    }
+
+    public BigDecimal getBigDecimal(int scale)
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public BigDecimal toBigDecimal (int scale)
+    public InputStream getBinaryStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream toBinaryStream ()
+    public Blob getBlob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Blob toBlob ()
+    public boolean getBoolean()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public boolean toBoolean ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-
-
-    public byte toByte ()
+    public byte getByte()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public byte[] toBytes ()
+    public byte[] getBytes()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Reader toCharacterStream ()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        truncated_ = 0;
+        return new StringReader(getString());
+    }
+
+    public Clob getClob()
+    throws SQLException
+    {
+        truncated_ = 0;
+        String string = getString();
+        return new AS400JDBCClob(string, string.length());
+    }
+
+    public Date getDate(Calendar calendar)
+    throws SQLException
+    {
+        truncated_ = 0;
+        if(calendar == null) calendar = Calendar.getInstance();  
+        calendar.set(year_, month_, day_, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return new Date(calendar.getTime().getTime());
+    }
+
+    public double getDouble()
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return -1;
+    }
+
+    public float getFloat()
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return -1;
+    }
+
+    public int getInt()
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return -1;
+    }
+
+    public long getLong()
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return -1;
+    }
+
+    public Object getObject()
+    throws SQLException
+    {
+        truncated_ = 0;
+        return getDate(null);
+    }
+
+    public short getShort()
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        return -1;
+    }
+
+    public String getString()
+    throws SQLException
+    {
+        truncated_ = 0;
+        Calendar calendar = Calendar.getInstance();  
+        calendar.set(year_, month_, day_, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date d = new Date(calendar.getTime().getTime());
+        return dateToString(d, settings_, calendar);
+    }
+
+    public Time getTime(Calendar calendar)
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Clob toClob ()
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public Date toDate (Calendar calendar)
-    throws SQLException
-    {
+        truncated_ = 0;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
-        calendar.set (year_, month_, day_, 0, 0, 0);
-        calendar.set (Calendar.MILLISECOND, 0);
-        return new Date (calendar.getTime ().getTime ());
-    }
-
-
-
-    public double toDouble ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return -1;
-    }
-
-
-
-    public float toFloat ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return -1;
-    }
-
-
-
-    public int toInt ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return -1;
-    }
-
-
-
-    public long toLong ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return -1;
-    }
-
-
-
-    public Object toObject ()
-    {
-        //@G0D	    Calendar calendar = Calendar.getInstance ();
-        //@G0D	    calendar.set (year_, month_, day_, 0, 0, 0);
-        //@G0D	    return new Date (calendar.getTime ().getTime ());
-        try //@G0A
-        {
-            return toDate(null); //@G0A
-        }
-        catch(SQLException e) //@G0A - Won't ever get thrown.
-        {
-            return null; //@G0A - Won't ever happen.
-        }
-    }
-
-
-
-    public short toShort ()
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return -1;
-    }
-
-
-
-    public String toString ()
-    {
-        Calendar calendar = Calendar.getInstance ();
-        calendar.set (year_, month_, day_, 0, 0, 0);
-        Date d = new Date (calendar.getTime ().getTime ());
-        return dateToString (d, settings_, calendar);
-    }
-
-
-
-    public Time toTime (Calendar calendar)
-    throws SQLException
-    {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
-    }
-
-
-
-    public Timestamp toTimestamp (Calendar calendar)
-    throws SQLException
-    {
-        if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
-        calendar.set (year_, month_, day_, 0, 0, 0);
-        Timestamp ts = new Timestamp (calendar.getTime ().getTime ());
-        ts.setNanos (0);
+        calendar.set(year_, month_, day_, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Timestamp ts = new Timestamp(calendar.getTime().getTime());
+        ts.setNanos(0);
         return ts;
     }
 
-
-
-    public InputStream  toUnicodeStream ()
+    public InputStream  getUnicodeStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-        return null;
+        truncated_ = 0;
+
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
-
-
-
 }
 

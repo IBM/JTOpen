@@ -34,6 +34,18 @@ implements SQLData
 
     // Private data.
     private static final BigDecimal default_ = BigDecimal.valueOf(0); // @C2A
+    private static final BigDecimal BYTE_MAX_VALUE = BigDecimal.valueOf(Byte.MAX_VALUE);
+    private static final BigDecimal BYTE_MIN_VALUE = BigDecimal.valueOf(Byte.MIN_VALUE);
+    private static final BigDecimal SHORT_MAX_VALUE = BigDecimal.valueOf(Short.MAX_VALUE);
+    private static final BigDecimal SHORT_MIN_VALUE = BigDecimal.valueOf(Short.MIN_VALUE);
+    private static final BigDecimal INTEGER_MAX_VALUE = BigDecimal.valueOf(Integer.MAX_VALUE);
+    private static final BigDecimal INTEGER_MIN_VALUE = BigDecimal.valueOf(Integer.MIN_VALUE);
+    private static final BigDecimal LONG_MAX_VALUE = BigDecimal.valueOf(Long.MAX_VALUE);
+    private static final BigDecimal LONG_MIN_VALUE = BigDecimal.valueOf(Long.MIN_VALUE);
+    private static final BigDecimal FLOAT_MAX_VALUE = new BigDecimal(Float.MAX_VALUE);
+    private static final BigDecimal FLOAT_MIN_VALUE = new BigDecimal(Float.MIN_VALUE);
+    private static final BigDecimal DOUBLE_MAX_VALUE = new BigDecimal(Double.MAX_VALUE);
+    private static final BigDecimal DOUBLE_MIN_VALUE = new BigDecimal(Double.MIN_VALUE);
 
     private SQLConversionSettings   settings_;
     private int                     precision_;
@@ -281,12 +293,13 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(toString()));
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(getString()));
         }
         catch(UnsupportedEncodingException e)
         {
@@ -295,9 +308,10 @@ implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
+        truncated_ = 0;
         if(scale >= 0)
         {
             if(scale >= value_.scale())
@@ -315,103 +329,143 @@ implements SQLData
             return value_;
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         truncated_ = 0;
         return(value_.compareTo(BigDecimal.valueOf(0)) != 0);
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
-        truncated_ = value_.scale();
+        truncated_ = 0;
+        if(value_.compareTo(BYTE_MAX_VALUE) > 0 || value_.compareTo(BYTE_MIN_VALUE) < 0)
+        {
+            // we don't count the fractional part of the number as truncation
+            int length = value_.toBigInteger().toByteArray().length;
+            truncated_ = length - 1;
+        }
         return(byte) value_.byteValue();
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        return new StringReader(toString());
+        truncated_ = 0;
+        return new StringReader(getString());
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
-        String string = toString();
+        truncated_ = 0;
+        String string = getString();
         return new AS400JDBCClob(string, string.length());
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         truncated_ = 0;
+        if(value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0)
+        {
+            // we don't count the fractional part of the number as truncation
+            int length = value_.toBigInteger().toByteArray().length;
+            truncated_ = length - 8;
+        }
         return value_.doubleValue();
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         truncated_ = 0;
+        if(value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0)
+        {
+            // we don't count the fractional part of the number as truncation
+            int length = value_.toBigInteger().toByteArray().length;
+            truncated_ = length - 4;
+        }
         return value_.floatValue();
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
-        truncated_ = value_.scale();
+        truncated_ = 0;
+        if(value_.compareTo(INTEGER_MAX_VALUE) > 0 || value_.compareTo(INTEGER_MIN_VALUE) < 0)
+        {
+            // we don't count the fractional part of the number as truncation
+            int length = value_.toBigInteger().toByteArray().length;
+            truncated_ = length - 4;
+        }
         return value_.intValue();
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
-        truncated_ = value_.scale();
+        truncated_ = 0;
+        if(value_.compareTo(LONG_MAX_VALUE) > 0 || value_.compareTo(LONG_MIN_VALUE) < 0)
+        {
+            // we don't count the fractional part of the number as truncation
+            int length = value_.toBigInteger().toByteArray().length;
+            truncated_ = length - 8;
+        }
         return value_.longValue();
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
         truncated_ = 0;
         return value_;
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
-        truncated_ = value_.scale();
+        truncated_ = 0;
+        if(value_.compareTo(SHORT_MAX_VALUE) > 0 || value_.compareTo(SHORT_MIN_VALUE) < 0)
+        {
+            // we don't count the fractional part of the number as truncation
+            int length = value_.toBigInteger().toByteArray().length;
+            truncated_ = length - 2;
+        }
         return(short) value_.shortValue();
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
         truncated_ = 0;
         String stringRep = value_.toString();
@@ -424,26 +478,27 @@ implements SQLData
             + stringRep.substring(decimal+1);
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream  toUnicodeStream()
+    public InputStream  getUnicodeStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
-            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(toString()));
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(getString()));
         }
         catch(UnsupportedEncodingException e)
         {

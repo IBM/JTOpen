@@ -312,10 +312,11 @@ final class SQLClob implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
@@ -327,24 +328,26 @@ final class SQLClob implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new HexReaderInputStream(new StringReader(value_));
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         try
         {
             return new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
@@ -357,24 +360,25 @@ final class SQLClob implements SQLData
         }
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         try
         {
             return BinaryConverter.stringToBytes(value_);
@@ -387,106 +391,99 @@ final class SQLClob implements SQLData
         }
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new StringReader(value_);
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new AS400JDBCClob(value_, maxLength_);
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
-        try
-        {
-            if(savedObject_ != null) doConversion();
-        }
-        catch(SQLException sqle)
-        {
-            value_ = "";
-        }
+        if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return new AS400JDBCClob(value_, maxLength_);
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return 0;
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
-        try
-        {
-            if(savedObject_ != null) doConversion();
-        }
-        catch(SQLException sqle)
-        {
-            value_ = "";
-        }
+        if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         return value_;     
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toUnicodeStream()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
         if(savedObject_ != null) doConversion();
+        truncated_ = 0;
         try
         {
             return new ReaderInputStream(new StringReader(value_), 13488);

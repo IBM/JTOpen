@@ -25,8 +25,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-
-
 final class SQLTime
 implements SQLData
 {
@@ -37,29 +35,25 @@ implements SQLData
     private int                     hour_;
     private int                     minute_;
     private int                     second_;
+    private int                     truncated_;
 
-
-
-    SQLTime (SQLConversionSettings settings)
+    SQLTime(SQLConversionSettings settings)
     {
         settings_   = settings;
         hour_       = 0;
         minute_     = 0;
         second_     = 0;
+        truncated_  = 0;
     }
 
-
-
-    public Object clone ()
+    public Object clone()
     {
-        return new SQLTime (settings_);
+        return new SQLTime(settings_);
     }
 
-
-
-    public static Time stringToTime (String s,
-                                     SQLConversionSettings settings,
-                                     Calendar calendar)
+    public static Time stringToTime(String s,
+                                    SQLConversionSettings settings,
+                                    Calendar calendar)
     throws SQLException
     {
         try
@@ -68,16 +62,16 @@ implements SQLData
             // If the string is empty, then it is likely a NULL, so
             // just set this to a default date.
             if(s.trim().length() == 0)
-                return new Time (0);
+                return new Time(0);
 
             // Parse the string according to the format and separator.
-            // else if (format.equalsIgnoreCase (JDProperties.TIME_FORMAT_USA)) {
+            // else if(format.equalsIgnoreCase(JDProperties.TIME_FORMAT_USA)) {
             if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-            switch(settings.getTimeFormat ())
+            switch(settings.getTimeFormat())
             {                                          // @A0A
                 case SQLConversionSettings.TIME_FORMAT_USA:                                                  // @A0A
-                    int hour = Integer.parseInt (s.substring (0, 2));
-                    char amPm = s.charAt (6);
+                    int hour = Integer.parseInt(s.substring(0, 2));
+                    char amPm = s.charAt(6);
                     if(hour == 12)
                     {
                         if(amPm == 'A')
@@ -88,70 +82,68 @@ implements SQLData
                         if(amPm == 'P')
                             hour += 12;
                     }
-                    calendar.set (Calendar.HOUR_OF_DAY, hour);
-                    calendar.set (Calendar.MINUTE, Integer.parseInt (s.substring (3, 5)));
-                    calendar.set (Calendar.SECOND, 0);
+                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                    calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(3, 5)));
+                    calendar.set(Calendar.SECOND, 0);
                     break;                                                      // @A0A
 
                 case SQLConversionSettings.TIME_FORMAT_EUR:
                 case SQLConversionSettings.TIME_FORMAT_JIS:
                 case SQLConversionSettings.TIME_FORMAT_HMS:
                 case SQLConversionSettings.TIME_FORMAT_ISO:
-                    calendar.set (Calendar.HOUR_OF_DAY, Integer.parseInt (s.substring (0, 2)));
-                    calendar.set (Calendar.MINUTE, Integer.parseInt (s.substring (3, 5)));
-                    calendar.set (Calendar.SECOND, Integer.parseInt (s.substring (6, 8)));
+                    calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(s.substring(0, 2)));
+                    calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(3, 5)));
+                    calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(6, 8)));
                     break;
             }
 
-            calendar.set (Calendar.YEAR, 0);
-            calendar.set (Calendar.MONTH, 0);
-            calendar.set (Calendar.DAY_OF_MONTH, 0);
-            calendar.set (Calendar.MILLISECOND, 0);
+            calendar.set(Calendar.YEAR, 0);
+            calendar.set(Calendar.MONTH, 0);
+            calendar.set(Calendar.DAY_OF_MONTH, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
         }
         catch(NumberFormatException e)
         {
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
         catch(StringIndexOutOfBoundsException e)
         {
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
 
-        return new Time (calendar.getTime ().getTime ());
+        return new Time(calendar.getTime().getTime());
     }
 
-
-
-    public static String timeToString (Time t,
-                                       SQLConversionSettings dataFormat,
-                                       Calendar calendar)
+    public static String timeToString(Time t,
+                                      SQLConversionSettings dataFormat,
+                                      Calendar calendar)
     {
         return timeToString(t, dataFormat, calendar, -1);      // @E3C
     }
 
     // @E3A - This contains the logic from the original timeToString(), with new arg "hourIn".
-    private static String timeToString (Time t,
-                                        SQLConversionSettings dataFormat,
-                                        Calendar calendar,
-                                        int hourIn)
+    private static String timeToString(Time t,
+                                       SQLConversionSettings dataFormat,
+                                       Calendar calendar,
+                                       int hourIn)
     {
-        StringBuffer buffer = new StringBuffer ();
-        String separator = dataFormat.getTimeSeparator ();
+        StringBuffer buffer = new StringBuffer();
+        String separator = dataFormat.getTimeSeparator();
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-        calendar.setTime (t);
+        calendar.setTime(t);
 
-        int hour = calendar.get (Calendar.HOUR_OF_DAY);  // @E3A
-        int minute = calendar.get (Calendar.MINUTE);     // @E3A
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);  // @E3A
+        int minute = calendar.get(Calendar.MINUTE);     // @E3A
         int second = 0;                                  // @E3A
 
         // Note: No matter what format is being used,
         // ensure that exactly 8 characters are in the
         // buffer.
 
-        switch(dataFormat.getTimeFormat ())
+        switch(dataFormat.getTimeFormat())
         {                                           // @A0A
             case SQLConversionSettings.TIME_FORMAT_USA:                                                   // @A0A
-                // @E3D int hour = calendar.get (Calendar.HOUR_OF_DAY);
+                // @E3D int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 char amPm;
                 if(hour > 12)
                 {
@@ -160,40 +152,40 @@ implements SQLData
                 }
                 else
                     amPm = 'A';
-                buffer.append (JDUtilities.padZeros (hour, 2));
-                buffer.append (':');
-                buffer.append (JDUtilities.padZeros (minute, 2));            // @E3C
-                buffer.append (' ');
-                buffer.append (amPm);
-                buffer.append ('M');
+                buffer.append(JDUtilities.padZeros(hour, 2));
+                buffer.append(':');
+                buffer.append(JDUtilities.padZeros(minute, 2));            // @E3C
+                buffer.append(' ');
+                buffer.append(amPm);
+                buffer.append('M');
                 break;                                                       // @A0A
 
             case SQLConversionSettings.TIME_FORMAT_EUR:                                                   // @A0A
             case SQLConversionSettings.TIME_FORMAT_ISO:                                                   // @A0A
-                second = calendar.get (Calendar.SECOND);             // @E3A
-                buffer.append (JDUtilities.padZeros (hour, 2));      // @E3C
-                buffer.append ('.');
-                buffer.append (JDUtilities.padZeros (minute, 2));    // @E3C
-                buffer.append ('.');
-                buffer.append (JDUtilities.padZeros (second, 2));    // @E3C
+                second = calendar.get(Calendar.SECOND);             // @E3A
+                buffer.append(JDUtilities.padZeros(hour, 2));      // @E3C
+                buffer.append('.');
+                buffer.append(JDUtilities.padZeros(minute, 2));    // @E3C
+                buffer.append('.');
+                buffer.append(JDUtilities.padZeros(second, 2));    // @E3C
                 break;                                                       // @A0A
 
             case SQLConversionSettings.TIME_FORMAT_JIS:                                                   // @A0A
-                second = calendar.get (Calendar.SECOND);             // @F3A
-                buffer.append (JDUtilities.padZeros (hour, 2));      // @E3C
-                buffer.append (':');
-                buffer.append (JDUtilities.padZeros (minute, 2));    // @E3C
-                buffer.append (':');
-                buffer.append (JDUtilities.padZeros (second, 2));    // @E3C
+                second = calendar.get(Calendar.SECOND);             // @F3A
+                buffer.append(JDUtilities.padZeros(hour, 2));      // @E3C
+                buffer.append(':');
+                buffer.append(JDUtilities.padZeros(minute, 2));    // @E3C
+                buffer.append(':');
+                buffer.append(JDUtilities.padZeros(second, 2));    // @E3C
                 break;                                                       // @A0A
 
             case SQLConversionSettings.TIME_FORMAT_HMS:                                                   // @A0A
-                second = calendar.get (Calendar.SECOND);             // @E3A
-                buffer.append (JDUtilities.padZeros (hour, 2));      // @E3C
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (minute, 2));    // @E3C
-                buffer.append (separator);
-                buffer.append (JDUtilities.padZeros (second, 2));    // @E3C
+                second = calendar.get(Calendar.SECOND);             // @E3A
+                buffer.append(JDUtilities.padZeros(hour, 2));      // @E3C
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(minute, 2));    // @E3C
+                buffer.append(separator);
+                buffer.append(JDUtilities.padZeros(second, 2));    // @E3C
                 break;                                                       // @A0A
         }
 
@@ -205,10 +197,8 @@ implements SQLData
             // Note: StringBuffer.replace() is available in Java2.
         }
 
-        return buffer.toString ();
+        return buffer.toString();
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -216,12 +206,10 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        switch(settings_.getTimeFormat ())
+        switch(settings_.getTimeFormat())
         {
             
             case SQLConversionSettings.TIME_FORMAT_USA:                      // hh:mm AM or PM
@@ -247,31 +235,27 @@ implements SQLData
         }
     }
 
-
-
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        StringBuffer buffer = new StringBuffer (8);
+        StringBuffer buffer = new StringBuffer(8);
 
         // Always use ISO format here.
-        buffer.append (JDUtilities.padZeros (hour_, 2));
-        buffer.append ('.');
-        buffer.append (JDUtilities.padZeros (minute_, 2));
-        buffer.append ('.');
-        buffer.append (JDUtilities.padZeros (second_, 2));
+        buffer.append(JDUtilities.padZeros(hour_, 2));
+        buffer.append('.');
+        buffer.append(JDUtilities.padZeros(minute_, 2));
+        buffer.append('.');
+        buffer.append(JDUtilities.padZeros(second_, 2));
 
         try
         {
-            ccsidConverter.stringToByteArray (buffer.toString(), rawBytes, offset);
+            ccsidConverter.stringToByteArray(buffer.toString(), rawBytes, offset);
         }
         catch(CharConversionException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);        // @E2C
+            JDError.throwSQLException(JDError.EXC_INTERNAL, e);        // @E2C
         }
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -279,41 +263,37 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void set (Object object, Calendar calendar, int scale)
+    public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if(object instanceof String)
         {
-            stringToTime ((String) object, settings_, calendar);
-            hour_   = calendar.get (Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get (Calendar.MINUTE);
-            second_ = calendar.get (Calendar.SECOND);
+            stringToTime((String) object, settings_, calendar);
+            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
+            minute_ = calendar.get(Calendar.MINUTE);
+            second_ = calendar.get(Calendar.SECOND);
         }
 
         else if(object instanceof Time)
         {
-            calendar.setTime ((Time) object);
-            hour_   = calendar.get (Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get (Calendar.MINUTE);
-            second_ = calendar.get (Calendar.SECOND);
+            calendar.setTime((Time) object);
+            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
+            minute_ = calendar.get(Calendar.MINUTE);
+            second_ = calendar.get(Calendar.SECOND);
         }
 
         else if(object instanceof Timestamp)
         {
-            calendar.setTime ((Timestamp) object);
-            hour_   = calendar.get (Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get (Calendar.MINUTE);
-            second_ = calendar.get (Calendar.SECOND);
+            calendar.setTime((Timestamp) object);
+            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
+            minute_ = calendar.get(Calendar.MINUTE);
+            second_ = calendar.get(Calendar.SECOND);
         }
 
         else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -326,13 +306,12 @@ implements SQLData
         return SQLData.TIME;
     }
 
-    public String getCreateParameters ()
+    public String getCreateParameters()
     {
         return null;
     }
 
-
-    public int getDisplaySize ()
+    public int getDisplaySize()
     {
         return 8;
     }
@@ -343,100 +322,85 @@ implements SQLData
         return "java.sql.Time";
     }
 
-    public String getLiteralPrefix ()
+    public String getLiteralPrefix()
     {
         return "\'";
     }
 
-
-    public String getLiteralSuffix ()
+    public String getLiteralSuffix()
     {
         return "\'";
     }
 
-
-
-    public String getLocalName ()
+    public String getLocalName()
     {
         return "TIME";
     }
 
-
-    public int getMaximumPrecision ()
+    public int getMaximumPrecision()
     {
         return 8;
     }
 
-
-    public int getMaximumScale ()
+    public int getMaximumScale()
     {
         return 0;
     }
 
-
-    public int getMinimumScale ()
+    public int getMinimumScale()
     {
         return 0;
     }
 
-
-    public int getNativeType ()
+    public int getNativeType()
     {
         return 388;
     }
 
-
-    public int getPrecision ()
+    public int getPrecision()
     {
         return 8;
     }
 
-
-    public int getRadix ()
+    public int getRadix()
     {
         return 10;
     }
 
-
-    public int getScale ()
+    public int getScale()
     {
         return 0;
     }
 
-
-    public int getType ()
+    public int getType()
     {
         return java.sql.Types.TIME;
     }
 
-
-
-    public String getTypeName ()
+    public String getTypeName()
     {
         return "TIME";
     }
 
-
-    // @E1D    public boolean isGraphic ()
-    // @E1D    {
-    // @E1D        return false;
-    // @E1D    }
-
-
-
-    public boolean isSigned ()
+    public boolean isSigned()
     {
         return false;
     }
 
-
-
-    public boolean isText ()
+    public boolean isText()
     {
         return false;
     }
 
+    public int getActualSize()
+    {
+        return 8;
+    }
 
+    public int getTruncated()
+    {
+        return truncated_;
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -444,199 +408,153 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public int getActualSize ()
-    {
-        return 8;
-    }
-
-
-
-    public int getTruncated ()
-    {
-        return 0;
-    }
-
-
-
-    public InputStream toAsciiStream ()
+    public InputStream getAsciiStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public BigDecimal toBigDecimal (int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream toBinaryStream ()
+    public InputStream getBinaryStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Blob toBlob ()
+    public Blob getBlob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public boolean toBoolean ()
+    public boolean getBoolean()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-
-
-    public byte toByte ()
+    public byte getByte()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public byte[] toBytes ()
+    public byte[] getBytes()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Reader toCharacterStream ()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Clob toClob ()
+    public Clob getClob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Date toDate (Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public double toDouble ()
+    public double getDouble()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public float toFloat ()
+    public float getFloat()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public int toInt ()
+    public int getInt()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public long toLong ()
+    public long getLong()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public Object toObject ()
-    {
-        Calendar calendar = Calendar.getInstance ();
-        calendar.set (0, 0, 0, hour_, minute_, second_);
-        return new Time (calendar.getTime ().getTime ());
-    }
-
-
-
-    public short toShort ()
+    public Object getObject()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        truncated_ = 0;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
+        calendar.set(calendar.MILLISECOND, 0);
+        return new Time(calendar.getTime().getTime());
+    }
+
+    public short getShort()
+    throws SQLException
+    {
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public String toString ()
+    public String getString()
+    throws SQLException
     {
-        Calendar calendar = Calendar.getInstance ();
-        calendar.set (1970, Calendar.JANUARY, 1, hour_, minute_, second_);
+        truncated_ = 0;
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);
         calendar.set(calendar.MILLISECOND, 0);
         Time t = new Time(calendar.getTime().getTime());
         return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
-
-
-    public Time toTime (Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
+        truncated_ = 0;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         // @F2A
         // You are supposed to normalize the time to the epoch,
         // not set its extra fields to 0.  This produces totally different
         // results.  See JDBC API Reference and Tutorial, pg 860 for complete
         // details.
-        calendar.set (1970, Calendar.JANUARY, 1, hour_, minute_, second_);  // @F2C
-        // @F2D calendar.set (0, 0, 0, hour_, minute_, second_);
+        calendar.set(1970, Calendar.JANUARY, 1, hour_, minute_, second_);  // @F2C
+        // @F2D calendar.set(0, 0, 0, hour_, minute_, second_);
 
         // Make sure to set the millisecond value from the time too as
         // SQL Time objects do not track this field.
         calendar.set(calendar.MILLISECOND, 0);  // @F2A
 
-        return new Time (calendar.getTime().getTime());
+        return new Time(calendar.getTime().getTime());
     }
 
-
-
-    public Timestamp toTimestamp (Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         //
@@ -646,20 +564,15 @@ implements SQLData
         // now, since I don't think that any such conversion
         // really makes sense.
         //
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream  toUnicodeStream ()
+    public InputStream  getUnicodeStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
-
-
 }
 

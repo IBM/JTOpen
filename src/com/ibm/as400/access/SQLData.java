@@ -25,8 +25,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-
-
 /**
 The SQLData interface represents native SQL data.  A specific
 implementation of this interface will implement a specific
@@ -38,7 +36,6 @@ initialize the data.  That is done via the set() methods.
 interface SQLData
 extends Cloneable
 {
-
     public static final int UNDEFINED = 0;
     public static final int BIGINT = 1;
     public static final int BINARY = 2;
@@ -76,12 +73,9 @@ extends Cloneable
     /**
     Returns a clone of the SQLData object.  Use this sparingly
     so that we minimize the number of copies.
-    
     @return     The clone.
     **/
-    public abstract Object clone ();
-
-
+    public abstract Object clone();
 
     //---------------------------------------------------------//
     //                                                         //
@@ -89,40 +83,27 @@ extends Cloneable
     //                                                         //
     //---------------------------------------------------------//
 
-
-
     /**
     Loads the contents of the data from raw bytes, as returned
     in a reply from the server.
-    
     @param  rawBytes    raw bytes from the server.
     @param  offset      offset.
     @param  converter   the converter.
-    
     @exception  SQLException    If the raw bytes are not in
                                 the expected format.
     **/
-    public abstract void convertFromRawBytes (byte[] rawBytes,
-                                              int offset,
-                                              ConvTable converter) //@P0C
+    public abstract void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable converter)
     throws SQLException;
-
-
 
     /**
     Converts the contents of the data in raw bytes, as needed
     in a request to the server.
-    
     @param  rawBytes         the raw bytes for the server.
     @param  offset           the offset into the byte array.
     @param  ccsidConverter   the converter.
     **/
-    public abstract void convertToRawBytes (byte[] rawBytes,
-                                            int offset,
-                                            ConvTable ccsidConverter) //@P0C
+    public abstract void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter)
     throws SQLException;
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -135,26 +116,18 @@ extends Cloneable
     //                                                         //
     //---------------------------------------------------------//
 
-
-
     /**
     Sets the contents of the data based on a Java object.
     This performs all conversions described in Table 6
     of the JDBC specification.
-    
     @param  object      a Java object.
     @param  calendar    The calendar.
     @param  scale       The scale.
-    
     @exception  SQLException    If the Java object is not an
                                 appropriate type.
     **/
-    public abstract void set (Object object, 
-                              Calendar calendar,
-                              int scale)
+    public abstract void set(Object object, Calendar calendar, int scale)
     throws SQLException;
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -167,7 +140,6 @@ extends Cloneable
 
     /**
     Returns the SQL type constant for the implementing class.
-    
     @return     the SQL type constant.
     **/
     public abstract int getSQLType();
@@ -175,187 +147,136 @@ extends Cloneable
     /**
     Returns the parameters used in creating the
     type.
-    
     @return     the parameters, separated by commas,
                 or null if none.
     **/
-    public abstract String getCreateParameters ();
-
-
+    public abstract String getCreateParameters();
 
     /**
     Returns the display size.  This is defined in Appendix
     D of the ODBC 2.0 Programmer's Reference.
-    
     @return                 the display size (in characters).
-    
     @exception  SQLException    If the index is invalid
                                 or an error occurs.
     **/
-    public abstract int getDisplaySize ();
-
-
+    public abstract int getDisplaySize();
 
     //@F1A JDBC 3.0
     /**
     Returns the Java class name for ParameterMetaData.getParameterClassName().
-    
     @return                 the Java class name.
     **/
-
-    public abstract String getJavaClassName ();
-
-
+    public abstract String getJavaClassName();
 
     /**
     Returns the prefix used to quote a literal.
-    
     @return     the prefix, or null if none.
     **/
-    public abstract String getLiteralPrefix ();
-
-
+    public abstract String getLiteralPrefix();
 
     /**
     Returns the suffix used to quote a literal.
-    
     @return     the suffix, or null if none.
     **/
-    public abstract String getLiteralSuffix ();
-
-
+    public abstract String getLiteralSuffix();
 
     /**
     Returns the localized version of the name of the
     data type.
-    
     @return     the name, or null.
     **/
-    public abstract String getLocalName ();
-
-
+    public abstract String getLocalName();
 
     /**
     Returns the maximum precision of the type. This is
     defined in Appendix D of the ODBC 2.0 Programmer's
     Reference.
-    
     @return     the maximum precision.
     **/
-    public abstract int getMaximumPrecision ();
-
-
+    public abstract int getMaximumPrecision();
 
     /**
     Returns the maximum scale of the type.  This is
     defined in Appendix D of the ODBC 2.0 Programmer's
     Reference.
-    
     @return     the maximum scale.
     **/
-    public abstract int getMaximumScale ();
-
-
+    public abstract int getMaximumScale();
 
     /**
     Returns the minimum scale of the type.  This is
     defined in Appendix D of the ODBC 2.0 Programmer's
     Reference.
-    
     @return     the minimum scale.
     **/
-    public abstract int getMinimumScale ();
-
-
+    public abstract int getMinimumScale();
 
     /**
     Returns the native AS/400 identifier for the type.
-    
     @return     the native type.
     **/
-    public abstract int getNativeType ();
-
-
+    public abstract int getNativeType();
 
     /**
     Returns the precision of the type. This is
     defined in Appendix D of the ODBC 2.0 Programmer's
     Reference.
-    
     @return     the precision.
     **/
-    public abstract int getPrecision ();
-
-
+    public abstract int getPrecision();
 
     /**
     Returns the radix for the type.
-    
     @return     the radix.
     **/
-    public abstract int getRadix ();
-
-
+    public abstract int getRadix();
 
     /**
     Returns the scale of the type. This is
     defined in Appendix D of the ODBC 2.0 Programmer's
     Reference.
-    
     @return     the scale.
     **/
-    public abstract int getScale ();
-
-
+    public abstract int getScale();
 
     /**
     Returns the type constant associated with the type.
-    
     @return     SQL type code defined in java.sql.Types.
     **/
-    public abstract int getType ();
-
-
+    public abstract int getType();
 
     /**
     Returns the name of the data type.
-    
     @return     the name.
     **/
-    public abstract String getTypeName ();
-
-
-
-    // @E1D /**
-    // @E1D Indicates whether the type is graphic data.  Note
-    // @E1D that this should only return true if isText()
-    // @E1D also returns true.
-    // @E1D 
-    // @E1D @return     true or false
-    // @E1D **/
-    // @E1D     public abstract boolean isGraphic ();
-
-
+    public abstract String getTypeName();
 
     /**
     Indicates whether the type is signed.
-    
     @return     true or false
     **/
-    public abstract boolean isSigned ();
-
-
+    public abstract boolean isSigned();
 
     /**
     Indicates whether the type is text.  This also
     indicates that the associated data needs to be
     converted.
-    
     @return     true or false
     **/
-    public abstract boolean isText ();
+    public abstract boolean isText();
 
+    /**
+    Returns the actual size of this piece of data in bytes.
+    @return the actual size of this piece of data in bytes.
+    **/
+    public abstract int getActualSize();
 
+    /**
+    Returns the number of bytes truncated by the last conversion
+    of this piece of data.
+    @return the number of bytes truncated by the last conversion
+    **/
+    public abstract int getTruncated();
 
     //---------------------------------------------------------//
     //                                                         //
@@ -371,287 +292,191 @@ extends Cloneable
     //                                                         //
     /*---------------------------------------------------------*/
 
-
-
-    /**
-    Returns the actual size of this piece of data in bytes.
-    
-    @return the actual size of this piece of data in bytes.
-    **/
-    public abstract int getActualSize ();
-
-
-
-    /**
-    Returns the number of bytes truncated by the last conversion
-    of this piece of data.
-    
-    @return the number of bytes truncated by the last conversion
-    **/
-    public abstract int getTruncated ();
-
-
-
     /**
     Converts the data to a stream of ASCII characters.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract InputStream toAsciiStream ()
+    public abstract InputStream getAsciiStream()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java BigDecimal object.
-    
     @param      scale   scale, or -1 to use full scale.
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract BigDecimal toBigDecimal (int scale)
+    public abstract BigDecimal getBigDecimal(int scale)
     throws SQLException;
-
-
 
     /**
     Converts the data to a stream of uninterpreted bytes.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract InputStream toBinaryStream ()
+    public abstract InputStream getBinaryStream()
     throws SQLException;
-
-
 
     /**
     Converts the data to a java.sql.Blob object.
-    
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Blob toBlob ()
+    public abstract Blob getBlob()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java boolean.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract boolean toBoolean ()
+    public abstract boolean getBoolean()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java byte.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract byte toByte ()
+    public abstract byte getByte()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java byte array containing
     uninterpreted bytes.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract byte[] toBytes ()
+    public abstract byte[] getBytes()
     throws SQLException;
-
-
 
     /**
     Converts the data to a java.io.Reader object.
-    
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Reader toCharacterStream ()
+    public abstract Reader getCharacterStream()
     throws SQLException;
-
-
 
     /**
     Converts the data to a java.sql.Clob object.
-    
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Clob toClob ()
+    public abstract Clob getClob()
     throws SQLException;
-
-
 
     /**
     Converts the data to a java.sql.Date object.
-    
     @param  calendar    The calendar.
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Date toDate (Calendar calendar)
+    public abstract Date getDate(Calendar calendar)
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java double.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract double toDouble ()
+    public abstract double getDouble()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java float.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract float toFloat ()
+    public abstract float getFloat()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java int.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract int toInt ()
+    public abstract int getInt()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java long.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract long toLong ()
+    public abstract long getLong()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java object.  The actual type
     of the Java object is dictated per section 8,
     table 2 ("Standard mapping from SQL types to Java types")
     of the JDBC 1.10 specification
-    
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Object toObject ();
-
-
+    public abstract Object getObject()
+    throws SQLException;
 
     /**
     Converts the data to a Java short.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract short toShort ()
+    public abstract short getShort()
     throws SQLException;
-
-
 
     /**
     Converts the data to a Java String object.  This
     conversion must be provided by the implementation.
-    
     @return             the result of the conversion.
     **/
-    public abstract String toString ();
-
-
+    public abstract String getString()
+    throws SQLException;
 
     /**
     Converts the data to a java.sql.Time object.
-    
     @param  calendar    The calendar.
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Time toTime (Calendar calendar)
+    public abstract Time getTime(Calendar calendar)
     throws SQLException;
-
-
 
     /**
     Converts the data to a java.sql.Timestamp object.
-    
     @param  calendar    The calendar.
     @return             the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract Timestamp toTimestamp (Calendar calendar)
+    public abstract Timestamp getTimestamp(Calendar calendar)
     throws SQLException;
-
-
 
     /**
     Converts the data to a stream of Unicdoe characters.
-    
     @return     the result of the conversion.
-    
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    public abstract InputStream toUnicodeStream ()
+    public abstract InputStream getUnicodeStream()
     throws SQLException;
 
 }

@@ -127,7 +127,7 @@ one from the server).
         while (otherRowCache.isValid ()) {
             Object[] rowOfData = new Object[fieldCount];
             for (int i = 1; i <= fieldCount; ++i)
-                rowOfData[i-1] = otherRow.getSQLData (i).toObject ();
+                rowOfData[i-1] = otherRow.getSQLData (i).getObject ();
             tempData.addElement (rowOfData);
 
             boolean[] rowOfNulls = new boolean[fieldCount];

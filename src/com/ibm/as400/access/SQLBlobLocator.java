@@ -406,49 +406,63 @@ final class SQLBlobLocator implements SQLLocator
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
-        return new AS400JDBCInputStream(new JDLobLocator(locator_));
+        truncated_ = 0;
+        //return new AS400JDBCInputStream(new JDLobLocator(locator_));
+
+        // fix this to use a Stream
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
+        truncated_ = 0;
         return new AS400JDBCInputStream(new JDLobLocator(locator_));
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
         // We don't want to give out our internal locator to the public,
         // otherwise when we go to change its handle on the next row, they'll
         // get confused.  So we have to clone it.
+        truncated_ = 0;
         return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_, scale_);
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
         int locatorLength = (int)locator_.getLength();
@@ -457,57 +471,65 @@ final class SQLBlobLocator implements SQLLocator
         int actualLength = data.getLength();
         byte[] bytes = new byte[actualLength];
         System.arraycopy(data.getRawBytes(), data.getOffset(), bytes, 0, actualLength);
+        truncated_ = 0;
         return bytes;
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        return new InputStreamReader(new AS400JDBCInputStream(new JDLobLocator(locator_)));
+        truncated_ = 0;
+        //return new InputStreamReader(new AS400JDBCInputStream(new JDLobLocator(locator_)));
+        
+        // fix this to use a Stream
+        return new StringReader(BinaryConverter.bytesToString(getBytes()));
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
-        return new AS400JDBCClobLocator(new JDLobLocator(locator_), connection_.converter_, savedObject_, scale_);
+        truncated_ = 0;
+        String string = BinaryConverter.bytesToString(getBytes());
+        return new AS400JDBCClob(string, string.length());
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
         // toObject is used by AS400JDBCPreparedStatement for batching, so we save off our InputStream
         // inside the AS400JDBCBlobLocator. Then, when convertToRawBytes() is called, the writeToServer()
@@ -519,39 +541,54 @@ final class SQLBlobLocator implements SQLLocator
         // This doesn't make much sense, since we technically can't reuse it because
         // the prepared statement is calling toObject() to store off the parameters,
         // but it's all we can do for now.
+        truncated_ = 0;
         return new AS400JDBCBlobLocator(new JDLobLocator(locator_), savedObject_, scale_);
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
-        return super.toString();
+        truncated_ = 0;
+        return BinaryConverter.bytesToString(getBytes());
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-    public InputStream toUnicodeStream()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
-        return new AS400JDBCInputStream(new JDLobLocator(locator_));
+        truncated_ = 0;
+        //return new AS400JDBCInputStream(new JDLobLocator(locator_));
+        
+        // fix this to use a Stream
+        try
+        {
+            return new ByteArrayInputStream(ConvTable.getTable(13488, null).stringToByteArray(BinaryConverter.bytesToString(getBytes())));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
+            return null;
+        }
     }
 }
 

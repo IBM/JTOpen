@@ -25,8 +25,6 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-
-
 final class SQLTimestamp
 implements SQLData
 {
@@ -43,9 +41,7 @@ implements SQLData
     private int                     second_;
     private int                     nanos_;
 
-
-
-    SQLTimestamp (SQLConversionSettings settings)
+    SQLTimestamp(SQLConversionSettings settings)
     {
         settings_   = settings;
         truncated_  = 0;
@@ -58,40 +54,35 @@ implements SQLData
         nanos_      = 0;
     }
 
-
-
-    public Object clone ()
+    public Object clone()
     {
-        return new SQLTimestamp (settings_);
+        return new SQLTimestamp(settings_);
     }
 
-
-
-    public static Timestamp stringToTimestamp (String s,
-                                               Calendar calendar)
+    public static Timestamp stringToTimestamp(String s, Calendar calendar)
     throws SQLException
     {
         try
         {
             // @E3D // If the string has a year 1, then it is likely a NULL, so
             // @E3D // just set this to a default date.
-            int year = Integer.parseInt (s.substring (0, 4));
-            // @E3D if (year == 1) {
-            // @E3D     return new Timestamp (0);
+            int year = Integer.parseInt(s.substring(0, 4));
+            // @E3D if(year == 1) {
+            // @E3D     return new Timestamp(0);
             // @E3D }
 
             // Parse the string .
             // @E3D else {
 
             if(calendar == null) calendar = Calendar.getInstance(); // @F5A
-            calendar.set (Calendar.YEAR, year);
-            calendar.set (Calendar.MONTH, Integer.parseInt (s.substring (5, 7)) - 1);
-            calendar.set (Calendar.DAY_OF_MONTH, Integer.parseInt (s.substring (8, 10)));
-            calendar.set (Calendar.HOUR_OF_DAY, Integer.parseInt (s.substring (11, 13)));
-            calendar.set (Calendar.MINUTE, Integer.parseInt (s.substring (14, 16)));
-            calendar.set (Calendar.SECOND, Integer.parseInt (s.substring (17, 19)));
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, Integer.parseInt(s.substring(5, 7)) - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.substring(8, 10)));
+            calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(s.substring(11, 13)));
+            calendar.set(Calendar.MINUTE, Integer.parseInt(s.substring(14, 16)));
+            calendar.set(Calendar.SECOND, Integer.parseInt(s.substring(17, 19)));
 
-            Timestamp ts = new Timestamp (calendar.getTime ().getTime ());
+            Timestamp ts = new Timestamp(calendar.getTime().getTime());
             // @F2A
             // Remember that the value for nanoseconds is optional.  If we don't check the 
             // length of the string before trying to handle nanoseconds for the timestamp, 
@@ -99,8 +90,8 @@ implements SQLData
             // as a timestamp that would have this problem is:  "1999-12-31 12:59:59"
             if(s.length() > 20)
             {                                              // @F2A
-                String nanos = s.substring (20).trim () + "000000000";            // @F2M
-                ts.setNanos (Integer.parseInt (nanos.substring (0, 6)) * 1000);
+                String nanos = s.substring(20).trim() + "000000000";            // @F2M
+                ts.setNanos(Integer.parseInt(nanos.substring(0, 6)) * 1000);
             }
             else
             {
@@ -112,55 +103,51 @@ implements SQLData
         }
         catch(NumberFormatException e)
         {
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
         catch(StringIndexOutOfBoundsException e)
         {
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
         }
 
-        return new Timestamp (0);
+        return new Timestamp(0);
     }
 
-
-
-    public static String timestampToString (Timestamp ts,
-                                            Calendar calendar)
+    public static String timestampToString(Timestamp ts,
+                                           Calendar calendar)
     {
         return timestampToString(ts, calendar, -1);             // @F4C
     }
 
-
-
     // @F4A - New method - Contains the logic from the old method, with the addition of the hourIn parameter.
-    public static String timestampToString (Timestamp ts,
-                                            Calendar calendar, int hourIn)
+    public static String timestampToString(Timestamp ts,
+                                           Calendar calendar, int hourIn)
     {
         // @F3A
         // The native driver outputs timestamps like 2100-01-02-03.45.56.000000, while we output timestamps like 2100-01-02 03:45:56.000000. The first is apparently the ISO standard while ours follows Java's Timestamp.toString() method. This was pointed out by a user who noticed that although he gets a timestamp from our database in one format, he can't put it back in the database in that same format. 
         // @F6A Change back to old format because of service issue.
-        StringBuffer buffer = new StringBuffer ();
+        StringBuffer buffer = new StringBuffer();
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-        calendar.setTime (ts);
+        calendar.setTime(ts);
 
-        buffer.append (JDUtilities.padZeros (calendar.get (Calendar.YEAR), 4));
-        buffer.append ('-');
-        buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MONTH) + 1, 2));
-        buffer.append ('-');
-        buffer.append (JDUtilities.padZeros (calendar.get (Calendar.DAY_OF_MONTH), 2));
-        buffer.append (' '); //@F6C
-        //@F6D buffer.append ('-');    // @F3C
-        int hour = calendar.get (Calendar.HOUR_OF_DAY);       // @F4A
-        // @F4D buffer.append (JDUtilities.padZeros (calendar.get (Calendar.HOUR_OF_DAY), 2));
-        buffer.append (JDUtilities.padZeros (hour, 2));       // @F4C
-        buffer.append (':');  //@F6C
-        //@F6D buffer.append ('.');    // @F3C
-        buffer.append (JDUtilities.padZeros (calendar.get (Calendar.MINUTE), 2));
-        buffer.append (':');  //@F6C
-        //@F6D buffer.append ('.');    // @F3C
-        buffer.append (JDUtilities.padZeros (calendar.get (Calendar.SECOND), 2));
-        buffer.append ('.');
-        buffer.append (JDUtilities.padZeros (ts.getNanos (), 9)); // @B1C
+        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.YEAR), 4));
+        buffer.append('-');
+        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MONTH) + 1, 2));
+        buffer.append('-');
+        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.DAY_OF_MONTH), 2));
+        buffer.append(' '); //@F6C
+        //@F6D buffer.append('-');    // @F3C
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);       // @F4A
+        // @F4D buffer.append(JDUtilities.padZeros(calendar.get(Calendar.HOUR_OF_DAY), 2));
+        buffer.append(JDUtilities.padZeros(hour, 2));       // @F4C
+        buffer.append(':');  //@F6C
+        //@F6D buffer.append('.');    // @F3C
+        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.MINUTE), 2));
+        buffer.append(':');  //@F6C
+        //@F6D buffer.append('.');    // @F3C
+        buffer.append(JDUtilities.padZeros(calendar.get(Calendar.SECOND), 2));
+        buffer.append('.');
+        buffer.append(JDUtilities.padZeros(ts.getNanos(), 9)); // @B1C
 
         // The Calendar class represents 24:00:00 as 00:00:00.        // @F4A
         // Format of timestamp is YYYY-MM-DD-hh.mm.ss.uuuuuu, so hh is at offset 11.
@@ -173,10 +160,8 @@ implements SQLData
 
         // Ensure that exactly 26 characters are returned.
         String tempString = buffer.toString() + "000000";
-        return tempString.substring (0, 26);
+        return tempString.substring(0, 26);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -184,9 +169,7 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public void convertFromRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertFromRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
         year_ = (rawBytes[offset] & 0x0f) * 1000
@@ -196,7 +179,7 @@ implements SQLData
 
         // @E3D // If the string has a year 1, then it is likely a NULL, so
         // @E3D // just set this to a default date.
-        // @E3D if (year_ != 1) {
+        // @E3D if(year_ != 1) {
         month_ = (rawBytes[offset+5] & 0x0f) * 10
                  + (rawBytes[offset+6] & 0x0f) - 1;
         day_ = (rawBytes[offset+8] & 0x0f) * 10
@@ -217,25 +200,21 @@ implements SQLData
         // @E3D }
     }
 
-
-
-    public void convertToRawBytes (byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
+    public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        StringBuffer buffer = new StringBuffer (toString().replace (':', '.'));
-        buffer.setCharAt (10, '-');
+        StringBuffer buffer = new StringBuffer(getString().replace(':', '.'));
+        buffer.setCharAt(10, '-');
 
         try
         {
-            ccsidConverter.stringToByteArray (buffer.toString(), rawBytes, offset);
+            ccsidConverter.stringToByteArray(buffer.toString(), rawBytes, offset);
         }
         catch(CharConversionException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);    // @E2C
+            JDError.throwSQLException(JDError.EXC_INTERNAL, e);    // @E2C
         }
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -248,51 +227,49 @@ implements SQLData
         return SQLData.TIMESTAMP;
     }
 
-    public void set (Object object, Calendar calendar, int scale)
+    public void set(Object object, Calendar calendar, int scale)
     throws SQLException
     {
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A  
         if(object instanceof String)
         {
-            Timestamp ts = stringToTimestamp ((String) object, calendar);
-            year_   = calendar.get (Calendar.YEAR);
-            month_  = calendar.get (Calendar.MONTH);
-            day_    = calendar.get (Calendar.DAY_OF_MONTH);
-            hour_   = calendar.get (Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get (Calendar.MINUTE);
-            second_ = calendar.get (Calendar.SECOND);
-            nanos_  = ts.getNanos ();
+            Timestamp ts = stringToTimestamp((String) object, calendar);
+            year_   = calendar.get(Calendar.YEAR);
+            month_  = calendar.get(Calendar.MONTH);
+            day_    = calendar.get(Calendar.DAY_OF_MONTH);
+            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
+            minute_ = calendar.get(Calendar.MINUTE);
+            second_ = calendar.get(Calendar.SECOND);
+            nanos_  = ts.getNanos();
         }
 
         else if(object instanceof Timestamp)
         {    // @F5M
-            calendar.setTime ((Timestamp) object);
-            year_   = calendar.get (Calendar.YEAR);
-            month_  = calendar.get (Calendar.MONTH);
-            day_    = calendar.get (Calendar.DAY_OF_MONTH);
-            hour_   = calendar.get (Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get (Calendar.MINUTE);
-            second_ = calendar.get (Calendar.SECOND);
-            nanos_  = ((Timestamp) object).getNanos ();
+            calendar.setTime((Timestamp) object);
+            year_   = calendar.get(Calendar.YEAR);
+            month_  = calendar.get(Calendar.MONTH);
+            day_    = calendar.get(Calendar.DAY_OF_MONTH);
+            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
+            minute_ = calendar.get(Calendar.MINUTE);
+            second_ = calendar.get(Calendar.SECOND);
+            nanos_  = ((Timestamp) object).getNanos();
         }
 
         else if(object instanceof java.util.Date)
         {     // @F5C
-            calendar.setTime ((java.util.Date) object);  // @F5C
-            year_   = calendar.get (Calendar.YEAR);
-            month_  = calendar.get (Calendar.MONTH);
-            day_    = calendar.get (Calendar.DAY_OF_MONTH);
-            hour_   = calendar.get (Calendar.HOUR_OF_DAY);
-            minute_ = calendar.get (Calendar.MINUTE);
-            second_ = calendar.get (Calendar.SECOND);
-            nanos_  = calendar.get (Calendar.MILLISECOND) * 1000000;
+            calendar.setTime((java.util.Date) object);  // @F5C
+            year_   = calendar.get(Calendar.YEAR);
+            month_  = calendar.get(Calendar.MONTH);
+            day_    = calendar.get(Calendar.DAY_OF_MONTH);
+            hour_   = calendar.get(Calendar.HOUR_OF_DAY);
+            minute_ = calendar.get(Calendar.MINUTE);
+            second_ = calendar.get(Calendar.SECOND);
+            nanos_  = calendar.get(Calendar.MILLISECOND) * 1000000;
         }
 
         else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     }
-
-
 
     //---------------------------------------------------------//
     //                                                         //
@@ -300,15 +277,12 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public String getCreateParameters ()
+    public String getCreateParameters()
     {
         return null;
     }
 
-
-    public int getDisplaySize ()
+    public int getDisplaySize()
     {
         return 26;
     }
@@ -319,104 +293,85 @@ implements SQLData
         return "java.sql.Timestamp";
     }
 
-
-    public String getLiteralPrefix ()
+    public String getLiteralPrefix()
     {
         return "\'";
     }
 
-
-    public String getLiteralSuffix ()
+    public String getLiteralSuffix()
     {
         return "\'";
     }
 
-
-
-    public String getLocalName ()
+    public String getLocalName()
     {
         return "TIMESTAMP";
     }
 
-
-    public int getMaximumPrecision ()
+    public int getMaximumPrecision()
     {
         return 26;
     }
 
-
-    public int getMaximumScale ()
+    public int getMaximumScale()
     {
         return 6;
     }
 
-
-    public int getMinimumScale ()
+    public int getMinimumScale()
     {
         return 6;
     }
 
-
-    public int getNativeType ()
+    public int getNativeType()
     {
         return 392;
     }
 
-
-    public int getPrecision ()
+    public int getPrecision()
     {
         return 26;
     }
 
-
-
-    public int getRadix ()
+    public int getRadix()
     {
         return 10;
     }
 
-
-
-    public int getScale ()
+    public int getScale()
     {
         return 6;
     }
 
-
-
-    public int getType ()
+    public int getType()
     {
         return java.sql.Types.TIMESTAMP;
     }
 
-
-
-    public String getTypeName ()
+    public String getTypeName()
     {
         return "TIMESTAMP";
     }
 
-
-    // @E1D    public boolean isGraphic ()
-    // @E1D    {
-    // @E1D        return false;
-    // @E1D    }
-
-
-
-    public boolean isSigned ()
+    public boolean isSigned()
     {
         return false;
     }
 
-
-
-    public boolean isText ()
+    public boolean isText()
     {
         return false;
     }
 
+    public int getActualSize()
+    {
+        return 26;
+    }
 
+    public int getTruncated()
+    {
+        return truncated_;
+    }
 
     //---------------------------------------------------------//
     //                                                         //
@@ -424,215 +379,160 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-
-
-    public int getActualSize ()
-    {
-        return 26;
-    }
-
-
-
-    public int getTruncated ()
-    {
-        return truncated_;
-    }
-
-
-
-    public InputStream toAsciiStream ()
+    public InputStream getAsciiStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public BigDecimal toBigDecimal (int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public InputStream toBinaryStream ()
+    public InputStream getBinaryStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public boolean toBoolean ()
+    public boolean getBoolean()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return false;
     }
 
-
-
-    public Blob toBlob ()
+    public Blob getBlob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public byte toByte ()
+    public byte getByte()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public byte[] toBytes ()
+    public byte[] getBytes()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Reader toCharacterStream ()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Clob toClob ()
+    public Clob getClob()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
 
-
-
-    public Date toDate (Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         truncated_ = 16;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-        calendar.set (year_, month_, day_, 0, 0, 0);
-        return new Date (calendar.getTime ().getTime ());
+        calendar.set(year_, month_, day_, 0, 0, 0);
+        return new Date(calendar.getTime().getTime());
     }
 
-
-
-    public double toDouble ()
+    public double getDouble()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public float toFloat ()
+    public float getFloat()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public int toInt ()
+    public int getInt()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public long toLong ()
+    public long getLong()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public Object toObject ()
+    public Object getObject()
+    throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance ();
-        calendar.set (year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp  (calendar.getTime ().getTime ());
-        ts.setNanos (nanos_);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year_, month_, day_, hour_, minute_, second_);
+        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        ts.setNanos(nanos_);
         return ts;
     }
 
-
-
-    public short toShort ()
+    public short getShort()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return -1;
     }
 
-
-
-    public String toString ()
+    public String getString()
+    throws SQLException
     {
         truncated_ = 0;
-        Calendar calendar = Calendar.getInstance ();
-        calendar.set (year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp  (calendar.getTime ().getTime ());
-        ts.setNanos (nanos_);
-        return timestampToString (ts, calendar, hour_);       // @F4C
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year_, month_, day_, hour_, minute_, second_);
+        Timestamp ts = new Timestamp (calendar.getTime().getTime());
+        ts.setNanos(nanos_);
+        return timestampToString(ts, calendar, hour_);       // @F4C
     }
 
-
-
-    public Time toTime (Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         truncated_ = 18;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-        calendar.set (0, 0, 0, hour_, minute_, second_);
-        return new Time (calendar.getTime ().getTime ());
+        calendar.set(0, 0, 0, hour_, minute_, second_);
+        return new Time(calendar.getTime().getTime());
     }
 
-
-
-    public Timestamp toTimestamp (Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
         if(calendar == null) calendar = Calendar.getInstance(); //@P0A
-        calendar.set (year_, month_, day_, hour_, minute_, second_);
-        Timestamp ts = new Timestamp  (calendar.getTime ().getTime ());
-        ts.setNanos (nanos_);
+        calendar.set(year_, month_, day_, hour_, minute_, second_);
+        Timestamp ts = new Timestamp(calendar.getTime().getTime());
+        ts.setNanos(nanos_);
         return ts;
     }
 
-
-
-    public InputStream  toUnicodeStream ()
+    public InputStream  getUnicodeStream()
     throws SQLException
     {
-        JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-
-
-
 }
 

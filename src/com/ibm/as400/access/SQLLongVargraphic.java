@@ -295,9 +295,10 @@ implements SQLData
     //                                                         //
     //---------------------------------------------------------//
 
-    public InputStream toAsciiStream()
+    public InputStream getAsciiStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new ByteArrayInputStream(ConvTable.getTable(819, null).stringToByteArray(value_));
@@ -309,9 +310,10 @@ implements SQLData
         }
     }
 
-    public BigDecimal toBigDecimal(int scale)
+    public BigDecimal getBigDecimal(int scale)
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             BigDecimal bigDecimal = new BigDecimal(SQLDataFactory.convertScientificNotation(value_)); // @F3C
@@ -338,15 +340,17 @@ implements SQLData
         }
     }
 
-    public InputStream toBinaryStream()
+    public InputStream getBinaryStream()
     throws SQLException
     {
+        truncated_ = 0;
         return new HexReaderInputStream(new StringReader(value_));
     }
 
-    public Blob toBlob()
+    public Blob getBlob()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new AS400JDBCBlob(BinaryConverter.stringToBytes(value_), maxLength_);
@@ -359,7 +363,7 @@ implements SQLData
         }
     }
 
-    public boolean toBoolean()
+    public boolean getBoolean()
     throws SQLException
     {
         truncated_ = 0;
@@ -373,7 +377,7 @@ implements SQLData
                && (! trimmedValue.equals("0")));
     }
 
-    public byte toByte()
+    public byte getByte()
     throws SQLException
     {
         truncated_ = 0;
@@ -389,9 +393,10 @@ implements SQLData
         }
     }
 
-    public byte[] toBytes()
+    public byte[] getBytes()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return BinaryConverter.stringToBytes(value_);
@@ -404,30 +409,32 @@ implements SQLData
         }
     }
 
-    public Reader toCharacterStream()
+    public Reader getCharacterStream()
     throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        truncated_ = 0;
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        return new StringReader(toString());
+        return new StringReader(getString());
     }
 
-    public Clob toClob()
+    public Clob getClob()
     throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        truncated_ = 0;
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        return new AS400JDBCClob(toString(), maxLength_);
+        return new AS400JDBCClob(getString(), maxLength_);
     }
 
-    public Date toDate(Calendar calendar)
+    public Date getDate(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
         return SQLDate.stringToDate(value_, settings_, calendar);
     }
 
-    public double toDouble()
+    public double getDouble()
     throws SQLException
     {
         truncated_ = 0;
@@ -443,7 +450,7 @@ implements SQLData
         }
     }
 
-    public float toFloat()
+    public float getFloat()
     throws SQLException
     {
         truncated_ = 0;
@@ -459,7 +466,7 @@ implements SQLData
         }
     }
 
-    public int toInt()
+    public int getInt()
     throws SQLException
     {
         truncated_ = 0;
@@ -475,7 +482,7 @@ implements SQLData
         }
     }
 
-    public long toLong()
+    public long getLong()
     throws SQLException
     {
         truncated_ = 0;
@@ -491,14 +498,16 @@ implements SQLData
         }
     }
 
-    public Object toObject()
+    public Object getObject()
+    throws SQLException
     {
-        // This is written in terms of toString(), since it will
+        truncated_ = 0;
+        // This is written in terms of getString(), since it will
         // handle truncating to the max field size if needed.
-        return toString();
+        return getString();
     }
 
-    public short toShort()
+    public short getShort()
     throws SQLException
     {
         truncated_ = 0;
@@ -514,8 +523,10 @@ implements SQLData
         }
     }
 
-    public String toString()
+    public String getString()
+    throws SQLException
     {
+        truncated_ = 0;
         // Truncate to the max field size if needed.
         // Do not signal a DataTruncation per the spec. @B1A
         int maxFieldSize = settings_.getMaxFieldSize();
@@ -531,23 +542,24 @@ implements SQLData
         }
     }
 
-    public Time toTime(Calendar calendar)
+    public Time getTime(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
         return SQLTime.stringToTime(value_, settings_, calendar);
     }
 
-    public Timestamp toTimestamp(Calendar calendar)
+    public Timestamp getTimestamp(Calendar calendar)
     throws SQLException
     {
         truncated_ = 0;
         return SQLTimestamp.stringToTimestamp(value_, calendar);
     }
 
-    public InputStream toUnicodeStream()
+    public InputStream getUnicodeStream()
     throws SQLException
     {
+        truncated_ = 0;
         try
         {
             return new ReaderInputStream(new StringReader(value_), 13488);
