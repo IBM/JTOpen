@@ -151,7 +151,7 @@ Returns the sending program name.
 **/
   public String getFromProgram()
   {
-    if (sendingProgram_ == "" && values_ != null)
+    if (sendingProgram_.length() == 0 && values_ != null)
     {
       String s = (String)values_.get(603);
       if (s != null)
@@ -168,10 +168,12 @@ Returns the sending program name.
 Returns the sender job name.
 
 @return The sender job name, or "" if it is not set.
+@see #getFromJobNumber
+@see #getUser
 **/
   public String getFromJobName()
   {
-    if (sendingJobName_ == "" && values_ != null)
+    if (sendingJobName_.length() == 0 && values_ != null)
     {
       String s = (String)values_.get(601);
       if (s != null)
@@ -188,10 +190,12 @@ Returns the sender job name.
 Returns the sender job number.
 
 @return The sender job number, or "" if it is not set.
+@see #getFromJobName
+@see #getUser
 **/
   public String getFromJobNumber()
   {
-    if (sendingJobNumber_ == "" && values_ != null)
+    if (sendingJobNumber_.length() == 0 && values_ != null)
     {
       String s = (String)values_.get(601);
       if (s != null)
@@ -204,13 +208,14 @@ Returns the sender job number.
 
 
   /**
-   * Returns the sender job's user. This method works the way {@link #getUser getUser()} did
-   * in previous releases, by returning the user portion of the job information. To get the
-   * current user of the message, call {@link #getUser getUser()} when accessing a system
+   * Returns the sender job's user. To get the
+   * current user of the message, call {@link #getCurrentUser getCurrentUser()} when accessing a system
    * running OS/400 V5R3 or higher.
    * @return The sender job's user, or "" if it is not set.
+   * @see #getFromJobName
+   * @see #getFromJobNumber
   **/
-  public String getFromJobUser()
+  public String getUser()
   {
     if (sendingUser_.length() == 0 && values_ != null)
     {
@@ -271,47 +276,22 @@ Returns the reply status.
 
   /**
    * Returns the current user name. If the system being accessed is running OS/400 V5R2 or earlier,
-   * the sender job's user name is returned, via the {@link #getFromJobUser getFromJobUser()} method.
-   * @return The sender user name, or "" if it is not set.
-   * @see #getFromJobUser
+   * then "" is returned.
+   * @return The current user name, or "" if it is not set.
   **/
-  public String getUser()
+  public String getCurrentUser()
   {
-    //Check if the system is a v5r3 or greater
-    boolean currentUser = false;                                                                    //@K1A
-    try                                                                                             //@K1A
+    if (currentUser_.length() == 0 && values_ != null)                                                  //@K1A
     {
-      //@K1A
-      currentUser = messageQueue_.getSystem().getVRM() >= AS400.generateVRM(5,3,0);                     //@K1A
-    }                                                                                               //@K1A
-    catch (Exception e)                                                                              //@K1A
-    {
-      //@K1A
-      //IF AS400SecurityException or IOException occurred                                         //@K1A
-      if (Trace.traceOn_)
-      {
-        Trace.log(Trace.WARNING, "Can't get VRM because of: "+e.toString()+". QueuedMessage user may reflect a different value.");
-      }
-      currentUser = false;                                                                        //@K1A
-    }                                                                                               //@K1A
-    if (currentUser)                                                                                 //@K1A
-    {
-      //@K1A
-      //Use current user information
-      if (currentUser_.length() == 0 && values_ != null)                                                  //@K1A
+      String s = (String)values_.get(607);                                                    //@K1A
+      if (s != null)                                                                          //@K1A
       {
         //@K1A
-        String s = (String)values_.get(607);                                                    //@K1A
-        if (s != null)                                                                          //@K1A
-        {
-          //@K1A
-          currentUser_ = s.trim();                                                            //@K1A
-        }                                                                                       //@K1A
-      }                                                                                           //@K1A
-      return currentUser_;
-    }                                                                                               //@K1A
-    return getFromJobUser();
-  }
+        currentUser_ = s.trim();                                                            //@K1A
+      }                                                                                       //@K1A
+    }                                                                                           //@K1A
+    return currentUser_;
+  }                                                                                               //@K1A
 
 
   // Helper method called by MessageQueue.
