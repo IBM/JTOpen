@@ -95,16 +95,6 @@ Constructs a SQLConversionSettings object.
     }
 
 
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
     //@E1A
     /**
     Get int value of bidiString property which is a string.  Return -1 if empty string 

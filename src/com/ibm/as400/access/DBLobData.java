@@ -79,16 +79,6 @@ when it was not previously set by the constructor.
             rawBytes_           = rawBytes;
         }                                                                                  
 	}
-
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
     
 
 

@@ -38,13 +38,6 @@ implements JDFieldMap
 
 
     
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-    
     public Object getValue (JDRow row)
         throws SQLException
     {

@@ -57,16 +57,6 @@ implements JDFieldMap
     }
 
 
-
-    /**
-       Returns the copyright.
-    **/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
     /**
        Returns the privileges in JDBC format.
     **/

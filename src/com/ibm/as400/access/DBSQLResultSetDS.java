@@ -45,12 +45,6 @@ extends DBBaseRequestDS
 	  setServerID(SERVER_SQL);
 	}
 
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
 
 	// There are no parameters for Result Set functions
         // and therefore no addParameters are required

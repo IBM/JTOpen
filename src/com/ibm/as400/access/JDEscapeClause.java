@@ -472,15 +472,6 @@ Convert a scalar function call to native SQL.
     }
 
 
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
 
 /**
 Get a list of supported math functions.

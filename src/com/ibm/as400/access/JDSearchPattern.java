@@ -76,16 +76,6 @@ final class JDSearchPattern
 
 
 /**
-   Returns the copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
-/**
    Returns the escape character.
 
    @return     The escape character.

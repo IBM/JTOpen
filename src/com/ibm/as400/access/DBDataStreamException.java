@@ -33,12 +33,6 @@ package com.ibm.as400.access;
   
 	DBDataStreamException(String s) { super(s); }
 
-       // Returns the copyright.
-       private static String getCopyright()
-       {
-        return Copyright.copyright;
-       }	
-
  }
 
 

@@ -46,14 +46,6 @@ extends DBBaseRequestDS
 
 
 
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-
-
   // There are no parameters for End Communication functions
   // and therefore no addParameters are required
 

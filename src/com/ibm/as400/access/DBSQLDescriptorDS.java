@@ -46,14 +46,6 @@ extends DBBaseRequestDS
   }
 
 
-
-// Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-
        //--------------------------------------------------//
        // Create the data stream optional /         	   //
        // variable length data section via addParameters   //

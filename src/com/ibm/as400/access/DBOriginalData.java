@@ -123,16 +123,6 @@ when it was not previously set by the constructor.
 
 	    dataOffset_         = indicatorOffset_ + (rowCount_ * columnCount_ * indicatorSize_);
 	}
-
-
-
-/**
-Copyright.
-**/
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
     
 
 

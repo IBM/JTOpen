@@ -147,13 +147,6 @@ implements JDRow
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
     public int findField (String name)
     throws SQLException
     {

@@ -56,13 +56,6 @@ Constructs a JDMappedRowCache object.
 
 
 
-    static private String getCopyright ()
-    {
-        return Copyright.copyright;
-    }
-
-
-
 //------------------------------------------------------------//
 //                                                            //
 // OPEN AND CLOSE                                             //
