@@ -216,6 +216,14 @@ class JDSQLStatement
 
         boolean inComment = false;
 
+        //@G7 Skip removing comments if it is a CREATE statement smaller than 32KB
+        //@G7 (Greater than 32KB would overflow the buffer, so we have to remove
+        //@G7 the comments in that case.)
+        if (length > 32767 ||                               //@G7A
+            !sql.trim().toUpperCase().startsWith("CREATE")) //@G7A
+        {
+            //@G7 If this is not a normal CREATE or the length is too big,
+            //@G7 we must strip out the comments!
         for (int i = 0; i < length; ++i) {
             switch (sqlArray[i]) {
             case '\'':
@@ -320,6 +328,7 @@ class JDSQLStatement
         // Now turn it back into a String for processing.
         sql = new String(outArray, 0, ++out);
         //@F6A end new code
+        } //@G7A
 
         // If we want to process escape syntax, then treat the
         // whole string as a big escape clause for parsing.
