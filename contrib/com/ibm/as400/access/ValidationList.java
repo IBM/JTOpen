@@ -655,11 +655,45 @@ private void runCommand(CommandCall c) throws PersistenceException {
  *		If the command is not successful or an unexpected exception occurs.
  */
 private void runProgram(ProgramCall p) throws PersistenceException {
-	boolean success = false;
-	try {success = p.run();}
-		catch (Exception e) { handleUnexpectedAS400Exception(e); }
-	if (!success)
-		handleUnexpectedAS400Messages(p.getMessageList());
+		 // Try up to 5 times if object is locked (message CPF9803)
+		 int i = 0;
+		 boolean success = false;
+		 boolean lockedObj = false;
+		 PersistenceException err;
+		 do {
+		 		 try {
+		 		 		 success = false;
+		 		 		 lockedObj = false;
+		 		 		 err = null;
+
+		 		 		 // Pause (if not first time through the loop)
+		 		 		 try {
+		 		 		 		 if (i > 0) Thread.sleep(5000);
+		 		 		 } catch (InterruptedException ie) {}
+
+		 		 		 // Run the program
+		 		 		 try {
+		 		 		 		 success = p.run();
+		 		 		 } catch (Exception e) {
+		 		 		 		 handleUnexpectedAS400Exception(e);
+		 		 		 }
+
+		 		 		 if (!success) {
+		 		 		 		 // Check available messages on the program call
+		 		 		 		 AS400Message[] msgs = p.getMessageList();
+		 		 		 		 if (msgs != null)
+		 		 		 		 		 for (int j = 0; !lockedObj && j<msgs.length; j++)
+		 		 		 		 		 		 lockedObj = "CPF9803".equals(msgs[j].getID());
+		 		 		 		 // Throw persistence exception ...
+		 		 		 		 handleUnexpectedAS400Messages(msgs);
+		 		 		 }
+		 		 } catch (PersistenceException pe) {
+		 		 		 err = pe;
+		 		 };
+		 } while (++i < 5 && lockedObj);
+
+		 if (err != null)
+		 		 throw err;
 }
 /**
  * Run the given AS/400 service program call.
@@ -670,16 +704,32 @@ private void runProgram(ProgramCall p) throws PersistenceException {
  *		If the command is not successful or an unexpected exception occurs.
  */
 private void runServiceProgram(ServiceProgramCall spc) throws PersistenceException {
-	runProgram(spc);
-	if (spc.getErrno() == 0)
-		return;
-	PersistenceException pe = new PersistenceException(
-		new StringBuffer("Procedure named "
-			).append(spc.getProcedureName()
-			).append(" failed with errorno "
-			).append(spc.getErrno()
-			).toString());
-	throw pe;
+		 // Try up to 5 times if object is locked (errno 3406)
+		 int i = 0;
+		 int errno = 0;
+		 do {
+		 		 // Pause (if not first time through the loop)
+		 		 try { if (i > 0) Thread.sleep(5000); }
+		 		 		 catch (InterruptedException ie) {};
+
+		 		 // Run the service program
+		 		 runProgram(spc);
+		 		 errno = (spc.getReturnValueFormat() == ServiceProgramCall.RETURN_INTEGER
+		 		 		 		 && spc.getIntegerReturnValue() == 0)
+		 		 		 ? 0
+		 		 		 : spc.getErrno();
+		 } while (++i < 5 && errno == 3406);
+
+		 // Check for abnormal error condition
+		 if (errno == 0)
+		 		 return;
+		 PersistenceException pe = new PersistenceException(
+		 		 new StringBuffer("Procedure named "
+		 		 		 ).append(spc.getProcedureName()
+		 		 		 ).append(" failed with errorno "
+		 		 		 ).append(errno
+		 		 		 ).toString());
+		 throw pe;
 }
 /**
  * Sets the AS/400 system containing the validation list.
