@@ -50,7 +50,7 @@ implements Clob
 
     /**
     Constructs an AS400JDBCClob object.  The data for the
-    clob will be retrieved as requested, directly from the
+    CLOB will be retrieved as requested, directly from the
     server, using the locator handle.
     
     @param  locator             The locator.
@@ -67,7 +67,7 @@ implements Clob
 
 
     /**
-    Returns the entire clob as a stream of ASCII characters.
+    Returns the entire CLOB as a stream of ASCII characters.
     
     @return The stream.
     
@@ -82,7 +82,7 @@ implements Clob
 
 
     /**
-    Returns the entire clob as a character stream.
+    Returns the entire CLOB as a character stream.
     
     @return The stream.
     
@@ -148,9 +148,9 @@ were placed in the Vector as the user called setString on the CLOB.
 
     // @B2C
     /**
-    Returns part of the contents of the clob.
+    Returns part of the contents of the CLOB.
     
-    @param  start       The position within the clob (1-based).
+    @param  start       The position within the CLOB (1-based).
     @param  length      The length to return.
     @return             The contents.
     
@@ -163,10 +163,13 @@ were placed in the Vector as the user called setString on the CLOB.
     {
         --start;                                                                // @B2A
 
-        long end = start + length - 1;                                              // @G7A
-        long lengthOfLocatorInChars = locator_.getLengthInCharacters();             // @G7A
-        if ((start < 0) || (length < 0) || (end >= lengthOfLocatorInChars)          // @G7A
-            || (start >= lengthOfLocatorInChars))                                   // @G7A
+        //@H1 This is an unnecessary flow to the server.  The server will report an error
+        //@H1 if our start or length numbers are invalid.
+        //@H1D long end = start + length - 1;                                   // @G7A
+        //@H1D long lengthOfLocatorInChars = locator_.getLengthInCharacters();  // @G7A
+        //@H1D if (end >= lengthOfLocatorInChars)                               // @G7A          
+        //@H1D    || (start >= lengthOfLocatorInChars) ||                       // @G7A
+        if ((start < 0) || (length < 0))                                            // @G7A
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);        // @G7A
 
         // @C4 A graphic locator means two bytes per character.  Locator_.retrieveData
@@ -203,9 +206,9 @@ were placed in the Vector as the user called setString on the CLOB.
 
 
     /**
-    Returns the length of the clob.
+    Returns the length of the CLOB.
     
-    @return     The length of the clob, in characters.
+    @return     The length of the CLOB, in characters.
     
     @exception SQLException     If an error occurs.
     **/
@@ -213,9 +216,9 @@ were placed in the Vector as the user called setString on the CLOB.
     throws SQLException
     {
         // @C1D // There is no way currently to efficiently compute the        @A1A
-        // @C1D // actual length of the clob.  We have 2 choices:              @A1A
+        // @C1D // actual length of the CLOB.  We have 2 choices:              @A1A
         // @C1D //                                                             @A1A
-        // @C1D // 1. Retrieve the entire clob from 0 to max and the           @A1A
+        // @C1D // 1. Retrieve the entire CLOB from 0 to max and the           @A1A
         // @C1D //    lob data will contain the actual length.                 @A1A
         // @C1D // 2. Return the max length here.                              @A1A
         // @C1D //                                                             @A1A
@@ -230,11 +233,11 @@ were placed in the Vector as the user called setString on the CLOB.
 
     // @B2C
     /**
-    Returns the position at which a pattern is found in the clob.
+    Returns the position at which a pattern is found in the CLOB.
     This method is not supported.
     
     @param  pattern     The pattern.
-    @param  start       The position within the clob to begin
+    @param  start       The position within the CLOB to begin
                         searching (1-based).
     @return             Always -1.  This method is not supported.
     
@@ -252,11 +255,11 @@ were placed in the Vector as the user called setString on the CLOB.
 
     // @B2C
     /**
-    Returns the position at which a pattern is found in the clob.
+    Returns the position at which a pattern is found in the CLOB.
     This method is not supported.
     
     @param  pattern     The pattern.
-    @param  start       The position within the clob to begin
+    @param  start       The position within the CLOB to begin
                         searching (1-based).
     @return             Always -1.  This method is not supported.
     

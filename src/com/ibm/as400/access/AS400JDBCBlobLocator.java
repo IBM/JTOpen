@@ -43,7 +43,7 @@ implements Blob
 
 /**
 Constructs an AS400JDBCBlobLocator object.  The data for the
-blob will be retrieved as requested, directly from the
+BLOB will be retrieved as requested, directly from the
 server, using the locator handle.
 
 @param  locator             The locator.
@@ -57,7 +57,7 @@ server, using the locator handle.
 
 
 /**
-Returns the entire blob as a stream of uninterpreted bytes.
+Returns the entire BLOB as a stream of uninterpreted bytes.
 
 @return The stream.
 
@@ -73,9 +73,9 @@ Returns the entire blob as a stream of uninterpreted bytes.
 
 // @B3C
 /**
-Returns part of the contents of the blob.
+Returns part of the contents of the BLOB.
 
-@param  start       The position within the blob (1-based).
+@param  start       The position within the BLOB (1-based).
 @param  length      The length to return.
 @return             The contents.
 
@@ -87,10 +87,13 @@ Returns part of the contents of the blob.
         throws SQLException
     {
         --start;                                                        // @B3A
-        long end = start + length - 1;                                        // @G7A
-        long currentLengthOfLocator = locator_.getLength();                   // @G7A
-        if ((start < 0) || (length < 0) || (end >= currentLengthOfLocator)    // @G7A
-            || (start >= currentLengthOfLocator))                             // @G7A
+        //@H1 This is an unnecessary flow to the server.  The server will report an error
+        //@H1 if our start or length numbers are invalid.
+        //@H1D long end = start + length - 1;                                        // @G7A
+        //@H1D long currentLengthOfLocator = locator_.getLength();  // @G7A
+        //@H1D if (end >= currentLengthOfLocator)    // @G7A
+        //@H1D|| (start >= currentLengthOfLocator) ||      
+        if ((start < 0) || (length < 0))    //@G7A
             JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);  // @G7A
         DBLobData data = locator_.retrieveData ((int) start, length);   // @B1C
         int actualLength = data.getLength ();
@@ -161,9 +164,9 @@ were placed in the Vector as the user called setBytes on the BLOB.
 
 
 /**
-Returns the length of the blob.
+Returns the length of the BLOB.
 
-@return     The length of the blob, in bytes.
+@return     The length of the BLOB, in bytes.
 
 @exception SQLException     If an error occurs.
 **/
@@ -171,9 +174,9 @@ Returns the length of the blob.
         throws SQLException
     {
         // @C1D // There is no way currently to efficiently compute the        @A1A
-        // @C1D // actual length of the blob.  We have 2 choices:              @A1A
+        // @C1D // actual length of the BLOB.  We have 2 choices:              @A1A
         // @C1D //                                                             @A1A
-        // @C1D // 1. Retrieve the entire blob from 0 to max and the           @A1A
+        // @C1D // 1. Retrieve the entire BLOB from 0 to max and the           @A1A
         // @C1D //    lob data will contain the actual length.                 @A1A
         // @C1D // 2. Return the max length here.                              @A1A
         // @C1D //                                                             @A1A
@@ -189,11 +192,11 @@ Returns the length of the blob.
 
 // @B3C
 /**
-Returns the position at which a pattern is found in the blob.
+Returns the position at which a pattern is found in the BLOB.
 This method is not supported.
 
 @param  pattern     The pattern.
-@param  start       The position within the blob to begin
+@param  start       The position within the BLOB to begin
                     searching (1-based).
 @return             Always -1.  This method is not supported.
 
@@ -216,11 +219,11 @@ This method is not supported.
 
 // @B3C
 /**
-Returns the position at which a pattern is found in the blob.
+Returns the position at which a pattern is found in the BLOB.
 This method is not supported.
 
 @param  pattern     The pattern.
-@param  start       The position within the blob to begin
+@param  start       The position within the BLOB to begin
                     searching (1-based).
 @return             Always -1.  This method is not supported.
 
@@ -311,7 +314,7 @@ This method is not supported.
     @param offset The offset into the array bytes at which to start reading the bytes 
     (1-based).
     @param length The number of bytes to be written to the BLOB from the array of bytes.
-    @return the number of bytes written.
+   @return The number of bytes written.
 
     @exception SQLException If there is an error accessing the BLOB or if the position
     specified is greater than the length of the BLOB.
