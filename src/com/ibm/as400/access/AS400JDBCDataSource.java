@@ -1094,6 +1094,16 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return as400_.getUserId();
     }
 
+    // @K3A
+    /**
+    *  Returns the QAQQINI library name.
+    *  @return The QAQQINI library name.
+    **/
+    public String getQaqqiniLibrary()
+    {
+        return properties_.getString(JDProperties.QAQQINILIB);
+    }
+
     /**
     *  Initializes the transient data for object de-serialization.
     **/
@@ -3345,6 +3355,26 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
 
         if (JDTrace.isTraceOn())
             JDTrace.logInformation (this, property + ": " + parseOption);
+    }
+
+    //@K3A
+    /**
+    *  Sets the QAQQINI library name.  
+    *  @param libraryName The QAQQINI library name.
+    **/
+    public void setQaqqiniLibrary(String libraryName)
+    {
+        String property = "qaqqiniLibrary";
+        if (libraryName == null)
+            throw new NullPointerException(property);
+
+        String old = getQaqqiniLibrary();
+        properties_.setString(JDProperties.QAQQINILIB, libraryName);
+
+        changes_.firePropertyChange(property, old, libraryName);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + libraryName);  
     }
 
     //K2A

@@ -127,12 +127,13 @@ class JDProperties implements Serializable
     static final int              MAXIMUM_SCALE           = 54;
     static final int              TRANSLATE_HEX           = 55;   // @M0A - support hex constant parser option
     static final int              TRACE_TOOLBOX           = 56;   // @K1A - support to allow a toolbox trace
+    static final int              QAQQINILIB              = 57;   // @K2A - support to specify a QAQQINI library name 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 57;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 58;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C
 
 
 
@@ -196,6 +197,7 @@ class JDProperties implements Serializable
     private static final String TRANSLATE_BINARY_       = "translate binary";
     private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
     private static final String USER_                   = "user";
+    private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
 
 
 
@@ -1030,6 +1032,14 @@ class JDProperties implements Serializable
         dpi_[i].choices[0]  = TRANSLATE_HEX_CHARACTER;
         dpi_[i].choices[1]  = TRANSLATE_HEX_BINARY;
         defaults_[i]        = TRANSLATE_HEX_CHARACTER;
+
+        // @K2A - support to specify a QAQQINI library name 
+        i = QAQQINILIB;
+        dpi_[i] = new DriverPropertyInfo(QAQQINILIB_, "");
+        dpi_[i].description = "QAQQINILIB_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = EMPTY_;
     }
 
 

@@ -104,6 +104,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_MAXIMUM_PRECISION", "maximumPrecision" },        // @M0A
       { "PROP_NAME_MAXIMUM_SCALE", "maximumScale" },                // @M0A
       { "PROP_NAME_TRANSLATE_HEX", "translateHex" },                // @M0A
+      { "PROP_NAME_QAQQINILIB", "qaqqiniLibrary" },                 // @K2A
 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
@@ -174,6 +175,7 @@ public class JDMRI extends ListResourceBundle
       { "MAXIMUM_PRECISION_DESC", "Specifies the maximum decimal precision the database should use." },                               // @M0A
       { "MAXIMUM_SCALE_DESC", "Specifies the maximum scale the database should use." },                                               // @M0A
       { "TRANSLATE_HEX_DESC", "Specifies how hexadecimal constants are interpreted." },                                               // @M0A
+      { "QAQQINILIB_DESC", "Specifies a QAQQINI library name." },        //@K2A
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

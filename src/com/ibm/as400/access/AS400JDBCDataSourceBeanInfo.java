@@ -271,6 +271,13 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             proxyServer.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_PROXY_SERVER"));
             proxyServer.setShortDescription(AS400JDBCDriver.getResource("PROXY_SERVER_DESC"));
 
+            PropertyDescriptor qaqqiniLibrary = new PropertyDescriptor("qaqqiniLibrary", beanClass, "getQaqqiniLibrary", "setQaqqiniLibrary");  //@K3A
+            qaqqiniLibrary.setBound(true);                                                                                                  //@K3A
+            qaqqiniLibrary.setConstrained(false);                                                                                           //@K3A
+            qaqqiniLibrary.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_QAQQINILIB"));                                          //@K3A
+            qaqqiniLibrary.setShortDescription(AS400JDBCDriver.getResource("QAQQINILIB_DESC"));                                          //@K3A
+
+
             PropertyDescriptor remarks = new PropertyDescriptor("remarks", beanClass, "getRemarks", "setRemarks");
             remarks.setBound(true);
             remarks.setConstrained(false);
