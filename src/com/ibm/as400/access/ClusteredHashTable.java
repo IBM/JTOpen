@@ -33,12 +33,11 @@ An instance of this class can be used to {@link #put put()} and {@link #get get(
 keyed entries from the Clustered Hash Table. The entries stored in the Clustered Hash Table
 are replicated to cluster nodes defined in the Clustered Hash Table domain. 
 
-<p>A connection to the Clustered Hash Table server job is required to access the Clustered Hash Table.
+<p>A connection to the Clustered Hash Table server is required to access the Clustered Hash Table.
 Call {@link #open open()} to obtain the connection. After the open() is complete, entries defined by the
 {@link com.ibm.as400.access.ClusteredHashTableEntry ClusteredHashTableEntry} class can be put into the table or retrieved from the table, using the methods put() or get().
 A key is required to put() an entry in the Clustered Hash Table.
-Use {@link #generateKey generateKey()} to generate a universally unique key.
-It is recommended to {@link #close close()} the active connection when done to release server resources
+Use {@link #generateKey generateKey()} to generate a universally unique key. The {@link #elements elements()} method will return a list of all that keys in the clustered hash table. It is recommended to {@link #close close()} the active connection when done to release server resources
 that are no longer needed.
 
 <p>This class uses the {@link com.ibm.as400.access.ClusteredHashTableEntry ClusteredHashTableEntry}
@@ -61,7 +60,7 @@ public class MyFile extends Object<br>
 	try{<br>
 	    AS400 the400 = new AS400();<br><br>
 
-            // CHTSVR01 is the server job name<br>
+            // CHTSVR01 is the server name<br>
 	    ClusteredHashTable cht = new ClusteredHashTable(the400,"CHTSVR01");<br><br>
 	    
 	    cht.open();  // make a connection<br><br>
@@ -73,7 +72,7 @@ public class MyFile extends Object<br>
             // myData is a byte array of data to be stored<br>
             // 2400 is the time to live in seconds<br>
             // ENTRY_AUTHORITY_ANY_USER indicates any user can access the data<br>
-            // DUPLICATE_KEY_FAIL indicates if the key already exists in the hash table to not allow the request to succeed.
+            // DUPLICATE_KEY_FAIL indicates if the key already exists in the hash table to not allow the request to succeed.<br>
 	    myEntry = new ClusteredHashTableEntry(key,myData.getBytes(),2400,ClusteredHashTableEntry.ENTRY_AUTHORITY_ANY_USER,ClusteredHashTableEntry.DUPLICATE_KEY_FAIL);<br><br>
 
            cht.put(myEntry);  // store the entry in the hash table<br><br>
@@ -83,9 +82,10 @@ public class MyFile extends Object<br>
 	  cht.close();<br>
 	}<br>
 	catch(Exception e){}<br><br>
+}<br>
 }<p>
 
-Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2 or later.<p>
+Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2MO or later.<p>
 
 **/
 
@@ -101,17 +101,17 @@ implements java.io.Serializable
   static final long serialVersionUID = 5L;
 
   /**
-    Entries which are consistent between nodes
+    Entry status value to limit retrieved entries to only those which are consistent between nodes.
   **/
   public final static int CONSISTENT_ENTRIES = 0;
 
   /**
-    Entries which are inconsistent between nodes
+    Entry status value to limit retrieved entries to only those which are inconsistent between nodes.
   **/
   public final static int INCONSISTENT_ENTRIES = 1;
 
   /**
-    All entries on a nodes
+    Entry status value to retreive all entries on a node.
   **/
   public final static int ALL_ENTRIES = -1;
 
@@ -140,7 +140,7 @@ implements java.io.Serializable
 
   /**
    Constructs a default ClusteredHashTable object.
-   The <i>hash table name</i> and <i>server</i> must be set before opening a connection.
+   The <i>hash table serevr name</i> and <i>system</i> must be set before opening a connection.
   **/
   public ClusteredHashTable()
   {
@@ -148,10 +148,10 @@ implements java.io.Serializable
 
 
   /**
-   Constructs a ClusteredHashTable object that represents the OS/400 clustered hash table server job.
-   @param system The system that contains the active Clustered Hash Table server job.
-   @param name The name of an active Clustered Hash Table server job.
-               This is a 10-byte string that identifies the Clustered Hash Table server job to use.
+   Constructs a ClusteredHashTable object that represents the OS/400 clustered hash table server.
+   @param system The system that contains the clustered hash table server.
+   @param name The name of an clustered hash table server.
+               This is a 10-byte string that identifies the Clustered Hash Table server to use.
   **/
   public ClusteredHashTable(AS400 system, String name)
   {
@@ -202,11 +202,10 @@ implements java.io.Serializable
 
 
   /**
-    Closes a connection to the Clustered Hash Table server job.
-    After this method is called, the clustered hash table server job will not allow any more requests
+    Closes a connection to the Clustered Hash Table server.
+    After this method is called, the clustered hash table server will not allow any more requests
     with the specified connection handle.  Use {@link #open open()} to establish a connection
-    to a new Clustered Hash Table server job.
-    If the service program cannot be started an exception will be thrown.
+    to a new Clustered Hash Table server.
     @exception AS400Exception If the system returns an error message.
     @exception AS400SecurityException  If a security or authority error occurs.
     @exception ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -214,7 +213,7 @@ implements java.io.Serializable
     @exception InterruptedException  If this thread is interrupted.
     @exception ObjectDoesNotExistException  If the AS400 object does not exist.
   **/
-  synchronized public void close() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  synchronized public void close() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     if (connected_)
     {
@@ -273,16 +272,16 @@ implements java.io.Serializable
 
   /**
     Indicates if the specified key is in the clustered hash table. Expired entries will not be included.
-    This method implicitly opens the connection to the clustered hash table server job.
+    This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the system. If the server is not active an exception will be thrown.
+    <li>The clustered hash table server must be active on the system.
     </ul>
     @param key The possible key.
-    @return Returns true if and only if the specified key is in this hashtable; false otherwise.
+    @return Returns true if and only if the specified key is in this clustered hash table; false otherwise.
     @exception AS400Exception If the system returns an error message.
   **/
-  public boolean containsKey(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  public boolean containsKey(byte[] key) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     // Validate arguments.
     if (key == null)
@@ -326,32 +325,28 @@ implements java.io.Serializable
 
 
   /**
-    Retrieves a list of entries that exist in the clustered hash table for all <i>userProfiles</i>
-    with user data, all <i>userProfiles</i> last modifying data, and all entries both inconsistent
-    and consistent.  Entries with an authority access level set to 0 will only be included for
-    the originating user profile or a user profile with *ALLOBJ authority.
-    This method will create a temporary user space on the system in the QSYS library.  If the user space exists, it will be deleted.
-    This method implicitly opens the connection to the clustered hash table server job.
+     Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retreive all entries.
+    This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
+    This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the system.
+    <li>The Clustered Hash table server must be active on the system.
     </ul>
-    @return Returns an array of all the ClusteredHashTableEntry objects.
+    @return Returns an array of all the ClusteredHashTableEntry objects including keys but not data.
     @exception AS400Exception If the system returns an error message.
   **/
-  public ClusteredHashTableEntry[] elements() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  public ClusteredHashTableEntry[] elements() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     return elements(null,null,ALL_ENTRIES);
   }
 
 
   /**
-    Retrieves a list of entries that exist in the clustered hash table for the specified <i>userProfile</i> with user data, all <i>userProfiles</i> last modifying data.  Only entries that match the specified status will be returned. Entries with an authority access level set to 0 will only be included for the originating user profile or a user profile with *ALLOBJ authority.
-    This method will create a temporary user space on the system in the QSYS library.  If the user space exists, it will be deleted.
-    This method implicitly opens the connection to the clustered hash table server job.
+    Retrieves a list of entries that exist in the clustered hash table for the specified user profile. *ALL can be used for either user profile to retreive all entries. Only entries that match the specified status will be returned. This method will create a temporary user space on the system in the QUSRSYS library.  If the user space exists, it will be deleted and recreated.
+    This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the server.
+    <li>The Clustered Hash table server must be active on the server.
     </ul>
     @param userProfile The owner of the entries to be returned.
                        If null is specified, *ALL will be used and the results will depend upon the <I>lastModifiedProfile</I>.
@@ -365,14 +360,14 @@ implements java.io.Serializable
          <li> INCONSISTENT_ENTRIES
          <li> ALL_ENTRIES
          </ul>
-    @return Returns an array of ClusteredHashTableEntry objects.
+    @return Returns an array of all the ClusteredHashTableEntry objects including keys but not data.
     @exception AS400Exception If the system returns an error message.
     @exception AS400SecurityException  If a security or authority error occurs.
     @exception ErrorCompletingRequestException  If an error occurs before the request is completed.
     @exception IOException  If an error occurs while communicating with the server.
     @exception InterruptedException  If this thread is interrupted.
   **/
-  public ClusteredHashTableEntry[] elements(String userProfile, String lastModifiedProfile, int status) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  public ClusteredHashTableEntry[] elements(String userProfile, String lastModifiedProfile, int status) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     // verify name lengths, and pad to a length of 10
     // it is ok if either profile is NULL, the NULL case will be handled later
@@ -553,15 +548,15 @@ implements java.io.Serializable
   /**
     Generates a 16-byte universally unique key.
     This key can be used to put() information in the Clustered Hash Table. 
-    This method implicitly opens the connection to the clustered hash table server job.
+    This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the system.
+    <li>The Clustered Hash table server must be active on the system.
     </ul>
     @return The generated key.
     @exception AS400Exception If the system returns an error message.
   **/
-  synchronized public byte[] generateKey() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  synchronized public byte[] generateKey() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     if (!connected_)
     {
@@ -634,20 +629,18 @@ implements java.io.Serializable
 
   /**
     Returns information from the clustered hash table for the specified key.
-    The Retrieve Clustered Hash Table Entry API retrieves an entry from the Clustered Hash Table
-    specified by the connection handle parameter.  If the entry exists, is not expired, and the
-    requesting user is authorized, the information will be returned.  The time to live and update option parameters can not be retrieved from the hash table and so will be given defaulted values.
-  This method implicitly opens the connection to the clustered hash table server job.
+    If the entry exists, is not expired, and the requesting user is authorized, the information will be returned.  The time to live and update option parameters can not be retrieved from the hash table and so will be given defaulted values.
+  This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the iSeries server.
+    <li>The Clustered Hash table server must be active on the iSeries server.
     </ul>
     <p>For information on the authority considerations, see the Clustered Hash Table APIs.
     @param key The key to use to return information.
     @return The entry for the specified key
     @exception AS400Exception If the system returns an error message.
   **/
-  synchronized public ClusteredHashTableEntry get(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  synchronized public ClusteredHashTableEntry get(byte[] key) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     // Validate arguments.
     if (key == null)
@@ -787,8 +780,8 @@ implements java.io.Serializable
 
 
   /**
-    Returns the name of the clustered hash table server job.
-    @return Returns the clustered hash table server job name.
+    Returns the name of the clustered hash table server.
+    @return Returns the clustered hash table server name.
   **/
   public String getName()
   {
@@ -821,16 +814,16 @@ implements java.io.Serializable
   /**
     Indicates if the clustered hash table contains any keys.
     Expired entries will not be included for purposes of determining if the hash table is empty.
-  This method implicitly opens the connection to the clustered hash table server job.
+  This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the system.
+    <li>The Clustered Hash table server must be active on the system.
     </ul>
     @return Returns true if the clustered hash table does not contain any keys;
                    false if the clustered hash table contains keys.
     @exception AS400Exception If the system returns an error message.
   **/
-  public boolean isEmpty() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  public boolean isEmpty() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     if (!connected_)
     {
@@ -842,16 +835,17 @@ implements java.io.Serializable
 
 
   /**
-    Opens a connection to the Clustered Hash Table server job.
+    Opens a connection to the Clustered Hash Table server.
     The <i>name</i> and <I>system</I> must be set before invoking this method.
-    The <i>name</i> and <system> are committed at this time. Use {@link #close close()} to close
-    the connection from the Clustered Hash Table server job.
+    The <i>name</i> and <i>system</i> are committed at this time. Use {@link #close close()} to close
+    the connection from the Clustered Hash Table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the system.
+    <li>The Clustered Hash table server must be active on the system.
     </ul>
+    @exception AS400Exception If the system returns an error message.
   **/
-  synchronized public void open() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  synchronized public void open() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     // verify required parameters are set
     checkPropertiesSet();
@@ -921,47 +915,26 @@ implements java.io.Serializable
 
 
   /**
-    Put specified entry in the clustered hash table. The information will be replicated
-    to all nodes in the clustered hash table domain. The clustered hash table domain was
-    defined using the STRCHTSVR CL command. Control will not be returned until the information
-    is stored in the clustered hash table on all nodes in the clustered hash table domain.
-    There is no encrypting of the data that is replicated and stored in the clustered hash table.
+     Put an entry in the clustered hash table identified by the connection handle. The storage for the entry is not persistent. Not persistent means the storage for the entry is only known to the clustered hash table server on the local node and only available until the clustered hash table server is ended.
 
-    <p>The last user to store the data will be the owner of the entry.
+     <p>This request to store an entry is replicated to other nodes in the clustered hash table domain.  Control will not be returned until the entry is stored in the clustered hash table on all active nodes in the clustered hash table domain. 
 
-    <p>Duplicate keys are not supported. Data associated with an existing key can be updated
-    if the user is authorized to the entry based on the entry authority.
+     <p>There is no encrypting of the information that is replicated and stored in the clustered hash table. 
 
-    See the {@link com.ibm.as400.access.ClusteredHashTableEntry ClusteredHashTableEntry} class
-    for further details on the entry authority.
+     <p>When an entry is stored, a time to live value is specified. The entry can become expired, when the time to live value has expired. Expired entries will be removed when processing various functions.
 
-  This method implicitly opens the connection to the clustered hash table server job.
-    <p>Restrictions:
-    <ul>
-    <li>The Clustered Hash table server job must be active on the system.
-    <li>A partition can occur when communication is lost betweeen the cluster nodes in the
-    clustered hash table domain. For details on cluster node partitions see the Clustering topic
-    under the iSeries Information Center. The following are the recommendations if the clustered
-    hash table domain is partitioned. The current cluster version also determines the default
-    behavior. For information on the current cluster version see the Cluster Version section of
-    the Cluster Resource Services APIs.
-      <ul>
-      <li>Updating data associated with an existing key should be restricted to one cluster partition.
-      When the cluster version is 3 or greater, conflicts in data found when the cluster merges
-      partitions will be resolved by selecting the entry that was last updated.
-      <li>Unique keys can be added from any cluster partition. Unique keys across cluster partitions
-      are not enforced by the clustered hash table and need to be managed by the user.
-      <li>When the current cluster version is 2 and merging cluster partitions, conflicts in data
-      are not checked. Only unique keys between the cluster partitions will be replicated. 
-      </ul>
-    </ul>
+     <p>The user that originally stores the entry will be the owner of the entry. The owning user profile will be used in determining authorization to an entry.
 
-    <p>For information on authority considerations see the Clustered Hash Table APIs.
+     <p>Information stored in the clustered hash table is associated with a key. The key can be generated using the generateKey() method or the user can generate their own.
+
+     <p>Duplicate keys are not supported. An entry associated with an existing key can be updated if the requesting user is the owner of the entry or is authorized to the entry.
+
+    <p>This method implicitly opens the connection to the clustered hash table server.
     
     @param entry This object describes the information to put in the clustered hash table.
     @exception AS400Exception If the system returns an error message.
   **/
-  synchronized public void put(ClusteredHashTableEntry entry) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  synchronized public void put(ClusteredHashTableEntry entry) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     // Validate arguments.
     if (entry == null)
@@ -1025,7 +998,7 @@ implements java.io.Serializable
       theDescription[indx++] = len[i];
 
     // time to live
-    len = bin4.toBytes(entry.getTimeToLive());
+    len = bin4.toBytes( (entry.getTimeToLive() / 60) );  // convert to minutes
     for (int i = 0; i < 4; ++i)
       theDescription[indx++] = len[i];
 
@@ -1124,9 +1097,9 @@ implements java.io.Serializable
 
 
   /**
-    Sets the system for the clustered hash table server job.
+    Sets the name for the clustered hash table server.
     The name can only be set while a connection is not established.
-    @param name The name of the clustered hash table server job.
+    @param name The name of the clustered hash table server.
     @exception ExtendedIllegalArgumentException If the user specifies a name longer than 10
   **/
   public void setName(String name)
@@ -1151,7 +1124,7 @@ implements java.io.Serializable
 
 
   /**
-    Sets the system of the clustered hash table.
+    Sets the node of the clustered hash table.
     The system can only be set while a connection is not established.
     @param system  The system.
   **/
@@ -1174,14 +1147,15 @@ implements java.io.Serializable
 
   /**
     Return the number of entries in the clustered hash table. Expired entries will not be included.
-  This method implicitly opens the connection to the clustered hash table server job.
+  This method implicitly opens the connection to the clustered hash table server.
     <p>Restrictions:
     <ul>
-    <li>The Clustered Hash table server job must be active on the system.
+    <li>The Clustered Hash table server must be active on the system.
     </ul>
     @return The number of entries in the clustered hash table.
+    @exception AS400Exception If the system returns an error message.
   **/
-  public int size()  throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+  public int size()  throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
   {
     if (!connected_)
     {

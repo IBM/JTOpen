@@ -24,7 +24,7 @@ Clustered Hash Table. This class is only intended to be used with the
 {@link com.ibm.as400.access.ClusteredHashTable  ClusteredHashTable} class.
 <p>
 
-Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2 or later.<p>
+Note: This class uses APIs that are available only when connecting to servers running OS/400 V5R2M0 or later.<p>
 **/
 public class ClusteredHashTableEntry implements java.io.Serializable
 {
@@ -42,12 +42,12 @@ public class ClusteredHashTableEntry implements java.io.Serializable
   public final static int ENTRY_AUTHORITY_ANY_USER = 1;
 
   /**
-    Entry authority option that identifies a user with *ALLOBJ authority, the user that last stored the entry or both can access it.
+    Entry authority option that identifies a user with *ALLOBJ authority, the user that owns the entry or both can access it.
   **/
   public final static int ENTRY_AUTHORITY_LAST_USER = 0;
 
   /**
-    Update option to indicate if the specified key already exists allow the entry to be updated on the ClusteredHashTable.put() request.
+    Update option to indicate if the specified key already exists then allow the entry to be updated on the ClusteredHashTable.put() request.
   **/
   public final static int DUPLICATE_KEY_UPDATE = 1;
 
@@ -80,7 +80,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
   private int entryStatus_ = ENTRY_STATUS_CONSISTENT;
   private int entryUpdateOption_ = DUPLICATE_KEY_FAIL;
   private byte[] key_ = null;
-  private int timeToLive_ = 60;
+  private int timeToLive_ = 60;  // minute
   private String ownerProfile_ = null;
   private String modifyProfile_ = null;
 
@@ -101,14 +101,12 @@ public class ClusteredHashTableEntry implements java.io.Serializable
    @param key The key that identifies the entry.
               The {@link com.ibm.as400.access.ClusteredHashTable#generateKey ClusteredHashTable.generateKey()} method can be used to provide a unique key.
    @param userData The user data to be stored in the clustered hash table.
-                   The length of this data must be 1 through MAX_USER_DATA_LENGTH bytes.
+                   The length of this data must be 1 through MAX_USER_DATA_LENGTH (61000 bytes).
    @param timeToLive The time (in seconds) that the entry will be allowed to remain in the clustered hash table.  If the value is -1, the entry will never expire.
-                     The value must be greater than or equal to 60 seconds.
+                     The value must be -1, greater than or equal to 60 seconds, and less than the seconds in 1 year (31,536,000). This value will be truncated to the nearest minute.
    @param entryAuthority This field identifies who is allowed to access, for example update
                          and retrieve, the entry associated with the key. This value must be
                          ENTRY_AUTHORITY_LAST_USER if the current cluster version is 2. 
-                         For more information on the current cluster version see the Cluster
-                         Version section of the Cluster Resource Services APIs.
                          Valid values are:
          <ul>
          <li>ENTRY_AUTHORITY_LAST_USER = The user who requests the ClusteredHashTable.put(), a user with *ALLOBJ authority or both is allowed to access the entry. 
@@ -117,12 +115,11 @@ public class ClusteredHashTableEntry implements java.io.Serializable
    @param updateOption This is the action used on a ClusteredHashTable.put() request when the key
                        specified on the constructor or set using setKey() already exists in the
                        clustered hash table. This value must be DUPLICATE_KEY_FAIL if the current
-                       cluster version is 2. For more information on the current cluster version
-                       see the Cluster Version section of the Cluster Resource Services APIs.
+                       cluster version is 2.
                        It is only valid for the duration of the ClusteredHashTable.put() request. Valid values are:
          <ul>
          <li>DUPLICATE_KEY_FAIL = Do not allow the ClusteredHashTable.put() if the key already exists. 
-         <li>DUPLICATE_KEY_UPDATE = Allow the entry associated with the key to be updated if it already exists in the clustered hash table. 
+         <li>DUPLICATE_KEY_UPDATE = Allow the entry associated with the key to be updated if it already exists in the clustered hash table and the requesting user is authorized to the data. 
          </ul>
   **/
   public ClusteredHashTableEntry(byte[] key, byte[] userData, int timeToLive, int entryAuthority, int updateOption)
@@ -185,8 +182,6 @@ public class ClusteredHashTableEntry implements java.io.Serializable
     <ul>
     <li>ENTRY_STATUS_CONSISTENT = The entry is consistent between the clustered hash table domain. 
     <li>ENTRY_STATUS_INCONSISTENT = The entry is not consistent between the clustered hash table domain.
-    For more details on why an entry is inconsistent see the description of this field in the
-    QcstRetrieveCHTEntry or the QcstListCHTKeys API.
     </ul> 
     @return The entry status.
   **/
@@ -200,8 +195,8 @@ public class ClusteredHashTableEntry implements java.io.Serializable
    Returns the entry authority. This field identifies who is allowed to access, for example
    update and retrieve, the entry associated with the key.  Valid values are:
    <ul>
-   <li>ENTRY_AUTHORITY_LAST_USER = The user who requests the ClusteredHashTable.put(), a user
-   with *ALLOBJ authority or both is allowed to access the entry. 
+   <li>ENTRY_AUTHORITY_LAST_USER = The user who owns the entry, users
+   with *ALLOBJ authority, or both are allowed to access the entry. 
    <li>ENTRY_AUTHORITY_ANY_USER = Any user can access the entry. 
    </ul>
    @return The entry authority. The default value is ENTRY_AUTHORITY_LAST_USER.
@@ -236,7 +231,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
 
   /**
-    Returns the update option that was passed to the constructor.  This value cannot be retrieved from the hash table so will have default value.
+    Returns the update option that was passed to the constructor.  This value cannot be retrieved from the hash table.  The only purpose of this method is to see what the user passed into the ClusteredHashTableEntry.  If no value was specified in the constructor, this will return the defaulted value.
     @return The update option. The default is DUPLICATE_KEY_FAIL.
   **/
   public int getUpdateOption()
@@ -272,6 +267,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
   /**
      Sets the user profile that created the entry.
+     @param usr The user that created the entry.
    **/
   protected void setOwnerProfile(String usr)  // @A1C
   {
@@ -287,8 +283,8 @@ public class ClusteredHashTableEntry implements java.io.Serializable
   }
 
   /**
-     Returns the user profile that modified the entry.
-     @return The user profile that modified the entry.
+     Returns the user profile that last modified the entry.
+     @return The user profile that last modified the entry.
    **/
   public String getModifiedProfile()  // @A1A
   {
@@ -300,6 +296,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
   /**
      Sets the user profile that modified the entry.
+     @param usr The user that modified the entry.
    **/
   protected void setModifiedProfile(String usr)  // @A1A
   {
@@ -354,9 +351,8 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
   /**
     Sets the entry authority. This identifies who is allowed to access, for example
-    update and retrieve, the entry associated with the key. This value must be 0 if
-    the current cluster version is 2.  For more information on the current cluster
-    version see the Cluster Version section of the Cluster Resource Services APIs.
+    update and retrieve, the entry associated with the key. This value must be ENTRY_AUTHORITY_LAST_USER if
+    the current cluster version is 2.
     Valid values are:
     <ul>
     <li>ENTRY_AUTHORITY_LAST_USER = The user who requests the ClusteredHashTable.put(), a user with *ALLOBJ authority or both is allowed to access the entry. 
@@ -378,7 +374,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
   
   /**
-    Sets the key. The ClusteredHashTable.generateKey() method can be used to generate the key.  ClusterHashTable keys must be 16 bytes.
+    Sets the key. The ClusteredHashTable.generateKey() method can be used to generate the key.  Clustered hash table keys must be 16 bytes.
     The <i>key</i> must be set before invoking the ClusteredHashTable.put() method.
     @param key The key.
   **/
@@ -401,15 +397,15 @@ public class ClusteredHashTableEntry implements java.io.Serializable
   }
 
   /**
-    Sets the entry status for the entry.  Can only be 0 or 1.
-    0 means consistant in the Cluster Hash Table.
-    1 means it is inconstistant.  The entry is not the same on all nodes in the Clustered Hash Table domain.
-    @param entryStatus, the status of the entry.
+    Sets the entry status for the entry.  Can only be ENTRY_STATUS_CONSISTENT or ENTRY_STATUS_INCONSISTENT.
+    ENTRY_STATUS_CONSISTENT means consistent in the Cluster Hash Table.
+    ENTRY_STATUS_INCONSISTENT means it is inconstistent or the entry is not the same on all nodes in the clustered hash table domain.
+    @param entryStatus the status of the entry.
   **/
   protected void setEntryStatus(int entryStatus)
   {
-    // status can only be 1 or 0
-    if((entryStatus != 0) && (entryStatus != 1))
+    // status can only be ENTRY_STATUS_INCONSISTENT or ENTRY_STATUS_CONSISTENT
+    if((entryStatus != ENTRY_STATUS_CONSISTENT) && (entryStatus != ENTRY_STATUS_INCONSISTENT))
     {
       throw new ExtendedIllegalArgumentException("entryStatus", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
     }
@@ -419,7 +415,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
   
   /**
     Sets the time to live (in seconds) an entry remains in the clustered hash table.
-    This value must be greater than or equal to 60 seconds. If the value is -1, the entry will never expire.
+    This value must be greater than or equal to 60 seconds. The time out will be truncated to the nearest minute. If the value is -1, the entry will never expire.
     @param key The value of the time to live. The default for the timeToLive is 60 seconds.
   **/
   public void setTimeToLive(int timeToLive)
@@ -438,9 +434,8 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
   /**
     Sets the update option. This is the action used by ClusteredHashTable.put() when the
-    specified key already exists in the clustered hash table. This value must be 0 if the
-    current cluster version is 2. For more information on the current cluster version see
-    the Cluster Version section of the Cluster Resource Services APIs. It is only valid
+    specified key already exists in the clustered hash table. This value must be DUPLICATE_KEY_FAIL if the
+    current cluster version is 2.  It is only valid
     for the duration of the ClusteredHashTable.put() method. Valid values are:
     <ul>
     <li>DUPLICATE_KEY_FAIL = Do not allow the ClusteredHashTable.put() to succeed if the key already exists.
