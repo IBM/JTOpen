@@ -745,6 +745,10 @@ public class PTF
     // PERMANENTLY REMOVED - PND, 481, 43
     // PERMANENTLY APPLIED - PND, 524, 43
     // PERMANENTLY REMOVED, 567, 35
+    if (loadedStatus.equals(STATUS_NOT_LOADED))
+    {
+      return messageData_.substring(0, 11).trim();
+    }
     if (loadedStatus.equals(STATUS_DAMAGED))
     {
       return messageData_.substring(11, 27).trim();
