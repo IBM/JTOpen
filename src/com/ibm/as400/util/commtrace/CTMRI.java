@@ -73,7 +73,7 @@ public class CTMRI extends ListResourceBundle
 { "PreviousPage", "Previous Page" },
 { "Src/DestIPAddr", "Source/Destination IP address:" },
 { "IPPortnum", "IP port number:" },
-{ "FmtBdcst", "Format broadcast:" },
+{ "FmtBdcst", "Format broadcast" },
 { "Record", "Record" },
 { "MACAddress", "MAC Address" },
 { "Data", "Data" },

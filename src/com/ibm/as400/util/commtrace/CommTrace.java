@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import java.io.IOException;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -114,7 +115,8 @@ public class CommTrace extends WindowAdapter {
     private static final String ALL = "*ALL",
     							YES = "*YES",
     							VERSION = "1.0",
-								CLASS = "CommTrace";
+								CLASS = "CommTrace",
+								NO="*NO";
     
     // Save the path to the file we most recently transfered so we can open the
 	// IFSFile dialog in that location.
@@ -134,6 +136,7 @@ public class CommTrace extends WindowAdapter {
     private JOptionPane optionPane;
     private JDialog dialog;
     private JTextField [] args;
+    private JCheckBox fmtbox_;
     private String btnString1;
     private String btnString2;
 
@@ -454,7 +457,7 @@ public class CommTrace extends WindowAdapter {
 
 		IFSFileDialog fd = new IFSFileDialog((new JFrame()), "File Open", sys_);
 
-		FileFilter [] filterList = {new FileFilter(ResourceBundleLoader.getText("Allfiles"), "*.*")};
+		FileFilter [] filterList = {new FileFilter(ResourceBundleLoader.getText("AllFiles"), "*.*")};
 		fd.setFileFilter(filterList, 0);
 		if(path!=null) {
 			fd.setDirectory(path);
@@ -512,18 +515,19 @@ public class CommTrace extends WindowAdapter {
      * After the format button is clicked the format method is called.
      */
     void formatoptions() {
-		args = new JTextField[4];
+		args = new JTextField[3];
 		args[0] = new JTextField(ALL);
 		args[1] = new JTextField(ALL);
 		args[2] = new JTextField(ALL);
-		args[3] = new JTextField(YES);
-
+		fmtbox_ = new JCheckBox(ResourceBundleLoader.getText("FmtBdcst"));
+		fmtbox_.setSelected(true);
+		
 		btnString1 = ResourceBundleLoader.getText("Format");
 		btnString2 = ResourceBundleLoader.getText("Cancel");
 		Object[] array = {ResourceBundleLoader.getText("Src/DestIPAddr"),args[0],
 				ResourceBundleLoader.getText("Src/DestIPAddr"),args[1],
 				ResourceBundleLoader.getText("IPPortnum"),args[2],
-				ResourceBundleLoader.getText("FmtBdcst"),args[3]};
+				fmtbox_};
 		String msg = "";
 		Object[] options = {btnString1,btnString2};
 		optionPane = new JOptionPane(array,
@@ -573,9 +577,14 @@ public class CommTrace extends WindowAdapter {
 		if(sys_==null) {
 			sys_ = new AS400();
 		}
-
+		String box;
+		if(fmtbox_.isSelected()) {
+			box=YES;
+		} else {
+			box=NO;
+		}
 		// Start the client to format the file
-		fmtcl = new FormatRemote(sys_,verbose_,args[0].getText(),args[1].getText(),args[2].getText(),args[3].getText(),this);
+		fmtcl = new FormatRemote(sys_,verbose_,args[0].getText(),args[1].getText(),args[2].getText(),box,this);
 		fmtcl.setThread(new Thread(fmtcl,"FormatClient"));
 		fmtcl.getThread().start();
 	}
@@ -588,7 +597,13 @@ public class CommTrace extends WindowAdapter {
     		format.setThread(null);
 			format.close();
 		}
-		format = new FormatDisplay(args[0].getText(),args[1].getText(),args[2].getText(),args[3].getText(),FormatDisplay.FMT);
+		String box;
+		if(fmtbox_.isSelected()) {
+			box=YES;
+		} else {
+			box=NO;
+		}
+		format = new FormatDisplay(args[0].getText(),args[1].getText(),args[2].getText(),box,FormatDisplay.FMT);
 		Thread fmtTr = new Thread(format,"Format");
 		format.setThread(fmtTr); 
 		fmtTr.start();

@@ -75,7 +75,7 @@ class FormatRemote implements Runnable {
 			jaCall = new JavaApplicationCall(sys);
 
 			// Set the Java application to be run.
-			jaCall.setJavaApplication("com.ibm.as400.commtrace.Format");
+			jaCall.setJavaApplication("com.ibm.as400.util.commtrace.Format");
 			// Set the classpath environment variable used by the AS/400's
 			// JVM so it can find the class to run.
 			jaCall.setClassPath(
@@ -131,7 +131,7 @@ class FormatRemote implements Runnable {
 			IFSFileDialog fd =
 				new IFSFileDialog((new JFrame()), "Pick file to Format", sys);
 
-			FileFilter[] filterList = { new FileFilter("All files (*.*)", "*.*")};
+			FileFilter[] filterList = { new FileFilter(ResourceBundleLoader.getText("AllFiles"), "*.*")};
 			fd.setFileFilter(filterList, 0);
 
 			String fullpath = "";
