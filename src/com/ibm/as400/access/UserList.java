@@ -38,7 +38,7 @@ This class internally uses the Open List APIs (e.g. QGYOLAUS).
 
 @see com.ibm.as400.access.User
 @see com.ibm.as400.access.UserGroup
-@see com.ibm.as400.access.RUser
+@see com.ibm.as400.resource.RUser
 @see com.ibm.as400.resource.RUserList
 **/
 public class UserList implements Serializable

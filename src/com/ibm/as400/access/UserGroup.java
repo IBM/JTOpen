@@ -24,8 +24,8 @@ The UserGroup class represents a user profile that is
 a group profile.
 @see com.ibm.as400.access.User
 @see com.ibm.as400.access.UserList
-@see com.ibm.as400.access.RUser
-@see com.ibm.as400.access.RUserList
+@see com.ibm.as400.resource.RUser
+@see com.ibm.as400.resource.RUserList
 **/
 public class UserGroup extends User
 {

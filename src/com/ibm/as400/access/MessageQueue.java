@@ -74,7 +74,7 @@ objects returned by receive():
 </a>
 @see com.ibm.as400.access.QueuedMessage
 @see com.ibm.as400.resource.RMessageQueue
-@see com.ibm.as400.resouce.RQueuedMessage
+@see com.ibm.as400.resource.RQueuedMessage
 **/
 public class MessageQueue implements Serializable
 {
@@ -599,7 +599,6 @@ need replies.
    * @exception InterruptedException            If this thread is interrupted.
    * @exception IOException                     If an error occurs while communicating with the AS/400.
    * @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-   * @see #getMessageList
 **/
     public Enumeration getMessages ()
         throws  AS400Exception,
