@@ -1201,7 +1201,7 @@ public class PTF
    * @see #getDependentPTFs
    * @see #getRequisitePTFs
    * @see #isCoRequisite
-   * @see #isPrePrequisite
+   * @see #isPreRequisite
   **/
   public boolean isDependent()
   throws AS400Exception,
