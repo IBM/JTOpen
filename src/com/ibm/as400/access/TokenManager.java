@@ -32,7 +32,7 @@ class TokenManager
             Trace.log(Trace.DIAGNOSTIC, "GSS number of mechs available: ", mechs.length);
             for (int i = 0; i < mechs.length; ++i) Trace.log(Trace.DIAGNOSTIC, mechs[i].toString());
         }
-        Oid krb5Mech = Oid.getInstance("1.2.840.113554.1.2.2");
+        Oid krb5Mech = new Oid("1.2.840.113554.1.2.2");
         GSSName serverName = manager.createName("krbsvr400@" + systemName, GSSName.NT_HOSTBASED_SERVICE, krb5Mech);
         GSSCredential credential = manager.createCredential(GSSCredential.INITIATE_ONLY);
         GSSContext context = manager.createContext(serverName, krb5Mech, credential, GSSCredential.DEFAULT_LIFETIME);
