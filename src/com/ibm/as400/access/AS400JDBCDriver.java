@@ -430,6 +430,178 @@ implements java.sql.Driver
 	}
 
 
+        //@D4A
+	/**
+	Connects to the database on the specified system.
+	<p>Note: Since this method is not defined in the JDBC Driver interface,
+	you typically need to create a Driver object in order
+	to call this method:
+	<blockquote><pre>
+	AS400JDBCDriver d = new AS400JDBCDriver();
+	AS400 o = new AS400(myAS400, myUserId, myPwd);
+        String mySchema = "defaultSchema";
+        Properties prop = new Properties();
+	Connection c = d.connect (o, prop, mySchema, false);
+	</pre></blockquote>
+	
+	
+	@param  system   The AS/400 or iSeries server to connect.
+        @param  info     The connection properties.
+        @param  schema   The default schema or null meaning no default schema specified.
+        @param  clone    True if the AS400 object should be cloned, false otherwises
+	@return         The connection to the database or null if
+					the driver does not understand how to connect
+					to the database.
+	
+	@exception SQLException If the driver is unable to make the connection.
+	**/
+	public java.sql.Connection connect (AS400 system, Properties info, String schema, boolean clone)
+	throws SQLException
+	{
+		if (system == null)
+			throw new NullPointerException("system");
+
+		if (info == null)
+			throw new NullPointerException("properties");
+
+                Properties urlProperties = new Properties();
+
+		// Check first thing to see if the trace property is
+		// turned on.  This way we can trace everything, including
+		// the important stuff like loading the properties.
+
+		// If trace property was set to true, turn on tracing.  If trace property was set to false,
+		// turn off tracing.  If trace property was not set, do not change.
+		if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_ON)
+		{
+			if (! JDTrace.isTraceOn ())
+				JDTrace.setTraceOn (true);
+		}
+		else if (JDProperties.isTraceSet (urlProperties, info) == JDProperties.TRACE_SET_OFF)
+		{
+			if (JDTrace.isTraceOn ())
+				JDTrace.setTraceOn (false);
+		}
+
+                // If toolbox trace is set to datastream.  Turn on datastream tracing.
+                if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_DATASTREAM)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceDatastreamOn(true);
+                }
+                // If toolbox trace is set to diagnostic.  Turn on diagnostic tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_DIAGNOSTIC)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceDiagnosticOn(true);
+                }
+                // If toolbox trace is set to error.  Turn on error tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_ERROR)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceErrorOn(true);
+                }
+                // If toolbox trace is set to information.  Turn on information tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_INFORMATION)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceInformationOn(true);
+                }
+                // If toolbox trace is set to warning.  Turn on warning tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_WARNING)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceWarningOn(true);
+                }
+                // If toolbox trace is set to conversion.  Turn on conversion tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_CONVERSION)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceConversionOn(true);
+                }
+                // If toolbox trace is set to proxy.  Turn on proxy tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PROXY)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceProxyOn(true);
+                }
+                // If toolbox trace is set to pcml.  Turn on pcml tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_PCML)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTracePCMLOn(true);
+                }
+                // If toolbox trace is set to jdbc.  Turn on jdbc tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_JDBC)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceJDBCOn(true);
+                }
+                // If toolbox trace is set to all.  Turn on tracing for all categories.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_ALL)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceAllOn(true);
+                }
+                // If toolbox trace is set to thread.  Turn on thread tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_THREAD)
+                {
+                    if (! Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(true);
+                    }
+                    Trace.setTraceThreadOn(true);
+                }
+                // If toolbox trace is set to none.  Turn off tracing.
+                else if (JDProperties.isToolboxTraceSet (urlProperties, info) == JDProperties.TRACE_TOOLBOX_NONE)
+                {
+                    if (Trace.isTraceOn())
+                    {
+                        Trace.setTraceOn(false);
+                    }
+                }
+
+                if(!clone)  //Do not clone the AS400 object, use the one passed in
+                    return initializeConnection(schema, info, system);
+                else        //clone the AS400 object
+                {
+                    if(system instanceof SecureAS400)
+                        return initializeConnection(schema, info, new SecureAS400(system));
+                    else
+                        return initializeConnection(schema, info, new AS400(system));
+                }
+	}
+
 	//@B5A
 	/**
 	Connects to the database on the specified system.
