@@ -126,7 +126,14 @@ final class SQLDBClobLocator implements SQLLocator
         else if(object instanceof Reader)
         {
             int length = scale_*2; // We are always graphic.
-            if(length >= 0)
+            // Need to write even if there are 0 bytes in case we are batching and
+            // the host server reuses the same handle for the previous locator; otherwise,
+            // we'll have data in the current row from the previous row.
+            if (length == 0) 
+            {
+              locator_.writeData(0, new byte[0], 0, 0);
+            }
+            else if(length > 0)
             {
                 try
                 {
@@ -166,7 +173,14 @@ final class SQLDBClobLocator implements SQLLocator
         else if(object instanceof InputStream)
         {
             int length = scale_*2; // We are always graphic.
-            if(length >= 0)
+            // Need to write even if there are 0 bytes in case we are batching and
+            // the host server reuses the same handle for the previous locator; otherwise,
+            // we'll have data in the current row from the previous row.
+            if (length == 0) 
+            {
+              locator_.writeData(0, new byte[0], 0, 0);
+            }
+            else if(length > 0)
             {
                 InputStream stream = (InputStream)savedObject_;
                 int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
