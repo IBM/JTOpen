@@ -30,6 +30,8 @@ public final class NLS
   private static final Hashtable languages_ = new Hashtable();
   private static final Hashtable countries_ = new Hashtable();
   
+  static boolean forceJavaTables_ = false;
+
   private NLS()
   {
   }
@@ -251,6 +253,41 @@ public final class NLS
       }
     }
     return description;
+  }
+
+  /**
+   * Indicates whether or not any text conversion performed by the Toolbox uses the
+   * converter tables that are part of the Toolbox, or the converter tables that are
+   * part of the Java Runtime Environment. The default is to use the Toolbox
+   * converter tables, since their behavior more closely matches the behavior of 
+   * text conversion on OS/400.
+   * @return true if the Java Runtime Environement converter tables are used;
+   * false if the Toolbox converter tables are used. The default is false.
+   * @see #setForceJavaConversion
+  **/
+  public static boolean isForceJavaConversion()
+  {
+    return forceJavaTables_;
+  }
+
+  /**
+   * Sets whether or not any text conversion performed by the Toolbox uses the
+   * converter tables that are part of the Toolbox, or the converter tables that are
+   * part of the Java Runtime Environment. The default is to use the Toolbox
+   * converter tables, since their behavior more closely matches the behavior of 
+   * text conversion on OS/400.
+   * <p>
+   * The usefulness of this method is arbitrary. Typically, applications only need to 
+   * force Java conversion if they are seeing inconsistent character conversion between
+   * an older release of the Toolbox and a newer one. Some problem characters include
+   * EBCDIC line feeds and a few characters in Katakana, such as the middle dot or bullet.
+   * @param forceJavaTables Specify true if the Java Runtime Environement converter tables are used;
+   * false if the Toolbox converter tables are used. The default is false.
+   * @see #isForceJavaConversion
+  **/
+  public static void setForceJavaConversion(boolean forceJavaTables)
+  {
+    forceJavaTables_ = forceJavaTables;
   }
 }
 

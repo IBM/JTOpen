@@ -240,7 +240,16 @@ abstract class ConvTable
   **/
   static final ConvTable getTable(String encoding) throws UnsupportedEncodingException
   {
-    String className = prefix_ + ConversionMaps.encodingToCcsidString(encoding); //@E1C
+    String className = null;
+
+    if (NLS.forceJavaTables_)
+    {
+      className = encoding;
+    }
+    else
+    {
+      className = prefix_ + ConversionMaps.encodingToCcsidString(encoding); //@E1C
+    }
     
     // First, see if we've already loaded the table.
     ConvTable newTable = (ConvTable)converterPool_.get(className);
@@ -256,6 +265,7 @@ abstract class ConvTable
     // If we haven't, then we need to load it now.
     try
     {
+      if (NLS.forceJavaTables_) throw new CharConversionException("User set to force loading Java tables.");
       newTable = (ConvTable)Class.forName(className).newInstance();
     }
     catch(Throwable e) //@E5C
@@ -297,13 +307,23 @@ abstract class ConvTable
   static final ConvTable getTable(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
   {
     ccsid = ccsid & 0x00FFFF; // Remove sign-extended shorts that JDBC gives us.
+
     if (ccsid <= LARGEST_CCSID) //@P0A - If it's negative, too bad...
     {
       ConvTable cachedTable = ccsidPool_[ccsid]; //@P0A
       if (cachedTable != null) return cachedTable; //@P0A
     }
 
-    String className = prefix_ + String.valueOf(ccsid);
+    String className = null;
+    if (NLS.forceJavaTables_)
+    {
+      className = ConversionMaps.ccsidToEncoding(ccsid);
+      if (className == null) className = "";
+    }
+    else
+    {
+      className = prefix_ + String.valueOf(ccsid);
+    }
     
     // First, see if we've already loaded the table.
     ConvTable newTable = (ConvTable)converterPool_.get(className);
@@ -320,6 +340,7 @@ abstract class ConvTable
     // If we haven't, then we need to load it now.
     try
     {
+      if (NLS.forceJavaTables_) throw new CharConversionException("User set to force loading Java tables.");
       newTable = (ConvTable)Class.forName(className).newInstance();
     }
     catch(Throwable e) //@E5C
