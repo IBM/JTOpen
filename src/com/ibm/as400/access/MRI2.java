@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ Locale-specific objects for the IBM Toolbox for Java.
 //
 public class MRI2 extends ListResourceBundle
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
    public Object[][] getContents()
@@ -898,7 +898,7 @@ public class MRI2 extends ListResourceBundle
       { "ME_PCML_ERROR", "Error loading PCML." },
       { "ME_PCML_CACHE", "Using previously cached PCML document: &0"},
 
-      // @M3A
+      // @M3A @N0A
       // #TRANNOTE ################################################################
       // #TRANNOTE The following are MRI strings for the command documentation generator utility.
       // #TRANNOTE ################################################################
@@ -917,19 +917,59 @@ public class MRI2 extends ListResourceBundle
       { "GENCMDDOC_ALLOW_REXX_INTERACTIVE",  "Interactive REXX procedure (*IREXX)" },
       { "GENCMDDOC_ALLOW_USING_COMMAND_API", "Using QCMDEXEC, QCAEXEC, or QCAPCMD API (*EXEC)" },
       { "GENCMDDOC_CHOICES",                 "Choices" },
+      { "GENCMDDOC_DESCRIBE_COMMAND",        "Describe the function provided by the command." },
+      { "GENCMDDOC_DESCRIBE_EXAMPLE_1",      "Describe a simple invocation of the command." },
+      { "GENCMDDOC_DESCRIBE_EXAMPLE_2",      "Describe a more complex invocation of the command." },
+      { "GENCMDDOC_DESCRIBE_OTHER_RESTRICTION",  "Describe other command-level restrictions." },        
+      { "GENCMDDOC_DESCRIBE_PARAMETER",      "Describe the function provided by the parameter." }, 
+      { "GENCMDDOC_DESCRIBE_PARAMETER_DEFAULT",  "Describe the function provided by the default parameter value." },
+      { "GENCMDDOC_DESCRIBE_PARAMETER_VALUE_WITH_RANGE", "Describe the function provided by the range-limited parameter value." },
+      { "GENCMDDOC_DESCRIBE_PREDEFINED_PARAMETER_VALUE", "Describe the function provided by the pre-defined parameter value." },
+      { "GENCMDDOC_DESCRIBE_USERDEFINED_PARAMETER_VALUE", "Describe the function provided by the user-defined parameter value." },
       { "GENCMDDOC_ELEMENT",                 "Element" },
+      { "GENCMDDOC_ERROR_MESSAGES_COMMENT_1", "List the *ESCAPE, *STATUS, and *NOTIFY messages signalled from the command." },     
+      { "GENCMDDOC_ERROR_MESSAGES_COMMENT_2", "The following are generic messages defined in message file QCPFMSG." },        
+      { "GENCMDDOC_ERROR_MESSAGES_COMMENT_3", "Modify this list to match the list of error messages for the command." },        
+      { "GENCMDDOC_ERROR_MESSAGES_HEADING",   "Error messages for &1" },        
       { "GENCMDDOC_ERRORS",                  "Error messages" },
+      { "GENCMDDOC_EXAMPLE_1_TITLE",         "Example 1: Simple Command Example" },        
+      { "GENCMDDOC_EXAMPLE_2_TITLE",         "Example 2: More Complex Command Example" },        
       { "GENCMDDOC_EXAMPLES",                "Examples" },
+      { "GENCMDDOC_EXAMPLES_HEADING",        "Examples for &1" },        
+      { "GENCMDDOC_HELP_FOR_COMMAND",        "Help for command" },                 
+      { "GENCMDDOC_HELP_FOR_PARAMETER",      "Help for parameter" },        
+      { "GENCMDDOC_INTRO_COMMAND_HELP",      "The &1 command ..." },
+      { "GENCMDDOC_INTRO_PARAMETER_HELP",    "Specifies ..." },
+      { "GENCMDDOC_INTRO_EXAMPLE_HELP",      "This command ..." },
       { "GENCMDDOC_KEY",                     "Key" },
       { "GENCMDDOC_KEYWORD",                 "Keyword" },
+      { "GENCMDDOC_LIST_OTHER_AUT",          "List object or data authorities required to run the command." },        
+      { "GENCMDDOC_LIST_SPECIAL_AUT",        "List all special authorities required to run the command." },        
+      { "GENCMDDOC_LIST_THREADSAFE_RESTRICTIONS",  "If conditionally threadsafe, list threadsafe conditions or restrictions." },    
+      { "GENCMDDOC_MULTIPLE_ELEMENT_VALUES_ALLOWED", "You can specify &1 values for this element." },
+      { "GENCMDDOC_MULTIPLE_PARAMETER_VALUES_ALLOWED", "You can specify &1 values for this parameter." },
       { "GENCMDDOC_NAME_LOWERCASE",          "name" },
+      { "GENCMDDOC_NO_PARAMETERS",           "There are no parameters for this command." },      { "GENCMDDOC_OPTIONAL",                "Optional" },
       { "GENCMDDOC_NONE",                    "None" },
       { "GENCMDDOC_NOTES",                   "Notes" },
-      { "GENCMDDOC_OPTIONAL",                "Optional" },
       { "GENCMDDOC_PARAMETERS",              "Parameters" },
       { "GENCMDDOC_POSITIONAL",              "Positional" },
       { "GENCMDDOC_QUALIFIER",               "Qualifier" },
       { "GENCMDDOC_REQUIRED",                "Required" },
+      { "GENCMDDOC_REQUIRED_PARAMETER",      "This is a required parameter." }, 
+      { "GENCMDDOC_RESTRICTION_AUT",         "You must have ..." },        
+      { "GENCMDDOC_RESTRICTION_COMMENT",     "Parameter-level restrictions belong in parameter help sections, not here." },        
+      { "GENCMDDOC_RESTRICTION_THREADSAFE",  "This command is conditionally threadsafe, ..." },        
+      { "GENCMDDOC_RESTRICTIONS_HEADING",    "Restrictions" },
+      { "GENCMDDOC_SPECIFY_CL_VARIABLE_NAME",  "Specify the CL variable ..." },      
+      { "GENCMDDOC_SPECIFY_COMMAND_STRING",  "Specify the command ..." },      
+      { "GENCMDDOC_SPECIFY_DATE",            "Specify the date ..." },      
+      { "GENCMDDOC_SPECIFY_GENERIC_NAME",    "Specify the generic name of ..." },      
+      { "GENCMDDOC_SPECIFY_NAME",            "Specify the name of ..." },      
+      { "GENCMDDOC_SPECIFY_NUMBER",          "Specify the number of ..." },      
+      { "GENCMDDOC_SPECIFY_PATH_NAME",       "Specify the path name of ..." },      
+      { "GENCMDDOC_SPECIFY_TIME",            "Specify the time ..." },      
+      { "GENCMDDOC_SPECIFY_VALUE",           "Specify the ..." },
       { "GENCMDDOC_THREADSAFE",              "Threadsafe" },
       { "GENCMDDOC_THREADSAFE_CONDITIONAL",  "Conditional" },
       { "GENCMDDOC_TOP_OF_PAGE",             "Top" },
@@ -953,6 +993,22 @@ public class MRI2 extends ListResourceBundle
       { "GENCMDDOC_TYPE_VALUE_HEX",          "Hexadecimal value" },
       { "GENCMDDOC_TYPE_UNSIGNED_INTEGER",   "Unsigned integer" },
       { "GENCMDDOC_UNKNOWN",                 "Unknown" },
+      { "GENCMDDOC_VALUE_CHARACTER",         "character-value" },      
+      { "GENCMDDOC_VALUE_CL_VARIABLE_NAME",  "CL-variable-name" },     
+      { "GENCMDDOC_VALUE_COMMAND_STRING",    "command-string" },       
+      { "GENCMDDOC_VALUE_COMMUNICATIONS_NAME",  "communications-name" },  
+      { "GENCMDDOC_VALUE_DATE",              "date" },                 
+      { "GENCMDDOC_VALUE_DECIMAL_NUMBER",    "decimal-number" },       
+      { "GENCMDDOC_VALUE_GENERIC_NAME",      "generic-name" },         
+      { "GENCMDDOC_VALUE_HEX",               "hexadecimal-value" },            
+      { "GENCMDDOC_VALUE_INTEGER",           "integer-number" },              
+      { "GENCMDDOC_VALUE_LOGICAL",           "logical-value" },        
+      { "GENCMDDOC_VALUE_NAME",              "name" },         
+      { "GENCMDDOC_VALUE_NOT_RESTRICTED",    "unrestricted-value" },       
+      { "GENCMDDOC_VALUE_PATH_NAME",         "path-name" },            
+      { "GENCMDDOC_VALUE_SIMPLE_NAME",       "simple-name" },          
+      { "GENCMDDOC_VALUE_TIME",              "time" },                 
+      { "GENCMDDOC_VALUE_UNSIGNED_INTEGER",  "unsigned-integer-number" },
       { "GENCMDDOC_VALUES_OTHER",            "Other values" },
       { "GENCMDDOC_VALUES_OTHER_REPEAT",     "Other values (up to &1 repetitions)" },
       { "GENCMDDOC_VALUES_REPEAT",           "Values (up to &1 repetitions)" },
