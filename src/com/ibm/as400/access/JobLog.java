@@ -77,12 +77,13 @@ public class JobLog implements Serializable
 
   // We don't currently allow the user to specify a direction or any other
   // attributes, so we just hardcode these.
-  private static final boolean listDirection_ = true;
   private static final int maxMessageLength_ = 511;
   private static final int maxMessageHelpLength_ = 3000;
 
   private static final ProgramParameter errorCode_ = new ProgramParameter(new byte[4]);
 
+  private boolean listDirection_ = true;
+  private byte[] startingMessageKey_;
 
 /**
    * Constructs a JobLog object.
@@ -235,6 +236,17 @@ any constrained property is changed.
     }
 
     return length_;
+  }
+
+
+  /**
+   * Returns the list direction.
+   * @return true if the messages will be sorted oldest to newest; false if they will
+   * be sorted newest to oldest. The default is true.
+  **/
+  public boolean getListDirection()
+  {
+    return listDirection_;
   }
 
 
@@ -465,7 +477,15 @@ oldest to newest.
     return number_;
   }
 
-
+  /**
+   * Returns the starting message key.
+   * @return The key.
+   * @see #setStartingMessageKey
+  **/
+  public byte[] getStartingMessageKey()
+  {
+    return startingMessageKey_;
+  }
 
   /**
    * Returns the system.
@@ -535,13 +555,13 @@ oldest to newest.
     AS400Text text10 = new AS400Text(10, ccsid, system_);
 
     // Figure out our selection criteria.
-    byte[] selectionInfo = new byte[101];
+    byte[] selectionInfo = new byte[105];
     text10.toBytes(listDirection_ ? MessageQueue.NEXT : MessageQueue.PREVIOUS, selectionInfo, 0);
     text10.toBytes(name_.toUpperCase().trim(), selectionInfo, 10);
     text10.toBytes(user_.toUpperCase().trim(), selectionInfo, 20);
     text6.toBytes(number_, selectionInfo, 30);
     System.arraycopy(blanks16_, 0, selectionInfo, 36, 16); // internal job identifier
-    byte[] startingMessageKey = MessageQueue.OLDEST;
+    byte[] startingMessageKey = (startingMessageKey_ != null ? startingMessageKey_ : (listDirection_ ? MessageQueue.OLDEST : MessageQueue.NEWEST));
     System.arraycopy(startingMessageKey, 0, selectionInfo, 52, 4);
     // Note: 601 (qualified sender job name) never returns any data for this API,
     // so we leave it out.
@@ -556,7 +576,8 @@ oldest to newest.
     BinaryConverter.intToByteArray(1001, selectionInfo, 88); // Reply status
     BinaryConverter.intToByteArray(501, selectionInfo, 92); // Default reply
     BinaryConverter.intToByteArray(404, selectionInfo, 96); // Message help with replacement data and formattting characters
-    conv.stringToByteArray("*", selectionInfo, 100); // call message queue name; * means messages from every call of the job are listed.
+    BinaryConverter.intToByteArray(101, selectionInfo, 100); // Alert option
+    conv.stringToByteArray("*", selectionInfo, 104); // call message queue name; * means messages from every call of the job are listed.
 
     // Setup program parameters
     ProgramParameter[] parms = new ProgramParameter[7];
@@ -650,6 +671,16 @@ Removes a VetoableChangeListener.
     handle_ = null;
   }
 
+  /**
+   * Sets the list direction.
+   * @param direction true to sort the messages oldest to newest; false to sort them newest to oldest.
+   * The default is true.
+  **/
+  public void setListDirection(boolean direction)
+  {
+    listDirection_ = direction;
+    resetHandle();
+  }
 
 /**
 Sets the job name.  This cannot be changed
@@ -692,6 +723,19 @@ if the object has established a connection to the server.
   }
 
 
+
+  /**
+   * Sets the message key used to begin searching for messages to list from the
+   * corresponding entry in the message queue. Any valid message key will work,
+   * including {@link com.ibm.as400.access.MessageQueue#OLDEST MessageQueue.OLDEST} and
+   * {@link com.ibm.as400.access.MessageQueue#NEWEST MessageQueue#NEWEST}.
+   * @param key The key. Specify null to set it back to the default.
+  **/
+  public void setStartingMessageKey(byte[] key)
+  {
+    startingMessageKey_ = key;
+    resetHandle();
+  }
 
 /**
 Sets the system.  This cannot be changed if the object

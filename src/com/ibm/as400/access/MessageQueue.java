@@ -239,6 +239,9 @@ need replies.
   private int maxMessageHelpLength_ = -1; //@G0C - Was hardcoded as 3000.
 
 
+  private byte[] userStartingMessageKey_;
+  private byte[] workstationStartingMessageKey_;
+
 
 /**
    * Constructs a MessageQueue object.
@@ -540,7 +543,7 @@ need replies.
       messages[i] = new QueuedMessage(this, messageSeverity, messageIdentifier, messageType,
                                       messageKey, messageFileName, messageFileLibrarySpecified, dateSent, timeSent);
 
-      // Our 6 fields should've come back.
+      // Our 7 fields should've come back.
       for (int j=0; j<numFields; ++j)
       {
         int offsetToNextField = BinaryConverter.byteArrayToInt(data, fieldOffset);
@@ -717,6 +720,25 @@ need replies.
     return system_;
   }
 
+    /**
+     * Returns the starting message key, if one has been set.
+     * @return The key, or null if none has been set.
+     * @see #setUserStartingMessageKey
+    **/
+    public byte[] getUserStartingMessageKey()
+    {
+      return userStartingMessageKey_;
+    }
+
+    /**
+     * Returns the starting message key, if one has been set.
+     * @return The key, or null if none has been set.
+     * @see #setWorkstationStartingMessageKey
+    **/
+    public byte[] getWorkstationStartingMessageKey()
+    {
+      return workstationStartingMessageKey_;
+    }
 
 /**
    * Loads the list of messages on the system. This method informs the
@@ -756,10 +778,10 @@ need replies.
     AS400Text text10 = new AS400Text(10, ccsid, system_);
 
     // Figure out our selection criteria.
-    byte[] selectionInfo = new byte[86];
+    byte[] selectionInfo = new byte[90];
     text10.toBytes(listDirection_ ? NEXT : PREVIOUS, selectionInfo, 0);
-    byte[] userStartingMessageKey = listDirection_ ? OLDEST : NEWEST;
-    byte[] workstationStartingMessageKey = userStartingMessageKey;
+    byte[] userStartingMessageKey = (userStartingMessageKey_ != null ? userStartingMessageKey_ : (listDirection_ ? OLDEST : NEWEST));
+    byte[] workstationStartingMessageKey = (workstationStartingMessageKey_ != null ? workstationStartingMessageKey_ : userStartingMessageKey);
     BinaryConverter.intToByteArray(severity_, selectionInfo, 12);
     BinaryConverter.intToByteArray(maxMessageLength_, selectionInfo, 16); // Only used for fields 401, 402, 403, or 404.
     BinaryConverter.intToByteArray(maxMessageHelpLength_, selectionInfo, 20); // Only used for fields 301 or 302.
@@ -777,6 +799,7 @@ need replies.
     BinaryConverter.intToByteArray(1001, selectionInfo, 74); // Reply status
     BinaryConverter.intToByteArray(501, selectionInfo, 78); // Default reply
     BinaryConverter.intToByteArray(404, selectionInfo, 82); // Message help with replacement data and formattting characters
+    BinaryConverter.intToByteArray(101, selectionInfo, 86); // Alert option
 
     // Setup program parameters
     ProgramParameter[] parms = new ProgramParameter[10];
@@ -786,7 +809,7 @@ need replies.
     parms[3] = new ProgramParameter(BinaryConverter.intToByteArray(1)); // number of records to return (have to specify at least 1... for some reason 0 doesn't work)
     parms[4] = new ProgramParameter(new byte[] { sort_ && selectionCriteria_.equals(ALL) ? (byte)0xF1 : (byte)0xF0 }); // Sort information, '0' = no sort, '1' = sort if *ALL is specified
     parms[5] = new ProgramParameter(selectionInfo); // Message selection information
-    parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(86)); // Size of message selection information
+    parms[6] = new ProgramParameter(BinaryConverter.intToByteArray(selectionInfo.length)); // Size of message selection information
     byte[] userOrQueueInfo = new byte[21];
     if (path_.equals(CURRENT))
     {
@@ -1076,6 +1099,7 @@ need replies.
     String sendingProgramName = conv.byteArrayToString(data, 81, 12).trim();
     String dateSent = conv.byteArrayToString(data, 97, 7); // CYYMMDD
     String timeSent = conv.byteArrayToString(data, 104, 6); // HHMMSS
+    String alertOption = conv.byteArrayToString(data, 135, 9).trim();
     
     int ccsidStatusText = BinaryConverter.byteArrayToInt(data, 127);
     int ccsidMessage = BinaryConverter.byteArrayToInt(data, 144);
@@ -1098,7 +1122,7 @@ need replies.
                                  returnedType, returnedKey, messageFileName, messageFileLibraryUsed,
                                  sendingJob, sendingUserProfile, sendingJobNumber,
                                  sendingProgramName, dateSent, timeSent,
-                                 impromptuMessageBytes, impromptuMessage, null);
+                                 impromptuMessageBytes, impromptuMessage, null, alertOption);
       resetHandle();
       return message;
     }
@@ -1116,7 +1140,7 @@ need replies.
                                               returnedType, returnedKey, messageFileName, messageFileLibraryUsed,
                                               sendingJob, sendingUserProfile, sendingJobNumber,
                                               sendingProgramName, dateSent, timeSent,
-                                              replacementDataBytes, messageData, messageHelp);
+                                              replacementDataBytes, messageData, messageHelp, alertOption);
     resetHandle();
     return message;
   }
@@ -1802,6 +1826,42 @@ has established a connection to the server.
     if (propertyChangeSupport_ != null) propertyChangeSupport_.firePropertyChange("system", old, system);
   }
 
+    /**
+     * Sets the starting message key used to begin searching for messages to list
+     * from the corresponding entry in the message queue. Any valid message key
+     * will work, including {@link #NEWEST NEWEST} and {@link #OLDEST OLDEST}.
+     * If the key of a reply message is specified, the message search begins
+     * with the inquiry or sender's copy message associated with that reply,
+     * not the reply message itself.
+     * <P>
+     * If the message queue is set to {@link #CURRENT CURRENT}, then the key
+     * represents the starting message key for the current user's user message queue.
+     * @param key The key. Specify null to set it back to the default, which will
+     * be OLDEST or NEWEST based on the list direction.
+    **/
+    public void setUserStartingMessageKey(byte[] key)
+    {
+      userStartingMessageKey_ = key;
+      resetHandle();
+    }
+
+    /**
+     * Sets the starting message key used to begin searching for messages to list
+     * from the corresponding entry in the message queue. Any valid message key
+     * will work, including {@link #NEWEST NEWEST} and {@link #OLDEST OLDEST}.
+     * If the key of a reply message is specified, the message search begins
+     * with the inquiry or sender's copy message associated with that reply,
+     * not the reply message itself.
+     * <P>
+     * If the message queue is set to {@link #CURRENT CURRENT}, then the key
+     * represents the starting message key for the current user's workstation message queue.
+     * @param key The key. Specify null to set it back to the default.
+    **/
+    public void setWorkstationStartingMessageKey(byte[] key)
+    {
+      workstationStartingMessageKey_ = key;
+      resetHandle();
+    }
 }
 
 

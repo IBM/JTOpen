@@ -56,6 +56,8 @@ public class QueuedMessage extends AS400Message implements Serializable
 
     private JobHashtable values_;
 
+    private String alertOption_ = "";
+
 /**
 Constructs a QueuedMessage object.
 **/
@@ -111,7 +113,7 @@ Constructs a QueuedMessage object.
                   int messageType, byte[] messageKey, String messageFileName, String messageLibraryName,
                   String sendingJob, String sendingUserProfile, String sendingJobNumber,
                   String sendingProgramName, String dateSent, String timeSent,
-                  byte[] replacementData, String messageData, String messageHelp)
+                  byte[] replacementData, String messageData, String messageHelp, String alertOption)
     {
       super(messageIdentifier, messageData, messageFileName, messageLibraryName, messageSeverity, messageType, replacementData, messageHelp, dateSent, timeSent, null);
       messageQueue_ = messageQueue;
@@ -121,7 +123,27 @@ Constructs a QueuedMessage object.
       sendingJobName_ = sendingJob;
       sendingJobNumber_ = sendingJobNumber;
       sendingProgram_ = sendingProgramName;
+      alertOption_ = alertOption;
     }
+
+    /**
+     * Returns the alert option.
+     * Possible values are:
+     * <UL>
+     * <LI>*DEFER - An alert is sent after local problem analysis.
+     * <LI>*IMMED - An alert is sent immediately when the message is sent to a 
+     * message queue that has the allow alerts attribute set to *YES.
+     * <LI>*NO - No alert is sent.
+     * <LI>*UNATTEND - An alert is sent immediately when the system is running
+     * in unattended mode. See the ALRSTS network attribute.
+     * <LI>"" - The alert option was not specified when the message was sent.
+     * </UL>
+     * @return One of the above values.
+    **/
+  public String getAlertOption()
+  {
+    return alertOption_.trim();
+  }
 
 /**
 Returns the sending program name.
@@ -275,6 +297,9 @@ Returns the sender user name.
           break;
         case 302:
           setText((String)value);
+          break;
+        case 101:
+          alertOption_ = (String)value;
           break;
         default:
           break;
