@@ -44,6 +44,27 @@ public class SpooledFileOpenList extends OpenList
   private static final byte[] ALL = new byte[] { 0x5C, (byte)0xC1, (byte)0xD3, (byte)0xD3, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
 
   /**
+   * Constant indicating that this list will accept parameters for, and, generate SpooledFileListItem objects
+   * in accordance with, the OSPL0100 format of the underlying API.
+   * @see #setFormat
+  **/
+  public static final String FORMAT_0100 = "OSPL0100";
+
+  /**
+   * Constant indicating that this list will accept parameters for, and, generate SpooledFileListItem objects
+   * in accordance with, the OSPL0200 format of the underlying API.
+   * @see #setFormat
+  **/
+  public static final String FORMAT_0200 = "OSPL0200";
+
+  /**
+   * Constant indicating that this list will accept parameters for, and, generate SpooledFileListItem objects
+   * in accordance with, the OSPL0300 format of the underlying API. This is the default format.
+   * @see #setFormat
+  **/
+  public static final String FORMAT_0300 = "OSPL0300";
+
+  /**
    * Sorting constant used to sort the list of spooled files by the job name portion of the job information.
    * @see #addSortField
   **/
@@ -101,7 +122,7 @@ public class SpooledFileOpenList extends OpenList
    * Sorting constant used to sort the list of spooled files by system.
    * @see #addSortField
   **/
-  public static final int ORIGINATING_SYSTEM = 9;
+  public static final int JOB_SYSTEM = 9;
   
   /**
    * Sorting constant used to sort the list of spooled files by user data.
@@ -165,6 +186,8 @@ public class SpooledFileOpenList extends OpenList
   public static final int PRIORITY = 19;
 
   
+  private String format_ = FORMAT_0300;
+
   private String jobName_ = "";
   private String jobUser_ = "";
   private String jobNumber_ = "";
@@ -196,9 +219,9 @@ public class SpooledFileOpenList extends OpenList
   };
 
   /**
-   * Constructs a SpooledFileOpenList object with the given system. The job name, job user,
-   * and job number criteria all default to blank, so that this list will generate a list
-   * of SpooledFileListItem objects for all spooled files on the system.
+   * Constructs a SpooledFileOpenList object with the given system.
+   * By default, this list will generate a list of SpooledFileListItem objects
+   * for all spooled files on the system using the default format of {@link #FORMAT_0300 FORMAT_0300}.
    * @param system The system.
   **/
   public SpooledFileOpenList(AS400 system)
@@ -207,23 +230,17 @@ public class SpooledFileOpenList extends OpenList
   }
 
   /**
-   * Constructs a SpooledFileOpenList object with the given system and job information.
-   * Only spooled files whose job information matches the specified job information will
-   * be returned in the list.
+   * Constructs a SpooledFileOpenList object with the given system and format.
+   * By default, this list will generate a list of SpooledFileListItem objects
+   * for all spooled files on the system.
    * @param system The system.
-   * @param jobName Only spooled files with this job name will be returned. Use "" to mean any job name.
-   * @param jobUser Only spooled files with this job user will be returned. Use "" to mean any user name.
-   * @param jobNumber Only spooled files with this job number will be returned. Use "" to mean any job number.
+   * @param format The format.
+   * @see #setFormat
   **/
-  public SpooledFileOpenList(AS400 system, String jobName, String jobUser, String jobNumber)
+  public SpooledFileOpenList(AS400 system, String format)
   {
-    super(system);
-    if (jobName == null) throw new NullPointerException("jobName");
-    if (jobUser == null) throw new NullPointerException("jobUser");
-    if (jobNumber == null) throw new NullPointerException("jobNumber");
-    jobName_ = jobName;
-    jobUser_ = jobUser;
-    jobNumber_ = jobNumber;
+    this(system);
+    setFormat(format);
   }
 
   /**
@@ -392,7 +409,7 @@ public class SpooledFileOpenList extends OpenList
     text6.toBytes(jobNumber_, nameUserNumber, 20);
     parms[6] = new ProgramParameter(nameUserNumber); // qualified job name
     
-    parms[7] = new ProgramParameter(conv.stringToByteArray("OSPL0300")); // format of the generated list
+    parms[7] = new ProgramParameter(conv.stringToByteArray(format_)); // format of the generated list
     parms[8] = EMPTY_ERROR_CODE_PARM;
     // We default to OSPF0100 to be compatible with pre-V5R2 systems.
 //    parms[9] = new ProgramParameter(); // format of filter information
@@ -435,7 +452,7 @@ public class SpooledFileOpenList extends OpenList
       case DATE_OPENED: return 4;
       case TIME_OPENED: return 4;
       case SCHEDULE: return 4;
-      case ORIGINATING_SYSTEM: return 4;
+      case JOB_SYSTEM: return 4;
       case USER_DATA: return 4;
       case FORM_TYPE: return 4;
       case OUTPUT_QUEUE_NAME: return 4;
@@ -465,7 +482,7 @@ public class SpooledFileOpenList extends OpenList
       case DATE_OPENED: return 7;
       case TIME_OPENED: return 6;
       case SCHEDULE: return 1;
-      case ORIGINATING_SYSTEM: return 10;
+      case JOB_SYSTEM: return 10;
       case USER_DATA: return 10;
       case FORM_TYPE: return 10;
       case OUTPUT_QUEUE_NAME: return 10;
@@ -496,7 +513,7 @@ public class SpooledFileOpenList extends OpenList
       case DATE_OPENED: return 45;
       case TIME_OPENED: return 52;
       case SCHEDULE: return 58;
-      case ORIGINATING_SYSTEM: return 59;
+      case JOB_SYSTEM: return 59;
       case USER_DATA: return 69;
       case FORM_TYPE: return 79;
       case OUTPUT_QUEUE_NAME: return 89;
@@ -524,58 +541,88 @@ public class SpooledFileOpenList extends OpenList
     int offset = 0;
     for (int i=0; i<recordsReturned; ++i)
     {
-      // format OSPL0200
-/*      String spooledFileName = conv.byteArrayToString(data, 0, 10).trim();
-      String jobName = conv.byteArrayToString(data, 10, 10).trim();
-      String jobUser = conv.byteArrayToString(data, 20, 10).trim();
-      String jobNumber = conv.byteArrayToString(data, 30, 6);
-      int spooledFileNumber = BinaryConverter.byteArrayToInt(data, 36);
-      int totalPages = BinaryConverter.byteArrayToInt(data, 40);
-      int currentPage = BinaryConverter.byteArrayToInt(data, 44);
-      int copiesLeftToPrint = BinaryConverter.byteArrayToInt(data, 48);
-      String outputQueueName = conv.byteArrayToString(data, 52, 10).trim();
-      String outputQueueLib = conv.byteArrayToString(data, 62, 10).trim();
-      String userData = conv.byteArrayToString(data, 72, 10);
-      String status = conv.byteArrayToString(data, 82, 10).trim();
-      String formType = conv.byteArrayToString(data, 92, 10).trim();
-      String priority = conv.byteArrayToString(data, 102, 2);
-      byte[] internalJobID = new byte[16];
-      System.arraycopy(data, 104, internalJobID, 0, 16);
-      byte[] internalSplID = new byte[16];
-      System.arraycopy(data, 120, internalSplID, 0, 16);
-      String deviceType = conv.byteArrayToString(data, 136, 10).trim();
-      String dateOpened = conv.byteArrayToString(data, 160, 7);
-      String timeOpened = conv.byteArrayToString(data, 167, 6);
-      String printerAssigned = conv.byteArrayToString(data, 173, 1);
-      String printerName = conv.byteArrayToString(data, 174, 10).trim();
-*/
-      // format OSPL0300
-      String jobName = conv.byteArrayToString(data, offset+0, 10).trim();
-      String jobUser = conv.byteArrayToString(data, offset+10, 10).trim();
-      String jobNumber = conv.byteArrayToString(data, offset+20, 6);
-      String spooledFileName = conv.byteArrayToString(data, offset+26, 10).trim();
-      int spooledFileNumber = BinaryConverter.byteArrayToInt(data, offset+36);
-      int status = BinaryConverter.byteArrayToInt(data, offset+40);
-      String dateOpened = conv.byteArrayToString(data, offset+44, 7);
-      String timeOpened = conv.byteArrayToString(data, offset+51, 6);
-      String spooledFileSchedule = conv.byteArrayToString(data, offset+57, 1);
-      String spooledFileSystem = conv.byteArrayToString(data, offset+58, 10).trim();
-      String userData = conv.byteArrayToString(data, offset+68, 10);
-      String formType = conv.byteArrayToString(data, offset+78, 10).trim();
-      String outputQueueName = conv.byteArrayToString(data, offset+88, 10).trim();
-      String outputQueueLib = conv.byteArrayToString(data, offset+98, 10).trim();
-      int asp = BinaryConverter.byteArrayToInt(data, offset+108);
-      int size = BinaryConverter.byteArrayToInt(data, offset+112);
-      int sizeMult = BinaryConverter.byteArrayToInt(data, offset+116);
-      int totalPages = BinaryConverter.byteArrayToInt(data, offset+120);
-      int copiesLeftToPrint = BinaryConverter.byteArrayToInt(data, offset+124);
-      String priority = conv.byteArrayToString(data, offset+128, 1);
+      if (format_.equals(FORMAT_0100) || format_.equals(FORMAT_0200))
+      {
+        // format OSPL0100 or OSPL0200
+        String spooledFileName = conv.byteArrayToString(data, offset, 10).trim();
+        String jobName = conv.byteArrayToString(data, offset+10, 10).trim();
+        String jobUser = conv.byteArrayToString(data, offset+20, 10).trim();
+        String jobNumber = conv.byteArrayToString(data, offset+30, 6);
+        int spooledFileNumber = BinaryConverter.byteArrayToInt(data, offset+36);
+        int totalPages = BinaryConverter.byteArrayToInt(data, offset+40);
+        int currentPage = BinaryConverter.byteArrayToInt(data, offset+44); // Not in 0300 format.
+        int copiesLeftToPrint = BinaryConverter.byteArrayToInt(data, offset+48);
+        String outputQueueName = conv.byteArrayToString(data, offset+52, 10).trim();
+        String outputQueueLib = conv.byteArrayToString(data, offset+62, 10).trim();
+        String userData = conv.byteArrayToString(data, offset+72, 10);
+        String status = conv.byteArrayToString(data, offset+82, 10).trim(); // This is a BIN(4) in 0300 format.
+        String formType = conv.byteArrayToString(data, offset+92, 10).trim();
+        String priority = conv.byteArrayToString(data, offset+102, 2).trim(); // This is a CHAR(1) in 0300 format.
+        byte[] internalJobID = new byte[16]; // Not in 0300 format.
+        System.arraycopy(data, offset+104, internalJobID, 0, 16);
+        byte[] internalSplID = new byte[16]; // Not in 0300 format.
+        System.arraycopy(data, offset+120, internalSplID, 0, 16);
+        String deviceType = conv.byteArrayToString(data, offset+136, 10).trim(); // Not in 0300 format.
+        int offsetToExtension = BinaryConverter.byteArrayToInt(data, offset+148);
+        String jobSystemName = null;
+        if (offsetToExtension > offset+148)
+        {
+          // There is an extension.
+          int lengthOfExtension = BinaryConverter.byteArrayToInt(data, offset+152);
+          jobSystemName = conv.byteArrayToString(data, offsetToExtension, 8).trim(); // This is a CHAR(10) in 0300 format.
+        }
+        if (format_.equals(FORMAT_0200))
+        {
+          // format OSPL0200 only
+          String dateOpened = conv.byteArrayToString(data, 160, 7);
+          String timeOpened = conv.byteArrayToString(data, 167, 6);
+          String printerAssigned = conv.byteArrayToString(data, 173, 1); // Not in 0300 format.
+          String printerName = conv.byteArrayToString(data, 174, 10).trim(); // Not in 0300 format.
+        
+          sp[i] = new SpooledFileListItem(spooledFileName, jobName, jobUser, jobNumber, spooledFileNumber,
+                                          totalPages, currentPage, copiesLeftToPrint, outputQueueName,
+                                          outputQueueLib, userData, status, formType, priority,
+                                          internalJobID, internalSplID, deviceType, jobSystemName,
+                                          dateOpened, timeOpened, printerAssigned, printerName);
+        }
+        else
+        {
+          sp[i] = new SpooledFileListItem(spooledFileName, jobName, jobUser, jobNumber, spooledFileNumber,
+                                          totalPages, currentPage, copiesLeftToPrint, outputQueueName,
+                                          outputQueueLib, userData, status, formType, priority,
+                                          internalJobID, internalSplID, deviceType, jobSystemName);
+        }
+      }
+      else
+      {
+        // format OSPL0300
+        String jobName = conv.byteArrayToString(data, offset+0, 10).trim();
+        String jobUser = conv.byteArrayToString(data, offset+10, 10).trim();
+        String jobNumber = conv.byteArrayToString(data, offset+20, 6);
+        String spooledFileName = conv.byteArrayToString(data, offset+26, 10).trim();
+        int spooledFileNumber = BinaryConverter.byteArrayToInt(data, offset+36);
+        int status = BinaryConverter.byteArrayToInt(data, offset+40); // This is a CHAR(10) in 0200 format.
+        String dateOpened = conv.byteArrayToString(data, offset+44, 7);
+        String timeOpened = conv.byteArrayToString(data, offset+51, 6);
+        String spooledFileSchedule = conv.byteArrayToString(data, offset+57, 1); // Not in 0200 format.
+        String jobSystemName = conv.byteArrayToString(data, offset+58, 10).trim(); // This is a CHAR(8) in 0100 format.
+        String userData = conv.byteArrayToString(data, offset+68, 10);
+        String formType = conv.byteArrayToString(data, offset+78, 10).trim();
+        String outputQueueName = conv.byteArrayToString(data, offset+88, 10).trim();
+        String outputQueueLib = conv.byteArrayToString(data, offset+98, 10).trim();
+        int asp = BinaryConverter.byteArrayToInt(data, offset+108); // Not in 0200 format.
+        int size = BinaryConverter.byteArrayToInt(data, offset+112); // Not in 0200 format.
+        int sizeMult = BinaryConverter.byteArrayToInt(data, offset+116); // Not in 0200 format.
+        int totalPages = BinaryConverter.byteArrayToInt(data, offset+120);
+        int copiesLeftToPrint = BinaryConverter.byteArrayToInt(data, offset+124);
+        String priority = conv.byteArrayToString(data, offset+128, 1); // This is a CHAR(2) in 0200 format.
 
-      sp[i] = new SpooledFileListItem(jobName, jobUser, jobNumber, spooledFileName, spooledFileNumber,
-                              status, dateOpened, timeOpened, spooledFileSchedule, spooledFileSystem,
-                              userData, formType, outputQueueName, outputQueueLib, asp, size, sizeMult,
-                              totalPages, copiesLeftToPrint, priority);
+        sp[i] = new SpooledFileListItem(jobName, jobUser, jobNumber, spooledFileName, spooledFileNumber,
+                                status, dateOpened, timeOpened, spooledFileSchedule, jobSystemName,
+                                userData, formType, outputQueueName, outputQueueLib, asp, size, sizeMult,
+                                totalPages, copiesLeftToPrint, priority);
 
+      }
       offset += recordLength;
     }
     return sp;
@@ -606,6 +653,36 @@ public class SpooledFileOpenList extends OpenList
   public String getFilterFormType()
   {
     return formTypeFilter_;
+  }
+
+  /**
+   * Returns the job name portion of the job information used to determine which spooled files belong in the list.
+   * @return The job name, or "" to indicate any job name.
+   * @see #setFilterJobInformation
+  **/
+  public String getFilterJobName()
+  {
+    return jobName_;
+  }
+
+  /**
+   * Returns the job number portion of the job information used to determine which spooled files belong in the list.
+   * @return The job number, or "" to indicate any job number.
+   * @see #setFilterJobInformation
+  **/
+  public String getFilterJobNumber()
+  {
+    return jobNumber_;
+  }
+
+  /**
+   * Returns the user name portion of the job information used to determine which spooled files belong in the list.
+   * @return The user name, or "" to indicate any user name.
+   * @see #setFilterJobInformation
+  **/
+  public String getFilterJobUser()
+  {
+    return jobUser_;
   }
 
   /**
@@ -646,30 +723,18 @@ public class SpooledFileOpenList extends OpenList
   }
 
   /**
-   * Returns the job name portion of the job information used to determine which spooled files belong in the list.
-   * @return The job name, or "" to indicate any job name.
+   * Returns the format currently in use by this open list.
+   * Possible values are:
+   * <UL>
+   * <LI>{@link #FORMAT_0100 FORMAT_0100}
+   * <LI>{@link #FORMAT_0200 FORMAT_0200}
+   * <LI>{@link #FORMAT_0300 FORMAT_0300}
+   * </UL>
+   * @return The format. The default format is FORMAT_0300.
   **/
-  public String getJobName()
+  public String getFormat()
   {
-    return jobName_;
-  }
-
-  /**
-   * Returns the job number portion of the job information used to determine which spooled files belong in the list.
-   * @return The job number, or "" to indicate any job number.
-  **/
-  public String getJobNumber()
-  {
-    return jobNumber_;
-  }
-
-  /**
-   * Returns the user name portion of the job information used to determine which spooled files belong in the list.
-   * @return The user name, or "" to indicate any user name.
-  **/
-  public String getJobUser()
-  {
-    return jobUser_;
+    return format_;
   }
 
   /**
@@ -693,6 +758,36 @@ public class SpooledFileOpenList extends OpenList
   public void setFilterFormType(String formType)
   {
     formTypeFilter_ = formType;
+    resetHandle();
+  }
+
+  /**
+   * Sets the qualified job information used to filter the list of spooled files. Specifying null
+   * for a parameter resets it to its default value of blank. Blank is only valid for a parameter
+   * if all three parameters are specified as blank, or the jobName parameter is specified as "*".
+   * @param jobName The job name of the job whose spooled files are to be included in the list. Specify "*"
+   * for the current job. If "*" is specified, the jobUser and jobNumber parameters are automatically
+   * set to blank.
+   * @param jobUser The user name of the job whose spooled files are to be included in the list.
+   * @param jobNumber The job number of the job whose spooled files are to be included in the list.
+   * @see #getFilterJobName
+   * @see #getFilterJobUser
+   * @see #getFilterJobNumber
+  **/
+  public void setFilterJobInformation(String jobName, String jobUser, String jobNumber)
+  {
+    if (jobName == null) jobName_ = "";
+    else jobName_ = jobName.trim();
+    if (jobUser == null) jobUser_ = "";
+    else jobUser_ = jobUser.trim();
+    if (jobNumber == null) jobNumber_ = "";
+    else jobNumber_ = jobNumber.trim();
+
+    if (jobName_.equals("*"))
+    {
+      jobUser_ = "";
+      jobNumber_ = "";
+    }
     resetHandle();
   }
 
@@ -765,6 +860,25 @@ public class SpooledFileOpenList extends OpenList
   public void setFilterUsers(String[] users)
   {
     userFilter_ = users;
+    resetHandle();
+  }
+
+  /**
+   * Sets the format this list will use on the next call to {@link #open open()}. Any
+   * SpooledFileListItems generated by this list will have attributes associated with
+   * the specified format. The default format is FORMAT_0300.
+   * @param format The format. Possible values are:
+   * <UL>
+   * <LI>{@link #FORMAT_0100 FORMAT_0100} - This is faster than FORMAT_0200.
+   * <LI>{@link #FORMAT_0200 FORMAT_0200} - This is faster than FORMAT_0300.
+   * <LI>{@link #FORMAT_0300 FORMAT_0300} - This causes the list to be built slower,
+   * but returns the most useful information.
+   * </UL>
+  **/
+  public void setFormat(String format)
+  {
+    if (format == null) throw new NullPointerException("format");
+    format_ = format;
     resetHandle();
   }
 }
