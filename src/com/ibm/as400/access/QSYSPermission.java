@@ -603,6 +603,14 @@ public class QSYSPermission extends UserPermission
                 authorities_[i] = basicAutMapping[BASIC_CHANGE][i];
             }
             objectAuthority_ = BASIC_CHANGE;
+        } else if (aut.equals("*AUTL"))          // @A4a
+        {
+            setFromAuthorizationList(true);      // @A4a
+        } else                                   // @A4a
+        {
+          Trace.log (Trace.ERROR, "Invalid object authority was specified: " + authority);  // @A4a
+          throw new ExtendedIllegalArgumentException("authority",
+                         ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);     // @A4a
         }
       
         return;
