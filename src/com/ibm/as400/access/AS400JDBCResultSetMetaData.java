@@ -319,7 +319,7 @@ implements ResultSetMetaData
         // because we already have the information, we should return it to the user if they want it...
         if(extendedColumnDescriptors_ != null)
         {
-            return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableSchemaName(convTable_);
+            return extendedColumnDescriptors_.getColumnDescriptors(columnIndex).getBaseTableName(convTable_);       //K1C  use to call getBaseTableSchemaName
         }
 
         // we still return "" if we don't have the Base Table Name
