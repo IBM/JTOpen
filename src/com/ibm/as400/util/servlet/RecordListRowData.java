@@ -81,386 +81,382 @@ public class RecordListRowData extends RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private RecordFormat recordFormat_;            // The record format.
-   private RecordFormatMetaData metadata_;        // The record metadata.
+  private RecordFormat recordFormat_;            // The record format.
+  private RecordFormatMetaData metadata_;        // The record metadata.
 
-   transient private RowDataSupport rowdataSupport_;   // The list of row data listeners.
-   transient private Record currentRecord_;       // The current record.
-   transient private int currentRecordIndex_ = -1;     // The row position of the current record.
+  transient private RowDataSupport rowdataSupport_;   // The list of row data listeners.
+  transient private Record currentRecord_;       // The current record.
+  transient private int currentRecordIndex_ = -1;     // The row position of the current record.
 
-   /**
-     Constructs a default RecordListRowData object.
-   **/
-   public RecordListRowData()
-   {
-      super();
-      rowdataSupport_ = new RowDataSupport(this);
-   }
+  /**
+    Constructs a default RecordListRowData object.
+  **/
+  public RecordListRowData()
+  {
+    super();
+    rowdataSupport_ = new RowDataSupport(this);
+  }
 
-   /**
-   *  Constructs a RecordListRowData object with the specified <i>recordFormat</i>.
-   *  @param recordFormat The record format.
-   **/
-   public RecordListRowData(RecordFormat recordFormat)
-   {
-      this();
+  /**
+  *  Constructs a RecordListRowData object with the specified <i>recordFormat</i>.
+  *  @param recordFormat The record format.
+  **/
+  public RecordListRowData(RecordFormat recordFormat)
+  {
+    this();
 
-      try
-      {
-         setRecordFormat(recordFormat);
-      }
-      catch (PropertyVetoException e) { /* Will never happen. */ }
-   }
+    try
+    {
+      setRecordFormat(recordFormat);
+    }
+    catch (PropertyVetoException e)
+    { /* Will never happen. */
+    }
+  }
 
-   /**
-   *  Adds the specified <i>record</i> to the end of the record list.
-   *  @param record The record to be added.
-   *  @exception RowDataException If a row data error occurs.
-   **/
-   public void addRow(Record record) throws RowDataException
-   {
-      // Validate the record parameter.
-      if (record == null)
-         throw new NullPointerException("record");
+  /**
+  *  Adds the specified <i>record</i> to the end of the record list.
+  *  @param record The record to be added.
+  *  @exception RowDataException If a row data error occurs.
+  **/
+  public void addRow(Record record) throws RowDataException
+  {
+    // Validate the record parameter.
+    if (record == null)
+      throw new NullPointerException("record");
 
-      // Add the row.
-      addRow(record, new Vector[record.getRecordFormat().getNumberOfFields()]);
-   }
+    // Add the row.
+    addRow(record, new Vector[record.getRecordFormat().getNumberOfFields()]);
+  }
 
-   /**
-   *  Adds the specified <i>record</i> to the end of the record list.
-   *  Each field in the record is assigned the appropriate properties list
-   *  specified by <i>properties</i>.
-   *  @param record The record to be added.
-   *  @param properties The properties list.
-   **/
-   public void addRow(Record record, Vector[] properties)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding a row to the list.");
+  /**
+  *  Adds the specified <i>record</i> to the end of the record list.
+  *  Each field in the record is assigned the appropriate properties list
+  *  specified by <i>properties</i>.
+  *  @param record The record to be added.
+  *  @param properties The properties list.
+  **/
+  public void addRow(Record record, Vector[] properties)
+  {
 
-      // Validate the record parameter.
-      validateRecord(record);
+    // Validate the record parameter.
+    validateRecord(record);
 
-      // Validate the properties parameter.
-      validateProperties(properties);
+    // Validate the properties parameter.
+    validateProperties(properties);
 
-      // Add the row and properties to the list.
-      rows_.addElement(record);
-      rowProperties_.addElement(properties);
+    // Add the row and properties to the list.
+    rows_.addElement(record);
+    rowProperties_.addElement(properties);
 
-      // Notify the listeners.
-      rowdataSupport_.fireAdded();
-   }
+    // Notify the listeners.
+    rowdataSupport_.fireAdded();
+  }
 
-   /**
-   *  Adds the specified <i>record</i> to the record list at the specified <i>rowIndex</i>.
-   *  @param record The record to be added.
-   *  @param rowIndex The rowIndex (0-based).
-   *  @exception RowDataException If a row data error occurs.
-   **/
-   public void addRow(Record record, int rowIndex) throws RowDataException
-   {
-      // Validate the record parameter.
-      if (record == null)
-         throw new NullPointerException("record");
+  /**
+  *  Adds the specified <i>record</i> to the record list at the specified <i>rowIndex</i>.
+  *  @param record The record to be added.
+  *  @param rowIndex The rowIndex (0-based).
+  *  @exception RowDataException If a row data error occurs.
+  **/
+  public void addRow(Record record, int rowIndex) throws RowDataException
+  {
+    // Validate the record parameter.
+    if (record == null)
+      throw new NullPointerException("record");
 
-      addRow(record, rowIndex, new Vector[record.getRecordFormat().getNumberOfFields()]);
-   }
+    addRow(record, rowIndex, new Vector[record.getRecordFormat().getNumberOfFields()]);
+  }
 
-   /**
-   *  Adds the specified <i>record</i> to the record list at the specified <i>rowIndex</i>.
-   *  Each field in the record is assigned the appropriate properties list specified by
-   *  <i>properties</i>.
-   *  @param record The record to be added.
-   *  @param rowIndex The row index (0-based).
-   *  @param properties The properties list.
-   **/
-   public void addRow(Record record, int rowIndex, Vector[] properties)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding a row to the list.");
+  /**
+  *  Adds the specified <i>record</i> to the record list at the specified <i>rowIndex</i>.
+  *  Each field in the record is assigned the appropriate properties list specified by
+  *  <i>properties</i>.
+  *  @param record The record to be added.
+  *  @param rowIndex The row index (0-based).
+  *  @param properties The properties list.
+  **/
+  public void addRow(Record record, int rowIndex, Vector[] properties)
+  {
 
-      // Validate the record parameter.
-      validateRecord(record);
+    // Validate the record parameter.
+    validateRecord(record);
 
-      // Validate the rowIndex parameter.
-      validateRowIndex(rowIndex);
+    // Validate the rowIndex parameter.
+    validateRowIndex(rowIndex);
 
-      // Validate the properties parameter.
-      validateProperties(properties);
+    // Validate the properties parameter.
+    validateProperties(properties);
 
-      // Add the row and properties to the list.
-      rows_.insertElementAt(record, rowIndex);
-      rowProperties_.insertElementAt(properties, rowIndex);
+    // Add the row and properties to the list.
+    rows_.insertElementAt(record, rowIndex);
+    rowProperties_.insertElementAt(properties, rowIndex);
 
-      // Notify the listeners.
-      rowdataSupport_.fireAdded();
-   }
+    // Notify the listeners.
+    rowdataSupport_.fireAdded();
+  }
 
-   /**
-   *  Adds a RowDataListener.
-   *  The RowDataListener object is added to an internal list of row data listeners;
-   *  it can be removed with removeRowDataListener.
-   *
-   *  @param listener The RowDataListener.
-   **/
-   public void addRowDataListener(RowDataListener listener)
-   {
-      rowdataSupport_.addRowDataListener(listener);
-   }
+  /**
+  *  Adds a RowDataListener.
+  *  The RowDataListener object is added to an internal list of row data listeners;
+  *  it can be removed with removeRowDataListener.
+  *
+  *  @param listener The RowDataListener.
+  **/
+  public void addRowDataListener(RowDataListener listener)
+  {
+    rowdataSupport_.addRowDataListener(listener);
+  }
 
-   /**
-   *  Returns the metadata.
-   *  @return The metadata.
-   **/
-   public RowMetaData getMetaData()
-   {
-      return metadata_;
-   }
+  /**
+  *  Returns the metadata.
+  *  @return The metadata.
+  **/
+  public RowMetaData getMetaData()
+  {
+    return metadata_;
+  }
 
-   /**
-   *  Returns the current record's field at the specified <i>columnIndex</i>.
-   *  @param columnIndex The column index (0-based).
-   *  @return The field object.
-   *  @exception RowDataException If a row data error occurs.
-   **/
-   public Object getObject(int columnIndex) throws RowDataException
-   {
-      String action = "Attempting to get the column object";
+  /**
+  *  Returns the current record's field at the specified <i>columnIndex</i>.
+  *  @param columnIndex The column index (0-based).
+  *  @return The field object.
+  *  @exception RowDataException If a row data error occurs.
+  **/
+  public Object getObject(int columnIndex) throws RowDataException
+  {
+    String action = "Attempting to get the column object";
 
-      // Verify that a row has been added.
-     validateRowList(action);
+    // Verify that a row has been added.
+    validateRowList(action);
 
-      // Validate the columnIndex parameter.
-      if ( (columnIndex < 0) || (columnIndex >= metadata_.getColumnCount()) )
-         throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Validate the columnIndex parameter.
+    if ((columnIndex < 0) || (columnIndex >= metadata_.getColumnCount()))
+      throw new ExtendedIllegalArgumentException("columnIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Check the current row.
-      validateListPosition(action);
+    // Check the current row.
+    validateListPosition(action);
 
-      // Get the current record.
-      if (currentRecordIndex_ != position_)
-      {
-         currentRecord_ = (Record)rows_.elementAt(position_);
-         currentRecordIndex_ = position_;
-      }
+    // Get the current record.
+    if (currentRecordIndex_ != position_)
+    {
+      currentRecord_ = (Record)rows_.elementAt(position_);
+      currentRecordIndex_ = position_;
+    }
 
-      try
-      {
-         return currentRecord_.getField(columnIndex);
-      }
-      catch (UnsupportedEncodingException e)
-      {
-         Trace.log(Trace.ERROR, "Rethrowing UnsupportedEncodingException");
-         throw new RowDataException(e);
-      }
-   }
+    try
+    {
+      return currentRecord_.getField(columnIndex);
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      Trace.log(Trace.ERROR, "Rethrowing UnsupportedEncodingException");
+      throw new RowDataException(e);
+    }
+  }
 
-   /**
-   *  Returns the record format.
-   *  @return The record format.
-   **/
-   public RecordFormat getRecordFormat()
-   {
-      return recordFormat_;
-   }
+  /**
+  *  Returns the record format.
+  *  @return The record format.
+  **/
+  public RecordFormat getRecordFormat()
+  {
+    return recordFormat_;
+  }
 
-   /**
-   *  Returns the Record object for the current row.
-   *  @return The row.
-   **/
-   public Record getRow()
-   {
-      String action = "Attempting to get the row object";
+  /**
+  *  Returns the Record object for the current row.
+  *  @return The row.
+  **/
+  public Record getRow()
+  {
+    String action = "Attempting to get the row object";
 
-      // Validate the list is not empty.
-      validateRowList(action);
+    // Validate the list is not empty.
+    validateRowList(action);
 
-      // Validate the list position.
-      validateListPosition(action);
+    // Validate the list position.
+    validateListPosition(action);
 
-      return (Record)rows_.elementAt(position_);
-   }
+    return(Record)rows_.elementAt(position_);
+  }
 
-   /**
-   *  Deserializes and initializes transient data.
-   **/
-   private void readObject(java.io.ObjectInputStream in)
-       throws java.io.IOException, ClassNotFoundException, RowDataException, PropertyVetoException
-   {
-      in.defaultReadObject();
+  /**
+  *  Deserializes and initializes transient data.
+  **/
+  private void readObject(java.io.ObjectInputStream in)
+  throws java.io.IOException, ClassNotFoundException, RowDataException, PropertyVetoException
+  {
+    in.defaultReadObject();
 
-      rowdataSupport_ = new RowDataSupport(this);
-      currentRecordIndex_ = -1;
-   }
+    rowdataSupport_ = new RowDataSupport(this);
+    currentRecordIndex_ = -1;
+  }
 
-   /**
-   *  Removes this RowDataListener from the internal list.
-   *  If the RowDataListener is not on the list, nothing is done.
-   *  @param listener The RowDataListener.
-   **/
-   public void removeRowDataListener(RowDataListener listener)
-   {
-      rowdataSupport_.removeRowDataListener(listener);
-   }
+  /**
+  *  Removes this RowDataListener from the internal list.
+  *  If the RowDataListener is not on the list, nothing is done.
+  *  @param listener The RowDataListener.
+  **/
+  public void removeRowDataListener(RowDataListener listener)
+  {
+    rowdataSupport_.removeRowDataListener(listener);
+  }
 
-   /**
-   *  Removes a record from the record list at the specified <i>rowIndex</i>.
-   *  @param rowIndex The row index (0-based).
-   **/
-   public void removeRow(int rowIndex)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Removing a row from the list.");
+  /**
+  *  Removes a record from the record list at the specified <i>rowIndex</i>.
+  *  @param rowIndex The row index (0-based).
+  **/
+  public void removeRow(int rowIndex)
+  {
 
-      // Verify the list is not empty.
-      validateRowList("Attempting to remove a row");
+    // Verify the list is not empty.
+    validateRowList("Attempting to remove a row");
 
-      // Validate the rowIndex parameter.
-      if ( rowIndex < 0 || rowIndex >= rows_.size() )
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Validate the rowIndex parameter.
+    if (rowIndex < 0 || rowIndex >= rows_.size())
+      throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Remove the row and row properties from the list.
-      rows_.removeElementAt(rowIndex);
-      rowProperties_.removeElementAt(rowIndex);
+    // Remove the row and row properties from the list.
+    rows_.removeElementAt(rowIndex);
+    rowProperties_.removeElementAt(rowIndex);
 
-      // Notify the listeners.
-      rowdataSupport_.fireRemoved();
-   }
+    // Notify the listeners.
+    rowdataSupport_.fireRemoved();
+  }
 
-   /**
-   *  Sets the record at the specified <i>rowIndex</i> to be the specified <i>record</i>.
-   *  @param record The record.
-   *  @param rowIndex The row index (0-based).
-   **/
-   public void setRow(Record record, int rowIndex)
-   {
-      // Validate the record parameter.
-      if (record == null)
-         throw new NullPointerException("record");
+  /**
+  *  Sets the record at the specified <i>rowIndex</i> to be the specified <i>record</i>.
+  *  @param record The record.
+  *  @param rowIndex The row index (0-based).
+  **/
+  public void setRow(Record record, int rowIndex)
+  {
+    // Validate the record parameter.
+    if (record == null)
+      throw new NullPointerException("record");
 
-      setRow(record, rowIndex, new Vector[record.getRecordFormat().getNumberOfFields()]);
-   }
+    setRow(record, rowIndex, new Vector[record.getRecordFormat().getNumberOfFields()]);
+  }
 
-   /**
-   *  Sets the record at the specified <i>rowIndex</i> to be the specified <i>record</i>.
-   *  Each object in the row is assigned the appropriate properties list specified by
-   *  <i>properties</i>.
-   *  @param record The record.
-   *  @param rowIndex The row index (0-based).
-   *  @param properties The row properties.
-   **/
-   public void setRow(Record record, int rowIndex, Vector[] properties)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Changing a row in the list.");
+  /**
+  *  Sets the record at the specified <i>rowIndex</i> to be the specified <i>record</i>.
+  *  Each object in the row is assigned the appropriate properties list specified by
+  *  <i>properties</i>.
+  *  @param record The record.
+  *  @param rowIndex The row index (0-based).
+  *  @param properties The row properties.
+  **/
+  public void setRow(Record record, int rowIndex, Vector[] properties)
+  {
 
-      // Validate that the list is not empty.
-      validateRowList("Attempting to change the row");
+    // Validate that the list is not empty.
+    validateRowList("Attempting to change the row");
 
-      // Validate the record parameter.
-      validateRecord(record);
+    // Validate the record parameter.
+    validateRecord(record);
 
-      // Validate the row parameter.
-      if ( rowIndex < 0 || rowIndex >= rows_.size() )
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Validate the row parameter.
+    if (rowIndex < 0 || rowIndex >= rows_.size())
+      throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Validate the properites parameter.
-      validateProperties(properties);
+    // Validate the properites parameter.
+    validateProperties(properties);
 
-      // Set the row and properties to the new values.
-      rows_.setElementAt(record, rowIndex);
-      rowProperties_.setElementAt(properties, rowIndex);
+    // Set the row and properties to the new values.
+    rows_.setElementAt(record, rowIndex);
+    rowProperties_.setElementAt(properties, rowIndex);
 
-      // Notify the listeners.
-      rowdataSupport_.fireChanged();
-   }
+    // Notify the listeners.
+    rowdataSupport_.fireChanged();
+  }
 
-   /**
-   *  Sets the record format for the record list.
-   *  The metadata is set using the specified <i>recordFormat</i>.
-   *  If a record format already exists, then setting a new record format
-   *  will remove all rows from the list.
-   *  @param recordFormat The record format.
-   *  @exception PropertyVetoException If a change is vetoed.
-   *  @see #getRecordFormat
-   *  @see #getMetaData
-   **/
-   public void setRecordFormat(RecordFormat recordFormat) throws PropertyVetoException
-   {
-      // Validate the recordFormat parameter.
-      if (recordFormat == null)
-         throw new NullPointerException("recordFormat");
+  /**
+  *  Sets the record format for the record list.
+  *  The metadata is set using the specified <i>recordFormat</i>.
+  *  If a record format already exists, then setting a new record format
+  *  will remove all rows from the list.
+  *  @param recordFormat The record format.
+  *  @exception PropertyVetoException If a change is vetoed.
+  *  @see #getRecordFormat
+  *  @see #getMetaData
+  **/
+  public void setRecordFormat(RecordFormat recordFormat) throws PropertyVetoException
+  {
+    // Validate the recordFormat parameter.
+    if (recordFormat == null)
+      throw new NullPointerException("recordFormat");
 
-      RecordFormat old = recordFormat_;
-      vetos_.fireVetoableChange("recordFormat", old, recordFormat);
+    RecordFormat old = recordFormat_;
+    vetos_.fireVetoableChange("recordFormat", old, recordFormat);
 
-      recordFormat_ = recordFormat;
+    recordFormat_ = recordFormat;
 
-      // Remove all existing rows and row properties.
-      if (!rows_.isEmpty())
-      {
-         rows_ = new Vector();
-         rowProperties_ = new Vector();
-      }
+    // Remove all existing rows and row properties.
+    if (!rows_.isEmpty())
+    {
+      rows_ = new Vector();
+      rowProperties_ = new Vector();
+    }
 
-      changes_.firePropertyChange("recordFormat", old, recordFormat);
+    changes_.firePropertyChange("recordFormat", old, recordFormat);
 
-      // Set the metadata.
-      if (metadata_ == null)
-         metadata_ = new RecordFormatMetaData(recordFormat_);
+    // Set the metadata.
+    if (metadata_ == null)
+      metadata_ = new RecordFormatMetaData(recordFormat_);
+    else
+      metadata_.setRecordFormat(recordFormat_);
+  }
+
+  /**
+  *  Validates the row properties.
+  *  @param properties The properties for the row.
+  **/
+  private void validateProperties(Vector[] properties)
+  {
+    if (properties == null)
+      throw new NullPointerException("properties");
+
+    // Verify the length match the number of columns.
+    if (properties.length != metadata_.getColumnCount())
+      throw new ExtendedIllegalArgumentException("properties", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+  }
+
+  /**
+  *  Validates the record.
+  *  @param record The record.
+  **/
+  private void validateRecord(Record record)
+  {
+    if (record == null)
+      throw new NullPointerException("record");
+
+    try
+    {
+      // Check the record format.
+      if (recordFormat_ == null)
+        setRecordFormat(record.getRecordFormat());
       else
-         metadata_.setRecordFormat(recordFormat_);
-   }
-
-   /**
-   *  Validates the row properties.
-   *  @param properties The properties for the row.
-   **/
-   private void validateProperties(Vector[] properties)
-   {
-      if (properties == null)
-         throw new NullPointerException("properties");
-
-      // Verify the length match the number of columns.
-      if (properties.length != metadata_.getColumnCount())
-         throw new ExtendedIllegalArgumentException("properties", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-   }
-
-   /**
-   *  Validates the record.
-   *  @param record The record.
-   **/
-   private void validateRecord(Record record)
-   {
-      if (record == null)
-         throw new NullPointerException("record");
-
-      try
       {
-         // Check the record format.
-         if (recordFormat_ == null)
-            setRecordFormat(record.getRecordFormat());
-         else
-         {
-            if (record.getRecordFormat() != recordFormat_)
-            {
-               Trace.log(Trace.ERROR, "Parameter 'record' does not contain the correct record format.");
-               throw new ExtendedIllegalArgumentException("record", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-            }
-         }
+        if (record.getRecordFormat() != recordFormat_)
+        {
+          Trace.log(Trace.ERROR, "Parameter 'record' does not contain the correct record format.");
+          throw new ExtendedIllegalArgumentException("record", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
       }
-      catch (PropertyVetoException e) { /* Will never occur. */ }
-   }
+    }
+    catch (PropertyVetoException e)
+    { /* Will never occur. */
+    }
+  }
 
-   /**
-   *  Validates the row index parameter.
-   *  @param rowIndex The row index.
-   **/
-   private void validateRowIndex(int rowIndex)
-   {
-      if ( rowIndex < 0 || rowIndex > rows_.size() )
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-   }
+  /**
+  *  Validates the row index parameter.
+  *  @param rowIndex The row index.
+  **/
+  private void validateRowIndex(int rowIndex)
+  {
+    if (rowIndex < 0 || rowIndex > rows_.size())
+      throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+  }
 }

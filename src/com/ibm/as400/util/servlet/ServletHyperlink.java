@@ -217,8 +217,6 @@ public class ServletHyperlink extends HTMLHyperlink
      **/
     String getDirectionTag()                                                 
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "   Retrieving direction attribute tags.");
 
         if ((getDirection() != null) && (getDirection().length() > 0))
             return " dir=\"" + getDirection() + "\"";
@@ -243,8 +241,6 @@ public class ServletHyperlink extends HTMLHyperlink
     **/                                                                               
     String getLanguageTag()                                                  
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "   Retrieving language attribute tag.");
 
         if ((getLanguage() != null) && (getLanguage().length() > 0))
             return " lang=\"" + getLanguage() + "\"";
@@ -282,8 +278,6 @@ public class ServletHyperlink extends HTMLHyperlink
     **/
     public String getTag(String text, Properties properties)
     {
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION, "Generating ServletHyperlink tag...");
 
         // Verify that the link has been set.
         if (getLink() == null)

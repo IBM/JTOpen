@@ -114,321 +114,315 @@ public class ListRowData extends RowData implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
-   private RowMetaData metadata_;                 // The metadata.
-   transient private RowDataSupport rowdataSupport_;        // The list of row data listeners.
+  private RowMetaData metadata_;                 // The metadata.
+  transient private RowDataSupport rowdataSupport_;        // The list of row data listeners.
 
-   /**
-     Constructs a default ListRowData object.
-   **/
-   public ListRowData()
-   {
-      super();
-      rowdataSupport_ = new RowDataSupport(this);
-   }
+  /**
+    Constructs a default ListRowData object.
+  **/
+  public ListRowData()
+  {
+    super();
+    rowdataSupport_ = new RowDataSupport(this);
+  }
 
-   /**
-   *  Constructs a ListRowData object with the specified <i>metadata</i>.
-   *  @param metadata The metadata.
-   *  @exception RowDataException If a row data error occurs.
-   **/
-   public ListRowData(RowMetaData metadata) throws RowDataException
-   {
-      this();
+  /**
+  *  Constructs a ListRowData object with the specified <i>metadata</i>.
+  *  @param metadata The metadata.
+  *  @exception RowDataException If a row data error occurs.
+  **/
+  public ListRowData(RowMetaData metadata) throws RowDataException
+  {
+    this();
 
-      try
-      {
-         setMetaData(metadata);
-      }
-      catch (PropertyVetoException e) { /* Will never occur. */ }
-   }
+    try
+    {
+      setMetaData(metadata);
+    }
+    catch (PropertyVetoException e)
+    { /* Will never occur. */
+    }
+  }
 
-   /**
-   *  Adds the specified <i>row</i> to the list.
-   *  The metadata needs to be set before adding a row to the list.
-   *  @param row The row to be added.
-   *  @exception RowDataException If the row length does not match the number
-   *  of columns specified in the metadata.
-   **/
-   public void addRow(Object[] row) throws RowDataException
-   {
-      if (metadata_ == null)
-      {
-         Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
-         throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      addRow(row, new Vector[metadata_.getColumnCount()]);
-   }
+  /**
+  *  Adds the specified <i>row</i> to the list.
+  *  The metadata needs to be set before adding a row to the list.
+  *  @param row The row to be added.
+  *  @exception RowDataException If the row length does not match the number
+  *  of columns specified in the metadata.
+  **/
+  public void addRow(Object[] row) throws RowDataException
+  {
+    if (metadata_ == null)
+    {
+      Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
+      throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
+    addRow(row, new Vector[metadata_.getColumnCount()]);
+  }
 
-   /**
-   *  Adds the specified <i>row</i> to the list.  Each object in the
-   *  row is assigned a list of properties specified by <i>properties</i>.
-   *  The metadata needs to be set before adding a row to the list.
-   *  @param row The row to be added.
-   *  @param properties The properties list.
-   *  @exception RowDataException If the row length does not match the number
-   *  of columns specified in the metadata.
-   **/
-   public void addRow(Object[] row, Vector[] properties) throws RowDataException
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding a row to the list.");
+  /**
+  *  Adds the specified <i>row</i> to the list.  Each object in the
+  *  row is assigned a list of properties specified by <i>properties</i>.
+  *  The metadata needs to be set before adding a row to the list.
+  *  @param row The row to be added.
+  *  @param properties The properties list.
+  *  @exception RowDataException If the row length does not match the number
+  *  of columns specified in the metadata.
+  **/
+  public void addRow(Object[] row, Vector[] properties) throws RowDataException
+  {
 
-      // Validate the row and properties parameters.
-      validateRow(row);
-      validateProperties(properties);
+    // Validate the row and properties parameters.
+    validateRow(row);
+    validateProperties(properties);
 
-      // Add the values.
-      rows_.addElement(row);
-      rowProperties_.addElement(properties);
+    // Add the values.
+    rows_.addElement(row);
+    rowProperties_.addElement(properties);
 
-      // Notify listeners.
-      rowdataSupport_.fireAdded();
-   }
+    // Notify listeners.
+    rowdataSupport_.fireAdded();
+  }
 
-   /**
-   *  Adds the specified <i>row</i> to the list at <i>rowIndex</i>.
-   *  The metadata needs to be set before adding a row to the list.
-   *  @param row The row.
-   *  @param rowIndex The row index (0-based).
-   *  @exception RowDataException If the row length does not match the number
-   *  of columns specified in the metadata.
-   **/
-   public void addRow(Object[] row, int rowIndex) throws RowDataException
-   {
-      if (metadata_ == null)
-      {
-         Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
-         throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      addRow(row, new Vector[metadata_.getColumnCount()], rowIndex);
-   }
+  /**
+  *  Adds the specified <i>row</i> to the list at <i>rowIndex</i>.
+  *  The metadata needs to be set before adding a row to the list.
+  *  @param row The row.
+  *  @param rowIndex The row index (0-based).
+  *  @exception RowDataException If the row length does not match the number
+  *  of columns specified in the metadata.
+  **/
+  public void addRow(Object[] row, int rowIndex) throws RowDataException
+  {
+    if (metadata_ == null)
+    {
+      Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
+      throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
+    addRow(row, new Vector[metadata_.getColumnCount()], rowIndex);
+  }
 
-   /**
-   *  Adds the specified <i>row</i> to the list at <i>rowIndex</i>.
-   *  Each object in row is assigned a properties list specified by <i>properties</i>.
-   *  The metadata needs to be set before adding a row to the list.
-   *  @param row The row.
-   *  @param properties The properties list.
-   *  @param rowIndex The row index (0-based).
-   *  @exception RowDataException If the row length does not match the number
-   *  of columns specified in the metadata.
-   **/
-   public void addRow(Object[] row, Vector[] properties, int rowIndex) throws RowDataException
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Adding a row to the list.");
+  /**
+  *  Adds the specified <i>row</i> to the list at <i>rowIndex</i>.
+  *  Each object in row is assigned a properties list specified by <i>properties</i>.
+  *  The metadata needs to be set before adding a row to the list.
+  *  @param row The row.
+  *  @param properties The properties list.
+  *  @param rowIndex The row index (0-based).
+  *  @exception RowDataException If the row length does not match the number
+  *  of columns specified in the metadata.
+  **/
+  public void addRow(Object[] row, Vector[] properties, int rowIndex) throws RowDataException
+  {
 
-      // Validate the row and properties parameters.
-      validateRow(row);
-      validateProperties(properties);
+    // Validate the row and properties parameters.
+    validateRow(row);
+    validateProperties(properties);
 
-      // Validate the rowIndex parameter.
-      if ( rowIndex < 0 || rowIndex > rows_.size() )
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Validate the rowIndex parameter.
+    if (rowIndex < 0 || rowIndex > rows_.size())
+      throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Add the values.
-      rows_.insertElementAt(row, rowIndex);
-      rowProperties_.insertElementAt(properties, rowIndex);
+    // Add the values.
+    rows_.insertElementAt(row, rowIndex);
+    rowProperties_.insertElementAt(properties, rowIndex);
 
-      // notify the listeners.
-      rowdataSupport_.fireAdded();
-   }
+    // notify the listeners.
+    rowdataSupport_.fireAdded();
+  }
 
 
-   /**
-   *  Adds a RowDataListener.
-   *  The RowDataListener object is added to an internal list of RowDataListeners;
-   *  it can be removed with removeRowDataListener.
-   *
-   *  @param listener The RowDataListener.
-   **/
-   public void addRowDataListener(RowDataListener listener)
-   {
-      rowdataSupport_.addRowDataListener(listener);
-   }
+  /**
+  *  Adds a RowDataListener.
+  *  The RowDataListener object is added to an internal list of RowDataListeners;
+  *  it can be removed with removeRowDataListener.
+  *
+  *  @param listener The RowDataListener.
+  **/
+  public void addRowDataListener(RowDataListener listener)
+  {
+    rowdataSupport_.addRowDataListener(listener);
+  }
 
-   /**
-   *  Returns the metadata.
-   *  @return The metadata.
-   **/
-   public RowMetaData getMetaData()
-   {
-      return metadata_;
-   }
+  /**
+  *  Returns the metadata.
+  *  @return The metadata.
+  **/
+  public RowMetaData getMetaData()
+  {
+    return metadata_;
+  }
 
-   /**
-   *  Returns the data objects for the current row.
-   *  @return The row.
-   **/
-   public Object[] getRow()
-   {
-      // Validate that the list is not empty.
-      validateRowList("Attempting to get the row object");
+  /**
+  *  Returns the data objects for the current row.
+  *  @return The row.
+  **/
+  public Object[] getRow()
+  {
+    // Validate that the list is not empty.
+    validateRowList("Attempting to get the row object");
 
-      // Get the current row.
-      validateListPosition("Attempting to get the row object");
+    // Get the current row.
+    validateListPosition("Attempting to get the row object");
 
-      return (Object[])rows_.elementAt(position_);
-   }
+    return(Object[])rows_.elementAt(position_);
+  }
 
-   /**
-   *  Deserializes and initializes transient data.
-   **/
-   private void readObject(java.io.ObjectInputStream in)
-       throws java.io.IOException, ClassNotFoundException, RowDataException
-   {
-      in.defaultReadObject();
-      rowdataSupport_ = new RowDataSupport(this);
-   }
+  /**
+  *  Deserializes and initializes transient data.
+  **/
+  private void readObject(java.io.ObjectInputStream in)
+  throws java.io.IOException, ClassNotFoundException, RowDataException
+  {
+    in.defaultReadObject();
+    rowdataSupport_ = new RowDataSupport(this);
+  }
 
-   /**
-   *  Removes the row from the list at the specified <i>rowIndex</i>.
-   *  @param rowIndex The row index (0-based).
-   **/
-   public void removeRow(int rowIndex)
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Removing a row from the list.");
+  /**
+  *  Removes the row from the list at the specified <i>rowIndex</i>.
+  *  @param rowIndex The row index (0-based).
+  **/
+  public void removeRow(int rowIndex)
+  {
 
-      // Validate that the list is not empty.
-      validateRowList("Attempting to remove a row");
+    // Validate that the list is not empty.
+    validateRowList("Attempting to remove a row");
 
-      // Validate the rowIndex parameter.
-      if ( (rowIndex < 0) || (rowIndex >= rows_.size()) )
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Validate the rowIndex parameter.
+    if ((rowIndex < 0) || (rowIndex >= rows_.size()))
+      throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      rows_.removeElementAt(rowIndex);
+    rows_.removeElementAt(rowIndex);
 
-      // Remove the parameter list.
-      rowProperties_.removeElementAt(rowIndex);
-      // Notify the listeners.
-      rowdataSupport_.fireRemoved();
-   }
+    // Remove the parameter list.
+    rowProperties_.removeElementAt(rowIndex);
+    // Notify the listeners.
+    rowdataSupport_.fireRemoved();
+  }
 
-   /**
-   *  Removes this RowDataListener from the internal list.
-   *  If the RowDataListener is not on the list, nothing is done.
-   *  @param listener The RowDataListener.
-   **/
-   public void removeRowDataListener(RowDataListener listener)
-   {
-      rowdataSupport_.removeRowDataListener(listener);
-   }
+  /**
+  *  Removes this RowDataListener from the internal list.
+  *  If the RowDataListener is not on the list, nothing is done.
+  *  @param listener The RowDataListener.
+  **/
+  public void removeRowDataListener(RowDataListener listener)
+  {
+    rowdataSupport_.removeRowDataListener(listener);
+  }
 
-   /**
-   *  Sets the metadata.
-   *  @param metadata The metadata.
-   *  @exception RowDataException If a row data error occurs.
-   *  @exception PropertyVetoException If a change is vetoed.
-   **/
-   public void setMetaData(RowMetaData metadata) throws RowDataException, PropertyVetoException
-   {
-      // Validate the metadata parameter.
-      if (metadata == null)
-         throw new NullPointerException("metaData");
+  /**
+  *  Sets the metadata.
+  *  @param metadata The metadata.
+  *  @exception RowDataException If a row data error occurs.
+  *  @exception PropertyVetoException If a change is vetoed.
+  **/
+  public void setMetaData(RowMetaData metadata) throws RowDataException, PropertyVetoException
+  {
+    // Validate the metadata parameter.
+    if (metadata == null)
+      throw new NullPointerException("metaData");
 
-      if (metadata.getColumnCount() == 0)
-      {
-         Trace.log(Trace.ERROR, "The metadata parameter 'columns' is invalid.");
-         throw new ExtendedIllegalStateException("metadata columns", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
+    if (metadata.getColumnCount() == 0)
+    {
+      Trace.log(Trace.ERROR, "The metadata parameter 'columns' is invalid.");
+      throw new ExtendedIllegalStateException("metadata columns", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
 
-      RowMetaData old = metadata_;
-      vetos_.fireVetoableChange("metadata", old, metadata);
+    RowMetaData old = metadata_;
+    vetos_.fireVetoableChange("metadata", old, metadata);
 
-      metadata_ = metadata;
+    metadata_ = metadata;
 
-      changes_.firePropertyChange("metadata", old, metadata);
-   }
+    changes_.firePropertyChange("metadata", old, metadata);
+  }
 
-   /**
-   *  Sets the row at the specified <i>rowIndex</i> to be the specified <i>row</i>.
-   *  @param row The updated row.
-   *  @param rowIndex The row index (0-based).
-   *  @exception RowDataException If the row length does not match the number
-   *  of columns specified in the metadata.
-   **/
-   public void setRow(Object[] row, int rowIndex) throws RowDataException
-   {
-      if (metadata_ == null)
-      {
-         Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
-         throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      setRow(row, new Vector[metadata_.getColumnCount()], rowIndex);
-   }
+  /**
+  *  Sets the row at the specified <i>rowIndex</i> to be the specified <i>row</i>.
+  *  @param row The updated row.
+  *  @param rowIndex The row index (0-based).
+  *  @exception RowDataException If the row length does not match the number
+  *  of columns specified in the metadata.
+  **/
+  public void setRow(Object[] row, int rowIndex) throws RowDataException
+  {
+    if (metadata_ == null)
+    {
+      Trace.log(Trace.ERROR, "Attempting to add a row before setting the metadata.");
+      throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
+    setRow(row, new Vector[metadata_.getColumnCount()], rowIndex);
+  }
 
-   /**
-   *  Sets the row at the specified <i>rowIndex</i> to be the specified <i>row</i>.
-   *  Each object in the row is assigned a properties list specified by <i>properties</i>.
-   *  @param row The updated row.
-   *  @param properties The properties list.
-   *  @param rowIndex The row index (0-based).
-   *  @exception RowDataException If the row length does not match the number
-   *  of columns specified in the metadata.
-   **/
-   public void setRow(Object[] row, Vector[] properties, int rowIndex) throws RowDataException
-   {
-      if (Trace.isTraceOn())
-         Trace.log(Trace.INFORMATION, "Changing a row in the list.");
+  /**
+  *  Sets the row at the specified <i>rowIndex</i> to be the specified <i>row</i>.
+  *  Each object in the row is assigned a properties list specified by <i>properties</i>.
+  *  @param row The updated row.
+  *  @param properties The properties list.
+  *  @param rowIndex The row index (0-based).
+  *  @exception RowDataException If the row length does not match the number
+  *  of columns specified in the metadata.
+  **/
+  public void setRow(Object[] row, Vector[] properties, int rowIndex) throws RowDataException
+  {
 
-      // Validate that the list is not empty.
-      validateRowList("Attempting to change a row");
+    // Validate that the list is not empty.
+    validateRowList("Attempting to change a row");
 
-      // Validate the row parameter.
-      validateRow(row);
+    // Validate the row parameter.
+    validateRow(row);
 
-      // Validate the rowIndex parameter.
-      if ( rowIndex < 0 || rowIndex >= rows_.size() )
-         throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+    // Validate the rowIndex parameter.
+    if (rowIndex < 0 || rowIndex >= rows_.size())
+      throw new ExtendedIllegalArgumentException("rowIndex", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      // Validate the properties parameter.
-      validateProperties(properties);
+    // Validate the properties parameter.
+    validateProperties(properties);
 
-      // Set the new values.
-      rows_.setElementAt(row, rowIndex);
-      rowProperties_.setElementAt(properties, rowIndex);
+    // Set the new values.
+    rows_.setElementAt(row, rowIndex);
+    rowProperties_.setElementAt(properties, rowIndex);
 
-      // Notify the listeners.
-      rowdataSupport_.fireChanged();
-   }
+    // Notify the listeners.
+    rowdataSupport_.fireChanged();
+  }
 
-   /**
-   *  Validates the row properties.
-   *  @param properties The row properties.
-   *  @exception RowDataException If a rowdata error occurs.
-   **/
-   private void validateProperties(Vector[] properties) throws RowDataException
-   {
-      // Validate the properties parameter.
-      if (properties == null)
-         throw new NullPointerException("properties");
+  /**
+  *  Validates the row properties.
+  *  @param properties The row properties.
+  *  @exception RowDataException If a rowdata error occurs.
+  **/
+  private void validateProperties(Vector[] properties) throws RowDataException
+  {
+    // Validate the properties parameter.
+    if (properties == null)
+      throw new NullPointerException("properties");
 
-      // Verify the length matches the number of columns.
-      if (properties.length != metadata_.getColumnCount())
-         throw new ExtendedIllegalArgumentException("properties", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-   }
+    // Verify the length matches the number of columns.
+    if (properties.length != metadata_.getColumnCount())
+      throw new ExtendedIllegalArgumentException("properties", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+  }
 
-   /**
-   *  Validates the specified <i>row</i>.
-   *  @param row The row.
-   *  @exception RowDataException If a rowdata error occurs.
-   **/
-   private void validateRow(Object[] row) throws RowDataException
-   {
-      // Validate the row parameter.
-      if (row == null)
-         throw new NullPointerException("row");
+  /**
+  *  Validates the specified <i>row</i>.
+  *  @param row The row.
+  *  @exception RowDataException If a rowdata error occurs.
+  **/
+  private void validateRow(Object[] row) throws RowDataException
+  {
+    // Validate the row parameter.
+    if (row == null)
+      throw new NullPointerException("row");
 
-      // Verify that the metadata is set.  Used in determining the number of columns in a row.
-      if (metadata_ == null)
-      {
-         Trace.log(Trace.ERROR, "Attempting to process a row before setting the metadata.");
-         throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
+    // Verify that the metadata is set.  Used in determining the number of columns in a row.
+    if (metadata_ == null)
+    {
+      Trace.log(Trace.ERROR, "Attempting to process a row before setting the metadata.");
+      throw new ExtendedIllegalStateException("metadata", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+    }
 
-      // Verify that the length matches the number of columns specified by the metadata.
-      if (row.length != metadata_.getColumnCount())
-         throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-   }
+    // Verify that the length matches the number of columns specified by the metadata.
+    if (row.length != metadata_.getColumnCount())
+      throw new ExtendedIllegalArgumentException("row", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+  }
 }
