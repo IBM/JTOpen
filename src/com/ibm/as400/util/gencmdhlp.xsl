@@ -143,7 +143,7 @@
 </xsl:if>
 <xsl:text/>.<xsl:text>&#xa;</xsl:text>
 <xsl:text/>.************************************************************************
-.*  <xsl:value-of select="$_HELP_FOR_COMMAND"/> <xsl:value-of select="Cmd/@CmdName"/>
+.*  <xsl:value-of select="$_HELP_FOR_COMMAND"/>&nbsp;<xsl:value-of select="Cmd/@CmdName"/>
 .************************************************************************<xsl:text/>
 <!-- Process the <Cmd> element found in the input command XML file.  
      The <Cmd> element processing will, in turn, process any <Parm> 
@@ -156,25 +156,25 @@
 
 <xsl:when test="Cmd/@PromptMsgID!=''">
 <xsl:text/>&amp;msg(<xsl:value-of select="Cmd/@PromptMsgID"/>). - <xsl:value-of select="$_HELP"/><xsl:text/>
-:p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/>
-&amp;msg(<xsl:value-of select="Cmd/@PromptMsgID"/>). (<xsl:value-of select="Cmd/@CmdName"/>)
-<xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/> <xsl:text/>
+:p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/><xsl:text/>
+&amp;msg(<xsl:value-of select="Cmd/@PromptMsgID"/>). (<xsl:value-of select="Cmd/@CmdName"/>)<xsl:text/>
+<xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/>
 .* <xsl:value-of select="$_DESCRIBE_COMMAND"/>
 </xsl:when>
 
 <xsl:when test="Cmd/@Prompt!=''">
 <xsl:text/><xsl:value-of select="Cmd/@Prompt"/> - <xsl:value-of select="$_HELP"/><xsl:text/>
-:p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/>
-<xsl:value-of select="Cmd/@Prompt"/> (<xsl:value-of select="Cmd/@CmdName"/>)
+:p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/><xsl:text/>
+<xsl:value-of select="Cmd/@Prompt"/> (<xsl:value-of select="Cmd/@CmdName"/>)<xsl:text/>
 <xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/> <xsl:text/>
 .* <xsl:value-of select="$_DESCRIBE_COMMAND"/>
 </xsl:when>
 
 <xsl:otherwise>
 <xsl:text/><xsl:value-of select="Cmd/@CmdName"/> - <xsl:value-of select="$_HELP"/><xsl:text/>
-:p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/>
-<xsl:value-of select="Cmd/@CmdName"/>
-<xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/> <xsl:text/>
+:p.<xsl:value-of select="substring-before($_INTRO_COMMAND_HELP,'&amp;amp;1')"/><xsl:text/>
+<xsl:value-of select="Cmd/@CmdName"/><xsl:text/>
+<xsl:value-of select="substring-after($_INTRO_COMMAND_HELP,'&amp;amp;1')"/> 
 .* <xsl:value-of select="$_DESCRIBE_COMMAND"/> 
 </xsl:otherwise>
 </xsl:choose>  
@@ -233,7 +233,6 @@
 <xsl:value-of select="substring-after($_EXAMPLES_HEADING,'&amp;amp;1')"/> - <xsl:value-of select="$_HELP"/><xsl:text/> 
 :xh3.<xsl:value-of select="substring-before($_EXAMPLES_HEADING,'&amp;amp;1')"/> <xsl:value-of select="$CommandName"/>
 <xsl:value-of select="substring-after($_EXAMPLES_HEADING,'&amp;amp;1')"/> <xsl:text/> 
-
 :p.:hp2.<xsl:value-of select="$_EXAMPLE_1_TITLE"/>:ehp2.  
 :xmp.
 <xsl:value-of select="$CommandName"/>  KWD1(PARMVAL1)  
@@ -243,8 +242,8 @@
 .*
 :p.:hp2.<xsl:value-of select="$_EXAMPLE_2_TITLE"/>:ehp2.  
 :xmp.
-<xsl:value-of select="$CommandName"/>  KWD1(PARMVAL1)  KWD2(PARMVAL2)    
-             KWD3(PARMVAL3)
+<xsl:value-of select="$CommandName"/>   KWD1(PARMVAL1)  KWD2(PARMVAL2)<xsl:text>&#xa;</xsl:text>    
+<xsl:value-of select="substring('          ',1,string-length($CommandName))"/>   KWD3(PARMVAL3)
 :exmp.
 :p.<xsl:value-of select="$_INTRO_EXAMPLE_HELP"/>
 .* <xsl:value-of select="$_DESCRIBE_EXAMPLE_2"/><xsl:text/>     
@@ -261,11 +260,11 @@
 &amp;msg(CPX0005,QCPFMSG). <xsl:value-of select="$CommandName"/> - <xsl:value-of select="$_HELP"/>
 :xh3.&amp;msg(CPX0005,QCPFMSG). <xsl:value-of select="$CommandName"/>
 :p.:hp3.*ESCAPE &amp;msg(CPX0006,QCPFMSG).:ehp3.
-<xsl:text/>.*******************************************************************************
+<xsl:text/>.************************************************************************
 .* <xsl:value-of select="$_ERROR_MESSAGES_COMMENT_1"/> 
 .* <xsl:value-of select="$_ERROR_MESSAGES_COMMENT_2"/> 
 .* <xsl:value-of select="$_ERROR_MESSAGES_COMMENT_3"/> 
-.*******************************************************************************<xsl:text/>
+.************************************************************************<xsl:text/>
 :DL COMPACT.
 :DT.CPF9801
 :DD.&amp;MSG(CPF9801,QCPFMSG,nosub).
@@ -308,7 +307,7 @@
   
     <xsl:text>&#xa;</xsl:text>
     <xsl:text/>.*******************************************<xsl:text>&#xa;</xsl:text>
-    <xsl:text/>.*   <xsl:value-of select="$_HELP_FOR_PARAMETER"/> <xsl:value-of select="@Kwd"/><xsl:text>&#xa;</xsl:text>
+    <xsl:text/>.*   <xsl:value-of select="$_HELP_FOR_PARAMETER"/>&nbsp;<xsl:value-of select="@Kwd"/><xsl:text>&#xa;</xsl:text>
     <xsl:text/>.*******************************************<xsl:text>&#xa;</xsl:text>
     <xsl:text/>:help name='<xsl:value-of select="$CommandName"/>/<xsl:value-of select="@Kwd"/>'.<xsl:text/>
     <xsl:text>&#xa;</xsl:text>
@@ -442,7 +441,7 @@
     </xsl:if>
     
     <!-- Identify the element number and put the prompt text in a heading      -->
-    <xsl:text/>:p.:hp2.<xsl:value-of select="$_ELEMENT"/> <xsl:number count="Elem"/>: <xsl:text/>
+    <xsl:text/>:p.:hp2.<xsl:value-of select="$_ELEMENT"/>&nbsp;<xsl:number count="Elem"/>: <xsl:text/>
     <xsl:choose>
       <xsl:when test="@PromptMsgID!=''">
         <xsl:text/>&amp;msg(<xsl:value-of select="@PromptMsgID"/>).
@@ -558,7 +557,7 @@
     </xsl:if>
     
     <!-- Identify the qualifier number and put the prompt text in a heading      -->
-    <xsl:text/>:p.:hp2.<xsl:value-of select="$_QUALIFIER"/> <xsl:number count="Qual"/>: <xsl:text/>
+    <xsl:text/>:p.:hp2.<xsl:value-of select="$_QUALIFIER"/>&nbsp;<xsl:number count="Qual"/>: <xsl:text/>
     <xsl:choose>
       <xsl:when test="position()=1">
         <xsl:choose>
