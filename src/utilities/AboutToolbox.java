@@ -46,12 +46,12 @@ public class AboutToolbox
          Class copyright = Class.forName("com.ibm.as400.access.Copyright");
          Field version = copyright.getDeclaredField("version");
 
-         //Runnning with mod2 (with 2nd PTF) or later.
+         // Running with mod2 (with 2nd PTF) or later.
          System.out.println(version.get(null));
       }
       catch(NoSuchFieldException e)
       {  
-         //Running with an older version of Toolbox
+         // Running with an older version of Toolbox.
          System.out.println("Your version of IBM Toolbox for Java is either:");
          System.out.println("  - Modification 0,");
          System.out.println("  - Modification 1, or");
