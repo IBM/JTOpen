@@ -182,7 +182,7 @@
 
   <property name="build.sysclasspath" value="ignore"/>
   
-  <property name="doclink" value="http://java.sun.com/j2se/1.4.1/docs/api/"/>
+  <property name="doclink" value="http://java.sun.com/j2se/1.4.2/docs/api/"/>
     
   <property name="show-progress" value="false"/>
 
