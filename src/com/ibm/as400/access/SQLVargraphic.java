@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.net.URL;
 
 final class SQLVargraphic
 implements SQLData
@@ -154,6 +155,9 @@ implements SQLData
 
         else if(object instanceof java.util.Date)
             value = SQLDate.dateToString((java.util.Date)object, settings_, calendar);
+
+        else if(object instanceof URL)
+            value = object.toString();
 
         else if(JDUtilities.JDBCLevel_ >= 20 && object instanceof Clob)
         {
