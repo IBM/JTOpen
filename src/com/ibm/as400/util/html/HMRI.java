@@ -313,7 +313,14 @@ public class HMRI extends ListResourceBundle
       { "PROP_FLE_NAME_TYPE", "Type" },                                                             // @C1A
       { "PROP_FLE_NAME_MODIFIED", "Modified" },                                                     // @C1A
 
-      { "PROP_DESC_LOCATION", "The bookmark location of the resource link within a document."}      // @C2A
+      { "PROP_DESC_LOCATION", "The bookmark location of the resource link within a document."},     // @C2A
+
+      { "PROP_NAME_FILE", "file"},                                                                  // @D1A
+      { "PROP_DESC_FILE", "The Integrated File System file represented by this FileTreeElement."},   // @D1A
+      { "PROP_NAME_SHARE_NAME", "shareName"},                                                       // @D1A
+      { "PROP_DESC_SHARE_NAME", "The NetServer share name."},                                       // @D1A
+      { "PROP_NAME_SHARE_PATH", "sharePath"},                                                       // @D1A
+      { "PROP_DESC_SHARE_PATH", "The NetServer share path."}                                        // @D1A 
 
    };
 

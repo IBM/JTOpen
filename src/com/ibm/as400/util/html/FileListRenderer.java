@@ -52,7 +52,9 @@ public class FileListRenderer
 
     private HttpServletRequest request_;
     private String uri_;
-    private String path_;
+    private String reqPath_;              
+    private StringBuffer sharePath_;            // @B1A
+    private StringBuffer shareName_;            // @B1A
 
 
     /**
@@ -65,8 +67,41 @@ public class FileListRenderer
         if (request == null)
             throw new NullPointerException("request");
 
-        uri_ = request.getServletPath();
-        path_ = request.getPathInfo();
+        uri_ = request.getServletPath();                     
+        reqPath_ = request.getPathInfo();                    
+    }
+
+
+    /**
+     *  Constructs a FileListRenderer with the specified <i>request</i>, NetServer <i>sharePath</i>,
+     *  and the NetServer <i>shareName</i>.
+     *
+     *  @param request   The Http servlet request.
+     *  @param shareName The NetServer share name.
+     *  @param sharePath The NetServer share path.
+     **/
+    public FileListRenderer(HttpServletRequest request, String shareName, String sharePath)
+    {
+        if (request == null)
+            throw new NullPointerException("request");
+
+        if (sharePath == null)                                       // @B1A
+            throw new NullPointerException("sharePath");             // @B1A
+
+        if (shareName == null)                                       // @B1A
+            throw new NullPointerException("shareName");             // @B1A
+
+        sharePath_ = new StringBuffer(sharePath);                    // @B1A
+        shareName_ = new StringBuffer(shareName);                    // @B1A
+
+        uri_ = request.getServletPath();                             // @B1A
+        reqPath_ = request.getPathInfo();                            // @B1A
+        
+        if (Trace.isTraceOn())                                                  // @B1A
+        {                                                                       // @B1A
+            Trace.log(Trace.INFORMATION, "Renderer sharePath: " + shareName_);  // @B1A
+            Trace.log(Trace.INFORMATION, "Renderer shareName: " + sharePath_);  // @B1A
+        }                                                                       // @B1A
     }
 
 
@@ -86,8 +121,8 @@ public class FileListRenderer
 
         StringBuffer buffer = new StringBuffer("<a href=\"");
         buffer.append(uri_);
-        buffer.append(URLEncoder.encode(path_.replace('\\','/'), false));        // @A1C
-        buffer.append(path_.endsWith("/") ? "" :"/");
+        buffer.append(URLEncoder.encode(reqPath_.replace('\\','/'), false));        // @A1C
+        buffer.append(reqPath_.endsWith("/") ? "" :"/");
         buffer.append(URLEncoder.encode(name, false));                           // @A1C
         buffer.append("\">");
         buffer.append(name);
@@ -123,14 +158,33 @@ public class FileListRenderer
     {   
         if (file == null)
             throw new NullPointerException("file");
-
         String parent = file.getParent();
 
         if (parent != null)                                                                         // @A2A
-        {
+        {   
+            if (sharePath_ != null)                                                                 // @B1A
+            {                                                                                       // @B1A
+                try                                                                                 // @B1A
+                {   
+                    parent = shareName_.append(parent.substring(sharePath_.length(), parent.length())).toString();   // @B1A
+                }
+                // This exception will get thrown when the parent is the only directory in the      // @B1A
+                // path.  Thus we know that we are at the beginning of the share.                   // @B1A
+                catch(StringIndexOutOfBoundsException e)                                            // @B1A
+                {                                                                                   // @B1A
+                    // If the parent directory length is shorter than the share path                // @B1A
+                    // then don't display the parent of the share.                                  // @B1A
+                    if (parent.length() < sharePath_.length())                                      // @B1A
+                        return null;                                                                // @B1A
+                }                                                                                   // @B1A
+            }                                                                                       // @B1A
+                                                                                                    // @B1A
+            if (Trace.isTraceOn())                                                                  // @B1A
+                Trace.log(Trace.INFORMATION, "Renderer parent: " + parent);                         // @B1A
+
             StringBuffer buffer = new StringBuffer("<a href=\"");
             buffer.append(uri_);
-            buffer.append(parent.startsWith("\\") ? "" : "/");                                      // @A2A
+            buffer.append(parent.startsWith("\\") || parent.startsWith("/") ? "" : "/");            // @A2A
             buffer.append(parent!=null ? URLEncoder.encode(parent.replace('\\','/'), false) : "");  // @A1C
             buffer.append("\">../ (Parent Directory)</a>");
             

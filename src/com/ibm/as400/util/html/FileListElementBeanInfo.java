@@ -82,7 +82,21 @@ public class FileListElementBeanInfo extends SimpleBeanInfo
         table.setDisplayName(loader_.getText("PROP_NAME_TABLE"));                        //$A1A
         table.setShortDescription(loader_.getText("PROP_DESC_TABLE"));                   //$A1A
 
-        properties_ = new PropertyDescriptor[] { renderer, request, system, table };      //$A1C  // @A2C
+        PropertyDescriptor shareName = new PropertyDescriptor("shareName", beanClass,        //@B1A
+                                                          "getShareName", "setShareName");   //@B1A
+        shareName.setBound(true);                                                            //@B1A
+        shareName.setConstrained(false);                                                     //@B1A
+        shareName.setDisplayName(loader_.getText("PROP_NAME_SHARE_NAME"));                   //@B1A
+        shareName.setShortDescription(loader_.getText("PROP_DESC_SHARE_NAME"));              //@B1A
+
+        PropertyDescriptor sharePath = new PropertyDescriptor("sharePath", beanClass,        //@B1A
+                                                          "getSharePath", "setSharePath");   //@B1A
+        sharePath.setBound(true);                                                            //@B1A
+        sharePath.setConstrained(false);                                                     //@B1A
+        sharePath.setDisplayName(loader_.getText("PROP_NAME_SHARE_PATH"));                   //@B1A
+        sharePath.setShortDescription(loader_.getText("PROP_DESC_SHARE_PATH"));              //@B1A
+
+        properties_ = new PropertyDescriptor[] { renderer, request, system, table, shareName, sharePath };//$A1C //@A2C //@B1A
       }
       catch (Exception e)
       {

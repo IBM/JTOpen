@@ -323,6 +323,8 @@ public class FileListElement implements java.io.Serializable
     private HttpServletRequest request_;
     private SimpleDateFormat   formatter_ = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
     private FileListRenderer   renderer_;                   // @A4A
+    private StringBuffer       sharePath_;                           // @B1A
+    private StringBuffer       shareName_;                           // @B1A
 
     private boolean   sort_   = true;                       // @A2A                   
     private Collator  collator_;                            // @A2A
@@ -405,6 +407,29 @@ public class FileListElement implements java.io.Serializable
 
 
     /**
+     *  Constructs a FileListElement with the specified <i>system</i>, <i>requst</i>, NetServer <i>sharePath</i>, and
+     *  NetServer <i>shareName</i>.
+     *
+     *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
+     *  used to retrieve the contents of the file system at the network share point.  
+     *
+     *  @param system    The iSeries system.
+     *  @param request   The Http servlet request.
+     *  @param shareName The NetServer share name.
+     *  @param sharePath The NetServer share path.
+     *
+     **/
+    public FileListElement(AS400 system, HttpServletRequest request, String shareName, String sharePath) // @B1A
+    {                                                                                                    // @B1A
+        setSystem(system);                                                                               // @B1A
+        setHttpServletRequest(request);                                                                  // @B1A
+        setRenderer(new FileListRenderer(request, shareName, sharePath));                                // @B1A
+        setShareName(shareName);                                                                         // @B1A
+        setSharePath(sharePath);                                                                         // @B1A
+    }
+
+
+    /**
      *  Adds a PropertyChangeListener.  The specified 
      *  PropertyChangeListener's <b>propertyChange</b> 
      *  method is called each time the value of any
@@ -441,6 +466,27 @@ public class FileListElement implements java.io.Serializable
     {
         return renderer_;
     }
+
+
+    /**
+     *  Return the NetServer share point.
+     *
+     *  @return The NetServer share path.
+     **/
+    public String getSharePath()                    // @B1A
+    {                                               // @B1A
+        return sharePath_.toString();               // @B1A
+    }                                               // @B1A
+
+    /**
+     *  Return the name of the NetServer share.
+     *
+     *  @return The name of the NetServer share.
+     **/
+    public String getShareName()                    // @B1A
+    {                                               // @B1A
+        return shareName_.toString();               // @B1A
+    }                                               // @B1A
 
 
     /**
@@ -497,6 +543,21 @@ public class FileListElement implements java.io.Serializable
 
         if (path == null)
             path = "/";
+
+        if (sharePath_ != null)                                                                            // @B1A
+        {                                                                                                  // @B1A
+            try                                                                                            // @B1A
+            {                                                                                              // @B1A
+                path = sharePath_.append(path.substring(path.indexOf('/', 1), path.length())).toString();  // @B1A
+            }                                                                                              // @B1A
+            catch(StringIndexOutOfBoundsException e)                                                       // @B1A
+            {                                                                                              // @B1A
+                path = sharePath_.insert(0, "/").toString();                                               // @B1A
+            }                                                                                              // @B1A
+        }  
+
+        if (Trace.isTraceOn())                                                                             // @B1A
+            Trace.log(Trace.INFORMATION, "FileList path: " + path);                                        // @B1A
 
         try
         {
@@ -767,6 +828,44 @@ public class FileListElement implements java.io.Serializable
         renderer_ = renderer;
 
         changes_.firePropertyChange("renderer", old, renderer_);
+    }
+
+
+    /**
+     *  Set the NetServer share path.  
+     *
+     *  @param sharePath The NetServer share path.
+     **/
+    public void setSharePath(String sharePath)                                      // @B1A
+    {                                                                               // @B1A
+        if (sharePath == null)                                                      // @B1A
+            throw new NullPointerException("sharePath");                            // @B1A
+                                                                                    // @B1A
+        StringBuffer old = sharePath_;                                              // @B1A
+                                                                                    // @B1A
+        sharePath_ = new StringBuffer(sharePath);                                   // @B1A
+                                                                                    // @B1A
+        changes_.firePropertyChange("sharePath", 
+                                    old==null ? null : old.toString(), sharePath_.toString());       // @B1A
+    }
+
+
+    /**
+     *  Set the name of the NetServer share.
+     *
+     *  @param shareName The NetServer share name.
+     **/
+    public void setShareName(String shareName)                                      // @B1A
+    {                                                                               // @B1A
+        if (shareName == null)                                                      // @B1A
+            throw new NullPointerException("shareName");                            // @B1A
+                                                                                    // @B1A
+        StringBuffer old = shareName_;                                              // @B1A
+                                                                                    // @B1A
+        shareName_ = new StringBuffer(shareName);                                   // @B1A
+                                                                                    // @B1A
+        changes_.firePropertyChange("shareName", 
+                                    old==null ? null : old.toString(), shareName_.toString());       // @B1A
     }
 
 
