@@ -435,7 +435,7 @@ Writes part of the contents of the lob.
                 int returnCode = reply.getReturnCode();
 
                 if(errorClass != 0)
-                    JDError.throwSQLException(connection_, id_, errorClass, returnCode);
+                    JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
             } finally
             {
                 if(request != null) request.inUse_ = false;
@@ -443,7 +443,7 @@ Writes part of the contents of the lob.
             }
         } catch(DBDataStreamException e)
         {
-            JDError.throwSQLException(JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException(this, JDError.EXC_INTERNAL, e);
         }
     }
 
