@@ -26,8 +26,8 @@ import java.beans.PropertyVetoException;
  <p>
  If the NetServer job on the iSeries server is not started, the "list" methods may return incomplete results.  To determine if the NetServer job is started, use the {@link #isStarted() isStarted} method.  To start the NetServer, use the {@link #start() start} method.
 <P>
-Note: Calling any of the attribute getters for the first time will
-result in an implicit call to {@link #refresh() refresh}, if not yet explicitly refreshed.
+Note: The first attribute getter-method call will cause an implicit call to
+{@link #refresh() refresh}, if refresh() hasn't yet been explicitly called.
 If any exceptions are thrown by <tt>refresh()</tt> during the implicit call,
 they will be logged to {@link com.ibm.as400.access.Trace#ERROR Trace.ERROR} and
 ignored. However, should an exception occur during an explicit call to
@@ -1121,13 +1121,25 @@ implements Serializable
   /**
    Returns the value of the "allow system name" attribute.
    This attribute indicates whether access is allowed to the server using the server's TCP/IP system name.
-   @return  The "allow system name" attribute
+   @return  The value of the "allow system name" attribute.
    **/
   public boolean isAllowSystemName()
   {
     if (!refreshedSinceStart_) refreshWithoutException();
-    if (DEBUG) System.out.println("ISeriesNetServer.isAllowSystemName(): current effective value is |" + effectiveValueStr_[ALLOW_SYSTEM_NAME] + "|");
+    if (DEBUG) System.out.println("ISeriesNetServer.isAllowSystemName(): effectiveValueStr_[ALLOW_SYSTEM_NAME] == |" + effectiveValueStr_[ALLOW_SYSTEM_NAME] + "|");
     return (effectiveValueStr_[ALLOW_SYSTEM_NAME].equals("1") ? true : false);
+  }
+
+  /**
+   Returns the pending value of the "allow system name" attribute.
+   @return  The pending value of the "allow system name" attribute.
+   @see #isAllowSystemName()
+   **/
+  public boolean isAllowSystemNamePending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    if (DEBUG) System.out.println("ISeriesNetServer.getAllowSystemNamePending(): pendingValueStr_[ALLOW_SYSTEM_NAME] == |" + pendingValueStr_[ALLOW_SYSTEM_NAME] + "|");
+    return (pendingValueStr_[ALLOW_SYSTEM_NAME].equals("1") ? true : false);
   }
 
   /**
@@ -1157,6 +1169,25 @@ implements Serializable
       System.out.println("DEBUG getAuthenticationMethod(): effectiveValueStr_[AUTHENTICATION_METHOD] == |" + effectiveValueStr_[AUTHENTICATION_METHOD] + "|");
     }
     switch (effectiveValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
+      case '0': return ENCRYPTED_PASSWORDS;
+      case '1': return KERBEROS_V5_TOKENS;
+      default:  return KERBEROS_OR_PASSWORDS;
+    }
+  }
+
+
+  /**
+   Returns the pending value of the "authentication method" attribute.
+   @return  The pending value of the "authentication method" attribute.
+   @see #getAuthenticationMethod()
+   **/
+  public int getAuthenticationMethodPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    if (DEBUG) {
+      System.out.println("DEBUG getAuthenticationMethod(): pendingValueStr_[AUTHENTICATION_METHOD] == |" + pendingValueStr_[AUTHENTICATION_METHOD] + "|");
+    }
+    switch (pendingValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
       case '0': return ENCRYPTED_PASSWORDS;
       case '1': return KERBEROS_V5_TOKENS;
       default:  return KERBEROS_OR_PASSWORDS;
@@ -1206,10 +1237,29 @@ implements Serializable
   }
 
   /**
+   Returns the pending value of the "autostart" attribute.
+   @return  The pending value of the "autostart" attribute.
+   @exception  AS400SecurityException  If a security or authority error occurs.
+   @see #isAutoStart()
+   **/
+  public boolean isAutoStartPending()
+    throws AS400SecurityException
+  {
+    if (!userHasSpecialAuthority()) {
+      Trace.log(Trace.ERROR, "*IOSYSCFG authority is required in order to query the AutoStart attribute.");
+      throw new AS400SecurityException(AS400SecurityException.SPECIAL_AUTHORITY_INSUFFICIENT);
+    }
+    if (!refreshedSinceStart_ || changedAutoStartSinceRefresh_) {
+      refreshWithoutException();
+    }
+    return (pendingValueStr_[AUTOSTART].equals("*YES") ? true : false);
+  }
+
+  /**
    Sets the value of the "autostart" attribute.
    This attribute indicates whether or not the NetServer is to be started automatically when TCP is started.
    Note: This is the only NetServer attribute for which changes take effect immediately upon {@link #commitChanges() commitChanges}.  That is, a NetServer restart is not necessary.
-   @return  The value of the "autostart" attribute.
+   @return  The pending value of the "autostart" attribute.
    **/
   public void setAutoStart(boolean value)
   {
@@ -1228,6 +1278,18 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueInt_[BROWSING_INTERVAL];
+  }
+
+
+  /**
+   Returns the pending value of the "browsing interval" attribute.
+   @return  The pending value of the "browsing interval" attribute.
+   @see #getBrowsingInterval()
+   **/
+  public int getBrowsingIntervalPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[BROWSING_INTERVAL];
   }
 
   /**
@@ -1254,6 +1316,18 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueInt_[CCSID];
+  }
+
+
+  /**
+   Returns the pending value of the "server CCSID" attribute.
+   @return  The pending value of the "server CCSID" attribute.
+   @see #getCCSID()
+   **/
+  public int getCCSIDPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[CCSID];
   }
 
   /**
@@ -1286,6 +1360,18 @@ implements Serializable
 
 
   /**
+   Returns the pending value of the "description" attribute.
+   @return  The pending value of the "description" attribute.
+   @see #getDescription()
+   **/
+  public String getDescriptionPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[DESCRIPTION];
+  }
+
+
+  /**
    Sets the value of the "description" attribute.
    This attribute represents the text description of the NetServer
    @param value  The value of the "description" attribute.
@@ -1310,6 +1396,18 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueStr_[DOMAIN_NAME];
+  }
+
+
+  /**
+   Returns the pending value of the "domain name" attribute.
+   @return  The pending value of the "domain name" attribute.
+   @see #getDomainName()
+   **/
+  public String getDomainNamePending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[DOMAIN_NAME];
   }
 
   /**
@@ -1347,6 +1445,17 @@ implements Serializable
   }
 
   /**
+   Returns the pending value of the "guest user profile" attribute.
+   @return  The pending value of the "guest user profile" attribute.
+   @see #getGuestUserProfile()
+   **/
+  public String getGuestUserProfilePending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[GUEST_USER_PROFILE];
+  }
+
+  /**
    Sets the value of the "guest user profile" attribute.
    This attribute represents the guest user profile for the NetServer.
    If no guest user profile is currently configured on the server, the value of this attribute is "" (an empty String).
@@ -1374,6 +1483,17 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueInt_[IDLE_TIMEOUT];
+  }
+
+  /**
+   Returns the pending value of the "idle timeout" attribute.
+   @return  The pending value of the "guest user profile" attribute.
+   @see #getIdleTimeout()
+   **/
+  public int getIdleTimeoutPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueInt_[IDLE_TIMEOUT];
   }
 
   /**
@@ -1405,6 +1525,17 @@ implements Serializable
   }
 
   /**
+   Returns the pending value of the "logon support" attribute.
+   @return  The pending value of the "logon support" attribute.
+   @see #isLogonServer()
+   **/
+  public boolean isLogonServerPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return (pendingValueInt_[LOGON_SUPPORT] == 1 ? true : false);
+  }
+
+  /**
    Sets the value of the "logon support" attribute.
    This attribute indicates the logon server role for the server.
    If true, then the server is a logon server; if false, the server is not a logon server.
@@ -1430,6 +1561,17 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueStr_[SERVER_NAME];
+  }
+
+  /**
+   Returns the pending value of the "NetServer name" attribute.
+   @return  The pending value of the "NetServer name" attribute.
+   @see #getName()
+   **/
+  public String getNamePending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[SERVER_NAME];
   }
 
   /**
@@ -1465,6 +1607,18 @@ implements Serializable
     return (effectiveValueInt_[WINS_ENABLEMENT] == 1 ? true : false);
   }
 
+
+  /**
+   Returns the pending value of the "WINS enablement" attribute.
+   @return  The pending value of the "WINS enablement" attribute.
+   @see #isWINSServer()
+   **/
+  public boolean isWINSServerPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return (pendingValueInt_[WINS_ENABLEMENT] == 1 ? true : false);
+  }
+
   /**
    Sets the value of the "WINS enablement" attribute.
    This attribute indicates whether the server uses a WINS server.
@@ -1488,6 +1642,17 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueStr_[WINS_PRIMARY_ADDRESS];
+  }
+
+  /**
+   Returns the pending value of the "WINS primary address" attribute.
+   @return  The pending value of the "WINS primary address" attribute.
+   @see #getWINSPrimaryAddress()
+   **/
+  public String getWINSPrimaryAddressPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[WINS_PRIMARY_ADDRESS];
   }
 
   /**
@@ -1518,6 +1683,17 @@ implements Serializable
   }
 
   /**
+   Returns the pending value of the "WINS scope ID" attribute.
+   @return  The pending value of the "WINS scope ID" attribute.
+   @see #getWINSScopeID()
+   **/
+  public String getWINSScopeIDPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[WINS_SCOPE_ID];
+  }
+
+  /**
    Sets the value of the "WINS scope ID" attribute.
    This attribute represents the network scope used by the WINS server.
    If no scope ID is currently configured on the server, the value of this attribute is "" (an empty String).
@@ -1542,6 +1718,17 @@ implements Serializable
   {
     if (!refreshedSinceStart_) refreshWithoutException();
     return effectiveValueStr_[WINS_SECONDARY_ADDRESS];
+  }
+
+  /**
+   Returns the pending value of the "WINS secondary address" attribute.
+   @return  The pending value of the "WINS secondary address" attribute.
+   @see #getWINSSecondaryAddress()
+   **/
+  public String getWINSSecondaryAddressPending()
+  {
+    if (!refreshedSinceStart_) refreshWithoutException();
+    return pendingValueStr_[WINS_SECONDARY_ADDRESS];
   }
 
   /**
