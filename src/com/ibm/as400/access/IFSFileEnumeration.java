@@ -135,7 +135,7 @@ implements Enumeration
     {
         if (index_ < contents_.length)
             return contents_[index_++];
-        else if (done_)
+        else if (contentsPending_ == null)
             throw new NoSuchElementException();
         else {
             try {
