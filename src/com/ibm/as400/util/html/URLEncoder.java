@@ -54,9 +54,9 @@ public class URLEncoder
     **/
     static public String encode(String url)
     {
-       return encode(url, true);                                                //$B1A @B2C
+        return encode(url, true);                                                //$B1A @B2C
     }
-    
+
     /**
     *  Encodes the URL.
     *  @param url The URL to be encoded.
@@ -64,32 +64,36 @@ public class URLEncoder
     *  @return The encoded string.
     **/
     static public String encode(String url, boolean encodePath)                 //$B1A @B2C
-    {   
+    {
 
         if (url == null)                                                        //$B1A
-           throw new NullPointerException("url");                               //$B1A
+            throw new NullPointerException("url");                //$B1A
 
         if (Trace.isTraceOn())
-           Trace.log(Trace.INFORMATION, "   Preparing to encode URL string.");
+            Trace.log(Trace.INFORMATION, "   Preparing to encode URL string.");
 
         if (encodePath)                                                         // @B2A
-           return java.net.URLEncoder.encode(url);                              // @B2A
-        else                                                                    // @B2A
-        {                                                                       // @B2A
-           StringBuffer s = new StringBuffer();                                 // @B2A
-           String next;                                                         // @B2A
+            return java.net.URLEncoder.encode(url);                 // @B2A
+        else                                                                         // @B2A
+        {
+            // @B2A
+            StringBuffer s = new StringBuffer();                                 // @B2A
+            String next;                                                                  // @B2A
 
-           StringTokenizer token = new StringTokenizer(url, "/", true);         // @B2A
-           while (token.hasMoreTokens())                                        // @B2A
-           {                                                                    // @B2A
-              next = token.nextToken();                                         // @B2A
-              if (next.equals("/"))                                             // @B2A
-                 s.append(next);                                                // @B2A
-              else                                                              // @B2A
-                 s.append(java.net.URLEncoder.encode(next));                    // @B2A
-           }                                                                    // @B2A
+            StringTokenizer token = new StringTokenizer(url, "/", true);         // @B2A
+            while (token.hasMoreTokens())                                                  // @B2A
+            {
+                // @B2A
+                next = token.nextToken();                                                      // @B2A
+                if (next.equals("/"))                                                               // @B2A
+                    s.append(next);                                                                // @B2A
+                else                                                                                    // @B2A
+                    s.append(java.net.URLEncoder.encode(next));                    // @B2A
+            }                                                                                            // @B2A
 
-           return s.toString();
+            // Must change the '+' to a space since some of the webserver   
+            // engines don't properly decode the encoded url string.
+            return s.toString().replace('+', ' ');                                            // @C1C
         }
     }
 }
