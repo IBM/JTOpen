@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NetServerBeanInfo.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ for the NetServer class.
 public class NetServerBeanInfo 
 extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   // Private data.
@@ -40,7 +40,6 @@ extends SimpleBeanInfo
   private static BeanDescriptor               beanDescriptor_;
   private static Image                        icon16_;
   private static Image                        icon32_;
-  private static PropertyDescriptor[]         propertyDescriptors_;
   private static ResourceBundle               resourceBundle_;
 
 
@@ -60,9 +59,6 @@ extends SimpleBeanInfo
 
       // Set up the bean descriptor.
       beanDescriptor_ = new BeanDescriptor(beanClass_);
-
-      // Note: The NetServer class has no unique properties.
-      propertyDescriptors_ = new PropertyDescriptor[0];
 
     }
     catch (Exception e)
@@ -94,39 +90,6 @@ extends SimpleBeanInfo
   public BeanDescriptor getBeanDescriptor()
   {
     return beanDescriptor_;
-  }
-
-
-  /**
-   Returns the index of the default event.      
-   @return The index to the default event.
-   **/    
-  public int getDefaultEventIndex()    
-  {        
-    return 0;    
-  }    
-
-
-
-  /**
-   Returns the index of the default property.      
-   @return The index to the default property.    
-   **/
-  public int getDefaultPropertyIndex()    
-  {        
-    return 0;    
-  }
-
-
-
-  /**
-   Returns the property descriptors.
-
-   @return The property descriptors.
-   **/
-  public PropertyDescriptor[] getPropertyDescriptors()
-  {
-    return propertyDescriptors_;
   }
 
 
