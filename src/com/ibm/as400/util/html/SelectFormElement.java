@@ -69,6 +69,7 @@ import java.beans.PropertyVetoException;
 public class SelectFormElement extends HTMLTagAttributes implements java.io.Serializable    // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -5409799783351050576L;
 
     private String name_;           // The select element name.
     private int size_;              // The number of visible choices.

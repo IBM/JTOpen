@@ -71,6 +71,7 @@ import java.beans.PropertyChangeSupport;
 public class UnorderedList extends HTMLList
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -8234261579413831795L;
 
 
     private String type_;       //The labeling scheme used to display the list <ul>.

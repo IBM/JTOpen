@@ -72,6 +72,7 @@ import java.beans.PropertyChangeListener;
 public class HTMLHead extends HTMLTagAttributes implements java.io.Serializable     // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 5006426803056962528L;
 
     private String title_;       // The title to use for HTML document.
     private String lang_;        // The primary language used to display the tags contents.

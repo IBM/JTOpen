@@ -62,6 +62,7 @@ import java.beans.PropertyChangeListener;
 public class HTMLServlet extends HTMLTagAttributes implements java.io.Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -3782566892366981877L;
 
 
     private String name_;

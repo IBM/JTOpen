@@ -29,6 +29,7 @@ import java.beans.PropertyVetoException;
 public abstract class ToggleFormInput extends FormInput
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 4543596544106205362L;
 
     private boolean checked_ = false;        // If initializes to being checked.
     private String label_;

@@ -34,6 +34,7 @@ import java.beans.PropertyVetoException;
 public class LabelFormElement implements HTMLTagElement, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -325048684986308647L;
 
     private String label_;
 

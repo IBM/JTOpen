@@ -66,6 +66,7 @@ import java.beans.PropertyChangeSupport;
 public class UnorderedListItem extends HTMLListItem
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -4124433047652031568L;
 
     private String type_;           //The labeling scheme used to display the unordered list item <li>.
 

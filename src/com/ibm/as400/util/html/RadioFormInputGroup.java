@@ -69,6 +69,7 @@ import java.beans.PropertyVetoException;
 public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Serializable     // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 1787781415625086189L;
 
     private String name_;                // The name of the radio input group.
     private Vector list_;                // The list of radio buttons.

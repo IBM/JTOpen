@@ -53,6 +53,7 @@ import java.beans.PropertyChangeSupport;
 public class HTMLImage extends HTMLTagAttributes implements HTMLConstants, java.io.Serializable 
 {
     private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+    static final long serialVersionUID = -7792796091910634206L;
 
     // Private data.
     private String name_;

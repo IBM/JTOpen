@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: HTMLApplet.java
 //                                                                             
@@ -62,6 +62,7 @@ import java.beans.PropertyChangeListener;
 public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializable       // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 3578237003243756490L;
 
 
   private String archive_;

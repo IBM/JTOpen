@@ -45,6 +45,7 @@ import java.beans.PropertyVetoException;
 public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -1548160614340950478L;
 
     private String name_;            // The text area name.
     private int rows_;               // Number of visible text lines.

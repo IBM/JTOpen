@@ -35,6 +35,7 @@ import java.beans.PropertyVetoException;
 public class RadioFormInput extends ToggleFormInput
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 7708591176708456432L;
 
 
     /**

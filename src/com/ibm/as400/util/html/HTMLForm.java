@@ -86,6 +86,7 @@ import java.beans.PropertyVetoException;
 public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.io.Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -7610016051219431008L;
 
     /**
       HTTP GET Method for sending form contents to the server.

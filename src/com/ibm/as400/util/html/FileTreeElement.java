@@ -37,7 +37,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
 *  <p>
-*  // Create an AS400 object.
+*  // Create a object to represent the connection to the server.
 *  AS400 system = new AS400(mySystem, myUserId, myPassword);
 *  <p>
 *  // Create an IFS object.
@@ -132,6 +132,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 public class FileTreeElement extends HTMLTreeElement implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 210948696422108527L;
 
   private File    file_;
   private boolean populated_ = false;

@@ -126,6 +126,7 @@ import java.io.Serializable;
 public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 4552974069573452181L;
 
     private Vector rows_;                           // The table rows.
     private HTMLTableCaption caption_;              // The table caption.

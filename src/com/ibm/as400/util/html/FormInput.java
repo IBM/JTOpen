@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FormInput.java
 //                                                                             
@@ -34,6 +34,7 @@ import java.beans.PropertyVetoException;
 abstract public class FormInput extends HTMLTagAttributes implements java.io.Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 8967841585682519631L;
 
     private String name_;        // The input field name.
     private String value_;       // The initial value of the input field.

@@ -27,6 +27,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 public class PasswordFormInput extends TextFormInput
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -8177182553241220755L;
 
 
     /**

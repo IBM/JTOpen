@@ -70,6 +70,7 @@ import java.beans.PropertyChangeSupport;
 public class OrderedList extends HTMLList
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -1082870000306640180L;
 
 
     private String type_;     //The labeling scheme used to display the list <ol>.

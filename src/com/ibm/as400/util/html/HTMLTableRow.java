@@ -89,6 +89,7 @@ import java.util.Vector;
 public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Serializable   // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -3968067893063774982L;
 
     private Vector row_;      // The columns in the row.
     private String hAlign_;   // The global horizontal alignment for each cells in the row.

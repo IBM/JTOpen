@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: LineLayoutFormPanel.java
 //                                                                             
@@ -41,6 +41,7 @@ import com.ibm.as400.access.Trace;
 public class LineLayoutFormPanel extends LayoutFormPanel
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -1117648771160826907L;
 
     
     

@@ -64,6 +64,7 @@ import java.beans.VetoableChangeListener;
 public class HTMLHyperlink extends HTMLTagAttributes implements HTMLConstants, java.io.Serializable  // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 83601853360783566L;
 
     private String bookmarkName_;          // The bookmark name.
     private String link_;                  // The network address for the link resource.

@@ -26,6 +26,7 @@ import com.ibm.as400.access.Trace;
 public class ResetFormInput extends FormInput
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 2691238990019905630L;
 
 
     /**

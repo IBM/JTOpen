@@ -44,7 +44,7 @@ import com.ibm.as400.util.servlet.RowDataException;
 *  // Create a URLParser object.
 *  URLParser urlParser = new URLParser(httpServletRequest.getRequestURI());
 *  <p>
-*  // Create an AS400 object.
+*  // Create a object to represent the connection to the server.
 *  AS400 system = new AS400(mySystem, myUserId, myPassword);
 *  <p>
 *  // Create an IFS object.
@@ -315,6 +315,7 @@ import com.ibm.as400.util.servlet.RowDataException;
 public class FileListElement implements java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 6247154241289547698L;
 
   private AS400     system_;
   private HTMLTable table_;
@@ -384,7 +385,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system.  
    *
-   *  @param system  The AS/400 system.
+   *  @param system  The system.
    *  @param request The Http servlet request. 
    **/
   public FileListElement(AS400 system, HttpServletRequest request)
@@ -405,7 +406,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system.  
    *
-   *  @param system  The AS/400 system.
+   *  @param system  The system.
    *  @param request The Http servlet request. 
    **/
   public FileListElement(AS400 system, HttpServletRequest request, String parameterPathInfo)
@@ -424,7 +425,7 @@ public class FileListElement implements java.io.Serializable
    *  Internally a com.ibm.as400.access.IFSJavaFile object will be 
    *  used to retrieve the contents of the file system.  
    *
-   *  @param system  The AS/400 system.
+   *  @param system  The system.
    *  @param request The Http servlet request.
    *  @param table   The HTML table.
    **/
@@ -571,7 +572,7 @@ public class FileListElement implements java.io.Serializable
 
 
   /**
-   *  Returns the AS/400 system.
+   *  Returns the system.
    *
    *  @return The system.
    *
@@ -856,7 +857,7 @@ public class FileListElement implements java.io.Serializable
 
 
   /**
-   *  Set the AS/400 system.
+   *  Set the system.
    *
    *  @param system The system.
    **/

@@ -170,6 +170,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 public class HTMLTree implements HTMLTagElement, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 4170861562301214202L;
 
     private HTMLVector branches_; //@P2C
     private HttpServletRequest request_;

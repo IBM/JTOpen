@@ -173,6 +173,7 @@ import java.lang.*;
 public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializable     
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 1662839037165473585L;
     
     private Vector tag_ = new Vector();               //Vector to hold any tags added to the main body of the document container
     private HTMLHead head_=null;                      //HTMLHead element to hold the page header.

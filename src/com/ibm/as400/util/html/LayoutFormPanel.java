@@ -34,6 +34,7 @@ import java.beans.VetoableChangeSupport;
 public abstract class LayoutFormPanel implements HTMLTagElement, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -7299636405173131600L;
 
     private Vector list;         // The list of form elements.
     private int cols;            // The number of columns in the layout.

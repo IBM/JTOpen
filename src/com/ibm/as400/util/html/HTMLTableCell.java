@@ -83,6 +83,7 @@ import java.io.Serializable;
 public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -4848852026390616957L;
 
     private HTMLTagElement element_;       // The cell data.
 

@@ -68,6 +68,7 @@ import java.beans.PropertyChangeSupport;
 public class OrderedListItem extends HTMLListItem
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -5825465966031878506L;
 
     private String type_;      //The labeling scheme used to display the ordered list item <li>
 

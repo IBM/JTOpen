@@ -72,6 +72,7 @@ import java.io.Serializable;
 public class HTMLTableCaption extends HTMLTagAttributes implements HTMLConstants, Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 8692666542126042315L;
 
     private HTMLTagElement element_;   // The caption element.
     private String align_;             // The caption alignment.

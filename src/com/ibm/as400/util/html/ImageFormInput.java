@@ -37,6 +37,7 @@ import java.beans.PropertyVetoException;
 public class ImageFormInput extends FormInput implements HTMLConstants
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 3208810620206338498L;
 
     private int height_ = 0;                  // The image height.
     private int width_ = 0;                   // The image width.

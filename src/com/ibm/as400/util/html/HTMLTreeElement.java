@@ -89,6 +89,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -2067619739727758210L;
 
     private HTMLVector branches_; //@P2C
 

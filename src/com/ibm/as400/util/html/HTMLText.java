@@ -55,6 +55,7 @@ import java.io.Serializable;
 public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serializable      // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 8640694441108878894L;
 
     private String text_;                    // The text to tag.   
     private String alignment_;               // The horizontal alignment.  "left", "center", "right" or "justify".

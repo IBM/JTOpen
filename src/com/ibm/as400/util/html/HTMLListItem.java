@@ -34,6 +34,7 @@ import java.io.*;
 abstract public class HTMLListItem extends HTMLTagAttributes implements java.io.Serializable // @Z1C
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -7139184882249518511L;
 
 
     private HTMLTagElement listData_;     // Data being added to the list item

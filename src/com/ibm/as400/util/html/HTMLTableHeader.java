@@ -43,6 +43,7 @@ import java.beans.PropertyVetoException;
 public class HTMLTableHeader extends HTMLTableCell
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 6954665365850223957L;
 
 
 
