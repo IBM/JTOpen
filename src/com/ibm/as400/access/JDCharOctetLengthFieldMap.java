@@ -21,10 +21,14 @@ implements JDFieldMap
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
+    private int typeIndex_;     //@A1A
+    private int lengthIndex_;   //@A1A
     JDCharOctetLengthFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
                               int scaleIndex, int ccsidIndex, int vrm, JDProperties properties)    // @M0C - added vrm and properties //@KKB
     {
         super(typeIndex, lengthIndex, precisionIndex, scaleIndex, ccsidIndex, vrm, properties);    // @M0C  //@KKB
+        typeIndex_ = typeIndex;       //@A1A
+        lengthIndex_ = lengthIndex;   //@A1A
     }
 
     /**
@@ -33,6 +37,9 @@ implements JDFieldMap
     public Object getValue(JDRow row)
     throws SQLException
     {
+        String typeName = row.getSQLData(typeIndex_).getString().trim();        //@A1A  retrieve the type name
+        if(typeName.equals("DISTINCT"))                                         //@A1A  We do not have a SQLData class for DISTINCTs
+            return new Integer(-1);                                             //@A1A
         SQLData data = (SQLData)super.getValue(row);
         if(data.isText())
             return new Integer(data.getPrecision());

@@ -21,10 +21,15 @@ implements JDFieldMap
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
+    private int precisionIndex_;     //@A1A
+    private int typeIndex_;          //@A1A
+
     JDPrecisionFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
                         int scaleIndex, int ccsidIndex, int vrm, JDProperties properties)             // @M0C - added vrm and properties    //@KKB
     {
         super(typeIndex, lengthIndex, precisionIndex, scaleIndex, ccsidIndex, vrm, properties);   // @M0C   //@KKB
+        typeIndex_ = typeIndex;            //@A1A
+        precisionIndex_ = precisionIndex;  //@A1A
     }
 
     /**
@@ -33,6 +38,9 @@ implements JDFieldMap
     public Object getValue(JDRow row)
     throws SQLException
     {
+        String typeName = row.getSQLData(typeIndex_).getString().trim();    //@A1A
+        if(typeName.equals("DISTINCT"))                                     //@A1A
+            return new Integer(row.getSQLData(precisionIndex_).getInt());   //@A1A
         return new Integer(((SQLData)super.getValue(row)).getPrecision());
     }
 

@@ -26,10 +26,12 @@ implements JDFieldMap
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
+    private int typeIndex_;     //@A1A
     JDDataTypeFieldMap(int typeIndex, int lengthIndex, int precisionIndex, 
                        int scaleIndex, int ccsidIndex, int vrm, JDProperties properties)    // @M0C - added vrm and properties  //@KKB added ccsid
     {
         super(typeIndex, lengthIndex, precisionIndex, scaleIndex, ccsidIndex, vrm, properties);    // @M0C //@KKB
+        typeIndex_ = typeIndex;    //@A1A
     }
 
     /**
@@ -38,6 +40,9 @@ implements JDFieldMap
     public Object getValue(JDRow row)
     throws SQLException
     {
+        String typeName = row.getSQLData(typeIndex_).getString().trim();    //@A1A
+        if(typeName.equals("DISTINCT"))                                     //@A1A  We do not have a SQLData class for DISTINCTs
+            return new Short((short)2001);                                  //@A1A
         return new Short((short)((SQLData)super.getValue(row)).getType());
     }
 
