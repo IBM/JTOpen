@@ -28,7 +28,7 @@ import java.io.IOException;
 class OutputQueueImplRemote extends PrintObjectImplRemote
 implements OutputQueueImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     private static final NPCPAttributeIDList attrsToRetrieve_  = new NPCPAttributeIDList();
     private static boolean fAttrIDsToRtvBuilt_ = false;
@@ -52,7 +52,7 @@ implements OutputQueueImpl
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);        // Output queue name
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQSTS);       // Output queue status
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);       // Printer
-	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_RMTSYSTEM);     // Remote system name @A2A
+	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_RMTSYSTEM);     // Remote system name
                 attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // Separator page
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_DESCRIPTION);   // Text description
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOPT);     // user defined options
@@ -99,13 +99,13 @@ implements OutputQueueImpl
      * </UL>
      *  clearOptions may be null.
      *
-     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void clear(PrintParameterList clearOptions)
       throws AS400Exception,
@@ -115,10 +115,10 @@ implements OutputQueueImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        /*  checkRunTimeState(); */   // @A1D - RunTime check done in OutputQueue
+        /*  checkRunTimeState(); */   // RunTime check done in OutputQueue
 
-	    NPDataStream sendDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);       // @B1C
-	    NPDataStream returnDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);     // @B1C
+	    NPDataStream sendDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);
+	    NPDataStream returnDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
 	    NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -140,7 +140,7 @@ implements OutputQueueImpl
 
 	    updateAttrs(getAttrIDsToRetrieve());
 
-        /* fireOutputQueueEvent(OutputQueueEvent.CLEARED); */   // @A1D
+        /* fireOutputQueueEvent(OutputQueueEvent.CLEARED); */
 
     } // end clear
 
@@ -155,28 +155,26 @@ implements OutputQueueImpl
 	    return attrsToRetrieve_;
     }
     
-// @A3A  retrieve only one attribute 
+   // retrieve only one attribute 
    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-	if (!fAttrIDsToRtvBuilt_) {
+   if (!fAttrIDsToRtvBuilt_) {
 	    attrsToRetrieve_.addAttrID(attrToRtv);
         }
         return attrsToRetrieve_;
     }
 
-//@A3A
-
 
     /**
      * Holds the output queue on the server.
      *
-     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void hold()
       throws AS400Exception,
@@ -186,10 +184,10 @@ implements OutputQueueImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        /*  checkRunTimeState(); */   // @A1D - RunTime check done in OutputQueue
+        /*  checkRunTimeState(); */   // RunTime check done in OutputQueue
 
-	    NPDataStream sendDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);       // @B1C
-	    NPDataStream returnDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);     // @B1C
+	    NPDataStream sendDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);
+	    NPDataStream returnDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);
         NPSystem npSystem = NPSystem.getSystem(getSystem());
 
 	    NPCPAttribute cpCPFMessage = new NPCPAttribute();
@@ -203,7 +201,7 @@ implements OutputQueueImpl
 
 	    updateAttrs(getAttrIDsToRetrieve());
 
-        /* fireOutputQueueEvent(OutputQueueEvent.HELD); */  // @A1D
+        /* fireOutputQueueEvent(OutputQueueEvent.HELD); */
     } // end hold
 
 
@@ -211,13 +209,13 @@ implements OutputQueueImpl
     /**
      * Releases a held output queue on the server.
      *
-     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void release()
       throws AS400Exception,
@@ -227,10 +225,10 @@ implements OutputQueueImpl
              InterruptedException,
              RequestNotSupportedException
     {
-        /*  checkRunTimeState(); */   // @A1D - RunTime check done in OutputQueue
+        /*  checkRunTimeState(); */   // RunTime check done in OutputQueue
 
-	    NPDataStream sendDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);       // @B1C
-	    NPDataStream returnDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);     // @B1C
+	    NPDataStream sendDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);
+	    NPDataStream returnDS = new NPDataStream(NPConstants.OUTPUT_QUEUE);
         NPSystem  npSystem = NPSystem.getSystem(getSystem());
 
 	    NPCPAttribute  cpCPFMessage = new NPCPAttribute();
@@ -244,7 +242,7 @@ implements OutputQueueImpl
 
 	    updateAttrs(getAttrIDsToRetrieve());
 
-        /* fireOutputQueueEvent(OutputQueueEvent.RELEASED); */  // @A1D
+        /* fireOutputQueueEvent(OutputQueueEvent.RELEASED); */
 
     } // end release
 

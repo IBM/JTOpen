@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: OutputQueue.java
 //                                                                             
@@ -18,9 +18,9 @@ import java.util.Vector;
 import java.beans.PropertyVetoException;
 
 /**
- * The OutputQueue class represents an AS/400 output queue.
+ * The OutputQueue class represents an server output queue.
  * An instance of this class can be used to manipulate an individual
- * AS/400 output queue (hold, release, clear, and so on).
+ * output queue (hold, release, clear, and so on).
  *
  * See <a href="doc-files/OutputQueueAttrs.html">Output Queue Attributes</a> for
  * valid attributes.
@@ -30,15 +30,10 @@ import java.beans.PropertyVetoException;
 public class OutputQueue extends PrintObject
 implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
     
     static final long serialVersionUID = 4L;
-
-
-
     private static final String PATH                = "path";
-
     transient private Vector outputQueueListeners_  = new Vector();
 
 
@@ -46,13 +41,13 @@ implements java.io.Serializable
     // an ID code point
     OutputQueue(AS400 system, NPCPIDOutQ id, NPCPAttribute attrs)
     {
-	    super(system, id, attrs, NPConstants.OUTPUT_QUEUE); // @B1C
+	    super(system, id, attrs, NPConstants.OUTPUT_QUEUE);
     }
 
 
 
     /**
-     * Constructs an OutputQueue object. The AS/400 system and the
+     * Constructs an OutputQueue object. The system and the
      * integrated file system name of the output queue must be set
      * later. This constructor is provided for visual application
      * builders that support JavaBeans. It is not intended for use
@@ -63,7 +58,7 @@ implements java.io.Serializable
      **/
     public OutputQueue()
     {
-        super(null, null, NPConstants.OUTPUT_QUEUE); // @B1C
+        super(null, null, NPConstants.OUTPUT_QUEUE);
 
         // Because of this constructor we will need to check the
         // run time state of OutputQueue objects.
@@ -75,7 +70,7 @@ implements java.io.Serializable
      * Constructs an OutputQueue object. It uses the specified system and
      * output queue name that identifies it on that system.
      *
-     * @param system The AS/400 on which this output queue exists.
+     * @param system The server on which this output queue exists.
      * @param queueName The integrated file system name of the output queue. The format of
      * the queue string must be in the format of /QSYS.LIB/libname.LIB/queuename.OUTQ.
      *
@@ -83,7 +78,7 @@ implements java.io.Serializable
     public OutputQueue(AS400 system,
 		       String queueName)
     {
-        super(system, buildIDCodePoint(queueName), null, NPConstants.OUTPUT_QUEUE); // @B1C
+        super(system, buildIDCodePoint(queueName), null, NPConstants.OUTPUT_QUEUE);
         // base class constructor checks for null system.
         // QSYSObjectPathName() checks for a null queueName.
     }
@@ -135,7 +130,7 @@ implements java.io.Serializable
      * Chooses the implementation
      **/
     void chooseImpl()
-    throws IOException, AS400SecurityException                              // @B1A
+    throws IOException, AS400SecurityException
     {
         // We need to get the system to connect to...
         AS400 system = getSystem();
@@ -153,7 +148,7 @@ implements java.io.Serializable
 
 
     /**
-     * Clears the output queue on the AS/400.
+     * Clears the output queue on the server.
      *
      * @param clearOptions A PrintParameterList object that may have any of the
      *        following attributes set:
@@ -170,13 +165,13 @@ implements java.io.Serializable
      * </UL>
      *  clearOptions may be null.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server system returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void clear(PrintParameterList clearOptions)
       throws AS400Exception,
@@ -188,12 +183,12 @@ implements java.io.Serializable
     {
         checkRunTimeState();
 
-        if (impl_ == null)                              // @A1A
-            chooseImpl();                               // @A1A
-        ((OutputQueueImpl) impl_).clear(clearOptions);  // @A1A
-        // update the attrs, since updateAttrs was      // @A1A
-        // called on the remote side...                 // @A1A
-        attrs = impl_.getAttrValue();                   // @A1A
+        if (impl_ == null)
+            chooseImpl();
+        ((OutputQueueImpl) impl_).clear(clearOptions);
+        // update the attrs, since updateAttrs was
+        // called on the remote side...
+        attrs = impl_.getAttrValue();
                                                         
         fireOutputQueueEvent(OutputQueueEvent.CLEARED);
 
@@ -279,15 +274,15 @@ implements java.io.Serializable
 
 
     /**
-     * Holds the output queue on the AS/400.
+     * Holds the output queue on the server.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void hold()
       throws AS400Exception,
@@ -299,12 +294,12 @@ implements java.io.Serializable
     {
         checkRunTimeState();
 
-        if (impl_ == null)                              // @A1A
-            chooseImpl();                               // @A1A
-        ((OutputQueueImpl) impl_).hold();               // @A1A
-        // update the attrs, since updateAttrs was      // @A1A
-        // called on the remote side...                 // @A1A
-        attrs = impl_.getAttrValue();                   // @A1A
+        if (impl_ == null)
+            chooseImpl();
+        ((OutputQueueImpl) impl_).hold();
+        // update the attrs, since updateAttrs was
+        // called on the remote side...
+        attrs = impl_.getAttrValue();
   
         fireOutputQueueEvent(OutputQueueEvent.HELD);
 
@@ -324,15 +319,15 @@ implements java.io.Serializable
 
 
     /**
-     * Releases a held output queue on the AS/400.
+     * Releases a held output queue on the server.
      *
-     * @exception AS400Exception If the AS/400 system returns an error message.
+     * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      * @exception RequestNotSupportedException If the requested function is not supported because the
-     *                                         AS/400 system is not at the correct level.
+     *                                         server operating system is not at the correct level.
      **/
     public void release()
       throws AS400Exception,
@@ -344,12 +339,12 @@ implements java.io.Serializable
     {
         checkRunTimeState();
 
-        if (impl_ == null)                              // @A1A
-            chooseImpl();                               // @A1A
-        ((OutputQueueImpl) impl_).release();            // @A1A
-        // update the attrs, since updateAttrs was      // @A1A
-        // called on the remote side...                 // @A1A
-        attrs = impl_.getAttrValue();                   // @A1A
+        if (impl_ == null)
+            chooseImpl();
+        ((OutputQueueImpl) impl_).release();
+        // update the attrs, since updateAttrs was
+        // called on the remote side...
+        attrs = impl_.getAttrValue();
   
         fireOutputQueueEvent(OutputQueueEvent.RELEASED);
 
@@ -390,10 +385,10 @@ implements java.io.Serializable
             throw new NullPointerException( PATH );
         }
 
-        // check for connection...                                                  // @A1A
-        if (impl_ != null) {                                                        // @A1A
-            Trace.log(Trace.ERROR, "Cannot set property 'Path' after connect.");    // @A1A
-            throw new ExtendedIllegalStateException(PATH, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED ); // @A1A
+        // check for connection...
+        if (impl_ != null) {
+            Trace.log(Trace.ERROR, "Cannot set property 'Path' after connect.");
+            throw new ExtendedIllegalStateException(PATH, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED );
         }
 
         String oldPath = getPath();

@@ -26,7 +26,7 @@ BeanInfo for OutputQueue class.
 **/
 public class OutputQueueBeanInfo extends PrintObjectBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Additional events defined for OutputQueue
     private static EventSetDescriptor[] outQEvents_;

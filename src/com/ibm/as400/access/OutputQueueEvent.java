@@ -22,12 +22,9 @@ package com.ibm.as400.access;
  **/
 public class OutputQueueEvent extends java.util.EventObject
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
 
 
     /**
@@ -67,7 +64,6 @@ public class OutputQueueEvent extends java.util.EventObject
         id_ = id;
     }
 
-   
 
     /**
      * Returns the output queue event identifier.

@@ -26,7 +26,7 @@ BeanInfo for OutputQueueList class.
 **/
 public class OutputQueueListBeanInfo extends PrintObjectListBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // Additional properties defined for OutputQueueList
     private static PropertyDescriptor[] outQListProperties_;

@@ -14,7 +14,7 @@
 package com.ibm.as400.access;
 
 /**
- * The OutputQueueList class is used to build a list of i5/OS output queue objects of type OutputQueue.
+ * The OutputQueueList class is used to build a list of server objects of type OutputQueue.
  * The list can be filtered by library and queue name.
  *
  * @see OutputQueue
@@ -22,7 +22,7 @@ package com.ibm.as400.access;
 
 class OutputQueueListImplRemote extends PrintObjectListImplRemote
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     // static private binary data for default attribute to
     // retrieve on a output queue file when listing output queues
@@ -112,13 +112,10 @@ class OutputQueueListImplRemote extends PrintObjectListImplRemote
     */
 
 
-
-    // @A5A
     NPCPID newNPCPID(NPDataStream reply)
     {
         return (NPCPIDOutQ)reply.getCodePoint(NPCodePoint.OUTPUT_QUEUE_ID);  // never should return null
     }
-
 
 
     /**
