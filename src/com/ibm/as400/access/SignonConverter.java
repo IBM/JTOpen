@@ -1,31 +1,35 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SignonConverter.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+// Sign-on converter maps only valid user ID and DES password characters between Unicode and EBCDIC CCSID 37.  Also maps so called "special characters" where an N with tilde becomes a # character.
 class SignonConverter
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
+    // No need for instances of this class.
     private SignonConverter()
     {
     }
 
+    // Convert EBCDIC CCSID 37 to Unicode String.
     static String byteArrayToString(byte[] source)
     {
         return new String(byteArrayToCharArray(source)).trim();
     }
 
+    // Convert EBCDIC CCSID 37 to Unicode character array.
     static char[] byteArrayToCharArray(byte[] source)
     {
         char[] returnChars = new char[10];
@@ -83,6 +87,7 @@ class SignonConverter
         return returnChars;
     }
 
+    // Convert Unicode string to EBCID CCSID 37 byte array.
     static byte[] stringToByteArray(String source)
     {
         char[] sourceChars = source.toCharArray();
@@ -135,6 +140,20 @@ class SignonConverter
                 case 0x005A: returnBytes[i] = (byte)0xE9; break;  // Z
 
                 case 0x005F: returnBytes[i] = (byte)0x6D; break;  // _
+
+                case 0x00A3: returnBytes[i] = (byte)0x7B; break;  // Cp423, pound sterling.
+                case 0x00A5: returnBytes[i] = (byte)0x5B; break;  // Cp281, yen sign.
+                case 0x00A7: returnBytes[i] = (byte)0x7C; break;  // Cp273, section sign.
+                case 0x00C4: returnBytes[i] = (byte)0x7B; break;  // Cp278, A with dieresis.
+                case 0x00C5: returnBytes[i] = (byte)0x5B; break;  // Cp277, A with ring.
+                case 0x00C6: returnBytes[i] = (byte)0x7B; break;  // Cp277, ligature AE.
+                case 0x00D0: returnBytes[i] = (byte)0x7C; break;  // Cp871, D with stroke.
+                case 0x00D1: returnBytes[i] = (byte)0x7B; break;  // Cp284, N with tilde.
+                case 0x00D6: returnBytes[i] = (byte)0x7C; break;  // Cp278, O with dieresis.
+                case 0x00D8: returnBytes[i] = (byte)0x7C; break;  // Cp277, O with stroke.
+                case 0x00E0: returnBytes[i] = (byte)0x7C; break;  // Cp297, a with grave.
+                case 0x0130: returnBytes[i] = (byte)0x5B; break;  // Cp905, I with over dot.
+                case 0x015E: returnBytes[i] = (byte)0x7C; break;  // Cp905, S with cedilla.
                 default: throw new ExtendedIllegalArgumentException("source", ExtendedIllegalArgumentException.SIGNON_CHAR_NOT_VALID);
             }
         }
