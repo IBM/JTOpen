@@ -64,6 +64,7 @@ public class CTMRI extends ListResourceBundle
 { "SaveasBinary", "Save As Binary" },
 { "Close", "Close" },
 { "Find", "Find..." },
+{ "Reverse", "Reverse" },
 { "Copy", "Copy" },
 { "Clear", "Clear" },
 { "Cut", "Cut" },
