@@ -935,6 +935,28 @@ public class ObjectDescription
   }
 
   /**
+   * Indicates whether some other object is "equal to" this one.
+   * @param obj The reference object with which to compare.
+   * @return <tt>true</tt> if this object is the same as the obj argument; <tt>false</tt> otherwise.
+   **/
+  public boolean equals(Object obj)
+  {
+    try
+    {
+      ObjectDescription otherObj = (ObjectDescription)obj;
+      if (!otherObj.getSystem().getSystemName().equals(system_.getSystemName())) return false;
+      if (!otherObj.getLibrary().equals(library_)) return false;
+      if (!otherObj.getName().equals(name_)) return false;
+      if (!otherObj.getType().equals(type_)) return false;
+      return true;
+    }
+    catch (Exception e) {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, e);
+      return false;
+    }
+  }
+
+  /**
    * Checks to see if this object currently exists on the system.
    * @return true if the object exists; false if the object or library do not exist.
   **/
