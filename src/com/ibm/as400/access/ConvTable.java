@@ -291,6 +291,7 @@ abstract class ConvTable
   **/
   static final ConvTable getTable(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
   {
+    ccsid = ccsid & 0x00FFFF; // Remove sign-extended shorts that JDBC gives us.
     if (ccsid <= LARGEST_CCSID) //@P0A - If it's negative, too bad...
     {
       ConvTable cachedTable = ccsidPool_[ccsid]; //@P0A
