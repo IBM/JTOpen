@@ -98,7 +98,8 @@
 //              This jar is part of the big JTOpen zip file.
 //
 // Filename: midpapi.zip
-// Location: http://java.sun.com/products/j2mewtoolkit/101download.html
+// Location: http://java.sun.com/products/j2mewtoolkit/download.html (Windows)
+//           http://developer.java.sun.com/developer/releases/j2mewtoolkit/ (Linux/Solaris)
 // Description: J2ME Wireless Toolkit MIDP APIs needed for the com.ibm.as400.micro package.
 //              (The midpapi.zip file can be found in C:\J2MEWTK\lib after the install.)
 //
@@ -638,7 +639,7 @@
   <!-- Preverify doesn't work under JDK 1.4. Skip this jar in that case. -->
   <target name="jar-jt400Micro" depends="init,micro-preverify" unless="compileIncludesExist-1.4">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
-      <fileset dir="${output}" includesfile="${build}/build/micro.includes"/>
+      <!-- fileset dir="${output}" includesfile="${build}/build/micro.includes" -->
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
