@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,9 +47,73 @@ This class internally calls the Retrieve User Information (QSYRUSRI) API.
 **/
 public class User implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
   static final long serialVersionUID = 5L;
+
+  // These need to be in this order so we can easily reference them 
+  // from the code that parses the API return information in loadUserInformation().
+  private static final String[] SPECIAL_AUTHORITIES = new String[]
+  {
+    "*ALLOBJ",
+    "*SECADM",
+    "*JOBCTL",
+    "*SPLCTL",
+    "*SAVSYS",
+    "*SERVICE",
+    "*AUDIT",
+    "*IOSYSCFG"
+  };
+
+  /**
+   * Constant value representing a special authority of "*ALLOBJ".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_ALL_OBJECT = SPECIAL_AUTHORITIES[0];
+  
+  /**
+   * Constant value representing a special authority of "*AUDIT".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_AUDIT = SPECIAL_AUTHORITIES[6];
+  
+  /**
+   * Constant value representing a special authority of "*IOSYSCFG".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION = SPECIAL_AUTHORITIES[7];
+
+  /**
+   * Constant value representing a special authority of "*JOBCTL".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_JOB_CONTROL = SPECIAL_AUTHORITIES[2];
+  
+  /**
+   * Constant value representing a special authority of "*SAVSYS".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_SAVE_SYSTEM = SPECIAL_AUTHORITIES[4];
+  
+  /**
+   * Constant value representing a special authority of "*SECADM".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR = SPECIAL_AUTHORITIES[1];
+  
+  /**
+   * Constant value representing a special authority of "*SERVICE".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_SERVICE = SPECIAL_AUTHORITIES[5];
+  
+  /**
+   * Constant value representing a special authority of "*SPLCTL".
+   * @see #getSpecialAuthority
+  **/
+  public static final String SPECIAL_AUTHORITY_SPOOL_CONTROL = SPECIAL_AUTHORITIES[3];
+  
+
 
     private AS400 system_;
     private int vrm_;
@@ -1097,17 +1161,17 @@ table used for string comparisons.
 /**
 Returns a list of special authorities that the user has.
 
-@return A list of special authorities that the user has.
-        Possible values for the elements of this array are:
+@return A list of special authorities that the user has. If the user has no special authorities, an
+empty array is returned. Possible values for the elements of this array are:
         <ul>
-        <li>"*ALLOBJ" - All object.
-        <li>"*SECADM" - Security administrator.
-        <li>"*JOBCTL" - Job control.
-        <li>"*SPLCTL" - Spool control.
-        <li>"*SAVSYS" - Save system.
-        <li>"*SERVICE" - Service.
-        <li>"*AUDIT" - Audit.
-        <li>"*IOSYSCFG" - Input/output system configuration.
+        <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT User.SPECIAL_AUTHORITY_ALL_OBJECT} - All object.
+        <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR User.SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator.
+        <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL User.SPECIAL_AUTHORITY_JOB_CONTROL} - Job control.
+        <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL User.SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control.
+        <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM User.SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system.
+        <li>{@link #SPECIAL_AUTHORITY_SERVICE User.SPECIAL_AUTHORITY_SERVICE} - Service.
+        <li>{@link #SPECIAL_AUTHORITY_AUDIT User.SPECIAL_AUTHORITY_AUDIT} - Audit.
+        <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION User.SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output system configuration.
         </ul>
 **/
     public String[] getSpecialAuthority()
@@ -1116,18 +1180,6 @@ Returns a list of special authorities that the user has.
       return specialAuthorities_;
     }
     
-    private static final String[] SPECIAL_AUTHORITIES = new String[]
-    {
-      "*ALLOBJ",
-      "*SECADM",
-      "*JOBCTL",
-      "*SPLCTL",
-      "*SAVSYS",
-      "*SERVICE",
-      "*AUDIT",
-      "*IOSYSCFG"
-    };
-
 
 
 
