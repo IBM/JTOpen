@@ -18,7 +18,7 @@ import java.io.IOException;
 
 /**
 The PrintObjectInputStream class is used to read data out of an
-AS/400 spooled file or AFP resource such as an overlay or page
+iSeries server spooled file or AFP resource such as an overlay or page
 segment.
 <p>
 An instance of this class can be created either by using

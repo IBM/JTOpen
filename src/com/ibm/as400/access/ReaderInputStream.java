@@ -150,7 +150,20 @@ public class ReaderInputStream extends InputStream
      **/
     public ReaderInputStream(Reader reader, int ccsid, int bidiStringType, int cacheSize) throws UnsupportedEncodingException
     {
-        this(reader, ccsid, bidiStringType);
+        this(reader, ccsid, new BidiConversionProperties(bidiStringType), cacheSize);
+    }
+
+    /**
+     Constructs a ReaderInputStream that will convert Unicode characters into bytes of the specified CCSID and bi-directional string type.
+     @param  reader  The Reader from which to read characters.
+     @param  ccsid  The CCSID used to convert characters into bytes.
+     @param  properties  The bidi conversion properties.
+     @param  cacheSize  The number of characters to store in the internal buffer.  The default is 1024.  This number must be greater than zero.
+     @exception  UnsupportedEncodingException  If the specified CCSID or its corresponding character encoding is not supported.
+     **/
+    public ReaderInputStream(Reader reader, int ccsid, BidiConversionProperties properties, int cacheSize) throws UnsupportedEncodingException
+    {
+        this(reader, ccsid, properties);
         if (cacheSize < 1)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'cacheSize' is not valid:", cacheSize);

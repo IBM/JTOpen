@@ -46,12 +46,12 @@ class DDMACCSECRequestDataStream extends DDMDataStream
         if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             set16bit(11, 14); // Set value of SECMEC parm.
-        }
-        if (useRDB)
-        {
-          set16bit(DDMTerm.RDBNAM, 16);
-          set16bit(iasp.length, 18); // Assuming IASP name can only be single-byte EBCDIC
-          System.arraycopy(iasp, 0, data_, 20, iasp.length); 
+            if (useRDB)
+            {
+                set16bit(DDMTerm.RDBNAM, 16);
+                set16bit(iasp.length, 18); // Assuming IASP name can only be single-byte EBCDIC
+                System.arraycopy(iasp, 0, data_, 20, iasp.length); 
+            }
         }
         else
         {

@@ -14,9 +14,9 @@
 package com.ibm.as400.access;
 
 /**
- * The  Printer class represents an AS/400 printer.
+ * The  Printer class represents an iSeries server printer.
  * An instance of this class can be used to manipulate an individual
- * AS/400 printer.
+ * iSeries server printer.
  *
  * See <a href="PrinterAttrs.html">Printer Attributes</a> for
  * valid attributes.

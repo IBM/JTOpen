@@ -19,10 +19,10 @@ import java.util.Enumeration;
 import java.io.IOException;
 
 /**
-  *NPSystem class - this class is used to represent AS/400 systems from a network
-  * print perspective.  There is ONE instance of this class for each AS/400 that
+  *NPSystem class - this class is used to represent systems from a network
+  * print perspective.  There is ONE instance of this class for each system that
   * you are interested in.  There is a static method to get at the one instance
-  * of this class based on the AS/400 name.
+  * of this class based on the system name.
   * Use this instance to get AS400Server objects (these are the conversations to
   * this system).
   **/
@@ -98,7 +98,7 @@ class NPSystem extends Object implements Runnable
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If security violation occurs during connection.
      * @exception ErrorCompletingRequestException If an error occurred on the host.
-     * @exception IOException If an error occurs while communicating with the AS/400.
+     * @exception IOException If an error occurs while communicating with the server.
      * @exception InterruptedException If this thread is interrupted.
      **/
     synchronized NPConversation getConversation()
@@ -146,7 +146,7 @@ class NPSystem extends Object implements Runnable
 
                         // Only start the cleanup thread if more than       @A2A
                         // one conversation has been started, -AND-         @A2A 
-                        // the AS/400 object is configured to start         @A3A   
+                        // the OS/400 object is configured to start         @A3A   
                         // threads.                                         @A3A
 
                         if( as400System_.isThreadUsed() )                // @A3A 
@@ -229,7 +229,7 @@ class NPSystem extends Object implements Runnable
       * @exception AS400Exception If the server returns an error message.
       * @exception AS400SecurityException If security violation occurs during connection.
       * @exception ErrorCompletingRequestException If an error occurred on the host.
-      * @exception IOException If an error occurs while communicating with the AS/400.
+      * @exception IOException If an error occurs while communicating with the server.
       * @exception InterruptedException If this thread is interrupted.
       **/
     int makeRequest(NPDataStream request, NPDataStream reply)
