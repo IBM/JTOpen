@@ -161,6 +161,42 @@ Logs an information trace message.
         }                                                             
     }
 
+// @J4 new method.
+/**
+Logs an information trace message.
+
+@param  object          The object throwing the exception
+@param  object2         Additional object information (probably the connection object)
+@param  information     The information.
+@param  exception       The exception.
+**/
+    static void logException (Object object,                                          
+                              Object object2,
+                              String information, 
+                              Exception e)
+    {
+        StringBuffer buffer = new StringBuffer ();
+        buffer.append ("as400: ");
+ 
+        if (object != null)
+           buffer.append (objectToString (object));
+        else
+           buffer.append ("static method ");
+
+        if (object2 != null)
+           buffer.append (objectToString (object2));
+ 
+        buffer.append (": ");
+        buffer.append (information);
+        buffer.append (".");
+
+        synchronized (DriverManager.class)
+        {                        
+            DriverManager.println (buffer.toString());   
+            e.printStackTrace (DriverManager.getLogStream ());
+        }                                                             
+    }
+
 
 
 

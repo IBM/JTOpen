@@ -352,23 +352,10 @@ error table.
   public static void throwSQLException (String sqlState)
   throws SQLException
   {
-    // The DB2 for OS/400 SQL CLI manual says that
-    // we should set the native error code to -99999
-    // when the driver generates the error.
-    //      
-    String reason  = getReason(sqlState);                                               
-    SQLException e = new SQLException (reason, sqlState, -99999);
-
-    if (JDTrace.isTraceOn ())                                           // @J3a
-    {
-      // @J3a
-      String message = "Throwing exception, sqlState: " + sqlState     // @J3a
-                       +  " reason: "   + reason       // @J3a
-                       +  " vendor code -99999";       // @J3a
-      JDTrace.logException(null, message, e);                          // @J3a
-    }                                                                   // @J3a
-
-    throw e;
+     // @J4 - changed this method to call the method that takes an object ID.  Don't
+     //       know why the same code was in two places.  A null object ID is handled
+     //       by both this class and JDTrace. 
+     JDError.throwSQLException(null, sqlState);
   }
 
 
@@ -377,7 +364,7 @@ error table.
 Throws an SQL exception based on an error in the
 error table.
 
-@param  Object      The object throwing the exception
+@param  Object      The object throwing the exception.  This can be null. 
 @param  sqlState    The SQL State.
 
 
@@ -406,7 +393,6 @@ error table.
 
 
 
-
 /**
 Throws an SQL exception based on an error in the
 error table and dumps an internal exception stack
@@ -418,6 +404,34 @@ trace for debugging purposes.
 @exception          SQLException    Always.
 **/
   public static void throwSQLException (String sqlState, Exception e)
+  throws SQLException
+  {
+     // @J4 - changed this method to call the method that takes an object ID.           
+     //     This method can be removed once all code that uses is has been updated 
+     //     to call the method that takes a reference to the thrower.  That is, once
+     //     all jdbc classes have been changed from
+     //         JDError.throwSQLException(state, e);
+     //     to
+     //         JDError.throwSQLException(this, state, e);
+     
+     JDError.throwSQLException(null, sqlState, e);
+  }
+
+
+// @J4 new method.  It has all the code from the method that takes a state and an
+//     exception.  What is added is a reference to the thrower so we know
+//     who is throwing the exception.
+/**
+Throws an SQL exception based on an error in the
+error table and dumps an internal exception stack
+trace for debugging purposes.
+
+@param  sqlState    The SQL State.
+@param  e           The internal exception.
+
+@exception          SQLException    Always.
+**/
+  public static void throwSQLException (Object thrower, String sqlState, Exception e)
   throws SQLException
   {
     // Dump the internal exception stack trace if
@@ -445,21 +459,19 @@ trace for debugging purposes.
     SQLException e2 = new SQLException (buffer.toString(), sqlState, -99999);   // @E3C
 
     if (JDTrace.isTraceOn ())                                           // @J3a
-    {
-      // @J3a
+    {                                                                   // @J3a
       String m2 = "Throwing exception. Original exception: ";          // @J3a
-      JDTrace.logException(null, m2, e);                               // @J3a
+      JDTrace.logException(thrower, m2, e);                             // @J3a
                                                                        // @J3a
       m2 = "Throwing exception.  Actual exception: "                   // @J3a
            + buffer.toString()                      // @J3a
            + " sqlState: " + sqlState               // @J3a
            + " vendor code -99999";                 // @J3a
-      JDTrace.logException(null, m2, e2);                              // @J3a
+      JDTrace.logException(thrower, m2, e2);                            // @J3a
     }                                                                   // @J3a
 
     throw e2;
   }
-
 
 
 /**
@@ -479,20 +491,54 @@ retrieved from the server.
                                         int returnCode)
   throws SQLException
   {                    
+     // @J4 code moved to the method that takes a reference to the object
+     //     that is throwing the exception.  This method can be removed
+     //     once all code that uses is has been updated to call the 
+     //     method that takes a reference to the thrower.  That is, once
+     //     all jdbc classes have been changed from
+     //         JDError.throwSQLException(connection, id, errorClass, returnCode);
+     //     to
+     //         JDError.throwSQLException(this, connection, id, errorClass, returnCode);
+     
+     JDError.throwSQLException(null, connection, id, errorClass, returnCode);
+  }
+
+
+
+// @J4 new method.  It has all the code from the method that takes a connection,
+//     and the error stuff.  What is added is a reference to the thrower so we know
+//     who is throwing the exception.
+/**
+Throws an SQL exception based on information
+retrieved from the server.
+
+@param  connection  connection to the server.
+@param  id          id for the last operation.
+@param  errorClass  error class from the server reply.
+@param  returnCode  return code from the server reply.
+
+@exception          SQLException    Always.
+**/
+  public static void throwSQLException (Object thrower, 
+                                        AS400JDBCConnection connection,
+                                        int id,
+                                        int errorClass,
+                                        int returnCode)
+  throws SQLException
+  {                    
     String reason = getReason(connection, id, returnCode);
     String state  = getSQLState(connection, id);
 
     SQLException e = new SQLException (reason, state, returnCode);      // @E2C
 
     if (JDTrace.isTraceOn ())                                           // @J3a
-    {
-      // @J3a
+    {                                                           // @J3a
       String message = "Throwing exception, id: " + id                 // @J3a
                        + " error class: "   + errorClass         // @J3a
                        + " return code: "   + returnCode         // @J3a
                        + " reason: "        + reason             // @J3a
                        + " state: "         + state;             // @J3a
-      JDTrace.logException(connection, message, e);                    // @J3a
+      JDTrace.logException(thrower, connection, message, e);    // @J3a
     }                                                                   // @J3a
 
     throw e;
