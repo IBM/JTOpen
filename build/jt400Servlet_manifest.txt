@@ -1,0 +1,191 @@
+Manifest-Version: 1.0
+
+Name: com/ibm/as400/access/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.2.0.0
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.access
+Implementation-Version: JTOpen 3.0
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/html/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.2.0.0
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.util.html
+Implementation-Version: JTOpen 3.0
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/servlet/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.2.0.0
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.util.servlet
+Implementation-Version: JTOpen 3.0
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/html/FileFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FileListElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FileTreeElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/FormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/GridLayoutFormPanel.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HiddenFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLAlign.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLApplet.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLForm.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLHead.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLHeading.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLHyperlink.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLImage.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLListItem.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLMeta.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLParameter.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLServlet.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTable.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableCaption.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableCell.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableHeader.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTableRow.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTagAttributes.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLText.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTree.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/HTMLTreeElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ImageFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/LabelFormElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/LineLayoutFormPanel.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/OrderedList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/OrderedListItem.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/PasswordFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/RadioFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/RadioFormInputGroup.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ResetFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/SelectFormElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/SelectOption.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/SubmitFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/TextAreaFormElement.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/TextFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ToggleFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/UnorderedList.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/UnorderedListItem.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/BidiOrdering.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/ButtonFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/html/CheckboxFormInput.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ListMetaData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ListRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/RecordFormatMetaData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/RecordListRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ResourceListRowData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/ServletHyperlink.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/SQLResultSetMetaData.class
+Java-Bean: True
+
+Name: com/ibm/as400/util/servlet/SQLResultSetRowData.class
+Java-Bean: True
+
