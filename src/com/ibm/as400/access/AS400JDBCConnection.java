@@ -3020,10 +3020,20 @@ implements Connection
                 // Set the client CCSID to Unicode.                             // @E2A
                 // as of v5r3m0 we allow the client CCSID to be 1200 (UTF-16) which   
                 // will cause our statement to flow in 1200 and our package to be 1200
-                if(vrm_ >= JDUtilities.vrm530 && properties_.getInt(JDProperties.PACKAGE_CCSID) == 1200) 
+                if(vrm_ >= JDUtilities.vrm530 && properties_.getInt(JDProperties.PACKAGE_CCSID) == 1200)
+                {
                     request.setClientCCSID(1200);
+
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "Client CCSID = 1200");
+                }
                 else
+                {
                     request.setClientCCSID(13488);
+
+                    if(JDTrace.isTraceOn())
+                        JDTrace.logInformation(this, "Client CCSID = 13488");
+                }
 
                 // This language feature code is used to tell the
                 // server what language to send error messages in.
@@ -3039,9 +3049,6 @@ implements Connection
 
                 // Client functional level.
                 request.setClientFunctionalLevel(CLIENT_FUNCTIONAL_LEVEL_);       // @EDC
-
-                // Client support information
-                request.setClientSupportInformation(0x80000000);  // @K0A - indicate our support for ROWID data type
 
                 if (JDTrace.isTraceOn ())                                                                   // @EDC
                     JDTrace.logInformation (this, "Client functional level = " + CLIENT_FUNCTIONAL_LEVEL_); // @EDC
@@ -3171,6 +3178,12 @@ implements Connection
                     mustSpecifyForUpdate_ = false;                           // @J31a
                 }                                                            // @J3a
 
+
+                // Client support information - indicate our support for ROWID data type
+                request.setClientSupportInformation(0x80000000);  // @K0A 
+                if(JDTrace.isTraceOn())
+                    JDTrace.logInformation(this, "ROWID supported = true");
+
                 // added support for 63 digit decimal precision
                 if(vrm_ >= JDUtilities.vrm530)
                 {
@@ -3184,6 +3197,12 @@ implements Connection
 
                     request.setDecimalPrecisionIndicators(maximumPrecision, maximumScale, minimumDivideScale);
 
+                    if(JDTrace.isTraceOn())
+                    {
+                        JDTrace.logInformation (this, "Maximum decimal precision = " + maximumPrecision);
+                        JDTrace.logInformation (this, "Maximum decimal scale = " + maximumScale);
+                        JDTrace.logInformation (this, "Minimum divide scale = " + minimumDivideScale);
+                    }
                 }
 
 
