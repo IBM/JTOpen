@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400FileRecordDescriptionImpl.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ interface AS400FileRecordDescriptionImpl
    *appended to it.  The name of the file is the name of the class with the extension .java.<br>
    *The source files generated can be compiled and used as input to the
    *<a href="AS400File.html#setRecordFormat()">AS400File.setRecordFormat()</a> method.<br>
-   *The AS/400 system to which to connect and the integrated file system
+   *The server to which to connect and the integrated file system
    *pathname for the file must be set prior to invoking this method.
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400FileRecordDescription#setPath
@@ -42,14 +42,14 @@ interface AS400FileRecordDescriptionImpl
    *is used to specify the package statement in the source code for the class.
    * If this value is null, no package statement is specified in the source code for the class.
 
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
 
   **/
   public abstract String[] createRecordFormatSource(String packageName)
@@ -68,7 +68,7 @@ interface AS400FileRecordDescriptionImpl
    *RecordFormat object.  If the file is a multiple format logical file, the
    *RecordFormat array may contain
    *more than one RecordFormat object.
-   *The AS/400 system to which to connect and the integrated file system
+   *The server to which to connect and the integrated file system
    *pathname for the file must be set prior to invoking this method.
    *@see AS400FileRecordDescription#AS400FileRecordDescription(com.ibm.as400.access.AS400, java.lang.String)
    *@see AS400FileRecordDescription#setPath
@@ -76,14 +76,14 @@ interface AS400FileRecordDescriptionImpl
 
    *@return The record format(s) for the file.
 
-   *@exception AS400Exception If the AS/400 system returns an error message.
+   *@exception AS400Exception If the server returns an error message.
    *@exception AS400SecurityException If a security or authority error occurs.
    *@exception ConnectionDroppedException If the connection is dropped unexpectedly.
    *@exception IOException If an error occurs while communicating with the
-   *AS/400.
+   *server.
    *@exception InterruptedException If this thread is interrupted.
-   *@exception ServerStartupException If the AS/400 server cannot be started.
-   *@exception UnknownHostException If the AS/400 system cannot be located.
+   *@exception ServerStartupException If the server cannot be started.
+   *@exception UnknownHostException If the server cannot be located.
 
   **/
   public abstract RecordFormat[] retrieveRecordFormat()
