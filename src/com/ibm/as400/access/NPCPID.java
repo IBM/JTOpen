@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: NPCPID.java
 //                                                                             
@@ -15,7 +15,7 @@ package com.ibm.as400.access;
 
 /**
   * NPCPID class - class for an attribute value list code point used with
-  * the network print server's data stream to identify AS/400 objects.
+  * the network print server's data stream to identify server objects.
   * This class is derived from NPCPAttributeValue and will be used to build a code
   * point that has as its data a list of certain attributes that ID an object.
   * This is an abstract class that will do the general enforcement of what can
