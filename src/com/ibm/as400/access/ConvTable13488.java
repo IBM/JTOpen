@@ -27,7 +27,7 @@ class ConvTable13488 extends ConvTable // instead of ConvTableDoubleMap
   
   
   /**
-   * Perform an AS/400 CCSID to Unicode conversion.
+   * Perform an OS/400 CCSID to Unicode conversion.
   **/
   final String byteArrayToString(byte[] buf, int offset, int length, int type)    //@E0C @P0C
   {
@@ -49,17 +49,26 @@ class ConvTable13488 extends ConvTable // instead of ConvTableDoubleMap
     
   
   /**
-   * Perform a Unicode to AS/400 CCSID conversion.
+   * Perform a Unicode to OS/400 CCSID conversion.
   **/
   final byte[] stringToByteArray(String source, int type)       //@E0C @P0C
   {
     char[] src = source.toCharArray();
+    //@G0M - call char[] method
+    return stringToByteArray(src, 0, src.length); //@G0A
+  }
+
+
+  //@G0A
+  final byte[] stringToByteArray(char[] src, int offset, int length)
+  {
+    //@G0M
     if (Trace.traceOn_) //@E1A @P0C
     {
-      Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src)); //@E1A
+      Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length)); //@E1A @G0C
     }
-    byte[] dest = new byte[src.length*2];
-    for (int i=0; i<src.length; ++i)
+    byte[] dest = new byte[length*2]; //@G0C
+    for (int i=offset; i<src.length; ++i) //@G0C
     {
       dest[i*2] = (byte)(src[i] >>> 8);
       dest[i*2+1] = (byte)(0x00FF & src[i]);

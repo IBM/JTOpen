@@ -50,7 +50,7 @@ abstract class ConvTableSingleMap extends ConvTable
   
   
   /**
-   * Perform an AS/400 CCSID to Unicode conversion.
+   * Perform an OS/400 CCSID to Unicode conversion.
   **/
   final String byteArrayToString(byte[] buf, int offset, int length, int type)   //@E0C @P0C
   {
@@ -69,17 +69,26 @@ abstract class ConvTableSingleMap extends ConvTable
     
   
   /**
-   * Perform a Unicode to AS/400 CCSID conversion.
+   * Perform a Unicode to OS/400 CCSID conversion.
   **/
   final byte[] stringToByteArray(String source, int type)    //@E0C @P0C
   {
     char[] src = source.toCharArray();
+    //@G0M - call char[] method
+    return stringToByteArray(src, 0, src.length); //@G0A
+  }
+
+  
+  //@G0A
+  final byte[] stringToByteArray(char[] src, int offset, int length)
+  {
+    //@G0M
     if (Trace.traceOn_) //@E2C
     {
-      Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+      Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length)); //@G0C
     }
-    byte[] dest = new byte[src.length];
-    for (int i=0; i<src.length; dest[i] = fromUnicode_[src[i++]]);
+    byte[] dest = new byte[length]; //@G0C
+    for (int i=offset; i<length; dest[i] = fromUnicode_[src[i++]]); //@G0C
     if (Trace.traceOn_) //@E3A @P0C
     {
       Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest); //@E3A
@@ -87,7 +96,7 @@ abstract class ConvTableSingleMap extends ConvTable
     return dest;
   }
 
-  
+
   //@P0A
   final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
   {

@@ -83,9 +83,9 @@ abstract class ConvTable
   
   
   /**
-   * Perform an AS/400 CCSID to Unicode conversion.
+   * Perform an OS/400 CCSID to Unicode conversion.
   **/
-  abstract String byteArrayToString(byte[] source, int offset, int length, int type);  //$E0C
+  abstract String byteArrayToString(byte[] source, int offset, int length, int type);  //@E0C
 
   
   //@P0A
@@ -191,17 +191,22 @@ abstract class ConvTable
   /**
    * Convenience function for tracing character strings.
   **/
-  static final byte[] dumpCharArray(char[] charArray, int numChars)
+  static final byte[] dumpCharArray(char[] charArray, int offset, int length) //@G0C
   {
-    byte[] retData = new byte[numChars*2];
-    int inPos = 0;
+    byte[] retData = new byte[length*2]; //@G0C
+    int inPos = offset; //@G0C
     int outPos = 0;
-    while(inPos < numChars)
+    while(inPos < length)
     {
       retData[outPos++] = (byte)(charArray[inPos] >> 8);
       retData[outPos++] = (byte)charArray[inPos++];
     }
     return retData;
+  }
+
+  static final byte[] dumpCharArray(char[] charArray, int numChars) //@G0M
+  {
+    return dumpCharArray(charArray, 0, numChars); //@G0A
   }
 
   static final byte[] dumpCharArray(char[] charArray)
@@ -360,9 +365,9 @@ abstract class ConvTable
 
 
   /**
-   * Perform a Unicode to AS/400 CCSID conversion.
+   * Perform a Unicode to OS/400 CCSID conversion.
   **/
-  abstract byte[] stringToByteArray(String source, int type);   //$E0C
+  abstract byte[] stringToByteArray(String source, int type);   //@E0C
 
   
   //@P0A
@@ -372,7 +377,13 @@ abstract class ConvTable
     return stringToByteArray(source, bidiStringType_);
   }
 
-  
+  //@G0A
+  // Subclasses should override this to avoid creating superflous String objects and char arrays.
+  byte[] stringToByteArray(char[] source, int offset, int length)
+  {
+    return stringToByteArray(new String(source, offset, length));
+  }
+
   //@P0A
   // Subclasses should override this to avoid creating superfluous byte arrays.
   void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
