@@ -737,13 +737,15 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
         //@B1D return sys.getAS400Object(); 
       }
+      
+      //Get a connection from the list
+      if (connect)
+        return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+      else
+        return connections.getConnection(secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
+
     }// end synchronized block 
 
-    //Get a connection from the list
-    if (connect)
-      return connections.getConnection(service, secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
-    else
-      return connections.getConnection(secure, poolListeners_, locale, password).getAS400Object();  //@B3C add null locale  //@B4C
   }
 
 
