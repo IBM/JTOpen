@@ -303,8 +303,8 @@ Convert the escape syntax to native SQL.
 		    StringTokenizer tokenizer = new StringTokenizer (value);
 	    	if (tokenizer.countTokens() != 2)
 	    	    JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
-            buffer.append (tokenizer.nextToken());
-            buffer.append (' '); // @C4M
+            buffer.append (tokenizer.nextToken().replace(':', '.'));
+            buffer.append ('-'); // @C4M
             buffer.append (tokenizer.nextToken()); // @C4M
             /* @B1D - This will never happen, since we already counted tokens.
             while (tokenizer.hasMoreTokens ()) {
