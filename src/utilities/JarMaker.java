@@ -261,9 +261,9 @@ public class JarMaker
   private static final String MANIFEST_NAME_KEYWORD = "Name:";
   private static final String MANIFEST_VERSION_KEYWORD = "Manifest-Version:";
   private static final String MANIFEST_REQVERS_KEYWORD = "Required-Version:";
-  private static final int BUFFER_SIZE              = 2*1024; // bytes
-  private static final int SPLIT_SIZE_KBYTES        = 2*1024; // kilobytes
-  private static final char FILE_SEPARATOR =
+  private static final int    BUFFER_SIZE              = 2*1024; // bytes
+  private static final int    SPLIT_SIZE_KBYTES        = 2*1024; // kilobytes
+  private static final char   FILE_SEPARATOR =
     System.getProperty ("file.separator").charAt (0);
   static final File CURRENT_DIR = new File (System.getProperty ("user.dir"));
   static final boolean        CHECK_DUPS               = true;           // @A3a
@@ -273,7 +273,6 @@ public class JarMaker
 
   boolean verbose_;      // Verbose output mode.
   boolean requestedUsageInfo_;  // Indicates whether -help option was detected.
-
   private File sourceJarFile_;       // Source JAR or ZIP file.
   private File destinationJarFile_;  // Destination JAR or ZIP file.
 
@@ -285,6 +284,9 @@ public class JarMaker
   private Hashtable additionalFiles_      = new Hashtable ();
                          // Key=File, value=base directory (File).
                          // Never null.
+  boolean excludeSomeDependencies_; // Indicates whether -excludeSomeDependencies was specified.    @A4a
+  Vector dependenciesToExclude_      = new Vector (); // Never null.
+  // Dependendencies which should be ignored.   @A4a
 
   private boolean extract_ = false;  // Whether or not to do an extract.
   // Base directory for extracting.
@@ -449,28 +451,39 @@ public class JarMaker
     fireAnalysisEvent (true, jarEntryName);
     if (jarEntryName.endsWith (CLASS_SUFFIX))
     {
-      // Start with list of directly referenced entries.
-      Vector referencedEntries =
-        getReferencedEntries (jarEntryName, jarMap);
-      if (DEBUG_REF) {
-        System.out.println (jarEntryName + " references: ");
-        Enumeration e1 = referencedEntries.elements (); // entry names
-        while (e1.hasMoreElements ())
-          System.out.println ("   " + (String)e1.nextElement ());
-      }
-      // Now recurse through the list and add indirectly referenced entries.
-      Enumeration e = referencedEntries.elements (); // entry names
-      while (e.hasMoreElements ())
-      {
-        String entryName = (String)e.nextElement ();
-        if (unanalyzedEntries.contains (entryName))
-        {
-          unanalyzedEntries.removeElement (entryName);
-          analyzeJarEntry (entryName, unanalyzedEntries,
-                           referencedJarEntries, jarMap);
-          addElement (referencedJarEntries, entryName);
-        }
-      }
+          if (excludeSomeDependencies_ &&
+              dependenciesToExclude_.contains (jarEntryName))    // @A4a
+          {
+            if (verbose_ || DEBUG)
+              System.out.println ("\nExcluding entry from dependency analysis: " +
+                                  jarEntryName + "\n");      // @A4a
+            addElement (referencedJarEntries, jarEntryName); // keep this one.
+          }
+          else
+          {
+            // Start with list of directly referenced entries.
+            Vector referencedEntries =
+              getReferencedEntries (jarEntryName, jarMap);
+            if (DEBUG_REF) {
+              System.out.println (jarEntryName + " references: ");
+              Enumeration e1 = referencedEntries.elements (); // entry names
+              while (e1.hasMoreElements ())
+                System.out.println ("   " + (String)e1.nextElement ());
+            }
+            // Now recurse through the list and add indirectly referenced entries.
+            Enumeration e = referencedEntries.elements (); // entry names
+            while (e.hasMoreElements ())
+            {
+              String entryName = (String)e.nextElement ();
+              if (unanalyzedEntries.contains (entryName))
+              {
+                unanalyzedEntries.removeElement (entryName);
+                analyzeJarEntry (entryName, unanalyzedEntries,
+                                   referencedJarEntries, jarMap);
+                addElement (referencedJarEntries, entryName);
+              }
+            }
+          }
     }
     else {}  // Not a class file, so no analysis to do
     fireAnalysisEvent (false, jarEntryName);

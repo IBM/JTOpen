@@ -327,7 +327,7 @@ We are going to include only run-time gifs.  Compile time gifs needed by visual 
 will not be put in the JAR unless explicitly specified.
 */
 
-// * TBDs:
+// * On-going TBDs:
 // * Implementation:   Add new components as they are added to Toolbox.
 //
 // * Implementation:   Add new language MRI suffixes as they are supported.
@@ -396,7 +396,8 @@ public class AS400ToolboxJarMaker extends JarMaker
   public static final Integer PROGRAM_CALL = new Integer (15);
   /** Constant for specifying the <b>Record Level Access</b> component. **/
   public static final Integer RECORD_LEVEL_ACCESS = new Integer (16);
-  /** Constant for specifying the <b>Secure AS400</b> component. **/
+  /** Constant for specifying the <b>Secure AS400</b> component.
+   This component performs SSL (Secure Sockets Layer) processing. **/
   public static final Integer SECURE_AS400 = new Integer (17);
   /** Constant for specifying the <b>Service Program Call</b> component. **/
   public static final Integer SERVICE_PROGRAM_CALL = new Integer (18);
@@ -694,6 +695,65 @@ public class AS400ToolboxJarMaker extends JarMaker
         }
       }
 
+    }
+
+    // See if user gave the OK to selectively limit dependency expansion.  @A4a
+    if (excludeSomeDependencies_)
+    {
+      // Note: As of V5R2, AS400ThreadedServer references DBReplyRequestedDS.
+      // We can't just exclude DBReplyRequestedDS, nor can we exclude its
+      // direct dependents (DBBaseReplyDS and DBDSPool), but we *can* exclude
+      // the files that *those* classes depend on.                      @A4a
+
+      // If the 'access' package isn't on the packages list,
+      // and neither JDBC nor Visual JDBC is on the components list,
+      // and DBReplyRequestedDS isn't on the required files list,
+      // then exclude a couple of JDBC files.                           @A4a
+      if (!(getPackages().contains ("com.ibm.as400.access")) &&
+          !(components_.contains (JDBC)) &&
+          !(components_.contains (JDBC_VISUAL)))
+      {
+        if (!getRequiredFiles().contains("com/ibm/as400/access/DBBaseReplyDS.class"))
+        {
+          addElement(dependenciesToExclude_, "com/ibm/as400/access/DBBaseReplyDS.class");
+          if (verbose_ || DEBUG) {
+            System.out.println("Excluding dependency: " + "com/ibm/as400/access/DBBaseReplyDS.class");
+          }
+
+          if (!getRequiredFiles().contains("com/ibm/as400/access/DBDSPool.class"))
+          {
+            addElement(dependenciesToExclude_, "com/ibm/as400/access/DBDSPool.class");
+            if (verbose_ || DEBUG) {
+              System.out.println("Excluding dependency: " + "com/ibm/as400/access/DBDSPool.class");
+            }
+          }
+        }
+      }
+
+      // Note: In V5R1, we added a getJob() method to CommandCall and ProgramCall,
+      // that returns an RJob object.  Unfortunately this introduced a new
+      // dependency on the 'resource' package.
+      // In V5R2 we added method getServerJob() that returns a Job object,
+      // and we intend to deprecate getJob().                           @A4a
+
+      // TBD: If we're dealing with a V5R1 jt400.jar file, don't exclude RJob.
+      // TBD: Deprecate the getJob() method of CommandCall and ProgramCall.  @A4a
+
+      // If the 'resource' package isn't on the packages list,
+      // and neither RJob nor JobLog is on the required files list,
+      // and neither Job nor Visual Job is on the components list,
+      // then add RJob to the list of files to exclude.                 @A4a
+      if (!(getPackages().contains ("com.ibm.as400.resource")) &&
+          !(getRequiredFiles().contains("com/ibm/as400/resource/RJob.class")) &&
+          !(getRequiredFiles().contains("com/ibm/as400/access/JobLog.class")) &&
+          !(components_.contains (JOB)) &&
+          !(components_.contains (JOB_VISUAL)))
+      {
+        addElement(dependenciesToExclude_, "com/ibm/as400/resource/RJob.class");
+        if (verbose_ || DEBUG) {
+          System.out.println("Excluding dependency: " + "com/ibm/as400/resource/RJob.class");
+        }
+      }
     }
 
     return neededJarEntries;
@@ -1916,6 +1976,29 @@ public class AS400ToolboxJarMaker extends JarMaker
   }
 
 
+  // @A4a
+  /**
+   Specifies whether AS400ToolboxJarMaker is allowed to selectively limit
+   dependency expansion, and exclude certain components and packages
+   that are unlikely to be needed.
+   By default, this option is disabled, that is, all directly- and
+   indirectly-referenced files in the source JAR file are included.
+   Examples of files that may be excluded from the output:
+   <ul>
+   <li>JDBC classes, if component {@link #JDBC JDBC} has not been specified
+   <li>class {@link com.ibm.as400.resource.RJob RJob}, if neither component {@link #Job Job} nor package <tt>com.ibm.as400.resource</tt> has been specified
+   </ul>
+   <em>Note: Dependency exclusion is not recommended for pre-V5R2 Toolbox JAR files.</em>
+
+   @param excludeSomeDependencies Whether or not AS400ToolboxJarMaker should
+   selectively limit dependency expansion.
+   **/
+  public void setExcludeSomeDependencies (boolean excludeSomeDependencies)
+  {
+    excludeSomeDependencies_ = excludeSomeDependencies;
+  }
+
+
   /**
    Performs the actions specified in the invocation arguments.
 
@@ -2075,6 +2158,13 @@ public class AS400ToolboxJarMaker extends JarMaker
           {
             noProxy_ = true;
             noProxySpecified = true;
+          }
+
+          // excludeSomeDependencies tag                                @A4a
+          else if ((args[i].equalsIgnoreCase ("-xd")) ||
+                   (args[i].equalsIgnoreCase ("-excludeSomeDependencies")))
+          {
+            excludeSomeDependencies_ = true;
           }
 
           else
@@ -2264,9 +2354,9 @@ public class AS400ToolboxJarMaker extends JarMaker
      **/
     private void printUsage (PrintStream output)
     {
-      output.println ("");
+      output.println ();
       output.println ("Usage: ");
-      output.println ("");
+      output.println ();
       output.println ("  AS400ToolboxJarMaker [-source jarFile]");
       output.println ("                       [-destination jarFile]");
       output.println ("                       [-requiredFile entry1[,entry2[...]]]");
@@ -2282,12 +2372,16 @@ public class AS400ToolboxJarMaker extends JarMaker
       output.println ("                       [-ccsid ccsid1[,ccsid2[...]]]");
       output.println ("                       [-ccsidExcluded ccsid1[,ccsid2[...]]]");
       output.println ("                       [-noProxy]");
+      output.println ("                       [-excludeSomeDependencies]");  // @A4a
       output.println ("                       [-verbose]");
       output.println ("                       [-help]");
-      output.println ("");
+      output.println ();
       output.println ("At least one of the following options must be specified: ");
       output.println ("-requiredFile, -additionalFile, -package, -extract, -split, " +
                       "-component, -language, -ccsid, -ccsidExcluded, -noProxy");
+      output.println ();
+      output.println ("The -excludeSomeDependencies option is not recommended " +
+                      "for pre-V5R2 Toolbox JAR files.");
     }
 
     private void resetExpectations ()
