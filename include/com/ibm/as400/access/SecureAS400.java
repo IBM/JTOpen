@@ -17,6 +17,7 @@ package com.ibm.as400.access;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 
+import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.sslight.SSLightKeyRing;
 
 /**
@@ -90,6 +91,18 @@ public class SecureAS400 extends AS400
     public SecureAS400(String systemName, String userId)
     {
         super(systemName, userId);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+        construct();
+    }
+
+    /**
+     Constructs a SecureAS400 object.  It uses the specified system name and profile token.
+     @param  systemName  The name of the server.  Use localhost to access data locally.
+     @param  profileToken  The profile token to use to authenticate to the server.
+     **/
+    public SecureAS400(String systemName, ProfileTokenCredential profileToken)
+    {
+        super(systemName, profileToken);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
         construct();
     }
