@@ -151,7 +151,7 @@ final class SQLDBClobLocator implements SQLLocator
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
                     while(bytesRead > -1 && totalBytesRead < length)
                     {
-                        locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.      //@K1C
+                        locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.      //@K1C  //@K2C totalBytesRead is our offset (offset should be in number of characters, not bytes)
                         totalBytesRead += bytesRead;
                         int bytesRemaining = length - totalBytesRead;
                         if(bytesRemaining < blockSize)
@@ -196,7 +196,7 @@ final class SQLDBClobLocator implements SQLLocator
                     int bytesRead = stream.read(byteBuffer, 0, blockSize);
                     while(bytesRead > -1 && totalBytesRead < length)
                     {
-                        locator_.writeData((long)totalBytesRead, byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  //@K1C
+                        locator_.writeData((long)(totalBytesRead/2), byteBuffer, 0, bytesRead, true); // totalBytesRead is our offset.  //@K1C //@K2C  offset should be in number of characters not bytes
                         totalBytesRead += bytesRead;
                         int bytesRemaining = length - totalBytesRead;
                         if(bytesRemaining < blockSize)
