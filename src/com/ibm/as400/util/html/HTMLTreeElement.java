@@ -50,7 +50,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=s&hc=2043557#2043557" name="2043557">-</a>
+*  <a href="/servlet/myServlet?action=contract&hashcode=2043557#2043557" name="2043557">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -59,7 +59,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=s&hc=2043712#2043712" name="2043712">-</a>
+*  <a href="/servlet/myServlet?action=contract&hashcode=2043712#2043712" name="2043712">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebServer/anotherWebPage">Another Web Page</a></td>
@@ -364,12 +364,12 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
                if (iconProp == null)
                   iconProp = new Properties();
 
-               iconProp.put("hc", hcStr);
+               iconProp.put("hashcode", hcStr);                           // @B1C
 
                if (expanded_)
-                  iconProp.put("a", "s");
+                  iconProp.put("action", "contract");                     // @B1C
                else
-                  iconProp.put("a", "e");
+                  iconProp.put("action", "expand");                       // @B1C
 
                iconUrl_.setProperties(iconProp);
                URLParser parser = new URLParser(iconUrl_.getLink());

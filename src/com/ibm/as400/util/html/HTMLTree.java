@@ -81,7 +81,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2043557#2043557" name="2043557">+</a>
+*  <a href="/servlet/myServlet?action=expand&hashcode=2043557#2043557" name="2043557">+</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -109,7 +109,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=s&hc=2043557#2043557" name="2043557">-</a>
+*  <a href="/servlet/myServlet?action=contract&hashcode=2043557#2043557" name="2043557">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebPage">My Web Page</a></td>
@@ -118,7 +118,7 @@ import com.ibm.as400.access.ExtendedIllegalStateException;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=s&hc=2043712#2043712" name="2043712">-</a>
+*  <a href="/servlet/myServlet?action=contract&hashcode=2043712#2043712" name="2043712">-</a>
 *  </td>
 *  <td>
 *  <a href="http://myWebServer/anotherWebPage">Another Web Page</a></td>
@@ -174,6 +174,7 @@ public class HTMLTree implements HTMLTagElement, java.io.Serializable
    private HttpServletRequest request_;
    private boolean sort_ = true;            // @A1A
    private static  Collator  collator_;     // @A1A
+
 
    transient private PropertyChangeSupport changes_ = new PropertyChangeSupport(this);
    transient private Vector elementListeners = new Vector();      // The list of element listeners
@@ -362,7 +363,7 @@ public class HTMLTree implements HTMLTagElement, java.io.Serializable
          throw new ExtendedIllegalStateException("request", ExtendedIllegalStateException.PROPERTY_NOT_SET );
 
       // Get the hashcode parameter from the HTTP request.
-      String hcStr = request_.getParameter("hc");
+      String hcStr = request_.getParameter("hashcode");                          // @B1C
 
       StringBuffer buf1 = new StringBuffer("<table cellpadding=\"0\" cellspacing=\"3\">\n");
 
@@ -384,6 +385,7 @@ public class HTMLTree implements HTMLTagElement, java.io.Serializable
       }
 
       buf1.append("</table>\n");
+
 
       return buf1.toString();
    }

@@ -480,7 +480,12 @@ public class FileListElement implements java.io.Serializable
      **/
     public String getSharePath()                    // @B1A
     {                                               // @B1A
-        return sharePath_.toString();               // @B1A
+        // Need to check for null before
+        // performing a toString().
+        if (sharePath_ == null)
+            return null;
+        else
+            return sharePath_.toString();               // @B1A
     }                                               // @B1A
 
     /**
@@ -489,8 +494,13 @@ public class FileListElement implements java.io.Serializable
      *  @return The name of the NetServer share.
      **/
     public String getShareName()                    // @B1A
-    {                                               // @B1A
-        return shareName_.toString();               // @B1A
+    {  
+        // Need to check for null before
+        // performing a toString().
+        if (shareName_ == null)                                             // @B1A
+            return null;
+        else
+            return shareName_.toString();               // @B1A
     }                                               // @B1A
 
 
@@ -545,10 +555,10 @@ public class FileListElement implements java.io.Serializable
         StringBuffer buffer = new StringBuffer();
 
         String path = request_.getPathInfo();                                         // @A3C
-
+        
         if (path == null)
             path = "/";
-
+        
         if (sharePath_ != null)                                                                            // @B1A
         {                                                                                                  // @B1A
             try                                                                                            // @B1A

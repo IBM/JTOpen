@@ -66,7 +66,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  <table cellpadding="0" cellspacing="3">
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2050603#2050603" name="2050603">+</a>
+*  <a href="/servlet/myServlet?action=exapand&hashcode=2050603#2050603" name="2050603">+</a>
 *  </td>
 *  <td>
 *  include
@@ -74,7 +74,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2050584#2050584" name="2050584">+</a>
+*  <a href="/servlet/myServlet?action=exapand&hashcode=2050584#2050584" name="2050584">+</a>
 *  </td>
 *  <td>
 *  locales
@@ -82,7 +82,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2050485#2050485" name="2050485">+</a>
+*  <a href="/servlet/myServlet?action=exapand&hashcode=2050485#2050485" name="2050485">+</a>
 *  </td>
 *  <td>
 *  ProdData
@@ -90,7 +90,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2050574#2050574" name="2050574">+</a>
+*  <a href="/servlet/myServlet?action=exapand&hashcode=2050574#2050574" name="2050574">+</a>
 *  </td>
 *  <td>
 *  Test Folder
@@ -98,7 +98,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2050555#2050555" name="2050555">+</a>
+*  <a href="/servlet/myServlet?action=exapand&hashcode=2050555#2050555" name="2050555">+</a>
 *  </td>
 *  <td>
 *  UserData
@@ -106,7 +106,7 @@ import com.ibm.as400.util.servlet.ServletHyperlink;
 *  </tr>
 *  <tr>
 *  <td>
-*  <a href="/servlet/myServlet?a=e&hc=2050536#2050536" name="2050536">+</a>
+*  <a href="/servlet/myServlet?action=exapand&hashcode=2050536#2050536" name="2050536">+</a>
 *  </td>
 *  <td>
 *  XML
@@ -241,7 +241,12 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     **/
    public String getShareName()                                // @B1A
    {                                                           // @B1A
-       return shareName_.toString();                           // @B1A
+       // Need to check for null
+       // before performing a toString().
+       if (shareName_ == null)
+           return null;
+       else
+           return shareName_.toString();                           // @B1A
    }
 
 
@@ -249,8 +254,13 @@ public class FileTreeElement extends HTMLTreeElement implements java.io.Serializ
     *  Returns the NetServer share path.
     **/
    public String getSharePath()                                // @B1A
-   {                                                           // @B1A
-       return sharePath_.toString();                           // @B1A
+   {                                                           // @B1A           
+       // Need to check for null
+       // before performing a toString().
+       if (sharePath_ == null)
+           return null;
+       else
+           return sharePath_.toString();                           // @B1A
    }
 
 
