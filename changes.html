@@ -9,7 +9,7 @@ Copyright (C) 1997-2003 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: August 2, 2003
+Last updated: December 19, 2003
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -26,9 +26,69 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#42">Fixes and enhancements in JTOpen 4.2</A><BR>
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="#42">Fixes and enhancements in JTOpen 4.2</A></H3>
+<PRE>
+- Build: Created task to insert copyright strings into JTOpen-built class files.
+- Build: Added copyright strings to binary class files in CVS.
+- Build: Added an IdentityToken stub since we currently cannot ship EIM with JTOpen.
+- Connection: Support EIM "identity tokens" for authentication.
+- Connection: Added serialVersionUID to SocketProperties.
+- Connection: Added AS400.setDDMRDB() method to set the IASP/RDB to use for record-level access (RLA).
+- Connection: Added AS400.getSocketProperties().
+- Connection pools: Fixed bug #3727 - Don't synchronize the entire pool in order to get one connection out.
+- Connection pools: Added socket properties.
+- Connection pools: Allow null password.
+- Connection pools: Set thread name on maintenance thread.
+- Connection pools: Don't start maintenance thread if threadUsed is false.
+- Data conversion: Added another variant of CharConverter.byteArrayToString() and stringToByteArray().
+- Data conversion: Enhanced bidi algorithms.
+- Data conversion: Directly support CCSID 1208 (UTF-8).
+- Data queue: Updates to allow user to write to a data queue without having read authority.
+- HTML: Properly allow multiple options to be selected in a SelectFormElement.
+- IFS: Fixed list attribute calls on files larger than 2GB.
+- IFS: Changed VRM check.
+- JDBC: Added a JDBC trace category; log to the Toolbox trace, log stream, and log writer separately.
+- JDBC: Changed major driver version to 6.0.
+- JDBC: Allow read-only sensitive cursors.
+- JDBC: Changed exception text for data type mismatches on date, time, and timestamp types.
+- JDBC: Support scrollable stored procedure result sets when the server does.
+- JDBC: Get the long table names when calling getExportedKeys().
+- JDBC: Support new auto-commit and commit levels provided by server.
+- JDBC: Updated cursor sensitivity handling; use asensitive cursors as default for ResultSet.TYPE_SCROLL_SENSITIVE.
+- JDBC: Added NTS support.
+- JDBC: Use underlying column name when updating a row that has a column with an alias.
+- JDBC: Minor performance improvements in statement batching.
+- Job: Do not allow ELAPSED statistics constants to be retrievable attributes on JobList.
+- NetServer: Deprecated NetServer* classes; replaced with new ISeriesNetServer* classes.
+- NetServer: Added KERBEROS_OR_PASSWORDS authentication method constant.
+- Open list: Added IPP attribute, job system name filter, and date filter to SpooledFileOpenList.
+- Open list: Change STATUS_PRINTING constant for SpooledFileOpenList to match what the API expects (*PRINTER).
+- Open list: Fixed null job system name on items in SpooledFileOpenList.
+- Open list: Status filter on SpooledFileOpenList should have been a String array.
+- PCML: Updated class loading scheme so PCML files can be found under Websphere and Eclipse.
+- Permission: Updated the way object names and CL command strings are treated to handle NLS issues.
+- Permission: Changed thread-safe settings on underlying CL commands so that they will work natively.
+- Permission: Added setPrimaryGroup().
+- Permission: Support Unicode object path names when the server does.
+- Print: Added PrintObject.getSingleAttribute() methods.
+- Product: Fixed user space error when calling getPTFs() natively.
+- Program call: Fixed no program object with no message option.
+- Proxy: Fixed ArrayIndexOutOfBoundsException in ProgramCall.
+- PTF: Return message help of "None" for a status of NOT_LOADED.
+- PTF: Fixed isPreReq() and isCoReq().
+- Resource: Deprecated this package in favor of function in the access package.
+- RLA: Updated record format field names to match output from DSPFFD.
+- User: Added exists().
+- User space: Updated to create with optimum alignment.
+- Utilities: Added comment that specifies column widths for CommandHelpRetriever.
+- Vaccess: Fix for checkboxes in AS400JDBCDataSourcePaneGUI under JDK 1.4.
+</PRE>
 
 <HR>
 <H3><A NAME="#41">Fixes and enhancements in JTOpen 4.1</A></H3>
