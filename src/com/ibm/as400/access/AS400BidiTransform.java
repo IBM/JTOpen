@@ -318,44 +318,23 @@ public class AS400BidiTransform
     }
 
     /**
-     Sets the converion properties for server data.
-     @param  serverProperties  The bidi conversion properties.
+     Sets the bidi converion properties.
+     @param  properties  The bidi conversion properties.
      **/
-    public void setServerProperties(BidiConversionProperties serverProperties)
+    public void setBidiConversionProperties(BidiConversionProperties properties)
     {
-        setAS400StringType(serverProperties.getBidiStringType());
-        bdxJ2A_.impToImp = serverProperties.isBidiImplicitReordering();
-        bdxJ2A_.roundTrip = serverProperties.isBidiNumericOrderingRoundTrip();
+        setJavaStringType(properties.getBidiStringType());
+        bdxJ2A_.impToImp = properties.isBidiImplicitReordering();
+        bdxJ2A_.roundTrip = properties.isBidiNumericOrderingRoundTrip();
+        bdxA2J_.impToImp = properties.isBidiImplicitReordering();
+        bdxA2J_.roundTrip = properties.isBidiNumericOrderingRoundTrip();
     }
 
     /**
-     Returns the converion properties of server data.
-     @return  The converion properties of the server data.
+     Returns the bidi converion properties.
+     @return  The bidi converion properties.
      **/
-    public BidiConversionProperties getServerProperties()
-    {
-        BidiConversionProperties properties = new BidiConversionProperties(getAS400StringType());
-        properties.setBidiImplicitReordering(bdxJ2A_.impToImp);
-        properties.setBidiNumericOrderingRoundTrip(bdxJ2A_.roundTrip);
-        return properties;
-    }
-
-    /**
-     Sets the converion properties for Java data.
-     @param  serverProperties  The bidi conversion properties.
-     **/
-    public void setJavaProperties(BidiConversionProperties javaProperties)
-    {
-        setJavaStringType(javaProperties.getBidiStringType());
-        bdxA2J_.impToImp = javaProperties.isBidiImplicitReordering();
-        bdxA2J_.roundTrip = javaProperties.isBidiNumericOrderingRoundTrip();
-    }
-
-    /**
-     Returns the converion properties of Java data.
-     @return  The converion properties of the Java data.
-     **/
-    public BidiConversionProperties getJavaProperties()
+    public BidiConversionProperties getBidiConversionProperties()
     {
         BidiConversionProperties properties = new BidiConversionProperties(getJavaStringType());
         properties.setBidiImplicitReordering(bdxA2J_.impToImp);

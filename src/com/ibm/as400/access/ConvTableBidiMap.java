@@ -59,7 +59,7 @@ abstract class ConvTableBidiMap extends ConvTable
         {
             properties.setBidiStringType(bidiStringType_);
         }
-        abt.setJavaProperties(properties);
+        abt.setBidiConversionProperties(properties);
 
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Destination string (before java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
 
@@ -83,7 +83,7 @@ abstract class ConvTableBidiMap extends ConvTable
             {
                 properties.setBidiStringType(bidiStringType_);
             }
-            abt.setServerProperties(properties);
+            abt.setBidiConversionProperties(properties);
             src = abt.toAS400Layout(source).toCharArray();
             if (Trace.traceOn_)
             {
