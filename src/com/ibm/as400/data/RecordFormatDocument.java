@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ import java.util.MissingResourceException;
  **/
 public class RecordFormatDocument implements Serializable, Cloneable
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 5L;       // @A6C
 
@@ -793,11 +793,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
                ioe.printStackTrace(Trace.getPrintWriter());
             throw new XmlException(ioe.getClass().getName());
         }
-        catch (Exception e)
+        catch (Exception e) //@E0A
         {
-            if (Trace.isTraceErrorOn())
-               e.printStackTrace(Trace.getPrintWriter());
-            throw new XmlException(e.getClass().getName());
+            if (Trace.isTraceErrorOn()) //@E0A
+               e.printStackTrace(Trace.getPrintWriter()); //@E0A
+            throw new XmlException(e.getClass().getName()); //@E0A
         }
         return pd;
     }

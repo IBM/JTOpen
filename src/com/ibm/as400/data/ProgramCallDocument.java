@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ProgramCallDocument.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
+import java.io.ByteArrayOutputStream;                       //@E1A
+import java.io.ByteArrayInputStream;                        //@E1A
+import java.io.BufferedInputStream;                         //@E1A
+import java.io.OutputStream;                                //@E1A
+import java.io.InputStreamReader;                           //@E1A
+import java.io.LineNumberReader;                            //@E1A
+
+
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -37,20 +45,32 @@ import java.util.MissingResourceException;
 
 import java.util.zip.GZIPInputStream;
 
+// NEW XPCML imports for transform method
+import javax.xml.transform.TransformerFactory;                      //@E1A
+import javax.xml.transform.Transformer;                             //@E1A
+import javax.xml.transform.Source;                                  //@E1A
+import javax.xml.transform.stream.StreamSource;                     //@E1A
+import javax.xml.transform.stream.StreamResult;                     //@E1A
+import javax.xml.transform.TransformerException;                    //@E1A
+import javax.xml.transform.TransformerConfigurationException;       //@E1A
+import org.xml.sax.SAXException;                                    //@E1A
+
+
 /**
  * XML Document based program call.
  *
  * The <code>ProgramCallDocument</code> class uses a Program Call Markup Language (PCML) to
- * call AS/400 programs.
+ * call iSeries system programs.
  * PCML is an XML language for describing the input and output parameters
- * to the AS/400 program.
+ * to the iSeries system program.
  *
  * This class parses a PCML document and allows the application to call
- * AS/400 programs described in the PCML document.
+ * iSeries system programs described in the PCML document.
  *
  * <h3>Command Line Interface</h3>
  * The command line interface may be used to serialize
- * PCML document definitions.
+ * PCML document definitions. Note that XPCML documents cannot
+ * be serialized.
  * <pre>
  * <kbd>java com.ibm.as400.data.ProgramCallDocument
  *     -serialize
@@ -69,19 +89,22 @@ import java.util.zip.GZIPInputStream;
  */
 public class ProgramCallDocument implements Serializable, Cloneable
 {                                                                   // @C1C @C3C
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = -1836686444079106483L;	    // @C1A
+
+    private static TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private AS400 m_as400;
     private PcmlDocument m_pcmlDoc;
 
     /**
-    Constructs a <code>ProgramCallDocument</code>.
-    The PCML document resource will be loaded from the classpath.
-    The classpath will first be searched for a serialized resource.
+     Constructs a <code>ProgramCallDocument</code>.
+    The PCML or XPCML document resource will be loaded from the classpath.
+    If the document is a PCML document, the classpath will first be searched for a serialized resource.
+    XPCML documents cannot be serialized.
     If a serialized resource is not found, the classpath will be
-    searched for a PCML source file.
+    searched for a PCML or XPCML source file.
 
     @param sys The AS400 on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
@@ -95,18 +118,43 @@ public class ProgramCallDocument implements Serializable, Cloneable
    	{
         m_as400 = sys;
 
-        m_pcmlDoc = loadPcmlDocument(docName, null);        // @C8C
+        m_pcmlDoc = loadPcmlDocument(docName, null,null);        // @C8C @E1C
         m_pcmlDoc.setAs400(m_as400);
     }
 
-    /**
+  /**
     Constructs a <code>ProgramCallDocument</code>.
-    The PCML document resource will be loaded from the classpath.
-    The classpath will first be searched for a serialized resource.
-    If a serialized resource is not found, the classpath will be
-    searched for a PCML source file.
+    The XPCML document resource will be loaded from the classpath and parsed using
+    the XML schema definitions provided in the input XSD stream.
 
     @param sys The AS400 on which to run the program.
+    @param docName The document resource name of the PCML document for the programs to be called.
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML.
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+
+	@exception PcmlException when the specified PCML document cannot be found
+    @see com.ibm.as400.access.AS400
+    */
+
+    public ProgramCallDocument(AS400 sys, String docName, InputStream xsdStream)
+    	throws PcmlException
+   	{
+        m_as400 = sys;
+
+        m_pcmlDoc = loadPcmlDocument(docName, null,xsdStream);        // @C8C
+        m_pcmlDoc.setAs400(m_as400);
+
+    }
+
+    /**
+     Constructs a <code>ProgramCallDocument</code>.
+    The PCML or XPCML document resource will be loaded from the classpath.
+    If the document is a PCML document, the classpath will first be searched for a serialized resource.
+    XPCML documents cannot be serialized.
+    If a serialized resource is not found, the classpath will be
+    searched for a PCML or XPCML source file.
+
+     @param sys The AS400 on which to run the program.
     @param docName The document resource name of the PCML document for the programs to be called.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
     @param loader The ClassLoader that will be used when loading the specified document resource.
@@ -119,11 +167,34 @@ public class ProgramCallDocument implements Serializable, Cloneable
    	{
         m_as400 = sys;                                      // @C8A
 
-        m_pcmlDoc = loadPcmlDocument(docName, loader);      // @C8A
+        m_pcmlDoc = loadPcmlDocument(docName, loader,null);      // @C8A
         m_pcmlDoc.setAs400(m_as400);                        // @C8A
     }
 
-    /**
+
+  /**
+    Constructs a <code>ProgramCallDocument</code>.
+    The XPCML document resource will be loaded from the classpath and parsed using
+    the XML schema definitions provided in the input XSD stream.
+    @param sys The AS400 on which to run the program.
+    @param docName The document resource name of the PCML document for the programs to be called.
+    @param loader The ClassLoader that will be used when loading the specified document resource.
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+
+    @exception PcmlException when the specified PCML document cannot be found
+    @see com.ibm.as400.access.AS400
+    */
+     public ProgramCallDocument(AS400 sys, String docName, ClassLoader loader, InputStream xsdStream)       // @C8A
+    	throws PcmlException
+   	{
+        m_as400 = sys;                                      // @C8A
+
+        m_pcmlDoc = loadPcmlDocument(docName, loader,xsdStream);      // @C8A
+        m_pcmlDoc.setAs400(m_as400);                        // @C8A
+    }
+
+     /**
     Constructs a <code>ProgramCallDocument</code>
 	<p>
 	The setSystem and setDocument methods must be called prior to using
@@ -185,6 +256,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     /**
 	 * Provides a command line interface to <code>ProgramCallDocument</code>.  See the class description.
+    * Note that XPCML documents cannot be serialized.
 	 *
      */
     public static void main(String[] args)
@@ -205,7 +277,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
             // Load the document from source (previously serialized documents are ignored)
             try
             {
-				pd = loadSourcePcmlDocument(args[1], null);         // @C8C
+				pd = loadSourcePcmlDocument(args[1], null,null);         // @C8C
             }
 			catch (PcmlException e)
 			{
@@ -324,7 +396,30 @@ public class ProgramCallDocument implements Serializable, Cloneable
     {
         PcmlDocument pd = null;
 
-        pd = loadPcmlDocument(docName, null);                       // @C8C
+        pd = loadPcmlDocument(docName, null,null);                       // @C8C
+
+        return new PcmlDescriptor(pd);
+    }                                                               // @C5A
+
+     /**
+    Returns a <code>Descriptor</code> for the specified xpcml document.
+    The XPCML document resource will be loaded from the classpath.
+
+    @param docName The document resource name of the XPCML document for which the Descriptor is returned.
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML
+
+    @return The Descriptor for the pcml element of the named pcml file.
+
+	@exception PcmlException when the specified PCML document cannot be found
+    @see com.ibm.as400.data.Descriptor
+    */
+    public static Descriptor getDescriptor(String docName, InputStream xsdStream)
+        throws PcmlException                                        // @C5A
+    {
+        PcmlDocument pd = null;
+
+        pd = loadPcmlDocument(docName, null, xsdStream);                       // @C8C
 
         return new PcmlDescriptor(pd);
     }                                                               // @C5A
@@ -349,10 +444,35 @@ public class ProgramCallDocument implements Serializable, Cloneable
     {
         PcmlDocument pd = null;                                     // @C8A
 
-        pd = loadPcmlDocument(docName, loader);                             // @C8A
+        pd = loadPcmlDocument(docName, loader,null);                             // @C8A
 
         return new PcmlDescriptor(pd);                              // @C8A
     }
+
+    /**
+    Returns a <code>Descriptor</code> for the specified xpcml document.
+    The XPCML document resource will be loaded from the classpath.
+
+    @param docName The document resource name of the PCML document for which the Descriptor is returned.
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+    @param loader The ClassLoader that will be used when loading the specified document resource.
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML.
+
+    @return The Descriptor for the pcml element of the named pcml file.
+
+	@exception PcmlException when the specified PCML document cannot be found
+    @see com.ibm.as400.data.Descriptor
+    */
+    public static Descriptor getDescriptor(String docName, ClassLoader loader, InputStream xsdStream)
+        throws PcmlException                                        // @C8A
+    {
+        PcmlDocument pd = null;                                     // @C8A
+
+        pd = loadPcmlDocument(docName, loader,xsdStream);                             // @C8A
+
+        return new PcmlDescriptor(pd);                              // @C8A
+    }
+
 
     /**
     Returns a <code>Descriptor</code> for the current pcml document.
@@ -479,11 +599,11 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Returns the list of AS/400 messages returned from running the
+    Returns the list of iSeries system messages returned from running the
     program. An empty list is returned if the program has not been run yet.
 
     @param name The name of the &lt;program&gt; element in the PCML document.
-    @return The array of messages returned by the AS/400 for the program.
+    @return The array of messages returned by the server for the program.
     @exception PcmlException
                If an error occurs.
     */
@@ -526,7 +646,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     Returns the Java object value for the named element.
     <p>
     If the named element is an output value of a program, the value will
-    be converted from AS/400 data to a Java Object.
+    be converted from iSeries system data to a Java Object.
     <p>
     The type of object returned depends on the description in the PCML document.
     <table border=1>
@@ -574,7 +694,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     must be specified for each dimension of the data.
     <p>
     If the named element is an output value of a program, the value will
-    be converted from AS/400 data to a Java Object.
+    be converted from iSeries system data to a Java Object.
     <p>
     The type of object returned depends on the description in the PCML document.
     <table border=1>
@@ -618,9 +738,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Gets the AS/400 on which programs are to be called.
+    Gets the OS/400 on which programs are to be called.
 
-    @return The current AS/400 for this ProgramCallDocument.
+    @return The current OS/400 for this ProgramCallDocument.
 
     @see #setSystem
     @see com.ibm.as400.access.AS400
@@ -632,7 +752,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
 
     /**
-     Serializes the ProgramCallDocument.
+     Serializes the ProgramCallDocument. Note that XPCML documents
+     cannot be serialized.
 
      The filename of the serialized file will be of the form
      <pre>
@@ -731,11 +852,11 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
-    Sets the PCML document resource.
-    The PCML document resource will be loaded from the classpath.
+    Sets the PCML or XPCML document resource.
+    The PCML or XPCML document resource will be loaded from the classpath.
     The classpath will first be searched for a serialized resource.
     If a serialized resource is not found, the classpath will be
-    searched for a PCML source file.
+    searched for a PCML or XPCML source file.
 
     @param docName The document resource name of the PCML document for the programs to be called.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
@@ -751,16 +872,41 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (docName == null)                                        // @C1A
             throw new NullPointerException("docName");              // @C1A
 
-        m_pcmlDoc = loadPcmlDocument(docName, null);                // @C1A @C8C
+        m_pcmlDoc = loadPcmlDocument(docName, null,null);                // @C1A @C8C
         m_pcmlDoc.setAs400(m_as400);                                // @C1A
     }                                                               // @C1A
 
+
     /**
-    Sets the PCML document resource.
-    The PCML document resource will be loaded from the classpath.
+    Sets the XPCML document resource.
+    The XPCML document resource will be loaded from the classpath.
+
+    @param docName The document resource name of the PCML document for the programs to be called.
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML
+
+	@exception PcmlException when the specified PCML document cannot be found
+    **/
+    public void setDocument(String docName, InputStream xsdStream)
+        throws PcmlException                                        // @C1A
+    {                                                               // @C1A
+        if (m_pcmlDoc != null)                                      // @C1A
+            throw new PcmlException(DAMRI.DOCUMENT_ALREADY_SET );   // @C1A
+
+        if (docName == null)                                        // @C1A
+            throw new NullPointerException("docName");              // @C1A
+
+        m_pcmlDoc = loadPcmlDocument(docName, null,xsdStream);                // @C1A @C8C
+        m_pcmlDoc.setAs400(m_as400);                                // @C1A
+    }                                                               // @C1A
+
+
+    /**
+    Sets the PCML or XPCML document resource.
+    The PCML or XPCML document resource will be loaded from the classpath.
     The classpath will first be searched for a serialized resource.
     If a serialized resource is not found, the classpath will be
-    searched for a PCML source file.
+    searched for a PCML or XPCML source file.
 
     @param docName The document resource name of the PCML document for the programs to be called.
     The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
@@ -777,14 +923,39 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (docName == null)                                        // @C8A
             throw new NullPointerException("docName");              // @C8A
 
-        m_pcmlDoc = loadPcmlDocument(docName, loader);              // @C8A
+        m_pcmlDoc = loadPcmlDocument(docName, loader,null);              // @C8A
         m_pcmlDoc.setAs400(m_as400);                                // @C8A
     }                                                               // @C8A
 
     /**
-    Sets the AS/400 on which to call programs.
+    Sets the XPCML document resource.
+    The XPCML document resource will be loaded from the classpath.
 
-    @param system  The AS/400 on which to call programs.
+    @param docName The document resource name of the PCML document for the programs to be called.
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml"
+    @param loader The ClassLoader that will be used when loading the specified document resource.
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML
+
+	@exception PcmlException when the specified PCML document cannot be found
+    **/
+    public void setDocument(String docName, ClassLoader loader,InputStream xsdStream)     // @C8A
+        throws PcmlException                                        // @C8A
+    {                                                               // @C8A
+        if (m_pcmlDoc != null)                                      // @C8A
+            throw new PcmlException(DAMRI.DOCUMENT_ALREADY_SET );   // @C8A
+
+        if (docName == null)                                        // @C8A
+            throw new NullPointerException("docName");              // @C8A
+
+        m_pcmlDoc = loadPcmlDocument(docName, loader, xsdStream);              // @C8A
+        m_pcmlDoc.setAs400(m_as400);                                // @C8A
+    }                                                               // @C8A
+
+
+    /**
+    Sets the OS/400 on which to call programs.
+
+    @param system  The OS/400 on which to call programs.
 
     **/
     public void setSystem(AS400 system)                             // @C1A
@@ -805,7 +976,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     will be converted to a Java Short object. In this case the value specified must be an instance of Number or String.
     <p>
     If the named element is an input value to a program, the value will
-    be converted to AS/400 data when <code>callProgram()</code> is called.
+    be converted to iSeries system data when <code>callProgram()</code> is called.
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param value The java object value for the named element. The type of Object passed must be
@@ -831,7 +1002,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
     will be converted to a Java Short object. In this case the value specified must be an instance of Number or String.
     <p>
     If the named element is an input value to a program, the value will
-    be converted to AS/400 data when <code>callProgram()</code> is called.
+    be converted to iSeries system data when <code>callProgram()</code> is called.
 
     @param name The name of the &lt;data&gt; element in the PCML document.
     @param indices An array of indices for setting the value of an element in an array.
@@ -924,7 +1095,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
       Loads a serialized PcmlDocument or constructs the document from
       a PCML source file.
     **/
-    private static PcmlDocument loadPcmlDocument(String docName, ClassLoader loader)        // @C8C
+    private static PcmlDocument loadPcmlDocument(String docName, ClassLoader loader, InputStream xsdStream)        // @C8C
         throws PcmlException
     {
         PcmlDocument pd = null;
@@ -943,7 +1114,7 @@ public class ProgramCallDocument implements Serializable, Cloneable
         if (pd != null)                                         // @C7A
             return pd;                                          // @C7A
 
-		pd = loadSourcePcmlDocument(docName, loader);                   // @C8C
+		pd = loadSourcePcmlDocument(docName, loader, xsdStream);                   // @C8C
 
         return pd;
     }
@@ -1032,15 +1203,16 @@ public class ProgramCallDocument implements Serializable, Cloneable
     /**
       Loads a PcmlDocument from a PCML source file.
     **/
-    private static PcmlDocument loadSourcePcmlDocument(String docName, ClassLoader loader)      // @C8C
+    private static PcmlDocument loadSourcePcmlDocument(String docName, ClassLoader loader, InputStream xsdStream)      // @C8C
         throws PcmlException
     {
+
         PcmlDocument pd = null;
 
         // Construct the PCML document from a source file
         try
         {
-            PcmlSAXParser psp = new PcmlSAXParser(docName, loader);         // @C2A @C8C
+            PcmlSAXParser psp = new PcmlSAXParser(docName, loader, xsdStream);         // @C2A @C8C
             pd = psp.getPcmlDocument();                             // @C2A
         }
         catch (ParseException pe)
@@ -1059,13 +1231,353 @@ public class ProgramCallDocument implements Serializable, Cloneable
                ioe.printStackTrace(Trace.getPrintWriter());     // @C4C
             throw new PcmlException(ioe.getClass().getName());
         }
-        catch (Exception e)
+        catch (Exception e) //@E0A
         {
-          if (Trace.isTraceErrorOn())
-             e.printStackTrace(Trace.getPrintWriter());
-          throw new PcmlException(e.getClass().getName());
+          if (Trace.isTraceErrorOn()) //@E0A
+             e.printStackTrace(Trace.getPrintWriter()); //@E0A
+          throw new PcmlException(e.getClass().getName()); //@E0A
         }
 
         return pd;
     }
+
+
+    // @E1A -- ALL NEW XPCML methods....
+    /**
+     Generates XPCML representing the data associated with the passed in program name.
+     XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
+     to PCML but allows for better validation of parameters and allows parameter
+     data to be input and output within an XML document.  PCML is data-less in
+     that only parameter formats are input via PCML.  In PCML, data values are set using
+     the setValue methods of the ProgramCallDocument class and data values are
+     gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
+     can be input directly within the XPCML document on construction and data values can be output
+     as XML using the generateXPCML method.
+     Throws an XmlException if this object contains no data.
+     @param pgmName The program to generate XPCML for
+     @param outputStream The output stream to which to write the text.
+     @exception IOException  If an error occurs while writing the data.
+     @exception XmlException  If an error occurs while processing XPCML.
+     **/
+    public void generateXPCML(String pgmName, OutputStream outputStream)
+      throws IOException, XmlException
+    {
+      if (outputStream == null) {
+        throw new NullPointerException("outputStream");
+      }
+      if (m_pcmlDoc == null) {
+        throw new XmlException(DAMRI.DOCUMENT_NOT_SET );
+      }
+      m_pcmlDoc.generateXPCML(pgmName, outputStream);
+    }
+
+
+    /**  @E2C -- Added more info on XPCML.  Changed all RFML references to XPCML.
+     Generates XPCML representing the data contained in the entire PCML node tree.
+     XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
+     to PCML but allows for better validation of parameters and allows parameter
+     data to be input and output within an XML document.  PCML is data-less in
+     that only parameter formats are input via PCML.  In PCML, data values are set using
+     the setValue methods of the ProgramCallDocument class and data values are
+     gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
+     can be input directly within the XPCML document on construction and data values can be output
+     as XML using the generateXPCML method.
+
+     Throws an XmlException if this object contains no data.
+
+     @param outputStream The output stream to which to write the text.
+     @exception IOException  If an error occurs while writing the data.
+     @exception XmlException  If an error occurs while processing XPCML.
+     **/
+    public void generateXPCML(OutputStream outputStream)
+      throws IOException, XmlException
+    {
+      if (outputStream == null) {
+        throw new NullPointerException("outputStream");
+      }
+      if (m_pcmlDoc == null) {
+        throw new XmlException(DAMRI.DOCUMENT_NOT_SET );
+      }
+      m_pcmlDoc.generateXPCML(null, outputStream);
+    }
+
+
+    /**
+     Generates XPCML representing the data contained in the entire PCML node tree.
+     XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
+     to PCML but allows for better validation of parameters and allows parameter
+     data to be input and output within an XML document.  PCML is data-less in
+     that only parameter formats are input via PCML.  In PCML, data values are set using
+     the setValue methods of the ProgramCallDocument class and data values are
+     gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
+     can be input directly within the XPCML document on construction and data values can be output
+     as XML using the generateXPCML method.
+     Throws an XmlException if this object contains no data.
+
+     @param fileName The pathname of the file to which to write the text.
+     @exception IOException  If an error occurs while writing the data.
+     @exception XmlException  If an error occurs while processing XPCML.
+     **/
+    public void generateXPCML(String fileName)
+      throws IOException, XmlException
+    {
+      if (fileName == null) {
+        throw new NullPointerException(fileName);
+      }
+      generateXPCML(null, new FileOutputStream(fileName));
+    }
+
+    /**
+     Generates XPCM representing the data contained for the passed in program name.
+     XPCML is XML based on the XML schema defined in xpcml.xsd.   XPCML is similar
+     to PCML but allows for better validation of parameters and allows parameter
+     data to be input and output within an XML document.  PCML is data-less in
+     that only parameter formats are input via PCML.  In PCML, data values are set using
+     the setValue methods of the ProgramCallDocument class and data values are
+     gotten using the getValue methods of ProgramCallDocument.  In XPCML, data values
+     can be input directly within the XPCML document on construction and data values can be output
+     as XML using the generateXPCML method.
+     Throws an XmlException if this object contains no data.
+
+     @param pgmName  The program name to generate XPCML for.
+     @param fileName The pathname of the file to which to write the text.
+     @exception IOException  If an error occurs while writing the data.
+     @exception XmlException  If an error occurs while processing XPCML.
+     **/
+    public void generateXPCML(String pgmName,String fileName)
+      throws IOException, XmlException
+    {
+      if (fileName == null) {
+        throw new NullPointerException(fileName);
+      }
+      if (pgmName == null) {
+        throw new NullPointerException(pgmName);
+      }
+      generateXPCML(pgmName, new FileOutputStream(fileName));
+    }
+
+     // ******************************
+     // @E0A -- New method           *
+     // ******************************
+     /**
+     setXsdName --   Use prior to calling generateXPCML to set the xsd name that will
+                     appear in the generated <xpcml tag from generateXPCML. If name is not
+                     set then "xpcml.xsd" will appear in <xpcml tag.  This allows the user
+                     to override the default and put in the name of their own xsd that was
+                     used in condensing the XPCML output.
+
+     @param xsdName  The XSD name to appear in the <xpcml tag when XPCML is output using the
+                     generateXPCML method.
+    **/
+
+    public void setXsdName(String xsdName)
+    {
+        m_pcmlDoc.setXsdName(xsdName);
+    }
+
+
+     // ******************************
+     // @E0A -- New method           *
+     // ******************************
+     /**
+     getXsdName --   Returns the value of the xsdName to be used on the <xpcml tag when
+                     generating xpcml
+
+     @return The String "xsdName" value for this program object.
+     **/
+
+    public String getXsdName()
+    {
+        return m_pcmlDoc.getXsdName();
+    }
+
+
+    /**
+      doTransform -- Transforms one XML stream to another.  Inputs are transform file
+                     (.xsl file), XML input stream, and XML output stream containing
+                     transformed XML.
+     **/
+
+    //@E2C -- Change protected scope to package scope
+    static void doTransform(String transformFile, InputStream streamSource, OutputStream streamResult)
+           throws TransformerException, TransformerConfigurationException,
+           SAXException, IOException, PcmlException	
+    	{
+            StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
+            Transformer transformer = tFactory.newTransformer(in);
+            transformer.transform(new StreamSource(streamSource), new StreamResult(streamResult));
+      }
+
+
+    /**
+      doCondenseTransform -- Transforms one XML stream to another.  Inputs are transform file
+                     (.xsl file), full XPCML input stream, XSD stream and XML output
+                     stream containing transformed XPCML.
+     **/
+
+    //@E2C -- Change protected scope to package scope
+    static void doCondenseTransform(String transformFile, InputStream streamSource, OutputStream streamResult, String xsdStreamName)
+           throws TransformerException, TransformerConfigurationException,
+           SAXException, IOException, PcmlException	
+    	{
+            StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
+            Transformer transformer = tFactory.newTransformer(in);
+            transformer.setParameter("xsdFileName", xsdStreamName);
+
+            StreamSource streamIn = new StreamSource(streamSource);
+            transformer.transform(streamIn, new StreamResult(streamResult));
+     }
+
+
+    /**
+     Transforms a PCML stream to its equivalent XPCML stream.
+     Throws an XmlException if this object contains no data.
+
+     @param pcmlStream The PCML input stream.
+     @param xpcmlStream  The output XPCML stream.
+     @exception IOException  If an error occurs while writing the data.
+     @exception PcmlException  If an error occurs while processing XPCML.
+
+     **/
+
+    public static void transformPCMLToXPCML(InputStream pcmlStream, OutputStream xpcmlStream)
+           throws IOException, PcmlException, TransformerException, SAXException	
+    	{
+
+           if (pcmlStream == null) {
+             throw new NullPointerException();
+           }
+
+           if (xpcmlStream == null) {
+             throw new NullPointerException();
+           }
+
+         // Transform the pcml document to its equivalent xpcml document
+           doTransform("pcml_xpcml.xsl",pcmlStream, xpcmlStream);
+      }
+
+    /**
+     Transforms a fully specified XPCML stream to a more condensed XPCML stream
+     and an XSD stream representing the new type definitions created while condensing
+     Throws an XmlException if this object contains no data.
+
+     @param fullStream The full XPCML input stream.
+     @param xsdStream  The output xsd stream.
+     @param condensedStream  The output condensed XPCML stream.
+     @param xsdStreamName  The name of the xsd stream ("name.xsd") that will be created
+     @exception IOException  If an error occurs while writing the data.
+     @exception PcmlException  If an error occurs while processing XPCML.
+
+     **/
+
+    public static void condenseXPCML(InputStream fullStream, OutputStream xsdStream, OutputStream condensedStream, String xsdStreamName)
+           throws IOException, PcmlException, TransformerException, SAXException	
+    	{
+           String xpcmlName="";
+
+           if (fullStream == null) {
+             throw new NullPointerException();
+           }
+
+           if (xsdStream == null) {
+             throw new NullPointerException();
+           }
+
+           if (condensedStream == null) {
+             throw new NullPointerException();
+           }
+
+           if (xsdStreamName == null) {
+             throw new NullPointerException();
+           }
+
+
+           // Copy input stream fullStream into twoOutputStream
+           ByteArrayOutputStream outStream1 = new ByteArrayOutputStream();
+
+           byte[] bytesIn = new byte[1000];
+           int bytesRead = 0;
+           bytesRead = fullStream.read(bytesIn);
+
+           while (bytesRead != -1)
+           {
+              outStream1.write(bytesIn,0,bytesRead);
+              bytesRead = fullStream.read(bytesIn);
+           }
+
+           outStream1.flush();
+           outStream1.close();
+
+           // Cache the line count of the header
+           ByteArrayInputStream inStreamFull = new ByteArrayInputStream(outStream1.toByteArray());
+           LineNumberReader lnr = new LineNumberReader(new InputStreamReader(inStreamFull));
+           try
+           {
+             String line = lnr.readLine();
+             boolean found=false;
+             while (line != null && !found)
+             {
+               // Look for xpcml tag
+               if (line.indexOf("xsi:noNamespaceSchemaLocation=") != -1)
+               {
+                  found = true;
+                  int index1 = line.indexOf("xsi:noNamespaceSchemaLocation=");
+                  int index2=0;
+                  index2 = line.indexOf("'", index1);
+                  int index3=0;
+                  if (index2 == -1)
+                  {
+                     index2 = line.indexOf("\"",index1);
+                     if (index2 != -1)
+                       index3 = line.indexOf("\"", index2+1);
+                  }
+                  else
+                  {
+                     index3 = line.indexOf("'",index2+1);
+                  }
+                  xpcmlName = line.substring(index2+1,index3);
+                  continue;
+               }
+               if (line.indexOf("xsi:noNamespaceSchemaLocation =") != -1)
+               {
+                  found = true;
+                  int index1 = line.indexOf("xsi:noNamespaceSchemaLocation =");
+                  int index2=0;
+                  index2 = line.indexOf("'", index1);
+                  int index3=0;
+                  if (index2 == -1)
+                  {
+                     index2 = line.indexOf("\"",index1);
+                     if (index2 != -1)
+                       index3 = line.indexOf("\"", index2+1);
+                  }
+                  else
+                  {
+                     index3 = line.indexOf("'",index2+1);
+                  }
+                  xpcmlName = line.substring(index2+1,index3);
+                  continue;
+               }
+               line = lnr.readLine();
+             }
+           }
+           catch (IOException e)
+           {
+             Trace.log(Trace.PCML, "Error when reading input stream in condenseXPCML");
+           }
+           if (xpcmlName == "")
+              xpcmlName="xpcml.xsd";
+
+           // Write contents of ByteArrayOutputStream to ByteArrayInputStream
+           ByteArrayInputStream inStream1 = new ByteArrayInputStream(outStream1.toByteArray());
+           ByteArrayInputStream inStream2 = new ByteArrayInputStream(outStream1.toByteArray());
+
+           // Create new XSD type definitions based on full XPCML stream
+           doCondenseTransform("xpcml_xsd.xsl",inStream1, xsdStream, xpcmlName);
+           // Create condensed XPCML using XSD and full XPCML stream
+           doCondenseTransform("xpcml_basic.xsl",inStream2, condensedStream, xsdStreamName);
+
+      }
+
+
 }

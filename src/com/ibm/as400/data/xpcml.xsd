@@ -1,0 +1,1067 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: xpcml.xsd
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+           
+<xs:annotation>
+ <xs:documentation>
+  Schema for xpcml (Xtended Program Call Markup Language).
+ </xs:documentation>
+</xs:annotation>
+
+<xs:element name="xpcml">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="structOrProgram" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="version" use="required">
+     <xs:simpleType>
+       <xs:restriction base="xs:string">
+         <xs:enumeration value="4.0"/>
+         <!-- The version list will grow over time. -->
+       </xs:restriction>
+     </xs:simpleType>
+   </xs:attribute>
+   <xs:attribute name="validate" type="xs:boolean"/>
+  </xs:complexType>
+
+
+  <!-- Define key/keyref link between the name of a struct          -->
+  <!-- and the struct attribute of a dataFieldarm field.            -->
+  <xs:key name="StructKey">
+    <xs:selector xpath="struct"/>
+    <xs:field xpath="@name"/>
+  </xs:key>
+  <xs:keyref name="spRef" refer="StructKey">
+     <xs:selector xpath="structParm" />
+     <xs:field xpath="@struct" />       
+  </xs:keyref>
+</xs:element>
+
+<xs:element name="program" substitutionGroup="structOrProgram">
+  <xs:complexType>
+    <xs:sequence>
+      <xs:element ref="parameterList" minOccurs="1" maxOccurs="1"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="string50" use="required" />
+    <xs:attribute name="path" type="xs:string"/>
+    <xs:attribute name="parseOrder" type="xs:string"/>
+    <xs:attribute name="entryPoint" type="xs:string"/>
+    <xs:attribute name="returnValue" type="returnValueType"/>
+    <xs:attribute name="threadSafe" type="xs:boolean"  />
+    <xs:attribute name="epccsid" type="ccsidType"/>
+  </xs:complexType>
+</xs:element>
+
+<xs:element name="parameterList">
+  <xs:complexType>
+      <xs:group ref="programParameter" minOccurs="1" maxOccurs="unbounded"/>
+   </xs:complexType>
+
+</xs:element>
+
+<!-- All the different kinds of program parameters that we understand. -->
+<xs:group name="programParameter">
+      <xs:choice>
+	<xs:element ref="stringParmGroup"/>
+	<xs:element ref="stringParmArrayGroup"/>
+	<xs:element ref="intParmGroup"/>
+	<xs:element ref="intParmArrayGroup"/>
+      <xs:element ref="unsignedIntParmGroup"/>
+      <xs:element ref="unsignedIntParmArrayGroup"/>
+	<xs:element ref="shortParmGroup"/>
+	<xs:element ref="shortParmArrayGroup"/>
+	<xs:element ref="unsignedShortParmGroup"/>
+	<xs:element ref="unsignedShortParmArrayGroup"/>
+	<xs:element ref="longParmGroup"/>
+	<xs:element ref="longParmArrayGroup"/>
+	<xs:element ref="zonedDecimalParmGroup"/>
+	<xs:element ref="zonedDecimalParmArrayGroup"/>
+	<xs:element ref="packedDecimalParmGroup"/>
+      <xs:element ref="packedDecimalParmArrayGroup"/>
+	<xs:element ref="floatParmGroup"/>
+	<xs:element ref="floatParmArrayGroup"/>
+	<xs:element ref="doubleParmGroup"/>
+	<xs:element ref="doubleParmArrayGroup"/>
+	<xs:element ref="hexBinaryParmGroup"/>
+	<xs:element ref="hexBinaryParmArrayGroup"/>
+      <xs:element ref="structParmGroup"/>
+      <xs:element ref="structParmArrayGroup"/>
+      <xs:element ref="structArrayGroup"/>
+      <xs:element ref="struct"/>
+      </xs:choice>
+
+</xs:group>
+
+<!-- Abstract type for all data parameter types. -->
+<xs:element name="stringParmGroup" type="stringParmType" abstract="true" />
+<xs:element name="stringParmArrayGroup" type="stringParmArrayType" abstract="true" />
+<xs:element name="intParmGroup" type="intParmType" abstract="true" />
+<xs:element name="intParmArrayGroup" type="intParmArrayType" abstract="true" />
+<xs:element name="unsignedIntParmGroup" type="unsignedIntParmType" abstract="true" />
+<xs:element name="unsignedIntParmArrayGroup" type="unsignedIntParmArrayType" abstract="true" />
+<xs:element name="shortParmGroup" type="shortParmType" abstract="true" />
+<xs:element name="shortParmArrayGroup" type="shortParmArrayType" abstract="true" />
+<xs:element name="unsignedShortParmGroup" type="unsignedShortParmType" abstract="true" />
+<xs:element name="unsignedShortParmArrayGroup" type="unsignedShortParmArrayType" abstract="true" />
+<xs:element name="longParmGroup" type="longParmType" abstract="true" />
+<xs:element name="longParmArrayGroup" type="longParmArrayType" abstract="true" />
+<xs:element name="zonedDecimalParmGroup" type="zonedDecimalParmType" abstract="true" />
+<xs:element name="zonedDecimalParmArrayGroup" type="zonedDecimalParmArrayType" abstract="true" />
+<xs:element name="packedDecimalParmGroup" type="packedDecimalParmType" abstract="true" />
+<xs:element name="packedDecimalParmArrayGroup" type="packedDecimalParmArrayType" abstract="true" />
+<xs:element name="floatParmGroup" type="floatParmType" abstract="true" />
+<xs:element name="floatParmArrayGroup" type="floatParmArrayType" abstract="true" />
+<xs:element name="doubleParmGroup" type="doubleParmType" abstract="true" />
+<xs:element name="doubleParmArrayGroup" type="doubleParmArrayType" abstract="true" />
+<xs:element name="hexBinaryParmGroup" type="hexBinaryParmType" abstract="true" />
+<xs:element name="hexBinaryParmArrayGroup" type="hexBinaryParmArrayType" abstract="true" />
+<xs:element name="structParmGroup" type="structParmType" abstract="true" />
+<xs:element name="structParmArrayGroup" type="structParmArrayType" abstract="true" />
+<xs:element name="structArrayGroup" type="structArrayType" abstract="true" substitutionGroup="structOrProgram" />
+
+<!-- String parameter -->
+   <xs:element name="stringParm" type="stringParmType" substitutionGroup="stringParmGroup" nillable="true"/>
+     <xs:complexType name="stringParmType">
+       <xs:simpleContent>
+          <xs:extension base="stringFieldType">    
+            <xs:attributeGroup ref="commonParmAttrs"/>
+          </xs:extension>
+       </xs:simpleContent>
+   </xs:complexType>
+
+  <xs:element name="arrayOfStringParm" type="stringParmArrayType" substitutionGroup="stringParmArrayGroup" nillable="true" />
+  <xs:complexType name="stringParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="stringElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attribute name="length" type="xs:string"/>
+    <xs:attribute name="storageEncoding" type="xs:string"/>
+    <xs:attribute name="ccsid" type="xs:string"/>
+    <xs:attribute name="trim" type="trimType" />
+    <xs:attribute name="bytesPerChar" type="charType" />
+    <xs:attribute name="bidiStringType" type="bidiStringTypeType" />
+  </xs:complexType>
+
+      <xs:complexType name="stringElementType">
+        <xs:simpleContent>
+           <xs:extension base="xs:string">
+                <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+           </xs:extension>
+        </xs:simpleContent>
+       </xs:complexType>
+
+
+<!-- Integer parameter (4 bytes; signed or unsigned) -->
+    <xs:element name="intParm" type="intParmType"  nillable="true" substitutionGroup="intParmGroup"   />
+      <xs:complexType name="intParmType" >
+         <xs:simpleContent>
+            <xs:extension base="intFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- intParm array type -->
+  <xs:element name="arrayOfIntParm" type="intParmArrayType" substitutionGroup="intParmArrayGroup" nillable="true" />
+  <xs:complexType name="intParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="intElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="intElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:int">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+<!-- Unsigned Integer parameter (4 bytes; signed or unsigned) -->
+    <xs:element name="unsignedIntParm" type="unsignedIntParmType" nillable="true" substitutionGroup="unsignedIntParmGroup"   />
+      <xs:complexType name="unsignedIntParmType">
+         <xs:simpleContent>
+            <xs:extension base="unsignedIntFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- unsigned intParm array type -->
+  <xs:element name="arrayOfUnsignedIntParm" type="unsignedIntParmArrayType" substitutionGroup="unsignedIntParmArrayGroup" nillable="true" />
+  <xs:complexType name="unsignedIntParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="unsignedIntElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="unsignedIntElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:unsignedInt">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+<!-- Short integer parameter (2 bytes; signed or unsigned) -->
+    <xs:element name="shortParm" type="shortParmType" nillable="true" substitutionGroup="shortParmGroup"   />
+      <xs:complexType name="shortParmType">
+         <xs:simpleContent>
+            <xs:extension base="shortFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+ 
+<!-- shortParm array type -->
+  <xs:element name="arrayOfShortParm" type="shortParmArrayType" substitutionGroup="shortParmArrayGroup" nillable="true" />
+  <xs:complexType name="shortParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="shortElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="shortElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:short">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+<!-- Unsigned Short integer parameter (2 bytes; signed or unsigned) -->
+    <xs:element name="unsignedShortParm" type="unsignedShortParmType" nillable="true" substitutionGroup="unsignedShortParmGroup"   />
+      <xs:complexType name="unsignedShortParmType">
+         <xs:simpleContent>
+            <xs:extension base="unsignedShortFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- unsignedShortParm array type -->
+  <xs:element name="arrayOfUnsignedShortParm" type="unsignedShortParmArrayType" substitutionGroup="unsignedShortParmArrayGroup" nillable="true" />
+  <xs:complexType name="unsignedShortParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="unsignedShortElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="unsignedShortElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:unsignedShort">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+<!-- Long integer parameter (8 bytes; signed or unsigned) -->
+    <xs:element name="longParm" type="longParmType" nillable="true" substitutionGroup="longParmGroup"   />
+      <xs:complexType name="longParmType">
+         <xs:simpleContent>
+            <xs:extension base="longFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- longParm array type -->
+  <xs:element name="arrayOfLongParm" type="longParmArrayType" substitutionGroup="longParmArrayGroup" nillable="true" />
+  <xs:complexType name="longParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="longElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="longElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:long">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+ 
+
+<!-- ZonedDecimal parameter -->
+    <xs:element name="zonedDecimalParm" type="zonedDecimalParmType" nillable="true" substitutionGroup="zonedDecimalParmGroup"   />
+      <xs:complexType name="zonedDecimalParmType">
+         <xs:simpleContent>
+            <xs:extension base="zonedDecimalFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+ 
+<!-- zonedDecimalParm array type -->
+  <xs:element name="arrayOfZonedDecimalParm" type="zonedDecimalParmArrayType" substitutionGroup="zonedDecimalParmArrayGroup" nillable="true" />
+  <xs:complexType name="zonedDecimalParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="zonedDecimalElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attribute name="totalDigits" type="xs:positiveInteger"/>
+    <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger"/>
+  </xs:complexType>
+
+  <xs:complexType name="zonedDecimalElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:decimal">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+<!-- packedDecimal parameter -->
+    <xs:element name="packedDecimalParm" type="packedDecimalParmType" nillable="true" substitutionGroup="packedDecimalParmGroup"   />
+      <xs:complexType name="packedDecimalParmType">
+         <xs:simpleContent>
+            <xs:extension base="packedDecimalFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- packedDecimalParm array type -->
+  <xs:element name="arrayOfPackedDecimalParm" type="packedDecimalParmArrayType" substitutionGroup="packedDecimalParmArrayGroup" nillable="true" />
+  <xs:complexType name="packedDecimalParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="packedDecimalElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attribute name="totalDigits" type="xs:positiveInteger"/>
+    <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger"/>
+  </xs:complexType>
+
+  <xs:complexType name="packedDecimalElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:decimal">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+<!-- Float parameter (4 bytes; signed) -->
+    <xs:element name="floatParm" type="floatParmType" nillable="true" substitutionGroup="floatParmGroup"   />
+      <xs:complexType name="floatParmType">
+         <xs:simpleContent>
+            <xs:extension base="floatFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- floatParm array type -->
+  <xs:element name="arrayOfFloatParm" type="floatParmArrayType" substitutionGroup="floatParmArrayGroup" nillable="true" />
+  <xs:complexType name="floatParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="floatElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="floatElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:float">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+<!-- Double parameter (8 bytes; signed) -->
+    <xs:element name="doubleParm" type="doubleParmType" nillable="true" substitutionGroup="doubleParmGroup"   />
+      <xs:complexType name="doubleParmType">
+         <xs:simpleContent>
+            <xs:extension base="doubleFieldType">
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- doubleParm array type -->
+  <xs:element name="arrayOfDoubleParm" type="doubleParmArrayType" substitutionGroup="doubleParmArrayGroup" nillable="true" />
+  <xs:complexType name="doubleParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="doubleElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="doubleElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:double">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+
+<!-- base64 binary parameter (any number of bytes; unsigned) -->
+    <xs:element name="hexBinaryParm" type="hexBinaryParmType"  substitutionGroup="hexBinaryParmGroup"   />
+      <xs:complexType name="hexBinaryParmType">
+         <xs:simpleContent>
+            <xs:extension base="hexBinaryFieldType">
+              <xs:attribute name="totalBytes" type="xs:string"/> 
+              <xs:attributeGroup ref="commonParmAttrs"/>
+            </xs:extension>
+         </xs:simpleContent>
+      </xs:complexType>
+
+<!-- hexBinaryParmParm array type -->
+  <xs:element name="arrayOfHexBinaryParm" type="hexBinaryParmArrayType" substitutionGroup="hexBinaryParmArrayGroup" nillable="true" />
+  <xs:complexType name="hexBinaryParmArrayType">
+    <xs:sequence>
+      <xs:element name="i" type="hexBinaryElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="totalBytes" type="xs:string"/> 
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+  </xs:complexType>
+
+  <xs:complexType name="hexBinaryElementType">
+    <xs:simpleContent>
+       <xs:extension base="xs:hexBinary">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+<!-- Structure parm type -->
+  <xs:element name="structParm" type="structParmType"  substitutionGroup="structParmGroup"   />
+      <xs:complexType name="structParmType">
+         <xs:complexContent>
+            <xs:extension base="structureParmArray">
+               <xs:attribute name="struct" type="string50"/>  
+               <xs:attribute name="passMode" type="passModeType"/>
+               <xs:attribute name="count" type="xs:string"/>
+            </xs:extension>
+         </xs:complexContent>
+      </xs:complexType>
+
+<!-- Structure parm array type -->
+  <xs:element name="arrayOfStructParm" type="structParmArrayType" substitutionGroup="structParmArrayGroup" nillable="true" />
+  <xs:complexType name="structParmArrayType">
+    <xs:sequence>
+       <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="count" type="xs:string" />      
+    <xs:attributeGroup ref="commonParmAttrs"/>
+    <xs:attributeGroup ref="commonFieldAttrs"/>
+    <xs:attribute name="struct" type="string50"/>  
+  </xs:complexType>
+
+  <xs:complexType name="structElementType">
+    <xs:complexContent>
+       <xs:extension base="structureParmArray">
+            <xs:attribute name="index" type="xs:nonNegativeInteger"  />
+       </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="struct" type="structureParmArray" substitutionGroup="structOrProgram" />
+
+<!-- Struct array type -->
+  <xs:element name="arrayOfStruct" type="structArrayType" substitutionGroup="structArrayGroup" nillable="true" />
+  <xs:complexType name="structArrayType">
+    <xs:sequence>
+       <xs:element name="struct_i" type="structElementType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="string50"/>
+    <xs:attribute name="count" type="xs:string" />
+    <xs:attribute name="passDirection" type="passDirectionType"/>
+    <xs:attribute name="offset" type="xs:string" />
+    <xs:attribute name="offsetFrom" type="xs:string" />
+    <xs:attribute name="outputSize" type="xs:string" />  
+    <xs:attribute name="minvrm" type="string10" />
+    <xs:attribute name="maxvrm" type="string10" />
+  </xs:complexType>
+
+
+<!-- Attributes that are common to all data field types. -->
+  <xs:attributeGroup name="commonParmAttrs">
+     <xs:attribute name="passDirection" type="passDirectionType"/>
+     <xs:attribute name="passMode" type="passModeType" />
+     <xs:attribute name="offset" type="xs:string" />
+     <xs:attribute name="offsetFrom" type="xs:string" />
+     <xs:attribute name="outputSize" type="xs:string" />  
+     <xs:attribute name="minvrm" type="string10" />
+     <xs:attribute name="maxvrm" type="string10" />
+  </xs:attributeGroup>
+
+  <xs:simpleType name="passDirectionType">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value="in"/>
+       <xs:enumeration value="inout"/>
+       <xs:enumeration value="out"/>
+       <xs:enumeration value="inherit"/>     
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="passModeType">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value="value"/>
+       <xs:enumeration value="reference"/>
+     </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Following types are to maintain compatibility with PCML -->
+  <xs:simpleType name="bidiStringTypeType">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value="ST4"/>
+       <xs:enumeration value="ST5"/>
+       <xs:enumeration value="ST6"/>
+       <xs:enumeration value="ST7"/>
+       <xs:enumeration value="ST8"/>
+       <xs:enumeration value="ST9"/>
+       <xs:enumeration value="ST10"/>
+       <xs:enumeration value="ST11"/>
+       <xs:enumeration value="DEFAULT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="charType">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value="onebyte"/>
+       <xs:enumeration value="twobyte"/>
+     </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="trimType">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value="none"/>
+       <xs:enumeration value="left"/>
+       <xs:enumeration value="right"/>
+       <xs:enumeration value="both"/>
+     </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="returnValueType">
+    <xs:restriction base="xs:string">
+       <xs:enumeration value="void"/>
+       <xs:enumeration value="integer"/>
+     </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:complexType name="structureParmArray">
+    <xs:sequence>
+       <xs:group ref="structureParm" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="string50"/>
+    <xs:attribute name="passDirection" type="passDirectionType"/>
+    <xs:attribute name="offset" type="xs:string" />
+    <xs:attribute name="offsetFrom" type="xs:string" />
+    <xs:attribute name="outputSize" type="xs:string" />  
+    <xs:attribute name="minvrm" type="string10" />
+    <xs:attribute name="maxvrm" type="string10" />
+  </xs:complexType>
+
+
+<!-- A structureParm is exactly one of the following: stringParm, intParm,
+     shortParm, longParm, zonedDecimalParm, packedDecimalParm, floatParm,
+     doubleParm, or hexBinaryParm. -->
+      <xs:group name="structureParm">
+        <xs:choice>
+          <xs:element ref="stringParmGroup"  />
+          <xs:element ref="stringParmArrayGroup"  />
+          <xs:element ref="intParmGroup"   />
+          <xs:element ref="intParmArrayGroup"   />
+          <xs:element ref="unsignedIntParmGroup"   />
+          <xs:element ref="unsignedIntParmArrayGroup"   />
+          <xs:element ref="shortParmGroup" />          
+          <xs:element ref="shortParmArrayGroup" />          
+          <xs:element ref="unsignedShortParmGroup"   />
+          <xs:element ref="unsignedShortParmArrayGroup"   />
+          <xs:element ref="longParmGroup"  />
+          <xs:element ref="longParmArrayGroup"  />
+          <xs:element ref="zonedDecimalParmGroup"  />
+          <xs:element ref="zonedDecimalParmArrayGroup"  />
+          <xs:element ref="packedDecimalParmGroup" />
+          <xs:element ref="packedDecimalParmArrayGroup" />
+          <xs:element ref="floatParmGroup" />
+          <xs:element ref="floatParmArrayGroup" />
+          <xs:element ref="doubleParmGroup" />
+          <xs:element ref="doubleParmArrayGroup" />
+          <xs:element ref="hexBinaryParmGroup" />
+          <xs:element ref="hexBinaryParmArrayGroup" />
+          <xs:element ref="structParmGroup" />
+          <xs:element ref="structParmArrayGroup"/>
+          <xs:element ref="structArrayGroup"/>
+          <xs:element ref="struct"/>
+        </xs:choice>
+      </xs:group>
+
+
+<!-- Field Definition schema -->
+  <!-- Define basic iSeries native data types -->
+
+     <xs:complexType name="zonedDecimal">
+        <xs:simpleContent>
+           <xs:extension base="xs:decimal">
+                <xs:attribute name="totalDigits" type="xs:positiveInteger"  />
+                <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger" />
+           </xs:extension>
+        </xs:simpleContent>
+     </xs:complexType>
+
+
+     <xs:complexType name="packedDecimal">
+        <xs:simpleContent>
+           <xs:extension base="xs:decimal">
+                <xs:attribute name="totalDigits" type="xs:positiveInteger" />
+                <xs:attribute name="fractionDigits" type="xs:nonNegativeInteger" />
+           </xs:extension>
+        </xs:simpleContent>
+     </xs:complexType>
+
+
+   <xs:element name="rdml">
+     <xs:complexType>
+       <xs:sequence>
+         <xs:element ref="structOrRecord" minOccurs="1" maxOccurs="unbounded"/>
+       </xs:sequence>
+       <xs:attribute name="version" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="4.0"/>
+            <!-- The version list will grow over time. -->
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+     </xs:complexType>
+
+     <!-- Define key/keyref link between the name of a struct          -->
+     <!-- and the struct attribute of a dataFieldarm field.            -->
+     <xs:key name="structKey">
+       <xs:selector xpath="dStruct"/>
+       <xs:field xpath="@name"/>
+     </xs:key>
+
+     <xs:keyref name="sfRef" refer="structKey">
+        <xs:selector xpath="structField" />
+        <xs:field xpath="@struct" />          
+     </xs:keyref>
+
+     <!-- Define key/keyref link between the format name of a record   -->
+     <!-- and a reference to that name by another record.              -->
+     <xs:key name="formatKey">
+       <xs:selector xpath="record"/>
+       <xs:field xpath="@format"/>
+     </xs:key>
+
+     <xs:keyref name="formatRef" refer="formatKey">
+        <xs:selector xpath="record" />
+        <xs:field xpath="@formatRef" />
+     </xs:keyref>
+  </xs:element>
+
+  <!-- Define type record to be used to hold fields of data  -->
+   <xs:element name="record" substitutionGroup="structOrRecord">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="dataOrStruct" minOccurs="1" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:ID"/>
+      <xs:attribute name="format" type="string10"/>
+      <xs:attribute name="formatRef" type="string10"/>
+    </xs:complexType>
+   </xs:element>
+
+  <!-- "XML Schema provides a mechanism, called substitution groups, that allows elements to be 
+    substituted for other elements. More specifically, elements can be assigned to a special group of
+    elements that are said to be substitutable for a particular named element called the head element.
+    ... [The members of a substitution group] can be used anyplace that we are able to use [the group's 
+    head element]. ... [The substitution group] simply provides a mechanism for allowing elements to be
+    used interchangeably." - The XML Schema Primer -->
+
+  <!-- Define types needed to define fields used in records and record formats -->
+  <!-- Continuing with RFML restriction of no nested structs                   -->
+  <xs:element name="dStruct" type="structureFieldArray" substitutionGroup="dataOrStruct"/>
+
+  <xs:complexType name="structureFieldArray">
+    <xs:sequence>
+       <xs:group ref="structureField" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="name" type="string50"/>
+    <xs:attribute name="count" type="xs:string"/>
+  </xs:complexType>
+
+
+  <!-- Abstract type for "struct or record". -->
+  <xs:element name="structOrRecord" abstract="true" />
+
+  <!-- Abstract type for "struct or record". -->
+  <xs:element name="structOrProgram" abstract="true" />
+
+  <!-- Abstract type for "data or struct". -->
+  <xs:element name="dataOrStruct" abstract="true" substitutionGroup="structOrRecord"/>
+
+  <!-- Abstract type for all data fields. -->
+  <xs:element name="dataField" abstract="true" substitutionGroup="dataOrStruct"/>
+
+  <!-- Abstract type for all data field types. -->
+  <xs:element name="stringFieldGroup" type="stringFieldType" abstract="true" />
+  <xs:element name="intFieldGroup" type="intFieldType" abstract="true" />
+  <xs:element name="unsignedIntFieldGroup" type="unsignedIntFieldType" abstract="true" />
+  <xs:element name="shortFieldGroup" type="shortFieldType" abstract="true" />
+  <xs:element name="unsignedShortFieldGroup" type="unsignedShortFieldType" abstract="true" />
+  <xs:element name="longFieldGroup" type="longFieldType" abstract="true" />
+  <xs:element name="zonedDecimalFieldGroup" type="zonedDecimalFieldType" abstract="true" />
+  <xs:element name="packedDecimalFieldGroup" type="packedDecimalFieldType" abstract="true" />
+  <xs:element name="floatFieldGroup" type="floatFieldType" abstract="true" />
+  <xs:element name="doubleFieldGroup" type="doubleFieldType" abstract="true" />
+  <xs:element name="hexBinaryFieldGroup" type="hexBinaryFieldType" abstract="true" />
+  <xs:element name="structFieldGroup" type="structFieldType" abstract="true" />
+
+<!-- Not supporting date and time fields  
+  <xs:element name="dateFieldGroup" type="dateFieldType" abstract="true" />
+  <xs:element name="timeFieldGroup" type="timeFieldType" abstract="true" />
+  <xs:element name="timeStampFieldGroup" type="timeStampFieldType" abstract="true" />
+-->
+
+  <!-- Declare each field element to be a specific field type -->
+  <xs:element name="stringField" type="stringFieldType" substitutionGroup="stringFieldGroup" nillable="true"/>
+  <xs:element name="intField" type="intFieldType" nillable="true" substitutionGroup="intFieldGroup" />
+  <xs:element name="unsignedIntField" type="unsignedIntFieldType" substitutionGroup="unsignedIntFieldGroup" nillable="true"/>
+  <xs:element name="shortField" type="shortFieldType" nillable="true"  substitutionGroup="shortFieldGroup" />
+  <xs:element name="unsignedShortField" type="unsignedShortFieldType" nillable="true"  substitutionGroup="unsignedShortFieldGroup"  />
+  <xs:element name="longField" type="longFieldType" nillable="true" substitutionGroup="longFieldGroup" />
+  <xs:element name="hexBinaryField" type="hexBinaryFieldType" nillable="true" substitutionGroup="hexBinaryFieldGroup" />
+  <xs:element name="zonedDecimalField" type="zonedDecimalFieldType" nillable="true" substitutionGroup="zonedDecimalFieldGroup"  />
+  <xs:element name="packedDecimalField" type="packedDecimalFieldType" nillable="true" substitutionGroup="packedDecimalFieldGroup" />
+  <xs:element name="doubleField" type="doubleFieldType" nillable="true" substitutionGroup="doubleFieldGroup" />
+  <xs:element name="floatField" type="floatFieldType" nillable="true" substitutionGroup="floatFieldGroup" />
+
+<!-- Not supporting date and time fields yet 
+  <xs:element name="dateField" type="dateFieldType" substitutionGroup="dateFieldGroup" />
+  <xs:element name="timeField" type="timeFieldType" substitutionGroup="timeFieldGroup" />
+  <xs:element name="timeStampField" type="timeStampFieldType" substitutionGroup="timeStampFieldGroup"  />
+-->
+
+  <xs:element name="structField" type="structFieldType" nillable="true" substitutionGroup="structFieldGroup" />
+
+<!-- A StructureField is exactly one of the following: stringField, intField,
+     shortField, longField, zonedDecimalField, packedDecimalField, floatField,
+     doubleField, or hexBinaryField. -->
+      <xs:group name="structureField">
+        <xs:choice>
+          <xs:element ref="stringFieldGroup"/>
+          <xs:element ref="intFieldGroup"/>
+          <xs:element ref="unsignedIntFieldGroup"/>
+          <xs:element ref="shortFieldGroup"/>          
+          <xs:element ref="unsignedShortFieldGroup"/>
+          <xs:element ref="longFieldGroup"/>
+          <xs:element ref="zonedDecimalFieldGroup"/>
+          <xs:element ref="packedDecimalFieldGroup"/>
+          <xs:element ref="floatFieldGroup"/>
+          <xs:element ref="doubleFieldGroup"/>
+          <xs:element ref="hexBinaryFieldGroup"/>
+          <xs:element ref="structParmGroup"/>
+          <xs:element ref="struct"/>
+        </xs:choice>
+      </xs:group>
+
+  <!-- Character field -->
+  <!-- Maps to AS400Text -->
+   <xs:complexType name="stringFieldType"> 
+     <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="length" type="xs:string"/>
+          <xs:attribute name="ccsid" type="xs:string"/>
+          <xs:attribute name="trim" type="trimType" />
+          <xs:attribute name="bytesPerChar" type="charType" />
+          <xs:attribute name="bidiStringType" type="bidiStringTypeType" />
+          <xs:attributeGroup ref="commonFieldAttrs"/>
+        </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+  <!-- Note: The ccsid attribute indicates the field's encoding (CCSID) on the server. -->
+  <!-- The storageEncoding attribute represents a non-iSeries specific means for       -->
+  <!-- representing encoding.  If this is used and included we will need to map the    -->
+  <!-- value here to a valid iSeries ccsid value.                                      -->
+  <!-- TBD: bidiStringType  -->
+  <!-- TBD: maxLength value="32766" -->
+
+  <!-- base64 Binary field -->
+  <!-- Maps to AS400ByteArray -->
+   <xs:complexType name="hexBinaryFieldType"> 
+     <xs:simpleContent>
+        <xs:extension base="xs:hexBinary">
+          <xs:attributeGroup ref="commonFieldAttrs"/>
+        </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+  <!-- TBD - The other option for base type is 'hexBinaryParm'. -->
+
+  <!-- Float field -->
+  <!-- Maps to AS400Float4 -->
+   <xs:complexType name="floatFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:float">
+             <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+    </xs:complexType>
+
+  <!-- zonedDecimal field -->
+  <!-- Maps to AS400ZonedDecimal -->
+   <xs:complexType name="zonedDecimalFieldType">
+     <xs:simpleContent>
+         <xs:extension base="zonedDecimal">
+             <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+  <!-- Note on the use of period versus comma for the decimal point: According to "XML Schema Part 2", "[The] decimal [datatype] has a lexical representation consisting of a finite-length sequence of decimal digits ... separated by a period as a decimal indicator ...".  We will stay consistent with the XML Schema convention, and will only recognize the period. -->
+
+  <!-- packedDecimal field -->
+  <!-- Maps to AS400PackedDecimal -->
+   <xs:complexType name="packedDecimalFieldType">
+     <xs:simpleContent>
+         <!-- In DDS, "binary" values are 1-18 digits; if field length is
+              greater than 9, then decimal positions value must be 0. -->
+         <xs:extension base="packedDecimal">
+             <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+  <!-- Note on the use of period versus comma for the decimal point: According to "XML Schema Part 2", "[The] decimal [datatype] has a lexical representation consisting of a finite-length sequence of decimal digits ... separated by a period as a decimal indicator ...".  We will stay consistent with the XML Schema convention, and will only recognize the period. -->
+
+  <!-- int field -->
+  <!-- Maps to AS400Bin4 -->
+   <xs:complexType name="intFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:int">
+            <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+  <!-- unsigned int field -->
+  <!-- Maps to AS400Bin4 -->
+   <xs:complexType name="unsignedIntFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:unsignedInt">
+            <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+  <!-- short field -->
+  <!-- Maps to AS400Bin2 -->
+   <xs:complexType name="shortFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:short">
+            <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+  <!-- unsigned short field -->
+  <!-- Maps to AS400Bin2 -->
+   <xs:complexType name="unsignedShortFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:unsignedShort">
+            <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+
+  <!-- long field -->
+  <!-- Maps to AS400Bin8 -->
+   <xs:complexType name="longFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:long">
+            <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+  <!-- double field -->
+  <!-- Maps to AS400Float8 -->
+   <xs:complexType name="doubleFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:double">
+            <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+<!-- Date and time fields not supported -->
+  <!-- Date field -->
+<!-- 
+   <xs:complexType name="dateFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:date">
+          <xs:attribute name="format" default="iso">
+              <xs:simpleType>
+                 <xs:restriction base="xs:string">
+                    <xs:enumeration value="job"/>
+                    <xs:enumeration value="mdy"/>
+                    <xs:enumeration value="dmy"/>
+                    <xs:enumeration value="ymd"/>
+                    <xs:enumeration value="jul"/>
+                    <xs:enumeration value="iso"/>
+                    <xs:enumeration value="usa"/>
+                    <xs:enumeration value="eur"/>
+                    <xs:enumeration value="jis"/>
+                 </xs:restriction>
+              </xs:simpleType>
+         </xs:attribute>
+           <xs:attribute name="separator">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="job"/>
+                  <xs:enumeration value="slash"/>
+                 <xs:enumeration value="dash"/>
+                  <xs:enumeration value="period"/>
+                 <xs:enumeration value="comma"/>
+                  <xs:enumeration value="blank"/>
+                </xs:restriction>
+             </xs:simpleType>
+           </xs:attribute>
+           <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+-->
+  <!-- Time field -->
+<!--
+   <xs:complexType name="timeFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:time">
+           <xs:attribute name="format" default="iso">
+              <xs:simpleType>
+                 <xs:restriction base="xs:string">
+                    <xs:enumeration value="hms"/>
+                    <xs:enumeration value="iso"/>
+                    <xs:enumeration value="usa"/>
+                    <xs:enumeration value="eur"/>
+                    <xs:enumeration value="jis"/>
+                 </xs:restriction>
+              </xs:simpleType>
+           </xs:attribute>
+           <xs:attribute name="separator">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="job"/>
+                  <xs:enumeration value="colon"/>
+                  <xs:enumeration value="period"/>
+                  <xs:enumeration value="comma"/>
+                  <xs:enumeration value="blank"/>
+                </xs:restriction>
+              </xs:simpleType>
+           </xs:attribute>
+           <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+-->
+
+  <!-- Timestamp field -->
+<!-- 
+
+   <xs:complexType name="timeStampFieldType">
+     <xs:simpleContent>
+         <xs:extension base="xs:dateTime">
+           <xs:attributeGroup ref="commonFieldAttrs"/>
+         </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+-->
+
+  <!-- struct Field -->
+   <xs:complexType name="structFieldType">
+     <xs:simpleContent>
+       <xs:extension base="xs:string">
+         <xs:attribute name="struct" type="string50"/>  
+         <xs:attributeGroup ref="commonFieldAttrs"/>
+       </xs:extension>
+     </xs:simpleContent>
+   </xs:complexType>
+
+
+<!-- Attributes that are common to all data field types. -->
+<xs:attributeGroup name="commonFieldAttrs">
+   <xs:attribute name="name" type="string50"/>
+   <xs:attribute name="columnHeading1" type="string20"/>
+   <xs:attribute name="columnHeading2" type="string20"/>
+   <xs:attribute name="columnHeading3" type="string20"/>
+   <xs:attribute name="description" type="string50"/>
+   <xs:attribute name="defaultValue" type="xs:string"/>  <!-- max length of string is 65535 -->
+   <xs:attribute name="nullable" type="xs:boolean"/>
+   <xs:attribute name="isEmptyString" type="xs:boolean"/>
+</xs:attributeGroup>
+
+<!-- Utility types.  -->
+
+<xs:simpleType name="ccsidType">
+                     <xs:restriction base="xs:nonNegativeInteger">
+                      <xs:maxInclusive value="65535"/>
+                     </xs:restriction>
+                    </xs:simpleType>
+
+<xs:simpleType name="string10">
+                     <xs:restriction base="xs:string">
+                      <xs:maxLength value="10"/>
+                     </xs:restriction>
+                    </xs:simpleType>
+
+<xs:simpleType name="string20">
+                     <xs:restriction base="xs:string">
+                      <xs:maxLength value="20"/>
+                     </xs:restriction>
+                    </xs:simpleType>
+
+<xs:simpleType name="string50">
+                     <xs:restriction base="xs:string">
+                      <xs:maxLength value="50"/>
+                     </xs:restriction>
+                    </xs:simpleType>
+</xs:schema>

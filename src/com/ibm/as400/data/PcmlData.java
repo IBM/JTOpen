@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PcmlData.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 package com.ibm.as400.data;
 
 import com.ibm.as400.access.AS400;
+import com.ibm.as400.access.Trace;
 import com.ibm.as400.access.ProgramParameter;                       // @B1A
 import com.ibm.as400.access.BidiStringType;                         // @C9A
 
@@ -24,8 +25,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-class PcmlData extends PcmlDocNode {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+class PcmlData extends PcmlDocNode
+{
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     /***********************************************************
@@ -229,6 +231,7 @@ class PcmlData extends PcmlDocNode {
         return node;                                                // @C5A
     }                                                               // @C5A
 
+
     // Custom serialization
     private void writeObject(ObjectOutputStream out) throws IOException // @C1A
     {                                                               // @C1A
@@ -275,6 +278,7 @@ class PcmlData extends PcmlDocNode {
     {
         int index;
         int[] myDimensions = getDimensions(indices).asArray();
+
 
         // Make sure enough indices are specified
         // Allow more indices than necessary in order to
@@ -419,7 +423,7 @@ class PcmlData extends PcmlDocNode {
 
 
     // Get String value specifying string type
-    final String getStringValue(PcmlDimensions indices, int type) 
+    final String getStringValue(PcmlDimensions indices, int type)
         throws PcmlException                                            // @C9A
     {
         Object val = null;
@@ -429,7 +433,7 @@ class PcmlData extends PcmlDocNode {
         {
             PcmlDataValues values = getPcmlDataValues(indices);         // @C9A
             if (m_Type == CHAR)                                         // @CBA
-                values.setStringType(type); // Set the string type             @C9A 
+                values.setStringType(type); // Set the string type             @C9A
             val = values.getValue();    // Get the value              @C9A @CAC
             if (val == null)                                            // @CBA
             {
@@ -453,7 +457,7 @@ class PcmlData extends PcmlDocNode {
             throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );  // @C9A
         }
     }
-    
+
     // Set Java native value
     final void setValue(Object v) throws PcmlException
     {
@@ -477,15 +481,15 @@ class PcmlData extends PcmlDocNode {
     }
 
     // Set String value specifying string type
-    final void setStringValue(String val, PcmlDimensions indices, int type) 
+    final void setStringValue(String val, PcmlDimensions indices, int type)
         throws PcmlException                                            // @C9A
     {
         // Make sure enough indices are specified
         if ( indices.size() >= getNbrOfDimensions() )                   // @C9A
         {
             PcmlDataValues values = getPcmlDataValues(indices);         // @C9A
-            values.flushValues();       // Flush current values            @C9A 
-            values.setStringType(type); // Set the string type             @C9A 
+            values.flushValues();       // Flush current values            @C9A
+            values.setStringType(type); // Set the string type             @C9A
             values.setValue(val);       // Set the value                   @C9A
         }
         else
@@ -494,7 +498,7 @@ class PcmlData extends PcmlDocNode {
         }
     }
 
-    // Set AS/400 bytes
+    // Set iSeries server bytes
     void setBytes(byte[] ba)
     {
     }
@@ -552,6 +556,23 @@ class PcmlData extends PcmlDocNode {
         return resolveIntegerValue( getCount(),
                                     getCountId(),
                                     indices );
+    }
+
+    // @E0A -- New XPCML method
+    // Get the run-time dimension for this element but don't throw an exception if count not set
+    final int getXPCMLCount(PcmlDimensions indices) throws PcmlException
+    {
+        int rc;
+        try {
+          rc = resolveIntegerValue( getCount(),
+                                    getCountId(),
+                                    indices );
+          return rc;
+        }
+        catch (Exception e)
+        {
+           return 0;
+        }
     }
 
     // Get the count= integer literal value, if any
@@ -621,11 +642,11 @@ class PcmlData extends PcmlDocNode {
             return ProgramParameter.PASS_BY_REFERENCE;              // @B1A
     }                                                               // @B1A
 
-    // Get the bidistringtype= value as an integer 
+    // Get the bidistringtype= value as an integer
     public final String getBidistringtypeStr()                    // @C9A @CAC
-    {                                                               
+    {
         return m_BidistringtypeStr;                            // @C9A @CAC
-    }    
+    }
 
     // Get the offsetfrom= integer literal value, if any
     final int getOffsetfrom()                                       // @A1C
@@ -895,7 +916,7 @@ class PcmlData extends PcmlDocNode {
     boolean isSupportedAtHostVRM() throws PcmlException             // @A1A
     {                                                               // @A1A
         if (m_IsRfml) return true;                                  // @D0A
-        int hostVrm = getAs400VRM();      // VRM of the AS/400 system  @A1A
+        int hostVrm = getAs400VRM();      // VRM of the iSeries system  @A1A
 
         // If the minvrm= for this element is greater than the AS400 VRM
         // do not process this element. The item is not available at this release.
@@ -915,7 +936,7 @@ class PcmlData extends PcmlDocNode {
     }                                                               // @A1A
 
 
-    // Convert Java object AS/400 bytes
+    // Convert Java object iSeries server bytes
     // Returns the number of bytes converted
     int toBytes(byte[] bytes, int offset, PcmlDimensions indices) throws PcmlException
     {
@@ -1387,7 +1408,7 @@ class PcmlData extends PcmlDocNode {
         }
     }
 
-    private void setInit(String init)
+    void setInit(String init)      // E0C
     {
 // @D0D
 //        // Handle null or empty string
@@ -1557,10 +1578,10 @@ class PcmlData extends PcmlDocNode {
 
 
     private void setBidiStringType(String type)                     // @C9A
-    {                                                              
+    {
         // Handle null or empty string
         if (type == null || type.equals(""))                        // @C9A
-        {                                                       
+        {
             m_BidistringtypeStr = null;                             // @C9A
             m_Bidistringtype = BidiStringType.DEFAULT;              // @C9A
             return;                                                 // @C9A
@@ -1569,42 +1590,42 @@ class PcmlData extends PcmlDocNode {
         // Save the attribute value
         m_BidistringtypeStr = type;                                 // @C9A
         if ( m_BidistringtypeStr.equals("ST4") )                    // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST4;                  // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST5") )               // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST5;                  // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST6") )               // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST6;                  // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST7") )               // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST7;                  // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST8") )               // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST8;                  // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST9") )               // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST9;                  // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST10") )              // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST10;                 // @C9A
-        }                                                      
+        }
         else if ( m_BidistringtypeStr.equals("ST11") )              // @C9A
-        {                                               
+        {
             m_Bidistringtype = BidiStringType.ST11;                 // @C9A
-        }                                                      
-        else                                                        // @C9A 
-        {                                                        
+        }
+        else                                                        // @C9A
+        {
             m_Bidistringtype = BidiStringType.DEFAULT;              // @C9A
         }
-    }    
+    }
 
     private void setPrecision(String precision)
     {
@@ -2109,8 +2130,8 @@ class PcmlData extends PcmlDocNode {
             if ( getDoc().getVersion().compareTo("3.0") < 0 )       // @C9A
             {                                                       // @C9A
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("bidistringtype", m_BidistringtypeStr), "3.0", getBracketedTagName(), getNameForException()} ); // @C9A
-        }                                                           // @C9A
-    }
+            }                                                       // @C9A
+        }
 
         // Verify the trim= attribute
         if (m_TrimStr != null)                                      // @D1A
@@ -2130,7 +2151,7 @@ class PcmlData extends PcmlDocNode {
             {                                                       // @D2A
                 getDoc().addPcmlSpecificationError(DAMRI.BAD_PCML_VERSION, new Object[] {makeQuotedAttr("chartype", m_CharType), "4.0", getBracketedTagName(), getNameForException()} ); // @D2A
             }                                                       // @D2A
-            else 
+            else
             {
                 if (getDataType() != CHAR)                             // @D2A
                 {
@@ -2138,11 +2159,11 @@ class PcmlData extends PcmlDocNode {
                 }
             }
         }
-    
+
     }
 
 
-    // Check if a string is a valid AS/400 VRM
+    // Check if a string is a valid iSeries system VRM
     // Allowed syntax:
     //    "VxRyMz"
     //
@@ -2195,4 +2216,5 @@ class PcmlData extends PcmlDocNode {
 
         return as400vrm;
     }
+
 }

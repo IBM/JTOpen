@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemResourceFinder.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ import java.util.*;
 
 class SystemResourceFinder
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     public static final String  m_pcmlExtension = ".pcml";
     public static final String  m_pcmlSerializedExtension = ".pcml.ser";
@@ -36,12 +36,12 @@ class SystemResourceFinder
         m_loader.setResourceName("com.ibm.as400.data.DAMRI");
     }
 
-    public static final String format(String key) 
+    public static final String format(String key)
     {
         return format(key, null);
     }
 
-    public static final String format(String key, Object[] args) 
+    public static final String format(String key, Object[] args)
     {
         if (args != null)
         {
@@ -56,22 +56,28 @@ class SystemResourceFinder
         return m_loader.getString(key);
     }
 
-    public static final String getString(String key) 
+    public static final String getString(String key)
     {
         return m_loader.getStringWithNoSubstitute(key);
     }
 	
-    public static final InputStream getPCMLHeader() 
+    public static final InputStream getPCMLHeader()
     {
       return getPCMLHeader(getLoader());
     }
-  
+
+    // B4A -- new method for XPCML to find XSL files
+    public static final InputStream getXPCMLTransformFile(String fileName)
+    {
+      return getXPCMLTransformFile(getLoader(), fileName);
+    }
+
     public static final InputStream getRFMLHeader()     // @B2A
     {
       return getRFMLHeader(getLoader());
     }
-  
-    public static final int getHeaderLineCount() 
+
+    public static final int getHeaderLineCount()
     {
       return m_headerLineCount;
     }
@@ -82,14 +88,14 @@ class SystemResourceFinder
      * resources on behalf of the client.  N.B. The client is getLoader's
      * caller's caller.
      */
-    private static ClassLoader getLoader() 
+    private static ClassLoader getLoader()
     {
         debug("SecurityManager=" + System.getSecurityManager());
 
         Class c = null;
-        try    
-        { 
-            c = Class.forName("com.ibm.as400.data.SystemResourceFinder");    
+        try
+        {
+            c = Class.forName("com.ibm.as400.data.SystemResourceFinder");
         }
         catch (Throwable t) 
         { 
@@ -134,49 +140,68 @@ class SystemResourceFinder
     private static synchronized InputStream getPCMLHeader(ClassLoader loader)
         throws MissingResourceException	
     {
-          
+
         InputStream stream = loader.getResourceAsStream(m_pcmlHeaderName);
-        
-        if (stream == null) 
+
+        if (stream == null)
         {
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {m_pcmlHeaderName}), m_pcmlHeaderName, "");
         }
-        
-        if (!(m_headerLineCount > 0)) 
+
+        if (!(m_headerLineCount > 0))
         {
             // Cache the line count of the header
             LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
-  
-            try 
-            {        
+
+            try
+            {
                 String line = lnr.readLine();
-                while (line != null) 
+                while (line != null)
                 {
                     m_headerLineCount++;
                     line = lnr.readLine();
                 }
-            } 
-            catch (IOException e) 
+            }
+            catch (IOException e)
             {
             }
-          
+
             // Get the stream again
             stream = loader.getResourceAsStream(m_pcmlHeaderName);
         }
-        
+
         // Make sure stream is buffered
         return new BufferedInputStream(stream);
   	}
+
+    // @B4A -- New method for XPCML
+    private static synchronized InputStream getXPCMLTransformFile(ClassLoader loader, String fileName)
+        throws MissingResourceException	
+    {
+
+        InputStream stream = loader.getResourceAsStream(fileName);
+
+        if (stream == null)
+        {
+            Trace.log(Trace.ERROR, "XSL file not found");
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.XML_NOT_FOUND, new Object[] {fileName}), fileName, "");
+        }
+         // Make sure stream is buffered
+        return new BufferedInputStream(stream);
+  	}
+
 
     static synchronized InputStream getPCMLDocument(String docName, ClassLoader loader)     // @B1C
         throws MissingResourceException
     {
 		String docPath = null;
-        
+
         // Construct the full resource name
-		if ( docName.endsWith(".pcml")
-		  || docName.endsWith(".pcmlsrc") )
-	    {
+        // $B4 -- Add xpcml and xpcmlsrc as possible doc endings
+		if ( docName.endsWith(".pcml") || docName.endsWith(".pcmlsrc") ||
+                 docName.endsWith(".xpcml") || docName.endsWith(".xpcmlsrc"))     //@B4
+
+	     {
 			String baseName = docName.substring(0, docName.lastIndexOf('.') );
 			String extension = docName.substring(docName.lastIndexOf('.') );
 			docPath = baseName.replace('.', '/') + extension;
@@ -188,9 +213,9 @@ class SystemResourceFinder
 
         if (loader == null)                                         // @B1A
             loader = getLoader();                                   // @B1A
-            
+
         InputStream stream = loader.getResourceAsStream(docPath);
-        if (stream == null) 
+        if (stream == null)
         {
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_NOT_FOUND, new Object[] {docName}), docName, "");
         }
@@ -198,15 +223,15 @@ class SystemResourceFinder
         // Make sure stream is buffered
         return new BufferedInputStream(stream);
   	}
-  
-  
+
+
     static synchronized InputStream getSerializedPCMLDocument(String docName, ClassLoader loader)   // @B1C
         throws MissingResourceException
     {
-        
+
         if (loader == null)                                         // @B1A
             loader = getLoader();                                   // @B1A
-            
+
         // Construct the full resource name
         String docPath = docName.replace('.', '/') + m_pcmlSerializedExtension;
 
@@ -215,7 +240,7 @@ class SystemResourceFinder
         {
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_PCML_NOT_FOUND, new Object[] {docName} ), docName, "");
         }
-            
+
         // Make sure stream is buffered
         return new BufferedInputStream(stream);
     }
@@ -223,10 +248,10 @@ class SystemResourceFinder
     private static synchronized InputStream getRFMLHeader(ClassLoader loader)   // @B2A
         throws MissingResourceException	
     {
-          
+
         InputStream stream = loader.getResourceAsStream(m_rfmlHeaderName);
-        
-        if (stream == null) 
+
+        if (stream == null)
         {
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.DTD_NOT_FOUND, new Object[] {"RFML", m_rfmlHeaderName}), m_rfmlHeaderName, "");
         }
@@ -239,7 +264,7 @@ class SystemResourceFinder
         throws MissingResourceException
     {
 		String docPath = null;
-        
+
         // Construct the full resource name
 		if ( docName.endsWith(".rfml")
 		  || docName.endsWith(".rfmlsrc") )
@@ -255,10 +280,10 @@ class SystemResourceFinder
 
         if (loader == null)
             loader = getLoader();
-            
+
         InputStream stream = loader.getResourceAsStream(docPath);
 
-        if (stream == null) 
+        if (stream == null)
         {
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.XML_NOT_FOUND, new Object[] {"RFML", docName}), docName, "");
         }
@@ -266,15 +291,15 @@ class SystemResourceFinder
         // Make sure stream is buffered
         return new BufferedInputStream(stream);
   	}
-  
-  
+
+
     static synchronized InputStream getSerializedRFMLDocument(String docName, ClassLoader loader)   // @B2A
         throws MissingResourceException
     {
-        
+
         if (loader == null)
             loader = getLoader();
-            
+
         // Construct the full resource name
         String docPath = docName.replace('.', '/') + m_rfmlSerializedExtension;
 
@@ -283,20 +308,72 @@ class SystemResourceFinder
         {
             throw new MissingResourceException(SystemResourceFinder.format(DAMRI.SERIALIZED_XML_NOT_FOUND, new Object[] {"RFML", docName} ), docName, "");
         }
-            
+
         // Make sure stream is buffered
         return new BufferedInputStream(stream);
     }
 
+
+/** @B4 -- NEW METHOD FOR XPCML
+ * isXPCML -- Returns true or false depending on whether the document to
+ * parse is determined to be an XPCML document.  Returns true is XPCML,
+ * false if PCML.
+ */
+    protected static boolean isXPCML(String docName,ClassLoader loader)
+        throws MissingResourceException, IOException	
+    {
+
+        boolean isXPCML = false;
+        if (loader==null)
+           loader = getLoader();
+
+        InputStream stream = loader.getResourceAsStream(docName);
+        if (stream == null)
+        {
+            throw new MissingResourceException(SystemResourceFinder.format(DAMRI.PCML_DTD_NOT_FOUND, new Object[] {docName}), docName, "");
+        }
+
+        // Cache the line count of the header
+        LineNumberReader lnr = new LineNumberReader(new InputStreamReader(stream));
+        try
+        {
+            String line = lnr.readLine();
+            boolean found=false;
+            while (line != null && !found)
+            {
+                // Look for xpcml tag
+                if (line.indexOf("<xpcml") != -1)
+                {
+                   found = true;
+                   isXPCML= true;
+                   continue;
+                }
+                if (line.indexOf("<pcml") != -1)
+                {
+                   found = true;
+                   isXPCML = false;
+                   continue;
+                }
+                line = lnr.readLine();
+            }
+        }
+        catch (IOException e)
+        {
+           Trace.log(Trace.PCML, "Error when reading input stream in isXPCML");
+           throw e;
+        }
+        // Return isXPCML
+        return isXPCML;
+  }
 
 
   /**
      * For printf debugging.
      */
     private static boolean debugFlag = false;
-    private static void debug(String str) 
+    private static void debug(String str)
     {
-        if( debugFlag ) 
+        if( debugFlag )
         {
             System.out.println("SystemResourceFinder: " + str);
         }

@@ -6,13 +6,14 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.data;
 
+//@E0C
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -37,7 +38,7 @@ import com.ibm.as400.access.Trace;
 
 class RfmlSAXParser extends DefaultHandler implements EntityResolver
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
   private transient RfmlDocument m_rootNode;
@@ -202,9 +203,9 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
   /** Parses the document, using the specified class loader.
    **/
   void parse(String docName, ClassLoader loader)
-  throws MissingResourceException, IOException, ParseException, PcmlSpecificationException,
-         SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException,
-         SAXException
+  throws MissingResourceException, IOException, ParseException, PcmlSpecificationException, //@E0C
+  SAXNotRecognizedException, SAXNotSupportedException, ParserConfigurationException,
+  SAXException
   {
     m_rootNode = null;
     m_currentNode = null;
@@ -230,20 +231,34 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
     // Instantiate our error listener
     XMLErrorHandler xh = new XMLErrorHandler(m_docName, 0);
 
-    SAXParserFactory factory = SAXParserFactory.newInstance();
-    factory.setValidating(true);
-    factory.setNamespaceAware(false);
+    SAXParserFactory factory = SAXParserFactory.newInstance(); //@E0A
+    factory.setValidating(true); //@E0A
+    factory.setNamespaceAware(false); //@E0A
+//@E0D            SAXParser parser = new SAXParser();
+//@E0D             try {
+//@E0D               parser.setFeature("http://xml.org/sax/features/validation", true);
+    ///parser.setFeature("http://apache.org/xml/features/continue-after-fatal-error", true);
     factory.setFeature("http://apache.org/xml/features/continue-after-fatal-error", false); // TBD: This is to eliminate hang condition if rfml.dtd is not found by SAXParser.parse().  See below.
-    SAXParser parser = factory.newSAXParser();
-    
+    SAXParser parser = factory.newSAXParser(); //@E0A
+
+//@E0D               parser.setFeature( "http://xml.org/sax/features/namespaces", false );
+//@E0D             }
+//@E0D             catch (org.xml.sax.SAXException se) {
+//@E0D               if (Trace.isTraceErrorOn()) se.printStackTrace(Trace.getPrintWriter());
+    ///System.out.println("Exception = " + se);
+//@E0D             }
+//@E0D             parser.setErrorHandler(xh);
+//@E0D             parser.setContentHandler(this);
+//@E0D             parser.setEntityResolver(this);  // So that we can find the rfml.dtd for the parser.
+
     // Create an InputSource for passing to the parser.
     // Wrap any SAXExceptions as ParseExceptions.
     try
     {
-      XMLReader reader = parser.getXMLReader();
-      reader.setErrorHandler(xh);
-      reader.setEntityResolver(this);  // So that we can find the rfml.dtd for the parser.
-      parser.parse(new InputSource(inStream), this); // TBD: This hangs if rfml.dtd can't be found and "continue-after-fatal-error" is set to true.
+      XMLReader reader = parser.getXMLReader(); //@E0A
+      reader.setErrorHandler(xh); //@E0A
+      reader.setEntityResolver(this);  //@E0A So that we can find the rfml.dtd for the parser.
+      parser.parse(new InputSource(inStream), this); // TBD: This hangs if rfml.dtd can't be found and "continue-after-fatal-error" is set to true. @E0C
     }
     catch (SAXException e)
     {
@@ -311,18 +326,16 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
       }
     }
 
-    try
-    {
-      return super.resolveEntity(publicId, systemId);
-    }
-    catch (Exception e) // Xerces 4.0 delcares it throws an IOException here, but 3.2 does not.
-    {
-      if (Trace.isTraceErrorOn()) e.printStackTrace(Trace.getPrintWriter());
-      return null;
-    }
+    return super.resolveEntity(publicId, systemId);
   }
 
 
+  /***************************************************************
+   The following are extensions to the org.xml.sax.HandlerBase
+   which is a default implementation of DocumentHandler.
+   ****************************************************************/
+
+  /** Start element. **/
   public void startElement(String namespaceURI, String localname, String tagName, Attributes xmlAttrs)
   {
 
@@ -378,11 +391,15 @@ class RfmlSAXParser extends DefaultHandler implements EntityResolver
         m_currentNode = newNode;
       }
     }
-  }
-  
 
+  } // startElement(String,AttributeList)
+
+  /** End element. **/
   public void endElement(String namespaceURI, String localname, String element)
   {
+
     m_currentNode = (PcmlDocNode) m_currentNode.getParent();
+
   }
+
 }

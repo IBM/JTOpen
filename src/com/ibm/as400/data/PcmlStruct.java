@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PcmlStruct.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -18,8 +18,9 @@ import com.ibm.as400.access.ProgramParameter;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-class PcmlStruct extends PcmlDocNode {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+class PcmlStruct extends PcmlDocNode
+{
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 
     /***********************************************************
@@ -116,6 +117,24 @@ class PcmlStruct extends PcmlDocNode {
                                     getCountId(),
                                     indices );
     }
+
+    // @D1 --New XPCML method
+    // @D1 -- Get the run-time dimension for this element but don't throw an exception if count not set
+    final int getXPCMLCount(PcmlDimensions indices) throws PcmlException      //@D1
+    {   
+        int rc;
+        try {
+          rc = resolveIntegerValue( getCount(),
+                                    getCountId(),
+                                    indices );
+          return rc;
+        }
+        catch (Exception e)
+        {
+           return 0;
+        }
+    }
+
 
     // Returns an array of integers containing the array dimensions
     // Notes:
@@ -724,7 +743,7 @@ class PcmlStruct extends PcmlDocNode {
     // Returns false if not.
     boolean isSupportedAtHostVRM() throws PcmlException             // @A1A
     {                                                               // @A1A
-        int hostVrm = getAs400VRM();      // VRM of the AS/400 system  @A1A
+        int hostVrm = getAs400VRM();      // VRM of the iSeries system  @A1A
 
         // If the minvrm= for this element is greater than the AS400 VRM
         // do not process this element. The item is not available at this release.
@@ -743,7 +762,7 @@ class PcmlStruct extends PcmlDocNode {
         return true;                                                // @A1A
     }                                                               // @A1A
 
-    // Convert data to AS/400 format
+    // Convert data to iSeries system format
     // Returns the number of bytes to'ed
     int toBytes(byte[] bytes, int offset, PcmlDimensions indices) throws PcmlException
     {
