@@ -80,7 +80,7 @@ public class JdbcMeDriver
     /**
      *  Default private constructor.
      **/
-    private void JdbcMeDriver()
+    private JdbcMeDriver()
     {
     }
 
