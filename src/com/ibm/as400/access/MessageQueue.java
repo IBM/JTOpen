@@ -442,6 +442,8 @@ need replies.
    * <i>listOffset</i>. This value must be greater than or equal to 0 and less than or equal
    * to the list length.
    * @return The array of retrieved {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.
+   * The length of this array may not necessarily be equal to <i>number</i>, depending upon the size
+   * of the list on the server, and the specified <i>listOffset</i>.
    * @exception AS400Exception                  If the system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
    * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
@@ -481,7 +483,7 @@ need replies.
     ConvTable conv = ConvTable.getTable(ccsid, null);
     
     ProgramParameter[] parms2 = new ProgramParameter[7];
-    int len = 32768;
+    int len = 400*number;
     parms2[0] = new ProgramParameter(len); // receiver variable
     parms2[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
     parms2[2] = new ProgramParameter(handle_);
@@ -499,9 +501,12 @@ need replies.
     byte[] listInfo = parms2[3].getOutputData();
     int totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
     int recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
-    while (totalRecords > recordsReturned)
+/*    boolean changing = totalRecords > recordsReturned;
+    while (changing)
     {
-      len = len*(1+(totalRecords/(recordsReturned+1)));
+      // len = len*(1+(totalRecords/(recordsReturned+1)));
+      System.out.println("Doubling previous length of "+len);
+      len = len*2;
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling MessageQueue QGYGTLE again with an updated length of "+len+".");
       try
       {
@@ -515,14 +520,19 @@ need replies.
       }
       listInfo = parms2[3].getOutputData();
       totalRecords = BinaryConverter.byteArrayToInt(listInfo, 0);
-      recordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
+      int newRecordsReturned = BinaryConverter.byteArrayToInt(listInfo, 4);
+      if (newRecordsReturned <= recordsReturned)
+      {
+        changing = false;
+      }
+      recordsReturned = newRecordsReturned;
     }
-
+*/
     byte[] data = parms2[0].getOutputData();
 
-    QueuedMessage[] messages = new QueuedMessage[number];
+    QueuedMessage[] messages = new QueuedMessage[recordsReturned];
     int offset = 0;
-    for (int i=0; i<number; ++i) // each message
+    for (int i=0; i<messages.length; ++i) // each message
     {
       int entryOffset = BinaryConverter.byteArrayToInt(data, offset);
       int fieldOffset = BinaryConverter.byteArrayToInt(data, offset+4);
@@ -593,7 +603,12 @@ need replies.
 
 
   /**
-   * Returns the list of messages in the message queue. This is the same as calling getMessages(-1, 1).
+   * Returns the list of messages in the message queue.
+   * The enumeration retrieves the messages in blocks of 1000. If this does not yield the desired
+   * performance or memory usage, please use the {@link #getMessages(int,int) getMessages()} that
+   * returns an array of QueuedMessage objects and accepts a list <i>offset</i> and <i>length</i>.
+   * If an error occurs while the Enumeration is loading the next block of messages, a
+   * NoSuchElementException will be thrown while the real error will be logged to {@link com.ibm.as400.access.Trace Trace.ERROR}.
    * @return An Enumeration of {@link com.ibm.as400.access.QueuedMessage QueuedMessage} objects.
    * @exception AS400Exception                  If the AS/400 system returns an error message.
    * @exception AS400SecurityException          If a security or authority error occurs.
@@ -621,9 +636,7 @@ need replies.
       load(); // Need to get the length_
     }
     
-    QueuedMessage[] messages = getMessages(-1, length_);
-
-    return new QueuedMessageEnumeration(messages);
+    return new QueuedMessageEnumeration(this, length_);
     }
 
 
@@ -632,25 +645,53 @@ need replies.
   **/
   static class QueuedMessageEnumeration implements Enumeration
   {
-    private QueuedMessage[] messages_;
+    private QueuedMessage[] messageCache_;
+    private MessageQueue mq_;
     private int counter_;
-    QueuedMessageEnumeration(QueuedMessage[] messages)
+    private int numMessages_;
+    private int listOffset_ = 0;
+    private int cachePos_ = 0;
+    QueuedMessageEnumeration(MessageQueue mq, int length)
     {
-      messages_ = messages;
+      mq_ = mq;
+      numMessages_ = length;
     }
 
     public final boolean hasMoreElements()
     {
-      return counter_ < messages_.length;
+      return counter_ < numMessages_;
     }
 
     public final Object nextElement()
     {
-      if (counter_ >= messages_.length)
+      if (counter_ >= numMessages_)
       {
         throw new NoSuchElementException();
       }
-      return messages_[counter_++];
+
+      if (messageCache_ == null || cachePos_ >= messageCache_.length)
+      {
+        try
+        {
+          messageCache_ = mq_.getMessages(listOffset_, 1000);
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.DIAGNOSTIC, "Loaded next block in QueuedMessageEnumeration: "+messageCache_.length+" messages at offset "+listOffset_+" out of "+numMessages_+" total.");
+          }
+        }
+        catch(Exception e)
+        {
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.ERROR, "Exception while loading nextElement() in QueuedMessageEnumeration:", e);
+          }
+          throw new NoSuchElementException();
+        }
+        cachePos_ = 0;
+        listOffset_ += messageCache_.length;
+      }
+      ++counter_;
+      return messageCache_[cachePos_++];
     }
   }
 
