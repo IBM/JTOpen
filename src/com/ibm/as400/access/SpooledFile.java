@@ -49,8 +49,7 @@ implements java.io.Serializable
     }
 
 
-    // We have decide that spooled files are too transient to
-    // be JavaBeans.
+    // We have decide that spooled files are too transient to be JavaBeans.
 
 
     /**
@@ -84,37 +83,38 @@ implements java.io.Serializable
         // base class constructor checks for null system.
         if (name == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'name' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'name' is null.");
             throw new NullPointerException("name");
         }
 
         if (number < -1)    // (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
         {
-	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");
-	    throw new ExtendedIllegalArgumentException(
+            Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");
+            throw new ExtendedIllegalArgumentException(
                 "number(" + number + ")",
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-	    }
+        }
 
         if (jobName == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'jobName' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobName' is null.");
             throw new NullPointerException("jobName");
         }
 
         if (jobUser == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'jobUser' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobUser' is null.");
             throw new NullPointerException("jobUser");
         }
 
         if (jobNumber == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'jobNumber' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobNumber' is null.");
             throw new NullPointerException("jobNumber");
         }
     }
-   // Alternate constructor for spooled files detached from jobs
+    
+    // Alternate constructor for spooled files detached from jobs
     /**
      * Constructs a SpooledFile object. It uses the specified system and
      * spooled file attributes that identify it on that system.
@@ -127,8 +127,24 @@ implements java.io.Serializable
      * @param jobNumber The number of the job that created the spooled file.
      * @param jobSysName The name of the system where the spooled file was created.
      * @param createDate The date the spooled file was created on the system.
+     * <br>
+     * The date is encoded in a character string with the following format,
+     * CYYMMDD where:
+     * <ul>
+     * <li> C is the Century, where 0 indicates years 19xx and 1 indicates years 20xx
+     * <li> YY is the Year
+     * <li> MM is the Month
+     * <li> DD is the Day
+     * </ul>
      * @param createTime The time the spooled file was created on the system.
-     *
+     * <br>
+     * The time is encoded in a character string with the following format,
+     * HHMMSS where:
+     * <ul>
+     * <li> HH - Hour 
+     * <li> MM - Minutes 
+     * <li> SS - Seconds 
+     * </ul>
      **/
    
     public SpooledFile(AS400 system,
@@ -157,48 +173,51 @@ implements java.io.Serializable
    
         if (name == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'name' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'name' is null.");
             throw new NullPointerException("name");
         }
 
         if (number < -1)    // (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
         {
-	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");
-	    throw new ExtendedIllegalArgumentException(
+            Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");
+            throw new ExtendedIllegalArgumentException(
                 "number(" + number + ")",
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-	    }
+        }
 
         if (jobName == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'jobName' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobName' is null.");
             throw new NullPointerException("jobName");
         }
 
         if (jobUser == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'jobUser' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobUser' is null.");
             throw new NullPointerException("jobUser");
         }
 
         if (jobNumber == null)
         {
-	    Trace.log(Trace.ERROR, "Parameter 'jobNumber' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobNumber' is null.");
             throw new NullPointerException("jobNumber");
         }
+        
         if (jobSysName == null)
         {
-         Trace.log(Trace.ERROR, "Parameter 'jobSysName' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'jobSysName' is null.");
             throw new NullPointerException("jobSysName");
         }
+        
         if (createDate == null)
         {
-         Trace.log(Trace.ERROR, "Parameter 'createDate' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'createDate' is null.");
             throw new NullPointerException("createDate");
         }
+        
         if (createTime == null)
         {
-        Trace.log(Trace.ERROR, "Parameter 'createTime' is null.");
+            Trace.log(Trace.ERROR, "Parameter 'createTime' is null.");
             throw new NullPointerException("createTime");
         }
     }
@@ -242,7 +261,6 @@ implements java.io.Serializable
 
 
 
-    // A3A - Added function
     /**
      * Chooses the implementation
      **/
@@ -368,7 +386,6 @@ implements java.io.Serializable
     }
 
 
-
     /**
       * Returns an input stream that can be used to read the contents of the
       * spooled file.
@@ -394,15 +411,41 @@ implements java.io.Serializable
                InterruptedException,
                RequestNotSupportedException
     {
-        // possible open options that we could use -
-        //  Open time commands - *YES or *NO
-        //  Send through host print transform and params for that if YES
-        // If we want to do those we''ll have to add another getInputStream
-        // that takes a PrintParameterList as input...
         PrintObjectInputStream is = new PrintObjectInputStream(this, null);
         return is;
     }
 
+
+    /**
+      * Returns an input stream that can be used to read the contents of the
+      * spooled file.
+      * This method will fail with an AS400Exception if the spooled file is
+      * still being created (ATTR_SPLFSTATUS is *OPEN).
+      *
+      * @return The input stream object that can be used to read the contents
+      *         of this spooled file.
+      * @exception AS400Exception If server returns an error message.
+      * @exception AS400SecurityException If a security or authority error occurs.
+      * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+      * @exception IOException If an error occurs while communicating with the server.
+      * @exception InterruptedException If this thread is interrupted.
+      * @exception RequestNotSupportedException If the requested function is not supported
+      *                                         because the server system is not at the
+      *                                         correct level.
+      **/
+    public PrintObjectInputStream getInputStream(PrintParameterList ppl)
+        throws AS400Exception,
+               AS400SecurityException,
+               ErrorCompletingRequestException,
+               IOException,
+               InterruptedException,
+               RequestNotSupportedException
+    {
+        PrintObjectInputStream is = new PrintObjectInputStream(this, ppl);
+        return(is);
+    }
+    
+    
     /**
       * Returns an input stream merged with an AFP datastream that can be 
       * used to read the contents of the spooled file.
@@ -505,9 +548,11 @@ implements java.io.Serializable
             return IDCodePoint.getStringValue(ATTR_JOBSYSTEM);
         }
     }
+    
      /**
-     * Returns the date of the spooled file creation.
-     * @return The date of the spooled file creation.
+     * Returns the date of the spooled file creation. 
+     * The date is encoded in the CYYMMDD format.
+     * @return The date (CYYMMDD) of the spooled file creation.
      **/
     public String getCreateDate()
     {
@@ -518,9 +563,11 @@ implements java.io.Serializable
             return IDCodePoint.getStringValue(ATTR_DATE);
         }
     }
+    
      /**
      * Returns the time of spooled file creation.
-     * @return The time of the spooled file creation.
+     * The time is encoded in the HHMMSS format.
+     * @return The time (HHMMSS) of the spooled file creation.
      **/
     public String getCreateTime()
     {
