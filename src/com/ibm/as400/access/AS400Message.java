@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400Message.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -20,8 +20,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- The AS400Message class represents a message returned from an AS/400.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other AS/400 Toolbox for Java components.
-<br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the AS/400, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
+ The AS400Message class represents a message returned from an AS/400 or iSeries server.  A Java program does not normally create AS400Message objects directly.  Instead, AS400Message objects are created and returned by various other IBM Toolbox for Java components.
+<br><i>Usage hint:</i> To fully "prime" an AS400Message object with additional information that otherwise might not be returned from the server, call the load() method.  For example, if getHelp() returns null, try preceding the getHelp() with a call to load().
  @see  com.ibm.as400.access.AS400Exception
  @see  com.ibm.as400.access.CommandCall
  @see  com.ibm.as400.access.ProgramCall
@@ -29,9 +29,9 @@ import java.util.GregorianCalendar;
  **/
 public class AS400Message implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-    static final long serialVersionUID = 4L;
+    static final long serialVersionUID = 5L;
 
     /**
      Message type for completion messages.
@@ -115,6 +115,9 @@ public class AS400Message implements Serializable
 
     // Date and time message sent.
     private Calendar date_;
+    private String dateSent_; //@G0A
+    private String timeSent_; //@G0A
+
     // Filename of message file message is from.
     private String fileName_;
     // Message ID of message.
@@ -249,6 +252,10 @@ public class AS400Message implements Serializable
     public Calendar getDate()
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting date: " + date_);
+        if (date_ == null && (dateSent_ != null || timeSent_ != null)) //@G0C
+        {
+          setDate(); //@G0C
+        }
         return date_;
     }
 
@@ -461,15 +468,53 @@ public class AS400Message implements Serializable
         }
     }
 
+
+    //@G0A
+    private void setDate()
+    {
+      if (dateSent_ == null && timeSent_ == null)
+      {
+        return;
+      }
+      if (dateSent_ != null && dateSent_.trim().length() == 0 &&
+          timeSent_ != null && timeSent_.trim().length() == 0)
+      {
+        dateSent_ = null;
+        timeSent_ = null;
+        return;
+      }
+      date_ = Calendar.getInstance();
+      date_.clear();
+      if (dateSent_ != null && dateSent_.trim().length() > 0)
+      {
+        date_.set(Calendar.YEAR, Integer.parseInt(dateSent_.substring(0,3))+1900);
+        date_.set(Calendar.MONTH, Integer.parseInt(dateSent_.substring(3,5))-1);
+        date_.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dateSent_.substring(5,7)));
+      }
+      if (timeSent_ != null && timeSent_.trim().length() > 0)
+      {
+        date_.set(Calendar.HOUR, Integer.parseInt(timeSent_.substring(0,2)));
+        date_.set(Calendar.MINUTE, Integer.parseInt(timeSent_.substring(2,4)));
+        date_.set(Calendar.SECOND, Integer.parseInt(timeSent_.substring(4,6)));
+      }
+      dateSent_ = null;
+      timeSent_ = null;
+      if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
+    }
+
+
     // Sets the date sent and time sent.
     // @param  dateSent  The date sent.
     // @param  timeSent  The time sent.
     void setDate(String dateSent, String timeSent)
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting date, date: " + dateSent + " time: " + timeSent);
-        date_ = new GregorianCalendar(Integer.parseInt(dateSent.substring(0, 3)) + 1900 /* year */, Integer.parseInt(dateSent.substring(3, 5)) - 1 /* month is zero based in Calendar class */, Integer.parseInt(dateSent.substring(5, 7)) /* day */, Integer.parseInt(timeSent.substring(0, 2)) /* hour */, Integer.parseInt(timeSent.substring(2, 4)) /* minute */, Integer.parseInt(timeSent.substring(4, 6)) /* second */);
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
+      dateSent_ = dateSent; //@G0A
+      timeSent_ = timeSent; //@G0A
+      //@G0D  date_ = new GregorianCalendar(Integer.parseInt(dateSent.substring(0, 3)) + 1900 /* year */, Integer.parseInt(dateSent.substring(3, 5)) - 1 /* month is zero based in Calendar class */, Integer.parseInt(dateSent.substring(5, 7)) /* day */, Integer.parseInt(timeSent.substring(0, 2)) /* hour */, Integer.parseInt(timeSent.substring(2, 4)) /* minute */, Integer.parseInt(timeSent.substring(4, 6)) /* second */);
+      //@G0D  if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Date: " + date_);
     }
+
 
     // Sets the default reply.
     // @param  defaultReply  The default reply.
