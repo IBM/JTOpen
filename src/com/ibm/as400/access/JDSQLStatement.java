@@ -118,6 +118,7 @@ class JDSQLStatement
     private JDSQLTokenizer tokenizer_                   = null; // @C3A
     private String          value_;
     private String          valueForServer_             = null;     // @E1A
+    private boolean         selectTableNotSet_          = true;     //@K1A boolean to determine if selectTable_ has been set, if so, then selectTableNotSet_ is false
 
 
 
@@ -605,8 +606,9 @@ class JDSQLStatement
             {
                 parseFor();
             }
-            else if(isSelect_ && token.equals(FROM_))
+            else if(isSelect_ && token.equals(FROM_) && selectTableNotSet_)        //@K1C Added not set to check for subqueries
             {
+                selectTableNotSet_ = false;                                        //@K1A
                 if(tokenizer_.hasMoreTokens())
                 {
                     token = tokenizer_.nextToken(); //@F3C
