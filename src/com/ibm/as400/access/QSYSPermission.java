@@ -104,7 +104,6 @@ public class QSYSPermission extends UserPermission
     }
 
 
-    // @A2d Deleted getCopyright().
 
     // @A3a - This logic was formerly in PermissionAccessQSYS.getChgCommand().
    /** 

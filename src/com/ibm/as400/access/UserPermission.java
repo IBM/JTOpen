@@ -196,7 +196,6 @@ public class UserPermission
         return committed_;
     }
 
-    // Deleted getCopyright().
     
     /**
      * Returns the value indicating if the user profile is a group profile. 

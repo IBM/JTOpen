@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RootPermission.java
 //                                                                             
@@ -50,9 +50,8 @@ public class RootPermission extends UserPermission
         super(userProfileName);
         return;
     }
-    
-    // Deleted getCopyright().
 
+    
     /**
      * Returns the data authority of the user.
      * @return The data authority of the user. The possible values are:
