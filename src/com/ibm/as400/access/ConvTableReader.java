@@ -461,7 +461,7 @@ public class ConvTableReader extends InputStreamReader
             {
                 tableType_ = SB_TABLE;
             }
-            else if (table_ instanceof ConvTableDoubleMap || table_ instanceof ConvTable1202 || table_ instanceof ConvTable13488)
+            else if (table_ instanceof ConvTableDoubleMap || table_ instanceof ConvTable1202 || table_ instanceof ConvTableUnicodeBigMap)
             {
                 tableType_ = DB_TABLE;
             }
