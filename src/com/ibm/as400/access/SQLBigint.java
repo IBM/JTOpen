@@ -98,11 +98,11 @@ implements SQLData
             {
                 long longValue = (long) Long.parseLong ((String) object);
 
-                if (( longValue > Integer.MAX_VALUE ) || ( longValue < Integer.MIN_VALUE ))
+                if (( longValue > Long.MAX_VALUE ) || ( longValue < Long.MIN_VALUE ))
                 {
                     truncated_ = 4;
                 }
-                value_ = (int) longValue;
+                value_ = (long) longValue;
             }
             catch (NumberFormatException e)
             {
@@ -115,11 +115,11 @@ implements SQLData
                {
                   double doubleValue = Double.valueOf ((String) object).doubleValue ();
 
-                  if (( doubleValue > Short.MAX_VALUE ) || ( doubleValue < Short.MIN_VALUE ))
+                  if (( doubleValue > Long.MAX_VALUE ) || ( doubleValue < Long.MIN_VALUE ))
                   {
                       truncated_ = 6;
                   }
-                  value_ = (short) doubleValue;
+                  value_ = (long) doubleValue;
                }
                catch (NumberFormatException e)
                {
