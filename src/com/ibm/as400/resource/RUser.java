@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: RUser.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@ package com.ibm.as400.resource;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.CommandCall;
+import com.ibm.as400.access.ExtendedIllegalArgumentException; //@B1A
 import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
 import com.ibm.as400.data.PcmlException;
@@ -116,6 +117,7 @@ The RUser class represents an AS/400 user profile and directory entry.
 <li><a href="#USER_ACTION_AUDIT_LEVEL">USER_ACTION_AUDIT_LEVEL</a>
 <li><a href="#USER_ADDRESS">USER_ADDRESS</a>
 <li><a href="#USER_CLASS">USER_CLASS</a>
+<li><a href="#USER_DESCRIPTION">USER_DESCRIPTION</a>
 <li><a href="#USER_ID">USER_ID</a>
 <li><a href="#USER_ID_NUMBER">USER_ID_NUMBER</a>
 <li><a href="#USER_OPTIONS">USER_OPTIONS</a>
@@ -147,7 +149,7 @@ user.commitAttributeChanges();
 public class RUser
 extends ChangeableResource
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -218,11 +220,11 @@ Attribute value for no date.
     private static final QuoteValueMap          quoteValueMapBlank_     = new QuoteValueMap("*BLANK");
     private static final QuoteValueMap          quoteValueMapNone_      = new QuoteValueMap(NONE);
 
-    private static final String                 ADDDIRE_                = "ADDDIRE";
+//@B1D    private static final String                 ADDDIRE_                = "ADDDIRE";
     private static final String                 CHGDIRE_                = "CHGDIRE";
     private static final String                 CHGUSRPRF_              = "CHGUSRPRF";
     private static final String                 CHGUSRAUD_              = "CHGUSRAUD";
-    private static final String                 CRTUSRPRF_              = "CRTUSRPRF";
+//@B1D    private static final String                 CRTUSRPRF_              = "CRTUSRPRF";
     private static final int[]                  INDEX_0_                = new int[] { 0 };
     private static final String                 QOKSCHD_                = "qokschd";
     private static final String                 USRI0100_               = "qsyrusri_usri0100";
@@ -1188,7 +1190,7 @@ of this array are:
                         possibleValues, null, true, true);
         ValueMap valueMap = new OptionsValueMap('N', 'Y', possibleValues);
         getterMap_.add(LOCALE_JOB_ATTRIBUTES, USRI0300_, "receiverVariable.localeJobAttributes", valueMap);
-        setterMap_.add(LOCALE_JOB_ATTRIBUTES, CHGUSRPRF_, "SETJOBATR", arrayValueMap_);
+        setterMap_.add(LOCALE_JOB_ATTRIBUTES, CHGUSRPRF_, "SETJOBATR", arrayValueMapNone_); //@B1C
     }
 
 
@@ -2143,7 +2145,7 @@ Possible values for the elements of this array are:
         ValueMap valueMap = new OptionsValueMap('N', 'Y', possibleValues);
         getterMap_.add(SPECIAL_AUTHORITIES, USRI0200_, "receiverVariable.specialAuthorities", valueMap);
         getterMap_.add(SPECIAL_AUTHORITIES, USRI0300_, "receiverVariable.specialAuthorities", valueMap);
-        setterMap_.add(SPECIAL_AUTHORITIES, CHGUSRPRF_, "SPCAUT", arrayValueMap_);
+        setterMap_.add(SPECIAL_AUTHORITIES, CHGUSRPRF_, "SPCAUT", arrayValueMapNone_); //@B1C
     }
 
 
@@ -2280,7 +2282,10 @@ in the user's directory entry.
 /**
 Attribute ID for text.  This identifies a String
 attribute, which represents the text as specified
-in the user's directory entry.
+in the user's directory entry. This is not the same
+as the directory entry description or user profile description.
+@see #USER_DESCRIPTION
+@see #TEXT_DESCRIPTION
 **/
     public static final String TEXT                          = "TEXT";
 
@@ -2295,6 +2300,9 @@ in the user's directory entry.
 /**
 Attribute ID for text description.  This identifies a String
 attribute, which represents the descriptive text for the user profile.
+This is not the same as the directory entry text or directory entry description.
+@see #TEXT
+@see #USER_DESCRIPTION
 **/
     public static final String TEXT_DESCRIPTION         = "TEXT_DESCRIPTION";
 
@@ -2539,6 +2547,24 @@ which represents the user class name.   Possible values are:
     }
 
 
+//@B1A
+/**
+Attribute ID for user description.  This identifies a read-only String
+attribute, which represents the user description as specified
+in the user's directory entry. This is not the same as the directory
+entry text or the user profile description.
+@see #TEXT
+@see #TEXT_DESCRIPTION
+**/
+    public static final String USER_DESCRIPTION                          = "USER_DESCRIPTION";
+
+    static
+    {
+        attributes_.add(USER_DESCRIPTION, String.class, true);
+        getterMap_.add(USER_DESCRIPTION, QOKSCHD_, "receiverVariable.directoryEntries.userDescription.fieldValue", INDEX_0_);
+    }
+
+
 /**
 Attribute ID for user ID.  This identifies a read-only String
 attribute, which represents the user ID as specified
@@ -2553,8 +2579,9 @@ in the user's directory entry.
 
 
 
+//@B1C - This is a Long, not an Integer.
 /**
-Attribute ID for user ID number.  This identifies a Integer attribute,
+Attribute ID for user ID number.  This identifies a Long attribute,
 which represents the user ID number for the user profile. This is used
 to identify the user when using the integrated file system.
 **/
@@ -2654,7 +2681,7 @@ environment.  Possible values for the elements of this array are:
                         possibleValues, null, true, true);
         ValueMap valueMap = new OptionsValueMap('N', 'Y', possibleValues);
         getterMap_.add(USER_OPTIONS, USRI0300_, "receiverVariable.userOptions", valueMap);
-        setterMap_.add(USER_OPTIONS, CHGUSRPRF_, "USROPT", arrayValueMap_);
+        setterMap_.add(USER_OPTIONS, CHGUSRPRF_, "USROPT", arrayValueMapNone_); //@B1C
     }
 
 
@@ -2808,8 +2835,15 @@ Deletes the user.
 
         // Remove the directory entry.
         StringBuffer buffer = new StringBuffer("RMVDIRE USRID(");
-        buffer.append(name_);
-        buffer.append(')');
+        //@B1D buffer.append(name_);
+        buffer.append(getAttributeValue(RUser.USER_ID)); //@B1A
+        buffer.append(' '); //@B1A
+        buffer.append(getAttributeValue(RUser.USER_ADDRESS)); //@B1A
+        buffer.append(") USRD("); //@B1C
+        String desc = (String)getAttributeValue(RUser.USER_DESCRIPTION); //@B1A
+        if (desc == "") desc = "*FIRST"; //@B1A
+        buffer.append(desc); //@B1A
+        buffer.append(')'); //@B1A
         try {
             fireBusy();
             CommandCall rmvdire = new CommandCall(getSystem(), buffer.toString());
@@ -2892,7 +2926,27 @@ when the connection needs to be established.
         attributeSetter_ = new CommandAttributeSetter(system, setterMap_);
         attributeSetter_.setParameterValue(CHGUSRPRF_, USRPRF_PARAMETER_, nameUpper);
         attributeSetter_.setParameterValue(CHGUSRAUD_, USRPRF_PARAMETER_, nameUpper);
-        String address;                                                                             // @A3A
+        
+        String address = ""; //@B1A
+        String userid = ""; //@B1A
+        String description = ""; //@B1A
+        try //@B1A
+        {
+          address = (String)attributeGetter_.getValue(USER_ID); //@B1A
+          userid = (String)attributeGetter_.getValue(USER_ADDRESS); //@B1A
+          description = (String)attributeGetter_.getValue(USER_DESCRIPTION); //@B1A
+        }
+        catch(Exception e) //@B1A
+        {
+          if (Trace.isTraceOn()) //@B1A
+          {
+            Trace.log(Trace.ERROR, "Error retrieving directory entry user id and address.", e); //@B1A
+          }
+        }
+
+        //@B1D String address;                                                                             // @A3A
+        if (address == "") //@B1A
+        {
         if (!system.isLocal())                                                                      // @A3A
             address = system.getSystemName();                                                       // @A3A
         else {                                                                                      // @A3A
@@ -2908,7 +2962,26 @@ when the connection needs to be established.
                 throw new ResourceException(e);                                                     // @A3A
             }                                                                                       // @A3A
         }                                                                                           // @A3A
-        attributeSetter_.setParameterValue(CHGDIRE_, USRID_PARAMETER_, nameUpper + " " + address);  // @A3C
+        }
+        if (userid == "") //@B1A
+        {
+          userid = nameUpper; //@B1A
+        }
+        
+        if (description != "") //@B1A
+        {
+          attributeSetter_.setParameterValue(CHGDIRE_, USRD_PARAMETER_, "'"+description+"' '"+description+"'"); //@B1A
+        }
+
+        //@B1:
+        // Note that a directory entry is uniquely identified by its 8-character user id, 8-character address,
+        // and 50-character description (because there can be duplicate userid/address pairs, but each
+        // description must be unique for a given userid/address pair).
+        // Also note that the user profile name can be up to 10 characters, and is not necessarily equal to
+        // the directory entry user id.
+
+        //@B1D attributeSetter_.setParameterValue(CHGDIRE_, USRID_PARAMETER_, nameUpper + " " + address);  // @A3C
+        attributeSetter_.setParameterValue(CHGDIRE_, USRID_PARAMETER_, userid+" "+address);
     }
 
 
