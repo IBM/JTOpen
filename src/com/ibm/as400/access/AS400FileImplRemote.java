@@ -285,7 +285,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
     // the file to be created regardless of the user's authority and also eliminates
     // name collision problems when different jobs are creating files from a record
     // format.
-    AS400Message[] msgs = execute("QSYS/CRTSRCPF FILE(QTEMP/JT400DSSRC) MBR(*FILE) TEXT('JT400 TEMPORARY DDS SOURCE FILE')"); //@B0C
+    AS400Message[] msgs = execute("QSYS/CRTSRCPF FILE(QTEMP/JT400DSSRC) RCDLEN(92) MBR(*FILE) TEXT('JT400 TEMPORARY DDS SOURCE FILE')"); //@B0C @F0C
     if (msgs.length > 0)
     {
       if (msgs[0].getID().equals("CPF5813"))
@@ -311,7 +311,7 @@ class AS400FileImplRemote extends AS400FileImplBase implements Serializable //@C
       {
         // File does not exist and we were unable to create; throw exception
         // (CPC7301 = Successful create)
-        Trace.log(Trace.ERROR, "QSYS/CRTSRCPF FILE(QTEMP/JT400DSSRC) MBR(*FILE) TEXT('JT400 TEMPORARY DDS SOURCE FILE')");
+        Trace.log(Trace.ERROR, "QSYS/CRTSRCPF FILE(QTEMP/JT400DSSRC) RCDLEN(92) MBR(*FILE) TEXT('JT400 TEMPORARY DDS SOURCE FILE')"); //@F0C
         throw new AS400Exception(msgs);
       }
     }
