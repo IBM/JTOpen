@@ -287,6 +287,7 @@ specified and lets the transaction be completed.
                         suspended in incomplete state.  The transaction
                         context is in suspend state and must be resumed
                         via <a href="#start(javax.transaction.xa.Xid, int)">start()</a> with TMRESUME.
+                        (This is not currently supported for V5R2 and earlier versions.)
                     </ul>
 
 @exception XAException If an error occurs.
@@ -303,8 +304,11 @@ specified and lets the transaction be completed.
         throw new XAException(XAException.XAER_PROTO);
       if (!started_.equals(xid))
         throw new XAException(XAException.XAER_NOTA);
-      //@K1D if ((flags != TMSUCCESS) && (flags != TMFAIL))
-      //@K1D   throw new XAException(XAException.XAER_INVAL);
+      if(connection_.getServerFunctionalLevel() < 11)
+      {
+          if ((flags != TMSUCCESS) && (flags != TMFAIL))
+              throw new XAException(XAException.XAER_INVAL);
+      }
 
       if (JDTrace.isTraceOn())
         JDTrace.logInformation(this, "xa_end");
@@ -800,9 +804,13 @@ specified.
         request.setResourceManagerID(resourceManagerID_);
         request.setXid(AS400JDBCXid.xidToBytes(xid));
         request.setFlags(flags);
-        request.setCtlTimeout(transactionTimeout_);
-        if(lockWait_ != -1)
-            request.setLockWait(lockWait_);
+
+        if(connection_.getServerFunctionalLevel() >= 11)    //@KBA  server level must be version 11 or higher
+        {
+            request.setCtlTimeout(transactionTimeout_);
+            if(lockWait_ != -1)
+                request.setLockWait(lockWait_);
+        }
 
         reply = connection_.sendAndReceive (request);
         processXAReturnCode(reply);
