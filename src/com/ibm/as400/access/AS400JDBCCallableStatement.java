@@ -544,7 +544,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public boolean getBoolean(int parameterIndex)
@@ -619,7 +619,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS
     // does not support that.
     //
     public boolean getBoolean(String parameterName)
@@ -645,7 +645,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS
     // does not support that.
     //
     public byte getByte(int parameterIndex)
@@ -718,7 +718,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS 
     // does not support that.
     //
     public byte getByte(String parameterName)
@@ -1305,7 +1305,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS
     // does not support that until V4R5.
     //
     public long getLong(int parameterIndex)
@@ -1388,7 +1388,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS 
     // does not support that until V4R5.
     //
     public long getLong(String parameterName)
@@ -2429,7 +2429,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIT, but DB2 for i5/OS 
     // does not support that.
     //
     public void setBoolean(String parameterName, boolean parameterValue) 
@@ -2459,7 +2459,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL TINYINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL TINYINT, but DB2 for i5/OS 
     // does not support that.
     //
     public void setByte(String parameterName, byte parameterValue) 
@@ -2691,7 +2691,7 @@ implements CallableStatement
     //
     // Implementation note:
     //
-    // The spec defines this in terms of SQL BIGINT, but DB2 for OS/400
+    // The spec defines this in terms of SQL BIGINT, but DB2 for i5/OS 
     // does not support that until V4R5.
     //
     public void setLong(String parameterName, long parameterValue) 
