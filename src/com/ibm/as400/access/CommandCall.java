@@ -77,8 +77,6 @@ import com.ibm.as400.resource.RJob;
  **/
 public class CommandCall implements Serializable
 {
-    private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
     static final long serialVersionUID = 4L;
 
     // Constants that indicate how thread safety was determined.
@@ -389,10 +387,20 @@ public class CommandCall implements Serializable
         return currentThread;
     }
 
+    static boolean isThreadSafetyPropertySet()
+    {
+        return getThreadSafetyProperty() != null;
+    }
+
+    private static String getThreadSafetyProperty()
+    {
+        return SystemProperties.getProperty(SystemProperties.COMMANDCALL_THREADSAFE);
+    }
+
     // Check thread safety system property.
     private void checkThreadSafetyProperty()
     {
-        String property = SystemProperties.getProperty(SystemProperties.COMMANDCALL_THREADSAFE);
+        String property = getThreadSafetyProperty();
         if (property == null)  // Property not set.
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Thread safe system property not set, thread safety property remains unspecified.");
