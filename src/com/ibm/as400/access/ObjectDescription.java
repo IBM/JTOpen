@@ -932,8 +932,9 @@ public class ObjectDescription
     catch(AS400Exception e)
     {
       String id = e.getAS400Message().getID().trim();
-      if (id.equalsIgnoreCase("CPF9801") ||
-          id.equalsIgnoreCase("CPF9810"))
+      if (id.equalsIgnoreCase("CPF9801") ||  // Object &2 in library &3 not found.
+          id.equalsIgnoreCase("CPF9810") ||  // Library &1 not found.
+          id.equalsIgnoreCase("CPF9812"))    // File &1 in library &2 not found.
       {
         return false;
       }
