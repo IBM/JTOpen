@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.beans.PropertyChangeListener;
@@ -552,6 +553,53 @@ public class SystemValueList implements java.io.Serializable
 
 
   /**
+  Returns the description for the specified system value group.
+    @param group The system value group.
+    @param locale The locale used to load the translated group description.
+    @return The description of the system value group.
+  **/
+  public static String getGroupDescription(int group, Locale locale)
+  {
+    if (group < 0 || group > GROUP_ALL)
+    {
+      throw new ExtendedIllegalArgumentException("group",
+          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (locale == null)
+    {
+      throw new NullPointerException("locale");
+    }
+    
+    switch(group)
+    {
+      case GROUP_ALC:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_DESC", locale);
+      case GROUP_DATTIM:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIME_DESC", locale);
+      case GROUP_EDT:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_DESC", locale);
+      case GROUP_LIBL:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_DESC", locale);
+      case GROUP_MSG:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_DESC", locale);
+      case GROUP_SEC:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_DESC", locale);
+      case GROUP_STG:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_DESC", locale);
+      case GROUP_SYSCTL:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_DESC", locale);
+      case GROUP_NET:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_DESC", locale);
+      case GROUP_ALL:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_DESC", locale);
+      default: // This should not happen
+        break;
+    }
+    return null;
+  }
+
+
+  /**
   Returns the name of the specified system value group.
     @param group The system value group.
     @return The name of the system value group.
@@ -567,6 +615,52 @@ public class SystemValueList implements java.io.Serializable
     return groupNames_[group];
   }
 
+
+  /**
+  Returns the name of the specified system value group.
+    @param group The system value group.
+    @param locale The locale used to load the translated group name.
+    @return The name of the system value group.
+  **/
+  public static String getGroupName(int group, Locale locale)
+  {
+    if (group < 0 || group > GROUP_ALL)
+    {
+      throw new ExtendedIllegalArgumentException("group",
+          ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    }
+    if (locale == null)
+    {
+      throw new NullPointerException("locale");
+    }
+    
+    switch(group)
+    {
+      case GROUP_ALC:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALC_NAME", locale);
+      case GROUP_DATTIM:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_DATTIME_NAME", locale);
+      case GROUP_EDT:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_EDT_NAME", locale);
+      case GROUP_LIBL:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_LIBL_NAME", locale);
+      case GROUP_MSG:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_MSG_NAME", locale);
+      case GROUP_SEC:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SEC_NAME", locale);
+      case GROUP_STG:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_STG_NAME", locale);
+      case GROUP_SYSCTL:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_SYSCTL_NAME", locale);
+      case GROUP_NET:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_NET_NAME", locale);
+      case GROUP_ALL:
+        return ResourceBundleLoader.getSystemValueText("SYSTEM_VALUE_GROUP_ALL_NAME", locale);
+      default: // This should not happen
+        break;
+    }
+    return null;
+  }
 
   /**
   Returns the system.

@@ -13,6 +13,7 @@
 
 package com.ibm.as400.access;
 
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -79,6 +80,23 @@ class ResourceBundleLoader
     // @return  the translatable system value MRI text.
     static final String getSystemValueText(String textId)
     {
+        if (systemValueResource_ == null) {
+            throw resourceException_;
+        }
+        return systemValueResource_.getString(textId);
+    }
+
+    // Returns the system value MRI text for the specified Locale.
+    // @param  textId  the id which identifies the text to return.
+    // @param locale The locale to use.
+    // @return  the translatable system value MRI text.
+    static final String getSystemValueText(String textId, Locale locale)
+    {
+        ResourceBundle bundle = ResourceBundle.getBundle("com.ibm.as400.access.SVMRI", locale);
+        if (bundle != null)
+        {
+          return bundle.getString(textId);
+        }
         if (systemValueResource_ == null) {
             throw resourceException_;
         }
