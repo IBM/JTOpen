@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ index rather than accessing them by their name.
 //
 public class AS400JDBCResultSet
 implements ResultSet {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
     //New constants for JDBC 3.0.
@@ -3586,6 +3586,9 @@ implements ResultSet {
     {
         synchronized(internalLock_) {                                            // @D1A
             beforeUpdate ();
+
+            if (positionValid_ == false)                                         // @D9a
+                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID); // @D9a
 
             if (positionInsert_ == true)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
