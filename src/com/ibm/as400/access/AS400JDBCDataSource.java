@@ -1616,7 +1616,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *
     *  Carefully consider the result of overriding the default behavior of the
     *  driver.  For example, setting the value of this property to 1 means
-    *  the driver will no longer thrown an exception even though the JDBC 3.0
+    *  the driver will no longer throw an exception even though the JDBC 3.0
     *  specification states throwing an exception is the correct behavior.  
     *  Be sure your application correctly handles the altered behavior.  
     *
