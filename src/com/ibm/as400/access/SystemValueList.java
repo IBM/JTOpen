@@ -382,6 +382,8 @@ public class SystemValueList implements java.io.Serializable
     list_.put("QSCANFSCTL",   new SystemValueInfo("QSCANFSCTL", AS400TYPE_CHAR, 10, 20, TYPE_ARRAY, GROUP_SEC, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QSCANFSCTL_DES")).trim())); //@F1A
     list_.put("QTIMADJ",   new SystemValueInfo("QTIMADJ", AS400TYPE_CHAR, 28, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTIMADJ_DES")).trim())); //@F1A
     list_.put("QTIMZON",   new SystemValueInfo("QTIMZON", AS400TYPE_CHAR, 10, 1, TYPE_STRING, GROUP_DATTIM, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTIMZON_DES")).trim())); //@F1A
+    list_.put("QTHDRSCAFN", new SystemValueInfo("QTHDRSCAFN", AS400TYPE_CHAR, 20, 1, TYPE_STRING, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTHDRSCAFN_DES")).trim()));  //@K1A
+    list_.put("QTHDRSCADJ", new SystemValueInfo("QTHDRSCADJ", AS400TYPE_CHAR, 1, 1, TYPE_STRING, GROUP_SYSCTL, vrm530, ((String)ResourceBundleLoader.getSystemValueText("QTHDRSCADJ_DES")).trim()));  //@K1A
 
     // Create the group vectors
     for (int i=0; i<groupVector.length; ++i) //@D4C
