@@ -16,7 +16,6 @@
 <!DOCTYPE xsl:stylesheet [
 <!-- entities for use in the generated output  -->
 <!ENTITY amp    "&amp;">
-<!ENTITY nbsp   "&#160;">
 ]>
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
@@ -145,7 +144,7 @@
   <html><xsl:text/>
   <xsl:text>&#xa;</xsl:text>
   <head><xsl:text>&#xa;</xsl:text>
-  <title><xsl:value-of select="Cmd/@Prompt"/>&nbsp;&nbsp;(<xsl:value-of select="Cmd/@CmdName"/>)</title>
+  <title><xsl:value-of select="Cmd/@Prompt"/><xsl:text>  </xsl:text>(<xsl:value-of select="Cmd/@CmdName"/>)</title>
   <xsl:text>&#xa;</xsl:text>
   </head>
   <xsl:text>&#xa;</xsl:text>
@@ -172,7 +171,7 @@
      - Copy the Error messages help (if present) from the CommandHelp file         
                                                                                -->
 <xsl:template match="Cmd">
-  <h2><xsl:value-of select="@Prompt"/>&nbsp;&nbsp;(<xsl:value-of select="@CmdName"/>)</h2>
+  <h2><xsl:value-of select="@Prompt"/><xsl:text>  </xsl:text>(<xsl:value-of select="@CmdName"/>)</h2>
 
 <!-- Make a table which contains the information on where the command is allowed to run, 
      whether the command is "safe" to run in a multi-threaded job, and hypertext links 
@@ -191,7 +190,7 @@
 <!-- If the command object is a command definition statement (like PMTCTL) or 
      a utility statement (like STRPGMEXP), don't generate this information.          -->
   <xsl:if test="substring($WhereAllowed,1,9)!='000000000'">
-    <b><xsl:value-of select="$_WHERE_ALLOWED_TO_RUN"/>:&nbsp;&nbsp;</b><xsl:text/>
+    <b><xsl:value-of select="$_WHERE_ALLOWED_TO_RUN"/>:<xsl:text>  </xsl:text></b><xsl:text/>
     <xsl:choose>
 
       <xsl:when test="substring($WhereAllowed,1,9)='111111111'">
@@ -250,7 +249,7 @@
       </xsl:otherwise>
     </xsl:choose>
 
-    <b><xsl:value-of select="$_THREADSAFE"/>:&nbsp;&nbsp;</b><xsl:text/> 
+    <b><xsl:value-of select="$_THREADSAFE"/>:<xsl:text>  </xsl:text></b><xsl:text/> 
     <xsl:choose>
       <xsl:when test="substring($ThreadSafe,1,1)='0'">
         <xsl:value-of select="$_THREADSAFE_NO"/><xsl:text>&#xa;</xsl:text></xsl:when>
@@ -477,7 +476,7 @@
             <xsl:value-of select="@Prompt"/>
           </xsl:when>  
           <xsl:otherwise>
-            &nbsp;
+            <xsl:text> </xsl:text>
           </xsl:otherwise>
         </xsl:choose>      
       </td>
@@ -495,18 +494,18 @@
           <xsl:when test="count(child::SngVal)>0">
             <xsl:value-of select="substring-before($_VALUES_OTHER_REPEAT,'&amp;amp;1')"/>
             <xsl:value-of select="@Max"/>
-            <xsl:value-of select="substring-after($_VALUES_OTHER_REPEAT,'&amp;amp;1')"/>:&nbsp;<xsl:text/>
+            <xsl:value-of select="substring-after($_VALUES_OTHER_REPEAT,'&amp;amp;1')"/>:<xsl:text> </xsl:text><xsl:text/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="substring-before($_VALUES_REPEAT,'&amp;amp;1')"/>
             <xsl:value-of select="@Max"/>
-            <xsl:value-of select="substring-after($_VALUES_REPEAT,'&amp;amp;1')"/>:&nbsp;<xsl:text/>
+            <xsl:value-of select="substring-after($_VALUES_REPEAT,'&amp;amp;1')"/>:<xsl:text> </xsl:text><xsl:text/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:if>
       <xsl:if test="@Max=1 and count(child::SngVal)>0">
         <xsl:text/>
-        <xsl:value-of select="$_VALUES_OTHER"/>:&nbsp;<xsl:text/>
+        <xsl:value-of select="$_VALUES_OTHER"/>:<xsl:text> </xsl:text><xsl:text/>
       </xsl:if>    
       
       <!-- If value is restricted (SNGVAL, SPCVAL,and VALUES), don't show the parameter type.
@@ -558,7 +557,7 @@
       <xsl:variable name="ParmPos" select="count(preceding-sibling::Parm)+1"/>
       <!-- if MAXPOS >= ParmPos, output parameter positional number  -->
       <xsl:if test="number(../@MaxPos) >= number($ParmPos)">
-        <xsl:text/>, <xsl:value-of select="$_POSITIONAL"/>&nbsp;<xsl:value-of select="number($ParmPos)"/>
+        <xsl:text/>, <xsl:value-of select="$_POSITIONAL"/><xsl:text> </xsl:text><xsl:value-of select="number($ParmPos)"/>
       </xsl:if>
       
     </td>
@@ -588,7 +587,7 @@
       <xsl:attribute name="style">padding-left:<xsl:value-of select="$NumIndent"/>pt</xsl:attribute>
     </xsl:if>
       
-    <xsl:value-of select="$_ELEMENT"/>&nbsp;<xsl:number count="Elem"/>:&nbsp;<xsl:value-of select="@Prompt"/>
+    <xsl:value-of select="$_ELEMENT"/><xsl:text> </xsl:text><xsl:number count="Elem"/>:<xsl:text> </xsl:text><xsl:value-of select="@Prompt"/>
     </td>
     <xsl:text>&#xa;</xsl:text>
     
@@ -604,17 +603,17 @@
           <xsl:when test="count(child::SngVal)>0">
             <xsl:value-of select="substring-before($_VALUES_OTHER_REPEAT,'&amp;amp;1')"/>
             <xsl:value-of select="@Max"/>
-            <xsl:value-of select="substring-after($_VALUES_OTHER_REPEAT,'&amp;amp;1')"/>:&nbsp;<xsl:text/>
+            <xsl:value-of select="substring-after($_VALUES_OTHER_REPEAT,'&amp;amp;1')"/>:<xsl:text> </xsl:text><xsl:text/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="substring-before($_VALUES_REPEAT,'&amp;amp;1')"/>
             <xsl:value-of select="@Max"/>
-            <xsl:value-of select="substring-after($_VALUES_REPEAT,'&amp;amp;1')"/>:&nbsp;<xsl:text/>
+            <xsl:value-of select="substring-after($_VALUES_REPEAT,'&amp;amp;1')"/>:<xsl:text> </xsl:text><xsl:text/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:if>
       <xsl:if test="@Max=1 and count(child::SngVal)>0">
-        <xsl:value-of select="$_VALUES_OTHER"/>:&nbsp;<xsl:text/>
+        <xsl:value-of select="$_VALUES_OTHER"/>:<xsl:text> </xsl:text><xsl:text/>
       </xsl:if> 
 
       <xsl:choose>
@@ -660,7 +659,7 @@
         <xsl:attribute name="style">padding-left:<xsl:value-of select="$NumIndent"/>pt</xsl:attribute>
       </xsl:if>
       
-      <xsl:value-of select="$_QUALIFIER"/>&nbsp;<xsl:number count="Qual"/>:&nbsp;<xsl:text/>
+      <xsl:value-of select="$_QUALIFIER"/><xsl:text> </xsl:text><xsl:number count="Qual"/>:<xsl:text> </xsl:text><xsl:text/>
       <xsl:choose>
       <xsl:when test="position()=1">
       <xsl:value-of select="../@Prompt"/>
@@ -728,7 +727,7 @@
       <i><xsl:value-of select="$_TYPE_COMMUNICATIONS_NAME"/></i><xsl:text/>
       </xsl:when>
       <xsl:when test="@Type='GENERIC'">
-      <i><xsl:value-of select="$_TYPE_GENERIC_NAME"/>,&nbsp;<xsl:value-of select="$_NAME_LOWERCASE"/></i><xsl:text/>
+      <i><xsl:value-of select="$_TYPE_GENERIC_NAME"/>,<xsl:text> </xsl:text><xsl:value-of select="$_NAME_LOWERCASE"/></i><xsl:text/>
       </xsl:when>
       <xsl:when test="@Type='INT2'">
       <i><xsl:value-of select="$_TYPE_INTEGER"/></i><xsl:text/>
@@ -809,10 +808,10 @@
              will be the first generated choice (no preceding "type" string).  -->   
         <xsl:choose>
           <xsl:when test="@Rstd='YES'">
-            <xsl:text/><b><u><xsl:value-of select="@Dft"/></u></b>,&nbsp;<xsl:text/> 
+            <xsl:text/><b><u><xsl:value-of select="@Dft"/></u></b>,<xsl:text> </xsl:text><xsl:text/> 
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text/>,&nbsp;<b><u><xsl:value-of select="@Dft"/></u></b><xsl:text/> 
+            <xsl:text/>,<xsl:text> </xsl:text><b><u><xsl:value-of select="@Dft"/></u></b><xsl:text/> 
           </xsl:otherwise>
         </xsl:choose>    
       </xsl:otherwise>
@@ -824,7 +823,7 @@
 <!-- Template to handle <SngVal> element for <Parm> or <Elem> element     -->
 <xsl:template match="SngVal">
   <!-- Put out text of 'Special values: ' and process the list of values. -->
-  <xsl:value-of select="$_VALUES_SINGLE"/>:&nbsp;<xsl:text/>
+  <xsl:value-of select="$_VALUES_SINGLE"/>:<xsl:text> </xsl:text><xsl:text/>
   <xsl:apply-templates select="Value"/>
   <br /><xsl:text/>
 </xsl:template>   
@@ -847,7 +846,7 @@
            has generated a string describing the type.  Generate a comma before 
            generating list of values.                                             --> 
       <xsl:if test="../@Rstd='NO'">
-        <xsl:text/>,&nbsp;<xsl:text/>
+        <xsl:text/>,<xsl:text> </xsl:text><xsl:text/>
       </xsl:if>
       
       <!-- Generate list of special values allowed (normally values preceded by "*") -->
@@ -877,7 +876,7 @@
            a comma needs to be generated before generating the list of values.    --> 
       <xsl:if test="../@Rstd='NO' or 
                     count(preceding-sibling::SpcVal)>0">
-        <xsl:text/>,&nbsp;<xsl:text/>
+        <xsl:text/>,<xsl:text> </xsl:text><xsl:text/>
       </xsl:if>
       
       <!-- Generate list of regular values allowed (values not preceded by "*").  -->
@@ -890,7 +889,7 @@
 <xsl:template match="ChoicePgmValues">
   <xsl:if test="$ShowChoicePgmValues!='0'">
     <xsl:if test="../@Rstd='NO'">
-      <xsl:text/>,&nbsp;<xsl:text/>
+      <xsl:text/>,<xsl:text> </xsl:text><xsl:text/>
     </xsl:if>
     <xsl:apply-templates select="Value"/>
   </xsl:if>  
