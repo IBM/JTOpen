@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.Vector;
 import java.text.DateFormat;
 import java.text.ParseException;
 
@@ -6575,6 +6576,7 @@ of work identifier.
   /**
    * Refreshes the values for all attributes. This does not cancel uncommitted changes.
    * To refresh just the elapsed statistics, use {@link #loadStatistics loadStatistics()}.
+   * @see #loadInformation(int[])
    * @see #commitChanges
    * @see #loadStatistics
   **/
@@ -6617,6 +6619,72 @@ of work identifier.
       retrieve(SPECIAL_ENVIRONMENT);    // 600
       retrieve(USER_LIBRARY_LIST);      // 700
       retrieve(ELAPSED_CPU_TIME_USED);  // 1000
+    }
+    catch (Exception e)
+    {
+      if (Trace.traceOn_)
+      {
+        Trace.log(Trace.ERROR, "Error loading job information: ", e);
+      }
+    }
+  }
+
+
+  /**
+   * Refreshes the values for specific attributes. This does not cancel uncommitted changes.
+   * <br>Note: The specified attributes will be refreshed, along with other attributes in their "format group".  For more information about attribute format groups, refer to the specification of the QUSRJOBI API.
+   * @param attributes The attributes to refresh.
+   * @see #loadInformation()
+   * @see #commitChanges
+   * @see #loadStatistics
+  **/
+  public void loadInformation(int[] attributes)
+  {
+    // Load only the formats needed for the specified attributes.
+    try
+    {
+
+      // Determine which formats we need to specify.
+      Vector formats = new Vector(attributes.length);
+      for (int i=0; i<attributes.length; i++)
+      {
+        int attr = attributes[i];
+        String format = lookupFormatName(attr);
+        if (!formats.contains(format)) formats.add(format);
+
+        // Clear/reset attr values, for consistency with loadInformation().
+
+        values_.remove(attr);  // clear the value for that attribute
+        switch (attr) {
+          case INTERNAL_JOB_ID:
+            setValueInternal(INTERNAL_JOB_ID, null); break;
+          case INTERNAL_JOB_IDENTIFIER:
+            setValueInternal(INTERNAL_JOB_IDENTIFIER, null); break;
+          case JOB_NAME:
+            setValueInternal(JOB_NAME, name_); break;
+          case USER_NAME:
+            setValueInternal(USER_NAME, user_); break;
+          case JOB_NUMBER:
+            setValueInternal(JOB_NUMBER, number_); break;
+          case JOB_STATUS:
+            setValueInternal(JOB_STATUS, status_); break;
+          case JOB_TYPE:
+            setValueInternal(JOB_TYPE, type_); break;
+          case JOB_SUBTYPE:
+            setValueInternal(JOB_SUBTYPE, subtype_); break;
+          default:  // do nothing
+        }
+      }
+
+      // Retrieve values.  For each needed format, just specify any attribute associated with that format.
+      if (formats.contains("JOBI0150"))  retrieve(THREAD_COUNT);
+      if (formats.contains("JOBI0200"))  retrieve(CURRENT_SYSTEM_POOL_ID);
+      if (formats.contains("JOBI0300"))  retrieve(JOB_DATE);
+      if (formats.contains("JOBI0400"))  retrieve(SERVER_TYPE);
+      if (formats.contains("JOBI0500"))  retrieve(LOGGING_TEXT);
+      if (formats.contains("JOBI0600"))  retrieve(SPECIAL_ENVIRONMENT);
+      if (formats.contains("JOBI0700"))  retrieve(USER_LIBRARY_LIST);
+      if (formats.contains("JOBI1000"))  retrieve(ELAPSED_CPU_TIME_USED);
     }
     catch (Exception e)
     {
@@ -7190,6 +7258,7 @@ of work identifier.
 
     // First lookup the format to use for this key
     String format = (key == -1 ? "JOBI1000" : lookupFormatName(key));
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QUSRJOBI format: " + format);
     int ccsid = system_.getCcsid();
     int receiverLength = lookupFormatLength(format);
 

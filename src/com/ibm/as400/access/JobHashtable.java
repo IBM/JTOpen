@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2002 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -128,5 +128,41 @@ final class JobHashtable implements java.io.Serializable
       }
     }
   }
+
+  final Object remove(int key)
+  {
+    if (key == 0) return null;
+    int hash = key % HASH;
+    synchronized(keys_)
+    {
+      int[] keyChain = keys_[hash];
+      if (keyChain == null) return null;
+      for (int i=0; i<keyChain.length; ++i)
+      {
+        if (keyChain[i] == key)
+        {
+          // Remove the key and value, and collapse the chains.
+
+          Object value = values_[hash][i];
+          int j;
+          for (j=i+1; j<keyChain.length; j++) { // collapse chains
+            keyChain[j-1] = keyChain[j];
+            values_[hash][j-1] = values_[hash][j];
+            if (keyChain[j] == 0) break; // don't bother collapsing zeros
+          }
+          // If key was in final or next-to-final slot, clean up final slot.
+          if (j == keyChain.length) {
+            keyChain[j-1] = 0;
+            values_[hash][j-1] = null;
+          }
+
+          --size_;
+          return value;
+        }
+      }
+    }
+    return null;
+  }
+
 }
   
