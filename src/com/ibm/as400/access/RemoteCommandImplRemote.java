@@ -266,6 +266,11 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
             messageList_ = reply.getMessageList(converter_);
             if (rc == 0x0500)
             {
+                if (messageList_.length == 0)
+                {
+                    throw new ObjectDoesNotExistException(QSYSObjectPathName.toPath(library, name, "PGM"), ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
+                }
+
                 String id = messageList_[messageList_.length - 1].getID();
 
                 if (id.equals("MCH3401"))

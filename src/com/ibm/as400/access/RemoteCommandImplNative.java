@@ -41,7 +41,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         {
             converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
         }
-        serverDataStreamLevel_ = 6;
+        if (AS400.nativeVRM.vrm_ >= 0x00050300) serverDataStreamLevel_ = 6;
     }
 
     // Indicates whether or not the command will be considered thread-safe.
@@ -172,35 +172,35 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
     // Runs the command.
     // @return  true if command is successful; false otherwise.
-    public boolean runCommand(String command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(String command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
         if (!threadSafety)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
-            return super.runCommand(command, false, messageCount);
+            return super.runCommand(command, false, messageOption);
         }
         open(true);
-        return runCommand(converter_.stringToByteArray(command), messageCount);
+        return runCommand(converter_.stringToByteArray(command), messageOption);
     }
 
     // Runs the command.
     // @return  true if command is successful; false otherwise.
-    public boolean runCommand(byte[] command, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    public boolean runCommand(byte[] command, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running command:", command);
         if (!threadSafety)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending command to super class.");
-            return super.runCommand(command, false, messageCount);
+            return super.runCommand(command, false, messageOption);
         }
 
         open(true);
 
-        return runCommand(command, messageCount);
+        return runCommand(command, messageOption);
     }
 
-    private boolean runCommand(byte[] commandBytes, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    private boolean runCommand(byte[] commandBytes, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
         byte[] swapToPH = new byte[12];
         byte[] swapFromPH = new byte[12];
@@ -231,7 +231,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 try
                 {
-                    byte[] replyBytes = runCommandNativeV5R3(commandBytes, messageCount);
+                    byte[] replyBytes = runCommandNativeV5R3(commandBytes, messageOption);
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                     // Get info from reply.
@@ -252,13 +252,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     }
 
     // Run the program.
-    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageCount) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public boolean runProgram(String library, String name, ProgramParameter[] parameterList, boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
         if (!threadSafety)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending program to super class.");
-            return super.runProgram(library, name, parameterList, false, messageCount);
+            return super.runProgram(library, name, parameterList, false, messageOption);
         }
         // Run the program on-thread.
         open(true);
@@ -349,6 +349,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             catch (NativeException e)  // Exception found by C code.
             {
                 messageList_ = RemoteCommandImplNative.parseMessages(e.data, converter_);
+                if (messageList_.length == 0) return false;
 
                 // Parse information from byte array.
                 String id = messageList_[messageList_.length - 1].getID();
@@ -423,7 +424,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 // Call native method.
                 if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
-                byte[] replyBytes = runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageCount);
+                byte[] replyBytes = runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                 // Reset the message list.
@@ -446,6 +447,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             catch (NativeException e)  // Exception found by C code.
             {
                 messageList_ = RemoteCommandImplNative.parseMessagesV5R3(e.data, converter_);
+                if (messageList_.length == 0) return false;
 
                 // Parse information from byte array.
                 String id = messageList_[messageList_.length - 1].getID();
@@ -527,7 +529,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     }
 
     private native byte[] runCommandNative(byte[] command) throws NativeException;
-    private static native byte[] runCommandNativeV5R3(byte[] command, int messageCount) throws NativeException;
+    private static native byte[] runCommandNativeV5R3(byte[] command, int messageOption) throws NativeException;
     private native byte[] runProgramNative(byte[] programNameBuffer, byte[] programParameterStructure, byte[] programParameters) throws NativeException;
-    private static native byte[] runProgramNativeV5R3(byte[] name, byte[] library, int numberParameters, byte[] offsetArray, byte[] programParameters, int messageCount) throws NativeException;
+    private static native byte[] runProgramNativeV5R3(byte[] name, byte[] library, int numberParameters, byte[] offsetArray, byte[] programParameters, int messageOption) throws NativeException;
 }
