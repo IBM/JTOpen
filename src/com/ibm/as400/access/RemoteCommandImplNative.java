@@ -186,8 +186,12 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         catch (ObjectDoesNotExistException e)
         {
-            Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+          /* @A2d
+           Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
+           throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+           */
+          Trace.log(Trace.ERROR, "ObjectDoesNotExistException from QCDRCMDI", e); //@A2a
+          return false;  // If cmd doesn't exist, it's not threadsafe.   @A2a
         }
 
         // Get the data returned from the program
