@@ -275,7 +275,7 @@ public class FTP
           if (fileName.length() == 0)
              throw new IllegalArgumentException("file");
 
-          return doAppendOrPut(fileName, "APPEND");
+          return doAppendOrPut(fileName, "APPE");
     }
 
 
@@ -678,7 +678,7 @@ public class FTP
     * caller then writes the file's data to the output stream.
     * <br>Throws SecurityException if userid or password is invalid.
     *   @param fileName The file to put.
-    *   @param command "APPEND" to append data, "STOR" to simply put 
+    *   @param command "APPE" to append data, "STOR" to simply put 
     *   @return An output stream to the file.  The caller uses the output
     *           stream to write data to the file.
     *           Null is returned if the connection to the server fails.
