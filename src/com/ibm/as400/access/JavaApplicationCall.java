@@ -325,6 +325,14 @@ public class JavaApplicationCall implements Serializable
 
 
 
+    /**
+     Returns the CommandCall object that was used in the most recent invocation of {@link #run(String) run()}.
+     @return The CommandCall object; null if run() has not been called.
+     **/
+    public CommandCall getCommandCall()
+    {
+      return command_;
+    }
 
 
 
