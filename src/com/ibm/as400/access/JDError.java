@@ -327,6 +327,7 @@ trace for debugging purposes.
             buffer.append(message);                                     // @E3A
         else                                                            // @E3A
             buffer.append(e.getClass());                                // @E3A
+        buffer.append(')');                                             // @E7A
 
         // The DB2 for OS/400 SQL CLI manual says that
         // we should set the native error code to -99999
