@@ -273,7 +273,6 @@
   <target name="compile" depends="init">
     <fail message="Not using JDK 1.4 or higher." unless="jdk14Exists"/>
     <fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
-    <fail message="Can't find ${include}/eim.jar." unless="eimJarExists"/>
     <javac srcdir="${source}:${source-contrib}"
            destdir="${output}"
            memoryMaximumSize="256m"
@@ -285,7 +284,6 @@
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-        <pathelement location="${include}/eim.jar"/> <!-- Need the EIM classes to comile the com.ibm.as400.security.auth package. -->
       </classpath>
     </javac>
     <copy file="${source}/utilities/INMRI.pro"
@@ -349,10 +347,6 @@
       <available file="${include}/servlet.jar" type="file"/>
     </condition>
     
-    <condition property="eimJarExists">
-      <available file="${include}/eim.jar" type="file"/>
-    </condition>
-    
     <condition property="midpapiZipExists">
       <available file="${include}/midpapi.zip" type="file"/>
     </condition>
@@ -360,7 +354,6 @@
     <condition property="javadocIncludesExist">
       <and>
         <available file="${include}/servlet.jar" type="file"/>
-        <available file="${include}/eim.jar" type="file"/>
         <available file="${include}/midpapi.zip" type="file"/>
         <available file="${include}/jui400.jar" type="file"/>
         <available file="${include}/sslightx.zip" type="file"/>
@@ -493,7 +486,6 @@
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
         <pathelement location="${include}/jui400.jar"/> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
         <pathelement location="${include}/midpapi.zip"/> <!-- Need this for the server-side Micro Edition classes. -->
-        <pathelement location="${include}/eim.jar"/> <!-- Need this for the AuthenticationToken classes in the com.ibm.as400.security.auth package. -->
       </classpath>
       <group title="Toolbox General API Packages" packages="com.ibm.as400.access,com.ibm.as400.access.list,com.ibm.as400.data,com.ibm.as400.resource,com.ibm.as400.security.auth,com.ibm.as400.vaccess"/>
       <group title="Toolbox Utility Packages" packages="com.ibm.as400.util,com.ibm.as400.util.html,com.ibm.as400.util.servlet,com.ibm.as400.util.commtrace,utilities"/>
@@ -511,7 +503,6 @@
         ${include}/midpapi.zip
         ${include}/jui400.jar
         ${include}/sslightx.zip
-        ${include}/eim.jar
     </echo>
   </target>
   
