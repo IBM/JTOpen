@@ -21,7 +21,7 @@ import java.io.IOException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 printer.
  *
- * See <a href="../../../../PrinterAttrs.html">Printer Attributes</a> for
+ * See <a href="doc-files/PrinterAttrs.html">Printer Attributes</a> for
  * valid attributes.
  *
  **/

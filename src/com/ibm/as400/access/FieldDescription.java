@@ -30,7 +30,7 @@ import java.util.Vector;
  *<ul>
  *<li><a href="../../../../recordxmp.html">Using the FieldDescription classes with the Data queue classes</a>
  *<li><a href="../../../../RLReadFileExample.html">Using the FieldDescription classes with the record-level database access classes</a>
- *<li><a href="../../../../LDRWExample.html">Using the FieldDescription classes with the LineDataRecordWriter class</a>
+ *<li><a href="doc-files/LDRWExample.html">Using the FieldDescription classes with the LineDataRecordWriter class</a>
  *</ul>
 **/
 abstract public class FieldDescription implements Serializable

@@ -21,7 +21,7 @@ import java.beans.PropertyVetoException;
  * An instance of this class can be used to manipulate an individual
  * AS/400 AFP resource.
  *
- * See <a href="../../../../AFPResourceAttrs.html">AFP Resource Attributes</a> for
+ * See <a href="doc-files/AFPResourceAttrs.html">AFP Resource Attributes</a> for
  * valid attributes.
  *
  **/

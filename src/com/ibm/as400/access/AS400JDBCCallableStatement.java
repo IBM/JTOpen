@@ -2756,7 +2756,7 @@ implements CallableStatement
     specified value.  The JDBC specification defines a standard
     mapping from Java types to SQL types.  In the cases where a
     SQL type is not supported by DB2 UDB for iSeries, the
-    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a> 
+    <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a> 
     is used.
     <br>If proxy support is in use, the Object must be serializable.
     

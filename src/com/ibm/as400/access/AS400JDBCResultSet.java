@@ -4943,7 +4943,7 @@ public class AS400JDBCResultSet implements ResultSet
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
     where an SQL type is not supported by DB2 UDB for iSeries, the 
-    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     
     <p>This does not update the database directly.  Instead, it updates
@@ -4978,7 +4978,7 @@ public class AS400JDBCResultSet implements ResultSet
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
     where an SQL type is not supported by DB2 UDB for iSeries, the 
-    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateObject("\"MixedCase\"", columnValue).
@@ -5012,7 +5012,7 @@ public class AS400JDBCResultSet implements ResultSet
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
     where an SQL type is not supported by DB2 UDB for iSeries, the 
-    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     
     <p>This does not update the database directly.  Instead, it updates
@@ -5055,7 +5055,7 @@ public class AS400JDBCResultSet implements ResultSet
     the type of the specified value.  The JDBC specification defines
     a standard mapping from Java types to SQL types.  In the cases
     where an SQL type is not supported by DB2 UDB for iSeries, the 
-    <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
+    <a href="doc-files/SQLTypes.html#unsupported">next closest matching type</a>
     is used.
     To perform a case-sensitive search use a quoted String
     for columnName as in: ResultSet.updateObject("\"MixedCase\"", columnValue, scale).

@@ -24,7 +24,7 @@ import java.io.UnsupportedEncodingException;
  * To create new spooled files on the AS/400, use the
  * SpooledFileOutputStream class.
  *
- * See <a href="../../../../SpooledFileAttrs.html">Spooled File Attributes</a> for
+ * See <a href="doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
  * valid attributes.
  *
  * @see PrintObjectInputStream
@@ -571,7 +571,7 @@ implements java.io.Serializable
      * Returns a page input stream that can be used to read the contents of the
      * spooled file, one page at a time.
      * <br>
-     * See <a href="../../../../TransInStr.html">Example using PrintObjectPageInputStream</a>
+     * See <a href="doc-files/TransInStr.html">Example using PrintObjectPageInputStream</a>
      * <br>
      * @param pageStreamOptions A print parameter list that contains
      *  parameters for generating the page input stream. <br>
@@ -620,7 +620,7 @@ implements java.io.Serializable
      * Returns a transformed input stream that can be used to read the contents of the
      * spooled file.
      * <br>
-     * See <a href="../../../../TransInStr.html">Example using PrintObjectTransformedInputStream</a>
+     * See <a href="doc-files/TransInStr.html">Example using PrintObjectTransformedInputStream</a>
      * <br>
      * @param transformOptions A print parameter list that contains
      *  parameters for generating the transformed input stream. <br>
@@ -952,7 +952,7 @@ implements java.io.Serializable
 
     /**
      * Sets one or more attributes of the object.  See
-     * <a href="../../../../SpooledFileAttrs.html">Spooled File Attributes</a> for
+     * <a href="doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
      * a list of valid attributes that can be changed.
      *
      * @param attributes A print parameter list that contains the

@@ -2760,7 +2760,7 @@ public class AS400 implements Serializable
     }
 
     /**
-     Sets the name and port of the middle-tier machine where the proxy server is running.  If this is not set, then the name is retrieved from the <em>com.ibm.as400.access.AS400.proxyServer</em> <a href="../../../../../SystemProperties.html">system property</a>.  The <a href="ProxyServer.html">ProxyServer</a> must be running on the middle-tier machine.
+     Sets the name and port of the middle-tier machine where the proxy server is running.  If this is not set, then the name is retrieved from the <em>com.ibm.as400.access.AS400.proxyServer</em> <a href="doc-files/SystemProperties.html">system property</a>.  The <a href="ProxyServer.html">ProxyServer</a> must be running on the middle-tier machine.
      <p>The name of the middle-tier machine is ignored in a two-tier environment.  If no middle-tier machine is specified, then it is assumed that no middle-tier will be accessed.  The name of the middle-tier machine cannot be changed once a connection to this machine has been established.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.

@@ -158,7 +158,7 @@ The <i>IBM Toolbox for Java</i> components that are required.
 Entries are separated by commas (no spaces), and are case insensitive.
 The -component option may be abbreviated to -c.
 <br>
-See the list of <a href="../componentList.html">components</a>
+See the list of <a href="doc-files/componentList.html">components</a>
 that are supported by <i>IBM Toolbox for Java</i>.
 
 <p>
@@ -203,7 +203,7 @@ Conversion tables for other CCSIDs will not be included.
 Entries are separated by commas (no spaces).
 The -ccsid option may be abbreviated to -cc.
 By default, all CCSIDs are included.
-See the list of <a href="../ccsidList.html">CCSIDs and encodings</a>
+See the list of <a href="doc-files/ccsidList.html">CCSIDs and encodings</a>
 that are specifically supported by <i>IBM Toolbox for Java</i>.
 
 <p>
@@ -215,7 +215,7 @@ both the <code>-ccsid</code> and <code>-ccsidExcluded</code>, it is included,
 and a warning message is sent to <code>System.err</code>.
 The -ccsidExcluded option may be abbreviated to -cx or -ccx.
 By default, all CCSIDs are included.
-See the list of <a href="../ccsidList.html">CCSIDs and encodings</a>
+See the list of <a href="doc-files/ccsidList.html">CCSIDs and encodings</a>
 that are specifically supported by <i>IBM Toolbox for Java</i>.
 
 <p>
@@ -1577,7 +1577,7 @@ public class AS400ToolboxJarMaker extends JarMaker
    @return The components specified by the user.
    The list will be empty if none has been specified.
    The list will contain only <code>Integer</code> objects.
-   See <a href="../componentList.html">component list</a> for
+   See <a href="doc-files/componentList.html">component list</a> for
    a list of integer values and associated components.
    **/
   public Vector getComponents () { return components_; }
@@ -1747,7 +1747,7 @@ public class AS400ToolboxJarMaker extends JarMaker
 
    @param ccsidList The CCSIDs explicitly to be included.
    The list should contain only <code>Integer</code> objects.
-   See <a href="../ccsidList.html">CCSIDs and encodings</a>
+   See <a href="doc-files/ccsidList.html">CCSIDs and encodings</a>
    for valid values.
    **/
   public void setCCSIDs (Vector ccsidList)
@@ -1855,7 +1855,7 @@ public class AS400ToolboxJarMaker extends JarMaker
 
    @param components The required components.
    The list should contain only <code>Integer</code> objects.
-   See <a href="../componentList.html">component list</a> for valid values.
+   See <a href="doc-files/componentList.html">component list</a> for valid values.
    **/
   public void setComponents (Vector components)
   {
@@ -1871,7 +1871,7 @@ public class AS400ToolboxJarMaker extends JarMaker
 
    @param components The required components.
    The list should contain only <code>Integer</code> objects.
-   See <a href="../componentList.html">component list</a> for valid values.
+   See <a href="doc-files/componentList.html">component list</a> for valid values.
    @param includeBeans Whether or not Java Beans files associated
    with the components are to be included.
    **/

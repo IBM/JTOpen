@@ -184,7 +184,7 @@ import java.util.Hashtable;                                         // $W1A
 
   <p>
   In addition, tracing can be set using the "com.ibm.as400.access.Trace.category"
-  and "com.ibm.as400.access.Trace.file" <a href="../../../../SystemProperties.html">system properties</a>.
+  and "com.ibm.as400.access.Trace.file" <a href="doc-files/SystemProperties.html">system properties</a>.
  **/
 
 
