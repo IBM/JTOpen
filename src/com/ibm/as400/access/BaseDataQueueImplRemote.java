@@ -29,7 +29,7 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     AS400ImplRemote system_;
-    AS400Server server_ = null;  // The AS400 server job that processes requests.
+    private AS400Server server_ = null;  // The server job that processes requests.
     String path_;
     ConverterImplRemote converter_;
     byte[] queueNameBytes_ = { (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40 };
@@ -48,9 +48,9 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     // Remote implementation of connect.  Exchanges client/server attributes with the data queue server.
-    public void processConnect() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    private void open() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-        // Connect to AS400, get a server job for future requests.
+        // Connect to server.
         server_ = system_.getConnection(AS400.DATAQUEUE, false);
 
         // Exchange attributes with server job.  (This must be first exchange with server job to complete initialization.)  First check to see if server has already been initialized by another user.
@@ -63,40 +63,37 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                 {
                     baseReply = server_.sendExchangeAttrRequest(new DQExchangeAttributesDataStream());
                 }
-                catch(IOException e)
+                catch (IOException e)
                 {
                     system_.disconnectServer(server_);
                     Trace.log(Trace.ERROR, "IOException during exchange attributes:", e);
                     throw e;
                 }
 
-                if (baseReply instanceof DQExchangeAttributesNormalReplyDataStream)
+                switch (baseReply.hashCode())
                 {
-                    // Means request completed OK.
-                    return;    // Exchange attributes succeeded.
-                }
-                else if (baseReply instanceof DQCommonReplyDataStream)
-                {
-                    system_.disconnectServer(server_);
-                    // Throw an appropriate exception.
-                    DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                    throw buildException(reply.getRC(), reply.getMessage());
-                }
-                else // Unknown data stream.
-                {
-                    system_.disconnectServer(server_);
-                    Trace.log(Trace.ERROR, "Unknown exchange attributes reply datastream:", baseReply.data_);
-                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                    case 0x8000:  // DQExchangeAttributesNormalReplyDataStream.
+                        // Means request completed OK.
+                        return;  // Exchange attributes succeeded.
+                    case 0x8002:  // DQCommonReplyDataStream.
+                        system_.disconnectServer(server_);
+                        // Throw an appropriate exception.
+                        DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
+                        throw buildException(reply.getRC(), reply.getMessage());
+                    default:  // Unknown data stream.
+                        system_.disconnectServer(server_);
+                        Trace.log(Trace.ERROR, "Unknown exchange attributes reply datastream:", baseReply.data_);
+                        throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
                 }
             }
         }
     }
 
     // Remote implementation of clear, if key is null, do non-keyed clear.
-    public void processClear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public void clear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to the data queue server.
-        processConnect();
+        open();
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing clear: " + path_);
         DQClearDataStream request = new DQClearDataStream(queueNameBytes_, libraryBytes_, key);
@@ -104,20 +101,20 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         try
         {
             DataStream baseReply = server_.sendAndReceive(request);
-            if (baseReply instanceof DQCommonReplyDataStream)
+            switch (baseReply.hashCode())
             {
-                DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                int rc = reply.getRC();
-                if (rc != 0xF000)
-                {
-                    // Throw an appropriate exception.
-                    throw buildException(rc, reply.getMessage());
-                }
-            }
-            else // Unknown data stream.
-            {
-                Trace.log(Trace.ERROR, "Unknown clear reply datastream:", baseReply.data_);
-                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                case 0x8002:  // DQCommonReplyDataStream.
+                    DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
+                    int rc = reply.getRC();
+                    if (rc != 0xF000)
+                    {
+                        // Throw an appropriate exception.
+                        throw buildException(key != null, rc, reply.getMessage());
+                    }
+                    break;
+                default:  // Unknown data stream.
+                    Trace.log(Trace.ERROR, "Unknown clear reply datastream:", baseReply.data_);
+                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
         }
         catch (IOException e)
@@ -129,42 +126,42 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     // Remote implementation of create, keyLength == 0 means non-keyed queue.
-    public void processCreate(int maxEntryLength, String authority, boolean saveSenderInformation, boolean FIFO, int keyLength, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
+    public void create(int maxEntryLength, String authority, boolean saveSenderInformation, boolean FIFO, int keyLength, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
         // Connect to the data queue server.
-        processConnect();
+        open();
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing create: " + path_);
-        byte[] descBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
-        converter_.stringToByteArray(description, descBytes);
+        byte[] descriptionBytes = {(byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40, (byte)0x40};
+        converter_.stringToByteArray(description, descriptionBytes);
 
-        DQCreateDataStream request = new DQCreateDataStream(queueNameBytes_, libraryBytes_, maxEntryLength, authority, saveSenderInformation, FIFO, keyLength, forceToAuxiliaryStorage, descBytes);
+        DQCreateDataStream request = new DQCreateDataStream(queueNameBytes_, libraryBytes_, maxEntryLength, authority, saveSenderInformation, FIFO, keyLength, forceToAuxiliaryStorage, descriptionBytes);
 
         try
         {
             DataStream baseReply = server_.sendAndReceive(request);
-            if (baseReply instanceof DQCommonReplyDataStream)
+            switch (baseReply.hashCode())
             {
-                DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                int rc = reply.getRC();
-                if (rc != 0xF000)
-                {
-                    // Throw an appropriate exception.
-                    if (rc == 0xF001 && converter_.byteArrayToString(reply.getMessage(), 0, 7).equals("CPF9870"))
+                case 0x8002:  // DQCommonReplyDataStream.
+                    DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
+                    int rc = reply.getRC();
+                    if (rc != 0xF000)
                     {
-                        Trace.log(Trace.ERROR, "Data queue already exists: " + path_);
-                        throw new ObjectAlreadyExistsException(path_, ObjectAlreadyExistsException.OBJECT_ALREADY_EXISTS);
+                        // Throw an appropriate exception.
+                        if (rc == 0xF001 && converter_.byteArrayToString(reply.getMessage(), 0, 7).equals("CPF9870"))
+                        {
+                            Trace.log(Trace.ERROR, "Data queue already exists: " + path_);
+                            throw new ObjectAlreadyExistsException(path_, ObjectAlreadyExistsException.OBJECT_ALREADY_EXISTS);
+                        }
+                        throw buildException(rc, reply.getMessage()); // General errors.
                     }
-                    throw buildException(rc, reply.getMessage()); // General errors.
-                }
-            }
-            else // Unknown data stream.
-            {
-                Trace.log(Trace.ERROR, "Unknown create reply datastream:", baseReply.data_);
-                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                    break;
+                default:  // Unknown data stream.
+                    Trace.log(Trace.ERROR, "Unknown create reply datastream:", baseReply.data_);
+                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
@@ -173,10 +170,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     // Remote implementaion of delete.
-    public void processDelete() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public void delete() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to the data queue server.
-        processConnect();
+        open();
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing delete: " + path_);
         DQDeleteDataStream request = new DQDeleteDataStream(queueNameBytes_, libraryBytes_);
@@ -184,23 +181,23 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         try
         {
             DataStream baseReply = server_.sendAndReceive(request);
-            if (baseReply instanceof DQCommonReplyDataStream)
+            switch (baseReply.hashCode())
             {
-                DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                int rc = reply.getRC();
-                if (rc != 0xF000)
-                {
-                    // Throw an appropriate exception.
-                    throw buildException(rc, reply.getMessage());
-                }
-            }
-            else // Unknown data stream.
-            {
-                Trace.log(Trace.ERROR, "Unknown delete reply datastream:", baseReply.data_);
-                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                case 0x8002:  // DQCommonReplyDataStream.
+                    DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
+                    int rc = reply.getRC();
+                    if (rc != 0xF000)
+                    {
+                        // Throw an appropriate exception.
+                        throw buildException(rc, reply.getMessage());
+                    }
+                    break;
+                default:  // Unknown data stream.
+                    Trace.log(Trace.ERROR, "Unknown delete reply datastream:", baseReply.data_);
+                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
@@ -209,10 +206,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     // Remote implementation of read for data queues, key == null means non-keyed queue, boolean peek determines peek or read, returns the entry read, or null if no entries on the queue.
-    public DQReceiveRecord processRead(String search, int wait, boolean peek, byte[] key, boolean saveSenderInformation) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public DQReceiveRecord read(String search, int wait, boolean peek, byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to the data queue server.
-        processConnect();
+        open();
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing read: " + path_);
         byte[] searchBytes = (key == null) ? new byte[2] : converter_.stringToByteArray(search);
@@ -221,37 +218,28 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         try
         {
             DataStream baseReply = server_.sendAndReceive(request);
-            if (baseReply instanceof DQReadNormalReplyDataStream)
+            switch (baseReply.hashCode())
             {
-                DQReadNormalReplyDataStream reply = (DQReadNormalReplyDataStream)baseReply;
-                if (saveSenderInformation)
-                {
-                    return new DQReceiveRecord(converter_.byteArrayToString(reply.getSenderInformation()), reply.getEntry(), reply.getKey());
-                }
-                else
-                {
-                    return new DQReceiveRecord(null, reply.getEntry(), reply.getKey());
-                }
-            }
-            else if (baseReply instanceof DQCommonReplyDataStream)
-            {
-                DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                int rc = reply.getRC();
-                if (rc == 0xF006)  // No data to return.
-                {
-                    Trace.log(Trace.INFORMATION, "No entry on data queue.");
-                    return null;
-                }
-                // Throw an appropriate exception.
-                throw buildException(rc, reply.getMessage()); // General errors.
-            }
-            else // Unknown data stream.
-            {
-                Trace.log(Trace.ERROR, "Unknown read reply datastream ", baseReply.data_);
-                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                case 0x8003:  // DQReadNormalReplyDataStream.
+                    DQReadNormalReplyDataStream reply = (DQReadNormalReplyDataStream)baseReply;
+                    byte[] senderInformationBytes = reply.getSenderInformation();
+                    return new DQReceiveRecord(senderInformationBytes[0] == 0x40 ? null : converter_.byteArrayToString(senderInformationBytes), reply.getEntry(), reply.getKey());
+                case 0x8002:  // DQCommonReplyDataStream.
+                    DQCommonReplyDataStream commonReply = (DQCommonReplyDataStream)baseReply;
+                    int rc = commonReply.getRC();
+                    if (rc == 0xF006)  // No data to return.
+                    {
+                        Trace.log(Trace.INFORMATION, "No entry on data queue.");
+                        return null;
+                    }
+                    // Throw an appropriate exception.
+                    throw buildException(key != null, rc, commonReply.getMessage()); // General errors.
+                default:  // Unknown data stream.
+                    Trace.log(Trace.ERROR, "Unknown read reply datastream ", baseReply.data_);
+                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
@@ -260,10 +248,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     // Remote implementation for retrieve attributes, keyed is false for non-keyed queues
-    public DQQueryRecord processRetrieveAttrs(boolean keyed) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
+    public DQQueryRecord retrieveAttributes(boolean keyed) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to the data queue server.
-        processConnect();
+        open();
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing retrieve attributes: " + path_);
         DataStream request = new DQRequestAttributesDataStream(queueNameBytes_, libraryBytes_);
@@ -271,56 +259,53 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         try
         {
             DataStream baseReply = server_.sendAndReceive(request);
-            if (baseReply instanceof DQRequestAttributesNormalReplyDataStream)
+            switch (baseReply.hashCode())
             {
-                DQRequestAttributesNormalReplyDataStream reply = (DQRequestAttributesNormalReplyDataStream)baseReply;
-                int type = reply.getType();
-                DQQueryRecord record = new DQQueryRecord();
-                if (keyed)
-                {
-                    if (type != 2)  // Actual data queue is not a keyed data queue.
+                case 0x8001:  // DQRequestAttributesNormalReplyDataStream.
+                    DQRequestAttributesNormalReplyDataStream reply = (DQRequestAttributesNormalReplyDataStream)baseReply;
+                    int type = reply.getType();
+                    DQQueryRecord record = new DQQueryRecord();
+                    if (keyed)
                     {
-                        Trace.log(Trace.ERROR, "Using KeyedDataQueue for non-keyed data queue: " + path_);
-                        throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_NOT_KEYED);
+                        if (type != 2)  // Actual data queue is not a keyed data queue.
+                        {
+                            Trace.log(Trace.ERROR, "Using KeyedDataQueue for non-keyed data queue: " + path_);
+                            throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_NOT_KEYED);
+                        }
+                        record.FIFO_ = true; // Keyed queues always FIFO.
                     }
-                    record.FIFO_ = true; // Keyed queues always FIFO.
-                }
-                else
-                {
-                    if (type == 0)
+                    else
                     {
-                        record.FIFO_ = true;
+                        if (type == 0)
+                        {
+                            record.FIFO_ = true;
+                        }
+                        else if (type == 1)
+                        {
+                            record.FIFO_ = false;
+                        }
+                        else // Queue is keyed and this is not a KeyedDataQueue object.
+                        {
+                            Trace.log(Trace.ERROR, "Using DataQueue for keyed data queue: " + path_);
+                            throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_KEYED);
+                        }
                     }
-                    else if (type == 1)
-                    {
-                        record.FIFO_ = false;
-                    }
-                    else // Queue is keyed and this is not a KeyedDataQueue object.
-                    {
-                        Trace.log(Trace.ERROR, "Using DataQueue for keyed data queue: " + path_);
-                        throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_KEYED);
-                    }
-                }
-                record.maxEntryLength_ = reply.getMaxEntryLength();
-                record.saveSenderInformation_ = reply.getSaveSenderInformation();
-                record.forceToAuxiliaryStorage_ = reply.getForceToAuxiliaryStorage();
-                record.description_ = converter_.byteArrayToString(reply.getDescription());
-                record.keyLength_ = reply.getKeyLength();
-                return record;
-            }
-            else if (baseReply instanceof DQCommonReplyDataStream)
-            {
-                DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                // Throw an appropriate exception.
-                throw buildException(reply.getRC(), reply.getMessage()); // General errors.
-            }
-            else // Unknown data stream.
-            {
-                Trace.log(Trace.ERROR, "Unknown retrieve attributes reply datastream:", baseReply.data_);
-                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                    record.maxEntryLength_ = reply.getMaxEntryLength();
+                    record.saveSenderInformation_ = reply.getSaveSenderInformation();
+                    record.forceToAuxiliaryStorage_ = reply.getForceToAuxiliaryStorage();
+                    record.description_ = converter_.byteArrayToString(reply.getDescription());
+                    record.keyLength_ = reply.getKeyLength();
+                    return record;
+                case 0x8002:  // DQCommonReplyDataStream.
+                    DQCommonReplyDataStream commonReply = (DQCommonReplyDataStream)baseReply;
+                    // Throw an appropriate exception.
+                    throw buildException(commonReply.getRC(), commonReply.getMessage()); // General errors.
+                default:  // Unknown data stream.
+                    Trace.log(Trace.ERROR, "Unknown retrieve attributes reply datastream:", baseReply.data_);
+                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
@@ -329,10 +314,10 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
     }
 
     // Remote implementation for write, key is null for non-keyed queues.
-    public void processWrite(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public void write(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         // Connect to the data queue server.
-        processConnect();
+        open();
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Processing write: " + path_);
         DQWriteDataStream request = new DQWriteDataStream(queueNameBytes_, libraryBytes_, key, data);
@@ -340,23 +325,23 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
         try
         {
             DataStream baseReply = server_.sendAndReceive(request);
-            if (baseReply instanceof DQCommonReplyDataStream)
+            switch (baseReply.hashCode())
             {
-                DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
-                int rc = reply.getRC();
-                if (rc != 0xF000)
-                {
-                    // Throw an appropriate exception.
-                    throw buildException(rc, reply.getMessage());
-                }
-            }
-            else // Unknown data stream.
-            {
-                Trace.log(Trace.ERROR, "Unknown write reply datastream:", baseReply.data_);
-                throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
+                case 0x8002:  // DQCommonReplyDataStream.
+                    DQCommonReplyDataStream reply = (DQCommonReplyDataStream)baseReply;
+                    int rc = reply.getRC();
+                    if (rc != 0xF000)
+                    {
+                        // Throw an appropriate exception.
+                        throw buildException(key != null, rc, reply.getMessage());
+                    }
+                    break;
+                default:  // Unknown data stream.
+                    Trace.log(Trace.ERROR, "Unknown write reply datastream:", baseReply.data_);
+                    throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN);
             }
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             system_.disconnectServer(server_);
             Trace.log(Trace.ERROR, "Lost connection to data queue server:", e);
@@ -366,13 +351,13 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
 
     // Returns or throws the appropriate exception based on the return code and error message arguments.
     // rc  The return code from reply data stream.
-    // messageBytes  The AS400 Message from the reply data stream.
+    // messageBytes  The Message from the reply data stream.
     // This function returns an AS400Exception and throws all others.
-    AS400Exception buildException(int rc, byte[] messageBytes) throws AS400SecurityException, ErrorCompletingRequestException, ObjectDoesNotExistException
+    private AS400Exception buildException(int rc, byte[] messageBytes) throws AS400SecurityException, ErrorCompletingRequestException, ObjectDoesNotExistException
     {
         switch (rc)
         {
-            case 0xF001:
+            case 0xF001:  // Command check.
             {
                 if (messageBytes == null)
                 {
@@ -401,37 +386,37 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                 }
                 return new AS400Exception(new AS400Message(messageID, message.substring(9)));
             }
-            case 0xF002:
+            case 0xF002:  // Protocol error.
                 Trace.log(Trace.ERROR, "Data queue protocol error.");
                 throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
-            case 0xF003:
+            case 0xF003:  // Syntax error.
                 Trace.log(Trace.ERROR, "Data queue syntax error.");
                 throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
-            case 0xF004:
+            case 0xF004:  // Queue destroyed.
                 Trace.log(Trace.ERROR, "Data queue has been destroyed.");
                 throw new ObjectDoesNotExistException(path_, ObjectDoesNotExistException.OBJECT_DOES_NOT_EXIST);
-            case 0xF005:
+            case 0xF005:  // Unsupported queue length.
                 Trace.log(Trace.ERROR, "Unsupported length.");
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.LENGTH_NOT_VALID);
-            case 0xF007:
+            case 0xF007:  // Invalid data stream level.
                 Trace.log(Trace.ERROR, "Data queue data stream level not valid.");
                 throw new InternalErrorException(InternalErrorException.DATA_STREAM_LEVEL_NOT_VALID);
-            case 0xF008:
+            case 0xF008:  // Invalid version/release/modification.
                 Trace.log(Trace.ERROR, "Data queue VRM not valid.");
                 throw new InternalErrorException(InternalErrorException.VRM_NOT_VALID);
-            case 0xF009:
+            case 0xF009:  // Request rejected by user exit program.
                 Trace.log(Trace.ERROR, "Exit program rejected request.");
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_DENIED_REQUEST);
-            case 0xF00A:
+            case 0xF00A:  // Exit program not authorized.
                 Trace.log(Trace.ERROR, "Exit program not authorized.");
                 throw new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_NOT_AUTHORIZED);
-            case 0xF00B:
+            case 0xF00B:  // Exit program not found.
                 Trace.log(Trace.ERROR, "Exit program not found.");
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_NOT_FOUND);
-            case 0xF00D:
+            case 0xF00D:  // User exit program failed.
                 Trace.log(Trace.ERROR, "Exit program error.");
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_ERROR);
-            case 0xF00E:
+            case 0xF00E:  // Invalid number of exit programs.
                 Trace.log(Trace.ERROR, "Exit program number not valid.");
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_PROGRAM_NUMBER_NOT_VALID);
             default:
@@ -448,5 +433,27 @@ class BaseDataQueueImplRemote implements BaseDataQueueImpl
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.UNKNOWN, rc + " : " + message);
             }
         }
+    }
+
+    // Build Exception as above, plus detect object type mismatch.
+    private AS400Exception buildException(boolean expectKeyed, int rc, byte[] messageBytes) throws AS400SecurityException, ErrorCompletingRequestException, IllegalObjectTypeException, ObjectDoesNotExistException
+    {
+        if (rc == 0xF001 && messageBytes != null)
+        {
+            String messageID = converter_.byteArrayToString(messageBytes, 0, 7);
+            if (expectKeyed && messageID.equals("CPF9502"))
+            {
+                Trace.log(Trace.ERROR, "Error completing data queue request: " + converter_.byteArrayToString(messageBytes));
+                Trace.log(Trace.ERROR, "Using KeyedDataQueue for non-keyed data queue: " + path_);
+                throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_NOT_KEYED);
+            }
+            if (!expectKeyed && messageID.equals("CPF9506"))
+            {
+                Trace.log(Trace.ERROR, "Error completing data queue request: " + converter_.byteArrayToString(messageBytes));
+                Trace.log(Trace.ERROR, "Using DataQueue for keyed data queue: " + path_);
+                throw new IllegalObjectTypeException(path_, IllegalObjectTypeException.DATA_QUEUE_KEYED);
+            }
+        }
+        return buildException(rc, messageBytes);
     }
 }

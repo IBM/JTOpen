@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DataQueueAttributes.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DataQueueAttributes.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -18,20 +18,16 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
- The DataQueueAttributes class represents an AS/400 data queue attributes object.
+ The DataQueueAttributes class represents a data queue attributes object.
  **/
 public class DataQueueAttributes implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
 
     // The public authority of the data queue.
     private String authority_ = "*LIBCRTAUT";
@@ -49,19 +45,9 @@ public class DataQueueAttributes implements Serializable
     private boolean saveSenderInfo_ = false;
 
     // List of property change event bean listeners.
-    private transient PropertyChangeSupport propertyChangeListeners_ = new PropertyChangeSupport(this);
+    private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
     // List of vetoable change event bean listeners.
-    private transient VetoableChangeSupport vetoableChangeListeners_ = new VetoableChangeSupport(this);
-
-    // Deserializes and initializes the transient data.
-    private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException
-    {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "De-serializing DataQueueAttributes object.");
-        in.defaultReadObject();
-
-        propertyChangeListeners_ = new PropertyChangeSupport(this);
-        vetoableChangeListeners_ = new VetoableChangeSupport(this);
-    }
+    private transient VetoableChangeSupport vetoableChangeListeners_ = null;  // Set on first add.
 
     /**
      Adds a listener to be notified when the value of any bound property changes.
@@ -69,13 +55,21 @@ public class DataQueueAttributes implements Serializable
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
         if (listener == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        propertyChangeListeners_.addPropertyChangeListener(listener);
+        synchronized (this)
+        {
+            // If first add.
+            if (propertyChangeListeners_ == null)
+            {
+                propertyChangeListeners_ = new PropertyChangeSupport(this);
+            }
+            propertyChangeListeners_.addPropertyChangeListener(listener);
+        }
     }
 
     /**
@@ -84,13 +78,21 @@ public class DataQueueAttributes implements Serializable
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
         if (listener == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        vetoableChangeListeners_.addVetoableChangeListener(listener);
+        synchronized (this)
+        {
+            // If first add.
+            if (vetoableChangeListeners_ == null)
+            {
+                vetoableChangeListeners_ = new VetoableChangeSupport(this);
+            }
+            vetoableChangeListeners_.addVetoableChangeListener(listener);
+        }
     }
 
     /**
@@ -99,7 +101,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public String getAuthority()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting authority: " + authority_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting authority: " + authority_);
         return authority_;
     }
 
@@ -109,7 +111,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public String getDescription()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting description: " + description_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting description: " + description_);
         return description_;
     }
 
@@ -119,7 +121,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public int getEntryLength()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting max entry length:", entryLength_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting max entry length:", entryLength_);
         return entryLength_;
     }
 
@@ -129,7 +131,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public int getKeyLength()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting key length:", keyLength_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting key length:", keyLength_);
         return keyLength_;
     }
 
@@ -139,7 +141,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public boolean isFIFO()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if is FIFO:", FIFO_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if is FIFO:", FIFO_);
         return FIFO_;
     }
 
@@ -149,7 +151,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public boolean isForceToAuxiliaryStorage()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if force to auxiliary storage:", forceToAuxiliaryStorage_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if force to auxiliary storage:", forceToAuxiliaryStorage_);
         return forceToAuxiliaryStorage_;
     }
 
@@ -159,7 +161,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public boolean isSaveSenderInfo()
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Checking if save sender information:", saveSenderInfo_);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if save sender information:", saveSenderInfo_);
         return saveSenderInfo_;
     }
 
@@ -169,13 +171,17 @@ public class DataQueueAttributes implements Serializable
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
         if (listener == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        propertyChangeListeners_.removePropertyChangeListener(listener);
+        // If we have listeners.
+        if (propertyChangeListeners_ != null)
+        {
+            propertyChangeListeners_.removePropertyChangeListener(listener);
+        }
     }
 
     /**
@@ -184,13 +190,17 @@ public class DataQueueAttributes implements Serializable
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
         if (listener == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
-        vetoableChangeListeners_.removeVetoableChangeListener(listener);
+        // If we have listeners.
+        if (vetoableChangeListeners_ != null)
+        {
+            vetoableChangeListeners_.removeVetoableChangeListener(listener);
+        }
     }
 
     /**
@@ -200,7 +210,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setAuthority(String authority) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting authority: " + authority);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting authority: " + authority);
         if (authority == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'authority' is null.");
@@ -213,12 +223,25 @@ public class DataQueueAttributes implements Serializable
             throw new ExtendedIllegalArgumentException("authority (" + authority + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        String oldValue = authority_;
-        String newValue = authority;
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            authority_ = authority;
+        }
+        else
+        {
+            String oldValue = authority_;
+            String newValue = authority;
 
-        vetoableChangeListeners_.fireVetoableChange("authority", oldValue, newValue);
-        authority_ = authority;
-        propertyChangeListeners_.firePropertyChange("authority", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("authority", oldValue, newValue);
+            }
+            authority_ = authority;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("authority", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -228,7 +251,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setDescription(String description) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting description: " + description);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting description: " + description);
         if (description == null)
         {
             Trace.log(Trace.ERROR, "Parameter 'description' is null.");
@@ -240,12 +263,25 @@ public class DataQueueAttributes implements Serializable
             throw new ExtendedIllegalArgumentException("description (" + description + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
-        String oldValue = description_;
-        String newValue = description;
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            description_ = description;
+        }
+        else
+        {
+            String oldValue = description_;
+            String newValue = description;
 
-        vetoableChangeListeners_.fireVetoableChange("description", oldValue, newValue);
-        description_ = description;
-        propertyChangeListeners_.firePropertyChange("description", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("description", oldValue, newValue);
+            }
+            description_ = description;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("description", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -255,19 +291,32 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setEntryLength(int entryLength) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting max entry length:", entryLength);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting max entry length:", entryLength);
         if (entryLength < 1 || entryLength > 64512)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'entryLength' is not valid:", entryLength);
             throw new ExtendedIllegalArgumentException("entryLength (" + entryLength + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer oldValue = new Integer(entryLength_);
-        Integer newValue = new Integer(entryLength);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            entryLength_ = entryLength;
+        }
+        else
+        {
+            Integer oldValue = new Integer(entryLength_);
+            Integer newValue = new Integer(entryLength);
 
-        vetoableChangeListeners_.fireVetoableChange("entryLength", oldValue, newValue);
-        entryLength_ = entryLength;
-        propertyChangeListeners_.firePropertyChange("entryLength", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("entryLength", oldValue, newValue);
+            }
+            entryLength_ = entryLength;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("entryLength", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -277,14 +326,27 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setFIFO(boolean FIFO) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting FIFO:", FIFO);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting FIFO:", FIFO);
 
-        Boolean oldValue = new Boolean(FIFO_);
-        Boolean newValue = new Boolean(FIFO);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            FIFO_ = FIFO;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(FIFO_);
+            Boolean newValue = new Boolean(FIFO);
 
-        vetoableChangeListeners_.fireVetoableChange("FIFO", oldValue, newValue);
-        FIFO_ = FIFO;
-        propertyChangeListeners_.firePropertyChange("FIFO", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("FIFO", oldValue, newValue);
+            }
+            FIFO_ = FIFO;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("FIFO", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -294,14 +356,27 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setForceToAuxiliaryStorage(boolean forceToAuxiliaryStorage) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting force to auxiliary storage:", forceToAuxiliaryStorage);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting force to auxiliary storage:", forceToAuxiliaryStorage);
 
-        Boolean oldValue = new Boolean(forceToAuxiliaryStorage_);
-        Boolean newValue = new Boolean(forceToAuxiliaryStorage);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            forceToAuxiliaryStorage_ = forceToAuxiliaryStorage;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(forceToAuxiliaryStorage_);
+            Boolean newValue = new Boolean(forceToAuxiliaryStorage);
 
-        vetoableChangeListeners_.fireVetoableChange("forceToAuxiliaryStorage", oldValue, newValue);
-        forceToAuxiliaryStorage_ = forceToAuxiliaryStorage;
-        propertyChangeListeners_.firePropertyChange("forceToAuxiliaryStorage", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("forceToAuxiliaryStorage", oldValue, newValue);
+            }
+            forceToAuxiliaryStorage_ = forceToAuxiliaryStorage;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("forceToAuxiliaryStorage", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -311,7 +386,7 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setKeyLength(int keyLength) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting key length:", keyLength);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting key length:", keyLength);
 
         if (keyLength < 1 || keyLength > 256)
         {
@@ -319,12 +394,25 @@ public class DataQueueAttributes implements Serializable
             throw new ExtendedIllegalArgumentException("keyLength (" + keyLength + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer oldValue = new Integer(keyLength_);
-        Integer newValue = new Integer(keyLength);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            keyLength_ = keyLength;
+        }
+        else
+        {
+            Integer oldValue = new Integer(keyLength_);
+            Integer newValue = new Integer(keyLength);
 
-        vetoableChangeListeners_.fireVetoableChange("keyLength", oldValue, newValue);
-        keyLength_ = keyLength;
-        propertyChangeListeners_.firePropertyChange("keyLength", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("keyLength", oldValue, newValue);
+            }
+            keyLength_ = keyLength;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("keyLength", oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -334,13 +422,26 @@ public class DataQueueAttributes implements Serializable
      **/
     public void setSaveSenderInfo(boolean saveSenderInfo) throws PropertyVetoException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Setting save sender information:", saveSenderInfo);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting save sender information:", saveSenderInfo);
 
-        Boolean oldValue = new Boolean(saveSenderInfo_);
-        Boolean newValue = new Boolean(saveSenderInfo);
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+        {
+            saveSenderInfo_ = saveSenderInfo;
+        }
+        else
+        {
+            Boolean oldValue = new Boolean(saveSenderInfo_);
+            Boolean newValue = new Boolean(saveSenderInfo);
 
-        vetoableChangeListeners_.fireVetoableChange("saveSenderInfo", oldValue, newValue);
-        saveSenderInfo_ = saveSenderInfo;
-        propertyChangeListeners_.firePropertyChange("saveSenderInfo", oldValue, newValue);
+            if (vetoableChangeListeners_ != null)
+            {
+                vetoableChangeListeners_.fireVetoableChange("saveSenderInfo", oldValue, newValue);
+            }
+            saveSenderInfo_ = saveSenderInfo;
+            if (propertyChangeListeners_ != null)
+            {
+                propertyChangeListeners_.firePropertyChange("saveSenderInfo", oldValue, newValue);
+            }
+        }
     }
 }

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DQRequestAttributesNormalReplyDataStream.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DQRequestAttributesNormalReplyDataStream.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 // If there is an error, the reply to a attribute request is a DQCommonReplyDataStream.
 class DQRequestAttributesNormalReplyDataStream extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     Object getNewDataStream()
     {
@@ -41,7 +41,7 @@ class DQRequestAttributesNormalReplyDataStream extends ClientAccessDataStream
     // Get if sender information is saved.
     boolean getSaveSenderInformation()
     {
-        return (data_[26] == (byte)0xF1);
+        return data_[26] == (byte)0xF1;
     }
 
     // Get queue type.
@@ -60,7 +60,7 @@ class DQRequestAttributesNormalReplyDataStream extends ClientAccessDataStream
     // Get force to auxiliary storage.
     boolean getForceToAuxiliaryStorage()
     {
-        return (data_[30]  == (byte)0xF1);
+        return data_[30]  == (byte)0xF1;
     }
 
     // Get text description.
@@ -73,7 +73,7 @@ class DQRequestAttributesNormalReplyDataStream extends ClientAccessDataStream
 
     int readAfterHeader(InputStream in) throws IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Receiving query data queue attributes (normal) reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving query data queue attributes (normal) reply...");
 
         // Read in rest of data.
         return super.readAfterHeader(in);

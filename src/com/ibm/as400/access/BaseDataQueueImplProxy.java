@@ -40,25 +40,30 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     }
 
     // Proxy implementation of clear, if key is null, do non-keyed clear.
-    public void processClear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public void clear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            connection_.callMethod(pxId_, "processClear", new Class[] { byte[].class }, new Object[] { key });
+            connection_.callMethod(pxId_, "clear", new Class[] { byte[].class }, new Object[] { key });
         }
         catch (InvocationTargetException e)
         {
             // Throw an appropriate exception.
+            Throwable target = e.getTargetException();
+            if (target instanceof IllegalObjectTypeException)
+            {
+                throw (IllegalObjectTypeException)target;
+            }
             throw ProxyClientConnection.rethrow5(e);
         }
     }
 
     // Proxy implementation of create, keyLength == 0 means non-keyed queue.
-    public void processCreate(int maxEntryLength, String authority, boolean saveSenderInformation, boolean FIFO, int keyLength, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
+    public void create(int maxEntryLength, String authority, boolean saveSenderInformation, boolean FIFO, int keyLength, boolean forceToAuxiliaryStorage, String description) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectAlreadyExistsException, ObjectDoesNotExistException
     {
         try
         {
-            connection_.callMethod(pxId_, "processCreate", new Class[] { Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Boolean.TYPE, String.class }, new Object[] { new Integer(maxEntryLength), authority, new Boolean(saveSenderInformation), new Boolean(FIFO), new Integer(keyLength), new Boolean(forceToAuxiliaryStorage), description });
+            connection_.callMethod(pxId_, "create", new Class[] { Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Boolean.TYPE, String.class }, new Object[] { new Integer(maxEntryLength), authority, new Boolean(saveSenderInformation), new Boolean(FIFO), new Integer(keyLength), new Boolean(forceToAuxiliaryStorage), description });
         }
         catch (InvocationTargetException e)
         {
@@ -67,7 +72,7 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     }
 
     // Proxy implementaion of delete.
-    public void processDelete() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public void delete() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
@@ -81,25 +86,30 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     }
 
     // Proxy implementation of read for data queues.
-    public DQReceiveRecord processRead(String search, int wait, boolean peek, byte[] key, boolean saveSenderInformation) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public DQReceiveRecord read(String search, int wait, boolean peek, byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            return (DQReceiveRecord)connection_.callMethod(pxId_, "processRead", new Class[] { String.class, Integer.TYPE, Boolean.TYPE, byte[].class, Boolean.TYPE }, new Object[] { search, new Integer(wait), new Boolean(peek), key, new Boolean(saveSenderInformation) }, true).getReturnValue();
+            return (DQReceiveRecord)connection_.callMethod(pxId_, "read", new Class[] { String.class, Integer.TYPE, Boolean.TYPE, byte[].class }, new Object[] { search, new Integer(wait), new Boolean(peek), key }, true).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
             // Throw an appropriate exception.
+            Throwable target = e.getTargetException();
+            if (target instanceof IllegalObjectTypeException)
+            {
+                throw (IllegalObjectTypeException)target;
+            }
             throw ProxyClientConnection.rethrow5(e);
         }
     }
 
     // Proxy implementation for retrieve attributes, keyed is false for non-keyed queues.
-    public DQQueryRecord processRetrieveAttrs(boolean keyed) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
+    public DQQueryRecord retrieveAttributes(boolean keyed) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            return (DQQueryRecord)connection_.callMethod(pxId_, "processRetrieveAttrs", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(keyed) }).getReturnValue();
+            return (DQQueryRecord)connection_.callMethod(pxId_, "retrieveAttributes", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(keyed) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -114,15 +124,20 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     }
 
     // Proxy implementation for write, key is null for non-keyed queues.
-    public void processWrite(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
+    public void write(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         try
         {
-            connection_.callMethod(pxId_, "processWrite", new Class[] { byte[].class, byte[].class }, new Object[] { key, data });
+            connection_.callMethod(pxId_, "write", new Class[] { byte[].class, byte[].class }, new Object[] { key, data });
         }
         catch (InvocationTargetException e)
         {
             // Throw an appropriate exception.
+            Throwable target = e.getTargetException();
+            if (target instanceof IllegalObjectTypeException)
+            {
+                throw (IllegalObjectTypeException)target;
+            }
             throw ProxyClientConnection.rethrow5(e);
         }
     }

@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DataQueueEntry.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DataQueueEntry.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -16,13 +16,13 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 /**
- The DataQueueEntry class represents an entry on an AS/400 data queue.
+ The DataQueueEntry class represents an entry on an iSeries server data queue.
  **/
 public class DataQueueEntry
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    // Source dq, used for String conversion.
+    // Source data queue, used for String conversion.
     BaseDataQueue dq_;
     // The data for this entry.
     byte[] data_;

@@ -2,12 +2,12 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename: ProgramCall.java
+// Filename:  ProgramCall.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2000 International Business Machines Corporation and
-// others. All rights reserved.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -102,7 +102,7 @@ import com.ibm.as400.resource.RJob;
  **/
 public class ProgramCall implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 

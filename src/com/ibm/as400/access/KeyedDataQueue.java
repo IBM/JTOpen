@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
@@ -97,7 +97,7 @@ public class KeyedDataQueue extends BaseDataQueue
 
         open();
         // Send clear request.
-        impl_.processClear(key);
+        impl_.clear(key);
         if (dataQueueListeners_ != null) fireDataQueueEvent(DataQueueEvent.DQ_CLEARED);
     }
 
@@ -205,7 +205,7 @@ public class KeyedDataQueue extends BaseDataQueue
         keyLength_ = keyLength;
 
         // Send create request.
-        impl_.processCreate(maxEntryLength, authority, saveSenderInformation, true, keyLength, forceToAuxiliaryStorage, description);
+        impl_.create(maxEntryLength, authority, saveSenderInformation, true, keyLength, forceToAuxiliaryStorage, description);
 
         if (objectListeners_ != null) fireObjectEvent(ObjectEvent.OBJECT_CREATED);
         // Attributes are complete and official.
@@ -298,7 +298,7 @@ public class KeyedDataQueue extends BaseDataQueue
         open();
 
         // Send request.
-        DQReceiveRecord record = impl_.processRead(search, wait, true, key, saveSenderInformation_);
+        DQReceiveRecord record = impl_.read(search, wait, true, key);
         if (record == null) return null;
 
         KeyedDataQueueEntry entry = new KeyedDataQueueEntry(this, record.key_, record.data_, record.senderInformation_);
@@ -410,7 +410,7 @@ public class KeyedDataQueue extends BaseDataQueue
 
         open();
         // Send request.
-        DQReceiveRecord record =  impl_.processRead(search, wait, false, key, saveSenderInformation_);
+        DQReceiveRecord record =  impl_.read(search, wait, false, key);
         if (record == null) return null;
 
         KeyedDataQueueEntry entry = new KeyedDataQueueEntry(this, record.key_, record.data_, record.senderInformation_);
@@ -463,7 +463,7 @@ public class KeyedDataQueue extends BaseDataQueue
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving keyed data queue attributes.");
         // Send attribute request.
-        DQQueryRecord record = impl_.processRetrieveAttrs(true);
+        DQQueryRecord record = impl_.retrieveAttributes(true);
 
         maxEntryLength_ = record.maxEntryLength_;
         saveSenderInformation_ = record.saveSenderInformation_;
@@ -524,7 +524,7 @@ public class KeyedDataQueue extends BaseDataQueue
 
         open();
         // Send write request.
-        impl_.processWrite(key, data);
+        impl_.write(key, data);
         if (dataQueueListeners_ != null) fireDataQueueEvent(DataQueueEvent.DQ_WRITTEN);
     }
 

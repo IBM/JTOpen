@@ -254,7 +254,7 @@ public abstract class BaseDataQueue implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing data queue.");
         open();
         // Send clear request.
-        impl_.processClear(null);
+        impl_.clear(null);
         if (dataQueueListeners_ != null) fireDataQueueEvent(DataQueueEvent.DQ_CLEARED);
     }
 
@@ -272,14 +272,9 @@ public abstract class BaseDataQueue implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Deleting data queue.");
         // Don't go through open, so no open event is signaled.
         chooseImpl();
-        // Get attributes to ensure this is the right type of queue.
-        if (!attributesRetrieved_)
-        {
-            retrieveAttributes();
-        }
 
         // Send delete request.
-        impl_.processDelete();
+        impl_.delete();
         // Indicate that the existing attribute instance variables are invalid since the data queue no longer exists.  If someone re-creates it, it may have different attributes.
         attributesRetrieved_ = false;
         if (objectListeners_ != null) fireObjectEvent(ObjectEvent.OBJECT_DELETED);

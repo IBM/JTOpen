@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DQReadNormalReplyDataStream.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DQReadNormalReplyDataStream.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 // If there is an error, the reply to a read request is a DQCommonReplyDataStream.
 class DQReadNormalReplyDataStream extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     Object getNewDataStream()
     {
@@ -74,7 +74,7 @@ class DQReadNormalReplyDataStream extends ClientAccessDataStream
 
     int readAfterHeader(InputStream in) throws IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Receiving receive record from data queue (normal) reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving receive record from data queue (normal) reply...");
 
         // Read in rest of data.
         return super.readAfterHeader(in);

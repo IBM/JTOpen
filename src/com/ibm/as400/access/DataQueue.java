@@ -143,7 +143,7 @@ public class DataQueue extends BaseDataQueue
         description_ = description;
 
         // Send create request.
-        impl_.processCreate(maxEntryLength, authority, saveSenderInformation, FIFO, 0, forceToAuxiliaryStorage, description);
+        impl_.create(maxEntryLength, authority, saveSenderInformation, FIFO, 0, forceToAuxiliaryStorage, description);
 
         if (objectListeners_ != null) fireObjectEvent(ObjectEvent.OBJECT_CREATED);
         // Attributes are complete and official.
@@ -189,7 +189,7 @@ public class DataQueue extends BaseDataQueue
 
         open();
         // Send request.
-        DQReceiveRecord record = impl_.processRead(null, wait, true, null, saveSenderInformation_);
+        DQReceiveRecord record = impl_.read(null, wait, true, null);
         if (record == null) return null;
 
         DataQueueEntry entry = new DataQueueEntry(this, record.data_, record.senderInformation_);
@@ -236,7 +236,7 @@ public class DataQueue extends BaseDataQueue
 
         open();
         // Send request.
-        DQReceiveRecord record = impl_.processRead(null, wait, false, null, saveSenderInformation_);
+        DQReceiveRecord record = impl_.read(null, wait, false, null);
         if (record == null) return null;
 
         DataQueueEntry entry = new DataQueueEntry(this, record.data_, record.senderInformation_);
@@ -249,7 +249,7 @@ public class DataQueue extends BaseDataQueue
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving data queue attributes.");
         // Send retrieve attribute request.
-        DQQueryRecord record = impl_.processRetrieveAttrs(false);
+        DQQueryRecord record = impl_.retrieveAttributes(false);
 
         maxEntryLength_ = record.maxEntryLength_;
         saveSenderInformation_ = record.saveSenderInformation_;
@@ -297,7 +297,7 @@ public class DataQueue extends BaseDataQueue
 
         open();
         // Send write request.
-        impl_.processWrite(null, data);
+        impl_.write(null, data);
         if (dataQueueListeners_ != null) fireDataQueueEvent(DataQueueEvent.DQ_WRITTEN);
     }
 

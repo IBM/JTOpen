@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DataQueueEvent.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DataQueueEvent.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -20,12 +20,9 @@ import java.util.EventObject;
  **/
 public class DataQueueEvent extends EventObject
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-
-
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-
 
     /**
      The DataQueue clear event ID.  This event is delivered when a clear has been performed.
@@ -47,7 +44,8 @@ public class DataQueueEvent extends EventObject
      **/
     public static final int DQ_WRITTEN = 3;
 
-    private int id_; // event identifier
+    // Event identifier.
+    private int id_;
 
     /**
      Constructs a DataQueueEvent object. It uses the specified source and ID.

@@ -1,29 +1,29 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: IllegalObjectTypeException.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  IllegalObjectTypeException.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
 /**
- The IllegalObjectTypeException class represents an exception that indicates that the AS/400 object is not the required type.
+ The IllegalObjectTypeException class represents an exception that indicates that the iSeries server object is not the required type.
  **/
 public class IllegalObjectTypeException extends Exception implements ReturnCodeException
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
 
-
-    private int rc_;  // Return code associated with this exception.
+    // Return code associated with this exception.
+    private int returnCode_;
 
     // Return code values used by this class.
     // If a value is added here, it must also be added to MRI.java.
@@ -55,7 +55,7 @@ public class IllegalObjectTypeException extends Exception implements ReturnCodeE
     {
         // Create the message.
         super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
-        rc_ = returnCode;
+        returnCode_ = returnCode;
     }
 
     // Constructs an IllegalObjectTypeException object.  It indicates that an object is not the required type.  Exception message will look like this: /QSYS.LIB/MYLIB.LIB/MYQUEUE.DTAQ: Object type is not valid.
@@ -65,7 +65,7 @@ public class IllegalObjectTypeException extends Exception implements ReturnCodeE
     {
         // Create the message.
         super(objectName + ": " + ResourceBundleLoader.getText(getMRIKey(returnCode)));
-        rc_ = returnCode;
+        returnCode_ = returnCode;
     }
 
     // Returns the text associated with the return code.
@@ -97,6 +97,6 @@ public class IllegalObjectTypeException extends Exception implements ReturnCodeE
      **/
     public int getReturnCode()
     {
-        return rc_;
+        return returnCode_;
     }
 }

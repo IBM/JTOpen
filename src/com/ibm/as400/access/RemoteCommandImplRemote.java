@@ -435,10 +435,12 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
                 throw new ErrorCompletingRequestException(ErrorCompletingRequestException.EXIT_POINT_PROCESSING_ERROR);
             case 0x0301:  // Invalid request.  The request data stream did not match what was required for the specified request.
             case 0x0302:  // Invalid parameter.
-            case 0x0303:  // Maximum exceeded.  For RMTCMD, the maximum command length was exceeded and for RMTPGMCALL, the maximum number of parameters was exceeded.
                 Trace.log(Trace.ERROR, "Request not valid.");
                 system_.disconnectServer(server_);
                 throw new InternalErrorException(InternalErrorException.SYNTAX_ERROR);
+            case 0x0303:  // Maximum exceeded.  For RMTCMD, the maximum command length was exceeded and for RMTPGMCALL, the maximum number of parameters was exceeded.
+                Trace.log(Trace.ERROR, "Maximum exceeded.");
+                throw new ErrorCompletingRequestException(ErrorCompletingRequestException.LENGTH_NOT_VALID);
             case 0x0304:  // An error occured when calling the user exit program.
                 Trace.log(Trace.ERROR, "Error calling exit program.");
                 system_.disconnectServer(server_);

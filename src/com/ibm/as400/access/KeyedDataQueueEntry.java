@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: KeyedDataQueueEntry.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  KeyedDataQueueEntry.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -16,13 +16,13 @@ package com.ibm.as400.access;
 import java.io.UnsupportedEncodingException;
 
 /**
- The KeyedDataQueueEntry class represents an entry on an AS/400 keyed data queue.
+ The KeyedDataQueueEntry class represents an entry on an iSeries server keyed data queue.
  **/
 public class KeyedDataQueueEntry extends DataQueueEntry
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    //The key for this entry.
+    // The key for this entry.
     byte[] key_;
 
     // Constructs a KeyedDataQueueEntry object.
@@ -55,8 +55,8 @@ public class KeyedDataQueueEntry extends DataQueueEntry
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Getting data queue key as String.");
 
         int length = key_.length;
-        while (key_[--length] == 0);
-        byte[] copy = new byte[++length];
+        while (length >= 1 && key_[length - 1] == 0) --length;
+        byte[] copy = new byte[length];
         System.arraycopy(key_, 0, copy, 0, length);
         return dq_.byteArrayToString(copy);
     }

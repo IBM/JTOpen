@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
-// Filename: DQCommonReplyDataStream.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
+// Filename:  DQCommonReplyDataStream.java
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2003 International Business Machines Corporation and
+// others.  All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -26,7 +26,7 @@ import java.io.InputStream;
 // - Receive record from data queue reply (error) data stream.
 class DQCommonReplyDataStream extends ClientAccessDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     Object getNewDataStream()
     {
@@ -45,7 +45,7 @@ class DQCommonReplyDataStream extends ClientAccessDataStream
 
     byte[] getMessage()
     {
-        // Get AS/400 message if there is one.
+        // Get message if there is one.
         if (getLength() > 22)
         {
             // Determine length of msg (LL).
@@ -61,7 +61,7 @@ class DQCommonReplyDataStream extends ClientAccessDataStream
 
     int readAfterHeader(InputStream in) throws IOException
     {
-        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Receiving data queue common reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving data queue common reply...");
 
         // Read in remaining data.
         return super.readAfterHeader(in);
