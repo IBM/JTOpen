@@ -56,9 +56,10 @@ implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
+  static final long serialVersionUID = 6L;
 
-
-  static final long serialVersionUID = 5L;
+  private static final byte[] BLANKS16_ = new byte[] { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+                                                       0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 };
 
 //-----------------------------------------------------------------------------------------
 // Private data.
@@ -76,6 +77,7 @@ implements Serializable
   private String name_, user_, number_, status_, type_, subtype_;
   private AS400 system_;
   private String internalJobID_;
+  private byte[] realInternalJobID_;
 
   private transient PropertyChangeSupport propertyChangeSupport_;
   private transient VetoableChangeSupport vetoableChangeSupport_;
@@ -764,6 +766,132 @@ implements Serializable
   public static final int CONTROLLED_END_REQUESTED = 502; // End status
 
   /**
+   * Job attribute representing the total number of disk I/O operations performed by the job
+   * across all routing steps. This is the sum of the asynchronous and synchronous disk I/O.
+   * <P>Note: This field is only valid for Job objects created from a JobList.
+   * <P>Read-only: true
+   * <P>Type: Long
+  **/
+  //public static final int DISK_IO = 415;
+  // This attribute should be enabled when JobList is updated to handle the OLJB0300 format
+  // for the QGYOLJOB API.
+
+  /**
+   * Job attribute representing the percentage of processing time used during the elapsed time.
+   * For multiple-processor systems, this is the average across processors.
+   * <P>Read-only: true
+   * <P>Type: Integer
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_CPU_PERCENT_USED = 314;
+  
+  /**
+   * Job attribute representing the percentage of processing time used for database processing during the elapsed time.
+   * For multiple-processor systems, this is the average across processors.
+   * <P>Read-only: true
+   * <P>Type: Integer
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_CPU_PERCENT_USED_FOR_DATABASE = 316;
+  
+  /**
+   * Job attribute representing the amount of processing unit time (in milliseconds) used during the elapsed time.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_CPU_TIME_USED = 315;
+  
+  /**
+   * Job attribute representing the amount of processing unit time (in milliseconds) used for database processing
+   * during the elapsed time.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_CPU_TIME_USED_FOR_DATABASE = 317;
+  
+  /**
+   * Job attribute representing the number of disk I/O operations performed by the job during the
+   * elapsed time. This is the sum of the {@link #ELAPSED_DISK_IO_ASYNCH asynchronous} and
+   * {@link #ELAPSED_DISK_IO_SYNCH synchronous} disk I/O.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_DISK_IO = 414;
+  
+  /**
+   * Job attribute representing the number of asynchronous (physical) disk I/O operations performed
+   * by the job during the elapsed time. This is the sum of the asynchronous database and nondatabase
+   * reads and writes.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_DISK_IO_ASYNCH = 416;
+  
+  /**
+   * Job attribute representing the number of synchronous (physical) disk I/O operations performed
+   * by the job during the elapsed time. This is the sum of the synchronous database and nondatabase
+   * reads and writes.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_DISK_IO_SYNCH = 417;
+  
+  /**
+   * Job attribute representing the total interactive response time for the initial thread (in hundredths of seconds)
+   * for the job during the elapsed time. This does not include the time used by the machine, by the attached
+   * input/output (I/O) hardware, and by the transmission lines for sending and receiving data. This field is
+   * 0 for noninteractive jobs.
+   * <P>Read-only: true
+   * <P>Type: Integer
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_INTERACTIVE_RESPONSE_TIME = 904;
+  
+  /**
+   * Job attribute representing the number of user interactions, such as pressing the Enter key or a function
+   * key, for the job during the elapsed time for the initial thread. This field is 0 for noninteractive jobs.
+   * <P>Read-only: true
+   * <P>Type: Integer
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_INTERACTIVE_TRANSACTIONS = 905;
+  
+  /**
+   * Job attribute representing the amount of time (in milliseconds) that the initial thread has to wait
+   * to obtain database, nondatabase, and internal machine locks during the elapsed time.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * <P>Can be loaded by JobList: false
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_LOCK_WAIT_TIME = 10008; // Cannot pre-load.
+  
+  /**
+   * Job attribute representing the number of times an active program referenced an address that is not
+   * in main storage during the elapsed time.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_PAGE_FAULTS = 1609;
+
+  /**
+   * Job attribute representing the time (in milliseconds) that has elapsed between the measurement
+   * start time and the current system time. The measurement start time is reset when the 
+   * {@link #resetStatistics resetStatistics()} method is called.
+   * <P>Read-only: true
+   * <P>Type: Long
+   * <P>Can be loaded by JobList: false
+   * @see #resetStatistics
+  **/
+  public static final int ELAPSED_TIME = 10007; // Cannot pre-load as a key.
+
+  /**
    * Constant indicating that the system, the subsystem in which a job is running,
    * or the job itself is cancelled.
    * @see #CONTROLLED_END_REQUESTED
@@ -1439,8 +1567,21 @@ implements Serializable
    * <P>Type: String
    * <P>Can be loaded by JobList: false
    * @see #getInternalJobID
+   * @deprecated The internal job identifier should be treated as a byte array of 16 bytes.
   **/
   public static final int INTERNAL_JOB_ID = 11000; // Always gets loaded
+
+  /**
+   * Job attribute representing the value input to other APIs to decrease the time
+   * it takes to locate the job on the system. The identifier is not valid following
+   * an initial program load (IPL). If you attempt to use it after an IPL, an
+   * exception occurs.
+   * <P>Read-only: true
+   * <P>Type: byte array
+   * <P>Can be loaded by JobList: false
+   * @see #getInternalJobIdentifier
+  **/
+  public static final int INTERNAL_JOB_IDENTIFIER = 11007; // Always gets loaded
 
   /**
    * Job attribute representing the date used for the job. This value is for jobs
@@ -3294,7 +3435,8 @@ implements Serializable
     number_ = jobNumber;
     setValueInternal(JOB_NUMBER, jobNumber);
     internalJobID_ = "";
-    setValueInternal(INTERNAL_JOB_ID, null);
+    realInternalJobID_ = null;
+    setValueInternal(INTERNAL_JOB_ID, "");
   }
 
 
@@ -3304,15 +3446,54 @@ implements Serializable
    * and the job number to JOB_NUMBER_BLANK.
    * @param system The system.
    * @param internalJobID The internal job identifier.
+   * @deprecated The internal job ID should be treated as a byte array of 16 bytes.
   **/
   public Job(AS400 system, String internalJobID)
   {
     if (system == null) throw new NullPointerException("system");
     if (internalJobID == null) throw new NullPointerException("internalJobID");
+    if (internalJobID.length() != 16) throw new ExtendedIllegalArgumentException("internalJobID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
     system_ = system;
     internalJobID_ = internalJobID;
+    realInternalJobID_ = new byte[16];
+    for (int i=0; i<16; ++i)
+    {
+      realInternalJobID_[i] = (byte)internalJobID.charAt(i);
+    }
     setValueInternal(INTERNAL_JOB_ID, internalJobID);
+    setValueInternal(INTERNAL_JOB_IDENTIFIER, realInternalJobID_);
+    name_ = JOB_NAME_INTERNAL;
+    setValueInternal(JOB_NAME, null);
+    user_ = USER_NAME_BLANK;
+    setValueInternal(USER_NAME, null);
+    number_ = JOB_NUMBER_BLANK;
+    setValueInternal(JOB_NUMBER, null);
+  }
+
+
+  /**
+   * Constructs a Job object. This sets the job name to JOB_NAME_INTERNAL, the user name to USER_NAME_BLANK,
+   * and the job number to JOB_NUMBER_BLANK.
+   * @param system The system.
+   * @param internalJobID The 16-byte internal job identifier.
+  **/
+  public Job(AS400 system, byte[] internalJobID)
+  {
+    if (system == null) throw new NullPointerException("system");
+    if (internalJobID == null) throw new NullPointerException("internalJobID");
+    if (internalJobID.length != 16) throw new ExtendedIllegalArgumentException("internalJobID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+    system_ = system;
+    realInternalJobID_ = internalJobID;
+    char[] oldID = new char[16];
+    for (int i=0; i<16; ++i)
+    {
+      oldID[i] = (char)(internalJobID[i] & 0x00FF);
+    }
+    internalJobID_ = new String(oldID);
+    setValueInternal(INTERNAL_JOB_ID, internalJobID);
+    setValueInternal(INTERNAL_JOB_IDENTIFIER, realInternalJobID_);
     name_ = JOB_NAME_INTERNAL;
     setValueInternal(JOB_NAME, null);
     user_ = USER_NAME_BLANK;
@@ -3424,11 +3605,13 @@ implements Serializable
     member[1] = new AS400Text(10, ccsid, system_);
     member[2] = new AS400Text(6, ccsid, system_);
     structure.setMembers(member);
-    String[] qualifiedJobName = { name_, user_, number_};
+    String[] qualifiedJobName = (realInternalJobID_ != null ? new String[] { "*INT", "", "" } :
+                                                              new String[] { name_, user_, number_});
     parmList[0] = new ProgramParameter(structure.toBytes(qualifiedJobName));
-    AS400Text text = new AS400Text(16, ccsid, system_);
-    parmList[1] = new ProgramParameter(text.toBytes(internalJobID_));
-    text = new AS400Text(8, ccsid, system_);
+    //AS400Text text = new AS400Text(16, ccsid, system_);
+    //parmList[1] = new ProgramParameter(text.toBytes(internalJobID_));
+    parmList[1] = new ProgramParameter(realInternalJobID_ == null ? BLANKS16_ : realInternalJobID_);
+    AS400Text text = new AS400Text(8, ccsid, system_);
     parmList[2] = new ProgramParameter(text.toBytes("JOBC0100"));
 
     int numChanges = cachedChanges_.size_;
@@ -4466,13 +4649,23 @@ Returns the number of interactive transactions.
 Returns the internal job identifier.
 
 @return The internal job identifier.
+@deprecated The internal job identifier should be treated as a byte array of 16 bytes.
 **/
   public String getInternalJobID()
   {
     return internalJobID_;
   }
 
-
+  /**
+   * Returns the internal job identifier.
+   * @return The 16-byte internal job identifier, or null if one has not been set or retrieved
+   * from the system.
+   * @see #setInternalJobIdentifier
+  **/
+  public byte[] getInternalJobIdentifier()
+  {
+    return realInternalJobID_;
+  }
 
 /**
 Returns the identifier assigned to the job by the system to collect resource
@@ -6365,7 +6558,9 @@ of work identifier.
 
   /**
    * Refreshes the values for all attributes. This does not cancel uncommitted changes.
+   * To refresh just the elapsed statistics, use {@link #loadStatistics loadStatistics()}.
    * @see #commitChanges
+   * @see #loadStatistics
   **/
   public void loadInformation()
   {
@@ -6377,20 +6572,21 @@ of work identifier.
       values_.clear();
       
       // Reset all of the important information
-      if (internalJobID_.equals(""))
-      {
+//      if (internalJobID_ == null || internalJobID_.equals(""))
+//      {
         setValueInternal(INTERNAL_JOB_ID, null);
+        setValueInternal(INTERNAL_JOB_IDENTIFIER, null);
         setValueInternal(JOB_NAME, name_);
         setValueInternal(USER_NAME, user_);
         setValueInternal(JOB_NUMBER, number_);
-      }
-      else
-      {
-        setValueInternal(INTERNAL_JOB_ID, internalJobID_);
-        setValueInternal(JOB_NAME, null);
-        setValueInternal(USER_NAME, null);
-        setValueInternal(JOB_NUMBER, null);
-      }
+//      }
+//      else
+//      {
+//        setValueInternal(INTERNAL_JOB_ID, internalJobID_);
+//        setValueInternal(JOB_NAME, null);
+//        setValueInternal(USER_NAME, null);
+//        setValueInternal(JOB_NUMBER, null);
+//      }
       setValueInternal(JOB_STATUS, status_);
       setValueInternal(JOB_TYPE, type_);
       setValueInternal(JOB_SUBTYPE, subtype_);
@@ -6404,6 +6600,7 @@ of work identifier.
       retrieve(LOGGING_TEXT);           // 500
       retrieve(SPECIAL_ENVIRONMENT);    // 600
       retrieve(USER_LIBRARY_LIST);      // 700
+      retrieve(ELAPSED_CPU_TIME_USED);  // 1000
     }
     catch (Exception e)
     {
@@ -6412,6 +6609,38 @@ of work identifier.
         Trace.log(Trace.ERROR, "Error loading job information: ", e);
       }
     }
+  }
+
+
+  /**
+   * Refreshes just the values for the elapsed statistics. Internally, this
+   * calls the QUSRJOBI API using the JOBI1000 format.
+   * @see #resetStatistics
+   * @see #loadInformation
+   * @see #ELAPSED_TIME
+   * @see #ELAPSED_DISK_IO
+   * @see #ELAPSED_DISK_IO_ASYNCH
+   * @see #ELAPSED_DISK_IO_SYNCH
+   * @see #ELAPSED_INTERACTIVE_RESPONSE_TIME
+   * @see #ELAPSED_INTERACTIVE_TRANSACTIONS
+   * @see #ELAPSED_CPU_PERCENT_USED
+   * @see #ELAPSED_CPU_PERCENT_USED_FOR_DATABASE
+   * @see #ELAPSED_CPU_TIME_USED
+   * @see #ELAPSED_CPU_TIME_USED_FOR_DATABASE
+   * @see #ELAPSED_LOCK_WAIT_TIME
+   * @see #ELAPSED_PAGE_FAULTS
+  **/
+  public void loadStatistics()
+  throws AS400Exception,
+  AS400SecurityException,
+  ConnectionDroppedException,
+  ErrorCompletingRequestException,
+  InterruptedException,
+  IOException,
+  ObjectDoesNotExistException,
+  UnsupportedEncodingException
+  {
+    retrieve(ELAPSED_CPU_TIME_USED);  // 1000
   }
 
 
@@ -6431,7 +6660,7 @@ of work identifier.
 //    if (name == "JOBI0750") return 100+(43*60);
 //    if (name == "JOBI0800") return 96+(10*32); // (10 is used since I don't know the max number of signal monitor entries possible)
 //    if (name == "JOBI0900") return 92+(10*80); // (10 is used since I don't know the max number of SQL open cursors possible)
-//    if (name == "JOBI1000") return 144;
+    if (name == "JOBI1000") return 144;
     return -1;
   }
 
@@ -6448,6 +6677,7 @@ of work identifier.
       case USER_NAME:
       case JOB_NUMBER:
       case INTERNAL_JOB_ID:
+      case INTERNAL_JOB_IDENTIFIER:
       case JOB_STATUS:
       case JOB_TYPE:
       case JOB_SUBTYPE:
@@ -6576,6 +6806,20 @@ of work identifier.
       case USER_LIBRARY_LIST:
         return "JOBI0700";
 
+      case ELAPSED_TIME:
+      case ELAPSED_DISK_IO:
+      case ELAPSED_DISK_IO_ASYNCH:
+      case ELAPSED_DISK_IO_SYNCH:
+      case ELAPSED_INTERACTIVE_RESPONSE_TIME:
+      case ELAPSED_INTERACTIVE_TRANSACTIONS:
+      case ELAPSED_CPU_PERCENT_USED:
+      case ELAPSED_CPU_PERCENT_USED_FOR_DATABASE:
+      case ELAPSED_CPU_TIME_USED:
+      case ELAPSED_CPU_TIME_USED_FOR_DATABASE:
+      case ELAPSED_LOCK_WAIT_TIME:
+      case ELAPSED_PAGE_FAULTS:
+        return "JOBI1000";
+
       default:
         return null;
     }
@@ -6601,27 +6845,38 @@ of work identifier.
 
     // All the formats return these
 
-/*    name_ = table.byteArrayToString(data, 8, 10);
-    user_ = table.byteArrayToString(data, 18, 10);
+    name_ = table.byteArrayToString(data, 8, 10).trim();
+    user_ = table.byteArrayToString(data, 18, 10).trim();
     number_ = table.byteArrayToString(data, 28, 6);
-    internalJobID_ = table.byteArrayToString(data, 34, 16);
-*/
+
+    //internalJobID_ = table.byteArrayToString(data, 34, 16);
+    realInternalJobID_ = new byte[16];
+    System.arraycopy(data, 34, realInternalJobID_, 0, 16);
+    char[] oldID = new char[16];
+    for (int i=0; i<16; ++i)
+    {
+      oldID[i] = (char)(realInternalJobID_[i] & 0x00FF);
+    }
+    internalJobID_ = new String(oldID);
+
     status_ = table.byteArrayToString(data, 50, 10).trim();
     type_ = table.byteArrayToString(data, 60, 1);
     subtype_ = table.byteArrayToString(data, 61, 1);    
 
-/*    setValueInternal(JOB_NAME, name_);
+    setValueInternal(JOB_NAME, name_);
     setValueInternal(USER_NAME, user_);
     setValueInternal(JOB_NUMBER, number_);
+    
     setValueInternal(INTERNAL_JOB_ID, internalJobID_);
-*/
+    setValueInternal(INTERNAL_JOB_IDENTIFIER, realInternalJobID_);
+
     setValueInternal(JOB_STATUS, status_);
     setValueInternal(JOB_TYPE, type_);
     setValueInternal(JOB_SUBTYPE, subtype_);
-    if (internalJobID_ == null)
-    {
-      setValueInternal(INTERNAL_JOB_ID, table.byteArrayToString(data, 34, 16));
-    }
+//    if (internalJobID_ == null)
+//    {
+//      setValueInternal(INTERNAL_JOB_ID, table.byteArrayToString(data, 34, 16));
+//    }
 
     if (format == "JOBI0150")
     {
@@ -6775,6 +7030,34 @@ of work identifier.
       int numberOfUserLibraries = BinaryConverter.byteArrayToInt(data, 76);
       setValueInternal(USER_LIBRARY_LIST, table.byteArrayToString(data, offset, 11*numberOfUserLibraries));
     }
+    else if (format == "JOBI1000")
+    {
+      long elapsedTime = BinaryConverter.byteArrayToLong(data, 64);
+      setAsLong(ELAPSED_TIME, elapsedTime);
+      long diskIOCountTotal = BinaryConverter.byteArrayToLong(data, 72);
+      setAsLong(ELAPSED_DISK_IO, diskIOCountTotal);
+      long diskIOCountAsynch = BinaryConverter.byteArrayToLong(data, 80);
+      setAsLong(ELAPSED_DISK_IO_ASYNCH, diskIOCountAsynch);
+      long diskIOCountSynch = BinaryConverter.byteArrayToLong(data, 88);
+      setAsLong(ELAPSED_DISK_IO_SYNCH, diskIOCountSynch);
+      int interRespTimeTotal = BinaryConverter.byteArrayToInt(data, 96);
+      setAsInt(ELAPSED_INTERACTIVE_RESPONSE_TIME, interRespTimeTotal);
+      int interTransCount = BinaryConverter.byteArrayToInt(data, 100);
+      setAsInt(ELAPSED_INTERACTIVE_TRANSACTIONS, interTransCount);
+      int cpuUsedPercent = BinaryConverter.byteArrayToInt(data, 104);
+      setAsInt(ELAPSED_CPU_PERCENT_USED, cpuUsedPercent);
+      int cpuUsedDBPercent = BinaryConverter.byteArrayToInt(data, 108);
+      setAsInt(ELAPSED_CPU_PERCENT_USED_FOR_DATABASE, cpuUsedDBPercent);
+      long cpuUsedTime = BinaryConverter.byteArrayToLong(data, 112);
+      setAsLong(ELAPSED_CPU_TIME_USED, cpuUsedTime);
+      long cpuUsedDBTime = BinaryConverter.byteArrayToLong(data, 120);
+      setAsLong(ELAPSED_CPU_TIME_USED_FOR_DATABASE, cpuUsedDBTime);
+      long lockWaitTime = BinaryConverter.byteArrayToLong(data, 128);
+      setAsLong(ELAPSED_LOCK_WAIT_TIME, lockWaitTime);
+      long pageFaultCountTotal = BinaryConverter.byteArrayToLong(data, 136);
+      setAsLong(ELAPSED_PAGE_FAULTS, pageFaultCountTotal);
+    }
+
   }
 
 
@@ -6825,6 +7108,35 @@ of work identifier.
       vetoableChangeSupport_.removeVetoableChangeListener(listener);
   }
 
+  /**
+   * Resets the measurement start time used for computing elapsed statistics.
+   * @see #loadStatistics
+   * @see #ELAPSED_TIME
+   * @see #ELAPSED_DISK_IO
+   * @see #ELAPSED_DISK_IO_ASYNCH
+   * @see #ELAPSED_DISK_IO_SYNCH
+   * @see #ELAPSED_INTERACTIVE_RESPONSE_TIME
+   * @see #ELAPSED_INTERACTIVE_TRANSACTIONS
+   * @see #ELAPSED_CPU_PERCENT_USED
+   * @see #ELAPSED_CPU_PERCENT_USED_FOR_DATABASE
+   * @see #ELAPSED_CPU_TIME_USED
+   * @see #ELAPSED_CPU_TIME_USED_FOR_DATABASE
+   * @see #ELAPSED_LOCK_WAIT_TIME
+   * @see #ELAPSED_PAGE_FAULTS
+  **/
+  public void resetStatistics()
+    throws AS400Exception,
+           AS400SecurityException,
+           ConnectionDroppedException,
+           ErrorCompletingRequestException,
+           InterruptedException,
+           IOException,
+           ObjectDoesNotExistException,
+           UnsupportedEncodingException
+  {
+    retrieve(-1);
+  }
+
 
   /**
    * Helper method. Used to make the QUSRJOBI API call using the correct format based on the
@@ -6861,11 +7173,11 @@ of work identifier.
     }
 
     // First lookup the format to use for this key
-    String format = lookupFormatName(key);
+    String format = (key == -1 ? "JOBI1000" : lookupFormatName(key));
     int ccsid = system_.getCcsid();
     int receiverLength = lookupFormatLength(format);
 
-    ProgramParameter[] parmList = new ProgramParameter[6];
+    ProgramParameter[] parmList = (key == -1 ? new ProgramParameter[7] : new ProgramParameter[6]);
     parmList[0] = new ProgramParameter(receiverLength);           
     parmList[1] = new ProgramParameter(bin4_.toBytes(receiverLength));
     AS400Text text = new AS400Text(8, ccsid, system_);
@@ -6875,17 +7187,21 @@ of work identifier.
     member[1] = new AS400Text(10, ccsid, system_);
     member[2] = new AS400Text(6, ccsid, system_);
     AS400Structure structure = new AS400Structure(member);
-    String[] qualifiedJobName = { name_, user_, number_};
+    String[] qualifiedJobName =  (realInternalJobID_ != null) ?
+                                 new String[] { "*INT", "", "" } : new String[] { name_, user_, number_};
     parmList[3] = new ProgramParameter(structure.toBytes(qualifiedJobName));
     text = new AS400Text(16, ccsid, system_);
-    parmList[4] = new ProgramParameter(text.toBytes(internalJobID_ == null ? "" : internalJobID_));
+    parmList[4] = new ProgramParameter(realInternalJobID_ == null ? BLANKS16_ : realInternalJobID_);
     byte[] errorInfo = new byte[32];
     parmList[5] = new ProgramParameter(errorInfo, 0);
+
+    if (key == -1) parmList[6] = new ProgramParameter(new byte[] { (byte)0xF1 }); // '1' to reset performance statistics
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QUSRJOBI.PGM", parmList);
     if (Trace.traceOn_)
     {
-      Trace.log(Trace.DIAGNOSTIC, "Retrieving job information for job "+toString());
+      if (key == -1) Trace.log(Trace.DIAGNOSTIC, "Resetting performance statistics for job "+toString());
+      else Trace.log(Trace.DIAGNOSTIC, "Retrieving job information for job "+toString());
     }
     isConnected_ = true; //@E3A
     if (!pc.run())
@@ -7560,6 +7876,7 @@ a connection to the AS/400.
 @param internalJobID    The internal job identifier.
 
 @exception PropertyVetoException    If the property change is vetoed.
+@deprecated The internal job identifier should be treated as a byte array of 16 bytes.
 **/
   public void setInternalJobID(String internalJobID)
   throws PropertyVetoException
@@ -7567,6 +7884,11 @@ a connection to the AS/400.
     if (internalJobID == null)
     {
       throw new NullPointerException("internalJobID");
+    }
+    
+    if (internalJobID.length() != 16)
+    {
+      throw new ExtendedIllegalArgumentException("internalJobID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
 
     if (isConnected_)
@@ -7580,6 +7902,11 @@ a connection to the AS/400.
       vetoableChangeSupport_.fireVetoableChange("internalJobID", old, internalJobID_);
 
     internalJobID_ = internalJobID;
+    realInternalJobID_ = new byte[16];
+    for (int i=0; i<16; ++i)
+    {
+      realInternalJobID_[i] = (byte)internalJobID.charAt(i);
+    }
 
     if (propertyChangeSupport_ != null)
       propertyChangeSupport_.firePropertyChange("internalJobID", old, internalJobID_);
@@ -7587,6 +7914,35 @@ a connection to the AS/400.
   }
 
 
+  /**
+   * Sets the internal job identifier.  This does not change
+   * the job on the server.  Instead, it changes the job
+   * this Job object references.  The job name
+   * must be set to "*INT" for this to be recognized.
+   * This cannot be changed if the object has established
+   * a connection to the server.
+   *
+   * @param internalJobID  The 16-byte internal job identifier.
+   *
+  **/
+  public void setInternalJobIdentifier(byte[] internalJobID)
+  {
+    if (internalJobID == null) throw new NullPointerException("internalJobID");
+    if (internalJobID.length != 16) throw new ExtendedIllegalArgumentException("internalJobID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+    if (isConnected_)
+    {
+      throw new ExtendedIllegalStateException("internalJobID", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+    }
+
+    realInternalJobID_ = internalJobID;
+    char[] oldID = new char[16];
+    for (int i=0; i<16; ++i)
+    {
+      oldID[i] = (char)(internalJobID[i] & 0x00FF);
+    }
+    internalJobID_ = new String(oldID);
+  }
 
 /**
 Sets the identifier assigned to the job by the system to collect resource
