@@ -19,7 +19,7 @@ import java.util.StringTokenizer;
 
 
 /**
-<p>This class represents an AS/400 library list for database access.
+<p>This class represents an OS/400 library list for database access.
 **/
 class JDLibraryList
 {
@@ -45,6 +45,8 @@ Constructor.
 **/
   JDLibraryList (String list, String defaultSchema, String naming) // @C1C
   {
+     boolean startsWithComma = false;                              // @E2a
+   
     // Initialize.
     defaultSchema_ = null;
     if (defaultSchema != null)
@@ -58,6 +60,22 @@ Constructor.
     if (list.length() != 0)
     {
 
+      // OpNav asked that there be a way to specify a library list without
+      // getting a default schema.  We agreed that if the library list starts
+      // with a comma we would not set a default schema.  We do this
+      // only if no schema is in the url.  A schema on the url
+      // will be sent as the default schema no matter what is listed
+      // in the library list.                                                       
+      if (defaultSchema_ == null)                // @E2a
+      {                                          // @E2a
+         String newList = list.trim();           // @E2a
+         if (newList.length() > 0)               // @E2a
+         {                                       // @E2a
+            if (newList.startsWith(","))         // @E2a
+               startsWithComma = true;           // @E2a
+         }                                       // @E2a
+      }   
+          
       // Determine if the *LIBL token is included.
       boolean includesLibl = (list.toUpperCase().indexOf (LIBL_) != -1);
 
@@ -96,7 +114,8 @@ Constructor.
 
       // If no default schema was specified, then
       // derive it from the list.
-      if ((defaultSchema_ == null))
+      if ((defaultSchema_ == null)
+          && ! startsWithComma)                         // @E2a don't set default schema if first char is a comma
       // && (naming.equals (JDProperties.NAMING_SQL)))  // @E1d @C1C
       {
         if (liblPosition != 0)
