@@ -412,6 +412,7 @@ public class CommandCall implements Serializable
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  IOException  If an error occurs while communicating with the server.
      @exception  InterruptedException  If this thread is interrupted.
+     @see #isThreadSafe
      **/
     public boolean isStayOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
@@ -754,6 +755,7 @@ public class CommandCall implements Serializable
      Specifies whether or not the command should be assumed thread-safe.  If not specified, the default is the command's actual "threadsafe" attribute on the server.  The thread-safety lookup is a run-time check, so it will affect performance.  To be as fast as possible, we recommend setting this attribute, to avoid the run-time lookup.
      <br>Note:  This method does not modify the actual command object on the server.
      @param  threadSafe  true if the command should be assumed to be thread-safe; false otherwise.
+     @see #isThreadSafe
      **/
     public void setThreadSafe(boolean threadSafe)
     {
