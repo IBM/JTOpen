@@ -91,6 +91,9 @@ implements SpooledFileOutputStreamImpl
       *  <li> <A HREF="PrintAttributes.html#HDRKEY17">
       *          ATTR_COPIES - Copies
       *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY0x0140">  
+      *          ATTR_DAYS_UNTIL_EXPIRE - Days Until File Expires
+      *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY24">
       *          ATTR_DBCSDATA - User-specified DBCS data
       *       </A>
@@ -123,6 +126,9 @@ implements SpooledFileOutputStreamImpl
       *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY40">
       *          ATTR_ENDPAGE - Ending page
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY0x0141">  
+      *          ATTR_EXPIRATION_DATE - Expiration Date
       *       </A>
       *  <li> (2) <A HREF="PrintAttributes.html#HDRKEY41">
       *          ATTR_FILESEP - File separators

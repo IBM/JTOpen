@@ -232,6 +232,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER); // IPP job original user
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_JOB_ORIGUSER_NL); // IPP job original user NL
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_PRINTER_NAME);    // IPP printer name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBCCSID);       // ccsid of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNAME);       // name of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNUMBER);     // number of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBSYSTEM);     // System which job that created splf ran

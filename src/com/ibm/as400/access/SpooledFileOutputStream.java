@@ -76,6 +76,9 @@ public class SpooledFileOutputStream extends OutputStream
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY17">
       *          ATTR_COPIES - Copies
       *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY0x0140">  
+      *          ATTR_DAYS_UNTIL_EXPIRE - Days Until File Expires
+      *       </A>
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY24">
       *          ATTR_DBCSDATA - User-specified DBCS data
       *       </A>
@@ -97,17 +100,20 @@ public class SpooledFileOutputStream extends OutputStream
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY31">
       *          ATTR_PAGRTT - Degree of page rotation
       *       </A>
-      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY194">
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY194">
       *       ATTR_EDGESTITCH_NUMSTAPLES - Edge Stitch Number of Staples
       *       </A>
-      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY192">
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY192">
       *         ATTR_EDGESTITCH_REF - Edge Stitch Reference	
       *       </A>
-      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY193">
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY193">
       *        ATTR_EDGESTITCH_REFOFF - Edge Stitch Reference Offset
       *       </A> 	
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY40">
       *          ATTR_ENDPAGE - Ending page
+      *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY0x0141">  
+      *          ATTR_EXPIRATION_DATE - Expiration Date
       *       </A>
       *  <li> (2) <A HREF="doc-files/PrintAttributes.html#HDRKEY41">
       *          ATTR_FILESEP - File separators
@@ -229,13 +235,13 @@ public class SpooledFileOutputStream extends OutputStream
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY100">
       *         ATTR_RPLCHAR - Replacement character
       *       </A>
-      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY197">
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY197">
       *        ATTR_SADDLESTITCH_NUMSTAPLES - Saddle Stitch Number of Staples		
       *       </A>
-      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY196">
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY196">
       *         ATTR_SADDLESTITCH_REF - Saddle Stitch Reference		
       *       </A>
-      *   <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY102">
+      *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY102">
       *         ATTR_SAVE - Save spooled file
       *       </A>
       *  <li> <A HREF="doc-files/PrintAttributes.html#HDRKEY106">
