@@ -938,7 +938,7 @@ public class CommandHelpRetriever
 
     o = arguments.getOptionValue("-output");
     if (o != null)
-      outputDirectory_ = o;
+      utility.setOutputLocation(o);
 
     d = arguments.getOptionValue("-debug");
     if (d != null)
