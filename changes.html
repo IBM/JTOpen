@@ -9,7 +9,8 @@ Copyright (C) 1997-2004 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: June 30, 2004
+Last updated: August 2, 2004
+<!-- cvs log -rJTOpen_4_4:JTOpen_4_5 -N -d >2004-06-23 -->
 
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" (formerly "AS/400 Toolbox for Java") plus any additional
@@ -26,6 +27,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#45">Fixes and enhancements in JTOpen 4.5</A><BR>
 <A HREF="#44">Fixes and enhancements in JTOpen 4.4</A><BR>
 <A HREF="#43_1">Fixes and enhancements in JTOpen 4.3.1</A><BR>
 <A HREF="#43">Fixes and enhancements in JTOpen 4.3</A><BR>
@@ -33,6 +35,20 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="45">Fixes and enhancements in JTOpen 4.5</A></H3>
+<PRE>
+- Data conversion: Tolerate multiple versions of Toolbox in classpath (ConvTable1200).
+- FTP: Added support for active mode.
+- IFS: Improved error messages in IFSFileImplRemote.
+- IFS: Added method IFSFile.setCCSID().
+- IFS: Fixed behavior of IFSFile.getFreeSpace().
+- JDBC: Added new LOB locator support.
+- JDBC: Added option to not fully close statement until transaction boundary.
+- Job: Added method Job.loadInformation(attributes).
+- Object description: Don't automatically uppercase library & object names.
+</PRE>
 
 <HR>
 <H3><A NAME="44">Fixes and enhancements in JTOpen 4.4</A></H3>
@@ -109,7 +125,7 @@ supported by IBM and can be obtained from the IBM Toolbox for Java web site:
 - Job: Return -1 on getQueuePriority() if job's status is *OUTQ.
 - JobList: Trace a warning message if there are open enumerations returned by a JobList and the JobList is being closed.
 - JobList: Invalidate all JobEnumerations created from a JobList which has been closed.
-- ObjectDescription: Tolerate additional error message in exists().
+- Object description: Tolerate additional error message in exists().
 - Print: Formdef is now handled on the server.
 - Print: Maintain lowercase for certain attributes.
 - Print: Retrieve AT_SYS_DRV_PGM attribute.  Added ATTR_CHR_RTT_CMDS attribute.
