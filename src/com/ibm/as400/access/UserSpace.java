@@ -308,7 +308,7 @@ public class UserSpace implements Serializable
         else if (domain.equals(DOMAIN_SYSTEM))
         {
             // EBCDIC "*SYSTEM"
-            domainBytes = new byte[] { 0x5C, (byte)0xE2, (byte)0xE8, (byte)0xE2, (byte)0xE3, (byte)0xC6, (byte)0xD4, (byte)0x40, (byte)0x40, (byte)0x40 };
+            domainBytes = new byte[] { 0x5C, (byte)0xE2, (byte)0xE8, (byte)0xE2, (byte)0xE3, (byte)0xC5, (byte)0xD4, (byte)0x40, (byte)0x40, (byte)0x40 };
         }
         else
         {
