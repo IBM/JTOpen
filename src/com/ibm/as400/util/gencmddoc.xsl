@@ -208,8 +208,6 @@
    </tr><xsl:text>&#xa;</xsl:text>    
   </table>
   <xsl:text>&#xa;</xsl:text>
- 
-
 
 <!-- Process the input command help file to copy the command-level help 
      to the output file.  If the error messages section is imbedded
@@ -284,7 +282,6 @@
  <!-- Generate close of the Parameters division.                                   --> 
   <xsl:text>&#xa;</xsl:text> 
   </div>
- 
   
  <!-- Generate parameter help only if there is help panel group HTML text available.  -->   
   <xsl:if test="$CommandHelp!='__NO_HELP'">
@@ -438,16 +435,8 @@
       </xsl:when>
       </xsl:choose>
 
-      <!-- If there is a default and no child element has a Val attribute equal 
-           to the default, add default here as a bold and underlined value.     -->        
-      <xsl:if test="@Dft!=''">
-        <xsl:choose>
-          <xsl:when test="descendant::Value/@Val=@Dft"/> 
-          <xsl:otherwise>
-            <xsl:text/>,&nbsp;<b><u><xsl:value-of select="@Dft"/></u></b><xsl:text/> 
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:if>
+      <!-- Check if the default value needs to be generated as a choice or not. --> 
+      <xsl:call-template name="CheckDft"/>
 
       <!-- Process all SpcVal, Values, and ChoicePgmValues child elements for this Parm.  -->
       <xsl:apply-templates select="SpcVal"/>
@@ -550,16 +539,8 @@
       </xsl:when>
       </xsl:choose>
       
-      <!-- If there is a default and no child element has a Val attribute equal 
-           to the default, add default here as a bold and underlined value      -->        
-      <xsl:if test="@Dft!=''">
-        <xsl:choose>
-          <xsl:when test="descendant::Value/@Val=@Dft"/> 
-          <xsl:otherwise>
-            <xsl:text/>,&nbsp;<b><u><xsl:value-of select="@Dft"/></u></b><xsl:text/> 
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:if>
+      <!-- Check if the default value needs to be generated as a choice or not. --> 
+      <xsl:call-template name="CheckDft"/>
 
       <xsl:apply-templates select="SpcVal"/>
       <xsl:apply-templates select="Values"/>
@@ -615,16 +596,8 @@
       <xsl:otherwise/>
       </xsl:choose>
       
-      <!-- If there is a default and no child element has a Val attribute equal 
-           to the default, add default here as a bold and underlined value      -->        
-      <xsl:if test="@Dft!=''">
-        <xsl:choose>
-          <xsl:when test="descendant::Value/@Val=@Dft"/> 
-          <xsl:otherwise>
-            <xsl:text/>,&nbsp;<b><u><xsl:value-of select="@Dft"/></u></b><xsl:text/> 
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:if>
+      <!-- Check if the default value needs to be generated as a choice or not. --> 
+      <xsl:call-template name="CheckDft"/>
 
       <xsl:apply-templates select="SpcVal"/>
       <xsl:apply-templates select="Values"/>
@@ -729,6 +702,34 @@
       </xsl:when>
       <xsl:otherwise/>
       </xsl:choose>
+</xsl:template>         
+ 
+
+<!-- Subroutine template to check if default value needs to be generated as the 
+     first choice value.                                                        -->
+<xsl:template  name="CheckDft">
+  <!-- If there is a default and no child element has a Val attribute equal 
+       to the default, add default here as a bold and underlined value.     -->        
+  <xsl:if test="@Dft!=''">
+    <xsl:choose>
+      <xsl:when test="descendant::Value/@Val=@Dft"/> 
+      <xsl:otherwise>
+        <!-- If the value is restricted, it is possible that the default is 
+             the same as one of the values, but not quite.  For example, the 
+             default for a decimal restricted parameter might be '1' and the 
+             "matching" restricted value is '1.0'.  In that case, the default 
+             will be the first generated choice (no preceding "type" string).  -->   
+        <xsl:choose>
+          <xsl:when test="@Rstd='YES'">
+            <xsl:text/><b><u><xsl:value-of select="@Dft"/></u></b>,&nbsp;<xsl:text/> 
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text/>,&nbsp;<b><u><xsl:value-of select="@Dft"/></u></b><xsl:text/> 
+          </xsl:otherwise>
+        </xsl:choose>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:if>
 </xsl:template>         
 
 
