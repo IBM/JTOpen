@@ -45,7 +45,7 @@ abstract class ConvTableMixedMap extends ConvTable
     super(ccsid);
     sbTable_ = (ConvTableSingleMap)ConvTable.getTable(sbCcsid, null);
     dbTable_ = (ConvTableDoubleMap)ConvTable.getTable(dbCcsid, null);
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Successfully loaded mixed-byte map for ccsid: " + ccsid_);
     }
@@ -55,9 +55,9 @@ abstract class ConvTableMixedMap extends ConvTable
   /**
    * Perform an AS/400 CCSID to Unicode conversion.
   **/
-  String byteArrayToString(byte[] buf, int offset, int length, int type)  //$E0C
+  final String byteArrayToString(byte[] buf, int offset, int length, int type)  //@E0C @P0C
   {
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
     }
@@ -111,7 +111,7 @@ abstract class ConvTableMixedMap extends ConvTable
       }
     }
     
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E5A
+    if (Trace.traceOn_) //@E5A @P0C
     {
       Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_ + ": 0,"+destPos, ConvTable.dumpCharArray(dest)); //@E5A @E5A 3/10/2000 P9919136
     }
@@ -122,10 +122,10 @@ abstract class ConvTableMixedMap extends ConvTable
   /**
    * Perform a Unicode to AS/400 CCSID conversion.
   **/
-  byte[] stringToByteArray(String source, int type)   //$E0C
+  final byte[] stringToByteArray(String source, int type)   //@E0C @P0C
   {
     char[] src = source.toCharArray();
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
     }
@@ -238,7 +238,7 @@ abstract class ConvTableMixedMap extends ConvTable
     byte[] ret = new byte[destPos];
     System.arraycopy(dest, 0, ret, 0, destPos);
     
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E5A
+    if (Trace.traceOn_) //@E5A @P0C
     {
       Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret); //@E5A
     }

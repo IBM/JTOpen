@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableDoubleMap.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ package com.ibm.as400.access;
 **/
 abstract class ConvTableDoubleMap extends ConvTable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
   char[] toUnicode_ = null;
@@ -34,7 +34,7 @@ abstract class ConvTableDoubleMap extends ConvTable
     super(ccsid);
     toUnicode_ = decompress(toUnicode);
     fromUnicode_ = decompress(fromUnicode);
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Successfully loaded double-byte map for ccsid: " + ccsid_);
     }
@@ -46,7 +46,7 @@ abstract class ConvTableDoubleMap extends ConvTable
   **/
   char[] decompress(char[] arr)
   {
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Decompressing double-byte conversion table for ccsid: " + ccsid_, arr.length);
     }
@@ -169,9 +169,9 @@ abstract class ConvTableDoubleMap extends ConvTable
   /**
    * Perform an AS/400 CCSID to Unicode conversion.
   **/
-  String byteArrayToString(byte[] buf, int offset, int length, int type)    //$E0C
+  final String byteArrayToString(byte[] buf, int offset, int length, int type)    //@E0C @P0C
   {
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
     }
@@ -185,14 +185,13 @@ abstract class ConvTableDoubleMap extends ConvTable
       catch(ArrayIndexOutOfBoundsException aioobe) //@E6A
       {
         // Swallow this if we are doing fault-tolerant conversion
-System.out.println(i);
         if(!CharConverter.isFaultTolerantConversion()) //@E6A
         {
           throw aioobe; //@E6A
         }
       }
     }
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E3A
+    if (Trace.traceOn_) //@E3A @P0C
     {
       Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest)); //@E3A
     }
@@ -203,10 +202,10 @@ System.out.println(i);
   /**
    * Perform a Unicode to AS/400 CCSID conversion.
   **/
-  byte[] stringToByteArray(String source, int type)    //$E0C
+  final byte[] stringToByteArray(String source, int type)    //@E0C @P0C
   {
     char[] src = source.toCharArray();
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
     }
@@ -216,7 +215,7 @@ System.out.println(i);
       dest[i*2] = (byte)(fromUnicode_[src[i]] >>> 8);
       dest[i*2+1] = (byte)(0x00FF & fromUnicode_[src[i]]);
     }
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E3A
+    if (Trace.traceOn_) //@E3A @P0C
     {
       Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest); //@E3A
     }

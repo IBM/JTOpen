@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400BidiTransform.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,27 +72,28 @@ package com.ibm.as400.access;
 
 public class AS400BidiTransform
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 /*----------------------  Private Variables  -------------------------*/
 
-    private final static char ST1  = 1 ;
-    private final static char ST2  = 2 ;
-    private final static char ST3  = 3 ;
-    private final static char ST4  = 4 ;
-    private final static char ST5  = 5 ;
-    private final static char ST6  = 6 ;
-    private final static char ST7  = 7 ;
-    private final static char ST8  = 8 ;
-    private final static char ST9  = 9 ;
-    private final static char ST10 = 10;
-    private final static char ST11 = 11;
-    private final static char ST12 = 12;
-    private final static char ST13 = 13;
-    private final static char ST14 = 14;
+    //@P0C - Changed from chars to ints
+    private final static int ST1  = 1 ;
+    private final static int ST2  = 2 ;
+    private final static int ST3  = 3 ;
+    private final static int ST4  = 4 ;
+    private final static int ST5  = 5 ;
+    private final static int ST6  = 6 ;
+    private final static int ST7  = 7 ;
+    private final static int ST8  = 8 ;
+    private final static int ST9  = 9 ;
+    private final static int ST10 = 10;
+    private final static int ST11 = 11;
+    private final static int ST12 = 12;
+    private final static int ST13 = 13;
+    private final static int ST14 = 14;
 
-    private final static char[][] ccsidTable =
+    private final static int[][] ccsidTable = //@P0C
         {
         //                 CCSID    String-Type
         /*Arabic.420*/   {   420,   ST4  },
@@ -207,8 +208,105 @@ public class AS400BidiTransform
  */
     public static boolean isBidiCcsid(int ccsid)
     {
-        return (getStringType((char)ccsid) > 0);
+//@P0C - this whole thing
+// 110 ms        
+//        return (getStringType(ccsid) > 0);
+
+        
+// 140 ms        
+/*
+        for (int i=0; i<ccsidTable.length; ++i)
+        {
+          if (ccsid == ccsidTable[i][0]) return true;
+        }
+        return false;
+*/        
+        
+// 70 ms
+
+        switch(ccsid)
+        {
+          case 420:
+          case 424:
+           case 856:
+           case 862:
+           case 864:
+           case 867:
+           case 916:
+          case 1046:
+          case 1089:
+          case 1255:
+          case 1256:
+          case 5012:
+          case 5351:
+          case 5352:
+          case 8612:
+          case 8616:
+          case 9238:
+         case 12708:
+         case 12712:
+         case 13488:
+         case 16804:
+         case 17248:
+         case 61952:
+         case 62208:
+         case 62209:
+         case 62210:
+         case 62211:
+         case 62212:
+         case 62213:
+         case 62214:
+         case 62215:
+         case 62216:
+         case 62217:
+         case 62218:
+         case 62219:
+         case 62220:
+         case 62221:
+         case 62222:
+         case 62223:
+         case 62224:
+         case 62225:
+         case 62226:
+         case 62227:
+         case 62228:
+         case 62229:
+         case 62230:
+         case 62231:
+         case 62232:
+         case 62233:
+         case 62234:
+         case 62235:
+         case 62236:
+         case 62237:
+         case 62238:
+         case 62239:
+         case 62240:
+         case 62241:
+         case 62242:
+         case 62243:
+         case 62244:
+         case 62245:
+           return true;
+          default:
+            return false;
+        }
+
+    
+// 171 ms using ConvTable improvement, otherwise 580 ms
+/*    ConvTable ct;
+    try 
+    {
+      ct = ConvTable.getTable(ccsid, null);
+      return ct instanceof ConvTableBidiMap;        
     }
+    catch(java.io.UnsupportedEncodingException uee)
+    {
+      return false;
+    }
+*/        
+    }
+
 
 /*====================================================================*/
 
@@ -368,7 +466,7 @@ public class AS400BidiTransform
 
 
 
-    public static int getStringType(char ccsid)
+    public static int getStringType(int ccsid) //@P0C
     /* Return default string type for parm ccsid based on ccsidTable */
     {
         int low, high, mid;

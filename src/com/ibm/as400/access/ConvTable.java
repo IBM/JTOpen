@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTable.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException; //@P0A
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -27,7 +28,7 @@ import java.util.Hashtable;
 **/
 abstract class ConvTable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   final static char cic_  = '\uFFFF'; // Used for decompression
   final static char ric_  = '\uFFFE'; // Used for decompression
@@ -36,7 +37,17 @@ abstract class ConvTable
     
   String encoding_;
   int ccsid_ = -1;
+  int bidiStringType_ = BidiStringType.DEFAULT; //@P0A
   
+  //@P0A - The highest number of all our supported CCSIDs. There's
+  // no point in making the pool larger than it needs to be.
+  // We only have a handful of CCSIDs in the 62000 range, so we
+  // could use a smaller number to save space and those CCSIDs outside
+  // the range just wouldn't get cached. However, 61952 is used
+  // extensively, so we might as well max it out.
+  private static final int LARGEST_CCSID = 62245;
+  private static final ConvTable[] ccsidPool_ = new ConvTable[LARGEST_CCSID+1]; //@P0A
+
   private static final Hashtable converterPool_ = new Hashtable();
   
   //@E2D static final boolean debug_ = Trace.isTraceOn() && Trace.isTraceConversionOn();
@@ -53,7 +64,7 @@ abstract class ConvTable
     encoding_ = ConversionMaps.ccsidToEncoding(ccsid_); //@E1C
     if (encoding_ == null) encoding_ = ""+ccsid_; //@E4A
     
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if (Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Constructing conversion table for ccsid/encoding: " + ccsid_ + "/" + encoding_);
       if (ccsid_ == 0) //@E4A - see ConvTableJavaMap
@@ -76,6 +87,14 @@ abstract class ConvTable
   **/
   abstract String byteArrayToString(byte[] source, int offset, int length, int type);  //$E0C
 
+  
+  //@P0A
+  // This method can be overridden by subclasses for better performance.
+  String byteArrayToString(byte[] source, int offset, int length)
+  {
+    return byteArrayToString(source, offset, length, bidiStringType_);
+  }
+  
   
   //@E4A
   /**
@@ -222,7 +241,7 @@ abstract class ConvTable
     ConvTable newTable = (ConvTable)converterPool_.get(className);
     if (newTable != null)
     {
-      if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+      if (Trace.traceOn_) //@E2C @P0C
       {
         Trace.log(Trace.CONVERSION, "Reusing previously loaded conversion table for encoding: "+encoding);
       }
@@ -236,7 +255,7 @@ abstract class ConvTable
     }
     catch(Throwable e) //@E5C
     {
-      if (Trace.isTraceOn()) //@E3A
+      if (Trace.traceOn_) //@E3A @P0C
       {
         Trace.log(Trace.CONVERSION, "Could not load conversion table class for encoding: "+encoding+". Will attempt to let Java do the conversion.", e);
       }
@@ -245,7 +264,7 @@ abstract class ConvTable
       newTable = (ConvTable)converterPool_.get(className); //@E3A
       if (newTable != null) //@E3A
       {
-        if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E3A
+        if (Trace.traceOn_) //@E3A @P0C
         {
           Trace.log(Trace.CONVERSION, "Reusing previously loaded Java conversion table for encoding: "+encoding); //@E3A
         }
@@ -257,7 +276,7 @@ abstract class ConvTable
 //@E3D      throw new UnsupportedEncodingException();
     }
       
-    if(Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if(Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Successfully loaded conversion table for encoding: "+encoding);
     }
@@ -272,16 +291,23 @@ abstract class ConvTable
   **/
   static final ConvTable getTable(int ccsid, AS400ImplRemote system) throws UnsupportedEncodingException
   {
+    if (ccsid <= LARGEST_CCSID) //@P0A - If it's negative, too bad...
+    {
+      ConvTable cachedTable = ccsidPool_[ccsid]; //@P0A
+      if (cachedTable != null) return cachedTable; //@P0A
+    }
+
     String className = prefix_ + String.valueOf(ccsid);
     
     // First, see if we've already loaded the table.
     ConvTable newTable = (ConvTable)converterPool_.get(className);
     if (newTable != null)
     {
-      if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+      if (Trace.traceOn_) //@E2C @P0C
       {
         Trace.log(Trace.CONVERSION, "Reusing previously loaded conversion table for ccsid: "+ccsid);
       }
+      if (ccsid <= LARGEST_CCSID) ccsidPool_[ccsid] = newTable; //@P0A
       return newTable;
     }
     
@@ -292,7 +318,7 @@ abstract class ConvTable
     }
     catch(Throwable e) //@E5C
     {
-      if (Trace.isTraceOn()) //@E3A
+      if (Trace.traceOn_) //@E3A @P0C
       {
         Trace.log(Trace.CONVERSION, "Could not load conversion table class for ccsid: "+ccsid+". Will attempt to let Java do the conversion.", e);
       }
@@ -300,7 +326,7 @@ abstract class ConvTable
       className = ConversionMaps.ccsidToEncoding(ccsid); //@E3A
       if (className == null) //@E3A
       {
-        if (Trace.isTraceOn())
+        if (Trace.traceOn_) //@P0C
         {
           Trace.log(Trace.CONVERSION, "Could not find an encoding that matches ccsid: "+ccsid); //@E3A
         }
@@ -309,10 +335,11 @@ abstract class ConvTable
       newTable = (ConvTable)converterPool_.get(className); //@E3A
       if (newTable != null) //@E3A
       {
-        if (Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E3A
+        if (Trace.traceOn_) //@E3A @P0C
         {
           Trace.log(Trace.CONVERSION, "Reusing previously loaded Java conversion table for ccsid: "+ccsid); //@E3A
         }
+        if (ccsid <= LARGEST_CCSID) ccsidPool_[ccsid] = newTable; //@P0A
         return newTable; //@E3A
       }
       // It's not cached, so we can try to instantiate one.
@@ -321,11 +348,12 @@ abstract class ConvTable
 //@E3D      throw new UnsupportedEncodingException();
     }
     
-    if(Trace.isTraceOn() && Trace.isTraceConversionOn()) //@E2C
+    if(Trace.traceOn_) //@E2C @P0C
     {
       Trace.log(Trace.CONVERSION, "Successfully loaded conversion table for ccsid: "+ccsid);
     }
     converterPool_.put(className, newTable); //@E3A
+    if (ccsid <= LARGEST_CCSID) ccsidPool_[ccsid] = newTable; //@P0A
     return newTable;
   }
 
@@ -334,5 +362,55 @@ abstract class ConvTable
    * Perform a Unicode to AS/400 CCSID conversion.
   **/
   abstract byte[] stringToByteArray(String source, int type);   //$E0C
+
+  
+  //@P0A
+  // This method can be overridden by subclasses for better performance.
+  byte[] stringToByteArray(String source)
+  {
+    return stringToByteArray(source, bidiStringType_);
+  }
+
+  
+  //@P0A
+  // Subclasses should override this to avoid creating superfluous byte arrays.
+  void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
+  {
+    byte[] b = stringToByteArray(source, bidiStringType_);
+    try
+    {
+      System.arraycopy(b, 0, buf, offset, b.length);
+    }
+    catch(ArrayIndexOutOfBoundsException aioobe)
+    {
+      throw new CharConversionException();
+    }
+  }
+
+  
+  //@P0A
+  // This method can be overridden by subclasses for better performance.
+  void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException
+  {
+    stringToByteArray(source, buf, offset, length, bidiStringType_);
+  }
+
+  
+  //@P0A
+  // Subclasses should override this to avoid creating superfluous byte arrays.
+  void stringToByteArray(String source, byte[] buf, int offset, int length, int type) throws CharConversionException
+  {
+    byte[] b = stringToByteArray(source, type);
+    if (length > b.length) length = b.length;
+    try
+    {
+      System.arraycopy(b, 0, buf, offset, length);
+    }
+    catch(ArrayIndexOutOfBoundsException aioobe)
+    {
+      Trace.log(Trace.CONVERSION, "Source length: "+b.length+"; Source offset: 0; Destination length: "+buf.length+"; Destination offset: "+offset+"; Number of bytes to copy: "+length, aioobe);
+      throw new CharConversionException();
+    }
+  }
 
 }

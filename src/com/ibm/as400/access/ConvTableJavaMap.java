@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ConvTableJavaMap.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.ByteArrayOutputStream;
+import java.io.CharConversionException; //@P0A
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -27,7 +28,7 @@ import java.io.UnsupportedEncodingException;
 **/
 class ConvTableJavaMap extends ConvTable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
   
   InputStreamReader reader_; // The stream that does the actual conversion
@@ -50,7 +51,10 @@ class ConvTableJavaMap extends ConvTable
     }
     catch(Exception e)
     {
+      if (Trace.traceOn_) //@P0A
+      {
       Trace.log(Trace.CONVERSION, "No associated CCSID for encoding '"+encoding+"'. Lookup returned "+ccsid+".");
+      }
       ccsid_ = 0;
     }
 
@@ -67,7 +71,7 @@ class ConvTableJavaMap extends ConvTable
 //@B0D      throw new UnsupportedEncodingException();
 //@B0D    }
       
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_) //@P0C
     {
       Trace.log(Trace.CONVERSION, "Successfully loaded Java map for encoding: " + encoding_);
     }
@@ -77,9 +81,9 @@ class ConvTableJavaMap extends ConvTable
   /**
    * Let Java perform an Encoding to Unicode conversion.
   **/
-  String byteArrayToString(byte[] buf, int offset, int length, int type)
+  final String byteArrayToString(byte[] buf, int offset, int length, int type) //@P0C
   {
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_) //@P0C
     {
       Trace.log(Trace.CONVERSION, "Converting byte array to string for encoding: " + encoding_, buf, offset, length);
     }
@@ -98,13 +102,13 @@ class ConvTableJavaMap extends ConvTable
       }
       catch(IOException e)
       {
-        if (Trace.isTraceOn())
+        if (Trace.traceOn_) //@P0C
         {
           Trace.log(Trace.ERROR, "IOException occurred on byteArrayToString for encoding "+encoding_, e);
         }
         reader_ = null; //@B0A
       }
-      if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+      if (Trace.traceOn_) //@P0C
       {
         Trace.log(Trace.CONVERSION, "Destination string for encoding: " + encoding_ + " ("+count+")", ConvTable.dumpCharArray(dest));
       }
@@ -116,9 +120,9 @@ class ConvTableJavaMap extends ConvTable
   /**
    * Let Java perform a Unicode to Encoding conversion.
   **/
-  byte[] stringToByteArray(String source, int type)
+  final byte[] stringToByteArray(String source, int type) //@P0C
   {
-    if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+    if (Trace.traceOn_) //@P0C
     {
       Trace.log(Trace.CONVERSION, "Converting string to byte array for encoding: " + encoding_, ConvTable.dumpCharArray(source.toCharArray()));
     }
@@ -137,14 +141,14 @@ class ConvTableJavaMap extends ConvTable
       }
       catch(IOException e)
       {
-        if (Trace.isTraceOn())
+        if (Trace.traceOn_) //@P0C
         {
           Trace.log(Trace.ERROR, "IOException occurred on stringToByteArray for encoding "+encoding_, e);
         }
         writer_ = null; //@B0A
       }
       ret = outBuffer_.toByteArray();
-      if (Trace.isTraceOn() && Trace.isTraceConversionOn())
+      if (Trace.traceOn_) //@P0C
       {
         Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
       }
