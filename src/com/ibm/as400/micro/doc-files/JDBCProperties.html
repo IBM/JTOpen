@@ -1,0 +1,769 @@
+<!DOCTYPE html PUBLIC "-//w3c//dtd html 3.2 final//en">
+<HTML>
+<HEAD>
+<TITLE>IBM Toolbox for Java: JDBC properties</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</head>
+<BODY>
+
+<h2>IBM Toolbox for Java JDBC properties</h2>
+
+<P>Many properties can be specified when connecting to a server database using 
+  JDBC. All properties are optional and can be specified either as part of the 
+  URL or in a java.util.Properties object. If a property is set in both the URL 
+  and a Properties object, the value in the URL will be used.</P>
+
+<p><strong>Note:</strong> The following list does not include DataSource properties.</p>
+  
+<P>The following tables list the different connection
+properties that are recognized by this driver. Some of these
+properties affect performance and others are server job
+attributes. The tables organize the properties into the following categories:</P>
+
+<UL>
+  <LI><A HREF="#general">General properties</A></LI>
+  <LI><A HREF="#server">Server properties</A></LI>
+  <LI><A HREF="#format">Format properties</A></LI>
+  <LI><A HREF="#performance">Performance properties</A></LI>
+  <LI><A HREF="#sort">Sort properties</A></LI>
+  <LI><A HREF="#other">Other properties</A></LI>
+</UL>
+
+<A NAME="general"></A>
+<h3>General properties</h3>
+
+<p>General properties are system attributes that specify the user, password, and 
+  whether a prompt is necessary to connect to the server.</p>
+
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar">
+    <TH ID="cat1">General property</TH>
+    <TH ID="t2">Description</TH>
+    <TH ID="t3">Required</TH>
+    <TH ID="t4">Choices</TH>
+    <TH ID="t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat1">&quot;password&quot;</TD>
+    <TD HEADERS="t2">Specifies the password for connecting to the server. If none is specified, 
+      then the user will be prompted, unless the &quot;prompt&quot; property is 
+      set to &quot;false&quot;, in which case an attempt to connect will fail.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">server password</TD>
+    <TD HEADERS="t5">(user will be prompted)</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat1">&quot;prompt&quot;</TD>
+    <TD HEADERS="t2">Specifies whether the user should be prompted if a user name or password 
+      is needed to connect to the server. If a connection can not be made without 
+      prompting the user, and this property is set to &quot;false&quot;, then 
+      an attempt to connect will fail.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat1">&quot;user&quot;</TD>
+    <TD HEADERS="t2">Specifies the user name for connecting to the server. If none is specified, 
+      then the user will be prompted, unless the &quot;prompt&quot; property is 
+      set to &quot;false&quot;, in which case an attempt to connect will fail.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">server user</TD>
+    <TD HEADERS="t5">(user will be prompted)</TD>
+  </TR>
+</TABLE>
+
+<A NAME="server"></A>
+<h3>Server properties</h3>
+<p>Server properties specify attributes that govern transactions, libraries, and 
+  databases.</p>
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar"> 
+    <TH ID="cat2">Server property</TH>
+    <TH ID="t2">Description</TH>
+    <TH ID="t3">Required</TH>
+    <TH ID="t4">Choices</TH>
+    <TH ID="t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2"><a name="cursorhold">&quot;cursor hold&quot;</a></TD>
+    <TD HEADERS="t2"> Specifies whether to hold the cursor across transactions. 
+      If this property is set to &quot;true&quot;, cursors are not closed when 
+      a transaction is committed or rolled back. All resources acquired during 
+      the unit of work are held, but locks on specific rows and objects implicitly 
+      acquired during the unit of work are released.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat2"><a name="databasename">&quot;database 
+      name&quot;</a></TD>
+    <TD HEADERS="t2"> 
+      <p>Specifies the database to use for the connection, including one stored 
+        in an <a href="../iasp.htm">independent auxiliary storage pool</a>. This 
+        property applies only when connecting to a V5R2 or later version of OS/400. 
+        When you specify a database name, the name must exist in the relational 
+        database directory on the server. The following criteria determine which 
+        database is accessed:</p>
+      <ul>
+        <li>When this property is used to specify a database, the specified database 
+          is used. When the specified database does not exist, the connection 
+          fails.</li>
+        <li>When this property is used to specify *SYSBAS as the database name, 
+          the system default database is used.</li>
+        <li>When this property is omitted, the database name specified in the 
+          job description for the user profile is used. When the job description 
+          does not specify a database name, the system default database is used. 
+        </li>
+      </ul>
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">Database name &quot;*SYSBAS&quot;</TD>
+    <TD HEADERS="t5">The database name specified in the job description for the 
+      user profile is used. When the job description does not specify a database 
+      name, the system default database is used.</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;libraries&quot;</TD>
+    <TD HEADERS="t2"> 
+      <P>Specifies one or more libraries that you want to add to or replace the 
+        library list of the server job, and optionally sets the default library 
+        (default schema).
+      <P><strong>Library list</strong><br>
+        The server uses specified libraries to resolve unqualified stored procedure 
+        names, and stored procedures use them to resolve unqualified names. To 
+        specify multiple libraries, use commas or spaces to separate individual 
+        entries. You can use *LIBL as a placeholder for the current library list 
+        of the server job:
+      <P> When the first entry is *LIBL, the specified libraries are added to 
+        the current library list of the server job When you do not use *LIBL, 
+        the specified libraries replace the current library list of the server 
+        job
+      <P><strong>Default schema</strong><br>
+        The server uses the default schema to resolve unqualified names in SQL 
+        statements. For example, in the statement "SELECT * FROM MYTABLE", the 
+        server looks only in the default schema for MYTABLE. You can specify the 
+        default schema on the connection URL. When you do not specify the default 
+        schema on the connection URL, the following conditions apply, depending 
+        on whether you use SQL Naming or System Naming.
+      <ul>
+        <li>SQL Naming<br>
+          When you do not specify the default schema on the connection URL: 
+          <ul>
+            <li>The first entry (unless it is *LIBL) becomes the default schema</li>
+            <li>When the first entry is *LIBL, the second entry becomes the default 
+              schema</li>
+            <li>When you do not set this property or when it contains only *LIBL, 
+              the user profile becomes the default schema</li>
+          </ul>
+        </li>
+        <li>System Naming<br>
+          When you do not specify the default schema on the connection URL:
+          <ul>
+            <li>No default schema is set, and the server uses the specified libraries 
+              to search for unqualified names</li>
+            <li>When you do not set this property or when it contains only *LIBL, 
+              the server uses the current library list of the server job to search 
+              for unqualified names </li>
+          </ul>
+        </li>
+      </ul>
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">List of server libraries, separated by commas or spaces</TD>
+    <TD HEADERS="t5">&quot;*LIBL&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat2">&quot;transaction isolation&quot;</TD>
+    <TD HEADERS="t2">Specifies the default transaction isolation.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;none&quot;<BR>
+      &quot;read uncommitted&quot;<BR>
+      &quot;read committed&quot;<BR>
+      &quot;repeatable read&quot;<BR>
+      &quot;serializable&quot;</TD>
+    <TD HEADERS="t5">&quot;read uncommitted&quot;</TD>
+  </TR>
+</TABLE>
+
+<A NAME="format"></A>
+<h3>Format properties</h3>
+<p>Format properties specify date and time formats, date and decimal separators, 
+  and table naming conventions used within SQL statements.</p>
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar">
+    <TH ID="cat3">Format property</TH>
+    <TH ID="t2">Description</TH>
+    <TH ID="t3">Required</TH>
+    <TH ID="t4">Choices</TH>
+    <TH ID="t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat3">&quot;date format&quot;</TD>
+    <TD HEADERS="t2">Specifies the date format used in date literals within SQL statements.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;mdy&quot;<BR>
+      &quot;dmy&quot;<BR>
+      &quot;ymd&quot;<BR>
+      &quot;usa&quot;<BR>
+      &quot;iso&quot;<BR>
+      &quot;eur&quot;<BR>
+      &quot;jis&quot;<BR>
+      &quot;julian&quot;</TD>
+    <TD HEADERS="t5">(server job)</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat3">&quot;date separator&quot;</TD>
+    <TD HEADERS="t2">Specifies the date separator used in date literals within SQL statements.
+      This property has no effect unless the &quot;date format&quot; property
+      is set to &quot;julian&quot;, &quot;mdy&quot;, &quot;dmy&quot; or &quot;ymd&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;/&quot; (slash)<BR>
+      &quot;-&quot; (dash)<BR>
+      &quot;.&quot; (period)<BR>
+      &quot;,&quot; (comma)<BR>
+      &quot;b&quot; (space)</TD>
+    <TD HEADERS="t5">(server job)</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat3">&quot;decimal separator&quot;</TD>
+    <TD HEADERS="t2">Specifies the decimal separator used in numeric literals within SQL statements.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;.&quot; (period)<BR>
+      &quot;,&quot; (comma)</TD>
+    <TD HEADERS="t5">(server job)</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat3">&quot;naming&quot;</TD>
+    <TD HEADERS="t2">Specifies the naming convention used when referring to tables.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;sql&quot; (as in <CODE><VAR>schema</VAR>.<VAR>table</VAR></CODE>)<BR>
+      &quot;system&quot; (as in <CODE><VAR>schema</VAR>/<VAR>table</VAR></CODE>)</TD>
+    <TD HEADERS="t5">&quot;sql&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat3">&quot;time format&quot;</TD>
+    <TD HEADERS="t2">Specifies the time format used in time literals within SQL statements.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;hms&quot;<BR>
+      &quot;usa&quot;<BR>
+      &quot;iso&quot;<BR>
+      &quot;eur&quot;<BR>
+      &quot;jis&quot;</TD>
+    <TD HEADERS="t5">(server job)</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat3">&quot;time separator&quot;</TD>
+    <TD HEADERS="t2">Specifies the time separator used in time literals within SQL statements.
+      This property has no effect unless the &quot;time format&quot; property
+      is set to &quot;hms&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;:&quot; (colon)<BR>
+      &quot;.&quot; (period)<BR>
+      &quot;,&quot; (comma)<BR>
+      &quot;b&quot; (space)</TD>
+    <TD HEADERS="t5">(server job)</TD>
+  </TR>
+</TABLE>
+
+<A NAME="performance"></A>
+<h3>Performance properties</h3>
+<p>Performance properties are attributes that include caching, data conversion, 
+  data compression, and prefetching that affect performance.</p>
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar"> 
+    <TH ID="cat4">Performance property</TH>
+    <TH ID="t2">Description</TH>
+    <TH ID="t3">Required</TH>
+    <TH ID="t4">Choices</TH>
+    <TH ID="t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;big decimal&quot;</TD>
+    <TD HEADERS="t2">Specifies whether an intermediate java.math.BigDecimal object 
+      is used for packed and zoned decimal conversions. If this property is set 
+      to &quot;true&quot;, an intermediate java.math.BigDecimal object is used 
+      for packed and zoned decimal conversions as described by the JDBC specification. 
+      If this property is set to &quot;false&quot;, no intermediate objects are 
+      used for packed and zoned decimal conversions. Instead, such values are 
+      converted directly to and from Java double values. Such conversions will 
+      be faster but may not follow all conversion and data truncation rules documented 
+      by the JDBC specification.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;block criteria&quot;</TD>
+    <TD HEADERS="t2">Specifies the criteria for retrieving data from the server 
+      in blocks of records. Specifying a non-zero value for this property will 
+      reduce the frequency of communication to the server, and therefore increase 
+      performance. 
+      <P>Ensure that record blocking is off if the cursor is going to be used 
+        for subsequent UPDATEs, or else the row that is updated will not necessarily 
+        be the current row.
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;0&quot; (no record blocking)<BR>
+      &quot;1&quot; (block if FOR FETCH ONLY is specified)<BR>
+      &quot;2&quot; (block unless FOR UPDATE is specified)</TD>
+    <TD HEADERS="t5">&quot;2&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;block size&quot;</TD>
+    <TD HEADERS="t2">Specifies the block size (in kilobytes) to retrieve from 
+      the server and cache on the client. This property has no effect unless the 
+      &quot;block criteria&quot; property is non-zero. Larger block sizes reduce 
+      the frequency of communication to the server, and therefore may increase 
+      performance.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;0&quot;<BR>
+      &quot;8&quot;<BR>
+      &quot;16&quot;<BR>
+      &quot;32&quot;<BR>
+      &quot;64&quot;<BR>
+      &quot;128&quot;<BR>
+      &quot;256&quot;<BR>
+      &quot;512&quot;</TD>
+    <TD HEADERS="t5">&quot;32&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;data compression&quot;</TD>
+    <TD HEADERS="t2">Specifies whether result set data is compressed. If this 
+      property is set to &quot;true&quot;, then result set data is compressed. 
+      If this property is set to &quot;false&quot;, then result set data is not 
+      compressed. Data compression may improve performance when retrieving large 
+      result sets.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4"><a name="extendeddynamic">&quot;extended dynamic&quot;</a></TD>
+    <TD HEADERS="t2">Specifies whether to use extended dynamic support. Extended 
+      dynamic support provides a mechanism for caching dynamic SQL statements 
+      on the server. The 
+      first time a particular SQL statement is prepared, it is stored in a SQL 
+      package on the server. If the package does not exist, it is automatically 
+      created. On subsequent prepares of the same SQL statement, the server can 
+      skip a significant part of the processing by using information stored in 
+      the SQL package. 
+      If this is set to &quot;true&quot;, then a package name must be set using 
+      the &quot;package&quot; property.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;lazy close&quot;</TD>
+    <TD HEADERS="t2">Specifies whether to delay closing cursors until subsequent 
+      requests. This will increase overall performance by reducing the total number 
+      of requests.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;lob threshold&quot;</TD>
+    <TD HEADERS="t2">Specifies the maximum LOB (large object) size (in bytes) 
+      that can be retrieved as part of a result set. LOBs that are larger than 
+      this threshold will be retrieved in pieces using extra communication to 
+      the server. Larger LOB thresholds will reduce the frequency of communication 
+      to the server, but will download more LOB data, even if it is not used. 
+      Smaller LOB thresholds may increase frequency of communication to the server, 
+      but will only download LOB data as it is needed.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;0&quot; - &quot;16777216&quot;</TD>
+    <TD HEADERS="t5">&quot;0&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;package&quot;</TD>
+    <TD HEADERS="t2">Specifies the base name of the SQL package. Note 
+      that only the first seven characters are used to generate the name of the 
+      SQL package on the server. 
+      This property has no effect unless the &quot;extended dynamic&quot; property 
+      is set to &quot;true&quot;. In addition, this property must be set if the 
+      &quot;extended dynamic&quot; property is set to &quot;true&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">SQL package</TD>
+    <TD HEADERS="t5">&quot;&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;package add&quot;</TD>
+    <TD HEADERS="t2">Specifies 
+      whether to add newly prepared statements to the SQL package specified on 
+      the &quot;package&quot; property. This property has no effect unless the 
+      &quot;extended dynamic&quot; property is set to &quot;true&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;package cache&quot;</TD>
+    <TD HEADERS="t2">Specifies 
+      whether to cache a subset of the SQL package information in client memory. 
+      Caching SQL packages locally reduces the amount of communication to the 
+      server for prepares and describes. This property has no effect unless the 
+      &quot;extended dynamic&quot; property is set to &quot;true&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;package criteria&quot;</TD>
+    <TD HEADERS="t3">Specifies the type of SQL statements to be stored in the 
+      SQL package. This can be useful to improve the performance of complex join 
+      conditions. This property has no effect unless the &quot;extended dynamic&quot; 
+      property is set to &quot;true&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;default&quot; (only store SQL statements with parameter 
+      markers in the package)<BR>
+      &quot;select&quot; 
+      (store all SQL SELECT statements in the package)</TD>
+    <TD HEADERS="t5">&quot;default&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;package error&quot;</TD>
+    <TD HEADERS="t2">Specifies the action to take when SQL package errors occur. 
+      When a SQL package error occurs, the driver will optionally throw a SQLException 
+      or post a warning to the Connection, based on the value of this property. 
+      This property has no effect unless the &quot;extended dynamic&quot; property 
+      is set to &quot;true&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;exception&quot;<BR>
+      &quot;warning&quot;<BR>
+      &quot;none&quot;</TD>
+    <TD HEADERS="t5">&quot;warning&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;package library&quot;</TD>
+    <TD HEADERS="t2">Specifies the library for the SQL package. This property 
+      has no effect unless the &quot;extended dynamic&quot; property is set to 
+      &quot;true&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">Library for SQL package</TD>
+    <TD HEADERS="t5">&quot;QGPL&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat4">&quot;prefetch&quot;</TD>
+    <TD HEADERS="t2">Specifies whether to prefetch data upon executing a SELECT 
+      statement. This will increase performance when accessing the initial rows 
+      in the ResultSet.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+</TABLE>
+
+<A NAME="sort"></A>
+<h3>Sort properties</h3>
+<p>Sort properties specify how the server performs stores and performs sorts.</p>
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar">
+    <TH ID="cat5">Sort property</TH>
+    <TH ID="t2">Description</TH>
+    <TH ID="t3">Required</TH>
+    <TH ID="t4">Choices</TH>
+    <TH ID="t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat5">&quot;sort&quot;</TD>
+    <TD HEADERS="t2">Specifies how the server sorts records before sending them to the client.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;hex&quot; (base the sort on hexadecimal values)<BR>
+      &quot;job&quot; (base the sort on the setting for the server job)<BR>
+      &quot;language&quot; (base the sort on the language set in the &quot;sort
+      language&quot; property)<BR>
+      &quot;table&quot; (base the sort on the sort sequence table set in
+      the &quot;sort table&quot; property)</TD>
+    <TD HEADERS="t5">&quot;job&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat5">&quot;sort language&quot;</TD>
+    <TD HEADERS="t2">Specifies a 3-character language id to use for selection of a sort sequence.
+      This property has no effect unless the &quot;sort&quot; property is set
+      to &quot;language&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">Language id</TD>
+    <TD HEADERS="t5">ENU</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat5">&quot;sort table&quot;</TD>
+    <TD HEADERS="t2">Specifies the library and file name of a sort sequence table stored on 
+      the server. This property has no effect unless the &quot;sort&quot; property 
+      is set to &quot;table&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">Qualified sort table name</TD>
+    <TD HEADERS="t5">&quot;&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat5">&quot;sort weight&quot;</TD>
+    <TD HEADERS="t2">Specifies how the server treats case while sorting records. This property
+      has no effect unless the &quot;sort&quot; property is set to &quot;language&quot;.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;shared&quot; (uppercase and lowercase characters sort as
+      the same character)<BR>
+      &quot;unique&quot; (uppercase and lowercase characters sort as different
+      characters)</TD>
+    <TD HEADERS="t5">&quot;shared&quot;</TD>
+  </TR>
+</TABLE>
+
+<A NAME="other"></A>
+<h3>Other properties</h3>
+<p>Other properties are those properties not easily categorized. These properties 
+  determine which JDBC driver is used, and specify options related to level of 
+  database access, bidirectional string type, data truncation and so on.</p>
+<TABLE BORDER="1">
+  <TR VALIGN="bottom" CLASS="hilightbar"> 
+    <TH ID="cat6">Other property</TH>
+    <TH ID="t2">Description</TH>
+    <TH ID="t3">Required</TH>
+    <TH ID="t4">Choices</TH>
+    <TH ID="t5">Default</TH>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;access&quot;</TD>
+    <TD HEADERS="t2">Specifies the level of database access for the connection.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;all&quot; (all SQL statements allowed)<BR>
+      &quot;read call&quot; (SELECT and CALL statements allowed)<BR>
+      &quot;read only&quot; (SELECT statements only)</TD>
+    <TD HEADERS="t5">&quot;all&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;bidirectional string type&quot;</TD>
+    <TD HEADERS="t2">Specifies the output string type of bidirectional data. See 
+      <A HREF="com/ibm/as400/access/BidiStringType.html#navbar_top">BidiStringType</A> 
+      for more information.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> 
+      <P>"" (use the CCSID to determine bidirectional string type)<BR>
+        "0" (the default string type for nonbidirectional data (LTR))<BR>
+        "4"<BR>
+        "5"<BR>
+        "6"<BR>
+        "7"<BR>
+        "8"<BR>
+        "9"<BR>
+        "10"<BR>
+        "11"</P>
+    </TD>
+    <TD HEADERS="t5">&quot;&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6"><a name="datatruncation">&quot;data truncation&quot;</a></TD>
+    <TD HEADERS="t2"> 
+      <p>Specifies 
+        whether truncation of <strong>character data</strong> generates warnings 
+        and exceptions. When this property is &quot;true&quot;, the following apply:</p>
+      <ul>
+        <li>Writing truncated character data to the database throws an exception</li>
+        <li>Using truncated character data in a query posts a warning.</li>
+      </ul>
+      <p>When this property is "false", writing truncated data to the database 
+        or using such data in a query generates no exception or warning.</p>
+      <p> The default value is &quot;true&quot;.</p>
+      <p>This property does not affect <strong>numeric data</strong>. Writing 
+        truncated numeric data to the database always throws an error and using 
+        truncated numeric data in a query always posts a warning. 
+      </p>
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">"true"</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6"><A NAME="driver">&quot;driver&quot;</A></TD>
+    <TD HEADERS="t2">Specifies the JDBC driver implementation. The IBM Toolbox 
+      for Java JDBC driver can use different JDBC driver implementations based 
+      on the environment. If the environment is an iSeries JVM on the same server 
+      as the database to which the program is connecting, the native IBM Developer 
+      Kit for Java JDBC driver can be used. In any other environment, the IBM 
+      Toolbox for Java JDBC driver is used. This property has no effect if the 
+      &quot;secondary URL&quot; property is set. </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;toolbox&quot; (use only the IBM Toolbox for Java JDBC 
+      driver).<BR>
+      &quot;native&quot; (use the IBM Developer Kit for Java JDBC driver if running 
+      on the server, otherwise use the Toolbox for Java JDBC driver). </TD>
+    <TD HEADERS="t5">&quot;toolbox&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;errors&quot;</TD>
+    <TD HEADERS="t2">Specifies the amount of detail to be returned in the message 
+      for errors that occur on the server.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;basic&quot;<BR>
+      &quot;full&quot;</TD>
+    <TD HEADERS="t5">&quot;basic&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6"><a name="extendedmetadata">&quot;extended 
+      metadata&quot;</a></TD>
+    <TD HEADERS="t2">Specifies whether the driver should request extended metadata 
+      from the server. Setting this property to true increases the accuracy of 
+      the information returned from the following ResultSetMetaData methods:
+      <ul>
+        <li>getColumnLabel(int)</li>
+        <li>isReadOnly(int)</li>
+        <li>isSearchable(int)</li>
+        <li>isWriteable(int)</li>
+      </ul>
+      <P>Additionally, setting this property to true enables support for the ResultSetMetaData.getSchemaName(int) 
+      method. Setting this property to true may slow performance because it requires retrieving more information 
+	  from the server. Leave the property as the default (false) unless you need more specific information from 
+	  the listed methods. For example, when this property is off (false), ResultSetMetaData.isSearchable(int) 
+      always returns "true" because because the driver does not have enough information 
+      from the server to make a judgment. Turning on this property (true) forces 
+      the driver to get the correct data from the server.</P>
+	  <P>You can use extended metadata only when connecting to a server running OS/400 V5R2 or later.</P></TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<br>&quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;full open&quot;</TD>
+    <TD HEADERS="t2">Specifies whether the server fully opens a file for each 
+      query. By default the server optimizes open requests. This optimization 
+      improves performance but may fail if a database monitor is active when a 
+      query is run more than once. Set the property to true only when identical 
+      queries are issued when monitors are active.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot; </TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;key ring name&quot;</TD>
+    <TD HEADERS="t2">Specifies the key ring class name used for SSL connections 
+      with the server. This property has no effect unless &quot;secure&quot; is 
+      set to true and a key ring password is set using the &quot;key ring password&quot; 
+      property.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;key ring name&quot;</TD>
+    <TD HEADERS="t5">&quot;&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;key ring password&quot;</TD>
+    <TD HEADERS="t2">Specifies the password for the key ring class used for SSL 
+      communications with the server. This property has no effect unless &quot;secure&quot; 
+      is set to true and a key ring name is set using the &quot;key ring name&quot; 
+      property.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;key ring password&quot;</TD>
+    <TD HEADERS="t5">&quot;&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;proxy server&quot;</TD>
+    <TD HEADERS="t2">Specifies the host name and port of the middle-tier machine 
+      where the proxy server is running. The format for this is <VAR>hostname</VAR>[:<VAR>port</VAR>], 
+      where the port is optional. If this is not set, then the hostname and port 
+      are retrieved from the <EM>com.ibm.as400.access.AS400.proxyServer</EM> property. 
+      The default port is <EM>3470</EM> (if the connection uses SSL, the default 
+      port is <EM>3471</EM>). The ProxyServer must be running on the middle-tier 
+      machine. 
+      <P>The name of the middle-tier machine is ignored in a two-tier environment.</P>
+    </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">Proxy server host name and port</TD>
+    <TD HEADERS="t5">(value of the proxyServer property, or none if not set)</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;remarks&quot;</TD>
+    <TD HEADERS="t2">Specifies the source of the text for REMARKS columns in ResultSets 
+      returned by DatabaseMetaData methods.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;sql&quot; (SQL object comment)<BR>
+      &quot;system&quot; (OS/400 object description)</TD>
+    <TD HEADERS="t5">&quot;system&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;secondary URL&quot;</TD>
+    <TD HEADERS="t2">Specifies the URL to be used for a connection on the middle-tier's 
+      DriverManager in a multiple tier environment, if it is different than already 
+      specified. This property allows you to use this driver to connect to databases 
+      other than the iSeries or AS/400e server. Use a backslash as an escape character 
+      before backslashes and semicolons in the URL.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">JDBC URL</TD>
+    <TD HEADERS="t5">(current JDBC URL)</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;secure&quot;</TD>
+    <TD HEADERS="t2">Specifies whether a Secure Sockets Layer (SSL) connection 
+      is used to communicate with the server. SSL connections are only available 
+      when connecting to servers at V4R4 or later.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4"> &quot;true&quot; (encrypt all client/server communication)<BR>
+      &quot;false&quot; (encrypt only the password)</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP">
+    <TD HEADERS="cat6"><a name="servertrace">&quot;server 
+      trace&quot;</a></TD>
+    <TD HEADERS="t2">Specifies the level of tracing of the JDBC server job. When 
+      tracing is enabled, tracing starts when the client connects to the server 
+      and ends when the connection is disconnected. You must start tracing before 
+      connecting to the server, because the client enables server tracing only 
+      at connect time. </TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">
+      <p>&quot;0&quot; (trace is not active)<br>
+         &quot;2&quot; (start the database monitor on the JDBC server job)<br>
+         &quot;4&quot; (start debug on the JDBC server job)<br>
+         &quot;8&quot; (save the job log when the JDBC server job ends)<br>
+         &quot;16&quot; (start job trace on the JDBC server job)<br>
+         &quot;32&quot; (save SQL information)</p>
+      <p>Multiple types of trace can be started by adding these values together. 
+        For example, &quot;6&quot; starts the database monitor and starts debug. 
+      </p>
+    </TD>
+    <TD HEADERS="t5">&quot;0&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;thread used&quot;</TD>
+    <TD HEADERS="t2">Specifies whether threads should be used in communication 
+      with the host servers.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;true&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;trace&quot;</TD>
+    <TD HEADERS="t2">Specifies whether trace messages should be logged. Trace 
+      messages are useful for debugging programs that call JDBC. However, there 
+      is a performance penalty associated with logging trace messages, so this 
+      property should only be set to &quot;true&quot; for debugging. Trace messages 
+      are logged to System.out.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat6">&quot;translate binary&quot;</TD>
+    <TD HEADERS="t2">Specifies whether binary data is translated. If this property 
+      is set to &quot;true&quot;, then BINARY and VARBINARY fields are treated 
+      as CHAR and VARCHAR fields.</TD>
+    <TD HEADERS="t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="t4">&quot;true&quot;<BR>
+      &quot;false&quot;</TD>
+    <TD HEADERS="t5">&quot;false&quot;</TD>
+  </TR>
+</TABLE>
+
+</BODY>
+</HTML>

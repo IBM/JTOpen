@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content=
+"text/html; charset=iso-8859-1">
+<title>IBM Toolbox for Java Example: System Properties</title>
+
+</head>
+<body>
+
+<h3>Example: System Properties Class Source File</h3>
+
+<pre>
+
+//=========================================================
+// IBM Toolbox for Java                                 
+//---------------------------------------------------------
+// Sample properties class source file                     
+//                                                         
+// Compile this source file and store the class file in    
+// the classpath.                                          
+//=========================================================
+package com.ibm.as400.access;
+
+public class Properties
+extends java.util.Properties
+{
+   public Properties ()
+   {
+      /*---------------------------------------------------------*/
+      /* Proxy server system properties                          */
+      /*---------------------------------------------------------*/
+
+      // This system property specifies the proxy server host name 
+      // and port number, specified in the format: hostName:portNumber
+      // The port number is optional.
+      put (&quot;com.ibm.as400.access.AS400.proxyServer&quot;, &quot;hqoffice&quot;);
+                                                        
+      // This system property specifies which portion of the proxy          
+      // data flow is encrypted via SSL.  Valid values are:                 
+      //   1 - Proxy client to proxy server                                 
+      //   2 - Proxy server to iSeries or AS/400e server                                       
+      //   3 - Proxy client to proxy, and proxy server to iSeries or AS/400e server            
+      put(&quot;com.ibm.as400.access.SecureAS400.proxyEncryptionMode&quot;, &quot;1&quot;);
+                                                                           
+      // This system property specifies how often, in seconds,              
+      // the proxy server will look for idle connections. The               
+      // proxy server starts a thread to look for clients that are          
+      // no longer communicating. Use this property to set how              
+      // often the thread looks for idle connections.                       
+      put(&quot;com.ibm.as400.access.TunnelProxyServer.clientCleanupInterval&quot;, &quot;7200&quot;);
+                                                                           
+      // This system property specifies how long, in seconds, a             
+      // client can be idle before it is cleaned up. The proxy server       
+      // starts a thread to look for clients that are no longer             
+      // communicating. Use this property to set long a client can          
+      // be idle before it is cleaned up.                                   
+      put(&quot;com.ibm.as400.access.TunnelProxyServer.clientLifetime&quot;, &quot;2700&quot;);           
+                                                        
+      /*---------------------------------------------------------*/
+      /* Trace system properties                                 */
+      /*---------------------------------------------------------*/
+
+      // This system property specifies which trace categories to enable.
+      // This is a comma-delimited list containing any combination of trace 
+      // categories.  The complete list of trace categories is defined in 
+      // the Trace class.
+      put (&quot;com.ibm.as400.access.Trace.category&quot;, &quot;error,warning,information&quot;);
+
+      // This system property specifies the file to which trace output 
+      // is written.  The default is to write trace output to System.out.
+      put (&quot;com.ibm.as400.access.Trace.file&quot;, &quot;c:\temp\trace.out&quot;);  
+      
+      
+      /*---------------------------------------------------------*/
+      /* Command Call system properties                          */
+      /*---------------------------------------------------------*/
+
+      // This system property specifies whether CommandCalls should 
+      // be assumed to be thread-safe. If true, all CommandCalls are 
+      // assumed to be thread-safe. If false, all CommandCalls are 
+      // assumed to be non-thread-safe. This property is ignored 
+      // for a given CommandCall object if either 
+      // CommandCall.setThreadSafe(true/false) or
+      // AS400.setMustUseSockets(true) has been performed on the object.
+      put (&quot;com.ibm.as400.access.CommandCall.threadSafe&quot;, &quot;true&quot;);
+      
+
+      /*---------------------------------------------------------*/
+      /* Program Call system properties                          */
+      /*---------------------------------------------------------*/
+
+      // This system property specifies whether ProgramCalls should 
+      // be assumed to be thread-safe. If true, all ProgramCalls are 
+      // assumed to be thread-safe. If false, all ProgramCalls are 
+      // assumed to be non-thread-safe. This property is ignored 
+      // for a given ProgramCall object if either 
+      // ProgramCall.setThreadSafe(true/false) or
+      // AS400.setMustUseSockets(true) has been performed on the object.
+      put (&quot;com.ibm.as400.access.ProgramCall.threadSafe&quot;, &quot;true&quot;);
+   }
+}
+</pre>
+</body>
+</html>
+

@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<title>IBM Toolbox for Java: Printer attributes </title>
+</head>
+<body>
+
+<h1> Printer Attributes </h1>
+
+<hr>
+
+<h2> Retrieve Attributes </h2>
+
+ <p>The following attributes may be retrieved for a printer using the appropriate
+ getIntegerAttribute(), getStringAttribute(), or getFloatAttribute() method :
+
+ <ul>
+ <li> <A HREF="PrintAttributes.html#HDRKEY1">
+          ATTR_AFP - Advanced Function Printing
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY2.5">
+          ATTR_ALIGNFORMS - Align Forms
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY3">
+          ATTR_ALWDRTPRT - Allow Direct Print
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY12.3">
+          ATTR_BTWNCPYSTS - Between copies status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY12.6">
+          ATTR_BTWNFILESTS - Between files status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY14">
+          ATTR_CODEPAGE - Code Page
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY13.5">
+          ATTR_CHANGES - Changes
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY35">
+          ATTR_DEVCLASS - Device Class
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY36">
+          ATTR_DEVMODEL - Device Model
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY37">
+          ATTR_DEVTYPE - Device Type
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY36.5">
+          ATTR_DEVSTATUS - Device Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY39">
+          ATTR_DRWRSEP - Drawer for Separators
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY40.5">
+          ATTR_ENDPNDSTS - End pending status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY41">
+          ATTR_FILESEP - File Separators
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY43">
+          ATTR_FONTID - Font Identifier
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEYIFS_3">
+          ATTR_FORM_DEFINITION - Form Definition Integrated File System Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY45">
+          ATTR_FORMTYPE - Form Type
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY46">
+          ATTR_FORMTYPEMSG - Form Type Message
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY44">
+          ATTR_FORMFEED - Form Feed
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY53">
+          ATTR_CHAR_ID - Graphic Character Set
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY54.5">
+          ATTR_HELDSTS - Held status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY55.5">
+          ATTR_HOLDPNDSTS - Hold pending status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY60">
+          ATTR_JOBUSER - Job User
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY65">
+          ATTR_MFGTYPE - Manufacturer Type and Model
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEYIFS_5">
+          ATTR_MESSAGE_QUEUE - Message Queue Integrated File System Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY77.3">
+          ATTR_ONJOBQSTS - On job queue status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEYIFS_6">
+          ATTR_OUTPUT_QUEUE - Output Queue Integrated File System Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY87.5">
+          ATTR_OVERALLSTS - Overall Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY86">
+          ATTR_POINTSIZE - Point Size
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY92">
+          ATTR_PRINTER - Printer
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY93">
+          ATTR_PRTDEVTYPE - Printer Device Type
+       </A>
+
+  <LI>  
+    <A HREF="PrintAttributes.html#HDRKEY96a">ATTR_PUBINF_COLOR_SUP - Publishing 
+    Info Color Supported</A> </LI>
+
+  <LI>  
+    <A HREF="PrintAttributes.html#HDRKEY96b">ATTR_PUBINF_PPM_COLOR - Publishing 
+    Info Pages per Minute (Color)</A> </LI>
+
+  <LI>  
+    <A HREF="PrintAttributes.html#HDRKEY96c">ATTR_PUBINF_PPM - Publishing Info 
+    Pages per Minute (Monochrome) </A></LI>
+
+  <LI>  
+    <A HREF="PrintAttributes.html#HDRKEY96d">ATTR_PUBINF_DUPLEX_SUP - Publishing 
+    Info Duplex Support</A> </LI>
+
+  <LI>  
+    <A HREF="PrintAttributes.html#HDRKEY96e">ATTR_PUBINF_LOCATION - Publishing 
+    Info Location</A> </LI>
+
+  <LI> <A HREF="PrintAttributes.html#HDRKEY96f">ATTR_RMTLOCNAME - Remote Location 
+    Name</A> </LI>
+
+ <li> <A HREF="PrintAttributes.html#HDRKEY108">
+          ATTR_SPOOLFILE - Spooled File Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY109">
+          ATTR_SPLFNUM - Spooled File Number
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY121.5">
+          ATTR_STARTEDBY - Started By User
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY113">
+          ATTR_DESCRIPTION - Text Description
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY119">
+          ATTR_USERDATA - User data
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY1192">
+          ATTR_USRDEFOPT - User defined option(s)
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEYIFS_9">
+          ATTR_USER_DEFINED_OBJECT - User defined object Integrated File System Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEYIFS_A">
+          ATTR_USER_TRANSFORM_PROG - User transform program Integrated File System Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEYIFS_B">
+          ATTR_USER_DRIVER_PROG - User driver program Integrated File System Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY116">
+          ATTR_SCS2ASCII - Transform SCS to ASCII
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY128.2">
+          ATTR_WTNGDATASTS - Waiting for data status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY128.4">
+          ATTR_WTNGDEVSTS - Waiting for device status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY128.6">
+          ATTR_WTNGMSGSTS - Waiting for message status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY123">
+          ATTR_WTRAUTOEND - When to Automatically End Writer
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY129">
+          ATTR_WTRJOBNAME - Writer Job Name
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY131">
+          ATTR_WTRJOBSTS - Writer Job Status
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY166">
+          ATTR_WTRSTRTD - Writer started
+       </A>
+ <li> <A HREF="PrintAttributes.html#HDRKEY126.5">
+          ATTR_WRTNGSTS - Writing status
+       </A>
+</ul>
+
+<hr>
+
+<h2> Set Attributes </h2>
+
+<p>Attributes are not allowed to be set for a printer.
+
+<hr>
+
+</body>
+</html>

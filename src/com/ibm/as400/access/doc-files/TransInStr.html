@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>IBM Toolbox for Java Example: Reading and Transforming Spooled File Data</TITLE>
+</head><body>
+
+<h2>Examples using PrintObjectPageInputStream and PrintObjectTransformedInputStream</h2>
+<p>
+The following examples demonstrate how to set up a PrintParameterList to obtain
+different transformations when reading spooled file data.  In the code
+segments that follow, assume a spooled file already exists on a server, 
+and the <i> createSpooledFile()</i> method creates
+an instance of the SpooledFile class representing the spooled file.
+<p>
+<h3>Example of PrintObjectPageInputStream</h3>
+The following example shows how to create a PrintObjectPageInputStream object for
+reading pages of data formatted as GIF images.
+In this case, each page from the spooled file will be transformed into
+a GIF image.  A GIF workstation customization object is used to
+specify the data transform.
+<pre>
+// Create a spooled file
+SpooledFile splF = createSpooledFile();
+
+// Set up print parameter list
+PrintParameterList printParms = new PrintParameterList();
+printParms.setParameter(PrintObject.ATTR_WORKSTATION_CUST_OBJECT, &quot;/QSYS.LIB/QWPGIF.WSCST&quot;);
+printParms.setParameter(PrintObject.ATTR_MFGTYPE, &quot;*WSCST&quot;);
+
+// Create a page input stream from the spooled file
+PrintObjectPageInputStream is = splF.getPageInputStream(printParms);
+</pre>
+<p>
+<h3>Example of PrintObjectTransformedInputStream</h3>
+The following example shows how to create a PrintObjectTransformedInputStream object for
+reading data formatted as TIFF.
+A TIFF (G4 compression) workstation customization object is used
+to specify the data transform.
+<pre>
+// Create a spooled file
+SpooledFile splF = createSpooledFile();
+
+// Set up print parameter list
+PrintParameterList printParms = new PrintParameterList();
+printParms.setParameter(PrintObject.ATTR_WORKSTATION_CUST_OBJECT, &quot;/QSYS.LIB/QWPTIFFG4.WSCST&quot;);
+printParms.setParameter(PrintObject.ATTR_MFGTYPE, &quot;*WSCST&quot;);
+
+// Create a transformed input stream from the spooled file
+PrintObjectTransformedInputStream is = splF.getTransformedInputStream(printParms);
+</pre>
+<p>
+<h3>Example of PrintObjectTransformedInputStream using manufacturer type and model</h3>
+The following example shows how to create a PrintObjectTransformedInputStream object for
+reading data formatted for output to an ASCII printer.
+A manufacturer type and model of *HP4 is used to specify the data transform.
+<pre>
+// Create a spooled file
+SpooledFile splF = createSpooledFile();
+
+// Set up print parameter list
+PrintParameterList printParms = new PrintParameterList();
+printParms.setParameter(PrintObject.ATTR_MFGTYPE, &quot;*HP4&quot;);
+
+// Create a transformed input stream from the spooled file
+PrintObjectTransformedInputStream is = splF.getTransformedInputStream(printParms);
+</pre>
+</BODY>
+</HTML>

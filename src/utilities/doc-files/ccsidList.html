@@ -1,0 +1,647 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>IBM Toolbox for Java: CCSIDs and encodings</TITLE>
+</head>
+
+<BODY>
+<H2>CCSID and Encoding values<BR>supported by IBM Toolbox for Java</H2>
+
+<P> The IBM Toolbox for Java is shipped with a set of conversion tables, named 
+  according to CCSID. These tables are used internally by IBM Toolbox for Java 
+  classes (such as CharConverter) when converting data that is transferred to 
+  or from an iSeries or AS/400e server. For example, the conversion table for 
+  CCSID 1027 is in file <CODE>com/ibm/as400/access/<STRONG>ConvTable1027</STRONG>.class</CODE>. 
+  Conversion tables for the following CCSIDs are included in the IBM Toolbox for 
+  Java jar file; other encodings are supported using the JDK. The central server 
+  on the server is no longer used to download tables at runtime. Any specified 
+  CCSID for which a conversion table or a JDK encoding cannot be found will cause 
+  an exception to be thrown. Some of these tables may be redundant to tables included 
+  in your JDK. IBM Toolbox for Java presently supports the following 122 different 
+  iSeries and AS/400e CCSIDs. 
+<P> For additional information about CCSIDs, including a complete list of the 
+  CCSIDs recognized by the iSeries and AS/400e servers, see the <A HREF="../../nls/rbagsglobalmain.htm">Globalization 
+  topic</A> in the Information Center. 
+<P>
+
+<H3>Supported CCSIDs in IBM Toolbox for Java</H3>
+<P>
+<TABLE BORDER="1">
+  <TR CLASS="hilightbar"> 
+    <TH ID="t1">CCSID</TH>
+    <TH ID="t2">Format</TH>
+    <TH ID="t3">Description</TH>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="37" HEADERS="t1">37</TD> 
+    <TD HEADERS="t2 t1 37">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 37">United States and others</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="273" HEADERS="t1">273</TD> 
+    <TD HEADERS="t2 t1 273">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 273">Austria, Germany</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="277" HEADERS="t1">277</TD> 
+    <TD HEADERS="t2 t1 277">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 277">Denmark, Norway</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="278" HEADERS="t1">278</TD> 
+    <TD HEADERS="t2 t1 278">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 278">Finland, Sweden</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="280" HEADERS="t1">280</TD> 
+    <TD HEADERS="t2 t1 280">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 280">Italy</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="284" HEADERS="t1">284</TD> 
+    <TD HEADERS="t2 t1 284">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 284">Spain, Latin America</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="285" HEADERS="t1">285</TD> 
+    <TD HEADERS="t2 t1 285">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 285">United Kingdom</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="290" HEADERS="t1">290</TD> 
+    <TD HEADERS="t2 t1 290">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 290">Japanese Katakana (single-byte only)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="297" HEADERS="t1">297</TD> 
+    <TD HEADERS="t2 t1 297">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 297">France</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="300" HEADERS="t1">300</TD> 
+    <TD HEADERS="t2 t1 300">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 300">Japanese Graphic (subset of 16684)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="367" HEADERS="t1">367</TD> 
+    <TD HEADERS="t2 t1 367">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 367">ASCII (ANSI X3.4 standard)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="420" HEADERS="t1">420</TD> 
+    <TD HEADERS="t2 t1 420">Single-byte EBCDIC <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 420">Arabic EBCDIC ST4</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="423" HEADERS="t1">423</TD> 
+    <TD HEADERS="t2 t1 423">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 423">Greek (for compatibility; see 875)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="424" HEADERS="t1">424</TD> 
+    <TD HEADERS="t2 t1 424">Single-byte EBCDIC <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 424">Hebrew EBCDIC ST4</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="437" HEADERS="t1">437</TD> 
+    <TD HEADERS="t2 t1 437">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 437">ASCII (USA PC Data)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="500" HEADERS="t1">500</TD> 
+    <TD HEADERS="t2 t1 500">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 500">Latin-1 (MNCS)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="720" HEADERS="t1">720</TD> 
+    <TD HEADERS="t2 t1 720">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 720">Arabic (MS-DOS)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="737" HEADERS="t1">737</TD> 
+    <TD HEADERS="t2 t1 737">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 737">Greek (MS-DOS)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="775" HEADERS="t1">775</TD> 
+    <TD HEADERS="t2 t1 775">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 775">Baltic (MS-DOS)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="813" HEADERS="t1">813</TD> 
+    <TD HEADERS="t2 t1 813">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 813">ISO 8859-7 (Greek/Latin)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="819" HEADERS="t1">819</TD> 
+    <TD HEADERS="t2 t1 819">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 819">ISO 8859-1 (Latin-1)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="833" HEADERS="t1">833</TD> 
+    <TD HEADERS="t2 t1 833">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 833">Korean (single-byte only)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="834" HEADERS="t1">834</TD> 
+    <TD HEADERS="t2 t1 834">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 834">Korean Graphic (subset of 4930)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="835" HEADERS="t1">835</TD> 
+    <TD HEADERS="t2 t1 835">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 835">Traditional Chinese Graphic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="836" HEADERS="t1">836</TD> 
+    <TD HEADERS="t2 t1 836">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 836">Simplified Chinese (single-byte only)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="837" HEADERS="t1">837</TD> 
+    <TD HEADERS="t2 t1 837">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 837">Simplified Chinese Graphic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="838" HEADERS="t1">838</TD> 
+    <TD HEADERS="t2 t1 838">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 838">Thai</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="850" HEADERS="t1">850</TD> 
+    <TD HEADERS="t2 t1 850">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 850">Latin-1</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="851" HEADERS="t1">851</TD> 
+    <TD HEADERS="t2 t1 851">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 851">Greek</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="852" HEADERS="t1">852</TD> 
+    <TD HEADERS="t2 t1 852">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 852">Latin-2</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="855" HEADERS="t1">855</TD> 
+    <TD HEADERS="t2 t1 855">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 855">Cyrillic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="857" HEADERS="t1">857</TD> 
+    <TD HEADERS="t2 t1 857">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 857">Turkish</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="860" HEADERS="t1">860</TD> 
+    <TD HEADERS="t2 t1 860">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 860">Portuguese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="861" HEADERS="t1">861</TD> 
+    <TD HEADERS="t2 t1 861">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 861">Iceland</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="862" HEADERS="t1">862</TD> 
+    <TD HEADERS="t2 t1 862">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 862">Hebrew ASCII ST4</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="863" HEADERS="t1">863</TD> 
+    <TD HEADERS="t2 t1 863">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 863">Canada</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="864" HEADERS="t1">864</TD> 
+    <TD HEADERS="t2 t1 864">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 864">Arabic ASCII ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="865" HEADERS="t1">865</TD> 
+    <TD HEADERS="t2 t1 865">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 865">Denmark/Norway</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="866" HEADERS="t1">866</TD> 
+    <TD HEADERS="t2 t1 866">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 866">Cyrillic/Russian</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="869" HEADERS="t1">869</TD> 
+    <TD HEADERS="t2 t1 869">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 869">Greek</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="870" HEADERS="t1">870</TD> 
+    <TD HEADERS="t2 t1 870">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 870">Latin-2</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="871" HEADERS="t1">871</TD> 
+    <TD HEADERS="t2 t1 871">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 871">Iceland</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="874" HEADERS="t1">874</TD> 
+    <TD HEADERS="t2 t1 874">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 874">Thai (subset of 9066)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="875" HEADERS="t1">875</TD> 
+    <TD HEADERS="t2 t1 875">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 875">Greek</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="878" HEADERS="t1">878</TD> 
+    <TD HEADERS="t2 t1 878">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 878">Russian</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="880" HEADERS="t1">880</TD> 
+    <TD HEADERS="t2 t1 880">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 880">Cyrillic Multilingual (for compatibility; see 1025)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="912" HEADERS="t1">912</TD> 
+    <TD HEADERS="t2 t1 912">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 912">ISO 8859-2 (Latin-2)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="914" HEADERS="t1">914</TD> 
+    <TD HEADERS="t2 t1 914">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 914">ISO 8859-4 (Latin-4)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="915" HEADERS="t1">915</TD> 
+    <TD HEADERS="t2 t1 915">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 915">ISO 8859-5 (Cyrillic 8-bit)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="916" HEADERS="t1">916</TD> 
+    <TD HEADERS="t2 t1 916">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 916">ISO 8859-8 (Hebrew) ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="920" HEADERS="t1">920</TD> 
+    <TD HEADERS="t2 t1 920">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 920">ISO 8859-9 (Latin-5)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="921" HEADERS="t1">921</TD> 
+    <TD HEADERS="t2 t1 921">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 921">ISO 8859-13 (Baltic 8-bit)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="922" HEADERS="t1">922</TD> 
+    <TD HEADERS="t2 t1 922">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 922">Estonia ISO-8</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="923" HEADERS="t1">923</TD> 
+    <TD HEADERS="t2 t1 923">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 923">ISO 8859-15 (Latin-9)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="930" HEADERS="t1">930</TD> 
+    <TD HEADERS="t2 t1 930">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 930">Japanese (subset of 5026)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="933" HEADERS="t1">933</TD> 
+    <TD HEADERS="t2 t1 933">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 933">Korean (subset of 1364)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="935" HEADERS="t1">935</TD> 
+    <TD HEADERS="t2 t1 935">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 935">Simplified Chinese (subset of 1388)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="937" HEADERS="t1">937</TD> 
+    <TD HEADERS="t2 t1 937">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 937">Traditional Chinese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="939" HEADERS="t1">939</TD> 
+    <TD HEADERS="t2 t1 939">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 939">Japanese (subset of 5035)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1025" HEADERS="t1">1025</TD> 
+    <TD HEADERS="t2 t1 1025">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1025">Cyrillic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1026" HEADERS="t1">1026</TD> 
+    <TD HEADERS="t2 t1 1026">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1026">Turkish</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1027" HEADERS="t1">1027</TD> 
+    <TD HEADERS="t2 t1 1027">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1027">Japanese Latin (single-byte only)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1046" HEADERS="t1">1046</TD> 
+    <TD HEADERS="t2 t1 1046">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 1046">Windows Arabic ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1089" HEADERS="t1">1089</TD> 
+    <TD HEADERS="t2 t1 1089">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 1089">ISO 8859-6 (Arabic) ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1112" HEADERS="t1">1112</TD> 
+    <TD HEADERS="t2 t1 1112">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1112">Baltic Multilingual</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1122" HEADERS="t1">1122</TD> 
+    <TD HEADERS="t2 t1 1122">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1122">Estonian</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1123" HEADERS="t1">1123</TD> 
+    <TD HEADERS="t2 t1 1123">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1123">Ukraine</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1125" HEADERS="t1">1125</TD> 
+    <TD HEADERS="t2 t1 1125">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1125">Ukraine</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1129" HEADERS="t1">1129</TD> 
+    <TD HEADERS="t2 t1 1129">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1129">Vietnamese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1130" HEADERS="t1">1130</TD> 
+    <TD HEADERS="t2 t1 1130">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1130">Vietnamese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1131" HEADERS="t1">1131</TD> 
+    <TD HEADERS="t2 t1 1131">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1131">Belarus</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1132" HEADERS="t1">1132</TD> 
+    <TD HEADERS="t2 t1 1132">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1132">Lao</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1140" HEADERS="t1">1140</TD> 
+    <TD HEADERS="t2 t1 1140">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1140">United States and others (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1141" HEADERS="t1">1141</TD> 
+    <TD HEADERS="t2 t1 1141">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1141">Austria, Germany (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1142" HEADERS="t1">1142</TD> 
+    <TD HEADERS="t2 t1 1142">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1142">Denmark, Norway (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1143" HEADERS="t1">1143</TD> 
+    <TD HEADERS="t2 t1 1143">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1143">Finland, Sweden (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1144" HEADERS="t1">1144</TD> 
+    <TD HEADERS="t2 t1 1144">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1144">Italy (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1145" HEADERS="t1">1145</TD> 
+    <TD HEADERS="t2 t1 1145">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1145">Spain, Latin America (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1146" HEADERS="t1">1146</TD> 
+    <TD HEADERS="t2 t1 1146">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1146">United Kingdom (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1147" HEADERS="t1">1147</TD> 
+    <TD HEADERS="t2 t1 1147">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1147">France (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1148" HEADERS="t1">1148</TD> 
+    <TD HEADERS="t2 t1 1148">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1148">Latin-1 (MNCS) (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1149" HEADERS="t1">1149</TD> 
+    <TD HEADERS="t2 t1 1149">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1149">Iceland (Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1200" HEADERS="t1">1200</TD> 
+    <TD HEADERS="t2 t1 1200">Unicode</TD> 
+    <TD HEADERS="t3 t1 1200">Unicode UCS-2 (little-endian)</TD>
+  <TR VALIGN="top"> 
+    <TD ID="1250" HEADERS="t1">1250</TD> 
+    <TD HEADERS="t2 t1 1250">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1250">Windows Latin-2</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1251" HEADERS="t1">1251</TD> 
+    <TD HEADERS="t2 t1 1251">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1251">Windows Cyrillic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1252" HEADERS="t1">1252</TD> 
+    <TD HEADERS="t2 t1 1252">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1252">Windows Latin-1</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1253" HEADERS="t1">1253</TD> 
+    <TD HEADERS="t2 t1 1253">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1253">Windows Greek</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1254" HEADERS="t1">1254</TD> 
+    <TD HEADERS="t2 t1 1254">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1254">Windows Turkey</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1255" HEADERS="t1">1255</TD> 
+    <TD HEADERS="t2 t1 1255">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 1255">Windows Hebrew ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1256" HEADERS="t1">1256</TD> 
+    <TD HEADERS="t2 t1 1256">ASCII/ISO/Windows <BR>(bidirectional)</TD> 
+    <TD HEADERS="t3 t1 1256">Windows Arabic ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1257" HEADERS="t1">1257</TD> 
+    <TD HEADERS="t2 t1 1257">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1257">Windows Baltic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1258" HEADERS="t1">1258</TD> 
+    <TD HEADERS="t2 t1 1258">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 1258">Windows Vietnam</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1364" HEADERS="t1">1364</TD> 
+    <TD HEADERS="t2 t1 1364">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1364">Japanese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1388" HEADERS="t1">1388</TD> 
+    <TD HEADERS="t2 t1 1388">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1388">Simplified Chinese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="1399" HEADERS="t1">1399</TD> 
+    <TD HEADERS="t2 t1 1399">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 1399">Japanese (in V4R5 and higher)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="4396" HEADERS="t1">4396</TD> 
+    <TD HEADERS="t2 t1 4396">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 4396">Japanese (subset of 300)</TD>
+  <TR VALIGN="top"> 
+    <TD ID="4930" HEADERS="t1">4930</TD> 
+    <TD HEADERS="t2 t1 4930">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 4930">Korean</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="4931" HEADERS="t1">4931</TD> 
+    <TD HEADERS="t2 t1 4931">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 4931">Traditional Chinese (subset of 835)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="4933" HEADERS="t1">4933</TD> 
+    <TD HEADERS="t2 t1 4933">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 4933">Simplified Chinese GBK Graphic</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="4948" HEADERS="t1">4948</TD> 
+    <TD HEADERS="t2 t1 4948">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 4948">Latin-2 (subset of 852)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="4951" HEADERS="t1">4951</TD> 
+    <TD HEADERS="t2 t1 4951">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 4951">Cyrillic (subset of 855)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="5026" HEADERS="t1">5026</TD> 
+    <TD HEADERS="t2 t1 5026">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 5026">Japanese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="5035" HEADERS="t1">5035</TD> 
+    <TD HEADERS="t2 t1 5035">Mixed-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 5035">Japanese</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="5123" HEADERS="t1">5123</TD> 
+    <TD HEADERS="t2 t1 5123">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 5123">Japanese (single-byte only, Euro support)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="5351" HEADERS="t1">5351</TD> 
+    <TD HEADERS="t2 t1 5351">ASCII/ISO/Windows <BR>(bidirectional)</TD>
+    <TD HEADERS="t3 t1 5351">Windows Hebrew (Euro support) ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="8492" HEADERS="t1">8492</TD> 
+    <TD HEADERS="t2 t1 8492">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 8492">Japanese (subset of 300)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="8612" HEADERS="t1">8612</TD> 
+    <TD HEADERS="t2 t1 8612">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 8612">Arabic EBCDIC ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="9026" HEADERS="t1">9026</TD> 
+    <TD HEADERS="t2 t1 9026">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 9026">Korean (subset of 834)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="9029" HEADERS="t1">9029</TD> 
+    <TD HEADERS="t2 t1 9029">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 9029">Simplified Chinese (subset of 4933)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="9066" HEADERS="t1">9066</TD> 
+    <TD HEADERS="t2 t1 9066">ASCII/ISO/Windows</TD> 
+    <TD HEADERS="t3 t1 9066">Thai (SBCS extended)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="12588" HEADERS="t1">12588</TD> 
+    <TD HEADERS="t2 t1 12588">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 12588">Japanese (subset of 300)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="13122" HEADERS="t1">13122</TD> 
+    <TD HEADERS="t2 t1 13122">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 13122">Korean (subset of 834)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="16684" HEADERS="t1">16684</TD> 
+    <TD HEADERS="t2 t1 16684">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 16684">Japanese (available in V4R5)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="17218" HEADERS="t1">17218</TD> 
+    <TD HEADERS="t2 t1 17218">Double-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 17218">Korean (subset of 834)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="12708" HEADERS="t1">12708</TD> 
+    <TD HEADERS="t2 t1 12708">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 12708">Arabic EBCDIC ST7</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="13488" HEADERS="t1">13488</TD> 
+    <TD HEADERS="t2 t1 13488">Unicode</TD> 
+    <TD HEADERS="t3 t1 13488">Unicode UCS-2 (big-endian)</TD>
+  <TR VALIGN="top"> 
+    <TD ID="28709" HEADERS="t1">28709</TD> 
+    <TD HEADERS="t2 t1 28709">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 28709">Traditional Chinese (single-byte only)</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="61952" HEADERS="t1">61952</TD> 
+    <TD HEADERS="t2 t1 61952">Unicode</TD> 
+    <TD HEADERS="t3 t1 61952">iSeries and AS/400e Unicode (used primarily in the IFS)</TD>
+  <TR VALIGN="top"> 
+    <TD ID="62211" HEADERS="t1">62211</TD> 
+    <TD HEADERS="t2 t1 62211">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 62211">Hebrew EBCDIC ST5</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="62224" HEADERS="t1">62224</TD> 
+    <TD HEADERS="t2 t1 62224">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 62224">Arabic EBCDIC ST6</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="62235" HEADERS="t1">62235</TD> 
+    <TD HEADERS="t2 t1 62235">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 62235">Hebrew EBCDIC ST6</TD>
+  </TR>
+  <TR VALIGN="top"> 
+    <TD ID="62245" HEADERS="t1">62245</TD> 
+    <TD HEADERS="t2 t1 62245">Single-byte EBCDIC</TD> 
+    <TD HEADERS="t3 t1 62245">Hebrew EBCDIC ST10</TD>
+  </TR>
+</TABLE>
+
+
+<P></P>
+</BODY>
+</HTML>
