@@ -37,6 +37,7 @@ import java.util.*;
 public class SpooledFileOpenList extends OpenList
 {
   private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
+  static final long serialVersionUID = 17674018445884278L;
 
   /**
    * Constant representing the EBCDIC value for "*ALL      ". Used internally for filtering.

@@ -44,6 +44,7 @@ import java.beans.PropertyVetoException;
 public abstract class OpenList implements Serializable
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
+  static final long serialVersionUID = -5967313807836097042L;
 
   /**
    * Constant that can be used for APIs that have an error code parameter. An empty error code parameter
