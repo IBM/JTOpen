@@ -2992,6 +2992,76 @@ Returns the user profile name.
     }
 
 
+//@B0A
+  /**
+   * Indicates if this user profile has been granted the specified authority, or
+   * belongs to a group profile that has been granted the specified authority.
+   * @param authority The authority to check. It must be one of the special authority
+   * constants:
+<ul>
+<li><a href="#SPECIAL_AUTHORITIES_ALL_OBJECT">SPECIAL_AUTHORITIES_ALL_OBJECT</a>
+    - All object.
+<li><a href="#SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR">SPECIAL_AUTHORITIES_SECURITY_ADMINISTRATOR</a>
+    - Security administrator.
+<li><a href="#SPECIAL_AUTHORITIES_JOB_CONTROL">SPECIAL_AUTHORITIES_JOB_CONTROL</a>
+    - Job control.
+<li><a href="#SPECIAL_AUTHORITIES_SPOOL_CONTROL">SPECIAL_AUTHORITIES_SPOOL_CONTROL</a>
+    - Spool control.
+<li><a href="#SPECIAL_AUTHORITIES_SAVE_SYSTEM">SPECIAL_AUTHORITIES_SAVE_SYSTEM</a>
+    - Save system.
+<li><a href="#SPECIAL_AUTHORITIES_SERVICE">SPECIAL_AUTHORITIES_SERVICE</a>
+    - Service.
+<li><a href="#SPECIAL_AUTHORITIES_AUDIT">SPECIAL_AUTHORITIES_AUDIT</a>
+    - Audit.
+<li><a href="#SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION">SPECIAL_AUTHORITIES_IO_SYSTEM_CONFIGURATION</a>
+    - Input/output system configuration.
+</ul>
+   * @return true if this user has the authority or belongs to a group that has
+   * the authority; false otherwise.
+   * @exception ResourceException If an error occurs.
+  **/
+  public boolean hasSpecialAuthority(String authority) throws ResourceException
+  {
+    if (authority == null) throw new NullPointerException("authority");
+    
+    // Check to see if this user is authorized.
+    String[] specialAuthorities = (String[])getAttributeValue(SPECIAL_AUTHORITIES);
+    if (specialAuthorities != null)
+    {
+      for (int i=0; i<specialAuthorities.length; ++i)
+      {
+        if (specialAuthorities[i].equals(authority))
+        {
+          return true;
+        }
+      }
+    }
+    // Check to see if a group this user belongs to is authorized.
+    String primaryGroup = (String)getAttributeValue(GROUP_PROFILE_NAME);
+    if (primaryGroup != null && !primaryGroup.equals(NONE))
+    {
+      RUser group = new RUser(getSystem(), primaryGroup);
+      if (group.hasSpecialAuthority(authority))
+      {
+        return true;
+      }
+    }
+    // Check the supplemental groups.
+    String[] supplementalGroups = (String[])getAttributeValue(SUPPLEMENTAL_GROUPS);
+    if (supplementalGroups != null)
+    {
+      for (int i=0; i<supplementalGroups.length; ++i)
+      {
+        RUser group = new RUser(getSystem(), supplementalGroups[i]);
+        if (group.hasSpecialAuthority(authority))
+        {
+          return true;
+        }
+      }
+    }
+    return false; // Not authorized.
+  }
+
 
 // @A2A
 /**
