@@ -45,8 +45,6 @@ Constructs a PxListenerReqSV object.
 
         connection_ = connection;
         proxyTable_ = proxyTable;
-
-        String x = Copyright.copyright;
     }
 
 

@@ -41,8 +41,6 @@ extends PxReqSV
         super (ProxyConstants.DS_METHOD_REQ);
         pxTable_    = pxTable;
         //@B2Dconnection_ = connection;
-
-        String x = Copyright.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSPrintObjectListListener.java
 //                                                                             
@@ -44,7 +44,6 @@ Constructs a PSPrintObjectListListener object.
     public PSPrintObjectListListener (PSConnection connection, PxTable proxyTable, long proxyId)
     { 
         super (connection, proxyTable, proxyId);
-        String x = Copyright.copyright; 
     }
 
 

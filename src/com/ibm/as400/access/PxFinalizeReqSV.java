@@ -41,8 +41,6 @@ Constructs a PxFinalizeReqSV object.
     { 
         super (ProxyConstants.DS_FINALIZE_REQ);
         proxyTable_ = proxyTable;
-
-        String x = Copyright.copyright;
     }
 
 

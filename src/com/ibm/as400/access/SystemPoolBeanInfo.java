@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SystemPoolBeanInfo.java
 //                                                                             
@@ -283,14 +283,6 @@ public class SystemPoolBeanInfo extends SimpleBeanInfo
     public BeanDescriptor getBeanDescriptor ()
     {
         return new BeanDescriptor (beanClass_);
-    }
-
-    /**
-     * Copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright; 
     }
 
     /** 

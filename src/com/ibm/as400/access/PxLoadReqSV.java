@@ -40,8 +40,6 @@ Constructs a PxLoadReqSV object.
     {
         super (ProxyConstants.DS_LOAD_REQ);
         load_ = load;
-
-        String x = Copyright.copyright;
     }
 
 

@@ -61,7 +61,6 @@ Dumps the datastream for debugging and tracing.
            output.println("   Correlation id = " + correlationId_);
            output.println("   Client id = " + clientId_); //@B2A
         }
-        //@B2D String x = Copyright.copyright;
     }
 
 

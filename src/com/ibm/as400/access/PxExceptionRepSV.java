@@ -45,8 +45,6 @@ Constructs a PxExceptionRepSV object.
 
        addParm (new PxSerializedObjectParm (e));
        addParm (new PxStringParm (stackTrace));
-
-       String x = Copyright.copyright;
    }
 
 

@@ -213,14 +213,6 @@ public class JavaApplicationCallBeanInfo extends SimpleBeanInfo
     }
 
     /**
-     * Copyright.
-    **/
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
-    }
-
-    /**
      * Returns the default event index.
      * @return The default event index (always 1).
      **/

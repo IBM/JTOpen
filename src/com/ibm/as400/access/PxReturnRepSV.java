@@ -41,8 +41,6 @@ extends PxRepSV
             else
                 addParm(new PxNullParm());
         }
-
-        String x = Copyright.copyright;
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSLoad.java
 //                                                                             
@@ -77,7 +77,6 @@ Marks all connections as closed.
     public void allConnectionsClosed ()
     {
         activeConnections_ = 0;
-        String x = Copyright.copyright;
     }
 
 

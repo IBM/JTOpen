@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSServerSocketContainer.java
 //                                                                             
@@ -87,7 +87,6 @@ Returns the name of this socket container.
 **/
     public String toString ()
     {
-        String x = Copyright.copyright;
         return NAME_;
     }
 

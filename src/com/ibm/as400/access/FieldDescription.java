@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: FieldDescription.java
 //                                                                             
@@ -22,7 +22,7 @@ import java.util.Vector;
  *with an AS400DataType object and a name.  Optionally, the user can specify a
  *data definition specification (DDS) field name and DDS keywords if the field will
  *be used with the record level access classes to define a RecordFormat object
- *with which to create an AS/400 physical file.
+ *with which to create a server physical file.
  *The FieldDescription class contains methods to
  *set and get field attributes that are common to all field types.<br>
  *<p> 
@@ -58,7 +58,7 @@ abstract public class FieldDescription implements Serializable
   // COLHDG keyword
   String columnHeading_ = "";
   // AS400DataType object containing the description of the data as well
-  // as methods to convert the data to and from its AS/400 format.
+  // as methods to convert the data to and from its i5/OS format.
   AS400DataType dataType_ = null;
   // The DDS name of the field
   String ddsName_ = "";
@@ -192,15 +192,6 @@ abstract public class FieldDescription implements Serializable
   public String getCOLHDG()
   {
     return columnHeading_;
-  }
-
-  /**
-   *Returns the copyright for this class.
-   *@return The copyright for this class.
-  **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

@@ -38,8 +38,6 @@ Constructs a PxLoadRepSV object.
         addParm (new PxIntParm (load.getActiveConnections ()));
         addParm (new PxIntParm (load.getBalanceThreshold ()));
         addParm (new PxIntParm (load.getMaxConnections ()));
-
-        String x = Copyright.copyright;
     }
 
 

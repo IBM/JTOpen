@@ -42,8 +42,6 @@ extends PxReqSV
     { 
         super (ProxyConstants.DS_CONSTRUCTOR_REQ);
         pxTable_    = pxTable;
-
-        String x = Copyright.copyright;
     }
 
 

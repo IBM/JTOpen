@@ -47,8 +47,6 @@ Constructs a PxConfigReqSV object.
         super (ProxyConstants.DS_CONFIGURE_REQ);
         config_         = config;
         controller_     = controller;
-
-        String x = Copyright.copyright;
     }
 
 

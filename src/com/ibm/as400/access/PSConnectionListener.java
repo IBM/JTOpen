@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSConnectionListener.java
 //                                                                             
@@ -43,7 +43,6 @@ Constructs a PSConnectionListener object.
     public PSConnectionListener (PSConnection connection, PxTable proxyTable, long proxyId)
     { 
         super (connection, proxyTable, proxyId);
-        String x = Copyright.copyright; 
     }
 
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: CommandLineArguments.java
 //                                                                             
@@ -133,8 +133,6 @@ Creates a CommandLineArguments object.
             }
         }
         map_.put (currentOptionName, currentOptionValue);
-
-        String x = Copyright.copyright;
     }
 
 

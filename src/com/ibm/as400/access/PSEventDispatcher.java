@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PSEventDispatcher.java
 //                                                                             
@@ -47,7 +47,6 @@ Constructs a PxMethodEventDispatcher object.
         connection_ = connection;
         proxyTable_ = proxyTable;
         proxyId_ = proxyId;
-        String x = Copyright.copyright; 
     }
 
 

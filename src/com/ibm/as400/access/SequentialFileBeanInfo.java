@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: SequentialFileBeanInfo.java
 //                                                                             
@@ -158,15 +158,6 @@ public class SequentialFileBeanInfo extends SimpleBeanInfo
   public BeanDescriptor getBeanDescriptor()
   {
     return beanDescriptor_;
-  }
-
-  /**
-   Returns the copyright.
-   @return The copyright String.
-   **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: ServerVersion.java
 //                                                                             
@@ -29,28 +29,28 @@ class ServerVersion implements Serializable
         vrm_ = vrm;
     }
 
-    // Get the AS/400 version.
-    // @return  Version of the AS/400.
+    // Get the server version.
+    // @return  Version of the server.
     int getVersion()
     {
         return vrm_ >> 16 & 0x0000ffff;
     }
 
-    // Get the AS/400 release.
-    // @return  Release of the AS/400.
+    // Get the server release.
+    // @return  Release of the server.
     int getRelease()
     {
         return vrm_ >> 8 & 0x000000ff;
     }
 
-    // Get the modification level of the AS/400.
-    // @return  Modification level of the AS/400.
+    // Get the modification level of the server.
+    // @return  Modification level of the server.
     int getModificationLevel()
     {
         return vrm_ & 0x000000ff;
     }
 
-    // Get the combined version, release and modification level of the AS/400.
+    // Get the combined version, release and modification level of the server.
     // @return Version/release/modification level where the high 16 bits is the version, next 8 bits the release, and low 8 bits the modification level.
     int getVersionReleaseModification()
     {

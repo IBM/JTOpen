@@ -67,8 +67,6 @@ Dumps the datastream for debugging and tracing.
 	   if (asynchronous_)
                 output.println ("   Asynchronous");
         }
-
-        String x = Copyright.copyright;
     }
   
 

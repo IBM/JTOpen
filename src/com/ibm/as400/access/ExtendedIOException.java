@@ -232,14 +232,6 @@ public class ExtendedIOException extends IOException
 
 
 
-  // Returns the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
-
-
-
   /**
      Returns the translatable text associated with the
      return code.

@@ -55,8 +55,6 @@ Constructs a PxEndReqSV object.
 
         proxyServer_    = proxyServer;
         controller_     = controller;
-
-        String x = Copyright.copyright;
     }
 
 

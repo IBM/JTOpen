@@ -40,8 +40,6 @@ extends PxRepSV
         addParm (new PxStringParm (listenerInterfaceName));
         addParm (new PxStringParm (listenerMethodName));
         addParm (new PxSerializedObjectParm (event));
-
-        String x = Copyright.copyright;
     }
 
 

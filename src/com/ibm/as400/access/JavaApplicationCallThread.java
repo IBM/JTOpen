@@ -153,14 +153,6 @@ class JavaApplicationCallThread extends Thread
     }
 
     /**
-       Copyright.
-    **/
-    private static String getCopyright ()
-    {
-        return Copyright.copyright;
-     }
-
-    /**
         Returns the standard error come from the application running on the server.
     **/
     String getStandardErrorString()

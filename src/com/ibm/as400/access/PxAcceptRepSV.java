@@ -33,7 +33,6 @@ Constructs a PxAcceptRepSV object.
     public PxAcceptRepSV ()
     {          
         super (ProxyConstants.DS_ACCEPT_REP);
-        String x = Copyright.copyright;
     }
 
 
