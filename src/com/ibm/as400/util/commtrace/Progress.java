@@ -51,7 +51,7 @@ class Progress implements Runnable {
      */
     public void updateProgress(int num) {
 		progressMonitor.setProgress(num);
-		progressMonitor.setNote((int)(num*100)/total + endmsg);
+		progressMonitor.setNote((int)(((long)num)*100/((long)total)) + endmsg);
     }
 
 	/**
