@@ -146,6 +146,14 @@ implements PrinterFileImpl
         return attrsToRetrieve_;
     }
 
+    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
+    {
+      if (!fAttrIDsToRtvBuilt_)
+      {
+        attrsToRetrieve_.addAttrID(attrToRtv);
+      }
+      return attrsToRetrieve_;
+    }
 
 
     /**

@@ -126,7 +126,6 @@ class PrinterImplRemote extends PrintObjectImplRemote
     }
 
 
-
     // This method implements an abstract method of the superclass
     NPCPAttributeIDList getAttrIDsToRetrieve()
     {
@@ -136,14 +135,12 @@ class PrinterImplRemote extends PrintObjectImplRemote
         return attrsToRetrieve_;
     }
 
-
-
-    /**
-     * Copyright.
-     **/
-    static private String getCopyright()
+    NPCPAttributeIDList getAttrIDsToRetrieve(int attrToRtv)
     {
-	    return Copyright.copyright;
+      if (!fAttrIDsToRtvBuilt_)
+      {
+        attrsToRetrieve_.addAttrID(attrToRtv);
+      }
+      return attrsToRetrieve_;
     }
-
-} // end Printer class
+}
