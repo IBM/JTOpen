@@ -291,6 +291,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);       // spool file number
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFSTATUS);    // spool file status
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);     // spool file name
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_CREATOR);  // spool file creator @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SIZE);     // spool file size  @D1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLF_SIZE_MULT);// Spooled file size multiplier
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SRCDRWR);       // source drawer

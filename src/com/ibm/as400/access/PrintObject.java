@@ -43,7 +43,6 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_ACCOUNT_CODE = 0x0109; // AT_ACCOUNT_CODE @ABA 
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1">Advanced function printing</A>. **/
     public static final int ATTR_AFP          = 0x000A;  // AFP resources used
-
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEYIFS_C">AFP Resource integrated file system path</A>. **/
     public static final int ATTR_AFP_RESOURCE = -12;
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY224">Advanced Function Printing (AFP) resource</A>. **/
@@ -95,7 +94,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY239">Record format</A>. **/
     public static final int ATTR_RCDFMT_DATA   = 0x0129; // AT_RCD_FMT_IN_DATA  @ABA 
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1001">Resource library name</A>. **/
-               static final int ATTR_RSCLIB       = 0x00AE; // Resource library
+           static final int ATTR_RSCLIB       = 0x00AE; // Resource library
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1002">Resource name</A>. **/
            static final int ATTR_RSCNAME      = 0x00AF; // Resource name
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1003">Resource object type</A>. **/
@@ -124,7 +123,7 @@ abstract public class PrintObject implements java.io.Serializable
            static final int ATTR_ATTRDESCRIPT = 0x0088;  // attribute description
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY141">NPS Attribute type</A>. **/
            static final int ATTR_ATTRTYPE     = 0x0089;  // attribute type
-    /**  <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY4">Authority</A>. **/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY4">Authority</A>. **/
     public static final int ATTR_AUTHORITY    = 0x000D;  // Authority to users not on  output queue
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY5">Authority to check</A>. **/
     public static final int ATTR_AUTHCHCK     = 0x000E;  // authority allows user to all files on queue
@@ -140,20 +139,19 @@ abstract public class PrintObject implements java.io.Serializable
            static final int ATTR_BKOVRLLIB    = 0x0013;  // back side overlay library
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY10">Backside overlay name</A>.  **/
            static final int ATTR_BKOVRLAY     = 0x0014;  // back side overlay name
-    /**  <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY12">Back overlay offset down</A>.**/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY12">Back overlay offset down</A>.**/
     public static final int ATTR_BKOVL_DWN    = 0x0015;  // back overlay offset down
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY11">Back overlay offset across</A>.**/
     public static final int ATTR_BKOVL_ACR    = 0x0016;  // back overlay offset across
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY12.3">Between copies status</A>. **/
-    public static final int ATTR_BTWNCPYSTS  = 0x00CE;  // indicates whether the writer is between copies of @A2A
-                                                        // multiple copy spooled file
+    public static final int ATTR_BTWNCPYSTS  = 0x00CE;  // indicates whether the writer is between copies of multiple copy spooled file @A2A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY12.6">Between files status</A>. **/
     public static final int ATTR_BTWNFILESTS  = 0x00CF;  // indicates whether the writer is between files @A2A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY13.5">Changes take effect</A>. **/
     public static final int ATTR_CHANGES      = 0x00BF;  // changed take effect @A1A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY53">Graphic character set</A>. **/
     public static final int ATTR_CHAR_ID      = 0x0037;  // set of graphic characters for this file
-    /**  <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY13">Characters per inch</A>. **/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY13">Characters per inch</A>. **/
     public static final int ATTR_CPI          = 0x0017;  // characters per inch
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY16">Coded font library name</A>. **/
     public static final int ATTR_CODEDFNTLIB  = 0x0018;  // coded font library name
@@ -247,13 +245,12 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_EDGESTITCH_NUMSTAPLES= 0x00F0;  // edgesticth number stapes @A7A    
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY193">Edge stitch reference offset</A>. **/   /* @A7A*/
     public static final int ATTR_EDGESTITCH_REFOFF   = 0x00EF;  // edgestitch reference offset @A7A
-        /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY195">Edge stitch staple offset info</A>. **/   /* @A7A*/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY195">Edge stitch staple offset info</A>. **/   /* @A7A*/
            static final int ATTR_EDGESTITCH_STPL_OFFSET_INFO   = 0x00F1;  // edgestitch staple offset info @A7A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY40">Ending page</A>.**/
     public static final int ATTR_ENDPAGE      = 0x002B;  // ending page number to print
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY40.5">End pending status</A>. **/
-    public static final int ATTR_ENDPNDSTS    = 0x00CC;  // indicates whether an end writer command has been @A2A
-                                                         // issued for this writer
+    public static final int ATTR_ENDPNDSTS    = 0x00CC;  // indicates whether an end writer command has been issued for this writer @A2A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY168">Envelope Source</A>. **/     /* @A4A */
     public static final int ATTR_ENVLP_SOURCE = 0x00D3; // envelope source       @A4A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY87">Print fidelity</A>. **/
@@ -297,8 +294,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY55">Hold spool file</A>.**/
     public static final int ATTR_HOLD         = 0x0039;  // hold the spool file
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY55.5">Hold pending status</A>. **/
-    public static final int ATTR_HOLDPNDSTS   = 0x00D1;  // indicates whether a hold writer command has been @A2A
-                                                         // issued for this writer
+    public static final int ATTR_HOLDPNDSTS   = 0x00D1;  // indicates whether a hold writer command has been issued for this writer @A2A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY125">When to hold file</A>. **/
     public static final int ATTR_HOLDTYPE     = 0x009E; // When to hold spooled file
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY206"> Image Configuration </A>.  **/
@@ -381,7 +377,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY76.5">Network where output was created</A>. **/
     public static final int ATTR_NETWORK      = 0x00BD;  // network where created @A1A
     /** NLV ID **/
-           static final int ATTR_NLV_ID         = 0x00B4; // NLV ID (ie: "2924");
+           static final int ATTR_NLV_ID       = 0x00B4; // NLV ID (ie: "2924");
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY142">NPS CCSID</A>. **/
     public static final int ATTR_NPSCCSID     = 0x008A;  // server CCSID
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY143">NPS object</A>. **/
@@ -403,8 +399,7 @@ abstract public class PrintObject implements java.io.Serializable
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY771">Object extended attribute</A>. **/
     public static final int ATTR_OBJEXTATTR   = 0x00B1; // Object extended attribute
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY77.3">On job queue status</A>. **/
-    public static final int ATTR_ONJOBQSTS   = 0x00CD;  // indicates whether the writer is on a job queue and @A2A
-                                                        // therefore is not currently running
+    public static final int ATTR_ONJOBQSTS   = 0x00CD;  // indicates whether the writer is on a job queue and therefore is not currently running @A2A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY772">Open time commands</A>. **/
     public static final int ATTR_OPENCMDS     = 0x00A0; // Open time commands on read (for SCS)
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY78">Operator controlled</A>. **/
@@ -431,7 +426,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_OVERFLOW     = 0x004C;  // overflow line number
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY171">Page at a time</A>. **/     /* @A4A */
     public static final int ATTR_PAGE_AT_A_TIME = 0x00D6;  // page at a time    @A4A
-     // Lines Per Page is 0x004D and isn't used anymore - use 0x004E instead
+    /* Lines Per Page is 0x004D and isn't used anymore.
+       Use 0x004E instead. */
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEYIFS_D">Page definition integrated file system name</A>. **/
     public static final int ATTR_PAGE_DEFINITION = -13;  // Pagedef IFSPath  /* @A7A */
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY176A">Page definition library name</A>. **/ /* @A7A*/
@@ -444,7 +440,7 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_PAGENUMBER   = 0x00D7;  // page number         @A4A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY115">Total pages</A>. **/
     public static final int ATTR_PAGES        = 0x006F;  // number of pages in spool file
-   /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY175">Total pages estimated</A>. **/                            /* @A4A */
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY175">Total pages estimated</A>. **/                            /* @A4A */
     public static final int ATTR_PAGES_EST    = 0x00DA;  // indicates if the number of pages is estimated    @A4A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY31">Degree of page rotation</A>. **/
     public static final int ATTR_PAGRTT       = 0x0024;  // degree of page rotation
@@ -505,6 +501,7 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_RECLENGTH    = 0x005F;  // record length
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY102.5">Reduce output</A>. **/
     public static final int ATTR_REDUCE       = 0x00C2;  // Reduce output @A1A
+    /* */
            static final int ATTR_RESOURCE_AVAIL = 0x00B3; // resource is available
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY98">Remote system</A>. **/
     public static final int ATTR_RMTSYSTEM    = 0x0060;  // remote system
@@ -514,11 +511,11 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_RPLCHAR      = 0x0062;  // character to replace uNPrintables with
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY101">Restart printing</A>. **/
     public static final int ATTR_RESTART      = 0x0063;  // where to restart printing at
-      /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY197">Saddle stitch number of staples</A>. **/   /* @A7A*/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY197">Saddle stitch number of staples</A>. **/   /* @A7A*/
     public static final int ATTR_SADDLESTITCH_NUMSTAPLES   = 0x00F3;  // edgesticth reference @A7A
-        /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY196">Saddle stitch reference</A>. **/   /* @A7A*/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY196">Saddle stitch reference</A>. **/   /* @A7A*/
     public static final int ATTR_SADDLESTITCH_REF   = 0x00F2;  // saddlesticth reference @A7A
-  /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY198">Saddle stitch staple offset info</A>. **/   /* @A7A*/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY198">Saddle stitch staple offset info</A>. **/   /* @A7A*/
            static final int ATTR_SADDLESTITCH_STPL_OFFSEINFO   = 0x00F4;  // saddlesticth off. info @A7A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY102">Save spooled file</A>. **/
     public static final int ATTR_SAVE         = 0x0064;  // whether to save after printing or not
@@ -544,18 +541,18 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_SPOOL        = 0x0067;  // spool the data
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY108">Spooled file name</A>. **/
     public static final int ATTR_SPOOLFILE    = 0x0068;  // spool file name
-    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY187">Spooled file Creation Authenication Method</A>. **/  /* @A7A*/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY187">Spooled file creation authentication method</A>. **/  /* @A7A*/
     public static final int ATTR_SPLF_AUTH_METHOD = 0x00E3;  // Spooled file creation auth method  @A7A
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY260">Spooled file creator</A>. **/
+    public static final int ATTR_SPLF_CREATOR = 0x013A;  // Spooled file creator  @ABA
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY255">Spooled file size</A>. **/
     public static final int ATTR_SPLF_SIZE    = 0x0136;     // AT_SPLF_SIZE  @ABA 
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY256">Spooled file size multiplier</A>.   **/
     public static final int ATTR_SPLF_SIZE_MULT = 0x0137;    // AT_SPLF_SIZE_MULT @ABA
-    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY188">Spooled file Creation Security Method</A>. **/  /* @A7A*/
+    /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY188">Spooled file creation security method</A>. **/  /* @A7A*/
     public static final int ATTR_SPLF_SECURITY_METHOD= 0x00E2;  // IPP Attributes-charset    @A7A
-    
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY109">Spooled file number</A>. **/
     public static final int ATTR_SPLFNUM      = 0x0069;  // spool file number
-
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY110">Spooled file status</A>. **/
     public static final int ATTR_SPLFSTATUS   = 0x006A;  // spool file status
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY1061">Spool SCS</A>. **/
@@ -578,7 +575,6 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_TIME_WTR_BEGAN_FILE = 0x00EC;  // time writer began file @A7A
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY190">Time writer completed processing spooled filed</A>. **/   /* @A7A*/
     public static final int ATTR_TIME_WTR_CMPL_FILE = 0x00ED;  // time writer finished file @A7A
-    
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY120">User ID</A>. **/
     public static final int ATTR_TOUSERID     = 0x0075;  // user id to send spool file to
     /** <A HREF="{@docRoot}/com/ibm/as400/access/doc-files/PrintAttributes.html#HDRKEY121">User ID address</A>. **/
@@ -668,7 +664,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x0139;  // last attribute ID @A4C @A7C @A9C @AAC
+    static final int                    MAX_ATTR_ID = 0x013A;  // last attribute ID @A4C @A7C @A9C @AAC
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";
