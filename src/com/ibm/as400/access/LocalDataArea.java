@@ -407,7 +407,7 @@ public class LocalDataArea extends DataArea implements Serializable
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
      @exception IOException                     If an error occurs while communicating with the server.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void write(String data, int dataAreaOffset, int type)      //$A2A
        throws AS400SecurityException,

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: LogicalDataAreaBeanInfo.java
 //                                                                             
@@ -73,13 +73,6 @@ public class LogicalDataAreaBeanInfo extends SimpleBeanInfo
     public BeanDescriptor getBeanDescriptor()
     {
         return new BeanDescriptor(dbeanClass);
-    }
-
-
-    // Returns the copyright.
-    private static String getCopyright()
-    {
-        return Copyright.copyright;
     }
 
 
