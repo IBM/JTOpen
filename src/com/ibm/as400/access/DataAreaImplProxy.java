@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DataAreaImplProxy.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -33,7 +33,7 @@ class DataAreaImplProxy
 extends AbstractProxyImpl
 implements DataAreaImpl
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
   DataAreaImplProxy ()
@@ -48,10 +48,10 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void clear()
        throws AS400SecurityException,
@@ -83,11 +83,11 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void create(int length, String initialValue,
                       String textDescription, String authority)
@@ -126,11 +126,11 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void create(int length, int decimalPositions,
                       BigDecimal initialValue, String textDescription,
@@ -171,11 +171,11 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectAlreadyExistsException    If the AS/400 object already exists.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectAlreadyExistsException    If the server object already exists.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void create(boolean initialValue, String textDescription,
                       String authority)
@@ -207,9 +207,9 @@ implements DataAreaImpl
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
      @exception ObjectDoesNotExistException     If the object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
    **/
    public void delete()
        throws AS400SecurityException,
@@ -232,10 +232,10 @@ implements DataAreaImpl
      @return The number of decimal positions.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public int getDecimalPositions()
         throws AS400SecurityException,
@@ -264,10 +264,10 @@ implements DataAreaImpl
         @return The size of the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public int getLength()
         throws AS400SecurityException,
@@ -296,10 +296,10 @@ implements DataAreaImpl
      @return The decimal data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    // Note that doing a read() will also set the attributes of this
    // object to what is returned from the 400, namely the length and
@@ -331,10 +331,10 @@ implements DataAreaImpl
      @return The data read from the data area.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public boolean readBoolean()
         throws AS400SecurityException,
@@ -360,14 +360,14 @@ implements DataAreaImpl
 
    /**
    Refreshes the attributes of the data area.
-   This method should be called if the underlying AS/400 data area has changed
+   This method should be called if the underlying server data area has changed
    and it is desired that this object should reflect those changes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public void refreshAttributes()
         throws AS400SecurityException,
@@ -396,10 +396,10 @@ implements DataAreaImpl
      retrieving the data area's attributes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public String retrieve(int dataAreaOffset, int dataLength)
         throws AS400SecurityException,
@@ -431,10 +431,10 @@ implements DataAreaImpl
      retrieving the data area's attributes.
      @exception AS400SecurityException          If a security or authority error occurs.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
-     @exception IllegalObjectTypeException      If the AS/400 object is not the required type.
+     @exception IllegalObjectTypeException      If the server object is not the required type.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
    **/
    public String retrieve(int dataAreaOffset, int dataLength, int type)            //$A2C
         throws AS400SecurityException,
@@ -493,10 +493,10 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(String data, int dataAreaOffset)
        throws AS400SecurityException,
@@ -530,10 +530,10 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(String data, int dataAreaOffset, int type)      //$A2C
        throws AS400SecurityException,
@@ -560,10 +560,10 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(BigDecimal data)
        throws AS400SecurityException,
@@ -590,10 +590,10 @@ implements DataAreaImpl
      @exception ConnectionDroppedException      If the connection is dropped unexpectedly.
      @exception ErrorCompletingRequestException If an error occurs before the request is completed.
      @exception InterruptedException            If this thread is interrupted.
-     @exception IOException                     If an error occurs while communicating with the AS/400.
-     @exception ObjectDoesNotExistException     If the AS/400 object does not exist.
-     @exception ServerStartupException          If the AS/400 server cannot be started.
-     @exception UnknownHostException            If the AS/400 system cannot be located.
+     @exception IOException                     If an error occurs while communicating with the server.
+     @exception ObjectDoesNotExistException     If the server object does not exist.
+     @exception ServerStartupException          If the server cannot be started.
+     @exception UnknownHostException            If the server cannot be located.
    **/
    public void write(boolean data)
        throws AS400SecurityException,

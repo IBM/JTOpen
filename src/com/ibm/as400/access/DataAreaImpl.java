@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
-//                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
-//                                                                             
+//
+// JTOpen (IBM Toolbox for Java - OSS version)
+//
 // Filename: DataAreaImpl.java
-//                                                                             
-// The source code contained herein is licensed under the IBM Public License   
-// Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
-// others. All rights reserved.                                                
-//                                                                             
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2004 International Business Machines Corporation and
+// others. All rights reserved.
+//
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -123,7 +123,7 @@ interface DataAreaImpl
            IOException;
 
   // For CharacterDataArea, LocalDataArea:
-  String retrieve(int dataAreaOffset, int dataLength)      
+  String retrieve(int dataAreaOffset, int dataLength)
     throws AS400SecurityException,
            ErrorCompletingRequestException,
            IllegalObjectTypeException,
@@ -145,7 +145,7 @@ interface DataAreaImpl
     throws IOException;
 
   // For CharacterDataArea, LocalDataArea:
-  void write(String data, int dataAreaOffset)              
+  void write(String data, int dataAreaOffset)
     throws AS400SecurityException,
            ErrorCompletingRequestException,
            InterruptedException,
