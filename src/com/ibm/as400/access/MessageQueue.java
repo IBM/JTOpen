@@ -650,10 +650,10 @@ need replies.
       throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
     }
 
-    if (handle_ == null)
-    {
+    // @K1D if (handle_ == null)
+    //@K1D {
       load(); // Need to get the length_
-    }
+    //@K1D }
 
     return new QueuedMessageEnumeration(this, length_);
   }
