@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ import java.util.Vector;
 **/
 abstract class PermissionAccess 
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
     AS400 as400_;
     private int ccsid_;         // @A4A
@@ -146,7 +146,8 @@ abstract class PermissionAccess
         QSYSObjectPathName prgName=new QSYSObjectPathName("QSYS","QSYRTVUA","PGM");
 
         ProgramParameter[] parmList=new ProgramParameter[8];
-        parmList=getParameters(DEFAULT_LENGTH,objName);
+        int vrm = as400_.getVRM();
+        parmList=getParameters(DEFAULT_LENGTH, objName, vrm >= 0x050300);
 
         ProgramCall rtvUsersAUT=new ProgramCall(as400_);
         rtvUsersAUT.setProgram(prgName.getPath(),parmList);
@@ -182,7 +183,7 @@ abstract class PermissionAccess
         if(requiredLength>receiverLength)
         {
             // If there is not enough space provided, retrieve data again.
-            parmList=getParameters(requiredLength+400,objName);
+            parmList = getParameters(requiredLength+400, objName, vrm >= 0x050300);
             rtvUsersAUT.setProgram(prgName.getPath(),parmList);
             if (rtvUsersAUT.run()!=true)
             {
@@ -308,7 +309,7 @@ abstract class PermissionAccess
      * @return The program parameters of the program call.
      *
     **/
-    ProgramParameter[] getParameters(int length, String objName)
+    ProgramParameter[] getParameters(int length, String objName, boolean useUnicode)
     {
 
         ProgramParameter[] parmList=new ProgramParameter[8];
@@ -324,19 +325,75 @@ abstract class PermissionAccess
         AS400Text text8 = new AS400Text(8, getCcsid(), as400_); //@A2C
         parmList[4]=new ProgramParameter(text8.toBytes("RTUA0100"));
 
-        int objnameLength=objName.length();
-        AS400Text text = new AS400Text(objnameLength, getCcsid(), as400_); //@A2C
+        if (!useUnicode)
+        {
+          // Old way.
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.DIAGNOSTIC, "PermissionAccess creating QSYRTVUA parameters using job CCSID.");
+          }
+          int objnameLength = objName.length();
+          AS400Text text = new AS400Text(objnameLength, getCcsid(), as400_); //@A2C
 
-        //@A3A: Need to use uppercase name if it is a DLO object because
-        // ccsid 5026 currently doesn't convert a lowercase name to an
-        // uppercase one. Normally, case shouldn't matter since
-        // the AS/400 uppercases any QDLS names for us automatically.
-        if (objName.toUpperCase().startsWith("/QDLS/"))      //@A3A
-          objName = objName.toUpperCase();                   //@A3A
+          //@A3A: Need to use uppercase name if it is a DLO object because
+          // ccsid 5026 currently doesn't convert a lowercase name to an
+          // uppercase one. Normally, case shouldn't matter since
+          // the AS/400 uppercases any QDLS names for us automatically.
+          if (objName.toUpperCase().startsWith("/QDLS/"))      //@A3A
+            objName = objName.toUpperCase();                   //@A3A
 
-        parmList[5]=new ProgramParameter(text.toBytes(objName));
+          parmList[5]=new ProgramParameter(text.toBytes(objName));
 
-        parmList[6]=new ProgramParameter(bin4.toBytes(objnameLength));
+          parmList[6]=new ProgramParameter(bin4.toBytes(objnameLength));
+        }
+        else
+        {
+          // New way (V5R3 and higher).
+          if (Trace.traceOn_)
+          {
+            Trace.log(Trace.DIAGNOSTIC, "PermissionAccess creating QSYRTVUA parameters using UTF-16 (CCSID 1200).");
+          }
+          // This allows us to pass a Unicode path so we can access permissions
+          // for objects that have characters that aren't in our job CCSID. Hurray!
+          // We use CCSID 1200 for UTF-16.
+          String upperName = objName.toUpperCase();
+          if (upperName.startsWith("/QDLS/")) objName = upperName;
+          byte[] pathNameBytes = null;
+          try
+          {
+            pathNameBytes = CharConverter.stringToByteArray(1200, objName);
+          }
+          catch(UnsupportedEncodingException uee)
+          {
+            if (Trace.traceOn_)
+            {
+              Trace.log(Trace.WARNING, "PermissionAccess could not load converter table for CCSID 1200. Manually converting path name.");
+            }
+            int pathLen = objName.length();
+            pathNameBytes = new byte[pathLen*2];
+            for (int bc=0; bc<pathLen; ++bc)
+            {
+              char pathChar = objName.charAt(bc);
+              pathNameBytes[bc*2] = (byte)(pathChar >> 8);
+              pathNameBytes[bc*2+1] = (byte)(pathChar);
+            }
+          }
+          byte[] qlgPathNameTStructure = new byte[32 + pathNameBytes.length];
+          BinaryConverter.intToByteArray(1200, qlgPathNameTStructure, 0); // CCSID
+          // 2-byte country or region ID... x0000 = use current job settings
+          // 3-byte language ID... 0x000000 = use current job settings
+          // 3 bytes reserved
+          BinaryConverter.intToByteArray(2, qlgPathNameTStructure, 12); // path type indicator: 2 means pathname is a character string and has a two-byte path delimiter
+          BinaryConverter.intToByteArray(pathNameBytes.length, qlgPathNameTStructure, 16); // length of path name
+          char delimiter = '/'; // path name delimiter
+          qlgPathNameTStructure[20] = (byte)(delimiter >> 8); // high-byte
+          qlgPathNameTStructure[21] = (byte)delimiter; // low-byte
+          // 10 bytes reserved
+          System.arraycopy(pathNameBytes, 0, qlgPathNameTStructure, 32, pathNameBytes.length); // path name
+
+          parmList[5] = new ProgramParameter(qlgPathNameTStructure);
+          parmList[6] = new ProgramParameter(bin4.toBytes(-1));
+        }
 
         byte[] errorInfo = new byte[32];
         parmList[7] = new ProgramParameter( errorInfo, 0 );
