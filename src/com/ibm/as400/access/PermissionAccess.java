@@ -668,7 +668,7 @@ abstract class PermissionAccess
         "NEWPGP("+primaryGroup+") " +
         "RVKOLDAUT("+revokeOldAut+")";
       cmd.setCommand(cmdString);
-      cmd.setThreadSafe(false); // CHGPGP isn't threadsafe.
+//      cmd.setThreadSafe(false); // CHGPGP isn't threadsafe.
       if(cmd.run()!=true)
       {
         AS400Message[] msgList=cmd.getMessageList();
