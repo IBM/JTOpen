@@ -1,21 +1,23 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: QSYSPermission.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
 
+import java.io.IOException;                                          // @A2a
+
 /**
 <P>The QSYSPermission class represents the permissions for the specified user 
-of an object in the traditional AS/400 library structure stored in QSYS.LIB.  
+of an object in the traditional iSeries library structure stored in QSYS.LIB.  
 <P>A object stored in QSYS.LIB can set its authorities by setting a single
  object authority value or by setting the individual object and data authorities.
 <P>Use <i>getObjectAuthority()</i> to display the current object authority or
@@ -27,7 +29,7 @@ values: alter, exist, management, operational, reference.  Use the
 appropriate set methods (<i>setAlter()</i>, <i>setExistence()</i>, 
 <i>setManamagement()</i>, <i>setOperational()</i>, or <i>setReference()</i>) 
 to set the value on or off.  After all values are set, use the <i>commit()</i> 
-method from the Permission class to send the changes to the AS/400.
+method from the Permission class to send the changes to the server.
 
 
 <P>The data authority can be set to one or more of the following values: 
@@ -35,21 +37,21 @@ add, delete, execute, read, or update. Use the appropriate
 set methods (<i>setAdd()</i>, <i>setDelete()</i>, <i>setExecute()</i>, 
 <i>setRead()</i>, or <i>setUpdate()</i>) to set the value on or off. After all 
 the values are set, use the <i>commit()</i> method from the Permission class 
-to send the changes to the AS/400. 
+to send the changes to the server. 
 
 <P>The single authority actually represents a combination of the detailed object
 authorities and the data authorities.  Selecting a single authority will 
 automatically turn on the appropriate detailed authorities.  Likewise, selecting
- various detailed authotiries will change the appropriate single authority values.
+ various detailed authorities will change the appropriate single authority values.
 
 
-<P>For more information on object authority commands, refer AS/400 CL 
+<P>For more information on object authority commands, refer to iSeries CL 
 commands GRTOBJAUT (Grant object authority) and EDTOBJAUT (Edit object authority).
 **/
 
 public class QSYSPermission extends UserPermission
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     
 
@@ -75,14 +77,76 @@ public class QSYSPermission extends UserPermission
         return;
     }
 
-   /** 
-     * Returns the copyright.
-    **/
-    private static String getCopyright()
+
+    // @A2a
+    /**
+     * Pad or truncate the given string to the
+     * given length. If the given String is null, an empty String
+     * of the correct length will be returned.
+     *
+     * @param s The string to pad or truncate.
+     * @param desiredLength The length to pad or truncate the given string to.
+     * @return The padded or truncated string.
+     */
+    static String adjustLength(String s, int desiredLength)
     {
-        return Copyright.copyright;
+      if (s == null) s = "";
+      int sLength = s.length();
+      if (sLength == desiredLength) return s;
+      else if (sLength < desiredLength)
+      {
+        StringBuffer buffer = new StringBuffer(s);
+        for(int i = sLength; i < desiredLength; i++)
+          buffer.append(' ');
+        return buffer.toString();
+      }
+      else return s.substring(0, desiredLength);
     }
-    
+
+
+    // @A2d Deleted getCopyright().
+
+    // @A3a - This logic was formerly in PermissionAccessQSYS.getChgCommand().
+   /** 
+     * Returns the current object authorities and data authorities.
+     * @param objectIsAuthList true if the object is an AUTL object; false otherwise.
+     * @return The current authorities, as a blank-separated list.
+     *
+    **/
+    String getAuthorities(boolean objectIsAuthList)
+    {
+        String authority="";
+
+        if (isManagement())
+             authority=authority+"*OBJMGT ";
+        if (isExistence())
+             authority=authority+"*OBJEXIST ";
+        if (isAlter())
+             authority=authority+"*OBJALTER ";
+        if (isReference())
+             authority=authority+"*OBJREF ";
+        if (isOperational())
+             authority=authority+"*OBJOPR ";
+        if (isAdd())
+             authority=authority+"*ADD ";
+        if (isDelete())
+             authority=authority+"*DLT ";
+        if (isRead())
+             authority=authority+"*READ ";
+        if (isUpdate())
+             authority=authority+"*UPD ";
+        if (isExecute())
+             authority=authority+"*EXECUTE ";
+        if (objectIsAuthList && isAuthorizationListManagement())
+             authority=authority+"*AUTLMGT";
+
+        if (authority.equals(""))
+            authority = "*EXCLUDE";
+
+        return authority;
+    }
+
+
     /**
      * Returns the object authority of the user specified as a single value.
      * @return The object authority of the user specified as a single value. 
@@ -124,6 +188,133 @@ public class QSYSPermission extends UserPermission
             default :
                 return "USER DEFINED";
         }
+    }
+
+
+    // @A2a
+    /**
+     * Determines if the user has the given authorities to the object on the server.
+     * Returns true if the user has <em>at least all</em> of the specified authorities,
+     * and false otherwise.
+     * @param system The server.
+     * @param userProfileName The name of the user profile.
+     * @param objectPath The full path of the object. For example, "/QSYS.LIB/FRED.LIB".
+     * @param authorityList The list of authorities.  At least one authority must be specified.
+     * Possible authorities include:
+     * <pre>
+     * *EXCLUDE
+     * *ALL
+     * *CHANGE
+     * *USE
+     * *AUTLMGT
+     * *OBJALTER
+     * *OBJOPR
+     * *OBJMGT
+     * *OBJEXIST
+     * *OBJREF
+     * *READ
+     * *ADD
+     * *UPD
+     * *DLT
+     * *EXECUTE
+     * </pre>
+     * @return true if the user has all the specified authorities to the object.
+     * @exception AS400Exception If the server returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the server.
+     */
+    public static boolean hasObjectAuthorities(AS400 system, String userProfileName, String objectPath, String[] authorityList)
+      throws AS400Exception,
+             AS400SecurityException,
+             ErrorCompletingRequestException,
+             InterruptedException,
+             IOException,
+             ObjectDoesNotExistException
+    {
+      if (system == null) throw new NullPointerException("system");
+      if (userProfileName == null) throw new NullPointerException("userProfileName");
+      if (objectPath == null) throw new NullPointerException("objectPath");
+      if (authorityList == null) throw new NullPointerException("authorityList");
+      if (authorityList.length == 0) {
+        Trace.log (Trace.ERROR, "No authorities were specified.");
+        throw new ExtendedIllegalArgumentException("authorityList",
+                      ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      }
+
+      boolean rcStatus = true;
+
+      String program   = "/QSYS.LIB/QSYCUSRA.PGM";
+      String profile   = adjustLength(userProfileName, 10);
+      QSYSObjectPathName qsysObjPath = new QSYSObjectPathName(objectPath);
+      String attribute = "*" + adjustLength(qsysObjPath.getObjectType(), 9);
+      String qualObj   = adjustLength(qsysObjPath.getObjectName(), 10) + adjustLength(qsysObjPath.getLibraryName(), 10);
+
+      String authorities = "";
+      for (int i=0; i< authorityList.length; i++)
+        authorities += adjustLength(authorityList[i], 10);
+
+      try
+      {
+        ProgramCall newCall = new ProgramCall(system);
+        ProgramParameter paramList[] = new ProgramParameter[8];
+
+        paramList[0] = new ProgramParameter(1);
+        paramList[0].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+        paramList[1] = new ProgramParameter(CharConverter.stringToByteArray(system, profile));
+        paramList[2] = new ProgramParameter(CharConverter.stringToByteArray(system, qualObj));
+        paramList[3] = new ProgramParameter(CharConverter.stringToByteArray(system, attribute));
+        paramList[4] = new ProgramParameter(CharConverter.stringToByteArray(system, authorities));
+        paramList[5] = new ProgramParameter(BinaryConverter.intToByteArray(authorityList.length)); // # of Authorities
+        paramList[6] = new ProgramParameter(BinaryConverter.intToByteArray(1));  // Call Level
+
+        // Input/Output parameter. Returns information as follows :
+        // First four bytes = size of the error code structure.
+        // Next four bytes = bytes available
+        // Next seven bytes = message id
+        // Last byte = reserved / Never used.
+        byte [] parmByt7 = new byte[16];
+        System.arraycopy(BinaryConverter.intToByteArray(16), 0, parmByt7, 0, 4);
+
+        paramList[7] = new ProgramParameter(parmByt7, 16);
+        paramList[7].setParameterType(ProgramParameter.PASS_BY_REFERENCE);
+
+        newCall.setProgram(program, paramList);
+
+        if (newCall.run() != true)
+        {
+          // If any error message return.
+          AS400Message[] msgList = newCall.getMessageList();
+          throw new AS400Exception(msgList);
+        }
+
+        byte [] errCode = paramList[7].getOutputData();
+
+        // Get the available bytes from the input/output parameter (8th param).
+        // If the available bytes is greater than 0 there was an error.
+        if (BinaryConverter.byteArrayToInt(errCode, 4) > 0)
+        {
+          byte[] message = new byte[7];
+          System.arraycopy(errCode, 8, message, 0, 7);
+          String msgId = CharConverter.byteArrayToString(system, message);
+          Trace.log(Trace.ERROR, "Error code from QSYCUSRA: " + msgId);
+          throw new AS400Exception(new AS400Message(msgId,""));
+        }
+
+        String output = CharConverter.byteArrayToString(system, paramList[0].getOutputData());
+
+        if (!output.startsWith("Y"))
+          rcStatus = false;
+      }
+      catch (java.beans.PropertyVetoException e)
+      {
+        // This should never happen.
+        Trace.log(Trace.ERROR, e.toString());
+      }
+
+      return rcStatus;
     }
 
 

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: PermissionAccessQSYS.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ import java.beans.PropertyVetoException;
 **/
 class PermissionAccessQSYS extends PermissionAccess
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
     /**
@@ -113,13 +113,14 @@ class PermissionAccessQSYS extends PermissionAccess
     }
 
     /**
-     * Returns the command to add a authorized user.
+     * Returns the command to add an authorized user.
     **/
     private static CommandCall getAddCommand(AS400 sys, String objName,UserPermission permission)
     {
         QSYSObjectPathName objectPathName = new QSYSObjectPathName(objName);
         String objectType = objectPathName.getObjectType();
-        if (!objectType.equals("AUTL"))
+        boolean isAuthList = objectType.equals("AUTL");  // @B5a
+        if (!isAuthList)                                 // @B5c
             return getChgCommand(sys,objName,permission);
         QSYSPermission qsysPermission = (QSYSPermission)permission;
         String userProfile=qsysPermission.getUserID();
@@ -128,14 +129,14 @@ class PermissionAccessQSYS extends PermissionAccess
         String command = "ADDAUTLE"
                          +" AUTL("+object+")"
                          +" USER("+userProfile+")"
-                         +" AUT(*EXCLUDE)";
+                         +" AUT("+qsysPermission.getAuthorities(isAuthList)+")"; // @B5c
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(false); // ADDAUTLE isn't threadsafe.  @A2A @A3C
         return cmd;               //@A2C
     }
 
     /**
-     * Returns the command to clear a authorized user's permission.
+     * Returns the command to clear an authorized user's permission.
     **/
     private static CommandCall getClrCommand(AS400 sys, String objName,UserPermission permission)
     {
@@ -173,11 +174,11 @@ class PermissionAccessQSYS extends PermissionAccess
     }
 
     /**
-     * Returns the command to change a authorized user's permission.
+     * Returns the command to change an authorized user's permission.
      * @param objName The object that the authorized information will be
      *  set to.
      * @param permission The permission that will be changed.
-     * @return The command to remove a authorized user.
+     * @return The command to remove an authorized user.
      *
     **/
     private static CommandCall getChgCommand(AS400 sys, String objName,UserPermission permission)
@@ -194,58 +195,21 @@ class PermissionAccessQSYS extends PermissionAccess
         if (objectType.toUpperCase().equals("MBR"))
             objectType = "FILE";
 
-        boolean objMgt = qsysPermission.isManagement();
-        boolean objExist = qsysPermission.isExistence();
-        boolean objAlter = qsysPermission.isAlter();
-        boolean objRef = qsysPermission.isReference();
-        boolean objOpr = qsysPermission.isOperational();
-        boolean datAdd = qsysPermission.isAdd();
-        boolean datDlt = qsysPermission.isDelete();
-        boolean datRead = qsysPermission.isRead();
-        boolean datUpdate = qsysPermission.isUpdate();
-        boolean datExecute = qsysPermission.isExecute();
-        boolean autListManagement = qsysPermission.isAuthorizationListManagement();
-        String authority="";
-
-        if(objMgt==true)
-             authority=authority+"*OBJMGT ";
-        if(objExist==true)
-             authority=authority+"*OBJEXIST ";
-        if(objAlter==true)
-             authority=authority+"*OBJALTER ";
-        if(objRef==true)
-             authority=authority+"*OBJREF ";
-        if(objOpr==true)
-             authority=authority+"*OBJOPR ";
-        if(datAdd==true)
-             authority=authority+"*ADD ";
-        if(datDlt==true)
-             authority=authority+"*DLT ";
-        if(datRead==true)
-             authority=authority+"*READ ";
-        if(datUpdate==true)
-             authority=authority+"*UPD ";
-        if(datExecute==true)
-             authority=authority+"*EXECUTE ";
-        if(objectType.equals("AUTL")&&autListManagement)
-             authority=authority+"*AUTLMGT";
-        if (authority.equals(""))
-            authority = "*EXCLUDE";
-
         String command;
+        boolean isAuthList = objectType.equals("AUTL");  // @B5a
         if (objectType.equals("AUTL"))
         {
             command = "CHGAUTLE"
                       +" AUTL("+object+")"
                       +" USER("+userProfile+")"
-                      +" AUT("+authority+")";
+                      +" AUT("+qsysPermission.getAuthorities(isAuthList)+")";  // @B5c
         } else
         {
             command="GRTOBJAUT"
                     +" OBJ("+object+")"
                     +" OBJTYPE(*"+objectType+")"
                     +" USER("+userProfile+")"
-                    +" AUT("+authority+")";
+                    +" AUT("+qsysPermission.getAuthorities(isAuthList)+")";  // @B5c
         }
         CommandCall cmd = new CommandCall(sys, command); //@A2C
         cmd.setThreadSafe(false); // CHGAUTLE,GRTOBJAUT not threadsafe.  @A2A @A3C
@@ -253,10 +217,10 @@ class PermissionAccessQSYS extends PermissionAccess
     }
 
     /**
-     * Returns the command to remove a authorized user.
+     * Returns the command to remove an authorized user.
      * @param objName The object the authorized user will be removed from.
      * @param userName The profile name of the authorized user.
-     * @return The command to remove a authorized user.
+     * @return The command to remove an authorized user.
      *
     **/
     private static CommandCall getRmvCommand(AS400 sys, String objName,String userName)
@@ -383,8 +347,9 @@ class PermissionAccessQSYS extends PermissionAccess
     }
 
     /**
-     * Returns the authorized users' permissions.
-     * @return A vector of authorized users' permission.
+     * Sets the permission of a user for an object.
+     * @param objName The object that the user permission will be set to.
+     * @param permission The permission of the authorized user.
      * @exception AS400Exception If the server returns an error message.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception ConnectionDroppedException If the connection is dropped unexpectedly.
