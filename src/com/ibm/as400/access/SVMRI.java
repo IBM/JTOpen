@@ -20,8 +20,6 @@ import java.util.ListResourceBundle;
  **/
 public class SVMRI extends ListResourceBundle
 {
-    private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
-
     public Object[][] getContents()
     {
         return resources;
@@ -53,7 +51,7 @@ public class SVMRI extends ListResourceBundle
         { "QADLACTJ_DES" , "Additional number of active jobs" },
         { "QADLSPLA_DES" , "Spooling control block additional storage" },
         { "QADLTOTJ_DES" , "Additional number of total jobs" },
-        { "QALWJOBITP_DES", "Allow jobs to be interrupted" },
+        { "QALWJOBITP_DES", "Allow jobs to be interrupted" },  // @G1A
         { "QALWOBJRST_DES" , "Allow object restore option" },
         { "QALWUSRDMN_DES" , "Allow user domain objects in libraries" },
         { "QASTLVL_DES" , "User assistance level" },
@@ -123,7 +121,7 @@ public class SVMRI extends ListResourceBundle
         { "QLMTDEVSSN_DES" , "Limit device sessions" },
         { "QLMTSECOFR_DES" , "Limit security officer device access" },
         { "QLOCALE_DES" , "Locale path name" },
-        { "QLOGOUTPUT_DES" , "Produce printer output for job log" },
+        { "QLOGOUTPUT_DES" , "Produce printer output for job log" },  // @G1A
         { "QMAXACTLVL_DES" , "Maximum activity level of server" },
         { "QMAXJOB_DES" , "Maximum number of jobs" },              //@D2a
         { "QMAXSGNACN_DES" , "Action to take for failed signon attempts" },

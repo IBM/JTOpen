@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2003 International Business Machines Corporation and
+// Copyright (C) 1997-2005 International Business Machines Corporation and
 // others. All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -216,15 +216,15 @@ public class MRI extends ListResourceBundle
         { "EXC_INTERNAL_ERROR", "Internal error occurred." },
         // @E5D { "EXC_IMPLEMENTATION_NOT_FOUND", "Implementation class not found." },
 
-        { "EXC_KERBEROS_TICKET_NOT_VALID_CONSISTENCY", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_CONSISTENCY", "Authentication token is not valid.  Consistency checks failed." },  // @F1A @F5C
         { "EXC_KERBEROS_TICKET_NOT_VALID_CREDANTIAL_STRUCTURE", "Kerberos ticket is not valid." },  // @F1A
         { "EXC_KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID", "Kerberos ticket is not valid." },  // @F1A
         { "EXC_KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID", "Kerberos ticket is not valid." },  // @F1A
-        { "EXC_KERBEROS_TICKET_NOT_VALID_EIM", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_EIM", "Authentication token is not valid.  EIM configuration error detected." },  // @F1A @F5C
         { "EXC_KERBEROS_TICKET_NOT_VALID_MECHANISM", "Kerberos ticket is not valid." },  // @F1A
-        { "EXC_KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES", "Authentication token is not valid.  Token maps to multiple user profile names." },  // @F1A @F5C
         { "EXC_KERBEROS_TICKET_NOT_VALID_RETRIEVE", "Kerberos service ticket could not be retreived." },  // @F1A
-        { "EXC_KERBEROS_TICKET_NOT_VALID_SIGNATURE", "Kerberos ticket is not valid." },  // @F1A
+        { "EXC_KERBEROS_TICKET_NOT_VALID_SIGNATURE", "Kerberos token or identity token contains incorrect signature." },  // @F1A @F5C
         { "EXC_KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE", "Kerberos ticket is not valid." },  // @F1A
         { "EXC_KERBEROS_TICKET_NOT_VALID_VERIFICATION", "Kerberos ticket is not valid." },  // @F1A
 
@@ -274,7 +274,7 @@ public class MRI extends ListResourceBundle
         { "EXC_PASSWORD_OLD_NOT_VALID", "Old password is not valid." },
         { "EXC_PASSWORD_PRE_V2R2", "Password has pre-V2R2 encryption." },  // @F1A
         { "EXC_PATH_NOT_FOUND", "Path name was not found." },
-        { "EXC_PROFILE_TOKEN_NOT_VALID", "Profile token is not valid." },  // @F1A
+        { "EXC_PROFILE_TOKEN_NOT_VALID", "Profile token or identity token is not valid." },  // @F1A @F5C
         { "EXC_PROFILE_TOKEN_NOT_VALID_MAXIMUM", "Profile token is not valid.  Maximum number of profile tokens for the system already generated." },  // @F1A
         { "EXC_PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE", "Profile token is not valid.  Profile token is not regenerable." },  // @F1A
         { "EXC_PROFILE_TOKEN_NOT_VALID_TIMEOUT_NOT_VALID", "Profile token is not valid.  Timeout interval is not valid." },  // @F1A
@@ -298,8 +298,14 @@ public class MRI extends ListResourceBundle
         { "EXC_SECURITY_GENERAL", "General security error." },
         { "EXC_SECURITY_INVALID_STATE", "Internal error in the security manager." },
         { "EXC_SEND_REPLY_INVALID", "Send reply indicator is not valid." },
+        { "EXC_SERVER_CONVERSION_ERROR", "An error occurred on the server while converting data between code pages." },  // @F5A
+        { "EXC_SERVER_CRYPTO_ERROR", "An error occurred on the server while using cryptographic interfaces." },  // @F5A
+        { "EXC_SERVER_EIM_ERROR", "An error occurred on the server while using EIM interfaces." },  // @F5A
         { "EXC_SERVER_ID_NOT_VALID", "Server ID is not valid." },  // @F1A
+        { "EXC_SERVER_KEY_NOT_FOUND", "The server could not find the public key." },  // @F5A
         { "EXC_SERVER_NOT_STARTED", "Unable to start the server." },
+        { "EXC_SERVER_NO_MEMORY", "Server was not able to allocate space needed for authorization." },  // @F5A
+        { "EXC_SERVER_TOKEN_VERSION", "The server version does support the token version." },  // @F5A
         { "EXC_SHARE_VIOLATION", "Sharing violation occurred." },
         { "EXC_SIGNON_CANCELED", "Signon was canceled." },
         { "EXC_SIGNON_CONNECT_FAILED", "Failed to connect to signon server." },

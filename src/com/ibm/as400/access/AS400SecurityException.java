@@ -209,7 +209,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int PASSWORD_NONE = 46;
     /**
-     The return code indicating that the profile token is not valid.
+     The return code indicating that the profile token or identity token is not valid.
      **/
     public static final int PROFILE_TOKEN_NOT_VALID = 47;
     /**
@@ -229,7 +229,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int PROFILE_TOKEN_NOT_VALID_NOT_REGENERABLE = 51;
     /**
-     The return code indicating that the Kerberos ticket is not valid.  Consistency checks failed.
+     The return code indicating that the authentication token is not valid.  Consistency checks failed.
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_CONSISTENCY = 52;
     /**
@@ -241,7 +241,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID = 54;
     /**
-     The return code indicating that the Kerberos ticket is not valid. Kerberos token contains incorrect signature.
+     The return code indicating that the authentication token is not valid. Kerberos token or identity token contains incorrect signature.
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_SIGNATURE = 55;
     /**
@@ -257,7 +257,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_VERIFICATION = 58;
     /**
-     The return code indicating that the Kerberos ticket is not valid.  EIM configuration error detected.
+     The return code indicating that the authentication token is not valid.  EIM configuration error detected.
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_EIM = 59;
     /**
@@ -265,7 +265,7 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE = 60;
     /**
-     The return code indicating that the Kerberos ticket is not valid.  Kerberos principal maps to multiple user profile names.
+     The return code indicating that the authentication token is not valid.  Token maps to multiple user profile names.
      **/
     public static final int KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES = 61;
     /**
@@ -304,6 +304,30 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
      The return code indicating that no mapping exists.
      **/
     public static final int GENERATE_TOKEN_NO_MAPPING = 70;
+    /**
+     The return code indicating that the server was not able to allocate space needed for authorization.
+     **/
+    public static final int SERVER_NO_MEMORY = 71;
+    /**
+     The return code indicating that an error occurred on the server while converting data between code pages.
+     **/
+    public static final int SERVER_CONVERSION_ERROR = 72;
+    /**
+     The return code indicating that an error occurred on the server while using EIM interfaces.
+     **/
+    public static final int SERVER_EIM_ERROR = 73;
+    /**
+     The return code indicating that an error occurred on the server while using cryptographic interfaces.
+     **/
+    public static final int SERVER_CRYPTO_ERROR = 74;
+    /**
+     The return code indicating that the server version does support the token version.
+     **/
+    public static final int SERVER_TOKEN_VERSION = 75;
+    /**
+     The return code indicating that the server could not find the public key.
+     **/
+    public static final int SERVER_KEY_NOT_FOUND = 76;
 
 
     /**
@@ -475,6 +499,18 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
                 return "EXC_GENERATE_TOKEN_CAN_NOT_OBTAIN_NAME";
             case GENERATE_TOKEN_NO_MAPPING:
                 return "EXC_GENERATE_TOKEN_NO_MAPPING";
+            case SERVER_NO_MEMORY:
+                return "EXC_SERVER_NO_MEMORY";
+            case SERVER_CONVERSION_ERROR:
+                return "EXC_SERVER_CONVERSION_ERROR";
+            case SERVER_EIM_ERROR:
+                return "EXC_SERVER_EIM_ERROR";
+            case SERVER_CRYPTO_ERROR:
+                return "EXC_SERVER_CRYPTO_ERROR";
+            case SERVER_TOKEN_VERSION:
+                return "EXC_SERVER_TOKEN_VERSION";
+            case SERVER_KEY_NOT_FOUND:
+                return "EXC_SERVER_KEY_NOT_FOUND";
             default:
                 return "EXC_UNKNOWN";   // Bad return code was provided.
         }

@@ -1543,6 +1543,24 @@ class AS400ImplRemote implements AS400Impl
             case 0x0004000E:
                 // General security errors, function not performed: user not authorized to generate token for another user.
                 return new AS400SecurityException(AS400SecurityException.GENERATE_TOKEN_AUTHORITY_INSUFFICIENT);
+            case 0x0004000F:
+                // General security errors, function not performed: no memory is available to allocate space needed for authorization.
+                return new AS400SecurityException(AS400SecurityException.SERVER_NO_MEMORY);
+            case 0x00040010:
+                // General security errors, function not performed: error occurred when converting data between code pages.
+                return new AS400SecurityException(AS400SecurityException.SERVER_CONVERSION_ERROR);
+            case 0x00040011:
+                // General security errors, function not performed: error occurred using EIM interfaces.
+                return new AS400SecurityException(AS400SecurityException.SERVER_EIM_ERROR);
+            case 0x00040012:
+                // General security errors, function not performed: error occurred using cryptographic interfaces.
+                return new AS400SecurityException(AS400SecurityException.SERVER_CRYPTO_ERROR);
+            case 0x00040013:
+                // General security errors, function not performed: this version of token is not supported by this version of code.
+                return new AS400SecurityException(AS400SecurityException.SERVER_TOKEN_VERSION);
+            case 0x00040014:
+                // General security errors, function not performed: public key not found.
+                return new AS400SecurityException(AS400SecurityException.SERVER_KEY_NOT_FOUND);
             case 0x00050001:
                 // Exit program errors: error processing exit point.
                 return new AS400SecurityException(AS400SecurityException.EXIT_POINT_PROCESSING_ERROR);
@@ -1556,7 +1574,7 @@ class AS400ImplRemote implements AS400Impl
                 // Exit program errors: user exit program denied request.
                 return new AS400SecurityException(AS400SecurityException.EXIT_PROGRAM_DENIED_REQUEST);
             case 0x00060001:
-                // Authentication token errors: profile token not valid.
+                // Authentication token errors: profile token or identity token not valid.
                 return new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID);
             case 0x00060002:
                 // Authentication token errors: maximum number of profile tokens for the system already generated.
@@ -1580,25 +1598,25 @@ class AS400ImplRemote implements AS400Impl
                 // Authentication token errors: credentials not available or not valid for this context.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NOT_VALID);
             case 0x00060009:
-                // Authentication token errors: Kerberos token contains incorrect signature.
+                // Authentication token errors: Kerberos token or identity token contains incorrect signature.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_SIGNATURE);
             case 0x0006000A:
                 // Authentication token errors: credentials no longer valid.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CREDENTIAL_NO_LONGER_VALID);
             case 0x0006000B:
-                // Authentication token errors: consistency checks on the credantial structure failed.
+                // Authentication token errors: consistency checks on the credantial structure failed, or a mismatch exists between an authentication token and information provided to the identity token functions.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_CONSISTENCY);
             case 0x0006000C:
                 // Authentication token errors: failure of verification routine.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_VERIFICATION);
             case 0x0006000D:
-                // Authentication token errors: EIM configuration error.
+                // Authentication token errors: EIM configuration error, or an EIM identifier was not found, or an application identifier was not found.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_EIM);
             case 0x0006000E:
                 // Authentication token errors: Kerberos principal maps to a system profile which can not be used to sign on.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_SYSTEM_PROFILE);
             case 0x0006000F:
-                // Authentication token errors: Kerberos principal maps to multiple user profile names.
+                // Authentication token errors: Kerberos principal maps to multiple user profile names, or more than one EIM entry was found for an identity token.
                 return new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_MULTIPLE_PROFILES);
             case 0x00070001:
                 // Generate token errors: can not connect to the system EIM domain.
