@@ -590,21 +590,21 @@
     <fail message="Can't find cvs executable." unless="cvsExeExists"/>
     <cvspass cvsroot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400" password="anonymous" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="src" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="src" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="contrib" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="contrib" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="include" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="include" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="micro" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="micro" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="build" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="build" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="stubs" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="stubs" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="license.html" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="license.html" dest="${build}" passfile="mypasswd"/>
     <cvs cvsRoot=":pserver:anoncvs@www-124.ibm.com:/usr/cvs/jt400"
-             command="checkout -P -R -A" package="readme.html" dest="${build}" passfile="mypasswd"/>
+             command="checkout -P -A" package="readme.html" dest="${build}" passfile="mypasswd"/>
   </target>
 
 
