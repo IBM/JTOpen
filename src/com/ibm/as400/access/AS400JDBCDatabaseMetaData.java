@@ -3116,7 +3116,7 @@ implements DatabaseMetaData
 
 
                 // Add order by
-                selectStmt.append ("ORDER BY SPECIFIC_SCHEMA, SPECIFIC_NAME");
+                selectStmt.append ("ORDER BY SPECIFIC_SCHEMA, SPECIFIC_NAME, ORDINAL_POSITION");        // Added ORDINAL_POSITION to fix JTOpen bug 3646, SYSPARMS table doesn't always have parameters in physical right order
 
                 // Create statement object and do Execute Query
                 AS400JDBCStatement statement_ = (AS400JDBCStatement)connection_.createStatement(); // caste needed
