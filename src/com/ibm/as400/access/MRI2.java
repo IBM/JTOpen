@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.util.*;
 
 /**
-Locale-specific objects for the AS/400 Toolbox for Java.
+Locale-specific objects for the IBM Toolbox for Java.
 **/
 //
 //        Implementation note:
@@ -282,7 +282,7 @@ public class MRI2 extends ListResourceBundle
       // #TRANNOTE ################################################################
       // #TRANNOTE The following are error and informational (verbose) messages.
       // #TRANNOTE ################################################################
-      { "PROXY_ALREADY_LISTENING",          "An active proxy server is already listening to port &0." },
+      { "PROXY_ALREADY_LISTENING",          "An active server is already listening to port &0." },             // @M1C
       { "PROXY_CONFIGURATION_UPDATED",      "The configuration has been updated."},
       { "PROXY_CONFIGURATION_NOT_LOADED",   "Configuration not loaded: &0"},
       { "PROXY_JDBC_DRIVER_NOT_REGISTERED", "JDBC driver not registered: &0"},
@@ -855,25 +855,23 @@ public class MRI2 extends ListResourceBundle
       // #TRANNOTE ################################################################
       // #TRANNOTE The following are error and informational (verbose) messages.
       // #TRANNOTE ################################################################
-      { "ME_ALREADY_LISTENING",          "An active ME server is already listening to port &0." },
+      { "ME_ALREADY_LISTENING",          "An active server is already listening to port &0." },
       { "ME_JDBC_DRIVER_NOT_REGISTERED", "JDBC driver not registered: &0"},
       { "ME_JDBC_DRIVER_REGISTERED",     "Registered JDBC driver: &0."},             
       { "ME_OPTION_NOT_VALID",           "Option not valid: &0" },
       { "ME_OPTION_VALUE_NOT_VALID",     "Value for option &0 not valid: &1" },
-      { "ME_SERVER_CONTAINER",           "ME server" },
+      { "ME_SERVER_CONTAINER",           "MEServer" },
       { "ME_SERVER_ENDED",               "&0 ended." },
       { "ME_SERVER_LISTENING",           "&0 listening to port &1." },
       { "ME_SERVER_OPTIONSLC",           "options" },
       { "ME_SERVER_OPTIONSUC",           "Options" },
       { "ME_SERVER_SHORTCUTS",           "Shortcuts" },                              
-      { "ME_SERVER_STARTED",             "ME server started." },
+      { "ME_SERVER_STARTED",             "MEServer started." },
       { "ME_CONNECTION_CLOSED",          "Connection &0 closed."},
       { "ME_SERVER_USAGE",               "Usage" },
       { "ME_VALUE_NO_OPTION",            "Value with no option ignored: &0" },      
 
-      { "ME_PCML_RELOADING", "Re-loading PCML document: &0"},
       { "ME_PCML_LOADING", "Loading new PCML document: &0"},
-      { "ME_PCML_REMOVED", "Removed old PCML document: &0"},
       { "ME_PCML_ERROR", "Error loading PCML." },
       { "ME_PCML_CACHE", "Using previously cached PCML document: &0"}
 
