@@ -49,6 +49,8 @@ abstract class PcmlDocNode extends PcmlNode
     private   String    m_TagName;
     private   int       m_NodeType;
     private   int       m_Usage;
+    private   String    m_Type;    // value of "type=" attribute
+    private   String    m_Struct;  // value of "struct=" attribute
 
     // @E0A - Add holder for condensed name if used
     private String m_CondensedName;                        //@E0A
@@ -82,11 +84,17 @@ abstract class PcmlDocNode extends PcmlNode
         m_NodeType = PcmlNodeType.UNSUPPORTED;                      // @C1A
 
         // Set name= attribute value
-        setName(getAttributeValue("name"));                         // @C1A
+        m_Name = getAttributeValue("name");                         // @C1A
         m_QualName = null;                                          // @C1A
 
         // Set usage= attribute value
         setUsage(getAttributeValue("usage"));                       // @C1A
+
+        // Set type= attribute value
+        m_Type = getAttributeValue("type");
+
+        // Set struct= attribute value
+        m_Struct = getAttributeValue("struct");
     }                                                               // @C1A
 
     public Object clone()
@@ -290,6 +298,19 @@ abstract class PcmlDocNode extends PcmlNode
 
     }                                                               // @C1A
 
+    // Return value of "struct=" attribute.
+    // If "type" attribute value is not "struct", returns null.
+    protected String getStructName()
+    {
+        return m_Struct;
+    }
+
+    // Return value of "type=" attribute.
+    protected String getType()
+    {
+        return m_Type;
+    }
+
     public int getUsage()
     {
         if (m_Usage == INHERIT)
@@ -375,15 +396,12 @@ abstract class PcmlDocNode extends PcmlNode
     // Returns a list of the names of all attributes for this node.   // @D0A
     abstract String[] getAttributeList();
 
-    // Returns a string containing the value of the specified attribute
+    // Returns a string containing the value of the specified attribute.
+    // Note: This method must not be called on a deserialized object,
+    // since m_XmlAttrs is transient and will be null.
     protected String getAttributeValue(String attributeName)
     {
         return m_XmlAttrs.getAttributeValue(attributeName);         // @C1C
-    }
-
-    private void setName(String name)
-    {
-        m_Name = name;
     }
 
 
@@ -479,5 +497,4 @@ abstract class PcmlDocNode extends PcmlNode
     {
         return m_CountReps;
     }
-
 }

@@ -441,10 +441,10 @@ class RfmlRecordFormat extends PcmlDocNode
           int count = ((RfmlData)node).getCount(noDimensions);
           if (count == 0) count=1;
           // If type="struct", then go to the struct and get its lengths.
-          String type = node.getAttributeValue("type");
+          String type = node.getType();
           if (type.equals("struct")) {
             // Get the struct node (a child of the root node).
-            String structName = node.getAttributeValue("struct");
+            String structName = node.getStructName();
             PcmlDocNode structNode = (PcmlDocNode)(root.getElement(structName));
             // Note: No need to check for null, since we've already validated the document.
             totalLength = count * getRequiredLength(structNode, root);
@@ -524,7 +524,7 @@ class RfmlRecordFormat extends PcmlDocNode
           dataNode.setValue(fieldValue);
         }
         else if (Trace.isTraceWarningOn()) {
-          String nameStr = dataNode.getAttributeValue("name");
+          String nameStr = dataNode.getName();
           Trace.log(Trace.WARNING, "Record field " + fieldNum + "(" + nameStr + ") is null.");
         }
       }
@@ -599,7 +599,7 @@ class RfmlRecordFormat extends PcmlDocNode
       // Recursively compose FieldDescription objects representing this node and its child nodes.
       addFieldDescriptions(this, fieldDescriptions, namesAlreadyUsed, null);   // @A1c
 
-      RecordFormat recordFormat = new RecordFormat(getAttributeValue("name"));
+      RecordFormat recordFormat = new RecordFormat(getName());
       for (int i=0; i < fieldDescriptions.size(); ++i)
       {
         recordFormat.addFieldDescription((FieldDescription)fieldDescriptions.elementAt(i));
