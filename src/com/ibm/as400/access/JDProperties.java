@@ -246,7 +246,7 @@ class JDProperties implements Serializable
     static final String         CURSOR_SENSITIVITY_ASENSITIVE   = "asensitive";   //@F6A
     static final String         CURSOR_SENSITIVITY_INSENSITIVE  = "insensitive";   //@F6A
     static final String         CURSOR_SENSITIVITY_SENSITIVE    = "sensitive";   //@F6A
-    static final String         CURSOR_SENSITIVITY_NOT_SET      = EMPTY_;           //@K3A
+    //@K6D static final String         CURSOR_SENSITIVITY_NOT_SET      = EMPTY_;           //@K3A
 
     static final String         DATE_FORMAT_JULIAN              = "julian";
     static final String         DATE_FORMAT_MDY                 = "mdy";
@@ -502,7 +502,7 @@ class JDProperties implements Serializable
         dpi_[i].choices[0]  = CURSOR_SENSITIVITY_ASENSITIVE;
         dpi_[i].choices[1]  = CURSOR_SENSITIVITY_INSENSITIVE;
         dpi_[i].choices[2]  = CURSOR_SENSITIVITY_SENSITIVE;
-        defaults_[i]        = CURSOR_SENSITIVITY_NOT_SET;
+        defaults_[i]        = CURSOR_SENSITIVITY_ASENSITIVE;                   //@K6C 
 
         // Data compression.  @D0A
         i = DATA_COMPRESSION;

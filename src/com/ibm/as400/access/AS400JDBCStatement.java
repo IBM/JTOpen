@@ -676,10 +676,10 @@ public class AS400JDBCStatement implements Statement
                     {
                         //@K1A
                         //Determine if user set cursor sensitivity property                                              //@K1A
-                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_ASENSITIVE))    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);    //@K1A        Option 1
+                        if(cursorSensitivity.equalsIgnoreCase(JDProperties.CURSOR_SENSITIVITY_SENSITIVE))    //@K1A
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@K1A        Option 1
                         else    //@K1A
-                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_SENSITIVE);    //@K1A        Option 3
+                            request.setScrollableCursorFlag (DBSQLRequestDS.CURSOR_SCROLLABLE_ASENSITIVE);   //@K1A        Option 3
                     }    //@K1A
                     else    //ResultSet.TYPE_SCROLL_INSENSITIVE                                                      //@K1A
                     {
