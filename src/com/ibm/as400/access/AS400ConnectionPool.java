@@ -617,14 +617,18 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     if (userID.length() == 0)
       throw new ExtendedIllegalArgumentException("userID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-    if (Trace.isTraceOn()) //@A5A
+    if (Trace.traceOn_) //@A5A
+    {
       Trace.log(Trace.INFORMATION, "getConnection() key before resolving= " + systemName + "/" + userID); //@A5A
+    }
     systemName = AS400.resolveSystem(systemName);           //@A5A
     userID = AS400.resolveUserId(userID);               //@A5A
 
     String key = createKey(systemName, userID);
-    if (Trace.isTraceOn())                                //@A5A
+    if (Trace.traceOn_)                                //@A5A
+    {
       Trace.log(Trace.INFORMATION, "getConnection() key after resolving= " + key); //@A5A
+    }
 
     if (!isInUse())                      //@A3A     				
     {
@@ -633,7 +637,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }                                      //@A3A
 
     //Work with maintenance thread
-    if (isRunMaintenance())
+    if (isThreadUsed() && isRunMaintenance())
     {
       // Start thread if it has not been initialized.
       if (maintenance_ == null)
@@ -644,41 +648,12 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
           {
             maintenance_ = new PoolMaintenance(this);
             maintenance_.start();
-            // Give thread a chance to start.
-//            if (!maintenance_.isRunning())             //@A1A
-//            {
-//              try
-//              {                                //@A1A																 //@A1A
-//                Thread.sleep(10);                      //@A1A
-//              }                                //@A1A
-//              catch (InterruptedException e)             //@A1A
-//              {
-            /*Should not happen*/
-//              }                                //@A1A
-//            }
-            // If thread has still not started, keep giving it chances for 5 minutes.
-//            for (int i = 1; !maintenance_.isRunning() && i<6000; i++)      //@A1C 
-//            {
-//               try
-//               {                    //@A1A										 //@A1A
-//                 Thread.sleep(50);                    //@A1A
-//               }                          //@A1A
-//               catch (InterruptedException e)
-//               {  /*Should not happen*/
-//               }                              //@A1A
-//            }                                                        
-//            if (!maintenance_.isRunning())                   //@A1A
-//              Trace.log(Trace.WARNING, "maintenance thread failed to start");   //@A1A
           }
         }
       }
       // Restart the thread.
-//@CRS      else if (!maintenance_.isRunning())
-      if (!maintenance_.isRunning()) maintenance_.setRunning(true); //@CRS
+      if (!maintenance_.isRunning()) maintenance_.setRunning(true);
     }
-
-    //Check to see if a connection list exists for this system/userId combination
-    //@CRSConnectionList connections; //@B1C = (ConnectionList)as400ConnectionPool_.get(key);
 
     //@CRS - Let's do a double-check here for performance, per JTOpen bug #3727.
     ConnectionList connections = (ConnectionList)as400ConnectionPool_.get(key);
@@ -701,15 +676,10 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
           connections.setLog(log_);
 
           // create a new connection
-          //@B1D PoolItem sys = connections.createNewConnection(service, connect, secure, poolListeners_); 
-
           as400ConnectionPool_.put(key, connections);
-
-          //@B1D return sys.getAS400Object(); 
         }
-      }// end synchronized block
+      }
     }
-
 
     //@CRS - Moved the block below out of the synch block above per JTOpen bug #3727...
     // We don't want to hold the lock on the entire pool if we are trying to get a connection
