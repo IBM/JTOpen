@@ -26,9 +26,11 @@ import com.ibm.as400.access.*;
 
 // WebSphere 4.0 ships only a stub XML4J.jar, and XML4J.jar goes away in the future. We need to 
 // use xerces.jar to be compatible with the version used by WebSphere.
-import org.apache.xerces.parsers.SAXParser;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+//import org.apache.xerces.parsers.SAXParser;
+//import javax.xml.parsers.*;
+
+//import org.xml.sax.*;
+//import org.xml.sax.helpers.*;
 
 
 /**
@@ -123,8 +125,8 @@ public class CommandHelpRetriever
     // SAX parser, URI resolver, and entity resolver/handler.
     // Hence, the generateHTML() method is synchronized.
     private Transformer transformer_;
-    private final SAXParser parser_ = new SAXParser();
-    private final HelpHandler handler_ = new HelpHandler();
+//  private final SAXParser parser_ = new SAXParser();
+//  private final HelpHandler handler_ = new HelpHandler();
     private final HelpResolver resolver_ = new HelpResolver();
 
     // Objects used to load the MRI and transform it into something
@@ -265,8 +267,8 @@ public class CommandHelpRetriever
 
 
     // Handler used in XML parsing.
-    private static class HelpHandler extends DefaultHandler
-    {
+/*  private static class HelpHandler extends DefaultHandler
+  {
         public final Vector keywords_ = new Vector();
         public String panelGroup_;
         public String helpID_;
@@ -302,7 +304,7 @@ public class CommandHelpRetriever
             }
         }
     }
-
+*/
 
     /**
      * Performs the actions specified in the invocation arguments.
@@ -379,7 +381,7 @@ public class CommandHelpRetriever
     **/
     public CommandHelpRetriever()
     {
-        try
+/*        try
         {
             parser_.setFeature("http://xml.org/sax/features/namespaces", false);
             parser_.setContentHandler(handler_);
@@ -391,7 +393,8 @@ public class CommandHelpRetriever
             if (Trace.isTraceOn()) 
                 Trace.log(Trace.ERROR, "Exception on construct of CommandHelpRetriever: ", e);
         }
-    }
+*/
+  }
 
 
     /**
@@ -513,7 +516,7 @@ public class CommandHelpRetriever
 
         // Grab the helpID and panelGroup out of the XML, not from the Command object,
         // in case the API call threw a CPF6250.
-        handler_.keywords_.clear();
+/*    handler_.keywords_.clear();
         handler_.helpID_ = null;
         handler_.panelGroup_ = null;
         handler_.productLibrary_ = null;
@@ -526,8 +529,13 @@ public class CommandHelpRetriever
 
         if (Trace.isTraceOn())
             Trace.log(Trace.DIAGNOSTIC, "Retrieved "+keywords.size()+" keywords. Help ID = '"+helpID+"'; Panel group = '"+pGroup+"'.");
+*/
+    
+/*    String helpResults = null;
 
-        String helpResults = null;
+    PanelGroupHelpIdentifier[] helpIDs = command.getXMLHelpIdentifiers();
+    String prdLib = command.getXMLProductLibrary();
+    String pGroup = command.getXMLPanelGroup();
 
         if (pGroup != null)
         {
@@ -540,7 +548,6 @@ public class CommandHelpRetriever
             {
                 helpIDs[i] = helpID+"/"+keywords.elementAt(i-3);
             }
-
             boolean added = false;
             if (prdLib != null)
             {
@@ -595,9 +602,11 @@ public class CommandHelpRetriever
               CommandCall cc = new CommandCall(command.getSystem(), rmvlible);
               cc.run();
             }
+*/
+    String helpResults = command.getXMLHelpText();
 
-            if (debug_)
-            {
+      if (debug_ && helpResults != null)
+      {
                 String path = command.getPath();
                 QSYSObjectPathName pn = new QSYSObjectPathName(path);
                 String lib = pn.getLibraryName();
@@ -618,10 +627,11 @@ public class CommandHelpRetriever
                 fw.flush();
                 fw.close();
             }
-        }
+//    }
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.DIAGNOSTIC, "Retrieved help results:\n"+helpResults+"\n");
+//    if (Trace.isTraceOn())
+//      Trace.log(Trace.DIAGNOSTIC, "Retrieved help results:\n"+helpResults+"\n");
+
 
         // Reset the transformer. We could re-use the same Transformer object,
         // but the problem is that any document() calls in the XSL are resolved

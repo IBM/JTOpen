@@ -26,6 +26,66 @@
 <xsl:param name="WhereAllowed" select="000000000000000"/>
 <xsl:param name="CommandHelp" select="__NO_HELP"/>
 <xsl:param name="ShowChoicePgmValues" select="0"/> <!-- Default=Don't show CHOICEPGM values -->
+<xsl:param name="_ALLOW_ALL"/>                 
+<xsl:param name="_ALLOW_COMPILED_CL_OR_REXX1"/>
+<xsl:param name="_ALLOW_COMPILED_CL_OR_REXX2"/>
+<xsl:param name="_ALLOW_INTERACTIVE1"/>        
+<xsl:param name="_ALLOW_INTERACTIVE2"/>        
+<xsl:param name="_ALLOW_JOB_BATCH"/>           
+<xsl:param name="_ALLOW_JOB_INTERACTIVE"/>     
+<xsl:param name="_ALLOW_MODULE_BATCH"/>        
+<xsl:param name="_ALLOW_MODULE_INTERACTIVE"/>  
+<xsl:param name="_ALLOW_PROGRAM_BATCH"/>       
+<xsl:param name="_ALLOW_PROGRAM_INTERACTIVE"/> 
+<xsl:param name="_ALLOW_REXX_BATCH"/>          
+<xsl:param name="_ALLOW_REXX_INTERACTIVE"/>    
+<xsl:param name="_ALLOW_USING_COMMAND_API"/>   
+<xsl:param name="_CHOICES"/>                   
+<xsl:param name="_ELEMENT"/>                   
+<xsl:param name="_ERRORS"/>                    
+<xsl:param name="_EXAMPLES"/>                  
+<xsl:param name="_KEY"/>                       
+<xsl:param name="_KEYWORD"/>                   
+<xsl:param name="_NAME_LOWERCASE"/>            
+<xsl:param name="_NONE"/>                      
+<xsl:param name="_NOTES"/>                     
+<xsl:param name="_OPTIONAL"/>                  
+<xsl:param name="_PARAMETERS"/>                
+<xsl:param name="_POSITIONAL"/>                
+<xsl:param name="_QUALIFIER"/>                 
+<xsl:param name="_REQUIRED"/>                  
+<xsl:param name="_THREADSAFE"/>                
+<xsl:param name="_THREADSAFE_CONDITIONAL"/>    
+<xsl:param name="_TOP_OF_PAGE"/>               
+<xsl:param name="_TYPE_CL_VARIABLE_NAME"/>     
+<xsl:param name="_TYPE_COMMAND_STRING"/>       
+<xsl:param name="_TYPE_COMMUNICATIONS_NAME"/>  
+<xsl:param name="_TYPE_DATE"/>                 
+<xsl:param name="_TYPE_DECIMAL_NUMBER"/>       
+<xsl:param name="_TYPE_ELEMENT_LIST"/>         
+<xsl:param name="_TYPE_GENERIC_NAME"/>         
+<xsl:param name="_TYPE_INTEGER"/>              
+<xsl:param name="_TYPE_NOT_RESTRICTED"/>       
+<xsl:param name="_TYPE_PATH_NAME"/>            
+<xsl:param name="_TYPE_QUALIFIED_JOB_NAME"/>   
+<xsl:param name="_TYPE_QUALIFIED_OBJECT_NAME"/>
+<xsl:param name="_TYPE_QUALIFIER_LIST"/>       
+<xsl:param name="_TYPE_SIMPLE_NAME"/>          
+<xsl:param name="_TYPE_TIME"/>                 
+<xsl:param name="_TYPE_VALUE_LOGICAL"/>        
+<xsl:param name="_TYPE_VALUE_CHARACTER"/>      
+<xsl:param name="_TYPE_VALUE_HEX"/>            
+<xsl:param name="_TYPE_UNSIGNED_INTEGER"/>     
+<xsl:param name="_UNKNOWN"/>                   
+<xsl:param name="_VALUES_OTHER"/>              
+<xsl:param name="_VALUES_OTHER_REPEAT"/>       
+<xsl:param name="_VALUES_REPEAT"/>             
+<xsl:param name="_VALUES_SINGLE"/>             
+<xsl:param name="_WHERE_ALLOWED_TO_RUN"/>       
+<xsl:param name="_DESCRIPTION"/>
+<xsl:param name="_THREADSAFE_NO"/>             
+<xsl:param name="_THREADSAFE_YES"/>             
+<xsl:param name="_TYPE_NAME"/>             
 
 <!-- Declare the type of output file produced 
      (currently HTML, might change to XML)                           -->
