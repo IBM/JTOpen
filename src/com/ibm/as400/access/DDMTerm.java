@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: DDMTerm.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2003 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ package com.ibm.as400.access;
 **/
 class DDMTerm
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
 //@B1D  static final int ACCORD     = 0x1162; // Access order for ULDRECF
   static final int ACCSEC     = 0x106D; // Access method for exchange attributes - added by DDM server
@@ -61,10 +61,12 @@ class DDMTerm
   static final int LUWHLDCSR  = 0x11B5; // Hold cursor parameter
   static final int MGRLVLLS   = 0x1404; // Manager level list
   static final int NAMDR      = 0x0066; // Name string
+  static final int NAMSYMDR   = 0x0061; // Name string with only A-Z, 0-9 and '_'
   static final int PASSWORD   = 0x11A1; // Password for connecting
   static final int PRCCNVRM   = 0x1245; // Conversational protocol error
   static final int PRMNSPRM   = 0x1251; // Parameter not supported
   static final int RDB        = 0x240F; // Relational database
+  static final int RDBNAM     = 0x2110; // Relational database name
 //@B1D  static final int RECCNT     = 0x111A; // Record count returned from ULDRECF
   static final int RECAL      = 0x1430; // Record attribute list
 //@B1D  static final int RECORD     = 0x144A; // Record object returned from ULDRECF
@@ -128,6 +130,7 @@ class DDMTerm
   static final int S38PUTM    = 0xD013; // Put multiple record
   static final int S38UFCB    = 0xD11F; // User file control block structure
   static final int S38UPDAT   = 0xD019; // Update record
+  static final int SXXASPRQ   = 0xD02A; // Set ASP group
   static final int SXXPUTDR   = 0xD01C; // Insert record at file position
 //@B1D  static final int ULDRECF    = 0x1040; // Unload records from file
   static final int UOWDSP     = 0x2115; // Unit of work disposition

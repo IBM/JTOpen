@@ -53,7 +53,7 @@ interface AS400Impl
     // Set the service ports to their default values.
     void setServicePortsToDefault(String systemName);
     // Set significant instance variables into implementation object.
-    void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties);
+    void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB);
     // Sign-on to system.
     SignonInfo signon(String systemName, String userId, byte[] bytes, int byteType, String gssName, int gssOption) throws AS400SecurityException, IOException;
 }

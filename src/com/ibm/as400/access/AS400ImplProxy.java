@@ -217,11 +217,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Set the significant instance variables for the AS400ImplRemote object.
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB)
     {
         try
         {
-            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Locale.class, SocketProperties.class }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), locale, socketProperties } );
+            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Locale.class, SocketProperties.class, String.class }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), locale, socketProperties, ddmRDB });
         }
         catch (InvocationTargetException e)
         {

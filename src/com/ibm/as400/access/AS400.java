@@ -221,6 +221,9 @@ public class AS400 implements Serializable
     // This object is created by the initial sign-on process.  It contains the information from the retrieve sign-on information flow with the sign-on server.
     private transient SignonInfo signonInfo_ = null;
 
+    // The IASP name used for the RECORDACCESS service.
+    private String ddmRDB_;
+
     /**
      Constructs an AS400 object.
      <p>If running on an iSeries server, the target is the local system.  This has the same effect as using localhost for the system name, *CURRENT for the user ID, and *CURRENT for the password.
@@ -760,7 +763,7 @@ public class AS400 implements Serializable
         }
         if (!propertiesFrozen_)
         {
-            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, locale_, socketProperties_);
+            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, locale_, socketProperties_, ddmRDB_);
             propertiesFrozen_ = true;
         }
     }
@@ -1108,6 +1111,18 @@ public class AS400 implements Serializable
         }
         // No expiration date.
         return 365;
+    }
+
+    /**
+     * Returns the relational database name (RDB name) used for record-level access (DDM) connections.
+     * The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
+     * @return The name of the IASP or RDB that is in use by this AS400 object's RECORDACCESS service, or null if
+     * the IASP used will be the default system pool (*SYSBAS).
+     * @see #setDDMRDB
+    **/
+    public String getDDMRDB()
+    {
+      return ddmRDB_;
     }
 
     /**
@@ -2695,6 +2710,28 @@ public class AS400 implements Serializable
                 propertyChangeListeners_.firePropertyChange("ccsid", oldValue, newValue);
             }
         }
+    }
+
+    /**
+     * Sets the relational database name (RDB name) used for record-level access (DDM) connections.
+     * The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the server.
+     * The RDB name cannot be changed when this AS400 object is currently
+     * connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
+     * @param iaspName The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
+     * @see #isConnected(int)
+     * @see #getDDMRDB
+    **/
+    public void setDDMRDB(String iaspName)
+    {
+      if (iaspName.length() > 18)
+      {
+        throw new ExtendedIllegalArgumentException("iaspName", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+      }
+      if (isConnected(RECORDACCESS))
+      {
+        throw new ExtendedIllegalStateException("iaspName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+      }
+      ddmRDB_ = (iaspName == null ? null : iaspName.toUpperCase());
     }
 
     /**

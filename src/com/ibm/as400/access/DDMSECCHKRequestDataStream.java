@@ -20,12 +20,13 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
 
-    DDMSECCHKRequestDataStream(byte[] userIDbytes, byte[] authenticationBytes, int byteType)
+    DDMSECCHKRequestDataStream(byte[] userIDbytes, byte[] authenticationBytes, byte[] iasp, int byteType)
     {
-        super(byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? new byte[authenticationBytes.length + 26] : new byte[authenticationBytes.length + 34]);
+        super(byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? new byte[authenticationBytes.length + (iasp == null ? 26 : 48)] : new byte[authenticationBytes.length + (iasp == null ? 34 : 56)]);
 
         // Initialize the header:  Don't continue on error, not chained, GDS id = D0, type = RQSDSS, no same request correlation.
         setGDSId((byte)0xD0);
+        boolean useRDB = (iasp != null);
         if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
             setLength(16);
@@ -53,7 +54,7 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
             // setHasSameRequestCorrelation(false);
             setType(1);
 
-            set16bit(authenticationBytes.length + 28, 6);  // Set LL for SECCHK term.
+            set16bit(authenticationBytes.length + (useRDB ? 50 : 28), 6);  // Set LL for SECCHK term.
             set16bit(DDMTerm.SECCHK, 8);  // Set code point for SECCHK.
 
             set16bit(6, 10);  // Set LL for SECMEC term.
@@ -77,6 +78,14 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
             set16bit(DDMTerm.PASSWORD, 32);  // Set code point for PASSWORD.
             // Set the password.
             System.arraycopy(authenticationBytes, 0, data_, 34, authenticationBytes.length);
+            if (useRDB)
+            {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending SECCHK request with RDB / IASP name.");
+              int offset = 34+authenticationBytes.length;
+              set16bit(22, offset);
+              set16bit(DDMTerm.RDBNAM, offset+2);
+              System.arraycopy(iasp, 0, data_, offset+4, iasp.length);
+            }
         }
     }
 

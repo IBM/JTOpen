@@ -72,6 +72,9 @@ class AS400ImplRemote implements AS400Impl
     // Set of socket options to use when creating our connections to the server.
     private SocketProperties socketProperties_ = null;
 
+    // IASP name used for DDM, if specified.
+    private String ddmRDB_;
+
     // VRM information from the sign-on server.  Retrieved from sign-on connect and stored until placed in sign-on information.
     private ServerVersion version_;
     // Server level of the sign-on server.  Retrieved from sign-on connect and stored until placed in sign-on information.
@@ -970,6 +973,13 @@ class AS400ImplRemote implements AS400Impl
 
             if (service == AS400.RECORDACCESS)
             {
+                byte[] iaspBytes = null;
+                if (ddmRDB_ != null)
+                {
+                  AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
+                  iaspBytes = text18.toBytes(ddmRDB_);
+                }
+
                 // Exchange server start up/security information with DDM server.
                 // Exchange attributes.
                 DDMEXCSATRequestDataStream EXCSATRequest = new DDMEXCSATRequestDataStream();
@@ -984,7 +994,7 @@ class AS400ImplRemote implements AS400Impl
                 }
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM EXCSAT successful.");
 
-                DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, byteType_);
+                DDMACCSECRequestDataStream ACCSECReq = new DDMACCSECRequestDataStream(passwordType_, byteType_, null); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
                 ACCSECReq.write(outStream);
 
                 DDMACCSECReplyDataStream ACCSECRep = new DDMACCSECReplyDataStream();
@@ -1021,7 +1031,8 @@ class AS400ImplRemote implements AS400Impl
 
                 // If the ddmSubstitutePassword length is 8, then we are using DES encryption.  If its length is 20, then we are using SHA encryption.
                 // Build the SECCHK request; we build the request here so that we are not passing the password around anymore than we have to.
-                DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, byteType_);
+                DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, iaspBytes, byteType_);
+                
                 // Send the SECCHK request.
                 SECCHKReq.write(outStream);
 
@@ -1034,6 +1045,20 @@ class AS400ImplRemote implements AS400Impl
                     throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
                 }
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM SECCHK successful.");
+                if (iaspBytes != null)
+                {
+                  // We need to send an RDB datastream to make sure the RDB name we sent on the SECCHK is a valid RDB.
+                  DDMASPRequestDataStream aspReq = new DDMASPRequestDataStream(iaspBytes);
+                  aspReq.write(outStream);
+                  DDMASPReplyDataStream aspRep = new DDMASPReplyDataStream();
+                  aspRep.read(inStream);
+                  if (!aspRep.checkReply())
+                  {
+                    if (Trace.traceOn_) Trace.log(Trace.ERROR, "RDB name '"+ddmRDB_+"' is not a valid IASP name on system '"+systemName_+"'.");
+                    throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+                  }
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM RDB name '"+ddmRDB_+"' verified.");
+                }
             }
             else
             {
@@ -1675,7 +1700,7 @@ class AS400ImplRemote implements AS400Impl
     }
 
     // Set the state variables for this implementation object.
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, Locale locale, SocketProperties socketProperties, String ddmRDB)
     {
         if (Trace.traceOn_)
         {
@@ -1686,6 +1711,7 @@ class AS400ImplRemote implements AS400Impl
             Trace.log(Trace.DIAGNOSTIC, "  User specified CCSID:", ccsid);
             Trace.log(Trace.DIAGNOSTIC, "  Locale: " + locale);
             Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
+            Trace.log(Trace.DIAGNOSTIC, "  DDM RDB: "+ ddmRDB);
         }
         useSSLConnection_ = useSSLConnection;
         canUseNativeOptimization_ = canUseNativeOptimization;
@@ -1697,6 +1723,7 @@ class AS400ImplRemote implements AS400Impl
         }
         locale_ = locale;
         socketProperties_ = socketProperties;
+        ddmRDB_ = ddmRDB;
     }
 
     int gssOption_;
