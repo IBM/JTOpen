@@ -78,6 +78,8 @@
 // The following is a list of jar files and the URLs from which they can be
 // obtained. These jar files are required in order to build JTOpen. We cannot
 // include these jar files in the JTOpen CVS repository due to licensing issues.
+// These files needs to be placed in the /jtopen_build/include directory after
+// they are downloaded.
 //
 // *** Required under JDK 1.4: ***
 //
@@ -101,6 +103,7 @@
 //           http://developer.java.sun.com/developer/releases/j2mewtoolkit/ (Linux/Solaris)
 // Description: J2ME Wireless Toolkit preverification tool required to build the
 //              jt400Micro.jar. This file needs to be in the /jtopen_build/bin directory.
+//              (The preverify.exe file can be found in C:\J2MEWTK\bin after the install.)
 //
 // Filename: cvs or cvs.exe
 // Location: http://www.wincvs.org
@@ -138,7 +141,20 @@
 // The resulting javadoc can be found in the "javadoc" subdirectory.
 //
 // Note: The xerces-4.0 target has been removed, since the JTOpen source code has been
-//       updated to use JAXP-complient APIs.
+//       updated to use JAXP-compliant APIs.
+//
+// Note: The javadoc target will build the javadoc to the best of its ability. However,
+//       many warnings may appear for some of the files that have pre-requisites that are
+//       not required for compilations. Namely, these pre-requisites are:
+//
+//         jui400.jar   - A Graphical Toolbox jar file needed to generate javadoc for the
+//                        AS400JDBCDataSourcePane classes in the com.ibm.as400.vaccess package.
+//                        It is shipped in the main JTOpen download zip file, or as part of
+//                        the IBM Toolbox for Java licensed program download.
+//         sslightx.zip - The SSLight code used by some of the AS400 connection infrastructure
+//                        when Secure Sockets Layer encryption is used. This file is considered
+//                        IBM-restricted and can be obtained from one of the various "CE" products
+//                        on your system.
 //
 ////////////////////////////////////////////////////////////////////////////-->
   
@@ -271,7 +287,6 @@
       <classpath>
         <pathelement path="${include}"/>
         <pathelement location="${include}/servlet.jar"/> <!-- Need the JSDK classes to compile the com.ibm.as400.util.servlet package. -->
-        <!-- pathelement location="${include}/jui400.jar"/ --> <!-- Need this for the AS400JDBCDataSourcePane in the com.ibm.as400.vaccess package. -->
       </classpath>
     </javac>
     <copy file="${source}/utilities/INMRI.pro"
@@ -351,7 +366,6 @@
     
     <condition property="pcmlRuntimeExists">
       <or>
-        <!-- available file="${include}/x4j400.jar" type="file"/ -->
         <available classname="java.nio.Buffer"/> <!-- JDK 1.4 and higher. -->
       </or>
     </condition>
@@ -404,7 +418,6 @@
   <!-- Preverify doesn't work under JDK 1.4. Skip this jar in that case. -->
   <target name="jar-jt400Micro" depends="init,micro-preverify">
     <jar jarfile="${dist}/jt400Micro.jar" manifest="${build}/build/jt400Micro_manifest.txt">
-      <!-- fileset dir="${output}" includesfile="${build}/build/micro.includes" -->
       <fileset dir="${output-micro-verified}" includesfile="${build}/build/micro.includes"/>
       <fileset dir="${build}" includes="license.html"/>
     </jar>
@@ -419,7 +432,13 @@
             <exclude name="com/ibm/as400/vaccess/**"/>
         </patternset>
       </fileset>
-      <fileset dir="${include}" includes="com/ibm/as400/**"/>
+      <fileset dir="${include}">
+        <patternset>
+            <include name="com/ibm/as400/**"/>
+            <exclude name="com/ibm/as400/vaccess/**"/>
+            <exclude name="**/*.java"/>
+        </patternset>
+      </fileset>
       <fileset dir="${source}"
                includes="**/*.gif,**/*.ser,**/*.dtd,**/*.xsl"
                excludes="com/ibm/as400/vaccess/**"/>
@@ -506,10 +525,7 @@
   
 <!--///////////////////////////////////////////////////////////////////////////
     // Target: micro
-    ///////////////////////////////////////////////////////////////////////////-->
-<!-- The preverify executable does not currently handle JDK 1.4 class file
-     major version numbers, so we skip this step when building under JDK 1.4. -->
-
+    ///////////////////////////////////////////////////////////////////////////-->  
   <target name="micro" depends="init,jar-jt400Micro"/>
   
   <target name="micro-preverify" depends="init,compile-micro">
@@ -580,6 +596,7 @@
       <zipfileset dir="${source}"/>
       <zipfileset dir="${source-contrib}"/>
       <zipfileset dir="${source-micro}"/>
+      <zipfileset dir="${include}"/>
       <zipfileset dir="${build}" includes="license.html"/>
       <zipfileset dir="${build}" includes="readme.html"/>
     </zip>
