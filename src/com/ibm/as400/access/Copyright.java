@@ -29,6 +29,6 @@ version information for the AS/400 Toolbox for Java.
 public interface Copyright
 {
     public static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
-    public static final String version   = "Open Source Software, original codebase 5769-JC1 V4R5M0.1";
+    public static final String version   = "JTOpen 1.1 Open Source Software, original codebase 5769-JC1 V4R5M0.1";
 }
 
