@@ -607,9 +607,10 @@ implements SQLData
     public String toString ()
     {
         Calendar calendar = Calendar.getInstance ();
-        calendar.set (0, 0, 0, hour_, minute_, second_);
-        Time t = new Time (calendar.getTime ().getTime ());
-        return timeToString (t, settings_, calendar, hour_);        // @E3C
+        calendar.set (1970, Calendar.JANUARY, 1, hour_, minute_, second_);
+        calendar.set(calendar.MILLISECOND, 0);
+        Time t = new Time(calendar.getTime().getTime());
+        return timeToString(t, settings_, calendar, hour_);        // @E3C
     }
 
 
@@ -630,7 +631,7 @@ implements SQLData
         // SQL Time objects do not track this field.
         calendar.set(calendar.MILLISECOND, 0);  // @F2A
 
-        return new Time (calendar.getTime ().getTime ());
+        return new Time (calendar.getTime().getTime());
     }
 
 
