@@ -37,7 +37,7 @@ class RCCallProgramRequestDataStream extends ClientAccessDataStream
             if (parameterType == ProgramParameter.INOUT)
             {
                 int outParameterLength = parameterList[i].getOutputDataLength();
-                if (parameterLength < outParameterLength);
+                if (parameterLength < outParameterLength) // Bug #6 - Removed superfluous semicolon
                 {
                     parameterLength = outParameterLength;
                 }
