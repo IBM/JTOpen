@@ -1252,7 +1252,6 @@ public class AS400 implements Serializable
      <li>COMMAND - command and program call classes.
      <li>DATAQUEUE - data queue classes.
      <li>DATABASE - JDBC classes.
-     <li>RECORDACCESS - record level access classes.
      <li>CENTRAL - licence management classes.
      <li>SIGNON - sign-on classes.
      </ul>
