@@ -100,66 +100,66 @@ implements SQLData
     public void set (Object object, Calendar calendar, int scale)
         throws SQLException
     {
-        truncated_ = 0;
+      truncated_ = 0;
 
-        if (object instanceof String) {
-            try {
-                value_ = Float.valueOf ((String) object).floatValue ();
-                int objectLength = ((String) object).length ();
-                int valueLength = Float.toString (value_).length ();
-                if (valueLength < objectLength)
-                    truncated_ = objectLength - valueLength;
-            }
-            catch (NumberFormatException e) {
-                JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
+      if (object instanceof String) {
+          try {
+              value_ = Float.valueOf ((String) object).floatValue ();
+              // @E2d int objectLength = ((String) object).length ();
+              // @E2d int valueLength = Float.toString (value_).length ();
+              // @E2d if (valueLength < objectLength)
+              // @E2d     truncated_ = objectLength - valueLength;
+          }
+          catch (NumberFormatException e) {
+              JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+          }
+      }
 
-        // @D9d
-        //  We do not start messing with floating point values trying
-        //  to figure out if they truncate.  The performance of this
-        //  in the BigDecimal case below is probably slower then creating
-        //  a table on the system.
-        //
-        //else if (object instanceof Double) {
-        //    value_ = ((Double) object).floatValue ();
-        //    if (((Double) object).doubleValue () > value_)
-        //        truncated_ = 8;
-        //}
-        //
-        // @D9d
-        //else if (object instanceof BigDecimal) {
-        //    value_ = ((BigDecimal) object).floatValue ();
-        //    int objectLength = SQLDataFactory.getPrecision ((BigDecimal) object);
-        //    int valueLength = SQLDataFactory.getPrecision (new BigDecimal (value_));
-        //    if (valueLength < objectLength)
-        //        truncated_ = objectLength - valueLength;
-        //}
+      // @D9d
+      //  We do not start messing with floating point values trying
+      //  to figure out if they truncate.  The performance of this
+      //  in the BigDecimal case below is probably slower then creating
+      //  a table on the system.
+      //
+      //else if (object instanceof Double) {
+      //    value_ = ((Double) object).floatValue ();
+      //    if (((Double) object).doubleValue () > value_)
+      //        truncated_ = 8;
+      //}
+      //
+      // @D9d
+      //else if (object instanceof BigDecimal) {
+      //    value_ = ((BigDecimal) object).floatValue ();
+      //    int objectLength = SQLDataFactory.getPrecision ((BigDecimal) object);
+      //    int valueLength = SQLDataFactory.getPrecision (new BigDecimal (value_));
+      //    if (valueLength < objectLength)
+      //        truncated_ = objectLength - valueLength;
+      //}
 
-        else if (object instanceof Number)
-        {
-            // Set the value to the right type.
-            value_ = ((Number) object).floatValue();  // @D9c
+      else if (object instanceof Number)
+      {
+          // Set the value to the right type.
+          value_ = ((Number) object).floatValue();  // @D9c
 
-            // Get the whole number portion of that value.
-            long value = (long) value_;               // @D9c
+          // Get the whole number portion of that value.
+          long value = (long) value_;               // @D9c
 
-            // Get the original value as a long.  This is the
-            // largest precision we can test for for a truncation.
-            long truncTest = ((Number) object).longValue();  // @D9c
+          // Get the original value as a long.  This is the
+          // largest precision we can test for for a truncation.
+          long truncTest = ((Number) object).longValue();  // @D9c
 
-            // If they are not equal, then we truncated significant
-            // data from the original value the user wanted us to insert.
-            if (truncTest != value)     // @D9c
-                truncated_ = 1;
-        }
+          // If they are not equal, then we truncated significant
+          // data from the original value the user wanted us to insert.
+          if (truncTest != value)     // @D9c
+              truncated_ = 1;
+      }
 
 
-        else if (object instanceof Boolean)
-            value_ = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
+      else if (object instanceof Boolean)
+          value_ = (((Boolean) object).booleanValue() == true) ? 1f : 0f;
 
-        else
-            JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
+      else
+          JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH);
     }
 
 

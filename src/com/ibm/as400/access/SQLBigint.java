@@ -32,7 +32,6 @@ implements SQLData
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
-    
     // Private data.
     private int                 truncated_;
     private long                value_              = 0;
@@ -81,16 +80,19 @@ implements SQLData
     public void set(Object object, Calendar calendar, int scale)
         throws SQLException
     {
-        if (object instanceof String) {
-            try {
-                value_ = Long.parseLong((String) object);
-            }
-            catch (NumberFormatException e) {
-                JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
-            }
-        }
+      truncated_ = 0;
 
-        else if (object instanceof Number) {
+      if (object instanceof String) {
+          try {
+              value_ = Long.parseLong((String) object);
+          }
+          catch (NumberFormatException e) {
+              JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+          }
+      }
+
+      else if (object instanceof Number)
+      {
           // Compute truncation by getting the value as a double
           // and comparing it against MAX_VALUE/MIN_VALUE.
           double doubleValue = ((Number) object).doubleValue ();
@@ -111,13 +113,13 @@ implements SQLData
           // double doubleValue = ((Number) object).doubleValue();
           // if (doubleValue != value_)
           //    truncated_ = Double.toString(doubleValue - value_).length() / 2;
-        }
+      }
 
-        else if (object instanceof Boolean)
-            value_ = (((Boolean) object).booleanValue() == true) ? 1 : 0;
+      else if (object instanceof Boolean)
+          value_ = (((Boolean) object).booleanValue() == true) ? 1 : 0;
 
-        else
-            JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
+      else
+          JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
     }
 
 
