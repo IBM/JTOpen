@@ -671,6 +671,22 @@ class SQLDataFactory
                 return new SQLVarcharForBitData(length, settings);         // @M0C - to SQLVarcharForBitData in order 
         }                                                                  // @M0C - to add support for real VARBINARY
 
+        else if(nativeType.equals("VARBIN"))                               //@K1A
+        {
+            if(vrm >= JDUtilities.vrm530)
+                return new SQLVarbinary(length, settings);
+            else
+                return new SQLVarcharForBitData(length, settings);
+        }
+
+        else if(nativeType.equals("BINARY VARYING"))                       //@K1A
+        {
+            if(vrm >= JDUtilities.vrm530)
+                return new SQLVarbinary(length, settings);
+            else
+                return new SQLVarcharForBitData(length, settings);
+        }
+
         else if(nativeType.equals("VARCHAR"))
             return new SQLVarchar(length, settings);     // @E1C
 
