@@ -119,7 +119,7 @@ implements SQLLocator                                       // @B3C
     {
         int locatorHandle = ((Integer) typeConverter_.toObject (rawBytes, offset)).intValue ();        
         locator_.setHandle (locatorHandle);
-	locator_.setColumnIndex (columnIndex_);  //@D1A
+	locator_.setColumnIndex (columnIndex_);  //@F2A
     }
 
 

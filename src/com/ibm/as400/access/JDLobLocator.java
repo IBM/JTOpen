@@ -63,6 +63,7 @@ Constructs an JDLobLocator object.
         id_              = id;
         handle_          = -1;
         maxLength_       = maxLength;                                   // @A1A
+        dataCompression_ = connection_.getDataCompression() == AS400JDBCConnection.DATA_COMPRESSION_OLD_; // @B0A @C2C
     	   columnIndex_     = -1;                                          // @D1A
     }
 
