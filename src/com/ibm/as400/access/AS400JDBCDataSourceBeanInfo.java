@@ -399,6 +399,11 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             keepAlive.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_KEEP_ALIVE"));
             keepAlive.setShortDescription(AS400JDBCDriver.getResource("KEEP_ALIVE_DESC"));
 
+            PropertyDescriptor loginTimeout = new PropertyDescriptor("loginTimeout", beanClass, "getLoginTimeout", "setLoginTimeout");  //@K5A
+            loginTimeout.setBound(true);                                                                                                //@K5A        
+            loginTimeout.setConstrained(false);                                                                                         //@K5A
+            loginTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_LOGIN_TIMEOUT"));                                        //@K5A
+            loginTimeout.setShortDescription(AS400JDBCDriver.getResource("LOGIN_TIMEOUT_DESC"));                                        //@K5A
             PropertyDescriptor receiveBufferSize = new PropertyDescriptor("receiveBufferSize", beanClass, "getReceiveBufferSize", "setReceiveBufferSize");
             receiveBufferSize.setBound(true);
             receiveBufferSize.setConstrained(false);
@@ -468,7 +473,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
                 decimalSeparator, description, driver, errors, extendedDynamic, extendedMetaData, fullOpen, lazyClose, libraries, lobThreshold, naming, packageName, packageAdd, packageCache, packageClear,              //@W1c @J5C
                 packageCriteria, packageError, packageLibrary, password, prefetch, prompt, proxyServer, remarks, savePassword, secondaryUrl, secure, serverName, sort,
                 sortLanguage, sortTable, sortWeight, threadUsed, timeFormat, timeSeparator, trace, traceServer, transactionIsolation, translateBinary, user,
-                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A
+                keepAlive, receiveBufferSize, sendBufferSize, soLinger, soTimeout, tcpNoDelay, packageCCSID, minimumDivideScale, maximumPrecision, maximumScale, translateHex, traceToolbox, qaqqiniLibrary, traceServerCategories, loginTimeout};  // @M0C - added package CCSID property and decimal scale & precision properties  //@j1c //@K2A //@K3A //@K4A //@K5A
         }
         catch(Exception e)
         {

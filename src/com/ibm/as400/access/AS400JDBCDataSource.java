@@ -767,11 +767,11 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Returns the timeout value in seconds.
     *  Note: This value is not used or supported.
     *  The timeout value is determined by OS/400.
-    *  @return Always returns 0.
+    *  @return the maximum time in seconds that this data source can wait while attempting to connect to a database. 
     **/
     public int getLoginTimeout()
     {
-        return 0;
+        return properties_.getInt(JDProperties.LOGIN_TIMEOUT);
     }
 
     /**
@@ -2160,13 +2160,25 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     *  Sets the maximum time in seconds that this data source can wait while attempting to connect to a database.
     *  A value of zero specifies that the timeout is the system default if one exists; otherwise it specifies that
     *  there is no timeout. The default value is initially zero.
-    *  Note: This value is not used or supported.
     *  @param timeout The login timeout in seconds.
-    *  @exception SQLException The timeout parameter is not supported.
     **/
     public void setLoginTimeout(int timeout) throws SQLException
     {
-        JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
+        //This sets the socket timeout
+        setSoTimeout(timeout * 1000);                                                   //@K5A  setSoTimeout takes milliseconds as a parameter
+        String property = "loginTimeout";                                               //@K5A
+
+        Integer oldValue = new Integer(getLoginTimeout());                              //@K5A
+        Integer newValue = new Integer(timeout);                                        //@K5A
+
+        properties_.setString(JDProperties.LOGIN_TIMEOUT, newValue.toString());         //@K5A
+
+        changes_.firePropertyChange(property, oldValue, newValue);                      //@K5A
+
+        if (JDTrace.isTraceOn())                                                        //@K5A
+            JDTrace.logInformation (this, property + ": " + timeout);                   //@K5A
+
+        //@K5D JDError.throwSQLException (this, JDError.EXC_FUNCTION_NOT_SUPPORTED);
     }
 
     /**

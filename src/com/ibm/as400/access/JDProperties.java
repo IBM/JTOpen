@@ -128,12 +128,13 @@ class JDProperties implements Serializable
     static final int              TRANSLATE_HEX           = 55;   // @M0A - support hex constant parser option
     static final int              TRACE_TOOLBOX           = 56;   // @K1A - support to allow a toolbox trace
     static final int              QAQQINILIB              = 57;   // @K2A - support to specify a QAQQINI library name 
+    static final int              LOGIN_TIMEOUT           = 58;   // @K5A
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 58;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 59;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5A
 
 
 
@@ -198,6 +199,7 @@ class JDProperties implements Serializable
     private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
     private static final String USER_                   = "user";
     private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
+    private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
 
 
 
@@ -636,6 +638,13 @@ class JDProperties implements Serializable
         dpi_[i].choices     = new String[0];
         defaults_[i]        = EMPTY_;
 
+        // login timeout.         //@K5A
+        i = LOGIN_TIMEOUT;
+        dpi_[i] = new DriverPropertyInfo (LOGIN_TIMEOUT_, "");
+        dpi_[i].description = "LOGIN_TIMEOUT_NAME_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[0];
+        defaults_[i]        = EMPTY_;
 
         // Full Open.   @W1a
         i = FULL_OPEN;
