@@ -188,6 +188,9 @@ implements SpooledFileOutputStreamImpl
       *  <li> <A HREF="PrintAttributes.html#HDRKEY180.5">
       *         ATTR_IPP_ATTR_NL - IPP Natural Language
       *       </A>
+      *  <li> <A HREF="PrintAttributes.html#HDRKEY203"> // @A5A
+      *         ATTR_JOBSYSTEM - Job System Name
+      *       </A>
       *  <li> <A HREF="PrintAttributes.html#HDRKEY64">
       *         ATTR_LPI - Lines per inch
       *       </A>

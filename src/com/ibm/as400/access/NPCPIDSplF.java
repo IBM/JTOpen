@@ -15,12 +15,16 @@ package com.ibm.as400.access;
 
 /**
  * NPCPIDSplF is used to contain a spooled file ID code point.
- * This code point has 5 values in it:
+ * This code point has 5 or 8 (optionally at R520) values in it:         @A1A
  *     NP_ATTR_SPOOLFILE    - spooled file name
  *     NP_ATTR_SPLFNUM      - spooled file number
  *     NP_ATTR_JOBNAME      - job name
  *     NP_ATTR_JOBUSER      - job user
  *     NP_ATTR_JOBNUMBER    - job number
+ **  The following three attributes preserve uniqueness for splfs detached from jobs
+ *     NP_ATTR_JOBSYSTEM    - System job creating splf is from            @A1A
+ *     NP_ATTR_DATE         - Create date of job splf is from             @A1A
+ *     NP_ATTR_TIME         - Create time of job splf is from             @A1A
  **/
 
 class NPCPIDSplF extends NPCPID implements Cloneable
@@ -73,6 +77,29 @@ class NPCPIDSplF extends NPCPID implements Cloneable
        setAttrValue(PrintObject.ATTR_JOBNUMBER, jobNumber);
     }
 
+  /**             @A1A
+    * constructor that takes alternate ID values as seperate items
+    */            
+    NPCPIDSplF(String splFileName,
+               int    splFileNumber,
+               String jobName,
+               String jobUser,
+               String jobNumber,
+               String jobSysName,
+               String createDate,
+               String createTime)
+    {
+       super(NPCodePoint.SPOOLED_FILE_ID);
+       setAttrValue(PrintObject.ATTR_SPOOLFILE, splFileName);
+       setAttrValue(PrintObject.ATTR_SPLFNUM, splFileNumber);
+       setAttrValue(PrintObject.ATTR_JOBNAME, jobName);
+       setAttrValue(PrintObject.ATTR_JOBUSER, jobUser);
+       setAttrValue(PrintObject.ATTR_JOBNUMBER, jobNumber);
+       setAttrValue(PrintObject.ATTR_JOBSYSTEM, jobSysName);
+       setAttrValue(PrintObject.ATTR_DATE, createDate);
+       setAttrValue(PrintObject.ATTR_TIME, createTime);
+    }
+//       end new constructor     @A1A
     protected Object clone()
     {
 	NPCPIDSplF cp = new NPCPIDSplF(this);
@@ -120,5 +147,29 @@ class NPCPIDSplF extends NPCPID implements Cloneable
       return getStringValue(PrintObject.ATTR_JOBUSER);
    }
 
+  /**
+   * get the system job which created the splf
+   */
+   String jobSysName()
+   {
+     return getStringValue(PrintObject.ATTR_JOBSYSTEM);
+   }
+  
+  /** @A1A
+   * get the creation date of splf
+   */
+   String createDate()
+   {
+     return getStringValue(PrintObject.ATTR_DATE);
+   }
+   
+  /** @A1A
+   * get the creation time of the splf
+   */
+   String createTime()
+   {
+     return getStringValue(PrintObject.ATTR_TIME);
+   }
+    
 } // NPCPIDSplF
 

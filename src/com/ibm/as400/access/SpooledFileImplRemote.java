@@ -162,6 +162,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CPI);           // characters per inch
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_CURPAGE);       // current page
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);          // date file was opened
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_END);      // date spooled file creation ended @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_BEGAN_FILE); // date writer began processing file
                                                                         //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE_WTR_CMPL_FILE); // date writer finished processing file
@@ -201,6 +202,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_IPP_ATTR_NL);   // IPP natural language         @C4A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNAME);       // name of the job that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBNUMBER);     // number of the job that created file
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBSYSTEM);     // System which job that created splf ran @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBUSER);       // name of the user that created file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_JUSTIFY);       // hardware justification
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_LASTPAGE);      // last page that printed
@@ -211,11 +213,14 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MULTIUP);       // logical pages per physical side
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NETWORK);       // network were output was created @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES);      // number of bytes to read/write
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES_SPLF); // number of bytes contained w/in splf @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPTY);        // output priority
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTPUTBIN);     // output bin @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);        // *output queue
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUELIB);     // *output queue library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OVERFLOW);      // overflow line number
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFN);        // *Page definition library @C5A
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGDFNLIB);     // *Page definition library name @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGELEN);       // page length in measurement method
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGES);         // number of pages in spool file
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PAGEWIDTH);     // page width in measurement method
@@ -246,6 +251,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTPAGE);     // starting page to print
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_SYSTEM);        // system where output was created @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);          // time spooled file was opened at
+            attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_END);      // ending time which spooled file was created @C5A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_BEGAN_FILE); // time writer began processing file
                                                                         //               @C1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME_WTR_CMPL_FILE); // time writer finished processing file

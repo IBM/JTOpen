@@ -61,6 +61,7 @@ class PrinterImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_FORMTYPEMSG); // form type message option @A1A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_HELDSTS);     // held status @A2A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_HOLDPNDSTS);  // hold pending status @A2A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_IMGCFG);      // Image configuration @A5A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_JOBUSER);     // name of the user that created file @A1A
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MFGTYPE);     // manufacturer's type & model
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_MSGQUELIB);   // message queue library name
@@ -73,6 +74,13 @@ class PrinterImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_POINTSIZE);   // the default font's point size
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);     // printer
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRTDEVTYPE);  // printer dev type @A1A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_COLOR_SUP);// Color supported indicator @A5A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DS); // Data Stream supported    @A5A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM_COLOR);// Pages per minute (color printing) @A5A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_PPM); // Papers per minute (monochrome printing) @A5A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_DUPLEX_SUP);// Duplex supported indicator @A5A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_PUBINF_LOCATION);// Published location description @A5A
+    	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_RMTLOCNAME); // remote loc of the printer device @A5A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPOOLFILE);   // spool file name @A1A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_SPLFNUM);     // spool file number @A1A
     	    attrsToRetrieve_.addAttrID(PrintObject.ATTR_STARTEDBY);   // started by @A1A

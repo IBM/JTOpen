@@ -328,7 +328,8 @@ abstract class NPCPAttributeValue extends NPCodePoint
                   type = ((NPAttrString)attr).get();
                   if ( (type != null) && type.startsWith("*"))
                   {
-                      type = type.substring(1, type.length()-1);
+                    type = type.substring(1, type.length());// @B2A correct subs
+                 // type = type.substring(1, type.length()-1); @B3D
                   }
                }
            } else {
@@ -655,7 +656,11 @@ abstract class NPCPAttributeValue extends NPCodePoint
     private void updateList()
     {
        byte[] data;
+       int i;
+       byte nullbyte = (byte)'\0';
+      
        NPAttribute attr = null;
+       
        // zero out table and the rebuild based on data
        zeroAttrTable();
        data = super.getDataBuffer();
@@ -724,6 +729,21 @@ abstract class NPCPAttributeValue extends NPCodePoint
                          case NPAttribute.FLOAT:
                             attr = new NPAttrFloat(ID, data, valueOffset,
                                                     length);
+                            break;
+                         case NPAttribute.LISTSTRING:                                        // @B4A
+                            // lists of strings will contain single null per field
+                            // and double null to signify list end                              @B4A
+                            
+                            for ( i = 0; i < length; i++){                                   // @B4A
+                                if ((data[i + valueOffset] == nullbyte)&& (i < length -1)){
+                                     if (data[i + valueOffset + 1] != nullbyte){
+                                        data[i + valueOffset] = (byte)'\u007A';
+                            // uses ':' as a delimiter between fields            @B4A                                                                               
+                                     }
+                                 }
+                                 }
+                            attr = new NPAttrString(ID, data, valueOffset,
+                                                    length, converter_);
                             break;
                          default:
                             // unknown attribute type - could be new?

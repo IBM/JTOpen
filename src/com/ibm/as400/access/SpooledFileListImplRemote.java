@@ -15,8 +15,8 @@ package com.ibm.as400.access;
 
 /**
  * The SpooledFileList class is used to build a list of AS/400 spooled file objects of type
- * SpooledFile.  The list can be filtered by formtype, output queue, user,
- * or user data.
+ * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date and 
+ * time or user data.   @B2C
  *
  *@see SpooledFile
  **/
@@ -57,6 +57,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x1D,             // ATTR_COPIESLEFT
         0x00, 0x1E,             // ATTR_CURPAGE
         0x00, 0x22,             // ATTR_DATE
+        0x00, (byte)0xFD,       // ATTR_DATE_END @B2A
         0x00, (byte)0x99,       // ATTR_DBCSDATA
         0x00, (byte)0x9A,       // ATTR_DBCSEXTENSN
         0x00, (byte)0x9B,       // ATTR_DBCSROTATE
@@ -82,6 +83,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x39,             // ATTR_HOLD
         0x00, 0x3B,             // ATTR_JOBNAME
         0x00, 0x3C,             // ATTR_JOBNUMBER
+        0x00, (byte)0xFB,       // ATTR_JOBSYSTEM @B2A
         0x00, 0x3E,             // ATTR_JOBUSER
         0x00, 0x3F,             // ATTR_LASTPAGE
         0x00, 0x40,             // ATTR_LPI
@@ -114,6 +116,7 @@ class SpooledFileListImplRemote extends PrintObjectListImplRemote
         0x00, 0x6B,             // ATTR_SCHEDULE
         0x00, 0x6C,             // ATTR_STARTPAGE
         0x00, 0x6E,             // ATTR_TIME
+        0x00, (byte)0xFE,       // ATTR_TIME_END @B2A
         0x00, 0x6F,             // ATTR_PAGES
         0x00, 0x72,             // ATTR_UNITOFMEAS
         0x00, 0x73,             // ATTR_USERCMT

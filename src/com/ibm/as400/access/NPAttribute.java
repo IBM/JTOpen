@@ -39,6 +39,8 @@ abstract class NPAttribute extends Object implements Cloneable,
     static final int  STRING_ENU    = 0x0006;
     static final int  FLOAT         = 0x0007;   // floating point
     static final int  PACKED_DEC    = 0x0007;   // packed decimal (15,5)
+    static final int  BINARY        = 0x0008;   // @ACA missing attribs
+    static final int  LISTSTRING    = 0x0009;   // @ACA array of strings
 
     // @A1C changed below from Converter.getConverter()
     // @B1D static  Converter  defaultConverter = new Converter(); 

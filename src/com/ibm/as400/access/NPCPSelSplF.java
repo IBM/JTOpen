@@ -123,6 +123,51 @@ class NPCPSelSplF extends NPCPSelection implements Cloneable
         }
     }
 
+  /** @A1A
+    * gets the create job system
+    * @returns the filter for the user or an empty string if it isn't set.
+    **/
+    String getJobSystem()
+    {
+        String jobSystem = getStringValue(PrintObject.ATTR_JOBSYSTEM);
+        if( jobSystem == null )
+        {
+            return emptyString;
+        } else {
+            return jobSystem;
+        }
+    }
+
+  /** @A1A
+   * @return the filter for start date or blanks
+   * if end date isn't set.
+   **/
+   String getStartDate()
+   {
+        String startDate = getStringValue(PrintObject.ATTR_DATE);
+        if ( startDate == null )
+        {
+            return emptyString;
+        } else {
+            return startDate;
+        }
+   }
+
+   /** @A1A
+   * @return the filter for start time or blanks
+   * if end time isn't set.
+   **/
+   String getStartTime()
+   {
+        String startTime = getStringValue(PrintObject.ATTR_TIME);
+        if ( startTime == null )
+        {
+            return emptyString;
+        } else {
+            return startTime;
+        }
+   }
+   
    /**
     * gets the user data filter
     * @returns the filter for the user data or
@@ -139,6 +184,37 @@ class NPCPSelSplF extends NPCPSelection implements Cloneable
         }
     }
 
+   /** @A1A
+   * @return the filter for end date or blanks
+   * if end date isn't set.
+   **/
+   String getEndDate()
+   {
+        String endDate = getStringValue(PrintObject.ATTR_DATE_END);
+        if ( endDate == null )
+        {
+            return emptyString;
+        } else {
+            return endDate;
+        }
+   }
+
+   /** @A1A
+   * @return the filter for end time or blanks
+   * if end time isn't set.
+   **/
+   String getEndTime()
+   {
+        String endTime = getStringValue(PrintObject.ATTR_TIME_END);
+        if ( endTime == null )
+        {
+            return emptyString;
+        } else {
+            return endTime;
+        }
+   }
+        
+    
    /**
     * set formtype filter.
     * Removes the filter if formType is "".
@@ -227,7 +303,75 @@ class NPCPSelSplF extends NPCPSelection implements Cloneable
         }
     }
 
+   /** @A1A
+    * set create job system
+    * Removes the filter if userData is "".
+    **/
+    void setJobSystem(String jobSystem)
+    {
+        if( jobSystem.length() == 0 )
+        {
+            removeAttribute(PrintObject.ATTR_JOBSYSTEM);
+        } else {
+            setAttrValue(PrintObject.ATTR_JOBSYSTEM, jobSystem);
+        }
+    }
+
+    /** @A1A
+    * set startTime and
+    * removes the filter if startTime is "".
+    **/
+    void setStartTime(String startTime)
+    {
+        if( startTime.length() == 0 )
+        {
+            removeAttribute(PrintObject.ATTR_TIME);
+        } else {
+            setAttrValue(PrintObject.ATTR_TIME, startTime);
+        }
+    }
+
+    /** @A1A
+    * set startDate and
+    * removes the filter if startDate is "".
+    **/
+    void setStartDate(String startDate)
+    {
+        if( startDate.length() == 0 )
+        {
+            removeAttribute(PrintObject.ATTR_DATE);
+        } else {
+            setAttrValue(PrintObject.ATTR_DATE, startDate);
+        }
+    }
     
+   /** @A1A
+    * set endTime and
+    * removes the filter if endTime is "".
+    **/
+    void setEndTime(String endTime)
+    {
+        if( endTime.length() == 0 )
+        {
+            removeAttribute(PrintObject.ATTR_TIME_END);
+        } else {
+            setAttrValue(PrintObject.ATTR_TIME_END, endTime);
+        }
+    }
+
+    /** @A1A
+    * set endDate filter and
+    * removes the filter if userDate is "".
+    **/
+    void setEndDate(String endDate)
+    {
+        if( endDate.length() == 0 )
+        {
+            removeAttribute(PrintObject.ATTR_DATE_END);
+        } else {
+            setAttrValue(PrintObject.ATTR_DATE_END, endDate);
+        }
+    }
 
 }
 

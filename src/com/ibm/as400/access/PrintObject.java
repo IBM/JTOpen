@@ -42,6 +42,8 @@ abstract public class PrintObject implements java.io.Serializable
 
     /** <A HREF="../../../../PrintAttributes.html#HDRKEYIFS_C">AFP Resource integrated file system path</A>. **/
     public static final int ATTR_AFP_RESOURCE = -12;
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY201">Auxilary Storage Pool</A>. **/
+           static final int ATTR_AUX_POOL     = 0x00FC; // Auxiliary Storage  @A9A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY1001">Resource library name</A>. **/
            static final int ATTR_RSCLIB       = 0x00AE; // Resource library
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY1002">Resource name</A>. **/
@@ -127,6 +129,8 @@ abstract public class PrintObject implements java.io.Serializable
            static final int ATTR_DATAQUE      = 0x0021;  // data queue associated with output queue
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY23">Date object created</A>. **/
     public static final int ATTR_DATE         = 0x0022;  // date file was opened
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY202">Date job created spooled file</A>. **/
+    public static final int ATTR_DATE_END     = 0x00FD;  // date job created file @A9A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY178">Date writer began processing spooled file</A>. **/   /* @A7A*/
     public static final int ATTR_DATE_WTR_BEGAN_FILE = 0x00EA;  // date writer began file @A7A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY179">Date writer completed processing spooled filed</A>. **/   /* @A7A*/
@@ -223,6 +227,8 @@ abstract public class PrintObject implements java.io.Serializable
                                                          // issued for this writer
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY125">When to hold file</A>. **/
     public static final int ATTR_HOLDTYPE     = 0x009E; // When to hold spooled file
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY206"> Image Configuration </A>.  **/
+    public static final int ATTR_IMGCFG       = 0x0100; // Image Configuration @A9A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY167">Initialize printer</A>. **/            /* @A4A */
            static final int ATTR_INITIALIZE_PRINTER = 0x00D2; // initialize the printer    @A4A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY56">Internet address</A>. **/
@@ -250,6 +256,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_JOBNUMBER    = 0x003C;  // number of the job that created file
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY59">Job separators</A>. **/
     public static final int ATTR_JOBSEPRATR   = 0x003D;  // number of job separators
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY203">System Job which created spooled file was running</A>. **/
+    public static final int ATTR_JOBSYSTEM    = 0x00FB;  // System job creating spooled file ran @A9A 
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY60">Job user</A>. **/
     public static final int ATTR_JOBUSER      = 0x003E;  // name of the user that created file
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY54">Hardware justification</A>. **/
@@ -389,6 +397,20 @@ abstract public class PrintObject implements java.io.Serializable
            static final int ATTR_PRTFLIB      = 0x005B;  // printer file library
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY95">Printer file name</A>. **/
            static final int ATTR_PRTFILE      = 0x005C;  // printer file
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY207">Color supported indicator</A>. **/
+    public static final int ATTR_PUBINF_COLOR_SUP = 0x0101; //Color supported indicator @A9A
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY208">Pages per minute (color printing)</A>. **/
+    public static final int ATTR_PUBINF_PPM_COLOR = 0x0102; //Pages per minute (color printing) @A9A
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY212">Data Stream supported</A>. **/
+    public static final int ATTR_PUBINF_DS = 0x0106; //Data Stream supported  @A9A 
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY209">Pages per minute (monochrome printing)</A>. **/
+    public static final int ATTR_PUBINF_PPM = 0x0103; //Pages per minute (monochrome printing) @A9A
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY210">Duplex supported indicator</A>. **/
+    public static final int ATTR_PUBINF_DUPLEX_SUP = 0x0104; //Duplex supported indicator @A9A
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY211">Published location description</A>. **/
+    public static final int ATTR_PUBINF_LOCATION = 0x0105; //Published location description @A9A
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY205">Printer device location name</A>. **/
+    public static final int ATTR_RMTLOCNAME  = 0x00FF;  // printer device location name @A9A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY96">Printer queue</A>. **/
     public static final int ATTR_RMTPRTQ      = 0x005D;  // Remote print queue used on SNDTCPSPLF
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY97">Record length</A>. **/
@@ -453,6 +475,8 @@ abstract public class PrintObject implements java.io.Serializable
     public static final int ATTR_SYSTEM       = 0x00BC;  // system where created @A1A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY114">Time object created</A>. **/
     public static final int ATTR_TIME         = 0x006E;  // time spooled file was opened at
+    /** <A HREF="../../../../PrintAttributes.html#HDRKEY204">Time Job creating spooled file ended</A>. **/
+    public static final int ATTR_TIME_END     = 0x00FE;  //Time job creating spooled file ended @A9A          
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY189">Time writer began procesing spooled file</A>. **/   /* @A7A*/
     public static final int ATTR_TIME_WTR_BEGAN_FILE = 0x00EC;  // time writer began file @A7A
     /** <A HREF="../../../../PrintAttributes.html#HDRKEY190">Time writer completed processing spooled filed</A>. **/   /* @A7A*/
@@ -541,7 +565,7 @@ abstract public class PrintObject implements java.io.Serializable
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
     // KEEP THIS CURRENT ***** KEEP THIS CURRENT ***** KEEP THIS CURRENT
-    static final int                    MAX_ATTR_ID = 0x00FA;  // last attribute ID @A4C @A7C
+    static final int                    MAX_ATTR_ID = 0x0106;  // last attribute ID @A4C @A7C @A9C
 
     static final String                 EMPTY_STRING = "";
     private static final String         SYSTEM = "system";

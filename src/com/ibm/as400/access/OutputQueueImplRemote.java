@@ -53,6 +53,7 @@ implements OutputQueueImpl
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQUE);        // Output queue name
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_OUTQSTS);       // Output queue status
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_PRINTER);       // Printer
+	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_RMTSYSTEM);     // Remote system name @A2A
                 attrsToRetrieve_.addAttrID(PrintObject.ATTR_SEPPAGE);       // Separator page
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_DESCRIPTION);   // Text description
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOPT);     // user defined options

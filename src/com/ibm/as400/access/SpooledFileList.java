@@ -17,8 +17,8 @@ import java.beans.PropertyVetoException;
 
 /**
  * The SpooledFileList class is used to build a list of AS/400 spooled file objects of type
- * SpooledFile.  The list can be filtered by formtype, output queue, user,
- * or user data.
+ * SpooledFile.  The list can be filtered by formtype, output queue, user, ending date, 
+ * ending time, or user data.
  *
  *@see SpooledFile
  **/
@@ -38,7 +38,13 @@ implements java.io.Serializable
     private static final String QUEUE_FILTER = "queueFilter";
     private static final String USER_FILTER = "userFilter";
     private static final String USER_DATA_FILTER = "userDataFilter";
-
+    private static final String END_DATE_FILTER = "endDateFilter"; //@B2A
+    private static final String END_TIME_FILTER = "endTimeFilter"; //@B2A
+    private static final String START_DATE_FILTER = "startDateFilter"; //@B2A
+    private static final String START_TIME_FILTER = "startTimeFilter"; //@B2A
+    private static final String JOB_SYSTEM_FILTER = "jobSystemFilter"; //@B2A
+    
+    
    
     /**
      * Constructs a SpooledFileList object. The AS/400 system
@@ -154,13 +160,73 @@ implements java.io.Serializable
         return( selectionCP.getUserData() );
     }
 
-
+    /**
+     * Returns the create job system filter.
+     *
+     **/
+   public String getJobSystemFilter()
+   {
+    // If empty, getJobSystem will return an blank string.
+    
+       NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+       return( selectionCP.getJobSystem() );
+   }
+   /**
+     * Returns the end create date filter.
+     *
+     **/
+   public String getEndDateFilter()
+   {
+    // If empty, getEndDate will return an blank string.
+    
+       NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+       return( selectionCP.getEndDate() );
+   }
+   
+   /**
+     * Returns the end create date filter.
+     *
+     **/
+   public String getEndTimeFilter()
+   {
+    // If empty, getEndTime will return an blank string.
+    
+       NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+       return( selectionCP.getEndTime() );
+   }
+   
+   
 
     // @A5A
     PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new SpooledFile(system_, (NPCPIDSplF)cpid, cpattr);
     }
+
+   /**
+     * Returns the create start date filter.
+     *
+     **/
+   public String getStartDateFilter()
+   {
+    // If empty, getStartDate will return blank string.
+    
+       NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+       return( selectionCP.getStartDate() );
+   }
+   /**
+     * Returns the create date filter.
+     *
+     **/
+   public String getStartTimeFilter()
+   {
+    // If empty, getStartTime will return an blank string.
+    
+       NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+       return( selectionCP.getEndTime() );
+   }
+   
+   
 
 
     /**
@@ -218,7 +284,6 @@ implements java.io.Serializable
     }
 
 
-
     /**
       * Sets the output queue filter.
       * @param queueFilter The library and output queues on which to list spooled
@@ -267,6 +332,253 @@ implements java.io.Serializable
         // Notify any property change listeners.
         changes.firePropertyChange( QUEUE_FILTER, oldQueueFilter, queueFilter );
     }
+
+
+    /**
+      * Sets the create job system filter.
+      * The name of the system where the job, specified in the qualified job name
+      * parameter, was run. This parameter can be used in conjunction with the user
+      * name, qualified output queue name, form type, user-specified data, auxiliary
+      * storage pool, starting spooled file create date, starting spooled file create
+      * time, ending spooled file create date, ending spooled file create time, or
+      * qualified job name parameters to return a partial list of all the spooled 
+      * files. The list of spooled files returned is sorted by status, output 
+      * priority, date, and time.
+      *
+      * The following special values are supported for this parameter:
+      *@param setJobSystemFilter
+      *<br>
+      *  <I>*ALL</I> The returned list is not to be filtered based on job system name.
+      *  <I>*CURRENT</I>
+      *              Only spooled files created on the current system are to be returned.
+      *  <job-system-name>
+      *              Only spooled files created on the system specified are to be returned.</ul>
+      * @exception PropertyVetoException If the change is vetoed.
+      *
+      **/
+    public void setJobSystemFilter(String jobSystemFilter)
+      throws PropertyVetoException
+    {
+        if( jobSystemFilter == null )
+        {
+            Trace.log( Trace.ERROR, "Parameter 'jobSystemFilter' is null" );
+            throw new NullPointerException( JOB_SYSTEM_FILTER );
+        }
+
+        String oldJobSystemFilter = getJobSystemFilter();
+
+        // Tell any vetoers about the change. If anyone objects
+        // we let the PropertyVetoException propagate back to
+        // our caller.
+        vetos.fireVetoableChange( JOB_SYSTEM_FILTER, oldJobSystemFilter, jobSystemFilter );
+
+        // No one vetoed, make the change.
+        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+        selectionCP.setJobSystem(jobSystemFilter);
+
+        // Propagate any change to ImplRemote if necessary...
+        if (impl_ != null) 
+            impl_.setFilter("jobSystem", jobSystemFilter);  
+
+        // Notify any property change listeners.
+        changes.firePropertyChange( JOB_SYSTEM_FILTER, oldJobSystemFilter, jobSystemFilter );
+    } // @B2A
+
+    /**
+      * Sets the end date filter.
+      * The date the spooled file was created on the system. If the Starting 
+      * spooled file create date field is set to *ALL, then this field must be 
+      * set to blanks. If a date has been specified for the Starting spooled 
+      * file create date field, then this field must be set to a valid date. The
+      * date must be in the CYYMMDD format or the following special value:
+      * @param endDateFilter
+      * <br>
+      *   <I>date</I> All spooled files with a create date and time equal to or 
+      * later than the starting spooled file create date are to be returned.
+      * <ul>
+      * <li> *LAST - All spooled files with a create date and time equal to or 
+      * later than the starting spooled file create date are to be returned.
+      * </ul>
+      * @exception PropertyVetoException If the change is vetoed.
+      *
+      **/
+    public void setEndDateFilter(String endDateFilter)
+      throws PropertyVetoException
+    {
+        if( endDateFilter == null )
+        {
+            Trace.log( Trace.ERROR, "Parameter 'endDateFilter' is null" );
+            throw new NullPointerException( END_DATE_FILTER );
+        }
+        if ((endDateFilter.length() > 7)) 
+        {
+            Trace.log(Trace.ERROR, "Parameter 'endDateFilter' has invalid length.");
+            throw new ExtendedIllegalArgumentException(
+                "endDateFilter("+endDateFilter+")",
+                ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+
+        String oldEndDateFilter = getEndDateFilter();
+
+        // Tell any vetoers about the change. If anyone objects
+        // we let the PropertyVetoException propagate back to
+        // our caller.
+        vetos.fireVetoableChange( END_DATE_FILTER, oldEndDateFilter, endDateFilter );
+
+        // No one vetoed, make the change.
+        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+        selectionCP.setEndDate(endDateFilter);
+
+        // Propagate any change to ImplRemote if necessary...
+        if (impl_ != null) 
+            impl_.setFilter("endDate", endDateFilter);  
+
+        // Notify any property change listeners.
+        changes.firePropertyChange( END_DATE_FILTER, oldEndDateFilter, endDateFilter );
+    } // @B2A
+
+    /**
+      * Sets the end time filter.
+      * The time the spooled file was created on the system. This field must be 
+      * set to blanks when special value *ALL is used for field Starting spooled 
+      * file create date or when special value *LAST is used for field Ending 
+      * spooled file create date. This field must have a value set if a date is
+      * specified for field Ending spooled file create date. The time must be in the
+      * HHMMSS format.
+      * @param endTimeFilter
+      * <br>
+      *   <I>time</I> All spooled files with a create date and time equal to or 
+      * later than the starting spooled file create date are to be returned.
+      * 
+      * @exception PropertyVetoException If the change is vetoed.
+      *
+      **/
+    public void setEndTimeFilter(String endTimeFilter)
+      throws PropertyVetoException
+    {
+        if( endTimeFilter == null )
+        {
+            Trace.log( Trace.ERROR, "Parameter 'endTimeFilter' is null" );
+            throw new NullPointerException( END_TIME_FILTER );
+        }
+
+        String oldEndTimeFilter = getEndTimeFilter();
+
+        // Tell any vetoers about the change. If anyone objects
+        // we let the PropertyVetoException propagate back to
+        // our caller.
+        vetos.fireVetoableChange( END_TIME_FILTER, oldEndTimeFilter, endTimeFilter );
+
+        // No one vetoed, make the change.
+        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+        selectionCP.setEndTime(endTimeFilter);
+
+        // Propagate any change to ImplRemote if necessary...
+        if (impl_ != null) 
+            impl_.setFilter("endTime", endTimeFilter); 
+
+        // Notify any property change listeners.
+        changes.firePropertyChange( END_TIME_FILTER, oldEndTimeFilter, endTimeFilter );
+    }  // @B2A
+
+    /**
+      * Sets the create start date filter.
+      * The date the spooled file was created on the system. This parameter can be
+      * used in conjunction with the user name, qualified output queue name, form 
+      * type, user-specified data, auxiliary storage pool, job system name, starting 
+      * spooled file create time, ending spooled file create date, ending spooled file
+      * create time, or qualified job name parameters to return a partial list of all
+      * the spooled files. The list of spooled files returned is sorted by status, 
+      * output priority, date, and time. The date must be in the CYYMMDD format or 
+      * one of the following special values:
+      * @param startDateFilter
+      * <br>
+      *   <I>date</I> All spooled files with a create date and time equal to or 
+      * later than the starting spooled file create date are to be returned.
+      *   <I>*ALL</I> The returned list is not to be filtered based on spooled file 
+      *               create date and spooled file create time.
+      *   <I>*FIRST</I> All spooled files starting with the earliest create date and time and less than or equal to the ending
+      *               spooled file create date and time are to be returned.
+      * 
+      * @exception PropertyVetoException If the change is vetoed.
+      *
+      **/
+    public void setStartDateFilter(String startDateFilter)
+      throws PropertyVetoException
+    {
+        if( startDateFilter == null )
+        {
+            Trace.log( Trace.ERROR, "Parameter 'startDateFilter' is null" );
+            throw new NullPointerException( START_DATE_FILTER );
+        }
+
+        String oldStartDateFilter = getStartDateFilter();
+
+        // Tell any vetoers about the change. If anyone objects
+        // we let the PropertyVetoException propagate back to
+        // our caller.
+        vetos.fireVetoableChange( START_DATE_FILTER, oldStartDateFilter, startDateFilter );
+
+        // No one vetoed, make the change.
+        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+        selectionCP.setStartDate(startDateFilter);
+
+        // Propagate any change to ImplRemote if necessary...
+        if (impl_ != null) 
+            impl_.setFilter("startDate", startDateFilter);  
+
+        // Notify any property change listeners.
+        changes.firePropertyChange( START_DATE_FILTER, oldStartDateFilter, startDateFilter );
+    } // @B2A
+
+    /**
+      * Sets the create start time filter.
+      * This parameter can be used in conjunction with the user name, qualified
+      * output queue name, form type, user-specified data, auxiliary storage pool, 
+      * job system name, starting spooled file create date, ending spooled file
+      * create date, ending spooled file create time, or qualified job name 
+      * parameters to return a partial list of all the spooled files. The list of
+      * spooled files returned is sorted by status, output priority, date, and time.
+      * This parameter must be set to blanks when special value *ALL or *FIRST is used
+      * for parameter Starting spooled file create date. This parameter must have a
+      * value set if a date is specified for parameter Starting spooled file create 
+      * date. The time must be in the HHMMSS format. 
+      *
+      * The time format HHMMSS is defined as follows:
+      * @param startTimeFilter
+      * <br>
+      *   <I>time</I> All spooled files with a create date and time equal to or 
+      * @exception PropertyVetoException If the change is vetoed.
+      *
+      **/
+    public void setStartTimeFilter(String startTimeFilter)
+      throws PropertyVetoException
+    {
+        if( startTimeFilter == null )
+        {
+            Trace.log( Trace.ERROR, "Parameter 'startTimeFilter' is null" );
+            throw new NullPointerException( START_TIME_FILTER );
+        }
+
+        String oldStartTimeFilter = getStartTimeFilter();
+
+        // Tell any vetoers about the change. If anyone objects
+        // we let the PropertyVetoException propagate back to
+        // our caller.
+        vetos.fireVetoableChange( START_TIME_FILTER, oldStartTimeFilter, startTimeFilter );
+
+        // No one vetoed, make the change.
+        NPCPSelSplF selectionCP = (NPCPSelSplF)getSelectionCP();
+        selectionCP.setStartTime(startTimeFilter);
+
+        // Propagate any change to ImplRemote if necessary...
+        if (impl_ != null) // @A1A
+            impl_.setFilter("StartTime", startTimeFilter);  
+
+        // Notify any property change listeners.
+        changes.firePropertyChange( START_TIME_FILTER, oldStartTimeFilter, startTimeFilter );
+    }  // @B2A
+
 
 
 

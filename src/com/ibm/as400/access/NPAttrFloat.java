@@ -171,6 +171,8 @@ class NPAttrFloat extends NPAttribute implements Cloneable,
               if (fHighNibble)
               {
                  j = (int)(hostData[byteIndex]) >> 4;       // get high nibble
+                 j = j & 0x0F;                               // mask hi order @B3
+                 // so int is signed correctly.
               } else {
                  j = (int)(hostData[byteIndex]) & 0x0F;     // get low nibble
                  byteIndex++;

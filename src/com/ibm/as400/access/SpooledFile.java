@@ -84,7 +84,6 @@ implements java.io.Serializable
               NPConstants.SPOOLED_FILE); // @B1C
 
         // base class constructor checks for null system.
-
         if (name == null)
         {
 	    Trace.log(Trace.ERROR, "Parameter 'name' is null.");
@@ -115,6 +114,94 @@ implements java.io.Serializable
         {
 	    Trace.log(Trace.ERROR, "Parameter 'jobNumber' is null.");
             throw new NullPointerException("jobNumber");
+        }
+    }
+   // Alternate constructor for spooled files detached from jobs @B3 
+    /**
+     * Constructs a SpooledFile object. It uses the specified system and
+     * spooled file attributes that identify it on that system.
+     *
+     * @param system The system on which this spooled file exists.
+     * @param name The name of the spooled file.
+     * @param number The number of the spooled file.
+     * @param jobName The name of the job that created the spooled file.
+     * @param jobUser The user who created the spooled file.
+     * @param jobNumber The number of the job that created the spooled file.
+     * @param jobSysName The name of the system where the spooled file was created.
+     * @param createDate The date the spooled file was created on the system.
+     * @param createTime The time the spooled file was created on the system.
+     *
+     **/
+   
+    public SpooledFile(AS400 system,
+                       String name,
+                       int    number,
+                       String jobName,
+                       String jobUser,
+                       String jobNumber,
+                       String jobSysName,
+                       String createDate,
+                       String createTime)
+    {
+        super(system,
+              new NPCPIDSplF(name,
+                             number,
+                             jobName,
+                             jobUser,
+                             jobNumber,
+                             jobSysName,
+                             createDate,
+                             createTime),
+              null,
+              NPConstants.SPOOLED_FILE); // @B1C
+
+        // base class constructor checks for null system.
+   
+        if (name == null)
+        {
+	    Trace.log(Trace.ERROR, "Parameter 'name' is null.");
+            throw new NullPointerException("name");
+        }
+
+        if (number < -1)    // @B2C  (changed from 1 to -1 to allow 0(=*ONLY) and -1(=*LAST))
+        {
+	    Trace.log(Trace.ERROR, "Parameter 'number' is less than -1.");   // @B2C
+	    throw new ExtendedIllegalArgumentException(
+                "number(" + number + ")",
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+	    }
+
+        if (jobName == null)
+        {
+	    Trace.log(Trace.ERROR, "Parameter 'jobName' is null.");
+            throw new NullPointerException("jobName");
+        }
+
+        if (jobUser == null)
+        {
+	    Trace.log(Trace.ERROR, "Parameter 'jobUser' is null.");
+            throw new NullPointerException("jobUser");
+        }
+
+        if (jobNumber == null)
+        {
+	    Trace.log(Trace.ERROR, "Parameter 'jobNumber' is null.");
+            throw new NullPointerException("jobNumber");
+        }
+        if (jobSysName == null)
+        {
+         Trace.log(Trace.ERROR, "Parameter 'jobSysName' is null.");
+            throw new NullPointerException("jobSysName");
+        }
+        if (createDate == null)
+        {
+         Trace.log(Trace.ERROR, "Parameter 'createDate' is null.");
+            throw new NullPointerException("createDate");
+        }
+        if (createTime == null)
+        {
+        Trace.log(Trace.ERROR, "Parameter 'createTime' is null.");
+            throw new NullPointerException("createTime");
         }
     }
 
@@ -289,8 +376,49 @@ implements java.io.Serializable
         }
     }
 
-
-
+   // @B3A 
+   // the next three attributes are added to provide the decoupled spooled file 
+   // identity @B3A
+     /**
+     * Returns the name of the system where the spooled file was created.
+     * @return The name of the system where the spooled file was created.
+     **/
+    public String getJobSysName()
+    {
+        NPCPID IDCodePoint = getIDCodePoint();
+        if ( IDCodePoint == null ){
+            return EMPTY_STRING;
+        } else {
+            return IDCodePoint.getStringValue(ATTR_JOBSYSTEM);
+        }
+    }// @B3A #1
+     /**
+     * Returns the date of the spooled file creation.
+     * @return The date of the spooled file creation.
+     **/
+    public String getCreateDate()
+    {
+        NPCPID IDCodePoint = getIDCodePoint();
+        if ( IDCodePoint == null ){
+            return EMPTY_STRING;
+        } else {
+            return IDCodePoint.getStringValue(ATTR_DATE);
+        }
+    }// @B3A #2
+     /**
+     * Returns the time of spooled file creation.
+     * @returns The time of the spooled file creation.
+     **/
+    public String getCreateTime()
+    {
+        NPCPID IDCodePoint = getIDCodePoint();
+        if ( IDCodePoint == null ){
+            return EMPTY_STRING;
+        } else {
+            return IDCodePoint.getStringValue(ATTR_TIME);
+        }
+    }// @B3A #3
+    
     /**
       * Returns the message that is associated with this spooled file.
       * A spooled file has a message associated with it if its
