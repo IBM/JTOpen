@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 
 
@@ -45,108 +46,78 @@ class JDEscapeClause
     private static final String     TIME_           = "T";
     private static final String     TIMESTAMP_      = "TS";
 
-
-
-    // Lists of supported scalar functions.
-	private static String		numericFunctions_;
-	private static String		stringFunctions_;
-	private static String		systemFunctions_;
-	private static String		timeDateFunctions_;
-
-
-
     // Scalar function parsing table.
-	private static Hashtable	scalarFunctionTable_;
+    private static JDScalarTable    scalarFunctionTable_;
 
+    /**
+    Static initializer.  Initialize the scalar function table
+    and the supported function lists.
+    **/
+    // @C1M Changed the static initializer to use the new JDScalarTable and provide earliest supported versions
+    static {
+        // create a new table
+        scalarFunctionTable_ = new JDScalarTable();
 
-
-/**
-Static initializer.  Initialize the scalar function table
-and the supported function lists.
-**/
-	static {
-        // Initialize the hashtable with a capacity that is
-        // a prime number not near a power of 2.  It is around
-        // 9 times the number of entries, so collisions should
-        // be kept to a miniumum.  The load factor is .5 so the
-        // table will never rehash.
+        // Numeric functions.
         //
-        scalarFunctionTable_ = new Hashtable (307, 0.5f);
+        // Supported by server:
+        // V4R5:
+        //    abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log10,mod,power,round,sin,sign,sqrt,tan,truncate
+        // >=V5R1:
+        //    abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log10,mod,power,radians,rand,round,sin,sign,sqrt,tan,truncate
+        //
+        // Supported by mapping:
+        //    log,pi
+        //
 
-		// Numeric functions.
-		//
-		// Not supported:
-		//    atan2, ceiling, degrees, floor, power, radians, rand, round,
-		//    sign, truncate.
-		//
-		StringBuffer numericFunctions = new StringBuffer ();
-		initializeScalarFunction ("abs",        "ABSVAL(%1)",	  numericFunctions);
-		initializeScalarFunction ("acos",       "ACOS(%1)",		  numericFunctions);
-		initializeScalarFunction ("asin",       "ASIN(%1)",		  numericFunctions);
-		initializeScalarFunction ("atan",       "ATAN(%1)",		  numericFunctions);
-		initializeScalarFunction ("cos",        "COS(%1)",		  numericFunctions);
-		initializeScalarFunction ("cot",        "COT(%1)",		  numericFunctions);
-		initializeScalarFunction ("exp",        "EXP(%1)",		  numericFunctions);
-		initializeScalarFunction ("log",        "LN(%1)",		  numericFunctions);
-		initializeScalarFunction ("log10",      "LOG(%1)",		  numericFunctions);
-		initializeScalarFunction ("mod",        "MOD(%1, %2)",	  numericFunctions);
-		initializeScalarFunction ("pi",         "3%d1415926E00",  numericFunctions);
-		initializeScalarFunction ("sin",        "SIN(%1)",		  numericFunctions);
-		initializeScalarFunction ("sqrt",       "SQRT(%1)",		  numericFunctions);
-		initializeScalarFunction ("tan",        "TAN(%1)",		  numericFunctions);
-		numericFunctions_ = numericFunctions.toString();
+        scalarFunctionTable_.put("pi", "3%d1415926E00", JDUtilities.vrm510);
+        scalarFunctionTable_.put("log", "LN(%1)", JDScalarTable.NOT_SUPPORTED);
 
-		// String functions.
-		//
-		// Not supported:
-		//    ascii, char, difference, lcase, locate, repeat, replace, soundex,
-		//    space.
-		//
-		StringBuffer stringFunctions = new StringBuffer ();
-		initializeScalarFunction ("concat",     "(%1 || %2)",           stringFunctions);
-		initializeScalarFunction ("insert",     "SUBSTR(%1, 1, %2 - 1) || %4 || SUBSTR(%1, %2 + %3)",
-								                                        stringFunctions);
-		initializeScalarFunction ("left",       "SUBSTR(%1, 1, %2)",    stringFunctions);
-		initializeScalarFunction ("length",     "LENGTH(STRIP(%1,T,' '))",
-								                                        stringFunctions);
-		initializeScalarFunction ("ltrim",      "STRIP(%1,L,' ')",      stringFunctions);
-		initializeScalarFunction ("right",      "SUBSTR(%1, LENGTH(%1) - %2 + 1)",
-                                       								    stringFunctions);
-		initializeScalarFunction ("rtrim",      "STRIP(%1,T,' ')",      stringFunctions);
-		initializeScalarFunction ("substring",  "SUBSTR(%1, %2, %3)",   stringFunctions);
-		initializeScalarFunction ("ucase",      "TRANSLATE(%1)",        stringFunctions);
-		stringFunctions_ = stringFunctions.toString();
+        // String functions.
+        //
+        // Supported by server:
+        // V4R5:
+        //    concat,left,locate,ltrim,rtrim,substring,ucase
+        // V5R1:
+        //    concat,difference,left,locate,ltrim,rtrim,soundex,space,substring,ucase
+        // >=V5R2:
+        //    concat,difference,insert,lcase,left,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase
+        // 
+        // Supported by mapping:
+        // <=V5R2:
+        //    insert,length,right
+        // V5R3:
+        //    length
+        //
+        // Not supported:
+        //    ascii,char
+        //
+        scalarFunctionTable_.put("insert", "SUBSTR(%1, 1, %2 - 1) || %4 || SUBSTR(%1, %2 + %3)", JDUtilities.vrm530);
+        scalarFunctionTable_.put("right", "SUBSTR(%1, LENGTH(%1) - %2 + 1)", JDUtilities.vrm530);
+        scalarFunctionTable_.put("length", "LENGTH(STRIP(%1,T,' '))", JDScalarTable.NOT_SUPPORTED);
 
-		// System functions.
-		//
-		// Not supported:
-		//    (None).
-		//
-		StringBuffer systemFunctions = new StringBuffer ();
-		initializeScalarFunction ("database",   "CURRENT SERVER",   systemFunctions);
-		initializeScalarFunction ("ifnull",     "VALUE(%1, %2)",    systemFunctions);
-		initializeScalarFunction ("user",       "USER",             systemFunctions);
-		systemFunctions_ = systemFunctions.toString();
+        // System functions.
+        //
+        // Supported by server:
+        //    ifnull,user
+        //
+        // Supported by mapping:
+        //    database            
+        //
+        scalarFunctionTable_.put("database", "CURRENT SERVER", JDUtilities.vrm530);
+        // we map the below function because if it is simply passed through it will end up USER()
+        // instead of USER
+        scalarFunctionTable_.put("user", "USER", JDScalarTable.NOT_SUPPORTED);
 
-		// Time and date functions.
-		//
-		// Not supported:
-		//    dayname, dayofweek, dayofyear, monthname, quarter,
-		//    timestampadd, timestampdiff, week.
-		//
-		StringBuffer timeDateFunctions = new StringBuffer ();
-
-		initializeScalarFunction ("curdate",    "CURRENT DATE",     timeDateFunctions);
-		initializeScalarFunction ("curtime",    "CURRENT TIME",     timeDateFunctions);
-		initializeScalarFunction ("dayofmonth", "DAY(%1)",          timeDateFunctions);
-		initializeScalarFunction ("hour",       "HOUR(%1)",         timeDateFunctions);
-		initializeScalarFunction ("minute",     "MINUTE(%1)",       timeDateFunctions);
-		initializeScalarFunction ("month",      "MONTH(%1)",        timeDateFunctions);
-		initializeScalarFunction ("now",        "CURRENT TIMESTAMP",timeDateFunctions);
-		initializeScalarFunction ("second",     "SECOND(%1)",       timeDateFunctions);
-		initializeScalarFunction ("year",       "YEAR(%1)",         timeDateFunctions);
-		timeDateFunctions_ = timeDateFunctions.toString();
-	}
+        // Time and date functions.
+        //
+        // Supported by server:
+        //    curdate,curtime,dayname,dayofmonth,dayofweek,dayofyear,hour,minute,month,monthname,now,quarter,second,timestampdiff,week,year
+        //
+        // Not supported:
+        //    timestampadd
+        //
+    }
 
 
 
@@ -163,7 +134,8 @@ This will recursively parse all nested escape clauses.
                                 scalar function.
 **/
     static String parse (String escapeSyntax,
-                         String decimalSeparator)
+                         String decimalSeparator,
+                         int vrm) // @C1M accept vrm
         throws SQLException
     {
         // Tokenize the string and pass it to the other
@@ -171,7 +143,7 @@ This will recursively parse all nested escape clauses.
         // recursively.
         StringTokenizer tokenizer = new StringTokenizer (escapeSyntax,
             "{}'\"", true);
-        return parse (tokenizer, decimalSeparator, true);
+        return parse (tokenizer, decimalSeparator, true, vrm);   // @C1M pass vrm
     }
 
 
@@ -198,7 +170,7 @@ its left brace.  It will end at the matching right brace.
 **/
     private static String parse (StringTokenizer tokenizer,
                           String decimalSeparator,
-                          boolean flag)
+                          boolean flag, int vrm) // @C1M accept vrm
         throws SQLException
     {
         // Initialize.
@@ -208,15 +180,14 @@ its left brace.  It will end at the matching right brace.
 
         // Iterate through the tokens...
         while (tokenizer.hasMoreTokens ()) {
-            String token = tokenizer.nextToken ();
-
+            String token = tokenizer.nextToken();
             // If the token is a left brace (and we are not in
             // quotes), then recursively parse the escape clause.
             if (token.equals ("{")) {
                 if (quotes)
                     buffer.append (token);
                 else
-                    buffer.append (parse (tokenizer, decimalSeparator, false));
+                    buffer.append (parse (tokenizer, decimalSeparator, false, vrm)); // @C1M pass vrm
             }
 
             // If the token is a right brace (and we are not in
@@ -231,7 +202,7 @@ its left brace.  It will end at the matching right brace.
                 else if (flag)
                     JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
                 else
-                    return convert (buffer.toString (), decimalSeparator);
+                    return convert (buffer.toString (), decimalSeparator, vrm);   // @C1M pass vrm
             }
 
             // If the token is a quote, then toggle the quote
@@ -245,12 +216,12 @@ its left brace.  It will end at the matching right brace.
                     quotes = true;
                     quoteType = token.charAt (0);
                 }
-                buffer.append (token);
+                buffer.append(token);
             }
 
             // Anything else, just add it to the buffer.
             else
-                buffer.append (token);
+                buffer.append(token);
         }
 
         // If we have gotten this far and we are just parsing
@@ -277,7 +248,7 @@ Convert the escape syntax to native SQL.
                                 scalar function.
 **/
     private static String convert (String escapeSyntax,
-                                   String decimalSeparator)
+                                   String decimalSeparator, int vrm) // @C1M accept vrm
         throws SQLException
     {
 		StringBuffer buffer	= new StringBuffer ();
@@ -289,19 +260,19 @@ Convert the escape syntax to native SQL.
 		String keyword = null;
 		String value = null;
 		if (i == -1) {
-			keyword = trimmed.toUpperCase ();
+			keyword = trimmed;  // @C3M
 			value = "";
 		}
 		else {
-			keyword = trimmed.substring (0, i).toUpperCase ();
+			keyword = trimmed.substring (0, i);  // @C3M
 			value = trimmed.substring (i+1);
 		}
 
 		// Handle stored procedures.
-		if ((keyword.equals (CALL_))
-		    || (keyword.equals (CALL1_))
-			|| (keyword.equals (CALL2_))
-			|| (keyword.equals (CALL3_))) {
+		if ((keyword.equalsIgnoreCase (CALL_))             // @C3M
+		    || (keyword.equalsIgnoreCase (CALL1_))         // @C3M
+			|| (keyword.equalsIgnoreCase (CALL2_))     // @C3M
+			|| (keyword.equalsIgnoreCase (CALL3_))) {  // @C3M
 			buffer.append (keyword);
 			buffer.append (' ');
 			buffer.append (value);
@@ -342,7 +313,7 @@ Convert the escape syntax to native SQL.
 
 		// Handle scalar functions.
 		else if (keyword.equalsIgnoreCase (FN_))
-			buffer.append (convertScalarFunctionCall (value, decimalSeparator));
+		    buffer.append (convertScalarFunctionCall (value, decimalSeparator, vrm)); // @C1M pass vrm
 
 		// Handle LIKE escape characters.
 		else if (keyword.equalsIgnoreCase (ESCAPE_)) {
@@ -379,97 +350,124 @@ Convert a scalar function call to native SQL.
                                 a reference to an unsupported
                                 scalar function.
 **/
-	private static String convertScalarFunctionCall (String functionCall,
-	                                                 String decimalSeparator)
-		throws SQLException
-	{
-		// Parse the function call into its pieces.
-		int	i = functionCall.indexOf ('(');
-		int	j = functionCall.indexOf (')');
+    // @C1M changed parsing to support nested scalars and changed function mapping
+    private static String convertScalarFunctionCall (String functionCall, String decimalSeparator, int vrm)
+        throws SQLException {
+        // Parse the function call into its pieces.
+        int i = functionCall.indexOf('(');
+        // find the last index of the closing parenthesis to make        // @C0A
+        // sure we get the whole function call including nested calls    // @C0A
+        int j = functionCall.lastIndexOf(')');                           // @C0M
 
         String functionName = null;
         String argumentString = null;
 
-        // Handle the case where there are no arguments.
-        if ((i == -1) && (j == -1)) {
-            functionName = functionCall.trim().toLowerCase();
-            argumentString = "";
-        }
-
-        // Handle the case where there are arguments.
-        else if ((i < j) && (i != -1) && (j != -1)) {
-		    functionName = functionCall.substring (0, i).trim().toLowerCase();
-		    argumentString = functionCall.substring (i+1, j).trim();
-
-		    // Check for text after the right parenthesis.
-		    if (j+1 < functionCall.length ())
-    		    if (functionCall.substring (j+1).trim().length() > 0)
-    			    JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
-        }
-
-        // Otherwise, there is a syntax error.
-        else
-			JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
-
-		// Parse the argument string into arguments.
-		String[] arguments;
-		if (argumentString.length() > 0) {
-    		StringTokenizer argumentTokenizer = new StringTokenizer (argumentString, ",", false);
-	    	arguments = new String[argumentTokenizer.countTokens()];
-		    for (int t = 0; t < arguments.length; ++t)
-			    arguments[t] = argumentTokenizer.nextToken();
-		}
-		else
-		    arguments = new String[0];
-
-		// Get the native SQL from the scalar function table.
-		StringBuffer buffer	= new StringBuffer ();
-		if (! scalarFunctionTable_.containsKey (functionName))
-			JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
-		String nativeSQL = scalarFunctionTable_.get (functionName).toString();
-
-		// Handle the substitution variables.
-		int marker = 0;
-		int nextPercent = 0;
-		int highestArgumentNumber = 0;
-		while (true) {
-
-		    // Find the next % and substitution code (the digit
-		    // after the %.
-			nextPercent = nativeSQL.indexOf ('%', marker);
-			if ((nextPercent == -1)
-			    || (nextPercent == nativeSQL.length() - 1)) {
-				buffer.append (nativeSQL.substring (marker));
-				break;
-			}
-			buffer.append (nativeSQL.substring (marker, nextPercent));
-			char substitutionCode = nativeSQL.charAt (nextPercent + 1);
-
-			// If an invalid substitution code, then it is a
-			// syntax error.  Otherwise, do the substitution.
-			if (Character.isDigit (substitutionCode)) {
-    			int argumentNumber = Character.digit (substitutionCode, 10);
-    			if (argumentNumber > arguments.length)
-	    			JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
-	            if (argumentNumber > highestArgumentNumber)
-	                highestArgumentNumber = argumentNumber;
-		    	buffer.append (arguments[argumentNumber-1]);
-		    }
-		    else if (substitutionCode == 'd') {
-   		        buffer.append (decimalSeparator);
-		    }
-
-		    // Increment the marker past the substitution code.
-			marker = nextPercent + 2;
-		}
-
-        // Check that the number of arguments is what we expected.
-        if (highestArgumentNumber != arguments.length)
+        // get the function name and arg string
+        //if ((i == -1) && (j == -1)) {                                // @C2D
+        //    functionName = functionCall.trim().toLowerCase();        // @C2D
+        //    argumentString = "";                                     // @C2D
+        //} else if ((i < j) && (i != -1) && (j != -1)) {              // @C2D
+        if ((i < j) && (i != -1) && (j != -1)) {                       // @C2A
+            functionName = functionCall.substring (0, i).trim().toLowerCase();
+            argumentString = functionCall.substring (i+1, j).trim();
+        } else
             JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
 
-		return buffer.toString();
-	}
+        // get the mapped function or just pass it through
+        if (!scalarFunctionTable_.contains(functionName, vrm)){                                                // @C1A
+            // we dont map this function so just pass it through                                               // @C1A
+            return functionCall;                                                                               // @C1A
+        } else {                                                                                               // @C1A
+            // Check for text after the right parenthesis.                                                     // @C1A
+            if (j != -1 && j+1 < functionCall.length() && functionCall.substring(j+1).trim().length() > 0)     // @C1A
+                JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);                                          // @C1A
+                                                                                                               // @C1A
+            // Parse the argument string into arguments.                                                       // @C1A
+            Vector arguments = new Vector();                                                                   // @C1A
+            if (argumentString.length() > 0) {                                                                 // @C1A
+                StringTokenizer atok = new StringTokenizer(argumentString, "(),", true);                       // @C1A
+                StringBuffer tokbuf = new StringBuffer();                                                      // @C1A
+                int nestlevel = 0;                                                                             // @C1A
+                while (atok.hasMoreTokens()) {                                                                 // @C1A
+                    String token = atok.nextToken();                                                           // @C1A
+                    // check if the argument has parenthesis, meaning it could be a nested fcn                 // @C1A
+                    if (token.equals("(")) {                                                                   // @C1A
+                        ++nestlevel;                                                                           // @C1A
+                        tokbuf.append("(");                                                                    // @C1A
+                    } else if (token.equals(")")) {                                                            // @C1A
+                        // find a closing paren and decrement the nest count                                   // @C1A
+                        --nestlevel;                                                                           // @C1A
+                        tokbuf.append(")");                                                                    // @C1A
+                        // if we have no more tokens after this one we add the argument to the list            // @C1A
+                        if (!atok.hasMoreTokens()) {                                                           // @C1A
+                            arguments.add(tokbuf.toString());                                                  // @C1A
+                        }                                                                                      // @C1A
+                    } else if (token.equals(",")) {                                                            // @C1A
+                        // find a comma                                                                        // @C1A
+                        if (nestlevel == 0) {                                                                  // @C1A
+                            // if the nest count is zero we add the argument to the list because it is actually a delimeter
+                            arguments.add(tokbuf.toString());                                                   // @C1A
+                            tokbuf = new StringBuffer();                                                        // @C1A
+                        } else {                                                                                // @C1A
+                            // if the nest count is not zero the comma is not a delimeter so just append to the buffer
+                            tokbuf.append(",");                                                                 // @C1A
+                        }                                                                                       // @C1A
+                    } else {                                                                                    // @C1A
+                        // token is a special case so just add it to the buffer                                 // @C1A
+                        tokbuf.append(token);                                                                   // @C1A
+                        // there are no more tokens left so add the argument to the list                        // @C1A
+                        if (!atok.hasMoreTokens()) {                                                            // @C1A
+                            arguments.add(tokbuf.toString());                                                   // @C1A
+                        }                                                                                       // @C1A
+                    }                                                                                           // @C1A
+                }                                                                                               // @C1A
+            }                                                                                                   // @C1A
+                                                                                                                // @C1A
+            // Get the native SQL from the scalar function table.                                               // @C1A
+            StringBuffer buffer = new StringBuffer ();
+            String nativeSQL = scalarFunctionTable_.get(functionName, vrm).toString();                          // @C1M
 
+            // Handle the substitution variables.
+            int marker = 0;
+            int nextPercent = 0;
+            int highestArgumentNumber = 0;
+            while (true) {
+
+                // Find the next % and substitution code (the digit
+                // after the %.
+                nextPercent = nativeSQL.indexOf ('%', marker);
+                if ((nextPercent == -1) || (nextPercent == nativeSQL.length() - 1)) {
+                    buffer.append (nativeSQL.substring (marker));
+                    break;
+                }
+                buffer.append (nativeSQL.substring (marker, nextPercent));
+                char substitutionCode = nativeSQL.charAt (nextPercent + 1);
+
+                // If an invalid substitution code, then it is a
+                // syntax error.  Otherwise, do the substitution.
+                if (Character.isDigit (substitutionCode)) {
+                    int argumentNumber = Character.digit (substitutionCode, 10);
+                    if (argumentNumber > arguments.size())
+                        JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
+                    if (argumentNumber > highestArgumentNumber)
+                        highestArgumentNumber = argumentNumber;
+                    buffer.append (arguments.elementAt(argumentNumber-1));
+                }
+                else if (substitutionCode == 'd') {
+                    buffer.append (decimalSeparator);
+                }
+
+                // Increment the marker past the substitution code.
+                marker = nextPercent + 2;
+            }
+
+            // Check that the number of arguments is what we expected.
+            if (highestArgumentNumber != arguments.size())
+                JDError.throwSQLException (JDError.EXC_SYNTAX_ERROR);
+
+            return buffer.toString();
+        }
+    }
 
 
 /**
@@ -485,49 +483,75 @@ Copyright.
 /**
 Get a list of supported math functions.
 
-@return     A list of function names, separated by commas.
+@param  vrm                 The version of the host OS.
+@return                     A list of function names, separated by commas.
 **/
-	static String getNumericFunctions ()
-	{
-		return numericFunctions_;
-	}
-
+    static String getNumericFunctions(int vrm) {
+        // @C1A the below if/else block was added to report the correct functions through DatabaseMetaData
+        if (vrm < JDUtilities.vrm510) {
+            // we are running to a V4R5 or older host
+            return "abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log,log10,mod,pi,power,round,sin,sign,sqrt,tan,truncate";
+        } else {
+            // we are running to a V5R1 or newer host 
+            return "abs,acos,asin,atan,atan2,ceiling,cos,cot,degrees,exp,floor,log,log10,mod,pi,power,radians,rand,round,sin,sign,sqrt,tan,truncate";
+        }
+    }
 
 
 /**
 Get a list of supported string functions.
 
-@return     A list of function names, separated by commas.
+@param  vrm                 The version of the host OS.
+@return                     A list of function names, separated by commas.
 **/
-	static String getStringFunctions ()
-	{
-		return stringFunctions_;
-	}
-
+    static String getStringFunctions(int vrm) {
+        // @C1A the below if/else block was added to report the correct functions through DatabaseMetaData
+        if (vrm < JDUtilities.vrm510) {
+            // we are running to a V4R5M0 or older host
+            return "concat,insert,left,length,locate,ltrim,right,rtrim,substring,ucase";
+        } else if (vrm < JDUtilities.vrm520) {
+            // we are running to a V5R1 host
+            return "concat,difference,insert,left,length,locate,ltrim,right,rtrim,soundex,space,substring,ucase";
+        } else if (vrm < JDUtilities.vrm530) {
+            // we are running to a V5R2 host
+            return "concat,difference,insert,lcase,left,length,locate,ltrim,right,rtrim,soundex,space,substring,ucase";
+        } else {
+            // we are running to a V5R3 or newer host
+            return "concat,difference,insert,lcase,left,length,locate,ltrim,repeat,replace,right,rtrim,soundex,space,substring,ucase";
+        }
+    }
 
 
 /**
 Get a list of supported system functions.
 
-@return     A list of function names, separated by commas.
+@param  vrm                 The version of the host OS.
+@return                     A list of function names, separated by commas.
 **/
-	static String getSystemFunctions ()
-	{
-		return systemFunctions_;
-	}
-
+    static String getSystemFunctions(int vrm) {
+        return "database,ifnull,user"; // @C1A added to report the correct functions through DatabaseMetaData
+    }
 
 
 /**
 Get a list of supported time and date functions.
 
-@return     A list of function names, separated by commas.
+@param  vrm                 The version of the host OS.
+@return                     A list of function names, separated by commas.
 **/
-	static String getTimeDateFunctions ()
-	{
-		return timeDateFunctions_;
-	}
-
+    static String getTimeDateFunctions(int vrm) {
+        // @C1A the below if/else block was added to report the correct functions through DatabaseMetaData
+        if (vrm < JDUtilities.vrm510) {
+            // we are running to a V4R5 or older host
+            return "curdate,curtime,dayofmonth,dayofweek,dayofyear,hour,minute,month,now,quarter,second,week,year";
+        } else if (vrm < JDUtilities.vrm530) {
+            // we are running to a V5R1 or V5R2 host
+            return "curdate,curtime,dayofmonth,dayofweek,dayofyear,hour,minute,month,now,quarter,second,timestampdiff,week,year";
+        } else {
+            // we are running to a V5R3 or newer host
+            return "curdate,curtime,dayname,dayofmonth,dayofweek,dayofyear,hour,minute,month,monthname,now,quarter,second,timestampdiff,week,year";
+        }
+    }
 
 
 /**
@@ -548,18 +572,17 @@ list.
 @param  functionList    Function list to which to append
                         this supported scalar function.
 **/
-	private static void initializeScalarFunction (String functionName,
-								 				  String nativeSql,
-												  StringBuffer functionList)
-	{
-		// Add to scalar function table.
-		scalarFunctionTable_.put (functionName, nativeSql);
-
-		// Add to the function list.
-		if (functionList.length() > 0)
-			functionList.append (',');
-		functionList.append (functionName);
-	}
+// @C1D removed this method because it is no longer needed
+//	private static void initializeScalarFunction (String functionName, String nativeSql, int vrmSupported, StringBuffer functionList)
+//	{
+//		// Add to scalar function table.
+//		scalarFunctionTable_.put (functionName, nativeSql, vrmSupported);
+//
+//		// Add to the function list.
+//		if (functionList.length() > 0)
+//			functionList.append (',');
+//		functionList.append (functionName);
+//	}
 
 
 
@@ -592,5 +615,128 @@ Is CONVERT between the given SQL types supported?
     }
 
 
-
+    /**
+    <p>This class is a hashtable-like container for mapping JDBC to
+    native scalar functions.
+    **/
+    // @C1A Added this inner class to store mappings
+    private static final class JDScalarTable {
+    
+        public static final int NOT_SUPPORTED = 0;
+        private static final int HASH = 10;
+    
+        private String[][] keys = new String[HASH][];
+        private String[][] data = new String[HASH][];
+        private int[][] vrms = new int[HASH][];
+    
+        /**
+        Returns true if the function corresponding to key should
+        be mapped for this VRM of the host.
+        
+        @param key The function key
+        @param vrm The VRM of the host
+        @return true if we should get the mapped function from the table
+        **/
+        final boolean contains(String key, int vrm) {
+            if (key == null) throw new NullPointerException("key");
+            int hash = (key.hashCode()<0?key.hashCode()*-1:key.hashCode()) % HASH;
+            String[] keyChain = keys[hash];
+            int[] vrmChain = vrms[hash];
+            if (keyChain == null) return false;
+            if (vrmChain == null) return false;
+            for (int i=0; i<keyChain.length; ++i) {
+                // checks the keys that satisfy the hash function for the current vrm and if one exists, returns true
+                if (keyChain[i] != null && keyChain[i].equals(key) && (vrmChain[i] > vrm || vrmChain[i] == NOT_SUPPORTED)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    
+        /**
+        Returns the function corresponding to the key and VRM.
+        
+        @param key The function key
+        @param vrm The VRM of the host
+        @return null if the key/vrm combination is not mapped
+        **/
+        final String get(String key, int vrm) {
+            if (key == null) throw new NullPointerException("key");
+            int hash = (key.hashCode()<0?key.hashCode()*-1:key.hashCode()) % HASH;
+            synchronized(keys) {
+                String[] keyChain = keys[hash];
+                int[] vrmChain = vrms[hash];
+                if (keyChain == null) return null;
+                if (vrmChain == null) return null;
+                for (int i=0; i<keyChain.length; ++i) {
+                    // searches the keys that satisfy the hash function and returns a match if one exists
+                    if (keyChain[i] != null && keyChain[i].equals(key) && (vrmChain[i] > vrm || vrmChain[i] == NOT_SUPPORTED)) {
+                        return data[hash][i];
+                    }
+                }
+            }
+            return null;
+        }
+    
+        /**
+        Sets the JDBC to native function mapping.  The VRM indicates the earliest
+        version of host to support the function.
+        
+        @param key The function key
+        @param value The map for the key
+        @param vrm The VRM of the host
+        **/
+        final void put(String key, String value, int vrm) {
+            if (key == null) throw new NullPointerException("key");
+            if (vrm < 0) throw new IllegalArgumentException("vrm");
+            int hash = (key.hashCode()<0?key.hashCode()*-1:key.hashCode()) % HASH;
+            synchronized(keys)
+            {
+                String[] valueChain = data[hash];
+                String[] keyChain = keys[hash];
+                int[] vrmChain = vrms[hash];
+                if (keyChain == null) {  // there are currently no keys in this chain of the hashtable so create a new chain
+                    keyChain = new String[] { key };  // create a new key chain
+                    valueChain = new String[] { value };  // create a new value chain
+                    vrmChain = new int[] { vrm };  // create a new vrm chain
+                    keys[hash] = keyChain;         // set the key, value, and vrm
+                    data[hash] = valueChain;
+                    vrms[hash] = vrmChain;
+                    return;
+                } else {  // keys exist in this chain of the hashtable so add this one to the chain
+                    int len = keyChain.length;
+                    for (int i=0; i<len; ++i) {
+                        // this key already exists in the chain so set its new value
+                        if (keyChain[i] != null && keyChain[i].equals(key)) {
+                            valueChain[i] = value;
+                            vrmChain[i] = vrm;
+                            return;
+                        }
+                        // a chain already exists for this hash but its value is null
+                        if (keyChain[i] == null) {
+                            keyChain[i] = key;
+                            valueChain[i] = value;
+                            vrmChain[i] = vrm;
+                            return;
+                        }
+                    }
+                    // if we have to, make the table bigger and copy the values over
+                    String[] newKeyChain = new String[len*2];
+                    System.arraycopy(keyChain, 0, newKeyChain, 0, len);
+                    String[] newValueChain = new String[len*2];
+                    System.arraycopy(valueChain, 0, newValueChain, 0, len);
+                    int[] newVRMChain = new int[len*2];
+                    System.arraycopy(vrmChain, 0, newVRMChain, 0, len);
+                    newKeyChain[len] = key;
+                    newValueChain[len] = value;
+                    newVRMChain[len] = vrm;
+                    // then make the table use the new bigger chains
+                    keys[hash] = newKeyChain;
+                    data[hash] = newValueChain;
+                    vrms[hash] = newVRMChain;
+                }
+            }
+        }
+    
+    }
 }

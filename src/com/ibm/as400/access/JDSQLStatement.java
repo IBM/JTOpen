@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.sql.Connection;          // @G4A
 import java.sql.SQLException;
 import java.util.StringTokenizer;
+import java.io.IOException;
 
 
 
@@ -349,7 +350,13 @@ class JDSQLStatement
             //@F6D }
             //@F6D else
             //@F6D {
-            value_ = JDEscapeClause.parse(sql, decimalSeparator);
+            try {                                                                                                             // @C1M
+                value_ = JDEscapeClause.parse(sql, decimalSeparator, ((AS400JDBCConnection)connection).getSystem().getVRM()); // @C1M
+            } catch (AS400SecurityException ase) {                                                                            // @C1M
+                JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     // @C1M
+            } catch (IOException ioe) {                                                                                       // @C1M
+                JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     // @C1M
+            }                                                                                                                 // @C1M
             //@F6D }
         }
         else
@@ -446,7 +453,7 @@ class JDSQLStatement
             String upperCaseSql = value_.toUpperCase();  //@E10a
             int k = upperCaseSql.indexOf("SAVEPOINT");   //@E10a
             if (k >= 0)                                  //@E10a
-               {}      // no need to do anything         //@E10a
+            {}      // no need to do anything            //@E10a
             else                                         //@E10a
                nativeType_ = TYPE_CONNECT;               //@E10a
         }                                                //@E10a

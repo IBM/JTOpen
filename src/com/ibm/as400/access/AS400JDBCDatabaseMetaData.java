@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.Vector;                            // @D0A
+import java.io.IOException;                         // @J0A
 
 
 
@@ -466,7 +467,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -501,7 +502,7 @@ implements DatabaseMetaData
         }
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(), "BestRowIdentifier");
@@ -533,7 +534,7 @@ implements DatabaseMetaData
         Object[][] data = { { connection_.getCatalog()}};
         boolean[][] nulls = { { false}};
 
-        // If running to a system running the release of OS/400 after v5r1, the list can contain more than just the system
+        // If running to a system running OS/400 v5r2 or later the list can contain more than just the system
         // name (when IASPs are on the system).  Try to retrieve that list.  Note 
         // if getting the list fails we will still return a result set containing
         // one item -- the name of the server.  We just built that result set 
@@ -782,7 +783,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -829,7 +830,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
 
@@ -875,7 +876,7 @@ implements DatabaseMetaData
 
         connection_.checkOpen ();
 
-        
+
         boolean isJDBC3 = JDUtilities.JDBCLevel_ >= 30; //@F2A @j4a
 
         String[] fieldNames = null;               //@F2C
@@ -1125,7 +1126,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -1213,7 +1214,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -1470,7 +1471,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -1528,7 +1529,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
 
@@ -1610,7 +1611,7 @@ implements DatabaseMetaData
         }
         catch (Exception e)
         {
-            JDError.throwSQLException (JDError.EXC_CONNECTION_NONE);
+            JDError.throwSQLException (this, JDError.EXC_CONNECTION_NONE);
             return null;
         }
 
@@ -1845,7 +1846,7 @@ implements DatabaseMetaData
                     if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBF80000);           //@F4A
                     else                                                             //@F4A
-                    request.setForeignKeyReturnInfoBitmap(0xBBE00000);
+                        request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
 
                     //--------------------------------------------------------
@@ -1861,7 +1862,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -1894,8 +1895,8 @@ implements DatabaseMetaData
                         }
                         else
                         {                                         //@F4A
-                        maps[11] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
-                        maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
+                            maps[11] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
+                            maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
                         }
                         maps[13] = new JDHardcodedFieldMap (new Short ((short) importedKeyNotDeferrable));
 
@@ -1914,7 +1915,7 @@ implements DatabaseMetaData
         }
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
@@ -2098,7 +2099,7 @@ implements DatabaseMetaData
                     if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
                         request.setForeignKeyReturnInfoBitmap(0xBBF80000);           //@F4A
                     else                                                             //@F4A
-                    request.setForeignKeyReturnInfoBitmap(0xBBE00000);
+                        request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
                     // This is not documented in the LIPI, but it happens to work!           @E2A
                     request.setFileShortOrLongNameIndicator(0xF0);                        // @E2A
@@ -2116,7 +2117,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -2146,8 +2147,8 @@ implements DatabaseMetaData
                         }
                         else
                         {                                      //@F4A
-                        maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
-                        maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
+                            maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
+                            maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
                         }
                         maps[13] = new JDHardcodedFieldMap(new Short ((short) importedKeyNotDeferrable));
 
@@ -2168,7 +2169,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -2344,7 +2345,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -2403,7 +2404,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -2766,7 +2767,15 @@ implements DatabaseMetaData
     public String getNumericFunctions ()
     throws SQLException
     {
-        return JDEscapeClause.getNumericFunctions ();
+        // @J0A added try/catch because we are now sending the system VRM
+        try {                                                                                                             
+            return JDEscapeClause.getNumericFunctions(connection_.getSystem().getVRM());  // @J0M changed to send host version
+        } catch (AS400SecurityException ase) {                                                                            
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
+        } catch (IOException ioe) {                                                                                       
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
+        }
+        return null;
     }
 
 
@@ -2896,7 +2905,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -2940,7 +2949,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -3156,7 +3165,7 @@ implements DatabaseMetaData
         catch (SQLException e)
         {
             // System.out.println(e);
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
 
@@ -3320,7 +3329,7 @@ implements DatabaseMetaData
         {
             // System.out.println(e);
             // e.printStackTrace();  // method on throwable object
-            // @B1D JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            // @B1D JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             throw e; // @B1A
         }
 
@@ -3418,7 +3427,7 @@ implements DatabaseMetaData
                 if (errorClass !=0)
                 {
                     int returnCode = reply.getReturnCode();
-                    JDError.throwSQLException (connection_, id_, errorClass, returnCode);
+                    JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                 }
 
                 // Get the data format and result data
@@ -3487,7 +3496,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -3541,7 +3550,41 @@ implements DatabaseMetaData
     public String getSQLKeywords ()
     throws SQLException
     {
-        return "CCSID,COLLECTION,CONCAT,DATABASE,PACKAGE,PROGRAM,RESET,ROW,RUN,VARIABLE";
+        return "AFTER,ALIAS,ALLOW,APPLICATION,ASSOCIATE,ASUTIME,AUDIT," +                 // @J2M
+               "AUX,AUXILIARY,BEFORE,BINARY," +                                           // @J2A
+               "BUFFERPOOL,CACHE,CALL,CALLED,CAPTURE,CARDINALITY,CCSID,CLUSTER," +        // @J2A
+               "COLLECTION,COLLID,COMMENT,CONCAT,CONDITION,CONTAINS,COUNT_BIG," +         // @J2A
+               "CURRENT_LC_CTYPE," +                                                      // @J2A
+               "CURRENT_PATH,CURRENT_SERVER,CURRENT_TIMEZONE,CYCLE,DATA," +               // @J2A
+               "DATABASE,DAYS," +                                                         // @J2A
+               "DB2GENERAL,DB2GENRL,DB2SQL,DBINFO,DEFAULTS,DEFINITION," +                 // @J2A
+               "DETERMINISTIC," +                                                         // @J2A
+               "DISALLOW,DO,DSNHATTR,DSSIZE,DYNAMIC,EACH,EDITPROC,ELSEIF," +              // @J2A
+               "ENCODING,END-EXEC1," +                                                    // @J2A
+               "ERASE,EXCLUDING,EXIT,FENCED,FIELDPROC,FILE,FINAL,FREE,FUNCTION," +        // @J2A
+               "GENERAL," +                                                               // @J2A
+               "GENERATED,GRAPHIC,HANDLER,HOLD,HOURS,IF,INCLUDING,INCREMENT," +           // @J2A
+               "INDEX," +                                                                 // @J2A
+               "INHERIT,INOUT,INTEGRITY,ISOBID,ITERATE,JAR,JAVA,LABEL,LC_CTYPE," +        // @J2A
+               "LEAVE," +                                                                 // @J2A
+               "LINKTYPE,LOCALE,LOCATOR,LOCATORS,LOCK,LOCKMAX,LOCKSIZE,LONG,LOOP," +      // @J2A
+               "MAXVALUE,MICROSECOND,MICROSECONDS,MINUTES,MINVALUE,MODE,MODIFIES," +      // @J2A
+               "MONTHS," +                                                                // @J2A
+               "NEW,NEW_TABLE,NOCACHE,NOCYCLE,NODENAME,NODENUMBER,NOMAXVALUE," +          // @J2A
+               "NOMINVALUE," +                                                            // @J2A
+               "NOORDER,NULLS,NUMPARTS,OBID,OLD,OLD_TABLE,OPTIMIZATION,OPTIMIZE," +       // @J2A
+               "OUT,OVERRIDING,PACKAGE,PARAMETER,PART,PARTITION,PATH,PIECESIZE," +        // @J2A
+               "PLAN," +                                                                  // @J2A
+               "PRIQTY,PROGRAM,PSID,QUERYNO,READS,RECOVERY,REFERENCING,RELEASE," +        // @J2A
+               "RENAME,REPEAT,RESET,RESIGNAL,RESTART,RESULT,RESULT_SET_LOCATOR," +        // @J2A
+               "RETURN," +                                                                // @J2A
+               "RETURNS,ROUTINE,ROW,RRN,RUN,SAVEPOINT,SCRATCHPAD,SECONDS,SECQTY," +       // @J2A
+               "SECURITY,SENSITIVE,SIGNAL,SIMPLE,SOURCE,SPECIFIC,SQLID,STANDARD," +       // @J2A
+               "START,STATIC,STAY,STOGROUP,STORES,STYLE,SUBPAGES,SYNONYM,SYSFUN," +       // @J2A
+               "SYSIBM," +                                                                // @J2A
+               "SYSPROC,SYSTEM,TABLESPACE,TRIGGER,TYPE,UNDO,UNTIL,VALIDPROC," +           // @J2A
+               "VARIABLE," +                                                              // @J2A
+               "VARIANT,VCAT,VOLUMES,WHILE,WLM,YEARS";                                    // @J2A
     }
 
 
@@ -3574,7 +3617,15 @@ implements DatabaseMetaData
     public String getStringFunctions ()
     throws SQLException
     {
-        return JDEscapeClause.getStringFunctions ();
+        // @J0A added try/catch because we are now sending the system VMR
+        try {                                                                                                             
+            return JDEscapeClause.getStringFunctions(connection_.getSystem().getVRM()); // @J0M changed to send host version
+        } catch (AS400SecurityException ase) {                                                                            
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
+        } catch (IOException ioe) {                                                                                       
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
+        }
+        return null;
     }
 
 
@@ -3661,7 +3712,15 @@ implements DatabaseMetaData
     public String getSystemFunctions ()
     throws SQLException
     {
-        return JDEscapeClause.getSystemFunctions ();
+        // @J0A added try/catch because we are now sending the system VMR
+        try {                                                                                                             
+            return JDEscapeClause.getSystemFunctions(connection_.getSystem().getVRM()); // @J0M changed to send host version
+        } catch (AS400SecurityException ase) {                                                                            
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
+        } catch (IOException ioe) {                                                                                       
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
+        }
+        return null;
     }
 
 
@@ -3807,7 +3866,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -3852,7 +3911,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -4159,7 +4218,7 @@ implements DatabaseMetaData
                         if (errorClass != 0)
                         {
                             int returnCode = reply.getReturnCode();
-                            JDError.throwSQLException (connection_, id_,
+                            JDError.throwSQLException (this, connection_, id_,
                                                        errorClass, returnCode);
                         }
 
@@ -4253,7 +4312,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         return new AS400JDBCResultSet (rowCache, connection_.getCatalog(),
@@ -4303,7 +4362,15 @@ implements DatabaseMetaData
     public String getTimeDateFunctions ()
     throws SQLException
     {
-        return JDEscapeClause.getTimeDateFunctions ();
+        // @J0A added try/catch because we are now sending the system VMR
+        try {                                                                                                             
+            return JDEscapeClause.getTimeDateFunctions(connection_.getSystem().getVRM()); // @J0M changed to send host version
+        } catch (AS400SecurityException ase) {                                                                            
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ase);                                                     
+        } catch (IOException ioe) {                                                                                       
+            JDError.throwSQLException(JDError.EXC_INTERNAL, ioe);                                                     
+        }
+        return null;
     }
 
 
@@ -4736,7 +4803,7 @@ implements DatabaseMetaData
                 if (e.getErrorCode () == -204)
                     rowCache = new JDSimpleRowCache (formatRow);
                 else
-                    JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+                    JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
             }
         }
 
@@ -4926,7 +4993,7 @@ implements DatabaseMetaData
                     if (errorClass !=0)
                     {
                         int returnCode = reply.getReturnCode();
-                        JDError.throwSQLException (connection_, id_,
+                        JDError.throwSQLException (this, connection_, id_,
                                                    errorClass, returnCode);
                     }
 
@@ -4972,7 +5039,7 @@ implements DatabaseMetaData
 
         catch (DBDataStreamException e)
         {
-            JDError.throwSQLException (JDError.EXC_INTERNAL, e);
+            JDError.throwSQLException (this, JDError.EXC_INTERNAL, e);
         }
 
         // Return the results
@@ -6228,7 +6295,7 @@ implements DatabaseMetaData
     //
     // Implementation note:
     //
-    // The unsupported combinations are dictated by the AS/400 DB2
+    // The unsupported combinations are dictated by the iSeries DB2
     // cursor support.
     //
     public boolean supportsResultSetConcurrency (int resultSetType, int resultSetConcurrency)
@@ -6240,7 +6307,7 @@ implements DatabaseMetaData
         // Validate the result set concurrency.
         if ((resultSetConcurrency != ResultSet.CONCUR_READ_ONLY)
             && (resultSetConcurrency != ResultSet.CONCUR_UPDATABLE))
-            JDError.throwSQLException (JDError.EXC_CONCURRENCY_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
 
         // Cases that we don't support.
         if (((resultSetConcurrency == ResultSet.CONCUR_READ_ONLY)
@@ -6291,8 +6358,8 @@ implements DatabaseMetaData
     **/
     public boolean supportsSavepoints ()
     throws SQLException
-    {
-        // Note we check only the AS/400 level.  We don't need to
+    {                     
+        // Note we check only the iSeries level.  We don't need to
         // check JDBC/JDK level because if running prior to JDBC 3.0
         // the app cannot call this method (it does not exist
         // in the interface).
@@ -6326,7 +6393,7 @@ implements DatabaseMetaData
         if ((resultSetType != ResultSet.TYPE_FORWARD_ONLY)
             && (resultSetType != ResultSet.TYPE_SCROLL_INSENSITIVE)
             && (resultSetType != ResultSet.TYPE_SCROLL_SENSITIVE))
-            JDError.throwSQLException (JDError.EXC_CONCURRENCY_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
 
         return true;
     }
@@ -6558,7 +6625,7 @@ implements DatabaseMetaData
             && (transactionIsolationLevel != Connection.TRANSACTION_READ_COMMITTED)
             && (transactionIsolationLevel != Connection.TRANSACTION_REPEATABLE_READ)
             && (transactionIsolationLevel != Connection.TRANSACTION_SERIALIZABLE))
-            JDError.throwSQLException (JDError.EXC_CONCURRENCY_INVALID);
+            JDError.throwSQLException (this, JDError.EXC_CONCURRENCY_INVALID);
 
         return true;
     }
