@@ -1839,6 +1839,12 @@ implements DatabaseMetaData
 
 
                     // Set the Foreign key Information to Return Bitmap
+                    //@F4 As of base v4r4, host server can return primary and foreign key names.
+                    //@F4 Even this has nothing to do with lobs, borrow the constant as
+                    //@F4 it checks for v4r4.
+                    if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                        request.setForeignKeyReturnInfoBitmap(0xBBF80000);           //@F4A
+                    else                                                             //@F4A
                     request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
 
@@ -1881,8 +1887,16 @@ implements DatabaseMetaData
                         maps[8] = new JDSimpleFieldMap (7); // key seq
                         maps[9] = new JDSimpleFieldMap (8); // update rule
                         maps[10] = new JDSimpleFieldMap (9);    // delete rule
+                        if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                        {
+                            maps[11] = new JDSimpleFieldMap (10);    //@F4A
+                            maps[12] = new JDSimpleFieldMap (11);    //@F4A
+                        }
+                        else
+                        {                                         //@F4A
                         maps[11] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
                         maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true);
+                        }
                         maps[13] = new JDHardcodedFieldMap (new Short ((short) importedKeyNotDeferrable));
 
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
@@ -2078,6 +2092,12 @@ implements DatabaseMetaData
                     request.setForeignKeyFileName(normalize(table), connection_.converter_);    // @E4C
 
                     // Set the Foreign key Information to Return Bitmap
+                    //@F4 As of base v4r4, host server can return primary and foreign key names.
+                    //@F4 Even this has nothing to do with lobs, borrow the constant as
+                    //@F4 it checks for v4r4.
+                    if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                        request.setForeignKeyReturnInfoBitmap(0xBBF80000);           //@F4A
+                    else                                                             //@F4A
                     request.setForeignKeyReturnInfoBitmap(0xBBE00000);
 
                     // This is not documented in the LIPI, but it happens to work!           @E2A
@@ -2119,8 +2139,16 @@ implements DatabaseMetaData
                         maps[8] = new JDSimpleFieldMap (7); // key seq
                         maps[9] = new JDSimpleFieldMap (8); // update rule
                         maps[10] = new JDSimpleFieldMap (9);    // delete rule
+                        if (connection_.getVRM() >= AS400JDBCConnection.LOB_SUPPORTED_)  //@F4A
+                        {
+                            maps[11] = new JDSimpleFieldMap (10); //@F4A 
+                            maps[12] = new JDSimpleFieldMap (11); //@F4A 
+                        }
+                        else
+                        {                                      //@F4A
                         maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
                         maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true);
+                        }
                         maps[13] = new JDHardcodedFieldMap(new Short ((short) importedKeyNotDeferrable));
 
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
@@ -5792,9 +5820,9 @@ implements DatabaseMetaData
     Indicates if, after a statement is executed, auto-generated keys can be retrieved 
     using the method Statement.getGeneratedKeys().
     
-    @return     True if the user is connecting to a server running the release
-    of OS/400 after V5R1, or later, otherwise false.  Auto-generated keys are supported
-    if connecting to a V5R1 or later version of OS/400.
+    @return     True if the user is connecting to a server running OS/400 V5R2      
+    or later, otherwise false.  Auto-generated keys are supported
+    only if connecting to a V5R2 or later version of OS/400.
         
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6232,9 +6260,9 @@ implements DatabaseMetaData
     Indicates if a type of result set holdability is supported.  The two 
     types are ResultSet.HOLD_CURSORS_OVER_COMMIT and ResultSet.CLOSE_CURSORS_AT_COMMIT.
         
-    @return     True if the user is connecting to a server running the release
-    of OS/400 after V5R1, or later, otherwise false.  Both types of result set 
-    holidability are supported if connecting to a V5R1 or later version of OS/400.
+    @return     True if the user is connecting to a server running OS/400     
+    V5R2 or later, otherwise false.  Both types of result set 
+    holidability are supported if connecting to a V5R2 or later version of OS/400.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
@@ -6254,9 +6282,9 @@ implements DatabaseMetaData
     /**
     Indicates if savepoints are supported.
         
-    @return     True if the user is connecting to a server running the release
-    of OS/400 after V5R1, or later, otherwise false.  Savepoints are supported
-    if connecting to a V5R1 or later version of OS/400.
+    @return     True if the user is connecting to a server running 
+    OS/400 V5R2 or later, otherwise false.  Savepoints are supported
+    only if connecting to a V5R2 or later version of OS/400.
             
     @exception  SQLException    This exception is never thrown.
     @since Modification 5
