@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileInputStreamImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,9 +30,7 @@ implements IFSFileInputStreamImpl
 {
   private IFSFileDescriptorImplRemote fd_; // file info
 
-  // Variables needed by subclass IFSTextFileOutputStream:
-  //transient private InputStreamReader reader_;        // @B4d
-  //transient private ConverterImplRemote converter_;   // @B3a @B7d
+  // Variables needed by subclass IFSTextFileInputStream:
   transient private ConvTableReader reader_;            // @B7a
 
   // Used for debugging only.  This should always be false for production.
@@ -55,11 +53,11 @@ implements IFSFileInputStreamImpl
    @return The number of bytes that can be read from this file input stream.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception FileNotFoundException If the file does not exist.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
   **/
   public int available()
@@ -77,7 +75,7 @@ implements IFSFileInputStreamImpl
    with the stream.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
    
    **/
@@ -98,7 +96,7 @@ implements IFSFileInputStreamImpl
   /**
    Ensures that the file input stream is closed when there are no more
    references to it.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
     throws IOException
@@ -215,10 +213,10 @@ implements IFSFileInputStreamImpl
    @return The key for undoing this lock.
  
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    @see IFSKey
    @see #unlock
@@ -274,7 +272,7 @@ implements IFSFileInputStreamImpl
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.getConverter().stringToByteArray(path);
 
     // Request that the file be opened.
@@ -351,10 +349,10 @@ implements IFSFileInputStreamImpl
    @return The next byte of data, or -1 if the end of file is reached.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public int read()
@@ -385,10 +383,10 @@ implements IFSFileInputStreamImpl
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public int read(byte[] data,
@@ -414,11 +412,12 @@ implements IFSFileInputStreamImpl
    @return The characters read from the stream.  If the end of file has been
    reached an empty String is returned.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    @exception UnsupportedEncodingException If the file's character encoding is not supported.
+   @deprecated Used only by IFSTextFileInputStream, which is deprecated.
    **/
   public String readText(int length)
     throws IOException
@@ -431,182 +430,13 @@ implements IFSFileInputStreamImpl
     open();
 
     // Create the InputStreamReader if we don't already have one.
-    //if (reader_ == null && converter_ == null)   // @B3c @B4d
     if (reader_ == null)   // @B4c
     {
-      // Issue a List File Attributes request to obtain the CCSID (or code page)
-      // of the file.
-      int fileCCSID = 0;  // @B2C - formerly codePage
-      try
-      {
-        ClientAccessDataStream ds = null;
-
-        // Issue the "list attributes" request.
-        byte[] pathname = fd_.getConverter().stringToByteArray(fd_.getPath());
-
-        IFSListAttrsReq req =
-          new IFSListAttrsReq(fd_.getFileHandle(), (short)0x44);
-        // Note: 0x44 indicates "Use the open instance of the file handle,
-        //       and return an OA2 (or OA2b) structure in the reply".
-
-        ds = (ClientAccessDataStream) fd_.getServer().sendAndReceive(req);
-
-        boolean done = false;
-        boolean gotCCSID = false;  // @B2C - formerly gotCodePage
-        do
-        {
-          if (ds instanceof IFSListAttrsRep)
-          {
-            if (gotCCSID)
-              Trace.log(Trace.DIAGNOSTIC, "Received multiple replies " +
-                        "from ListAttributes request.");
-            //((IFSListAttrsRep)ds).setServerDatastreamLevel(fd_.serverDataStreamLevel_); // @B2A @B6d
-            fileCCSID = ((IFSListAttrsRep) ds).getCCSID(fd_.serverDatastreamLevel_);
-            if (DEBUG)
-              System.out.println("DEBUG: IFSFileInputStreamImplRemote.readText(): " +
-                                 "Reported CCSID for file is " + fileCCSID);  // @B2A
-            gotCCSID = true;
-          }
-          else if (ds instanceof IFSReturnCodeRep)
-          {
-            // If the return code is NO_MORE_FILES then all files
-            // that match the specification have been returned.
-            int rc = ((IFSReturnCodeRep) ds).getReturnCode();
-            if (rc != IFSReturnCodeRep.NO_MORE_FILES &&
-                rc != IFSReturnCodeRep.SUCCESS)
-            {
-              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code = ", rc);
-              throw new ExtendedIOException(rc);
-            }
-
-          }
-          else
-          {
-            // Unknown data stream.
-            Trace.log(Trace.ERROR, "Unknown reply data stream ", ds.data_);
-            throw new
-              InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-                                     InternalErrorException.DATA_STREAM_UNKNOWN);
-          }
-
-          // Fetch the next reply if not already done.
-          done = ((IFSDataStream) ds).isEndOfChain();
-          if (!done)
-          {
-            try
-            {
-              ds = (ClientAccessDataStream) fd_.getServer().receive(req.getCorrelation());
-            }
-            catch(ConnectionDroppedException e)
-            {
-              Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-              fd_.connectionDropped(e);
-            }
-            catch(InterruptedException e)
-            {
-              Trace.log(Trace.ERROR, "Interrupted");
-              throw new InterruptedIOException(e.getMessage());
-            }
-          }
-        }
-        while (!done);
-
-        if (!gotCCSID || fileCCSID == 0)
-        {
-          Trace.log(Trace.ERROR, "Unable to determine CCSID of file " + fd_.path_);
-          throw new ExtendedIOException(ExtendedIOException.UNKNOWN_ERROR);
-        }
-
-      }
-      catch(ConnectionDroppedException e)
-      {
-        fd_.connectionDropped(e);
-      }
-      catch(InterruptedException e)
-      {
-        Trace.log(Trace.ERROR, "Interrupted", e);
-        throw new InterruptedIOException(e.getMessage());
-      }
-
-/*  @B4d
-      // Convert the CCSID to the encoding string.  
-//    String encoding = ConversionMaps.ccsidToEncoding(fileCCSID == 0xf200 ? //@B0C
-//                                                        0x34b0 : fileCCSID);//@B3d
-      String encoding = ConversionMaps.ccsidToEncoding(fileCCSID); //@B0C @B3c
-      
-
-      // If there is no encoding for this CCSID, throw an
-      // UnsupportedEncodingException.
-      if (encoding == null)
-      {
-        throw new UnsupportedEncodingException(Integer.toString(fileCCSID));
-      }
-
-      // @A1A
-      // Added code to check for 13488 because of a change made
-      // in the ccsid to encoding mapping (in v3r2m0, 13488 is
-      // mapped to "Unicode". Now, 13488 is mapped to 13488.)
-
-//    if (encoding.equals("13488")) {  // @A1A @B3d
-//      encoding = "Unicode";          // @A1A @B3d
-//    }                                // @A1A @B3d
-      if (fileCCSID == 13488 ||  // @A1A @B3c
-          fileCCSID == 61952)    // @B3a
-      {
-        // Note: This is to avoid the problem of the reader getting confused about
-        // a "missing byte-order mark" when dealing with Unicode streams.    @B3a
-
-//      encoding = "Unicode";            // @A1A @B3d
-*/
-
-        //converter_ = ConverterImplRemote.getConverter(fileCCSID, fd_.getSystem()); //@B3a @B7d
-        reader_ = new ConvTableReader(this, fileCCSID);  // @B7a
-/* @B4d
-
-      }
-      else
-      {
-        // Instantiate the InputStreamReader.
-        reader_ = new InputStreamReader(this, encoding);
-      }
-*/
+      reader_ = new ConvTableReader(this, fd_.getCCSID());  // @B7a
     }
-
-    // Read the requested number of characters.
-    //int numBytesRead;  // @B7d
-
-/* @B4d
-    if (reader_ != null)
-    {
-      char[] buffer = new char[length];
-      numBytesRead = reader_.read(buffer, 0, buffer.length);
-
-      // Create a String from the characters.
-      if (numBytesRead > -1)
-      {
-        data = new String(buffer, 0, numBytesRead);
-      }
-    }
-    else if (converter_ != null)  // @B3a
-    {
-*/
 
     data = reader_.read(length);  // @B7a
     if (data == null) data = "";  // @B7a
-
-/*  @B7d
-      byte[] byteArray = new byte[length*2]; // Allow 2 chars per Unicode char.
-      numBytesRead = this.read(byteArray, 0, byteArray.length);
-      if (numBytesRead != -1)                                         // @B4a
-        data = converter_.byteArrayToString(byteArray, 0, numBytesRead);
-*/
-/* @B4d
-    }
-    else
-    {
-      Trace.log(Trace.DIAGNOSTIC, "Neither the reader nor the converter got set.");
-    }
-*/
 
     return data;
   }
@@ -634,10 +464,10 @@ implements IFSFileInputStreamImpl
    @return The actual number of bytes skipped.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
   
    **/
   public long skip(long bytesToSkip)
@@ -671,10 +501,10 @@ implements IFSFileInputStreamImpl
    @param key The key for the lock.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
  
    @see IFSKey
    @see #lock

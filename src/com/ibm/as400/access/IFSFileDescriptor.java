@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileDescriptor.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ Reading in one object advances the current file position of all objects that sha
 public final class IFSFileDescriptor
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -50,6 +50,7 @@ public final class IFSFileDescriptor
   private String                path_ = "";
   private int                   shareOption_;
   private AS400                 system_;
+  private boolean               closed_ = false;
 
   private transient Boolean     fileOffsetLock_ = new Boolean("true");
                          // Semaphore for synchronizing access to fileOffset_.
@@ -131,8 +132,8 @@ Constructs an IFSFileDescriptor object.
 
   void close()
   {
-    if (impl_ != null)
-      impl_.close();
+    if (impl_ != null) impl_.close();
+    closed_ = true;
   }
 
 
@@ -206,6 +207,16 @@ Constructs an IFSFileDescriptor object.
     return impl_;
   }
 
+  /**
+   Returns the file's "data CCSID" setting.
+   **/
+  int getCCSID()
+    throws IOException
+  {
+    if (impl_ == null) chooseImpl();
+    return impl_.getCCSID();
+  }
+
   int getFileOffset()
   {
     if (impl_ == null)
@@ -244,6 +255,11 @@ Constructs an IFSFileDescriptor object.
       impl_.incrementFileOffset(fileOffsetIncrement);
   }
 
+  boolean isClosed()
+  {
+    return closed_;
+  }
+
   boolean isOpen()
   {
     if (impl_ == null)
@@ -255,7 +271,7 @@ Constructs an IFSFileDescriptor object.
   /**
    Restores the state of this object from an object input stream.
    @param ois The stream of state information.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    @exception ClassNotFoundException
    **/
   private void readObject(java.io.ObjectInputStream ois)

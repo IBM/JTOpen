@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileDescriptorImpl.java
 //                                                                             
@@ -23,6 +23,8 @@ import java.io.IOException;
 interface IFSFileDescriptorImpl
 {
   void close();
+
+  int getCCSID() throws IOException;
 
   int getFileOffset();
 

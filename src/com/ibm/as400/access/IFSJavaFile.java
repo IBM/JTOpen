@@ -93,12 +93,12 @@ import java.net.MalformedURLException;
  *     if (location == ON_THE_AS400)
  *       file = new IFSJavaFile(new AS400("enterprise"), path); // Work with the file on the system "enterprise".
  *     else
- *       file = new java.io.File (path);                       // Work with the file on the local file system.
+ *       file = new java.io.File(path);                       // Work with the file on the local file system.
  *<br>
  *     if (file.exists())
- *       System.out.println ("Length: " + file.length());      // Determine the file size.
+ *       System.out.println("Length: " + file.length());      // Determine the file size.
  *     else
- *       System.out.println ("File " + file.getName() + " not found");
+ *       System.out.println("File " + file.getName() + " not found");
  *<br>
  *     // Delete the file.  This should be done before creating an output stream.
  *     if (file.delete() == false)
@@ -107,26 +107,26 @@ import java.net.MalformedURLException;
  *     if (location == ON_THE_AS400)
  *       os = (OutputStream)new IFSFileOutputStream((IFSJavaFile)file);
  *     else
- *       os = new FileOutputStream (file);
+ *       os = new FileOutputStream(file);
  *<br>
  *     writeData(file, os);
  *     os.close();
  *<br>
- * void writeData (java.io.File file, java.io.OutputStream os)
+ * void writeData(java.io.File file, java.io.OutputStream os)
  *   throws IOException
  * {
  *   // Determine the parent directory of the file.
- *   System.out.println ("Directory: " + file.getParent());
+ *   System.out.println("Directory: " + file.getParent());
  *<br>
  *   // Determine the name of the file.
- *   System.out.println ("Name: " + file.getName());
+ *   System.out.println("Name: " + file.getName());
  *<br>
  *   // Determine when the file was last modified.
- *   System.out.println ("Date: " + new Date(file.lastModified()));
+ *   System.out.println("Date: " + new Date(file.lastModified()));
  *<br>
- *   System.out.println ("Writing Data");
+ *   System.out.println("Writing Data");
  *   for (int i = 0; i < 256; i++)
- *     os.write ((byte)i);
+ *     os.write((byte)i);
  * }
  * </pre>
  *
@@ -180,7 +180,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * @param   path   The file path name where the IFSJavaFile is or will be stored.
  * @param   name   The name of the IFSJavaFile object.
 **/
-  private IFSJavaFile (String path, String name)
+  private IFSJavaFile(String path, String name)
   {
     super(path, name);
 
@@ -277,20 +277,18 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     if (system == null)
       throw new NullPointerException("system");
 
-    setSystem (system);
+    setSystem(system);
   }
 
-//@A3A Added a new constructor to support building an IFSJavaFile from a IFSFile.
+
 /**
  * Creates a new IFSJavaFile instance from an IFSFile object.
  *
  * @param   file  An IFSFile object.
 **/
-  IFSJavaFile(IFSFile file)
+  public IFSJavaFile(IFSFile file)
   {
     super(file.getPath(), file.getName());
-    if (file == null)
-      throw new NullPointerException("file");
     ifsFile_ = file;
   }
 
@@ -325,12 +323,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
   }
@@ -354,12 +352,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
   }
@@ -376,7 +374,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  IFSJavaFile file  = new IFSJavaFile(new AS400("enterprise"), path);
  *  IFSJavaFile file2 = new IFSJavaFile(new AS400("enterprise"), path + "\\extra");
  * <br>
- *  int returnCode = file.compareTo (file2);
+ *  int returnCode = file.compareTo(file2);
  * </pre>
  *
  * <p>
@@ -386,7 +384,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  IFSJavaFile file  = new IFSJavaFile(new AS400("enterprise"), path + "\\extra");
  *  IFSJavaFile file2 = new IFSJavaFile(new AS400("enterprise"), path);
  * <br>
- *  int returnCode = file.compareTo (file2);
+ *  int returnCode = file.compareTo(file2);
  * </pre>
  *
  * <p>
@@ -396,7 +394,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  IFSJavaFile file  = new IFSJavaFile(new AS400("enterprise"), "\\QSYS.LIB\\herlib");
  *  IFSJavaFile file2 = new IFSJavaFile(new AS400("enterprise"), "\\QSYS.LIB\\hislib");
  * <br>
- *  int returnCode = file.compareTo (file2);
+ *  int returnCode = file.compareTo(file2);
  * </pre>
  *
  * <p>Note:<br>The comparison is case sensitive.
@@ -523,12 +521,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
   }
@@ -573,17 +571,17 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
       ||  returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
       {
-        throw new SecurityException (ResourceBundleLoader.getText(mapRC(returnCode)));
+        throw new SecurityException(ResourceBundleLoader.getText(mapRC(returnCode)));
       }
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -838,17 +836,17 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
       ||  returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
       {
-        throw new SecurityException (ResourceBundleLoader.getText(mapRC(returnCode)));
+        throw new SecurityException(ResourceBundleLoader.getText(mapRC(returnCode)));
       }
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -869,17 +867,17 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       if (returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_DIR_ENTRY
       ||  returnCode == IFSReturnCodeRep.ACCESS_DENIED_TO_REQUEST)
       {
-        throw new SecurityException (ResourceBundleLoader.getText(mapRC(returnCode)));
+        throw new SecurityException(ResourceBundleLoader.getText(mapRC(returnCode)));
       }
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -926,12 +924,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return 0L;
     }
   }
@@ -950,12 +948,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return 0L;
     }
   }
@@ -979,12 +977,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1011,7 +1009,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  {
  *    public boolean accept(java.io.File dir, java.lang.String name)
  *    {
- *      if (name.startsWith ("IFS"))
+ *      if (name.startsWith("IFS"))
  *        return true;
  *      return false;
  *    }
@@ -1019,7 +1017,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * <br>
  *  IFSJavaFile file = new IFSJavaFile(new AS400("enterprise"), path);
  *  AcceptClass ac = new AcceptClass();
- *  file.list (ac);
+ *  file.list(ac);
  *</pre>
  * @see #listFiles(FilenameFilter)
 **/
@@ -1033,12 +1031,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return null;
     }
 
@@ -1087,7 +1085,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  {
  *    public boolean accept(IFSFile file)
  *    {
- *      if (file.getName().startsWith ("IFS"))
+ *      if (file.getName().startsWith("IFS"))
  *        return true;
  *      return false;
  *    }
@@ -1095,7 +1093,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * <br>
  *  IFSJavaFile file = new IFSJavaFile(new AS400("enterprise"), path);
  *  AcceptClass ac = new AcceptClass();
- *  file.list (ac);
+ *  file.list(ac);
  *
  *</pre>
  * @see #listFiles(IFSFileFilter)
@@ -1108,12 +1106,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
-      throw new SecurityException (e.getMessage());
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1149,12 +1147,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
-      throw new SecurityException (e.getMessage());
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1186,12 +1184,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
-      throw new SecurityException (e.getMessage());
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return new String[0];
     }
   }
@@ -1242,7 +1240,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  {
  *    public boolean accept(java.io.File dir, java.lang.String name)
  *    {
- *      if (name.startsWith ("IFS"))
+ *      if (name.startsWith("IFS"))
  *        return true;
  *      return false;
  *    }
@@ -1250,7 +1248,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * <br>
  *  IFSJavaFile file = new IFSJavaFile(new AS400("enterprise"), path);
  *  AcceptClass ac = new AcceptClass();
- *  file.listFiles (ac);
+ *  file.listFiles(ac);
  *</pre>
  * @see #list(FilenameFilter)
 **/
@@ -1263,12 +1261,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return null;
     }
 
@@ -1327,7 +1325,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  {
  *    public boolean accept(java.io.File file)
  *    {
- *      if (file.getName().startsWith ("IFS"))
+ *      if (file.getName().startsWith("IFS"))
  *        return true;
  *      return false;
  *    }
@@ -1335,7 +1333,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * <br>
  *  IFSJavaFile file = new IFSJavaFile(new AS400("enterprise"), path);
  *  AcceptClass ac = new AcceptClass();
- *  file.listFiles (ac);
+ *  file.listFiles(ac);
  *</pre>
 **/
   public File[] listFiles(FileFilter filter)
@@ -1347,12 +1345,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return null;
     }
 
@@ -1405,7 +1403,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  *  {
  *    public boolean accept(IFSFile file)
  *    {
- *      if (file.getName().startsWith ("IFS"))
+ *      if (file.getName().startsWith("IFS"))
  *        return true;
  *      return false;
  *    }
@@ -1413,7 +1411,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
  * <br>
  *  IFSJavaFile file = new IFSJavaFile(new AS400("enterprise"), path);
  *  AcceptClass ac = new AcceptClass();
- *  file.listFiles (ac);
+ *  file.listFiles(ac);
  *
  *</pre>
  * @see #list(IFSFileFilter)
@@ -1464,12 +1462,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
-      throw new SecurityException (e.getMessage());
+      Trace.log(Trace.ERROR, e);
+      throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return new IFSJavaFile[0];
     }
   }
@@ -1556,12 +1554,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -1584,12 +1582,12 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -1621,13 +1619,13 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     }
     catch (AS400SecurityException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       throw new SecurityException(e.getMessage());
     }
     catch (PropertyVetoException e) {}  // will never happen
     catch (IOException e)
     {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
     return (returnCode == IFSReturnCodeRep.SUCCESS);
@@ -1650,7 +1648,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
       return renameTo((IFSJavaFile)dest);
     }
     catch (ClassCastException e) {
-      Trace.log (Trace.ERROR, e);
+      Trace.log(Trace.ERROR, e);
       return false;
     }
   }

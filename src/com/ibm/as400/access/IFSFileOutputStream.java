@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileOutputStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ import java.util.Vector;
 public class IFSFileOutputStream extends OutputStream
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -112,11 +112,11 @@ public class IFSFileOutputStream extends OutputStream
    It creates a file output stream to write to the file with the specified name.
    Other readers and writers are allowed to access the file.  The file is
    replaced if it exists; otherwise, the file is created.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param name The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSFileOutputStream(AS400  system,
                              String name)
@@ -138,12 +138,12 @@ public class IFSFileOutputStream extends OutputStream
    It creates a file output stream to write to the file with the specified name and ccsid.
    Other readers and writers are allowed to access the file.  The file is
    replaced if it exists; otherwise, the file is created.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param name The file to be opened for writing.
    @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSFileOutputStream(AS400  system,		// @C1A
                              String name,
@@ -157,7 +157,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Constructs an IFSFileOutputStream object.
    It creates a file output stream to write to the file with the specified name.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param name The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param append Controls the behavior of the file.
@@ -166,7 +166,7 @@ public class IFSFileOutputStream extends OutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   // @A2A
   public IFSFileOutputStream(AS400   system,
@@ -189,7 +189,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Constructs an IFSFileOutputStream object.
    It creates a file output stream to write to the file with the specified name and ccsid.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param name The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param append Controls the behavior of the file.
@@ -199,7 +199,7 @@ public class IFSFileOutputStream extends OutputStream
    @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   
   public IFSFileOutputStream(AS400   system,       // @A2D, @C1B
@@ -232,7 +232,7 @@ public class IFSFileOutputStream extends OutputStream
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSFileOutputStream(IFSFile file)
     throws AS400SecurityException, IOException
@@ -244,7 +244,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Constructs an IFSFileOutputStream object.
    It creates a file output stream to write to the file specified by <i>file</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param append Controls the behavior of the file.
@@ -253,7 +253,8 @@ public class IFSFileOutputStream extends OutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
+   @deprecated Use IFSFileOutputStream(IFSFile, int, boolean) instead.
     **/
 
   // @A2A
@@ -276,8 +277,34 @@ public class IFSFileOutputStream extends OutputStream
 
   /**
    Constructs an IFSFileOutputStream object.
+   It creates a file output stream to write to the file specified by <i>file</i>.
+   @param file The file to be opened for writing.
+   @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
+   @param append Controls the behavior of the file.
+   If true, output is appended to the file;
+   otherwise, the current contents of the file are erased,
+   and output replaces the file contents.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the server.
+    **/
+  public IFSFileOutputStream(IFSFile file,
+                             int     shareOption,
+                             boolean append)
+    throws AS400SecurityException, IOException
+  {
+    // Validate arguments.
+    if (file == null) throw new NullPointerException("file");
+    IFSFileInputStream.validateShareOption(shareOption);
+
+    myConstructor(file.getSystem(), file.getAbsolutePath(), shareOption, append, -1);
+  }
+
+
+  /**
+   Constructs an IFSFileOutputStream object.
    Creates a file output stream to write to the file specified by <i>file</i>, tagging the data with the CCSID specified by <i>ccsid</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param append Controls the behavior of the file.
@@ -287,7 +314,8 @@ public class IFSFileOutputStream extends OutputStream
    @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
+   @deprecated Use IFSFileOutputStream(IFSFile, int, boolean, int) instead.
     **/
   
   public IFSFileOutputStream(AS400   system,    // @A2D, @C1C
@@ -309,6 +337,40 @@ public class IFSFileOutputStream extends OutputStream
 
     myConstructor(system, file.getAbsolutePath(), shareOption, append, ccsid);
   }
+
+
+  /**
+   Constructs an IFSFileOutputStream object.
+   Creates a file output stream to write to the file specified by <i>file</i>, tagging the data with the CCSID specified by <i>ccsid</i>.
+   @param file The file to be opened for writing.
+   @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
+   @param append Controls the behavior of the file.
+   If true, output is appended to the file;
+   otherwise, the current contents of the file are erased,
+   and output replaces the file contents.
+   @param ccsid The CCSID with which to tag the data in the file.
+
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the server.
+    **/
+  
+  public IFSFileOutputStream(IFSFile file,
+                             int     shareOption,
+                             boolean append,
+                             int ccsid)
+    throws AS400SecurityException, IOException
+  {
+    // Validate arguments.
+    if (file == null)
+      throw new NullPointerException("file");
+    IFSFileInputStream.validateShareOption(shareOption);
+    if (ccsid < 0)
+      throw new ExtendedIllegalArgumentException("ccsid",
+                 ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+    myConstructor(file.getSystem(), file.getAbsolutePath(), shareOption, append, ccsid);
+  }
+
 
   // common package scope constructor
   void myConstructor (AS400   system,
@@ -357,7 +419,7 @@ public class IFSFileOutputStream extends OutputStream
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSFileOutputStream(IFSJavaFile file)
     throws AS400SecurityException, IOException
@@ -369,7 +431,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Constructs an IFSFileOutputStream object.
    Creates a file output stream to write to the file specified by <i>file</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param append Controls the behavior of the file.
@@ -378,7 +440,7 @@ public class IFSFileOutputStream extends OutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSFileOutputStream(AS400   system,
                              IFSJavaFile file,
@@ -401,7 +463,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Constructs an IFSFileOutputStream object.
    Creates a file output stream to write to the file specified by <i>file</i>, tagging the data with the CCSID specified by <i>ccsid</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param file The file to be opened for writing.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
    @param append Controls the behavior of the file.
@@ -411,7 +473,7 @@ public class IFSFileOutputStream extends OutputStream
    @param ccsid The CCSID with which to tag the data in the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSFileOutputStream(AS400   system,
                              IFSJavaFile file,
@@ -501,12 +563,12 @@ public class IFSFileOutputStream extends OutputStream
    Closes this file output stream and releases any system resources associated
    with this stream.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void close()
     throws IOException
   {
-    if (fd_.isOpen())
+    if (!fd_.isClosed() && fd_.isOpen())
     {
       if (impl_ != null)
         impl_.close();
@@ -525,7 +587,7 @@ public class IFSFileOutputStream extends OutputStream
    Establishes communications with the AS400, and opens the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   private void connectAndOpen()
     throws AS400SecurityException, IOException
@@ -546,7 +608,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Ensures that the file output stream is closed when there are no more
    references to it.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
     throws IOException
@@ -573,11 +635,17 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Forces any buffered output bytes to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void flush()
     throws IOException
   {
+    if (fd_.isClosed()) {
+      Trace.log(Trace.ERROR, "The stream has been closed.");
+      //throw new java.nio.channels.ClosedChannelException();  // requires JDK 1.4
+      throw new IOException();
+    }
+
     // Ensure that the file is open.
     open(ccsid_);
 
@@ -598,7 +666,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Returns the file descriptor associated with this stream.
    @return The file descriptor associated with this stream.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final IFSFileDescriptor getFD()
     throws IOException
@@ -665,7 +733,7 @@ public class IFSFileOutputStream extends OutputStream
    @param length The number of bytes to lock.
    @return A key for undoing this lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #unlock
@@ -693,7 +761,7 @@ public class IFSFileOutputStream extends OutputStream
    Opens the specified file.  If the file is already open, does nothing.
    @param fileDataCCSID The CCSID with which to tag the data in the file.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void open(int fileDataCCSID)
     throws IOException
@@ -728,7 +796,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Restores the state of this object from an object input stream.
    @param ois The stream of state information.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    @exception ClassNotFoundException
    **/
   private void readObject(java.io.ObjectInputStream ois)
@@ -962,7 +1030,7 @@ public class IFSFileOutputStream extends OutputStream
   /**
    Sets the system.
    The system cannot be changed once a connection is made to the server.
-   @param system The AS/400 system object.
+   @param system The system object.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public void setSystem(AS400 system)
@@ -1000,7 +1068,7 @@ public class IFSFileOutputStream extends OutputStream
    Undoes a lock on this file.
    @param key The key for the lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #lock
@@ -1023,7 +1091,7 @@ public class IFSFileOutputStream extends OutputStream
    Writes the specified byte to this file output stream.
    @param b The byte to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    **/
   public void write(int b)
@@ -1040,7 +1108,7 @@ public class IFSFileOutputStream extends OutputStream
    to this file output stream.
    @param data The data to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(byte[] data)
     throws IOException
@@ -1059,7 +1127,7 @@ public class IFSFileOutputStream extends OutputStream
    @param dataOffset The start offset in the data.
    @param length The number of bytes to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(byte[] data,
                     int    dataOffset,

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileOutputStreamImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ implements IFSFileOutputStreamImpl
   /**
    Closes this file output stream and releases any system resources associated
    with this stream.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void close()
     throws IOException
@@ -120,7 +120,7 @@ implements IFSFileOutputStreamImpl
   /**
    Ensures that the file output stream is closed when there are no more
    references to it.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
     throws IOException
@@ -141,7 +141,7 @@ implements IFSFileOutputStreamImpl
   /**
    Forces any buffered output bytes to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void flush()
     throws IOException
@@ -203,7 +203,7 @@ implements IFSFileOutputStreamImpl
    @param length The number of bytes to lock.
    @return A key for undoing this lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #unlock
@@ -223,7 +223,7 @@ implements IFSFileOutputStreamImpl
   /**
    Opens the specified file.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void open(int fileDataCCSID)
     throws IOException
@@ -260,7 +260,7 @@ implements IFSFileOutputStreamImpl
       throw new ExtendedIOException(ExtendedIOException.ACCESS_DENIED);
     }
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.getConverter().stringToByteArray(path);
 
     // Request that the file be created if it doesn't exist, opened
@@ -357,7 +357,7 @@ implements IFSFileOutputStreamImpl
    Undoes a lock on this file.
    @param key The key for the lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #lock
@@ -379,7 +379,7 @@ implements IFSFileOutputStreamImpl
    <br>This method is implemented to qualify this class as an OutputStream.
    @param b The byte to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(int b)
     throws IOException
@@ -396,7 +396,7 @@ implements IFSFileOutputStreamImpl
    <br>This method is implemented to qualify this class as an OutputStream.
    @param data The data to be written.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(byte[] data)
     throws IOException
@@ -411,7 +411,7 @@ implements IFSFileOutputStreamImpl
    @param offset The start offset in the data.
    @param length The number of bytes to write.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public void write(byte[] data,
                     int    dataOffset,
@@ -487,7 +487,8 @@ implements IFSFileOutputStreamImpl
    @param data The characters to write to the stream.
    @param ccsid The CCSID for the data.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
+   @deprecated Used only by IFSTextFileOutputStream, which is deprecated.
    **/
   public void writeText(String data, int ccsid)
     throws IOException

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSTextFileOutputStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,12 +37,13 @@ file.close();
 @see com.ibm.as400.access.FileEvent
 @see com.ibm.as400.access.IFSFileOutputStream#addFileListener
 @see com.ibm.as400.access.IFSFileOutputStream#removeFileListener
+@deprecated Use {@link IFSFileWriter IFSFileWriter} instead.
  **/
 
 public class IFSTextFileOutputStream extends IFSFileOutputStream
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
   
@@ -66,7 +67,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param name The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSTextFileOutputStream(AS400  system,
                                  String name) 
@@ -87,7 +88,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSTextFileOutputStream(AS400  system,
                                  String name,
@@ -111,7 +112,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSTextFileOutputStream(AS400   system,
                                  String  name,
@@ -137,7 +138,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSTextFileOutputStream(AS400   system,
                                  String  name,
@@ -160,7 +161,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSTextFileOutputStream(IFSFile file)
     throws AS400SecurityException, IOException
@@ -182,7 +183,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSFile file,
@@ -209,7 +210,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSFile file,
@@ -231,7 +232,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param file The file to be opened for writing.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSTextFileOutputStream(IFSJavaFile file)
     throws AS400SecurityException, IOException
@@ -253,7 +254,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    and output replaces the file contents.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSJavaFile file,
@@ -280,7 +281,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    @param ccsid The CCSID of the data being written to the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSTextFileOutputStream(AS400   system,
                                  IFSJavaFile file,
@@ -305,7 +306,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
 
   /**
    Returns the CCSID.  This is just the bean property, and does not
-   necessarily represent the file's actual original CCSID on the AS/400.
+   necessarily represent the file's actual original CCSID on the server.
    @return The CCSID.
    @see com.ibm.as400.access.IFSFile#getCCSID
    **/
@@ -328,7 +329,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
   /**
    Sets the CCSID for the data written to the file.
    <br>Note: This method is of limited usefulness, since it is invalid after
-   a connection has been opened to the file on the AS/400, and most of the
+   a connection has been opened to the file on the server, and most of the
    constructors for this class open a connection.  The preferred way to set
    the CCSID of the file is via a constructor that has a "ccsid" argument.
    @param ccsid The target CCSID.
@@ -347,7 +348,7 @@ public class IFSTextFileOutputStream extends IFSFileOutputStream
    specified CCSID.  
    @param data The characters to write to the stream.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see #getCCSID
    @see #setCCSID

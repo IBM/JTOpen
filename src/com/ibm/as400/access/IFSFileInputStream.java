@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileInputStream.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ input stream.
 public class IFSFileInputStream extends InputStream
   implements java.io.Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
 
@@ -104,13 +104,13 @@ public class IFSFileInputStream extends InputStream
   /**
    Constructs an IFSFileInputStream. 
    It creates a file input stream to read from the file <i>name</i>.
-   Other readers and writers are allowed to access the file.  The file is
-   opened if it exists; otherwise, an exception is thrown.
+   Other readers and writers are allowed to access the file.
+   The file is opened if it exists; otherwise, an exception is thrown.
    @param system The AS400 that contains the file.
    @param name The integrated file system name.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSFileInputStream(AS400  system,
                             String name)
@@ -122,12 +122,12 @@ public class IFSFileInputStream extends InputStream
   /**
    Constructs an IFSFileInputStream. 
    It creates a file input stream to read from the file <i>name</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param name The integrated file system name.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public IFSFileInputStream(AS400  system,
                             String name,
@@ -159,7 +159,7 @@ public class IFSFileInputStream extends InputStream
    @param file The file to be opened for reading.
  
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSFileInputStream(IFSFile file)
     throws AS400SecurityException, IOException
@@ -170,12 +170,13 @@ public class IFSFileInputStream extends InputStream
 
   /**
    Creates a file input stream to read from the file specified by <i>file</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param file The file to be opened for reading.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
  
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
+   @deprecated Use IFSFileInputStream(IFSFile, int) instead.
     **/
   public IFSFileInputStream(AS400   system,
                             IFSFile file,
@@ -196,6 +197,22 @@ public class IFSFileInputStream extends InputStream
     // Connect to the byte stream server, and
     // open the file.
     connectAndOpen();
+  }
+
+
+  /**
+   Creates a file input stream to read from the file specified by <i>file</i>.
+   @param file The file to be opened for reading.
+   @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
+ 
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the server.
+    **/
+  public IFSFileInputStream(IFSFile file,
+                            int     shareOption)
+    throws AS400SecurityException, IOException
+  {
+    this((file==null ? null : file.getSystem()), file, shareOption);
   }
 
 
@@ -225,7 +242,7 @@ public class IFSFileInputStream extends InputStream
    @param file The file to be opened for reading.
  
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
     **/
   public IFSFileInputStream(IFSJavaFile file)
     throws AS400SecurityException, IOException
@@ -236,12 +253,13 @@ public class IFSFileInputStream extends InputStream
   // @A1A Added IFSJavaFile support
   /**
    Creates a file input stream to read from the file specified by <i>file</i>.
-   @param system The AS/400 that contains the file.
+   @param system The server that contains the file.
    @param file The file to be opened for reading.
    @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
  
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
+   @deprecated Use IFSFileInputStream(IFSJavaFile, int) instead.
     **/
   public IFSFileInputStream(AS400   system,
                             IFSJavaFile file,
@@ -262,7 +280,24 @@ public class IFSFileInputStream extends InputStream
     // Connect to the byte stream server, and open the file.
     connectAndOpen();
   }
-  //@A1A End if IFSJavaFile support.
+  //@A1A End of IFSJavaFile support.
+
+
+  /**
+   Creates a file input stream to read from the file specified by <i>file</i>.
+   @param file The file to be opened for reading.
+   @param shareOption Indicates how users can access the file. <ul><li>SHARE_ALL Share access with readers and writers<li>SHARE_NONE Share access with none<li>SHARE_READERS Share access with readers<li>SHARE_WRITERS Share access with writers</ul>
+ 
+   @exception AS400SecurityException If a security or authority error occurs.
+   @exception IOException If an error occurs while communicating with the server.
+    **/
+  public IFSFileInputStream(IFSJavaFile file,
+                            int     shareOption)
+    throws AS400SecurityException, IOException
+  {
+    this((file==null ? null : file.getSystem()), file, shareOption);
+  }
+
 
   /**
    Adds a file listener to receive file events from this IFSFileInputStream.
@@ -307,7 +342,7 @@ public class IFSFileInputStream extends InputStream
    Returns the number of bytes that can be read from this file input stream.
    @return The number of bytes that can be read from this file input stream.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
   **/
   public int available()
     throws IOException
@@ -345,12 +380,12 @@ public class IFSFileInputStream extends InputStream
    Closes this file input stream and releases any system resources associated
    with the stream.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
   **/
   public void close()
     throws IOException
   {
-    if (fd_.isOpen())
+    if (!fd_.isClosed() && fd_.isOpen())
     {
       if (impl_ != null)
         impl_.close();
@@ -369,7 +404,7 @@ public class IFSFileInputStream extends InputStream
    Establishes communications with the AS400, and opens the file.
 
    @exception AS400SecurityException If a security or authority error occurs.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
   **/
   private void connectAndOpen()
     throws AS400SecurityException, IOException
@@ -391,7 +426,7 @@ public class IFSFileInputStream extends InputStream
   /**
    Ensures that the file input stream is closed when there are no more
    references to it.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
     throws IOException
@@ -420,7 +455,7 @@ public class IFSFileInputStream extends InputStream
   /**
    Returns the opaque file descriptor associated with this stream.
    @return The file descriptor object associated with this stream.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public final IFSFileDescriptor getFD()
     throws IOException
@@ -487,7 +522,7 @@ public class IFSFileInputStream extends InputStream
    @param length The number of bytes to lock.
    @return The key for undoing this lock.
  
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
 
    @see IFSKey
    @see #unlock
@@ -513,7 +548,7 @@ public class IFSFileInputStream extends InputStream
 
   /**
    Opens the specified file.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void open()
     throws IOException
@@ -548,7 +583,7 @@ public class IFSFileInputStream extends InputStream
   /**
    Restores the state of this object from an object input stream.
    @param ois The stream of state information.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    @exception ClassNotFoundException
    **/
   private void readObject(java.io.ObjectInputStream ois)
@@ -565,7 +600,7 @@ public class IFSFileInputStream extends InputStream
    Reads the next byte of data from this input stream.
    @return The next byte of data, or -1 if the end of file is reached.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int read()
     throws IOException
@@ -593,7 +628,7 @@ public class IFSFileInputStream extends InputStream
    @param data The buffer into which data is read.
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int read(byte[] data)
     throws IOException
@@ -612,7 +647,7 @@ public class IFSFileInputStream extends InputStream
    @param length The maximum number of bytes to read
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public int read(byte[] data,
                   int    dataOffset,
@@ -682,9 +717,22 @@ public class IFSFileInputStream extends InputStream
     vetos_.removeVetoableChangeListener(listener);
   }
 
+  /**
+   Rewinds the input stream.  After this call, the stream will read from the beginning.
+   **/
+  public void reset() throws IOException
+  {
+    if (fd_.isClosed()) {
+      Trace.log(Trace.ERROR, "The stream has been closed.");
+      throw new java.nio.channels.ClosedChannelException();
+    }
+    rewind();
+  }
+
   //@A2A Added rewind.
   /**
    Rewinds the input stream.  After this call, the stream will read from the beginning.
+   @deprecated Use reset() instead.
    **/
   public void rewind()
   {
@@ -827,7 +875,7 @@ public class IFSFileInputStream extends InputStream
   /**
    Sets the system.
    The system cannot be changed once a connection is made to the server.
-   @param system The AS/400 system object.
+   @param system The system object.
    @exception PropertyVetoException If the change is vetoed.
    **/
   public void setSystem(AS400 system)
@@ -866,7 +914,7 @@ public class IFSFileInputStream extends InputStream
    @param bytesToSkip The number of bytes to skip.
    @return The actual number of bytes skipped.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   public long skip(long bytesToSkip)
     throws IOException
@@ -889,7 +937,7 @@ public class IFSFileInputStream extends InputStream
    Undoes a lock on this file.
    @param key The key for the lock.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
  
    @see IFSKey
    @see #lock

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileDescriptorImplProxy.java
 //                                                                             
@@ -37,6 +37,17 @@ implements IFSFileDescriptorImpl
   {
     try {
       connection_.callMethod (pxId_, "close");
+    }
+    catch (InvocationTargetException e) {
+      throw ProxyClientConnection.rethrow (e);
+    }
+  }
+
+  public int getCCSID() throws IOException
+  {
+    try {
+      return connection_.callMethod (pxId_, "getCCSID")
+                        .getReturnValueInt();
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
