@@ -388,7 +388,8 @@ class JDSQLStatement
         //      ( ( SELECT
         String firstWord = ""; //@F2C
         // @C3D tokenizer_ = new StringTokenizer(value_);
-        while(firstWord == "" && tokenizer_.hasMoreTokens()) //@F2A
+        //@KBD while(firstWord == "" && tokenizer_.hasMoreTokens()) //@F2A
+        while(firstWord.length() == 0 && tokenizer_.hasMoreTokens())    //@KBA
         {
             String word = tokenizer_.nextToken();
             // Our StringTokenizer ensures that word.length() > 0
