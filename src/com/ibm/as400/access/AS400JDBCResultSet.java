@@ -489,6 +489,8 @@ public class AS400JDBCResultSet implements ResultSet
 
     /**
     Returns the column index for the specified column name.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.findColumn("\"MixedCase\"").
     
     @param      columnName      The column name.
     @return                     The column index (1-based).
@@ -2003,6 +2005,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Returns the value of a column as an Array object.
     DB2 UDB for iSeries does not support arrays.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getArray("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
@@ -2057,6 +2061,8 @@ public class AS400JDBCResultSet implements ResultSet
     BLOB.  All of the data in the returned stream must be read 
     prior to getting the value of any other column.  The next 
     call to a get method implicitly closes the stream.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getAsciiStream("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -2112,6 +2118,8 @@ public class AS400JDBCResultSet implements ResultSet
     can be used to get values from columns with SQL types
     SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getBigDecimal("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -2174,6 +2182,8 @@ public class AS400JDBCResultSet implements ResultSet
     can be used to get values from columns with SQL types
     SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getBigDecimal("\"MixedCase\"", 0).
     
     @param  columnName  The column name.
     @param  scale       The number of digits after the decimal.
@@ -2235,6 +2245,8 @@ public class AS400JDBCResultSet implements ResultSet
     the returned stream must be read prior to getting the
     value of any other column.  The next call to a get method
     implicitly closes the stream.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getBinaryStream("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -2286,6 +2298,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a Blob object.
     This can be used to get values from columns with SQL
     types BINARY, VARBINARY, and BLOB.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getBlob("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
@@ -2339,6 +2353,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getBoolean("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or false if the value is SQL NULL.
@@ -2392,6 +2408,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getByte("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
@@ -2466,6 +2484,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a Java byte array.
     This can be used to get values from columns with SQL
     types BINARY and VARBINARY.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getBytes("\"MixedCase\"").
     
     <p>This can also be used to get values from columns 
     with other types.  The values are returned in their
@@ -2529,6 +2549,8 @@ public class AS400JDBCResultSet implements ResultSet
     All of the data in the returned stream must be read prior 
     to getting the value of any other column.  The next call 
     to a get method implicitly closes the stream.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getCharacterStream("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -2580,6 +2602,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a Clob object.
     This can be used to get values from columns with SQL
     types CHAR, VARCHAR, BINARY, VARBINARY, BLOB, and CLOB.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getClob("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
@@ -2623,6 +2647,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a java.sql.Date object using
     the default calendar.  This can be used to get values from columns
     with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getDate("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -2695,6 +2721,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a java.sql.Date object using
     a calendar other than the default.  This can be used to get values
     from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getDate("\"MixedCase\"", calendar).
     
     @param  columnName  The column name.
     @param  calendar    The calendar.
@@ -2750,6 +2778,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getDouble("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
@@ -2803,6 +2833,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getFloat("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
@@ -2856,6 +2888,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getInt("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
@@ -2909,6 +2943,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getLong("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
@@ -2996,6 +3032,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with all
     SQL types.   If the column is a user-defined type, then the
     connection's type map is used to created the object.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getObject("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -3042,6 +3080,8 @@ public class AS400JDBCResultSet implements ResultSet
     // JDBC 2.0
     /**
     Returns the value of a column as a Java Object.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getObject("\"MixedCase\"", typeMap).
     
     @param  columnName    The column name.
     @param  typeMap       The type map.  This is not used.
@@ -3089,6 +3129,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Returns the value of a column as a Ref object.
     DB2 UDB for iSeries does not support structured types.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getRef("\"MixedCase\"").
     
     @param  columnName    The column name.
     @return               The column value or null if the value is SQL NULL.
@@ -3140,6 +3182,8 @@ public class AS400JDBCResultSet implements ResultSet
     This can be used to get values from columns with SQL
     types SMALLINT, INTEGER, BIGINT, REAL, FLOAT, DOUBLE, DECIMAL,
     NUMERIC, CHAR, and VARCHAR.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getShort("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or 0 if the value is SQL NULL.
@@ -3189,6 +3233,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a String object.
     This can be used to get values from columns with any SQL
     type.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getString("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -3232,6 +3278,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a java.sql.Time object using the
     default calendar.  This can be used to get values from columns
     with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getTime("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -3303,6 +3351,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a java.sql.Time object using a
     calendar other than the default.  This can be used to get values
     from columns with SQL types CHAR, VARCHAR, TIME, and TIMESTAMP.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getTime("\"MixedCase\"", calendar).
     
     @param  columnName  The column name.
     @param  calendar    The calendar.
@@ -3348,6 +3398,8 @@ public class AS400JDBCResultSet implements ResultSet
     Returns the value of a column as a java.sql.Timestamp object
     using the default calendar.  This can be used to get values
     from columns with SQL types CHAR, VARCHAR, DATE, and TIMESTAMP.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getTimestamp("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -3421,6 +3473,8 @@ public class AS400JDBCResultSet implements ResultSet
     using a calendar other than the default.  This can be used to
     get values from columns with SQL types CHAR, VARCHAR, DATE,
     and TIMESTAMP.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getTimestamp("\"MixedCase\"", calendar).
     
     @param  columnName  The column name.
     @param  calendar    The calendar.
@@ -3482,6 +3536,8 @@ public class AS400JDBCResultSet implements ResultSet
     and BLOB.  All of the data in the returned stream must be 
     read prior to getting the value of any other column.  The 
     next call to a get method implicitly closes the stream.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.getUnicodeStream("\"MixedCase\"").
     
     @param  columnName  The column name.
     @return             The column value or null if the value is SQL NULL.
@@ -3912,6 +3968,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates the value of a column as an Array object.
     DB2 UDB for iSeries does not support arrays.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateArray("\"MixedCase\"", columnValue).
     
     @param  columnIndex   The column name.
     @return               The column value or null if the value is SQL NULL.
@@ -3976,6 +4034,8 @@ public class AS400JDBCResultSet implements ResultSet
     The driver reads the data from the stream as needed until no more
     bytes are available.  The driver converts this to an SQL VARCHAR
     value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateAsciiStream("\"MixedCase\"", columnValue, length).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4040,6 +4100,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a BigDecimal value.  The
     driver converts this to an SQL NUMERIC value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateBigDecimal("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4110,6 +4172,8 @@ public class AS400JDBCResultSet implements ResultSet
     The driver reads the data from the stream as needed until no more
     bytes are available.  The driver converts this to an SQL
     VARBINARY value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateBinaryStream("\"MixedCase\"", columnValue, length).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4174,6 +4238,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java boolean value.
     The driver converts this to an SQL SMALLINT value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateBoolean("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4234,6 +4300,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java Blob value.
     The driver converts this to an SQL BLOB value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateBlob("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4292,6 +4360,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java byte value.
     The driver converts this to an SQL SMALLINT value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateByte("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4354,6 +4424,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java byte array value.
     The driver converts this to an SQL VARBINARY value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateBytes("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4424,6 +4496,8 @@ public class AS400JDBCResultSet implements ResultSet
     The driver reads the data from the Reader as needed until no more
     characters are available.  The driver converts this to an SQL VARCHAR
     value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateCharacterStream("\"MixedCase\"", columnValue, length).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4484,6 +4558,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java Clob value.
     The driver converts this to an SQL CLOB value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateClob("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4540,6 +4616,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a java.sql.Date value.
     The driver converts this to an SQL DATE value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateDate("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4593,6 +4671,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java double value.
     The driver converts this to an SQL DOUBLE value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateDouble("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4645,6 +4725,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java float value.
     The driver converts this to an SQL REAL value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateFloat("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4697,6 +4779,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java int value.
     The driver converts this to an SQL INTEGER value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateInt("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4763,6 +4847,8 @@ public class AS400JDBCResultSet implements ResultSet
     converts this to an SQL BIGINT value.  Otherwise, the driver
     converts this to an SQL INTEGER value.  SQL BIGINT data is
     supported on V4R5 and later.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateLong("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4818,6 +4904,8 @@ public class AS400JDBCResultSet implements ResultSet
     // JDBC 2.0
     /**
     Updates a column in the current row using SQL NULL.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateNull("\"MixedCase\"").
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4883,6 +4971,8 @@ public class AS400JDBCResultSet implements ResultSet
     where an SQL type is not supported by DB2 UDB for iSeries, the 
     <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
     is used.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateObject("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -4958,6 +5048,8 @@ public class AS400JDBCResultSet implements ResultSet
     where an SQL type is not supported by DB2 UDB for iSeries, the 
     <a href="../../../../SQLTypes.html#unsupported">next closest matching type</a>
     is used.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateObject("\"MixedCase\"", columnValue, scale).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -5013,6 +5105,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates the value of an SQL REF output parameter as a Ref value.
     DB2 UDB for iSeries does not support structured types.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateRef("\"MixedCase\"", columnValue).
        
     @param  columnIndex     The column name.
     @param  columnValue     The column value or null to update
@@ -5150,6 +5244,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a Java short value.
     The driver converts this to an SQL SMALLINT value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateShort("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -5206,6 +5302,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a String value.
     The driver converts this to an SQL VARCHAR value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateString("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -5263,6 +5361,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a java.sql.Time value.
     The driver converts this to an SQL TIME value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateTime("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
@@ -5320,6 +5420,8 @@ public class AS400JDBCResultSet implements ResultSet
     /**
     Updates a column in the current row using a java.sql.Timestamp value.
     The driver converts this to an SQL TIMESTAMP value.
+    To perform a case-sensitive search use a quoted String
+    for columnName as in: ResultSet.updateTimestamp("\"MixedCase\"", columnValue).
     
     <p>This does not update the database directly.  Instead, it updates
     a copy of the data in memory.  Call updateRow() or insertRow() to
