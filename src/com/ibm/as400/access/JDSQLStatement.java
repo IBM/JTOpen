@@ -36,7 +36,7 @@ import java.io.IOException;
 //
 class JDSQLStatement
 {
-  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+    private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -105,7 +105,7 @@ class JDSQLStatement
     private boolean         isForFetchOrReadOnly_       = false;
     private boolean         isForUpdate_                = false;
     private boolean         isImmediatelyExecutable_    = false;
-            boolean         isInsert_                   = false;    // @H2C Made not private.
+    boolean         isInsert_                   = false;    // @H2C Made not private.
     private boolean         isSelect_                   = false;
     private boolean         isSet_                      = false;    // @F4A
     private boolean         isSubSelect_                = false;
@@ -161,14 +161,14 @@ class JDSQLStatement
                    Connection connection) // @A1C //@G1C
     throws SQLException
     {
-        if (sql == null)
+        if(sql == null)
         {
             JDError.throwSQLException(JDError.EXC_SYNTAX_ERROR);
         }
 
         // Ensure that the string always contains at least one
         // character, since some methods depend on that fact.
-        if (sql.trim().length() == 0)
+        if(sql.trim().length() == 0)
         {
             JDError.throwSQLException(JDError.EXC_SYNTAX_BLANK);
         }
@@ -217,7 +217,7 @@ class JDSQLStatement
 
         // Perf Note: numberOfParameters_ will default to 0.  Don't set it here.
 
-//@G8D        boolean inComment = false;
+        //@G8D        boolean inComment = false;
 
         //@G7 Skip removing comments if it is a CREATE statement smaller than 32KB
         //@G7 (Greater than 32KB would overflow the buffer, so we have to remove
@@ -225,131 +225,132 @@ class JDSQLStatement
         //@C3D if (length > 32767 ||                               //@G7A
         //@C3D    !sql.trim().toUpperCase().startsWith("CREATE")) //@G7A
         //@C3D{
-            //@G7 If this is not a normal CREATE or the length is too big,
-            //@G7 we must strip out the comments!
-            // @C3D for (int i = 0; i < length; ++i) {
-                // @C3D switch (sqlArray[i]) {
-                // @C3D case '\'':
-                    // @C3D outArray[++out] = sqlArray[i];
+        //@G7 If this is not a normal CREATE or the length is too big,
+        //@G7 we must strip out the comments!
+        // @C3D for (int i = 0; i < length; ++i) {
+        // @C3D switch (sqlArray[i]) {
+        // @C3D case '\'':
+        // @C3D outArray[++out] = sqlArray[i];
 
-                    // Consume everything while looking for the ending quote character.
-                    // @C3D while (i < length - 1) {
-                        // @C3D outArray[++out] = sqlArray[++i];
-                        // @C3D if (sqlArray[i] == '\'') {
-                            // @C3D break;
-                        // @C3D }
-                    // @C3D }
+        // Consume everything while looking for the ending quote character.
+        // @C3D while (i < length - 1) {
+        // @C3D outArray[++out] = sqlArray[++i];
+        // @C3D if (sqlArray[i] == '\'') {
+        // @C3D break;
+        // @C3D }
+        // @C3D }
 
-                    // @C3D break;
-                // @C3D case '\"':
-                    // @C3D outArray[++out] = sqlArray[i];
+        // @C3D break;
+        // @C3D case '\"':
+        // @C3D outArray[++out] = sqlArray[i];
 
-                    // Consume everything while looking for the ending quote character.
-                    // @C3D while (i < length - 1) {
-                        // @C3D outArray[++out] = sqlArray[++i];
+        // Consume everything while looking for the ending quote character.
+        // @C3D while (i < length - 1) {
+        // @C3D outArray[++out] = sqlArray[++i];
 
-                        // @C3D if (sqlArray[i] == '\"') {
-                            // @C3D break;
-                        // @C3D }
-                    // @C3D }
+        // @C3D if (sqlArray[i] == '\"') {
+        // @C3D break;
+        // @C3D }
+        // @C3D }
 
-                    // @C3D break;
-                // @C3D case '-':
-                    // @C3D if (i < length - 1) {
-                        // @C3D if (sqlArray[++i] == '-') {
-                            // It's a single line commment (--).  We are going to eat the comment until
-                            // a new line character or the end of the string, but first output a space 
-                            // to the output buffer.
-                            // @C3D outArray[++out] = ' ';
-                            // @C3D while ((i < length - 1) && (sqlArray[++i] != '\n'))
-                                // @C3D ;                    // do nothing but spin.
+        // @C3D break;
+        // @C3D case '-':
+        // @C3D if (i < length - 1) {
+        // @C3D if (sqlArray[++i] == '-') {
+        // It's a single line commment (--).  We are going to eat the comment until
+        // a new line character or the end of the string, but first output a space 
+        // to the output buffer.
+        // @C3D outArray[++out] = ' ';
+        // @C3D while ((i < length - 1) && (sqlArray[++i] != '\n'))
+        // @C3D ;                    // do nothing but spin.
 
-                            // If we didn't break the loop because we were at the end of the string...
-                            // we broke because of a newline character.  Put it into the output.
-                            // @C3D if (i < length - 1)
-                                // @C3D outArray[++out] = '\n';
+        // If we didn't break the loop because we were at the end of the string...
+        // we broke because of a newline character.  Put it into the output.
+        // @C3D if (i < length - 1)
+        // @C3D outArray[++out] = '\n';
 
-                        // @C3D }
-                        // @C3D else {
-                            // This was not a comment.  Output the characters we read.
-                            // @C3D outArray[++out] = sqlArray[i-1];
-                            // @C3D outArray[++out] = sqlArray[i];
-                        // @C3D }
-                    // @C3D }
-                    // @C3D else {
-                        // Last character - must write the '-'
-                        // @C3D outArray[++out] = sqlArray[i];
-                    // @C3D }
-                    // @C3D break;
-                // @C3D case '/':
+        // @C3D }
+        // @C3D else {
+        // This was not a comment.  Output the characters we read.
+        // @C3D outArray[++out] = sqlArray[i-1];
+        // @C3D outArray[++out] = sqlArray[i];
+        // @C3D }
+        // @C3D }
+        // @C3D else {
+        // Last character - must write the '-'
+        // @C3D outArray[++out] = sqlArray[i];
+        // @C3D }
+        // @C3D break;
+        // @C3D case '/':
 
-                    // If we are not on the last character....
-                    // @C3D if (i < length - 1) {
-                        // Check to see if we are starting a comment.
-                        // @C3D if (sqlArray[++i] == '*') {
-                            // It is a multi-line commment - write over the '/*' characters
-                            // and set the inComment flag.
-                            // @C3D outArray[++out] = ' ';
-//@G8D                            inComment = true;
-                            // @C3D int numComments = 1; //@G8A - keep track of the nesting level
+        // If we are not on the last character....
+        // @C3D if (i < length - 1) {
+        // Check to see if we are starting a comment.
+        // @C3D if (sqlArray[++i] == '*') {
+        // It is a multi-line commment - write over the '/*' characters
+        // and set the inComment flag.
+        // @C3D outArray[++out] = ' ';
+        //@G8D                            inComment = true;
+        // @C3D int numComments = 1; //@G8A - keep track of the nesting level
 
-                            //@G8C
-                            // Need to handle nested comments.
-                            // If we see a */, we've closed a comment block.
-                            // If we see another /*, we've started a new block.
-                            // @C3D while (i < length - 1 && numComments > 0) //@G8C
-                            // @C3D {
-                                // @C3D char cur = sqlArray[++i]; //@G8A
-                                // @C3D if (i < length-1)
-                                // @C3D {
-                                  // @C3D char next = sqlArray[i+1];
-                                  // @C3D if (cur == '*' && next == '/')
-                                  // @C3D {
-                                    // @C3D --numComments;
-                                    // @C3D ++i;
-                                  // @C3D }
-                                  // @C3D else if (cur == '/' && next == '*')
-                                  // @C3D {
-                                    // @C3D ++numComments;
-                                    // @C3D ++i;
-                                  // @C3D }
-                                // @C3D }
-                            // @C3D }
-                        // @C3D }
-                        // @C3D else {
-                            // This was not a comment.  Output the characters we read.
-                            // @C3D outArray[++out] = sqlArray[i-1];
-                            // @C3D outArray[++out] = sqlArray[i];
-                        // @C3D }
-                    // @C3D }
-                    // @C3D else {
-                        // Last character - must write the '/'
-                        // @C3D outArray[++out] = sqlArray[i];
-                    // @C3D }
-                    // @C3D break;
-                // @C3D case '?':
-                    // Write the character.
-                    // @C3D outArray[++out] = sqlArray[i];
-                    // @C3D ++numberOfParameters_;
-                    // @C3D break;
-                // @C3D default: 
-                    // Write the character.
-                    // @C3D outArray[++out] = sqlArray[i];
-                    // @C3D break;
-                // @C3D }
-            // @C3D }
+        //@G8C
+        // Need to handle nested comments.
+        // If we see a */, we've closed a comment block.
+        // If we see another /*, we've started a new block.
+        // @C3D while (i < length - 1 && numComments > 0) //@G8C
+        // @C3D {
+        // @C3D char cur = sqlArray[++i]; //@G8A
+        // @C3D if (i < length-1)
+        // @C3D {
+        // @C3D char next = sqlArray[i+1];
+        // @C3D if (cur == '*' && next == '/')
+        // @C3D {
+        // @C3D --numComments;
+        // @C3D ++i;
+        // @C3D }
+        // @C3D else if (cur == '/' && next == '*')
+        // @C3D {
+        // @C3D ++numComments;
+        // @C3D ++i;
+        // @C3D }
+        // @C3D }
+        // @C3D }
+        // @C3D }
+        // @C3D else {
+        // This was not a comment.  Output the characters we read.
+        // @C3D outArray[++out] = sqlArray[i-1];
+        // @C3D outArray[++out] = sqlArray[i];
+        // @C3D }
+        // @C3D }
+        // @C3D else {
+        // Last character - must write the '/'
+        // @C3D outArray[++out] = sqlArray[i];
+        // @C3D }
+        // @C3D break;
+        // @C3D case '?':
+        // Write the character.
+        // @C3D outArray[++out] = sqlArray[i];
+        // @C3D ++numberOfParameters_;
+        // @C3D break;
+        // @C3D default: 
+        // Write the character.
+        // @C3D outArray[++out] = sqlArray[i];
+        // @C3D break;
+        // @C3D }
+        // @C3D }
 
-            // @C3A if the statement is long remove the comments, otherwise keep them
-            if (length > 32767) { // @C3A
-                JDSQLTokenizer commentStripper = new JDSQLTokenizer(sql, JDSQLTokenizer.DEFAULT_DELIMITERS, true, false); // @C3A
-                sql = commentStripper.toString(); // @C3M
-            } // @C3A
-            //@F6A end new code
+        // @C3A if the statement is long remove the comments, otherwise keep them
+        if(length > 32767)
+        { // @C3A
+            JDSQLTokenizer commentStripper = new JDSQLTokenizer(sql, JDSQLTokenizer.DEFAULT_DELIMITERS, true, false); // @C3A
+            sql = commentStripper.toString(); // @C3M
+        } // @C3A
+        //@F6A end new code
         //@C3D} //@G7A
 
         // If we want to process escape syntax, then treat the
         // whole string as a big escape clause for parsing.
-        if (convert)
+        if(convert)
         {
             //@F6D Weed off the comment before parsing.  This causes
             //@F6D problems if we try to handle it inside the parsing
@@ -386,17 +387,17 @@ class JDSQLStatement
         //      ( ( SELECT
         String firstWord = ""; //@F2C
         // @C3D tokenizer_ = new StringTokenizer(value_);
-        while (firstWord == "" && tokenizer_.hasMoreTokens()) //@F2A
+        while(firstWord == "" && tokenizer_.hasMoreTokens()) //@F2A
         {
             String word = tokenizer_.nextToken();
             // Our StringTokenizer ensures that word.length() > 0
             int i=0;
             int len = word.length();
-            while (i < len && word.charAt(i) == '(')
+            while(i < len && word.charAt(i) == '(')
             {
                 ++i;
             }
-            if (i < len)
+            if(i < len)
             {
                 firstWord = word.substring(i).toUpperCase();
             }
@@ -427,48 +428,52 @@ class JDSQLStatement
         //@F2D    }
 
         // Handle the statement based on the first word
-        if ((firstWord.startsWith(SELECT_)) || (firstWord.equals(WITH_))) // @F5C
-        { // @B3C
+        if((firstWord.startsWith(SELECT_)) || (firstWord.equals(WITH_))) // @F5C
+        {
+            // @B3C
             isSelect_ = true;
             nativeType_ = TYPE_SELECT;
         }
-        else if ((firstWord.equals(CALL_)))
+        else if((firstWord.equals(CALL_)))
         {                                      // @E1A
             isCall_ = true;
             nativeType_ = TYPE_CALL;
         }
-        else if ((firstWord.equals(CALL0_)) || (firstWord.equals(CALL1_)) || (firstWord.equals(CALL2_))) //@E1A
-        {                                  // @E1A
+        else if((firstWord.equals(CALL0_)) || (firstWord.equals(CALL1_)) || (firstWord.equals(CALL2_))) //@E1A
+        {
+            // @E1A
             isCall_ = true;                                                         // @E1A
             nativeType_ = TYPE_CALL;                                                // @E1A
             hasReturnValueParameter_ = true;                                        // @E1A
             --numberOfParameters_;  // We will "fake" the first one.                // @E1A
         }                                                                           // @E1A
         // @E10 moved Release to its own block
-        else if (firstWord.equals(CONNECT_) || firstWord.equals(CONNECTION_) || firstWord.equals(DISCONNECT_)) //@F1C @E10c
+        else if(firstWord.equals(CONNECT_) || firstWord.equals(CONNECTION_) || firstWord.equals(DISCONNECT_)) //@F1C @E10c
         {
             nativeType_ = TYPE_CONNECT;
 
-            if (firstWord.equals(CONNECT_))            // @B1A
+            if(firstWord.equals(CONNECT_))            // @B1A
             {
                 isDRDAConnect_ = true;                  // @B1A
             }
-            else if (firstWord.equals(DISCONNECT_))    // @B1A
+            else if(firstWord.equals(DISCONNECT_))    // @B1A
             {
                 isDRDADisconnect_ = true;               // @B1A
             }
         }
         // @E10 now release can be both a DRDC connection release or a savepoint release
-        else if (firstWord.equals(RELEASE_))             //@E10a
-        {                                                //@E10a
+        else if(firstWord.equals(RELEASE_))             //@E10a
+        {
+            //@E10a
             String upperCaseSql = value_.toUpperCase();  //@E10a
             int k = upperCaseSql.indexOf("SAVEPOINT");   //@E10a
-            if (k >= 0)                                  //@E10a
-            {}      // no need to do anything         //@E10a
+            if(k >= 0)                                  //@E10a
+            {
+            }      // no need to do anything         //@E10a
             else                                         //@E10a
                 nativeType_ = TYPE_CONNECT;               //@E10a
         }                                                //@E10a
-        else if (firstWord.equals(INSERT_))
+        else if(firstWord.equals(INSERT_))
         {
             isInsert_ = true;
 
@@ -476,14 +481,14 @@ class JDSQLStatement
             String upperCaseSql = value_.toUpperCase();
             int k = upperCaseSql.indexOf(ROWS_);
             int len = upperCaseSql.length(); //@F2A @H2M
-            if (k != -1)
+            if(k != -1)
             {
                 k += 4;
-                while (k < len && Character.isWhitespace(upperCaseSql.charAt(k))) //@F2C
+                while(k < len && Character.isWhitespace(upperCaseSql.charAt(k))) //@F2C
                 {
                     ++k;
                 }
-                if (upperCaseSql.regionMatches(k, VALUES_, 0, 6))
+                if(upperCaseSql.regionMatches(k, VALUES_, 0, 6))
                 {
                     nativeType_ = TYPE_BLOCK_INSERT;
                 }
@@ -493,32 +498,40 @@ class JDSQLStatement
             //@H2A The server will throw out block insert statements that have values other than
             //@H2A parameter markers, like "INSERT INTO TABLE VALUES (NULL, ?)".
             int l = upperCaseSql.indexOf(VALUES_);                                        //@H2A
-            if (l != -1 )                                                                 //@H2A
-            {                                                                             //@H2A
+            if(l != -1)                                                                 //@H2A
+            {
+                //@H2A
                 l += 6;                                                                   //@H2A
-                while (l < len && Character.isWhitespace(upperCaseSql.charAt(l)))         //@H2A
-                {                                                                         //@H2A
+                while(l < len && Character.isWhitespace(upperCaseSql.charAt(l)))         //@H2A
+                {
+                    //@H2A
                     ++l;                                                                  //@H2A
                 }                                                                         //@H2A
-                                                                                          //@H2A
+                //@H2A
                 int lastParen = upperCaseSql.lastIndexOf(")");                            //@H2A
+                if(lastParen < l)
+                {
+                    JDError.throwSQLException(this, JDError.EXC_SYNTAX_ERROR);
+                }
+
                 String valuesString = upperCaseSql.substring(l+1, lastParen);             //@H2A
                 StringTokenizer tokenizer = new StringTokenizer (valuesString, ", ?");    //@H2A
-                if (!tokenizer.hasMoreTokens())                                           //@H2A
-                {                                                                         //@H2A
+                if(!tokenizer.hasMoreTokens())                                           //@H2A
+                {
+                    //@H2A
                     canBeBatched_ = true;                                                 //@H2A
                 }                                                                         //@H2A
             }
         }
-        else if ((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
+        else if((firstWord.equals(UPDATE_)) || (firstWord.equals(DELETE_)))
         {
             isUpdateOrDelete_ = true;
         }
-        else if (firstWord.equals(DECLARE_))
+        else if(firstWord.equals(DECLARE_))
         {
             isDeclare_ = true;
         }
-        else if (firstWord.equals(SET_))  // @F4A - This entire block.
+        else if(firstWord.equals(SET_))  // @F4A - This entire block.
         {
             isSet_ = true;
             nativeType_ = TYPE_UNDETERMINED;
@@ -526,35 +539,38 @@ class JDSQLStatement
         }
 
         //@G4A New code starts
-        if (isCall_)
+        if(isCall_)
         {
             // Strip off extra '?'s or '='s
-            while (tokenizer_.hasMoreTokens() && !firstWord.endsWith(CALL_)) {
+            while(tokenizer_.hasMoreTokens() && !firstWord.endsWith(CALL_))
+            {
                 firstWord = tokenizer_.nextToken ().toUpperCase ();
             }
             csSchema_ = tokenizer_.nextToken();
 
             int index = csSchema_.indexOf('(');
             // Strip off the beginning of the parameters.                                                       
-            if (index != -1)
+            if(index != -1)
                 csSchema_ = csSchema_.substring(0, index);
 
             String namingSeparator;
-            if (((AS400JDBCConnection)connection).getProperties().
-                getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
+            if(((AS400JDBCConnection)connection).getProperties().
+               getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
             {
                 namingSeparator = ".";
             }
             else
                 namingSeparator = "/";
             index = csSchema_.indexOf(namingSeparator);
-            if (index == -1) {
+            if(index == -1)
+            {
                 csProcedure_ = csSchema_.toUpperCase();
                 // Currently don't handle correctly if more than one library in list.
                 csSchema_ = ((AS400JDBCConnection)connection).getProperties().
                             getString(JDProperties.LIBRARIES).toUpperCase();
             }
-            else {
+            else
+            {
                 csProcedure_ = csSchema_.substring(index+1).toUpperCase();
                 csSchema_ = csSchema_.substring(0,index).toUpperCase();
             }
@@ -572,31 +588,31 @@ class JDSQLStatement
         //    FROM (select from-clause)
         //
         boolean isSecondToken = true;                   // @F4A
-        while (tokenizer_.hasMoreTokens())
+        while(tokenizer_.hasMoreTokens())
         {
             String token = tokenizer_.nextToken().toUpperCase();
 
-            if (isInsert_ && token.equals(SELECT_))
+            if(isInsert_ && token.equals(SELECT_))
             {
                 isSubSelect_ = true;
             }
-            else if (token.equals(CURRENT_) && tokenizer_.hasMoreTokens() &&
-                     tokenizer_.nextToken().equalsIgnoreCase(OF_))
+            else if(token.equals(CURRENT_) && tokenizer_.hasMoreTokens() &&
+                    tokenizer_.nextToken().equalsIgnoreCase(OF_))
             {
                 isCurrentOf_ = true;
             }
-            else if (token.equals(FOR_))
+            else if(token.equals(FOR_))
             {
                 parseFor();
             }
-            else if (isSelect_ && token.equals(FROM_))
+            else if(isSelect_ && token.equals(FROM_))
             {
-                if (tokenizer_.hasMoreTokens())
+                if(tokenizer_.hasMoreTokens())
                 {
                     token = tokenizer_.nextToken(); //@F3C
 
-                    if (!token.startsWith(LPAREN_))
-                    {                              
+                    if(!token.startsWith(LPAREN_))
+                    {
                         // The "@G6A" code is trying to fix our parsing of the 
                         // table-name in statements like
                         //      SELECT * FROM collection."table with space" WHERE ....
@@ -644,8 +660,8 @@ class JDSQLStatement
 
                         // @C3A put the code to determine the naming separator down here too
                         String namingSeparator;
-                        if (((AS400JDBCConnection)connection).getProperties().
-                            getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
+                        if(((AS400JDBCConnection)connection).getProperties().
+                           getString(JDProperties.NAMING).equalsIgnoreCase("sql"))
                         {
                             namingSeparator = ".";
                         }
@@ -653,35 +669,42 @@ class JDSQLStatement
                             namingSeparator = "/";
 
                         // @C3A added the following block to handle case sensitive table and collection names
-                        if (token.endsWith(namingSeparator)) {
+                        if(token.endsWith(namingSeparator))
+                        {
                             StringBuffer table = new StringBuffer(token);
-                            if (tokenizer_.hasMoreTokens())
+                            if(tokenizer_.hasMoreTokens())
                                 table.append(tokenizer_.nextToken());
                             selectTable_ = table.toString();
-                        } else if (tokenizer_.hasMoreTokens() && tokenizer_.peekToken().equals(namingSeparator)) {
+                        }
+                        else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().equals(namingSeparator))
+                        {
                             StringBuffer table = new StringBuffer(token);
                             table.append(tokenizer_.nextToken());
-                            if (tokenizer_.hasMoreTokens())
+                            if(tokenizer_.hasMoreTokens())
                                 table.append(tokenizer_.nextToken());
                             selectTable_ = table.toString();
-                        } else if (tokenizer_.hasMoreTokens() && tokenizer_.peekToken().startsWith(namingSeparator)) {
+                        }
+                        else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().startsWith(namingSeparator))
+                        {
                             StringBuffer table = new StringBuffer(token);
                             table.append(tokenizer_.nextToken());
                             selectTable_ = table.toString();
-                        } else {
+                        }
+                        else
+                        {
                             selectTable_ = token;                                                  //@G6M
                         }
                         // @C3A end case sensitive table and collection name block
 
-                        if (tokenizer_.hasMoreTokens())
+                        if(tokenizer_.hasMoreTokens())
                         {
                             token = tokenizer_.nextToken().toUpperCase();
 
-                            if (token.equals(AS_) && tokenizer_.hasMoreTokens())
+                            if(token.equals(AS_) && tokenizer_.hasMoreTokens())
                             {
                                 correlationName_ = tokenizer_.nextToken().toUpperCase();
                             }
-                            else if (token.equals(FOR_))
+                            else if(token.equals(FOR_))
                             {
                                 parseFor();
                             }
@@ -689,7 +712,7 @@ class JDSQLStatement
                     }
                 }
             }
-            else if (isSet_ && isSecondToken && token.equals(CONNECTION_))  // @F4A - This entire block.
+            else if(isSet_ && isSecondToken && token.equals(CONNECTION_))  // @F4A - This entire block.
             {
                 nativeType_ = TYPE_CONNECT;
             }
@@ -732,8 +755,9 @@ class JDSQLStatement
                         || (isSelect_ && isForUpdate_)                                       // @F8a
                         || (isDeclare_);                                                     // @F8a
                                                                                              // @F8a
-        if (packageCriteria.equalsIgnoreCase(JDProperties.PACKAGE_CRITERIA_SELECT))        // @F8a
-        {                                                                                  // @F8a
+        if(packageCriteria.equalsIgnoreCase(JDProperties.PACKAGE_CRITERIA_SELECT))        // @F8a
+        {
+            // @F8a
             isPackaged_ = isPackaged_ || isSelect_;                                         // @F8a
         }                                                                                  // @F8a
 
@@ -741,10 +765,10 @@ class JDSQLStatement
 
         // If there is a return value parameter, strip if off now.                         @E1A
         // The server does not understand these.                                           @E1A
-        if (hasReturnValueParameter_)
+        if(hasReturnValueParameter_)
         {                                                 // @E1A
             int call = value_.toUpperCase().indexOf(CALL_);                             // @E1A
-            if (call != -1)                                                             // @E1A
+            if(call != -1)                                                             // @E1A
             {
                 value_ = value_.substring(call);                                        // @E1A
             }
@@ -997,18 +1021,18 @@ class JDSQLStatement
     **/
     private void parseFor()
     {
-        if (tokenizer_.hasMoreTokens())
+        if(tokenizer_.hasMoreTokens())
         {
             String token = tokenizer_.nextToken().toUpperCase();
 
-            if ((token.equals(FETCH_)) || (token.equals(READ_)))
+            if((token.equals(FETCH_)) || (token.equals(READ_)))
             {
-                if (tokenizer_.hasMoreTokens() && tokenizer_.nextToken().equalsIgnoreCase(ONLY_))
+                if(tokenizer_.hasMoreTokens() && tokenizer_.nextToken().equalsIgnoreCase(ONLY_))
                 {
                     isForFetchOrReadOnly_ = true;
                 }
             }
-            else if (token.equals(UPDATE_))
+            else if(token.equals(UPDATE_))
             {
                 isForUpdate_ = true;
             }
