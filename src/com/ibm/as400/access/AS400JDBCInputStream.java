@@ -190,8 +190,21 @@ is thrown.
         }
         */
 
-        byte[] data = new byte[1];                                      // @E1A
-        return (read(data, 0, 1) == 1) ? data[0] : -1;                  // @E1A
+        // @D1d old:
+        // byte[] data = new byte[1];                                      // @E1A
+        // return (read(data, 0, 1) == 1) ? data[0] : -1;                  // @E1A
+   
+        // @D1a new.  Manually convert the byte to int.  If java does
+        // it negative bytes will be sign extended to be negative
+        // ints.  If we do it the resulting int will be between 0
+        // and 255 which matches was the spec (and our javadoc) says.
+        int returnValue = -1;                                           // @d1a
+        byte[] data = new byte[1];                                      // @d1A
+        
+        if (read(data, 0, 1) > 0)                                       // @D1a
+           returnValue = data[0] & 0x000000FF;                          // @D1a
+
+        return returnValue;                                             // @D1a
     }
 
 
