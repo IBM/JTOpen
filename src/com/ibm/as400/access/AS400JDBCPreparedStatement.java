@@ -903,9 +903,23 @@ public class AS400JDBCPreparedStatement extends AS400JDBCStatement implements Pr
                 if(canBatch)
                 {
                     Enumeration enum = batch_.elements();
-                    while(enum.hasMoreElements())
+                    int count = 0;                                //@K1A   Added support for allowing more than 32000 SQL Statements to be batched and run
+                    while (enum.hasMoreElements())                
                     {
                         batchParameterRows_.add(enum.nextElement());
+                        count++;                                    //@K1A
+                        if(count == 32000)                          //@K1A  Checks if 32000 statements have been added to the batch, if so execute the first 32000, then continue processing the batch
+                        {                                           //@K1A
+                            if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");  //@K1A
+                            commonExecute(sqlStatement_, resultRow_);        //@K1A
+                            batchParameterRows_.clear();                     //@K1A
+                            if (resultSet_ != null)                          //@K1A
+                            {                                                //@K1A
+                                closeResultSet(JDCursor.REUSE_YES);          //@K1A
+                                JDError.throwSQLException(this, JDError.EXC_CURSOR_STATE_INVALID);  //@K1A
+                            }                                                                       //@K1A
+                            count = 0;                                                              //@K1A set the count for the number of statements in the batch back to zero
+                        }                                                    //@K1A
                     }
                     if(JDTrace.isTraceOn()) JDTrace.logInformation(this, "Begin batching via server-side with "+batchParameterRows_.size()+" rows.");
                     commonExecute(sqlStatement_, resultRow_);
