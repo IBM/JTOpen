@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ import java.util.Calendar;
 class SQLChar
 implements SQLData
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -186,10 +186,12 @@ implements SQLData
         // Set to the exact length.
         int valueLength = value_.length ();
         int exactLength = getDisplaySize ();                        // @C1A
-        if (valueLength < exactLength) {                            // @C1C
+        if (valueLength < exactLength)                              // @C1C
+        {
             StringBuffer buffer = new StringBuffer (value_);
+            char c = graphic_ ? '\u3000' : '\u0020'; //@F6A - Use appropriate Unicode space.
             for (int i = valueLength; i < exactLength; ++i)         // @C1C
-                buffer.append (' ');
+                buffer.append (c); //@F6C
             value_ = buffer.toString ();
             truncated_ = 0;
         }
