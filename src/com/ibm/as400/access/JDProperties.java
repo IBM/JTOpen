@@ -436,7 +436,7 @@ class JDProperties implements Serializable
         dpi_[i].description = "BEHAVIOR_OVERRIDE_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
-        defaults_[i]        = "0x00";
+        defaults_[i]        = "0";
 
         // Bidi string type.  @E9A
         i = BIDI_STRING_TYPE;
@@ -947,7 +947,7 @@ class JDProperties implements Serializable
         dpi_[i].description = "TRACE_SERVER_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
-        defaults_[i]        = "0x00";
+        defaults_[i]        = "0";
 
         // @K1A
         // Trace Toolbox  
