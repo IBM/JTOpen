@@ -106,8 +106,8 @@ Get the date/time that the file was last accessed.
   }
 
 /**
-Get the CCSID value for the IFS file on the AS/400.
-@return the CCSID value for the IFS file on the AS/400
+Get the CCSID value for the IFS file on the server.
+@return the CCSID value for the IFS file on the server
 **/
   int getCCSID(int datastreamLevel)  // @A1A
   {
@@ -307,8 +307,8 @@ Determine the object type (file, directory, etc.)
 
 // @B7a
 /**
-Get the owner's "user ID" number for the IFS file on the AS/400.
-@return the owner's user ID number for the IFS file on the AS/400
+Get the owner's "user ID" number for the IFS file on the server.
+@return the owner's user ID number for the IFS file on the server
 **/
   long getOwnerUID()  // @C0c
   {

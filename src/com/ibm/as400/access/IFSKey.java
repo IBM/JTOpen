@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSKey.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ The IFSKey class represents an opaque handle to a byte lock on an integrated fil
 public class IFSKey 
   implements java.io.Serializable //@A1A
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
 
     static final long serialVersionUID = 4L;
@@ -58,7 +58,7 @@ Constructs as IFSKey object.
   /**
    Restores the state of this object from an object input stream.
    @param ois The stream of state information.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    @exception ClassNotFoundException
    **/
   private void readObject(java.io.ObjectInputStream ois)

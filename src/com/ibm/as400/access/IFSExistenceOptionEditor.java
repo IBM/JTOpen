@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSExistenceOptionEditor.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ import java.util.Hashtable;
 
 public class IFSExistenceOptionEditor extends java.beans.PropertyEditorSupport
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private Integer value_ = new Integer(0);
   private static Hashtable javaInitializationString_ = new Hashtable();
@@ -81,15 +81,6 @@ public class IFSExistenceOptionEditor extends java.beans.PropertyEditorSupport
   public String getAsText()
   {
     return (String) optionAsText_.get(value_);
-  }
-
-  /**
-   Returns the copyright.
-   @return The copyright String.
-   **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

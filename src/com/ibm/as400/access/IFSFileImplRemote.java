@@ -42,7 +42,7 @@ implements IFSFileImpl
   static
   {
     // Add all byte stream reply data streams of interest to the
-    // AS400 server's reply data stream hash table.
+    // server's reply data stream hash table.
     AS400Server.addReplyStream(new IFSListAttrsRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSOpenRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSCreateDirHandleRep(), AS400.FILE);
@@ -153,7 +153,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
     // Determine if this is a file or directory and instantiate the
@@ -217,9 +217,9 @@ implements IFSFileImpl
   }
 
   //@B1A Moved code from isDirectory() to support determining if a file is a directory
-  //without a call to the AS/400.
+  //without a call to the server.
   /**
-   Determines if a file is a directory without a call to the AS/400.
+   Determines if a file is a directory without a call to the server.
    **/
   private boolean determineIsDirectory(IFSListAttrsRep attributeList)
   {
@@ -236,7 +236,7 @@ implements IFSFileImpl
          answer = ((attributeList.getFixedAttributes() & IFSListAttrsRep.FA_DIRECTORY) != 0);
          break;
       case IFSListAttrsRep.AS400_OBJECT:
-         // AS/400 libraries and database files look like directories
+         // Server libraries and database files look like directories
          String nameUpper = name.toUpperCase();         // @C2a
          answer = (nameUpper.endsWith(".LIB") ||
                    nameUpper.endsWith(".FILE")); //B1C Changed path_ to name
@@ -252,9 +252,9 @@ implements IFSFileImpl
   }
 
   //@B1A Moved code from isFile() to support determining if a file is a file
-  //without a call to the AS/400.
+  //without a call to the server.
   /**
-   Determines if a file is a file without a call to the AS/400.
+   Determines if a file is a file without a call to the server.
    **/
   private boolean determineIsFile(IFSListAttrsRep attributeList)
   {
@@ -271,7 +271,7 @@ implements IFSFileImpl
          answer = ((attributeList.getFixedAttributes() & IFSListAttrsRep.FA_DIRECTORY) == 0);
          break;
       case IFSListAttrsRep.AS400_OBJECT:
-         //AS/400 libraries and database files look like directories.
+         //Server libraries and database files look like directories.
          String nameUpper = name.toUpperCase();         // @C2a
          answer = !(nameUpper.endsWith(".LIB") ||
                     nameUpper.endsWith(".FILE")); //B1C Changed path_ to name
@@ -388,10 +388,10 @@ implements IFSFileImpl
    @return The number of bytes of storage available.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long getFreeSpace()
@@ -599,7 +599,7 @@ implements IFSFileImpl
     // Ensure that we are connected to the server.
     fd_.connect();
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
     // Send the List Attributes request.
@@ -671,7 +671,7 @@ implements IFSFileImpl
     //                 IFSListAttrsRep.FA_DIRECTORY) != 0);
     //      break;
     //    case IFSListAttrsRep.AS400_OBJECT:
-    //      // AS/400 libraries and database files look like directories.
+    //      // Server libraries and database files look like directories.
     //      answer = (path_.endsWith(".LIB") || path_.endsWith(".FILE") ||
     //                path_.endsWith(".LIB" + IFSFile.separator) ||
     //                path_.endsWith(".FILE" + IFSFile.separator));
@@ -734,7 +734,7 @@ implements IFSFileImpl
     //                 IFSListAttrsRep.FA_DIRECTORY) == 0);
     //      break;
     //    case IFSListAttrsRep.AS400_OBJECT:
-    //      // AS/400 libraries and database files look like directories.
+    //      // Server libraries and database files look like directories.
     //      answer = !(path_.endsWith(".LIB") || path_.endsWith(".FILE") ||
     //                 path_.endsWith(".LIB" + IFSFile.separator) ||
     //                 path_.endsWith(".FILE" + IFSFile.separator));
@@ -966,7 +966,7 @@ implements IFSFileImpl
     }
     else  // the system is V5R2                         @C1a - added this entire 'else' block
     {
-      // Convert the path name to the AS/400 CCSID.
+      // Convert the path name to the server CCSID.
       byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
       // Send the List Attributes request.  Indicate that we want the "8-byte file size".
@@ -1025,7 +1025,7 @@ implements IFSFileImpl
   {
     // Assume connect() has already been done.
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.converter_.stringToByteArray(path);
 
     // Process attribute replies.
@@ -1168,7 +1168,7 @@ implements IFSFileImpl
     // "List File Attributes" request, we must specify the file
     // by handle rather than by name.
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.getConverter().stringToByteArray(fd_.path_);
 
     // Request that the file can be opened.
@@ -1419,7 +1419,7 @@ implements IFSFileImpl
 
     try
     {
-      // Convert the directory name to the AS/400 CCSID.
+      // Convert the directory name to the server CCSID.
       byte[] pathname = fd_.converter_.stringToByteArray(directory);
 
       // Send a create directory request.
@@ -1541,7 +1541,7 @@ implements IFSFileImpl
     IFSFileImplRemote otherFile = (IFSFileImplRemote)file;
     try
     {
-      // Convert the path names to the AS/400 CCSID.
+      // Convert the path names to the server CCSID.
       byte[] oldName = fd_.converter_.stringToByteArray(fd_.path_);
       byte[] newName = fd_.converter_.stringToByteArray(otherFile.getAbsolutePath());
 
@@ -1624,7 +1624,7 @@ implements IFSFileImpl
     ClientAccessDataStream ds = null;
     try
     {
-      // Convert the path name to the AS/400 CCSID.
+      // Convert the path name to the server CCSID.
       byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
       IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
@@ -1677,10 +1677,10 @@ implements IFSFileImpl
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
@@ -1702,7 +1702,7 @@ implements IFSFileImpl
     ClientAccessDataStream ds = null;
     try
     {
-      // Convert the path name to the AS/400 CCSID.
+      // Convert the path name to the server CCSID.
       byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
       IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
@@ -1761,10 +1761,10 @@ implements IFSFileImpl
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
@@ -1807,7 +1807,7 @@ implements IFSFileImpl
        boolean currentHiddenBit = (currentFixedAttributes & 2) != 0;
 
        // If current does not match what the user wants we need to go
-       // to the as/400 to fix it.
+       // to the server to fix it.
        if (currentHiddenBit != attribute)
        {
           int newAttributes;
@@ -1823,7 +1823,7 @@ implements IFSFileImpl
           ClientAccessDataStream ds = null;
           try
           {
-              // Convert the path name to the AS/400 CCSID.
+              // Convert the path name to the server CCSID.
               byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
               IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
@@ -1891,10 +1891,10 @@ implements IFSFileImpl
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
 
   public boolean setLastModified(long time)
@@ -1925,7 +1925,7 @@ implements IFSFileImpl
       ClientAccessDataStream ds = null;
       try
       {
-        // Convert the path name to the AS/400 CCSID.
+        // Convert the path name to the server CCSID.
         byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
         IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
@@ -2018,10 +2018,10 @@ implements IFSFileImpl
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
   public boolean setLength(int length)
     throws IOException
@@ -2087,10 +2087,10 @@ implements IFSFileImpl
    @return true if successful; false otherwise.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    **/
    // @D1 - new method because of changes to java.io.file in Java 2.
 
@@ -2146,7 +2146,7 @@ implements IFSFileImpl
           ClientAccessDataStream ds = null;
           try
           {
-              // Convert the path name to the AS/400 CCSID.
+              // Convert the path name to the server CCSID.
               byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
 
               IFSChangeAttrsReq req = new IFSChangeAttrsReq(pathname,
@@ -2199,7 +2199,7 @@ implements IFSFileImpl
 
   /**
    Sets the system.
-   @param system The AS/400 system object.
+   @param system The server object.
    **/
   public void setSystem(AS400Impl system)
   {

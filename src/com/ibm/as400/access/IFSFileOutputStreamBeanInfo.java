@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSFileOutputStreamBeanInfo.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ The IFSFileOutputStreamBeanInfo class provides BeanInfo for the IFSFileOutputStr
 **/
 public class IFSFileOutputStreamBeanInfo extends SimpleBeanInfo
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private final static Class beanClass = IFSFileOutputStream.class;
   private static EventSetDescriptor[] events_;
@@ -130,15 +130,6 @@ public class IFSFileOutputStreamBeanInfo extends SimpleBeanInfo
   public BeanDescriptor getBeanDescriptor()
   {
     return new BeanDescriptor(beanClass);
-  }
-
-  /**
-   Returns the copyright.
-   @return the copyright String
-   **/
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
   /**

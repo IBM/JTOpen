@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSRenameReq.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ Rename file/directory request.
 **/
 class IFSRenameReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private static final int SOURCE_CCSID_OFFSET = 22;
   private static final int TARGET_CCSID_OFFSET = 24;
@@ -79,11 +79,6 @@ Construct a file rename request.
                      targetName.length);
   }
 
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 }
 
 

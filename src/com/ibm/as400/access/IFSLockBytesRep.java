@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSLockBytesRep.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ Lock bytes reply.
 **/
 class IFSLockBytesRep extends IFSDataStream
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private static final int RETURN_CODE_OFFSET = 22;
   private static final int FILE_SIZE_OFFSET = 24;
@@ -34,12 +34,6 @@ Construct a lock bytes reply.
 **/
   IFSLockBytesRep()
   {
-  }
-
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
   }
 
 /**

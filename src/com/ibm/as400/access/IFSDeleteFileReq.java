@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSDeleteFileReq.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ Delete file request.
 **/
 class IFSDeleteFileReq extends IFSDataStreamReq
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
   private static final int CCSID_OFFSET = 22;
   private static final int WORKING_DIR_HANDLE_OFFSET = 24;
@@ -55,11 +55,6 @@ Construct a delete file request.
     System.arraycopy(name, 0, data_, FILE_NAME_OFFSET, name.length);
   }
 
-  // Get the copyright.
-  private static String getCopyright()
-  {
-    return Copyright.copyright;
-  }
 }
 
 

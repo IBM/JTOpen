@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: IFSRandomAccessFileImplRemote.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2004 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ implements IFSRandomAccessFileImpl
    associated with the stream.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    **/
   public void close()
     throws IOException
@@ -76,7 +76,7 @@ implements IFSRandomAccessFileImpl
 
   /**
    Ensures that the stream is closed when there are no more references to it.
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   protected void finalize()
     throws IOException
@@ -98,10 +98,10 @@ implements IFSRandomAccessFileImpl
    Forces any buffered output bytes to be written.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public void flush()
@@ -119,10 +119,10 @@ implements IFSRandomAccessFileImpl
    @return The offset from the beginning of the file, in bytes, at which the
    next read or write occurs.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   private long getFilePointer()
@@ -138,10 +138,10 @@ implements IFSRandomAccessFileImpl
    Returns the file length.
    @return The file length, in bytes.
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public long length()
@@ -237,10 +237,10 @@ implements IFSRandomAccessFileImpl
    @return A key for undoing this lock.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    @see IFSKey
    @see #unlock
@@ -304,7 +304,7 @@ implements IFSRandomAccessFileImpl
     }
 
 
-    // Convert the path name to the AS/400 CCSID.
+    // Convert the path name to the server CCSID.
     byte[] pathname = fd_.getConverter().stringToByteArray(path);
 
     // Determine the access intent from the mode.
@@ -396,10 +396,10 @@ implements IFSRandomAccessFileImpl
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   private int read(byte[] data,
@@ -430,10 +430,10 @@ implements IFSRandomAccessFileImpl
    @return The total number of bytes read into the buffer, or -1 if there is no more data because the end of file has been reached.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public int read(byte[] data,
@@ -512,10 +512,10 @@ implements IFSRandomAccessFileImpl
    @return The next line of text from this file.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public final synchronized String readLine()
@@ -586,10 +586,10 @@ implements IFSRandomAccessFileImpl
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
    @exception EOFException If the end of file has been reached.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
    @exception UTFDataFormatException If the bytes do not represent a valid UTF-8 encoding of a Unicode string.
    **/
   public final String readUTF()
@@ -682,7 +682,7 @@ implements IFSRandomAccessFileImpl
    or write occurs.
    @param position The absolute position of the file pointer.
 
-   @exception IOException If an error occurs while communicating with the AS/400.
+   @exception IOException If an error occurs while communicating with the server.
    **/
   // Note: This method is provided for use by UserSpaceImplRemote.
   public void seek(long position)
@@ -777,10 +777,10 @@ implements IFSRandomAccessFileImpl
    @param key The key for the lock.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    @see IFSKey
    @see #lock
@@ -804,10 +804,10 @@ implements IFSRandomAccessFileImpl
    @param length The number of bytes to write.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public void writeBytes(byte[]  data,
@@ -835,10 +835,10 @@ implements IFSRandomAccessFileImpl
    @param s The string to write.
 
    @exception ConnectionDroppedException If the connection is dropped unexpectedly.
-   @exception ExtendedIOException If an error occurs while communicating with the AS/400.
+   @exception ExtendedIOException If an error occurs while communicating with the server.
    @exception InterruptedIOException If this thread is interrupted.
-   @exception ServerStartupException If the AS/400 server cannot be started.
-   @exception UnknownHostException If the AS/400 system cannot be located.
+   @exception ServerStartupException If the server cannot be started.
+   @exception UnknownHostException If the server cannot be located.
 
    **/
   public final void writeUTF(String s)
