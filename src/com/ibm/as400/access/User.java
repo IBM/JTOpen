@@ -930,7 +930,7 @@ public class User implements Serializable
      <li>"*DEV" - An output queue with the same name as the device specified in the printer device parameter is used.
      <li>The fully qualified integrated file system path name of the output queue.
      </ul>
-     @see QSYSObjectPathName
+     @see  QSYSObjectPathName
      **/
     public String getOutputQueue()
     {
@@ -1095,7 +1095,7 @@ public class User implements Serializable
      @return  The special environment the user operates in after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special environment.
-     <li>{@link #NONE User.NONE} - The user operates in the server operating system environment.
+     <li>{@link #NONE User.NONE} - The user operates in the i5/OS system environment.
      <li>"*S36" - The user operates in the System/36 environment.
      </ul>
      **/
@@ -1318,7 +1318,7 @@ public class User implements Serializable
 
         // Check to see if a group this user belongs to is authorized.
         String primaryGroup = getGroupProfileName();
-        if (primaryGroup != null && primaryGroup.equals(NONE))
+        if (primaryGroup != null && !primaryGroup.equals(NONE))
         {
             try
             {
@@ -2582,14 +2582,14 @@ public class User implements Serializable
 
     /**
      Sets the output queue to be used by this user profile.  The output queue must already exist when this command is run.  The caller must have *USE authority to the specified output queue.
-     @param outputQueue The output queue to be used by this user profile..  Possible values are:
+     @param outputQueue The output queue to be used by this user profile.  Possible values are:
      <ul>
      <li>"*WRKSTN" - The output queue assigned to the user's work station is used.
      <li>"*DEV" - The output queue associated with the printer specified for the Print device (PRTDEV) parameter is used.  The output queue has the same name as the printer.  (The pringer file DEV parameter is determined by the CRTPRTF, CHGPRTF, or the OVRPRTF command).
      <p>Note:  This assumes the defaults are specified for the Output queue (OUTQ) parameter for the printer file, job description, user profile, and workstation.
      <li>The fully qualified integrated file system path name of the output queue to be used by this user profile.
      </ul>
-     @see QSYSObjectPathName
+     @see  QSYSObjectPathName
      **/
     public void setOutputQueue(String outputQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2614,7 +2614,7 @@ public class User implements Serializable
      @param owner The user profile that is to be the owner of objects created by this user.  Possible values are:
      <ul>
      <li>"*USRPRF" - The user profile associated with the job is the owner of the object.
-     <li>"*GRPPRF" - The group profile is made the owner of newly created objects and has all authority to the object.  The user profile associated with the job does not have any specific authority to the object.  If *GRPPRF is specified, a user profile name must be specified for the Group profile (GRPPTF) parameter, and the Group authority (GRPAUT) parameter cannot be specified.
+     <li>"*GRPPRF" - The group profile is made the owner of newly created objects and has all authority to the object.  The user profile associated with the job does not have any specific authority to the object.  If *GRPPRF is specified, a user profile name must be specified for the Group profile (GRPPRF) parameter, and the Group authority (GRPAUT) parameter cannot be specified.
      </ul>
      **/
     public void setOwner(String owner) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -2638,7 +2638,7 @@ public class User implements Serializable
      **/
     public void setPasswordExpirationInterval(int passwordExpirationInterval) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
-        runCommand("PWDEXPITV(" + Integer.toString(passwordExpirationInterval) + ")");
+        runCommand("PWDEXPITV(" + (passwordExpirationInterval == -1 ? "*NOMAX" : passwordExpirationInterval == 0 ? "*SYSVAL" : Integer.toString(passwordExpirationInterval)) + ")");
     }
 
     /**
@@ -2743,7 +2743,7 @@ public class User implements Serializable
      <ul>
      <li>"*USRCLS" - Special authorities are granted to this user based on the value specified on User class (USRCLS) parameter.
      <li>"*NONE" - No special authorities are granted to this user.
-      <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT User.SPECIAL_AUTHORITY_ALL_OBJECT} - All object authority is given to the user.  The user can access any system resource with or without private user authorizations.
+     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT User.SPECIAL_AUTHORITY_ALL_OBJECT} - All object authority is given to the user.  The user can access any system resource with or without private user authorizations.
      <li>{@link #SPECIAL_AUTHORITY_AUDIT User.SPECIAL_AUTHORITY_AUDIT} - Audit authority is granted to this user.  The user is given the authority to perform auditing functions.  Auditing functions include turning auditing on or off for the system and controlling the level of auditing on an object or user. 
      <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL User.SPECIAL_AUTHORITY_JOB_CONTROL} - Job control authority is given to the user.  The user has authority to change, display, hold, release, cancel, and clear all jobs that are running on the system or that are on a job queue or output queue that has OPRCTL (*YES) specified.  The user also has the authority to start writers and to stop active subsystems.
      <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM User.SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system authority is given to the user profile.  This user has the authority to save, restore, and free storage for all objects on the system, with or without object management authority. 
@@ -2768,7 +2768,7 @@ public class User implements Serializable
      @param specialEnvironment The special environment in which the user operates after signing on.  Possible values are:
      <ul>
      <li>"*SYSVAL" - The system value, QSPCENV, is used to determine the system environment after the user signs on the system.
-     <li>{@link #NONE User.NONE} - The user operates in the server operating system environment after signing on the system.
+     <li>{@link #NONE User.NONE} - The user operates in the i5/OS system environment after signing on the system.
      <li>"*S36" - The user operates in the System/36 environment after signing on the system.
      </ul>
      **/

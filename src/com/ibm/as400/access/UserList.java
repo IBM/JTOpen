@@ -643,7 +643,7 @@ public class UserList implements Serializable
     }
 
     /**
-     Sets the system object representing the server on which the users exist.
+     Sets the system object representing the server on which the users exist.  The system cannot be changed once a connection to the server has been established.
      @param  system  The system object representing the server on which the users exists.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
