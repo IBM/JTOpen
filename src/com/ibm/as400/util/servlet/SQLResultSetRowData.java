@@ -185,7 +185,6 @@ public class SQLResultSetRowData extends RowData
    }
 */ //@B4D
 
-
    /**
    *  Returns the metadata.
    *  @return The metadata.
@@ -457,7 +456,8 @@ public class SQLResultSetRowData extends RowData
 
             row = new Object[numColumns_];
             for (int column=0; column < numColumns_; column++)
-               row[column] = resultSet.getObject(column+1);
+               row[column] = resultSet.getString(column+1); //@B5C
+
 
             // add the row and properties.
             rows_.addElement(row);
