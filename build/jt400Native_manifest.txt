@@ -48,6 +48,30 @@ Implementation-Title: com.ibm.as400.security.auth
 Implementation-Version: JTOpen 3.1
 Implementation-Vendor: IBM Corporation and others
 
+Name: com/ibm/as400/util/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.2.0.1
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.security.auth
+Implementation-Version: JTOpen 3.1
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/html/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.2.0.1
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.security.auth
+Implementation-Version: JTOpen 3.1
+Implementation-Vendor: IBM Corporation and others
+
+Name: com/ibm/as400/util/servlet/
+Specification-Title: IBM Toolbox for Java
+Specification-Version: 5.2.0.1
+Specification-Vendor: IBM Corporation
+Implementation-Title: com.ibm.as400.security.auth
+Implementation-Version: JTOpen 3.1
+Implementation-Vendor: IBM Corporation and others
+
 Name: com/ibm/as400/access/AFPResource.class
 Java-Bean: True
 
