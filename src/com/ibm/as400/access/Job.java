@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ String jobNumber = pgm.getServerJob().getNumber();
 public class Job
 implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
 
 
@@ -6372,6 +6372,31 @@ of work identifier.
     // Need to load an attribute from each format.
     try
     {
+      // @F0A - begin
+      // Clear all values.
+      values_.clear();
+      
+      // Reset all of the important information
+      if (internalJobID_.equals(""))
+      {
+        setValueInternal(INTERNAL_JOB_ID, null);
+        setValueInternal(JOB_NAME, name_);
+        setValueInternal(USER_NAME, user_);
+        setValueInternal(JOB_NUMBER, number_);
+      }
+      else
+      {
+        setValueInternal(INTERNAL_JOB_ID, internalJobID_);
+        setValueInternal(JOB_NAME, null);
+        setValueInternal(USER_NAME, null);
+        setValueInternal(JOB_NUMBER, null);
+      }
+      setValueInternal(JOB_STATUS, status_);
+      setValueInternal(JOB_TYPE, type_);
+      setValueInternal(JOB_SUBTYPE, subtype_);
+      // @F0A - end
+
+      // Retrieve all values.
       retrieve(THREAD_COUNT);           // 150
       retrieve(CURRENT_SYSTEM_POOL_ID); // 200
       retrieve(JOB_DATE);               // 300

@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2002 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,11 +26,24 @@ package com.ibm.as400.access;
 **/
 final class JobHashtable implements java.io.Serializable
 {
+  private static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
+  
   static final long serialVersionUID = 5L;
   private static final int HASH = 4;
   final Object[][] values_ = new Object[HASH][];
   final int[][] keys_ = new int[HASH][];
   int size_ = 0;
+
+  //@F0A
+  final void clear()
+  {
+    for (int i=0; i<HASH; ++i)
+    {
+      values_[i] = null;
+      keys_[i] = null;
+    }
+    size_ = 0;
+  }
 
   final boolean contains(int key)
   {
