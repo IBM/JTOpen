@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                             
-// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+// JTOpen (IBM Toolbox for Java - OSS version)                                 
 //                                                                             
 // Filename: BidiText.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,8 +33,9 @@ package com.ibm.as400.access;
  *
  **/
 
-class BidiText {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+class BidiText
+{
+  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
 
 /**
@@ -132,7 +133,8 @@ class BidiText {
         if (other == null)  return false;
         if (this.count != other.count)  return false;
         if (this.flags.value != other.flags.value)  return false;
-        for (int i = 0; i < this.count; i++) {
+        for (int i = 0; i < this.count; i++)
+        {
             if (this.data[this.offset + i] !=
                 other.data[other.offset + i])  return false;
         }
@@ -241,14 +243,14 @@ class BidiText {
     public BidiText transform(BidiTransform bdx)
     {
         char[] data;
-
         BidiText dst = new BidiText();
         dst.flags.setAllFlags(bdx.flags);
         dst.data = new char[this.count];
-        if (bdx.myOrder == null)  bdx.myOrder = new BidiOrder();
+        if (bdx.myOrder == null)   bdx.myOrder = new BidiOrder();
         bdx.myOrder.order(this, dst);
 
-        if (this.flags.getText() != dst.flags.getText()) {
+        if (this.flags.getText() != dst.flags.getText())
+        {
             if (bdx.myShape == null)
             {
                 bdx.myShape = new BidiShape();
@@ -260,15 +262,21 @@ class BidiText {
             // The following flag settings are because the shape method
             // goes from LTR if the out orientation is RTL and the
             // in orientation is different from the out orientation.
-            if (dst.flags.getType() == BidiFlag.TYPE_IMPLICIT ||
-                dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL) {
+
+//            if (dst.flags.getType() == BidiFlag.TYPE_IMPLICIT || //@BD1
+//Commented by Heba M Naguib
+            if (dst.flags.getType() == BidiFlag.TYPE_VISUAL &&
+                dst.flags.getOrientation() == BidiFlag.ORIENTATION_RTL)
+            {
                 bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
                 bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_RTL);
             }
-            else {
-                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);
-                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_LTR);
+//Commented Heba M Naguib //@BD1
+/*            else {//@BD1
+                bdx.flags1.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
+                bdx.flags2.setOneFlag(BidiFlag.ORIENTATION_LTR);//@BD1
             }
+*/
             bdx.myShape.shape(bdx.flags1, bdx.flags2, dst.data);
         }
         return dst;
