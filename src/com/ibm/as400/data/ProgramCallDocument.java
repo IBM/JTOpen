@@ -46,11 +46,12 @@ import java.util.MissingResourceException;
 import java.util.zip.GZIPInputStream;
 
 // NEW XPCML imports for transform method
-import javax.xml.transform.TransformerFactory;                      //@E1A
-import javax.xml.transform.Transformer;                             //@E1A
-import javax.xml.transform.Source;                                  //@E1A
-import javax.xml.transform.stream.StreamSource;                     //@E1A
-import javax.xml.transform.stream.StreamResult;                     //@E1A
+//@CRS - Moved to new XPCMLHelper class.
+//@CRS import javax.xml.transform.TransformerFactory;                      //@E1A
+//@CRS import javax.xml.transform.Transformer;                             //@E1A
+//@CRS import javax.xml.transform.Source;                                  //@E1A
+//@CRS import javax.xml.transform.stream.StreamSource;                     //@E1A
+//@CRS import javax.xml.transform.stream.StreamResult;                     //@E1A
 import javax.xml.transform.TransformerException;                    //@E1A
 import javax.xml.transform.TransformerConfigurationException;       //@E1A
 import org.xml.sax.SAXException;                                    //@E1A
@@ -93,8 +94,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
     static final long serialVersionUID = -1836686444079106483L;	    // @C1A
 
-//@CRS We don't want a dependency on the XML classes in case someone wants to use
-//@CRS serialized PCML with their ProgramCallDocument.
 //@CRS    private static TransformerFactory tFactory = TransformerFactory.newInstance();
 
     private AS400 m_as400;
@@ -1396,45 +1395,6 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
 
     /**
-      doTransform -- Transforms one XML stream to another.  Inputs are transform file
-                     (.xsl file), XML input stream, and XML output stream containing
-                     transformed XML.
-     **/
-
-    //@E2C -- Change protected scope to package scope
-    static void doTransform(String transformFile, InputStream streamSource, OutputStream streamResult)
-           throws TransformerException, TransformerConfigurationException,
-           SAXException, IOException, PcmlException	
-    	{
-            StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
-            TransformerFactory tFactory = TransformerFactory.newInstance(); //@CRS
-            Transformer transformer = tFactory.newTransformer(in);
-            transformer.transform(new StreamSource(streamSource), new StreamResult(streamResult));
-      }
-
-
-    /**
-      doCondenseTransform -- Transforms one XML stream to another.  Inputs are transform file
-                     (.xsl file), full XPCML input stream, XSD stream and XML output
-                     stream containing transformed XPCML.
-     **/
-
-    //@E2C -- Change protected scope to package scope
-    static void doCondenseTransform(String transformFile, InputStream streamSource, OutputStream streamResult, String xsdStreamName)
-           throws TransformerException, TransformerConfigurationException,
-           SAXException, IOException, PcmlException	
-    	{
-            StreamSource in = new StreamSource(SystemResourceFinder.getXPCMLTransformFile(transformFile));
-            TransformerFactory tFactory = TransformerFactory.newInstance(); //@CRS
-            Transformer transformer = tFactory.newTransformer(in);
-            transformer.setParameter("xsdFileName", xsdStreamName);
-
-            StreamSource streamIn = new StreamSource(streamSource);
-            transformer.transform(streamIn, new StreamResult(streamResult));
-     }
-
-
-    /**
      Transforms a PCML stream to its equivalent XPCML stream.
      Throws an XmlException if this object contains no data.
 
@@ -1457,8 +1417,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
              throw new NullPointerException();
            }
 
-         // Transform the pcml document to its equivalent xpcml document
-           doTransform("pcml_xpcml.xsl",pcmlStream, xpcmlStream);
+           // Transform the pcml document to its equivalent xpcml document
+           XPCMLHelper.doTransform("pcml_xpcml.xsl",pcmlStream, xpcmlStream); //@CRS
       }
 
     /**
@@ -1578,9 +1538,9 @@ public class ProgramCallDocument implements Serializable, Cloneable
            ByteArrayInputStream inStream2 = new ByteArrayInputStream(outStream1.toByteArray());
 
            // Create new XSD type definitions based on full XPCML stream
-           doCondenseTransform("xpcml_xsd.xsl",inStream1, xsdStream, xpcmlName);
+           XPCMLHelper.doCondenseTransform("xpcml_xsd.xsl",inStream1, xsdStream, xpcmlName); //@CRS
            // Create condensed XPCML using XSD and full XPCML stream
-           doCondenseTransform("xpcml_basic.xsl",inStream2, condensedStream, xsdStreamName);
+           XPCMLHelper.doCondenseTransform("xpcml_basic.xsl",inStream2, condensedStream, xsdStreamName); //@CRS
 
       }
 
