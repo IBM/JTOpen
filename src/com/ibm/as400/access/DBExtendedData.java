@@ -32,6 +32,7 @@ implements DBData
     private int     offset_             = -1;
     private int     actualLength_       = -1;                               // @D0A
     private boolean dataCompressed_     = false;                            // @D0A
+    private boolean vlfCompressed_      = false;                            // @K54
 
     private int     rowCount_           = -1;
     private int     columnCount_        = -1;
@@ -42,6 +43,8 @@ implements DBData
     private int     dataOffset_         = -1;
     private int     length_             = -1;
 
+    private int     offsetToRowInformationHeader_ = -1;                 //@K54
+    private int     offsetToRowInformationArray_  = -1;                 //@K54
 
 
 /**
@@ -56,10 +59,22 @@ is called.
     }
 
 
+//@K54
+/**
+Constructs a DBExtendedData object.  Use this when overlaying
+on a reply datastream.  The cached data will be set when overlay()
+is called.
+**/
+public DBExtendedData (int actualLength, boolean dataCompressed, boolean vlfCompressed)       
+{
+    actualLength_   = actualLength;                                     
+    dataCompressed_ = dataCompressed;                                         
+    vlfCompressed_ = vlfCompressed;
+}
 
 /**
 Constructs a DBExtendedData object.  Use this when overlaying
-on a request datastrea,.  This sets the cached data so that
+on a request datastream.  This sets the cached data so that
 the total length can be calculated before calling overlay().
 **/
 	public DBExtendedData (int rowCount,
@@ -111,6 +126,32 @@ when it was not previously set by the constructor.
                 rawBytes_           = rawBytes;
                 indicatorOffset_    = offset_ + 20;
             }                                                                                   // @D0A
+            //If the variable-length fields are compressed, then we need to know where each row starts   //@K54
+            // Note:  only the data is compressed                                                       //@K54
+            //Format is:
+            // Consistency Token    4 bytes     (will match data format token for returned data, unused on parameter marker data)
+            // Row count            4 bytes     (number of rows being sent.  This must be 1 for the open function.)
+            // Column count         2 bytes     (number of columns/parameter markers in 1 row)
+            // Indicator size       2 bytes     (0 if no indicators, otherwise 2)
+            // Reserved             4 bytes
+            // Row size             4 bytes     (size of 1 row in bytes)
+            // Indicators           x bytes     (x = column count * row count * Indicator size)
+            //   *********** above remained unchanged *************
+            // Row Information Header:
+            //      Row-Information-Array-Offset        4 bytes
+            //      Number-of-rows-fetched              4 bytes
+            // <data for row 1>
+            // <data for row 2>
+            // <data for row 3>
+            // Row Information Array:
+            //      Offset-to-row-data(1)               4 bytes
+            //      Offset-to-row-data(2)               4 bytes
+            //      Offset-to-row-data(3)               4 bytes
+            if(vlfCompressed_){                                                                 //@K54
+                offsetToRowInformationHeader_ = indicatorOffset_ + (columnCount_ * rowCount_ * indicatorSize_);
+                //offset is calculated from the offset to Row Information header
+                offsetToRowInformationArray_ = offsetToRowInformationHeader_ + BinaryConverter.byteArrayToInt(rawBytes, offsetToRowInformationHeader_);
+            }
 	    }
 	    else {
             rawBytes_           = rawBytes;
@@ -183,7 +224,18 @@ when it was not previously set by the constructor.
 
 	public int getRowDataOffset (int rowIndex)
 	{
-	    return dataOffset_ + (rowIndex * rowSize_);
+            //if variable-length fields are comrpessed return row offset
+            if(vlfCompressed_)                                      //@K54
+            {
+                if((rowIndex >= rowCount_) || rowIndex < 0)                //We do not have data for that row.
+                    return -1;
+                else
+                    return offsetToRowInformationHeader_ + BinaryConverter.byteArrayToInt(rawBytes_, offsetToRowInformationArray_ + (rowIndex*4));//return rowOffset_[rowIndex];                        //@K54
+            }
+            else                                                    //@K54
+            {
+                return dataOffset_ + (rowIndex * rowSize_);
+            }
 	}
 
 
@@ -245,6 +297,15 @@ when it was not previously set by the constructor.
     }
 
 
+    //@K54
+    /*
+    Specifies if variable-length fields are compressed.
+    @return true if variable-length fields are compressed, false otherwise.
+    */
+    public boolean isVariableFieldsCompressed()
+    {
+        return vlfCompressed_;
+    }
 
 }
 

@@ -71,4 +71,6 @@ extends DBOverlay
     public abstract void setIndicator (int rowIndex, int columnIndex, int indicator)
         throws DBDataStreamException;
 
+    public abstract boolean isVariableFieldsCompressed();      //@K54
+
 }

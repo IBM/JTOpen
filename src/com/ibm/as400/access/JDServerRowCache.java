@@ -39,6 +39,8 @@ implements JDRowCache
   private int                     id_;
   private boolean                 lastBlock_;
   private DBData                  serverData_;
+  private boolean                 variableFieldCompressionSupported_ = false;   //@K54
+  private int                     bufferSize_;                                  //@K54  
 
 
 
@@ -97,6 +99,13 @@ prefetched.
     cached_         = 0;
     index_          = -1;
 
+    if(connection_.getServerFunctionalLevel() >=14 && 
+       connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION) &&
+       blockingFactor_ != 1)               //@K54    If blocking factor is one, than the result set is scrollable.
+        variableFieldCompressionSupported_ = true;                //@K54
+
+    bufferSize_ = connection_.getProperties().getInt(JDProperties.BLOCK_SIZE);  //@K54
+
     // We are before the first row.  Actually there is no data in the cache
     // when this c'tor is used so it shouldn't make any difference, but
     // we will set it to 0 just to be consistent.  When an RS is opened
@@ -137,6 +146,13 @@ prefetched.
     lastBlock_      = lastBlock;
     row_            = row;
     serverData_     = serverData;
+
+    if(connection_.getServerFunctionalLevel() >=14 &&
+       connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION) &&
+       blockingFactor_ != 1)               //@K54  If blocking factor is one, than the result set is scrollable
+        variableFieldCompressionSupported_ = true;          //@K54
+
+    bufferSize_ = connection_.getProperties().getInt(JDProperties.BLOCK_SIZE);  //@K54
 
     try
     {
@@ -228,7 +244,17 @@ Fetches a block of data from the server.
             (blockingFactor_ > 0)                            &&
             (cursorPositionOfFirstRowInCache_ >= 0))                    // @G1a
         {
-          request.setBlockingFactor (blockingFactor_);
+            if(variableFieldCompressionSupported_)   //@K54
+            {                   
+                //Do not need to set the blocking factor if using variable-length field compression
+                //If both the buffer size and blocking factor were set, the buffer size will override
+                //the blocking factor and the number of rows that will fit in the buffer size will be returned
+                //regardless of the blocking factor value                                                                                                        //@K54
+                request.setVariableFieldCompression(true);                                                                              //@K54
+                request.setBufferSize(bufferSize_ * 1024);                                                                                     //@K54
+            }                                                                                                                           //@K54
+            else                                                                                                                        //@K54
+                request.setBlockingFactor (blockingFactor_);
         }
         else
         {

@@ -112,7 +112,8 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_BIDI_NUMERIC_ORDERING", "bidiNumericOrdering"},  //@K24
       { "PROP_NAME_HOLD_STATEMENTS", "holdStatements"}, //@KBL
       { "PROP_NAME_ROLLBACK_CURSOR_HOLD", "rollbackCursorHold"},    //@K94
-
+      { "PROP_NAME_VARIABLE_FIELD_COMPRESSION", "variableFieldCompression"}, //@K54
+      
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
@@ -190,6 +191,7 @@ public class JDMRI extends ListResourceBundle
       { "BIDI_NUMERIC_ORDERING_DESC", "Specifies if the numeric ordering round trip feature should be used."}, //@K24
       { "HOLD_STATEMENTS_DESC", "Specifies if statements should remain open until a transaction boundary."}, //@KBL
       { "ROLLBACK_CURSOR_HOLD_DESC", "Specifies whether to hold cursors across a rollback."}, //@K94
+      { "VARIABLE_FIELD_COMPRESSION_DESC", "Specifies whether variable-length fields should be compressed."}, //@K54
 
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },

@@ -135,12 +135,12 @@ class JDProperties implements Serializable
     static final int              HOLD_LOCATORS           = 62;   // @KBL
     static final int              HOLD_STATEMENTS = 63;     //@KBL
     static final int              ROLLBACK_CURSOR_HOLD = 64;    //@K94
-    
+    static final int              VARIABLE_FIELD_COMPRESSION = 65;  //@K54
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 65;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 66;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94
+                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54
 
 
 
@@ -212,6 +212,7 @@ class JDProperties implements Serializable
     private static final String BIDI_NUMERIC_ORDERING_  = "bidi numeric ordering";      //@K24
     private static final String HOLD_STATEMENTS_ = "hold statements";   //@KBL
     private static final String ROLLBACK_CURSOR_HOLD_ = "rollback cursor hold";  //@K94
+    private static final String VARIABLE_FIELD_COMPRESSION_ = "variable field compression";  //@K54
 
 
 
@@ -1125,6 +1126,16 @@ class JDProperties implements Serializable
         dpi_[i].choices[0]  = TRUE_;
         dpi_[i].choices[1]  = FALSE_;
         defaults_[i]        = FALSE_;
+                
+        // Variable-Length Field Compression @K54
+        i = VARIABLE_FIELD_COMPRESSION;
+        dpi_[i] = new DriverPropertyInfo (VARIABLE_FIELD_COMPRESSION_, "");
+        dpi_[i].description = "VARIABLE_FIELD_COMPRESSION_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = FALSE_;
+        dpi_[i].choices[1]  = TRUE_;
+        defaults_[i]        = TRUE_;
     }
 
 

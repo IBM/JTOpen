@@ -1181,6 +1181,17 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         return properties_.getBoolean(JDProperties.AUTO_COMMIT);
     }
 
+    //@K54
+    /**
+    *  Indicates whether variable-length fields are compressed.
+    *  @return true if variable-length fields are compressed; false otherwise.
+    *  The default value is true.
+    **/
+    public boolean isVariableFieldCompression()
+    {
+        return properties_.getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION);
+    }
+
     //@K24
     /**
     *  Indicates whether bidi implicit reordering is used.
@@ -3263,6 +3274,30 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
         changes_.firePropertyChange(property, old, user);
 
         logProperty ("user", as400_.getUserId());
+    }
+
+    //@K54
+    /**
+    *  Specifies whether variable-length fields should be compressed. 
+    *  @param compress true if variable-length fields should be compressed; false otherwise.
+    *  The default value is true.
+    **/
+    public void setVariableFieldCompression(boolean compress)
+    {
+        String property = "variableFieldCompression";
+
+        Boolean oldValue = new Boolean(isVariableFieldCompression());
+        Boolean newValue = new Boolean(compress);
+
+        if (compress)
+            properties_.setString(JDProperties.VARIABLE_FIELD_COMPRESSION, TRUE_);
+        else
+            properties_.setString(JDProperties.VARIABLE_FIELD_COMPRESSION, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + compress);  
     }
 
     // @F1A Added the below methods to set socket options

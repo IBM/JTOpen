@@ -336,6 +336,30 @@ extends DBBaseRequestDS
     addParameter (0x3805, (byte)value);
   }
 
+  //@K54
+  /**
+    Sets the Variable Field Compression parameter in the data stream to specify whether or not Variable length fields
+    should be compressed.  By default, variable length fields are not compressed.
+    @param value the value that indicates if variable length fields should be compressed.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/    
+    void setVariableFieldCompression(int value)                                          
+    throws DBDataStreamException                                        
+    {                                                                   
+        addParameter(0x3833, (byte)value);                              
+    }
+
+//@K54
+/**
+   Sets the buffer size parameter in the data stream.  
+   @param value	the buffer size to be used on the fetch.
+   @exception DBDataStreamException If there is not enough space left in the data byte array.
+**/
+	void setBufferSize(int value)
+		throws DBDataStreamException
+	{
+		addParameter (0x3834, value);
+	}
 
 }  // End of DBSQLRPBDS class
 

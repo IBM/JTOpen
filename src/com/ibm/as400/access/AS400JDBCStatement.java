@@ -121,6 +121,7 @@ public class AS400JDBCStatement implements Statement
     int                     behaviorOverride_ = 0;    // @F9a
     private boolean     associatedWithLocators_ = false;        //@KBL set to true, if this statement was used to access a locator
     private boolean     holdStatement_ = false;                //@KBL set to true, if rpb and ors for this statement should be left open until a transaction boundary
+    private boolean     useVariableFieldCompression_ = false;    //@K54
     
     /**
     Constructs an AS400JDBCStatement object.
@@ -194,7 +195,11 @@ public class AS400JDBCStatement implements Statement
         name_ = "STMT" + idString4;
 
         if(resultSetType_ == ResultSet.TYPE_FORWARD_ONLY)    // @B1A
+        {
             cursorDefaultName_ = "CRSR" + idString4;
+            if((connection_.getServerFunctionalLevel() >= 14) && (connection_.getProperties().getBoolean(JDProperties.VARIABLE_FIELD_COMPRESSION)))   //@K54
+               useVariableFieldCompression_ = true;                                                                                                   //@K54
+        }
         else    // @B1A
             cursorDefaultName_ = "SCRSR" + idString4;    // @B1A
 
@@ -716,11 +721,23 @@ public class AS400JDBCStatement implements Statement
                     }
 
                     // If we are prefetching data and a row format
-                    // was returned, then set the blocking factor.
+                    // was returned, then set the blocking factor if a specific number of rows have been asked for
+                    // or variable-length field compression is turned off, otherwise set the buffer size.
                     if(fetchFirstBlock)
                     {
                         request.addOperationResultBitmap(DBSQLRequestDS.ORS_BITMAP_RESULT_DATA);
-                        request.setBlockingFactor(getBlockingFactor (sqlStatement, fetchFirstBlock ? resultRow.getRowLength() : 0));
+                        if((functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH) &&                     //@K54
+                           (useVariableFieldCompression_))                                                       //@K54
+                        {
+                            //Do not need to set the blocking factor if using variable-length field compression
+                            //If both the buffer size and blocking factor were set, the buffer size will override
+                            //the blocking factor and the number of rows that will fit in the buffer size will be returned
+                            //regardless of the blocking factor value
+                            request.setVariableFieldCompression(true);
+                            request.setBufferSize(blockSize_ * 1024);
+                        }
+                        else                                                    //@K54
+                            request.setBlockingFactor(getBlockingFactor (sqlStatement, resultRow.getRowLength()));    //@K54 changed to just use resultRow.getRowLength() instead of fetchFirstBlock ? resultRow.getRowLength() : 0 
                     }
 
                     //@K1D //@F8 If we are pre-V5R2, the user set the resultSetType to "TYPE_SCROLL_INSENSITIVE", or

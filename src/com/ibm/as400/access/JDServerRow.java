@@ -248,7 +248,42 @@ implements JDRow
         try
         {
             if(serverData_ != null)
+            {
                 rowDataOffset_ = serverData_.getRowDataOffset (rowIndex_);
+                if(serverData_.isVariableFieldsCompressed() && rowDataOffset_ != -1)                   //@K54
+                {                                                              //@K54
+                    int offset = 0;                                                 //@K54
+                    int numOfFields = serverFormat_.getNumberOfFields();            //@K54
+                    for(int j=0; j<numOfFields; j++)                                 //@K54
+                    {                                                               //@K54
+                        String typeName = sqlData_[j].getTypeName();                //@K54
+                        int length = 0;                                             //@K54
+                        dataOffset_[j] = offset;                                    //@K54
+                        //if it is a variable-length field, get actual size of data  //@K54
+                        if(typeName.equals("VARCHAR") ||                            //@K54
+                           typeName.equals("VARCHAR() FOR BIT DATA") ||             //@K54
+                           typeName.equals("LONG VARCHAR") ||                       //@K54
+                           typeName.equals("LONG VARCHAR FOR BIT DATA") ||          //@K54
+                           typeName.equals("VARBINARY") ||                          //@K54 
+                           typeName.equals("DATALINK"))                             //@K54
+                        {                                                           //@K54
+                            length = BinaryConverter.byteArrayToUnsignedShort(rawBytes_, rowDataOffset_ + offset);    //@K54 //get actual length of data
+                            length += 2;        //Add two bytes for length portion on datastream                                        //@K54
+                        }                                                           //@K54
+                        else if(typeName.equals("VARGRAPHIC") ||                         //@K54  graphics are two-byte characters
+                                typeName.equals("LONG VARGRAPHIC"))                           //@K54
+                        {                                                           //@K54
+                            length = (2 * BinaryConverter.byteArrayToUnsignedShort(rawBytes_, rowDataOffset_ + offset));    //@K54 //get actual length of data
+                            length += 2;        //Add two bytes for length portion on datastream                                        //@K54
+                        }
+                        else
+                            length = serverFormat_.getFieldLength (j);             //@K54 //get fixed size of data
+
+                        offset += length;                                           //@K54
+                        dataLength_[j] = length;                                    //@K54
+                    }                                                               //@K54
+                }                                                                   //@K54
+            }
             else
                 rowDataOffset_ = -1;
         }

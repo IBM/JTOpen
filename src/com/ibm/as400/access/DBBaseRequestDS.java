@@ -62,7 +62,8 @@ import java.sql.SQLException;
 //                        Bit 13: Request is RLE compressed                         @E3A
 //                        Bit 14: RLE compression reply desired                     @E3A
 //                        Bit 15: Extended column descriptors                       @F1C
-//                        Bit 16-32: Reserved                                       @E3C @F1C
+//                        Bit 16: Varying Length Column Compression                 @K54
+//                        Bit 17-32: Reserved                                       @E3C @F1C @K54
 //                Reserved Area:
 //                RTNORS:  Numeric value of the Operation Results Set
 //                         (ORS) that contains the data to be returned
@@ -217,6 +218,7 @@ extends ClientAccessDataStream
   public static final int       ORS_BITMAP_REQUEST_RLE_COMPRESSION     = 0x00080000;    // Bit 13       @E3A
   public static final int       ORS_BITMAP_REPLY_RLE_COMPRESSION       = 0x00040000;    // Bit 14       @E3A
   public static final int       ORS_BITMAP_EXTENDED_COLUMN_DESCRIPTORS = 0x00020000;    // Bit 15       @F1A    
+  public static final int       ORS_BITMAP_VARIABLE_LENGTH_FIELD_COMPRESSION = 0x00010000;  //Bit 16    @K54
 
 
 

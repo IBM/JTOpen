@@ -244,6 +244,12 @@ when it was not previously set by the constructor.
     }
 
 
+    //This will always return false, because variable-length field compression only applies
+    //to information returned in a result set for V5R3 and later servers.  This class only
+    //applies to V4R3 and previous servers.
+    public boolean isVariableFieldsCompressed(){                       //@K54
+        return false;
+    }
 
 }
 

@@ -55,7 +55,9 @@ import java.io.PrintStream;
 //                        Bit 12: Package Information
 //                        Bit 13: Request is RLE compressed                         @E2A
 //                        Bit 14: RLE compression reply desired                     @E2A
-//                        Bit 15-32: Reserved                                       @E2C
+//                        Bit 15: Extended column descriptors                       @K54
+//                        Bit 16: Varying Character Column Compression              @K54
+//                        Bit 17-32: Reserved                                       @E2C @K54
 //                Reserved Area:
 //                        Bit 1: Are indicators and data compressed?            // @D1A
 //                        Bit 2-32: Reserved                                    // @D1A
@@ -488,6 +490,8 @@ Parses the datastream.
   throws IOException                                                          // @E2A
   {                                                                               // @E2A
 
+    //Determine if the variable-length fields have been compressed.       //@K54
+    boolean vlfCompressed = ((get16bit(20) & 0x0001) ==0x0001);          //@K54
     boolean dataCompressed  = ((get32bit(24) & 0x80000000) == 0x80000000);      // @D1A
     boolean oldCompressed = (dataCompressed &&                                  // @E2A
                              (dataCompression == AS400JDBCConnection.DATA_COMPRESSION_OLD_));        // @E2A
@@ -676,7 +680,10 @@ Parses the datastream.
         case 0x380E:
           if (parmLength != 6)
           {
-            resultData_ = new DBExtendedData(parmLength, oldCompressed);           // @D1C @E2C
+              //@K54D if(vlfCompressed)                             //@K54       //Note:  oldCompressed should always be false for V5R1 systems and greater
+                  resultData_ = new DBExtendedData(parmLength, oldCompressed, vlfCompressed);       //@K54
+              //@K54D else                                          //@K54
+              //@K54D    resultData_ = new DBExtendedData(parmLength, oldCompressed);           // @D1C @E2C  @K54C
             resultData_.overlay (data_, offset + 6);
 
             // @C1D // This doubles as lob data.
