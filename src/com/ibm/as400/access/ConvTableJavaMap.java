@@ -54,18 +54,18 @@ class ConvTableJavaMap extends ConvTable
       ccsid_ = 0;
     }
 
-    try
-    {
+//@B0D    try
+//@B0D    {
       inBuffer_ = new ConvTableInputStream();
       outBuffer_ = new ByteArrayOutputStream();
-      writer_ = new OutputStreamWriter(outBuffer_, encoding_);
-      reader_ = new InputStreamReader(inBuffer_, encoding_);
-    }
-    catch(IOException e)
-    {
-      Trace.log(Trace.ERROR, "Caught IOException while instantiating converter table for encoding: "+encoding, e);
-      throw new UnsupportedEncodingException();
-    }
+//@B0D      writer_ = new OutputStreamWriter(outBuffer_, encoding_);
+//@B0D      reader_ = new InputStreamReader(inBuffer_, encoding_);
+//@B0D    }
+//@B0D    catch(IOException e)
+//@B0D    {
+//@B0D      Trace.log(Trace.ERROR, "Caught IOException while instantiating converter table for encoding: "+encoding, e);
+//@B0D      throw new UnsupportedEncodingException();
+//@B0D    }
       
     if (Trace.isTraceOn() && Trace.isTraceConversionOn())
     {
@@ -90,6 +90,10 @@ class ConvTableJavaMap extends ConvTable
       inBuffer_.setContents(buf, offset, length);
       try
       {
+        if (reader_ == null) //@B0A
+        {
+          reader_ = new InputStreamReader(inBuffer_, encoding_); //@B0A
+        }
         count = reader_.read(dest);
       }
       catch(IOException e)
@@ -98,6 +102,7 @@ class ConvTableJavaMap extends ConvTable
         {
           Trace.log(Trace.ERROR, "IOException occurred on byteArrayToString for encoding "+encoding_, e);
         }
+        reader_ = null; //@B0A
       }
       if (Trace.isTraceOn() && Trace.isTraceConversionOn())
       {
@@ -123,6 +128,10 @@ class ConvTableJavaMap extends ConvTable
       try
       {
         outBuffer_.reset();
+        if (writer_ == null) //@B0A
+        {
+          writer_ = new OutputStreamWriter(outBuffer_, encoding_); //@B0A
+        }
         writer_.write(source);
         writer_.flush();
       }
@@ -132,6 +141,7 @@ class ConvTableJavaMap extends ConvTable
         {
           Trace.log(Trace.ERROR, "IOException occurred on stringToByteArray for encoding "+encoding_, e);
         }
+        writer_ = null; //@B0A
       }
       ret = outBuffer_.toByteArray();
       if (Trace.isTraceOn() && Trace.isTraceConversionOn())
