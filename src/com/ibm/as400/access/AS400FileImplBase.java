@@ -184,7 +184,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (InvocationTargetException e)
     {
-      throw ProxyClientConnection.rethrow4a(e);
+      throw rethrow(e);
     }
     catch (Exception e2)
     {
@@ -192,6 +192,34 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         Trace.log(Trace.ERROR, e2.toString(), e2);
       throw new InternalErrorException(InternalErrorException.PROTOCOL_ERROR);
     }
+  }
+
+  // Rethrows exceptions returned as InvocationTargetExceptions.  This provides some common exception handling.
+  // @param  e  The InvocationTargetException.
+  // @return  An InternalErrorException if the exception is not known.
+  // @throws  The exception.
+  public static InternalErrorException rethrow(InvocationTargetException e) throws AS400Exception, AS400SecurityException, InterruptedException, IOException
+  {
+    Throwable e2 = e.getTargetException();
+    if (e2 instanceof AS400Exception) {
+      throw (AS400Exception)e2;
+    }
+    else if (e2 instanceof InterruptedException) {
+      throw (InterruptedException)e2;
+    }
+    else if (e2 instanceof AS400SecurityException) {
+      throw (AS400SecurityException)e2;
+    }
+    else if (e2 instanceof IOException) {
+      throw (IOException)e2;
+    }
+    else if (e2 instanceof RuntimeException) {
+      throw (RuntimeException)e2;
+    }
+    else if (e2 instanceof Error) {
+      throw (Error)e2;
+    }
+    else return new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
   }
 
   public void doItNoExceptions(String methodName, Class[] classes, Object[] objects)
@@ -217,7 +245,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (InvocationTargetException e)
     {
-      throw ProxyClientConnection.rethrow4a(e);
+      throw rethrow(e);
     }
     catch (Exception e2)
     {
@@ -236,7 +264,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (InvocationTargetException e)
     {
-      throw ProxyClientConnection.rethrow4a(e);
+      throw rethrow(e);
     }
     catch (Exception e2)
     {
@@ -256,7 +284,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
     catch (InvocationTargetException e)
     {
-      throw ProxyClientConnection.rethrow4a(e);
+      throw rethrow(e);
     }
     catch (Exception e2)
     {
