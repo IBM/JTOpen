@@ -1539,7 +1539,7 @@ public class AS400JDBCDataSource implements DataSource, Referenceable, Serializa
     **/
     public void setTrueAutoCommit(boolean value)
     {
-        String property = "autoCommit";
+        String property = "trueAutoCommit";
         Boolean oldValue = new Boolean(isTrueAutoCommit());
         Boolean newValue = new Boolean(value);
 

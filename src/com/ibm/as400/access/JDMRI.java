@@ -106,7 +106,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_TRANSLATE_HEX", "translateHex" },                // @M0A
       { "PROP_NAME_QAQQINILIB", "qaqqiniLibrary" },                 // @K2A
       { "PROP_NAME_LOGIN_TIMEOUT", "loginTimeout" },                // @K4A
-      { "PROP_NAME_AUTO_COMMIT", "autoCommit"},                     // @KBA
+      { "PROP_NAME_AUTO_COMMIT", "trueAutoCommit"},                     // @KBA
       { "PROP_NAME_BIDI_IMPLICIT_REORDERING", "bidiImplicitReordering"}, //@K24
       { "PROP_NAME_BIDI_NUMERIC_ORDERING", "bidiNumericOrdering"},  //@K24
 

@@ -482,7 +482,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             translateHex.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_HEX_DESC"));                //@K5C
 
             // @KBA - added support for true auto commit
-            PropertyDescriptor autoCommit = new PropertyDescriptor("autoCommit", beanClass, "isTrueAutoCommit", "setTrueAutoCommit");   //@KBA
+            PropertyDescriptor autoCommit = new PropertyDescriptor("trueAutoCommit", beanClass, "isTrueAutoCommit", "setTrueAutoCommit");   //@KBA
             autoCommit.setBound(true);                                                                      //@KBA
             autoCommit.setConstrained(false);                                                               //@KBA
             autoCommit.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTO_COMMIT"));                //@KBA
