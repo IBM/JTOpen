@@ -398,10 +398,23 @@ public class FileListRenderer
             }
         }
 
+        // This vector is used for sorting.
+        Vector v;                                                                     // @B5A
+
         if (dirList != null)                                                           // @A6A  // @B3C
         {
             if (sort)                                                                    // @A2A
-                HTMLTree.sort2(collator, dirList);                          // @A2A  @B3C
+            {
+                v = new Vector();                                                 // @B5A
+                for (int i=0; i<dirList.length; i++)                             // @B5A                                    
+                {                                                                        // @B5A
+                    v.addElement(dirList[i]);                                    // @B5A                                    
+                }                                                                        // @B5A
+                
+                HTMLTree.sort(collator, v);                          // @A2A  @B3C  @B5C
+
+                v.copyInto(dirList);                                               // @B5A
+            }
 
             //$A1A
             for (int i=0; i<dirList.length; i++)
@@ -430,7 +443,17 @@ public class FileListRenderer
         if (fileList != null)                                                            // @A6A  // @B3C
         {
             if (sort)                                                                     // @A2A
-                HTMLTree.sort2(collator, fileList);                           // @A2A    @B3C
+            {
+                v = new Vector();                                                  // @B5A
+                for (int i=0; i<fileList.length; i++)                             // @B5A                                    
+                {                                                                         // @B5A
+                    v.addElement(fileList[i]);                                    // @B5A                                    
+                }                                                                         // @B5A
+                
+                HTMLTree.sort(collator, v);                           // @A2A    @B3C      @B5C
+
+                v.copyInto(fileList);                                               // @B5A
+            }
 
             for (int i=0; i<fileList.length; i++)
             {

@@ -488,33 +488,11 @@ public class HTMLTree implements HTMLTagElement, java.io.Serializable
      *
      *  @return The sorted Vector.
      **/
-    static Vector sort (Collator collator, Vector list)                                                // @A1A  @B2C
+    public static Vector sort (Collator collator, Vector list)                                                // @A1A  @B2C    @B4C
     {
         heapSort(collator, list);                                                                             // @B2A
 
         return list;
-    }
-
-
-    /**
-    *  Sorts an array of objects.
-    *
-    *  @param  collaotr The Collator, or null if the default Collator should be used.
-    *  @param  objects The objects.
-    **/
-    static void sort2 (Collator collator, Object[] objects)                                            // @A1A       @B2C
-    {
-        Vector v = new Vector();                                                                             // @B2C
-
-        for (int i=0; i<objects.length; i++)                                                                 // @B2C
-        {
-            // @B2C                
-            v.addElement(objects[i]);                                                                        // @B2C
-        }                                                                                                              // @B2C
-
-        heapSort(collator, v);                                                                                 // @B2C
-
-        v.copyInto(objects);                                                                                   // @B2C
     }
 
 
