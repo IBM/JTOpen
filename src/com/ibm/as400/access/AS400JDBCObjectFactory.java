@@ -23,6 +23,30 @@ import javax.naming.spi.ObjectFactory; // JNDI
 *  The AS400JDBCObjectFactory is used by a JNDI service provider to reconstruct an object
 *  when it is retrieved from JNDI.
 *
+*  <p>When constructing your own Reference object, at a minimum, you should set the serverName,
+*  userName and pwd properties.  
+*  
+*  <p>For Example:        
+*  <pre><blockquote>
+*  XADataSource xads = null; 
+*  String objFactoryName = "com.ibm.as400.access.AS400JDBCObjectFactory";
+*  String xadsName = "com.ibm.as400.access.AS400JDBCXADataSource";
+*  Reference ref = new Reference(xadsName, objFactoryName, "");
+*  ref.add(new StringRefAddr("serverName", "someserver"));
+*  ref.add(new StringRefAddr("userName", "someuser"));
+*  ref.add(new StringRefAddr("pwd", "somepassword"));
+*  ref.add(new StringRefAddr("secure", "false"));
+*  ref.add(new StringRefAddr("trace", "true"));
+*  try {
+*      ObjectFactory objectFactory = (ObjectFactory)Class.forName(objFactoryName).newInstance();
+*      xads = (XADataSource)objectFactory.getObjectInstance(ref, null, null, null);
+*      XAConnection xacon = xads.getXAConnection();
+*      Connection con = xacon.getConnection();
+*  } catch (Exception ex) {
+*      ex.printStackTrace();
+*      System.err.println("Exception caught: " + ex);
+*  }
+*  </blockquote></pre>
 *  The following classes implement the javax.naming.Referenceable interface.
 *  @see com.ibm.as400.access.AS400JDBCDataSource
 *  @see com.ibm.as400.access.AS400JDBCConnectionPoolDataSource
