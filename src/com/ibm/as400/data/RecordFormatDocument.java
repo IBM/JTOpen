@@ -791,7 +791,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
         catch (PcmlSpecificationException pse)
         {
             pse.reportErrors();
-            throw new XmlException(pse); // TBD: MRI refers to PCML.
+            throw new XmlException(pse); // Note: MRI refers to PCML.
         }
         catch (IOException ioe)
         {
@@ -1227,6 +1227,10 @@ public class RecordFormatDocument implements Serializable, Cloneable
 
       // Feed the bytes to the node.
       int bytesConsumed = recFormatNode.parseBytes(values);
+      if (bytesConsumed < values.length)
+      {
+        throw new XmlException(DAMRI.EXCESS_INPUT_DATA, new Object[] {Integer.toString(bytesConsumed), Integer.toString(values.length), "<recordformat>", m_rfmlDoc_.getNameForException()} );
+      }
     }
 
 
