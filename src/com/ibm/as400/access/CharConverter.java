@@ -23,7 +23,7 @@ import java.io.UnsupportedEncodingException;
   they did not accept an AS400 system object as an argument. Due to recent changes in 
   the behavior of the character conversion routines, this system object is no longer
   necessary.
-  @see com.ibm.as400.AS400Text
+  @see com.ibm.as400.access.AS400Text
  **/
 public class CharConverter implements Serializable
 {
