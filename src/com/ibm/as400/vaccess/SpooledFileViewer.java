@@ -108,7 +108,7 @@ in order to diagnose and recover from error conditions.
 (To create new spooled files on the AS/400, use the
 <b>SpooledFileOutputStream</b> class.
 
-See <a href="../../../../SpooledFileAttrs.html">Spooled File Attributes</a> for
+See <a href="doc-files/SpooledFileAttrs.html">Spooled File Attributes</a> for
 valid attributes.)
 
 <p>The following example creates a spooled file viewer
