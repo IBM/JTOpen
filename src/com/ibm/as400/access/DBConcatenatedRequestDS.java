@@ -111,18 +111,20 @@ Write the datastream.
         // since its used mostly for close requests, so it is still
         // beneficial.
         //
-        ByteArrayOutputStream concatented = new ByteArrayOutputStream();
-        for(int i = 0; i < count_; ++i) {
-            requests_[i].write(concatented);
+        ByteArrayOutputStream concatenated = new ByteArrayOutputStream();
+        for(int i = 0; i < countMinusOne_; ++i) //@P1C - Don't mark the last one free yet...
+        {
+            requests_[i].write(concatenated);
             requests_[i].inUse_ = false; //@P1A
         }
+        requests_[countMinusOne_].write(concatenated); //@P1A - ...the caller will mark it free, we just write it.
                                                 
         synchronized(out)                                     // @W1a
         {                                                     // @W1a
-           out.write(concatented.toByteArray());
+           out.write(concatenated.toByteArray());
            out.flush();       
         }                                                     // @W1a
-        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", concatented.toByteArray()); //@A1A @P0C
+        if (Trace.traceOn_) Trace.log(Trace.DATASTREAM, "Data stream sent...", concatenated.toByteArray()); //@A1A @P0C
 	}
 
 
