@@ -26,4 +26,5 @@
 # spread out over the entire source repository.
 
 access -a src/com/ibm/as400/access
+qcdemo -a demos/qcdemo
 
