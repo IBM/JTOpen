@@ -452,7 +452,7 @@ specific AS/400 native type identifier.
             return new SQLBlob (length - 4, settings);          // @D1C
 
         case 408:                           // Clob.
-            if ((ccsid == -1) && (translateBinary == false))
+            if ((ccsid == 65535) && (translateBinary == false))	  //@E4C
                 return new SQLBlob (length - 4, settings);      // @D1C
             else
                 return new SQLClob (length - 4, false, settings); // @D1C @E1C
@@ -461,19 +461,19 @@ specific AS/400 native type identifier.
             return new SQLClob (length - 4, true, settings);    // @D1C
 
         case 448:                           // Varchar.
-            if ((ccsid == -1) && (translateBinary == false))
+            if ((ccsid == 65535) && (translateBinary == false))   //@E4C
                 return new SQLVarbinary (length - 2, false, settings);
             else
                 return new SQLVarchar (length - 2, false, false, settings);
 
         case 456:                           // Varchar long.
-            if ((ccsid == -1) && (translateBinary == false))
+            if ((ccsid == 65535) && (translateBinary == false))    //@E4C
                 return new SQLVarbinary (length - 2, true, settings);
             else
                 return new SQLVarchar (length - 2, false, true, settings);
 
         case 452:                           // Char.
-            if ((ccsid == -1) && (translateBinary == false))
+            if ((ccsid == 65535) && (translateBinary == false))    //@E4C
                 return new SQLBinary (length, settings);
             else
                 return new SQLChar (length, false, settings);
@@ -518,7 +518,7 @@ specific AS/400 native type identifier.
             return new SQLBlobLocator (connection, id, lobMaxSize, settings);
 
         case 964:                           // Clob locator.
-            if ((ccsid == -1) && (translateBinary == false))
+            if ((ccsid == 65535) && (translateBinary == false))               //@E4C
                 return new SQLBlobLocator (connection, id, lobMaxSize, settings); 
             else
                 return new SQLClobLocator (connection, id, lobMaxSize, false, settings, connection.getConverter(ccsid)); // @E1C
