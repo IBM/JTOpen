@@ -96,6 +96,24 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
 //@CRS    private static TransformerFactory tFactory = TransformerFactory.newInstance();
 
+    /**
+     * Constant indicating a serialized PCML or XPCML document is being streamed.
+     * @see #ProgramCallDocument(AS400,String,InputStream,ClassLoader,InputStream,int)
+    **/
+    public static final int SERIALIZED = 0;
+
+    /**
+     * Constant indicating a source PCML document is being streamed.
+    * @see #ProgramCallDocument(AS400,String,InputStream,ClassLoader,InputStream,int)
+    **/
+    public static final int SOURCE_PCML = 1;
+
+    /**
+     * Constant indicating a source XPCML document is being streamed.
+    * @see #ProgramCallDocument(AS400,String,InputStream,ClassLoader,InputStream,int)
+    **/
+    public static final int SOURCE_XPCML = 2;
+
     private AS400 m_as400;
     private PcmlDocument m_pcmlDoc;
 
@@ -193,6 +211,50 @@ public class ProgramCallDocument implements Serializable, Cloneable
 
         m_pcmlDoc = loadPcmlDocument(docName, loader,xsdStream);      // @C8A
         m_pcmlDoc.setAs400(m_as400);                        // @C8A
+    }
+
+  /**
+    Constructs a <code>ProgramCallDocument</code>.
+    The XPCML document resource will be loaded from the classpath and parsed using
+    the XML schema definitions provided in the input XSD stream.
+    @param sys The AS400 on which to run the program.
+    @param docName The document resource name of the PCML document for the programs to be called.
+    @param docStream The InputStream from which to read the contents of the document.
+    @param loader The ClassLoader that will be used when loading the DTD for PCML. This parameter can be null.
+    @param xsdStream An input stream that contains XML schema definitions that extend XPCML
+    The resource name can be a package qualified name. For example, "com.myCompany.myPackage.myPcml".  This parameter can be null.
+    @param isXPCML The type of data contained in docStream. Possible values are:
+    <UL>
+    <LI>ProgramCallDocument.SERIALIZED - The docStream contains a serialized PCML or XPCML document.
+    <LI>ProgramCallDocument.SOURCE_PCML - The docStream contains a PCML document.
+    <LI>ProgramCallDocument.SOURCE_XPCML - The docStream contains an XPCML document.
+    </UL>
+    @exception PcmlException when the specified PCML document cannot be found
+    @see com.ibm.as400.access.AS400
+    */
+     public ProgramCallDocument(AS400 sys, String docName, InputStream docStream, ClassLoader loader, InputStream xsdStream, int type)
+    	throws PcmlException
+   	{
+        m_as400 = sys;
+
+        if (type == ProgramCallDocument.SERIALIZED)
+        {
+          m_pcmlDoc = loadSerializedPcmlDocumentFromStream(docStream);
+        }
+        else if (type == ProgramCallDocument.SOURCE_PCML)
+        {
+          m_pcmlDoc = loadSourcePcmlDocumentFromStream(docName, docStream, loader, xsdStream, false);
+        }
+        else if (type == ProgramCallDocument.SOURCE_XPCML)
+        {
+          m_pcmlDoc = loadSourcePcmlDocumentFromStream(docName, docStream, loader, xsdStream, true);
+        }
+        else
+        {
+          throw new IllegalArgumentException("type");
+        }
+
+        m_pcmlDoc.setAs400(m_as400);
     }
 
      /**
@@ -1118,6 +1180,64 @@ public class ProgramCallDocument implements Serializable, Cloneable
 		pd = loadSourcePcmlDocument(docName, loader, xsdStream);                   // @C8C
 
         return pd;
+    }
+
+    private static PcmlDocument loadSerializedPcmlDocumentFromStream(InputStream docStream)
+        throws PcmlException
+    {
+        PcmlDocument pd = null;
+
+        try
+        {
+            // Try to open the serialized PCML document
+            ObjectInputStream in = new ObjectInputStream(docStream);
+            pd = (PcmlDocument)in.readObject();
+            in.close();
+        }
+        catch (Exception e)
+        {
+          if (Trace.isTraceErrorOn())
+             e.printStackTrace(Trace.getPrintWriter());
+          throw new PcmlException(e.getClass().getName());
+        }
+
+        return pd;
+    }
+
+    private static PcmlDocument loadSourcePcmlDocumentFromStream(String docName, InputStream docStream, ClassLoader loader, InputStream xsdStream, boolean isXPCML) throws PcmlException
+    {
+      PcmlDocument pd = null;
+
+      // Construct the PCML document from a source file
+      try
+      {
+          PcmlSAXParser psp = new PcmlSAXParser(docName, docStream, loader, xsdStream, isXPCML);
+          pd = psp.getPcmlDocument();
+      }
+      catch (ParseException pe)
+      {
+          pe.reportErrors();
+          throw new PcmlException(pe.getClass().getName());
+      }
+      catch (PcmlSpecificationException pse)
+      {
+          pse.reportErrors();
+          throw new PcmlException(pse.getClass().getName());
+      }
+      catch (IOException ioe)
+      {
+          if (Trace.isTraceErrorOn())
+             ioe.printStackTrace(Trace.getPrintWriter());
+          throw new PcmlException(ioe.getClass().getName());
+      }
+      catch (Exception e)
+      {
+        if (Trace.isTraceErrorOn())
+           e.printStackTrace(Trace.getPrintWriter());
+        throw new PcmlException(e.getClass().getName());
+      }
+
+      return pd;
     }
 
     /**
